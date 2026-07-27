@@ -370,8 +370,32 @@ def run_semantic_resolution_agent(
             reason="Semantic Resolution Agent rendered input budget exceeded",
         )
     registry = {tool.name: tool for tool in tools}
-    model = tool_model_factory(tools)
-    first = model.invoke(messages, phase="select_tool")
+    try:
+        model = tool_model_factory(tools)
+    except Exception as exc:
+        return _blocked(
+            task=task,
+            binding=binding,
+            model_calls=model_calls,
+            traces=traces,
+            reason=sanitize_text(
+                f"Semantic Resolution Agent model construction failed: "
+                f"{type(exc).__name__}: {exc}"
+            ),
+        )
+    try:
+        first = model.invoke(messages, phase="select_tool")
+    except Exception as exc:
+        return _blocked(
+            task=task,
+            binding=binding,
+            model_calls=model_calls,
+            traces=traces,
+            reason=sanitize_text(
+                f"Semantic Resolution Agent provider failed: "
+                f"{type(exc).__name__}: {exc}"
+            ),
+        )
     model_calls.append(first.record)
     if first.record.error:
         return _blocked(
@@ -544,7 +568,19 @@ def run_semantic_resolution_agent(
             traces=traces,
             reason="Semantic Resolution Agent rendered input budget exceeded",
         )
-    second = model.invoke(final_messages, phase="final_answer")
+    try:
+        second = model.invoke(final_messages, phase="final_answer")
+    except Exception as exc:
+        return _blocked(
+            task=task,
+            binding=binding,
+            model_calls=model_calls,
+            traces=traces,
+            reason=sanitize_text(
+                f"Semantic Resolution Agent provider failed: "
+                f"{type(exc).__name__}: {exc}"
+            ),
+        )
     model_calls.append(second.record)
     if second.record.error:
         return _blocked(

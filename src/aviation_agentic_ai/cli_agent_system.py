@@ -134,6 +134,11 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
         model_invoker_factory=lambda: make_live_model_invoker(
             catalog_path=DEFAULT_PROMPT_CATALOG
         ),
+        semantic_resolution_tool_model_factory=lambda tools: make_live_tool_calling_model(
+            tools=tools,
+            role="semantic_resolution",
+            catalog_path=DEFAULT_PROMPT_CATALOG,
+        ),
         kg_tool_model_factory=lambda tools: make_live_tool_calling_model(
             tools=tools,
             role="knowledge_graph_construction",

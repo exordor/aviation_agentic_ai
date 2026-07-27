@@ -51,7 +51,9 @@ from aviation_agentic_ai.agent_system.decision_case_contracts import (
     ResolutionCandidateAudit,
     ResolutionDecision,
     ResolutionDomainOutcome,
+    ResolutionProposal,
     ResolutionProposalFields,
+    ResolutionTask,
     ResolutionTaskFields,
     canonical_id_tuple_token,
     canonicalize_contract_value,
@@ -61,6 +63,9 @@ from aviation_agentic_ai.agent_system.decision_case_contracts import (
 )
 from aviation_agentic_ai.agent_system.prompts import assemble_prompt
 from aviation_agentic_ai.agent_system.schema_guide import SchemaGuide
+from aviation_agentic_ai.agent_system.semantic_resolution import (
+    run_semantic_resolution_agent,
+)
 
 # A model invoker takes (agent_role, template_variables) and returns a
 # ModelCallRecord. The invoker is responsible for assembling the frozen
@@ -411,6 +416,9 @@ class CompatibilityResolutionResult:
     agent_result: AgentResult
     domain_outcome: ResolutionDomainOutcome
     authority_source_records: tuple[SourceRecord, ...]
+    resolution_task: ResolutionTask
+    resolution_proposal: ResolutionProposal
+    resolution_tool_traces: tuple[ToolTraceEntry, ...] = ()
 
 
 def _compatibility_requested(candidates: FacilityCandidates | TermCandidates) -> bool:
@@ -612,6 +620,8 @@ def _terminal_compatibility_result(
             error_id=error_id,
         ),
         authority_source_records=(),
+        resolution_task=sealed_task,
+        resolution_proposal=proposal,
     )
 
 
@@ -709,6 +719,7 @@ def _resolve_compatibility_validated(
     task: AgentTask,
     candidates: FacilityCandidates | TermCandidates,
     domain: str,
+    semantic_resolution_tool_model_factory: ToolModelFactory | None = None,
 ) -> CompatibilityResolutionResult:
     """Audit authority candidates and deterministically map one bounded result."""
 
@@ -911,6 +922,7 @@ def _resolve_compatibility_validated(
         domain_reason = "ADVISORY_EVIDENCE_MISSING"
 
     eligible = [candidate for candidate in validated_candidates if candidate.eligible]
+    model_mediated = False
     if domain_status is CandidateBuildStatus.INSUFFICIENT:
         decision = ResolutionDecision.INSUFFICIENT
         selected = None
@@ -920,9 +932,10 @@ def _resolve_compatibility_validated(
         selected = eligible[0]
         limitation = None
     elif len(eligible) > 1:
-        decision = ResolutionDecision.ABSTAINED
+        decision = None
         selected = None
-        limitation = "MODEL_MEDIATED_RESOLUTION_DEFERRED_BATCH_B"
+        limitation = None
+        model_mediated = True
     else:
         decision = ResolutionDecision.INSUFFICIENT
         selected = None
@@ -944,9 +957,13 @@ def _resolve_compatibility_validated(
     authority_source_ids = tuple(sorted({row.source_id for row in evidence}))
     rejected_ids = tuple(
         sorted(
-            audit.candidate_id
-            for audit in ordered_audits
-            if selected is None or audit.candidate_id != selected.candidate_id
+            candidate.candidate_id
+            for candidate in ordered_candidates
+            if (
+                not candidate.eligible
+                if model_mediated
+                else selected is None or candidate.candidate_id != selected.candidate_id
+            )
         )
     )
     task_id = stable_contract_id(
@@ -991,52 +1008,80 @@ def _resolve_compatibility_validated(
             schema_slice_id=candidates.schema_slice_id,
             schema_snapshot_sha256=candidates.schema_snapshot_sha256,
             rejected_candidate_ids=rejected_ids,
-            remaining_tool_budget=0,
+            remaining_tool_budget=3 if model_mediated else 0,
             decision=decision,
         ),
         binding=binding,
     )
-    support_ids = (
-        tuple(sorted(selected.authority_evidence_ids)) if selected else ()
-    )
-    support_sources = tuple(
-        sorted(
-            {
-                row.source_id
-                for row in evidence
-                if row.evidence_id in support_ids
-            }
+    model_calls: tuple[ModelCallRecord, ...] = ()
+    resolution_tool_traces: tuple[ToolTraceEntry, ...] = ()
+    failure_reason: str | None = None
+    if model_mediated:
+        semantic_result = run_semantic_resolution_agent(
+            task=sealed_task,
+            binding=binding,
+            tool_model_factory=semantic_resolution_tool_model_factory,
         )
-    )
-    proposal_id = stable_contract_id(
-        "resolution-proposal",
-        task_id,
-        decision.value,
-        selected.candidate_id if selected else "NONE",
-        canonical_id_tuple_token(rejected_ids, sort_values=True),
-        canonical_id_tuple_token(support_ids, sort_values=True),
-    )
-    proposal = seal_resolution_proposal(
-        task=sealed_task,
-        fields=ResolutionProposalFields(
-            resolution_proposal_id=proposal_id,
-            run_id=task.run_id,
-            task_id=task_id,
-            task_payload_checksum=sealed_task.payload_checksum,
-            event_id=candidates.resolution_event_id,
-            mention=candidates.mention,
-            structural_slot=candidates.structural_slot,
-            expected_entity_type=candidates.expected_entity_type,
-            selected_candidate_id=selected.candidate_id if selected else None,
-            rejected_candidate_ids=rejected_ids,
-            decision=decision,
-            supporting_evidence_claim_ids=support_ids,
-            authority_source_ids=support_sources,
-            tool_trace_ids=(),
-            limitation=limitation,
-        ),
-        binding=binding,
-    )
+        proposal = semantic_result.proposal
+        decision = proposal.decision
+        limitation = proposal.limitation
+        selected = next(
+            (
+                row
+                for row in eligible
+                if row.candidate_id == proposal.selected_candidate_id
+            ),
+            None,
+        )
+        model_calls = semantic_result.model_calls
+        resolution_tool_traces = semantic_result.tool_traces
+        failure_reason = semantic_result.failure_reason
+    else:
+        assert decision is not None
+        support_ids = (
+            tuple(sorted(selected.authority_evidence_ids)) if selected else ()
+        )
+        support_sources = tuple(
+            sorted(
+                {
+                    row.source_id
+                    for row in evidence
+                    if row.evidence_id in support_ids
+                }
+            )
+        )
+        proposal_id = stable_contract_id(
+            "resolution-proposal",
+            task_id,
+            decision.value,
+            selected.candidate_id if selected else "NONE",
+            canonical_id_tuple_token(rejected_ids, sort_values=True),
+            canonical_id_tuple_token(support_ids, sort_values=True),
+        )
+        proposal = seal_resolution_proposal(
+            task=sealed_task,
+            fields=ResolutionProposalFields(
+                resolution_proposal_id=proposal_id,
+                run_id=task.run_id,
+                task_id=task_id,
+                task_payload_checksum=sealed_task.payload_checksum,
+                event_id=candidates.resolution_event_id,
+                mention=candidates.mention,
+                structural_slot=candidates.structural_slot,
+                expected_entity_type=candidates.expected_entity_type,
+                selected_candidate_id=selected.candidate_id if selected else None,
+                rejected_candidate_ids=rejected_ids,
+                decision=decision,
+                supporting_evidence_claim_ids=support_ids,
+                authority_source_ids=support_sources,
+                tool_trace_ids=(),
+                limitation=limitation,
+            ),
+            binding=binding,
+        )
+
+    if decision is ResolutionDecision.ACCEPTED and selected is None:
+        raise ValueError("accepted semantic resolution did not retain its candidate")
 
     legacy_status = (
         AgentStatus.RESOLVED
@@ -1086,7 +1131,16 @@ def _resolve_compatibility_validated(
         ),
     )
     return CompatibilityResolutionResult(
-        agent_result=AgentResult(status=legacy_status, evidence_card=card),
+        agent_result=AgentResult(
+            status=legacy_status,
+            evidence_card=card,
+            model_calls=list(model_calls),
+            failure_reason=(
+                failure_reason or limitation
+                if decision is ResolutionDecision.BLOCKED
+                else None
+            ),
+        ),
         domain_outcome=ResolutionDomainOutcome(
             domain=domain,
             required_for_case=True,
@@ -1095,11 +1149,23 @@ def _resolve_compatibility_validated(
             task_payload_checksum=sealed_task.payload_checksum,
             resolution_proposal_id=proposal.resolution_proposal_id,
             limitation_code=limitation,
-            error_id=None,
+            error_id=(
+                stable_contract_id(
+                    "resolution-error",
+                    task.run_id,
+                    domain,
+                    limitation or "SEMANTIC_RESOLUTION_BLOCKED",
+                )
+                if decision is ResolutionDecision.BLOCKED
+                else None
+            ),
         ),
         authority_source_records=tuple(
             sorted(authority_records, key=lambda row: row.source_id)
         ),
+        resolution_task=sealed_task,
+        resolution_proposal=proposal,
+        resolution_tool_traces=resolution_tool_traces,
     )
 
 
@@ -1108,12 +1174,16 @@ def _resolve_compatibility(
     task: AgentTask,
     candidates: FacilityCandidates | TermCandidates,
     domain: str,
+    semantic_resolution_tool_model_factory: ToolModelFactory | None = None,
 ) -> CompatibilityResolutionResult:
     try:
         return _resolve_compatibility_validated(
             task=task,
             candidates=candidates,
             domain=domain,
+            semantic_resolution_tool_model_factory=(
+                semantic_resolution_tool_model_factory
+            ),
         )
     except (AssertionError, TypeError, ValueError):
         return _blocked_compatibility_result(
@@ -1128,11 +1198,13 @@ def _resolve_facility_compatibility(
     *,
     task: AgentTask,
     candidates: FacilityCandidates,
+    semantic_resolution_tool_model_factory: ToolModelFactory | None = None,
 ) -> CompatibilityResolutionResult:
     return _resolve_compatibility(
         task=task,
         candidates=candidates,
         domain="facility",
+        semantic_resolution_tool_model_factory=semantic_resolution_tool_model_factory,
     )
 
 
@@ -1271,11 +1343,13 @@ def _resolve_terminology_compatibility(
     *,
     task: AgentTask,
     candidates: TermCandidates,
+    semantic_resolution_tool_model_factory: ToolModelFactory | None = None,
 ) -> CompatibilityResolutionResult:
     return _resolve_compatibility(
         task=task,
         candidates=candidates,
         domain="terminology",
+        semantic_resolution_tool_model_factory=semantic_resolution_tool_model_factory,
     )
 
 

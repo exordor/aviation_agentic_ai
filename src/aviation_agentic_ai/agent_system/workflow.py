@@ -204,6 +204,7 @@ class IngestContext:
     guide: SchemaGuide | None = None
     model_invoker: ModelInvoker | None = None
     model_invoker_factory: ModelInvokerFactory | None = None
+    semantic_resolution_tool_model_factory: ToolModelFactory | None = None
     kg_tool_model_factory: ToolModelFactory | None = None
     authority_catalog: LoadedAuthorityCatalog | None = None
     run_started_at: datetime | None = None
@@ -226,6 +227,12 @@ class IngestState(TypedDict):
     terminology_result: Any
     facility_resolution_outcome: Any
     terminology_resolution_outcome: Any
+    facility_resolution_task: Any
+    facility_resolution_proposal: Any
+    facility_resolution_tool_traces: Any
+    terminology_resolution_task: Any
+    terminology_resolution_proposal: Any
+    terminology_resolution_tool_traces: Any
     authority_source_records: Annotated[
         AuthoritySourceRecordRegistry,
         merge_authority_source_records,
@@ -502,12 +509,20 @@ def _facility_node(state: dict) -> dict:
         authority_domain_error_id=domain_error,
         authority_candidate_results=built,
     )
-    compatibility = _resolve_facility_compatibility(task=task, candidates=cands)
+    resolution_kwargs = {"task": task, "candidates": cands}
+    if ctx.semantic_resolution_tool_model_factory is not None:
+        resolution_kwargs["semantic_resolution_tool_model_factory"] = (
+            ctx.semantic_resolution_tool_model_factory
+        )
+    compatibility = _resolve_facility_compatibility(**resolution_kwargs)
     result = compatibility.agent_result
     # model_calls uses an additive reducer so parallel branches can each contribute.
     return {
         "facility_result": result,
         "facility_resolution_outcome": compatibility.domain_outcome,
+        "facility_resolution_task": compatibility.resolution_task,
+        "facility_resolution_proposal": compatibility.resolution_proposal,
+        "facility_resolution_tool_traces": compatibility.resolution_tool_traces,
         "authority_source_records": _authority_source_registry(
             compatibility.authority_source_records
         ),
@@ -630,11 +645,19 @@ def _terminology_node(state: dict) -> dict:
         authority_domain_error_id=domain_error,
         authority_candidate_results=built,
     )
-    compatibility = _resolve_terminology_compatibility(task=task, candidates=cands)
+    resolution_kwargs = {"task": task, "candidates": cands}
+    if ctx.semantic_resolution_tool_model_factory is not None:
+        resolution_kwargs["semantic_resolution_tool_model_factory"] = (
+            ctx.semantic_resolution_tool_model_factory
+        )
+    compatibility = _resolve_terminology_compatibility(**resolution_kwargs)
     result = compatibility.agent_result
     return {
         "terminology_result": result,
         "terminology_resolution_outcome": compatibility.domain_outcome,
+        "terminology_resolution_task": compatibility.resolution_task,
+        "terminology_resolution_proposal": compatibility.resolution_proposal,
+        "terminology_resolution_tool_traces": compatibility.resolution_tool_traces,
         "authority_source_records": _authority_source_registry(
             compatibility.authority_source_records
         ),

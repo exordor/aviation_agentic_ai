@@ -8,6 +8,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import aviation_agentic_ai.agent_system.agents as agents_module
+from langchain_core.messages import AIMessage
 from aviation_agentic_ai.agent_system.agents import (
     FacilityCandidates,
     TermCandidates,
@@ -30,10 +31,12 @@ from aviation_agentic_ai.agent_system.contracts import (
     GraphPatchLine,
     GraphValidationResult,
     ModelCallRecord,
+    ModelToolCall,
     SourceFamily,
     SourceRecord,
 )
 from aviation_agentic_ai.agent_system.decision_case_contracts import (
+    ConstraintCheckStatus,
     ResolutionDecision,
     stable_contract_id,
 )
@@ -42,6 +45,7 @@ from aviation_agentic_ai.agent_system.runtime import (
     write_run_manifest,
 )
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
+from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
 from aviation_agentic_ai.agent_system.workflow import IngestContext, run_ingest
 import aviation_agentic_ai.agent_system.workflow as workflow_module
 from test_agent_system_authority_evidence import (
@@ -150,6 +154,134 @@ def _gs_envelope(tmp_path: Path) -> TermCandidates:
     )
 
 
+def _ambiguous_facility_envelope(tmp_path: Path) -> FacilityCandidates:
+    catalog = _catalog(tmp_path)
+    guide = load_schema_guide(str(SCHEMA_PATH))
+    entities = [_facility(catalog, "KJFK"), _facility(catalog, "KEWR")]
+    built = tuple(
+        build_facility_resolution_candidate(
+            entity,
+            structural_slot="controlled_nas_element",
+            expected_entity_type="airport",
+            catalog=catalog.facility,
+            authority_snapshots=catalog.snapshots,
+            guide=guide,
+        )
+        for entity in entities
+    )
+    return replace(
+        _facility_envelope(tmp_path),
+        candidates=entities,
+        authority_candidate_results=built,
+    )
+
+
+def _ambiguous_term_envelope(tmp_path: Path) -> TermCandidates:
+    envelope = _gs_envelope(tmp_path)
+    mapped = next(
+        row.candidate
+        for row in envelope.authority_candidate_results
+        if row.candidate is not None and row.candidate.ontology_class_iri
+    )
+    built = []
+    for row in envelope.authority_candidate_results:
+        assert row.candidate is not None
+        checks = tuple(
+            check.model_copy(update={"status": ConstraintCheckStatus.PASS})
+            for check in row.candidate.constraint_checks
+        )
+        built.append(
+            replace(
+                row,
+                candidate=row.candidate.model_copy(
+                    update={
+                        "constraint_checks": checks,
+                        "ontology_class_prefixed": mapped.ontology_class_prefixed,
+                        "ontology_class_iri": mapped.ontology_class_iri,
+                    }
+                ),
+            )
+        )
+    return replace(envelope, authority_candidate_results=tuple(built))
+
+
+class _ScriptedResolutionModel:
+    def __init__(
+        self,
+        *,
+        candidate_ids: list[str],
+        selected_candidate_id: str | None,
+    ) -> None:
+        self.candidate_ids = sorted(candidate_ids)
+        self.selected_candidate_id = selected_candidate_id
+        self.invocations: list[str] = []
+
+    def invoke(self, messages, *, phase):
+        del messages
+        self.invocations.append(phase)
+        if phase == "select_tool":
+            name = (
+                "get_authority_record"
+                if self.selected_candidate_id is not None
+                else "get_resolution_candidates"
+            )
+            arguments = (
+                {"candidate_id": self.selected_candidate_id}
+                if self.selected_candidate_id is not None
+                else {}
+            )
+            call = {
+                "id": "call:resolution",
+                "name": name,
+                "args": arguments,
+            }
+            return ToolModelTurn(
+                message=AIMessage(content="", tool_calls=[call]),
+                record=ModelCallRecord(
+                    agent="semantic_resolution",
+                    raw_response="",
+                    attempt=1,
+                    tool_calls=[
+                        ModelToolCall(
+                            call_id=call["id"],
+                            name=name,
+                            arguments=arguments,
+                        )
+                    ],
+                ),
+            )
+        rejected = [
+            candidate_id
+            for candidate_id in self.candidate_ids
+            if candidate_id != self.selected_candidate_id
+        ]
+        payload = json.dumps(
+            {
+                "decision": (
+                    "accepted"
+                    if self.selected_candidate_id is not None
+                    else "abstained"
+                ),
+                "selected_candidate_id": self.selected_candidate_id,
+                "rejected_candidate_ids": rejected,
+                "limitation": (
+                    None
+                    if self.selected_candidate_id is not None
+                    else "Authority evidence remains ambiguous."
+                ),
+            },
+            separators=(",", ":"),
+        )
+        return ToolModelTurn(
+            message=AIMessage(content=payload),
+            record=ModelCallRecord(
+                agent="semantic_resolution",
+                raw_response=payload,
+                attempt=2,
+            ),
+        )
+
+
 def test_run_binding_samples_one_utc_timestamp(tmp_path):
     local = STARTED.astimezone(UTC) + timedelta(0)
     binding = create_run_binding(tmp_path, "2026-05-19:123", started_at=local)
@@ -180,13 +312,21 @@ def test_manifest_created_at_uses_frozen_run_started_at(tmp_path):
 def test_internal_helpers_return_typed_unique_resolution_without_authority_leak(
     tmp_path,
 ):
+    factory_calls = []
+
+    def forbidden_factory(tools):
+        factory_calls.append(tools)
+        raise AssertionError("unique resolution constructed semantic model")
+
     facility = _resolve_facility_compatibility(
         task=_task("facility"),
         candidates=_facility_envelope(tmp_path),
+        semantic_resolution_tool_model_factory=forbidden_factory,
     )
     terminology = _resolve_terminology_compatibility(
         task=_task("terminology"),
         candidates=_gs_envelope(tmp_path),
+        semantic_resolution_tool_model_factory=forbidden_factory,
     )
 
     for result in (facility, terminology):
@@ -214,6 +354,7 @@ def test_internal_helpers_return_typed_unique_resolution_without_authority_leak(
         json.loads(record.content)["preferred_label"]
         for record in terminology.authority_source_records
     } == {"Ground Stop", "Glide Slope"}
+    assert factory_calls == []
 
 
 def test_resolution_contracts_share_frozen_run_started_at(tmp_path, monkeypatch):
@@ -243,19 +384,25 @@ def test_resolution_contracts_share_frozen_run_started_at(tmp_path, monkeypatch)
 
 
 def test_exact_candidate_set_mismatch_is_blocked(tmp_path):
+    factory_calls = []
     envelope = _facility_envelope(tmp_path)
     blocked = _resolve_facility_compatibility(
         task=_task("facility"),
         candidates=replace(envelope, authority_candidate_results=()),
+        semantic_resolution_tool_model_factory=lambda tools: factory_calls.append(
+            tools
+        ),
     )
 
     assert blocked.agent_result.status is AgentStatus.BLOCKED
     assert blocked.domain_outcome.decision is ResolutionDecision.BLOCKED
+    assert factory_calls == []
 
 
 def test_explicit_insufficient_authority_is_terminal_before_candidate_audit(
     tmp_path,
 ):
+    factory_calls = []
     result = _resolve_facility_compatibility(
         task=_task("facility"),
         candidates=replace(
@@ -263,6 +410,9 @@ def test_explicit_insufficient_authority_is_terminal_before_candidate_audit(
             authority_domain_status=AuthorityBuildStatus.INSUFFICIENT,
             authority_domain_reason_code="FACILITY_AUTHORITY_INCOMPLETE",
             authority_candidate_results=(),
+        ),
+        semantic_resolution_tool_model_factory=lambda tools: factory_calls.append(
+            tools
         ),
     )
 
@@ -273,6 +423,43 @@ def test_explicit_insufficient_authority_is_terminal_before_candidate_audit(
         == "FACILITY_AUTHORITY_INCOMPLETE"
     )
     assert result.authority_source_records == ()
+    assert factory_calls == []
+
+
+def test_zero_eligible_candidates_are_insufficient_without_model_construction(
+    tmp_path,
+):
+    envelope = _facility_envelope(tmp_path)
+    built = envelope.authority_candidate_results[0]
+    assert built.candidate is not None
+    ineligible = built.candidate.model_copy(
+        update={
+            "constraint_checks": tuple(
+                check.model_copy(update={"status": ConstraintCheckStatus.FAIL})
+                for check in built.candidate.constraint_checks
+            )
+        }
+    )
+    factory_calls = []
+
+    result = _resolve_facility_compatibility(
+        task=_task("facility"),
+        candidates=replace(
+            envelope,
+            authority_candidate_results=(replace(built, candidate=ineligible),),
+        ),
+        semantic_resolution_tool_model_factory=lambda tools: factory_calls.append(
+            tools
+        ),
+    )
+
+    assert result.agent_result.status is AgentStatus.ABSTAIN
+    assert result.domain_outcome.decision is ResolutionDecision.INSUFFICIENT
+    assert (
+        result.domain_outcome.limitation_code
+        == "NO_ELIGIBLE_AUTHORITY_CANDIDATE"
+    )
+    assert factory_calls == []
 
 
 def test_resolution_event_binding_is_recomputed_before_sealing(tmp_path):
@@ -333,38 +520,83 @@ def test_corrupt_schema_binding_fails_closed_as_blocked(tmp_path):
     assert result.domain_outcome.decision is ResolutionDecision.BLOCKED
 
 
-def test_multiple_eligible_candidates_defer_without_resolution_provider(tmp_path):
-    catalog = _catalog(tmp_path)
-    guide = load_schema_guide(str(SCHEMA_PATH))
-    entities = [_facility(catalog, "KJFK"), _facility(catalog, "KEWR")]
-    built = tuple(
-        build_facility_resolution_candidate(
-            entity,
-            structural_slot="controlled_nas_element",
-            expected_entity_type="airport",
-            catalog=catalog.facility,
-            authority_snapshots=catalog.snapshots,
-            guide=guide,
-        )
-        for entity in entities
+def test_multiple_facility_candidates_use_the_shared_semantic_runtime(tmp_path):
+    envelope = _ambiguous_facility_envelope(tmp_path)
+    candidate_ids = [row.candidate_id for row in envelope.authority_candidate_results]
+    selected_candidate_id = next(
+        candidate_id for candidate_id in candidate_ids if candidate_id.endswith(":KJFK")
     )
-    envelope = replace(
-        _facility_envelope(tmp_path),
-        candidates=entities,
-        authority_candidate_results=built,
+    model = _ScriptedResolutionModel(
+        candidate_ids=candidate_ids,
+        selected_candidate_id=selected_candidate_id,
     )
-
     result = _resolve_facility_compatibility(
         task=_task("facility"),
         candidates=envelope,
+        semantic_resolution_tool_model_factory=lambda tools: model,
+    )
+
+    assert result.agent_result.status is AgentStatus.RESOLVED
+    assert result.domain_outcome.decision is ResolutionDecision.ACCEPTED
+    assert result.agent_result.evidence_card.canonical_refs == [
+        selected_candidate_id
+    ]
+    assert len(result.agent_result.model_calls) == 2
+    assert model.invocations == ["select_tool", "final_answer"]
+    assert result.resolution_task.remaining_tool_budget == 3
+    assert result.resolution_task.decision is None
+    assert not set(candidate_ids) & set(
+        result.resolution_task.rejected_candidate_ids
+    )
+    assert result.resolution_proposal.selected_candidate_id == selected_candidate_id
+    assert result.resolution_tool_traces
+    assert all(
+        claim.source_id == envelope.source_id
+        for claim in result.agent_result.evidence_card.claims
+    )
+
+
+def test_multiple_term_candidates_can_abstain_through_the_same_runtime(tmp_path):
+    envelope = _ambiguous_term_envelope(tmp_path)
+    candidate_ids = [row.candidate_id for row in envelope.authority_candidate_results]
+    model = _ScriptedResolutionModel(
+        candidate_ids=candidate_ids,
+        selected_candidate_id=None,
+    )
+
+    result = _resolve_terminology_compatibility(
+        task=_task("terminology"),
+        candidates=envelope,
+        semantic_resolution_tool_model_factory=lambda tools: model,
     )
 
     assert result.agent_result.status is AgentStatus.ABSTAIN
     assert result.domain_outcome.decision is ResolutionDecision.ABSTAINED
-    assert (
-        result.domain_outcome.limitation_code
-        == "MODEL_MEDIATED_RESOLUTION_DEFERRED_BATCH_B"
+    assert result.resolution_proposal.selected_candidate_id is None
+    assert len(result.agent_result.model_calls) == 2
+    assert model.invocations == ["select_tool", "final_answer"]
+
+
+def test_semantic_resolution_factory_failure_is_a_sealed_blocked_result(tmp_path):
+    envelope = _ambiguous_facility_envelope(tmp_path)
+    calls = []
+
+    def failing_factory(tools):
+        calls.append(tools)
+        raise RuntimeError("scripted setup failure")
+
+    result = _resolve_facility_compatibility(
+        task=_task("facility"),
+        candidates=envelope,
+        semantic_resolution_tool_model_factory=failing_factory,
     )
+
+    assert len(calls) == 1
+    assert result.agent_result.status is AgentStatus.BLOCKED
+    assert result.domain_outcome.decision is ResolutionDecision.BLOCKED
+    assert result.domain_outcome.error_id
+    assert result.resolution_task.candidates
+    assert result.resolution_proposal.task_id == result.resolution_task.task_id
 
 
 def test_legacy_ambiguous_facility_never_invokes_resolution_provider():
@@ -432,6 +664,9 @@ def test_required_blocked_domain_stops_kg_factory_and_preserves_blocked_status(
             run_started_at=STARTED,
             output_dir=str(tmp_path / "run"),
             model_invoker_factory=lambda: calls.append("resolution") or None,
+            semantic_resolution_tool_model_factory=lambda tools: (
+                calls.append("semantic-resolution") or None
+            ),
             kg_tool_model_factory=lambda tools: calls.append("kg") or None,
         )
     )
@@ -504,6 +739,9 @@ def test_required_insufficient_domain_stops_kg_and_resolution_factories(tmp_path
             run_started_at=STARTED,
             output_dir=str(tmp_path / "insufficient"),
             model_invoker_factory=lambda: calls.append("resolution") or None,
+            semantic_resolution_tool_model_factory=lambda tools: (
+                calls.append("semantic-resolution") or None
+            ),
             kg_tool_model_factory=lambda tools: calls.append("kg") or None,
         )
     )

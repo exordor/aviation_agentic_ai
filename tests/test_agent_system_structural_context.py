@@ -126,6 +126,9 @@ def test_workflow_propagates_known_facility_slot_and_expected_type(monkeypatch) 
             agent_result=AgentResult(status=AgentStatus.ABSTAIN),
             domain_outcome=None,
             authority_source_records=(),
+            resolution_task=None,
+            resolution_proposal=None,
+            resolution_tool_traces=(),
         )
 
     monkeypatch.setattr(workflow, "_resolve_facility_compatibility", capture)
@@ -157,6 +160,9 @@ def test_workflow_propagates_known_term_slot_and_expected_type(monkeypatch) -> N
             agent_result=AgentResult(status=AgentStatus.ABSTAIN),
             domain_outcome=None,
             authority_source_records=(),
+            resolution_task=None,
+            resolution_proposal=None,
+            resolution_tool_traces=(),
         )
 
     monkeypatch.setattr(workflow, "_resolve_terminology_compatibility", capture)

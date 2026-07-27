@@ -303,7 +303,7 @@ def test_cli_preserves_domain_isolation_when_one_authority_file_is_missing(
 ):
     captured = {}
     resolution_factory_calls = []
-    kg_factory_calls = []
+    tool_factory_calls = []
     authority_load_calls = []
     advisory = SourceRecord(
         source_id=SOURCE_ID,
@@ -376,7 +376,7 @@ def test_cli_preserves_domain_isolation_when_one_authority_file_is_missing(
     monkeypatch.setattr(
         cli_module,
         "make_live_tool_calling_model",
-        lambda **kwargs: kg_factory_calls.append(kwargs) or object(),
+        lambda **kwargs: tool_factory_calls.append(kwargs) or object(),
     )
 
     def fake_run(ctx):
@@ -426,8 +426,16 @@ def test_cli_preserves_domain_isolation_when_one_authority_file_is_missing(
     assert captured["ctx"].authority_catalog.terminology.status is AuthorityBuildStatus.OK
     assert captured["ctx"].model_invoker is None
     assert callable(captured["ctx"].model_invoker_factory)
+    assert callable(captured["ctx"].semantic_resolution_tool_model_factory)
+    assert callable(captured["ctx"].kg_tool_model_factory)
     assert resolution_factory_calls == []
-    assert kg_factory_calls == []
+    assert tool_factory_calls == []
+    captured["ctx"].semantic_resolution_tool_model_factory([])
+    captured["ctx"].kg_tool_model_factory([])
+    assert [call["role"] for call in tool_factory_calls] == [
+        "semantic_resolution",
+        "knowledge_graph_construction",
+    ]
     assert len(authority_load_calls) == 1
     assert authority_load_calls[0][1]["created_at"] == RUN_STARTED_AT
     assert captured["ctx"].run_started_at == RUN_STARTED_AT
