@@ -881,6 +881,96 @@ def test_hard_preflight_feedback_blocks_publication(tmp_path, monkeypatch):
     assert state["materialization"] is None
 
 
+def test_hard_preflight_block_preserves_component_layer_audit_rows(
+    tmp_path,
+    monkeypatch,
+):
+    """Preflight blocking retains the Assembly component-layer audit record."""
+
+    from aviation_agentic_ai.agent_system.case_assembly import CaseAssemblyResult
+    from aviation_agentic_ai.agent_system.decision_case_contracts import (
+        AssemblyStatus,
+        ComponentLayerResult,
+        ComponentLayerStatus,
+    )
+    from aviation_agentic_ai.agent_system.sources import load_advisory_source
+
+    config, _ = _test_inputs(tmp_path)
+    catalog = _catalog(tmp_path)
+    advisory = load_advisory_source(config, "2026-05-19:123")
+
+    def hard_violation_assembly(*, task, binding, tool_model_factory):
+        del tool_model_factory
+        component_layers = (
+            ComponentLayerResult(
+                layer_id="core",
+                status=ComponentLayerStatus.OK,
+                required_for_task=True,
+                artifact_ids=task.core_event_fact_ids,
+            ),
+            ComponentLayerResult(
+                layer_id="optional-context",
+                status=ComponentLayerStatus.INSUFFICIENT,
+                required_for_task=False,
+                missing_reason_code="optional_context_unavailable",
+            ),
+        )
+        forbidden_fact = task.proposed_facts[0].model_copy(
+            update={
+                "proposal_item_id": "proposal-fact:preserve-layers",
+                "predicate_iri": "atm:causedByWeather",
+                "object_value": "atm:Thunderstorm",
+            }
+        )
+        proposal = workflow_module.compile_case_assembly_proposal(
+            task=task,
+            assembly_status=AssemblyStatus.OK,
+            component_layer_results=component_layers,
+            proposed_facts=(*task.proposed_facts, forbidden_fact),
+            binding=binding,
+        )
+        return CaseAssemblyResult(
+            proposal=proposal,
+            model_calls=(),
+            tool_traces=(),
+        )
+
+    monkeypatch.setattr(workflow_module, "run_case_assembly_agent", hard_violation_assembly)
+
+    state = run_ingest(
+        IngestContext(
+            advisory=advisory,
+            facility_candidates=list(catalog.facility.entities),
+            term_candidates=list(catalog.terminology.registry_terms),
+            authority_catalog=catalog,
+            guide=load_schema_guide(str(SCHEMA_PATH)),
+            run_id="run:hard-preflight-preserve-layers",
+            run_started_at=STARTED,
+            output_dir=str(tmp_path / "hard-preflight-preserve-layers"),
+            case_assembly_model_factory=lambda tools: object(),
+        )
+    )
+
+    assert state["case_assembly_proposal"].assembly_status is AssemblyStatus.BLOCKED
+    assert tuple(state["case_assembly_proposal"].component_layer_results) == (
+        ComponentLayerResult(
+            layer_id="core",
+            status=ComponentLayerStatus.OK,
+            required_for_task=True,
+            artifact_ids=state["case_assembly_task"].core_event_fact_ids,
+        ),
+        ComponentLayerResult(
+            layer_id="optional-context",
+            status=ComponentLayerStatus.INSUFFICIENT,
+            required_for_task=False,
+            missing_reason_code="optional_context_unavailable",
+        ),
+    )
+    assert state["kg_result"].graph_patch is None
+    assert state["validation"] is None
+    assert state["materialization"] is None
+
+
 def test_blocked_authority_registry_is_absorbing_at_the_join(tmp_path):
     """A cross-branch audit conflict blocks preflight without partial recovery."""
 

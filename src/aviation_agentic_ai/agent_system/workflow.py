@@ -1104,6 +1104,7 @@ def _kg_construction_node(state: dict) -> dict:
         proposal = compile_case_assembly_proposal(
             task=assembly_task,
             assembly_status=AssemblyStatus.BLOCKED,
+            component_layer_results=proposal.component_layer_results,
             proposed_facts=proposal.proposed_facts,
             evidence_bindings=proposal.evidence_bindings,
             resolution_proposal_ids=proposal.resolution_proposal_ids,
