@@ -1035,8 +1035,8 @@ def _build_case_assembly_task_from_state(
         for profile in profile_registry.profiles
         if profile.ref.layer == "public_operational_observation"
     )
-    summary_phase = {
-        summary.summary_id: summary.phase
+    summaries_by_id = {
+        summary.summary_id: summary
         for summary in (
             outcome_bundle.summaries
             if outcome_bundle is not None and outcome_bundle.status == "ok"
@@ -1048,7 +1048,9 @@ def _build_case_assembly_task_from_state(
             (
                 CaseAssemblyPublicObservation(
                     observation_id=trace.observation_id,
-                    phase=summary_phase[trace.summary_id],
+                    run_id=summaries_by_id[trace.summary_id].run_id,
+                    event_id=summaries_by_id[trace.summary_id].event_id,
+                    phase=summaries_by_id[trace.summary_id].phase,
                     metric_key=trace.metric_key,
                     value=trace.canonical_value,
                     derivation_id=trace.derivation_id,

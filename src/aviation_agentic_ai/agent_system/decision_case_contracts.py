@@ -1030,6 +1030,8 @@ class CaseAssemblyPublicObservation(FrozenContractModel):
     """Profile-validated public observation available to Assembly."""
 
     observation_id: str
+    run_id: str
+    event_id: str
     phase: Literal["baseline", "active", "recovery"]
     metric_key: str
     value: int | float
@@ -1158,6 +1160,13 @@ class CaseAssemblyTaskFields(FrozenContractModel):
             ):
                 raise ValueError("context association source binding mismatch")
         for row in self.public_observations:
+            if (
+                row.run_id != self.run_id
+                or _canonical_case_event_id(row.event_id) != task_event_id
+            ):
+                raise ValueError(
+                    "public observation task event ownership mismatch"
+                )
             binding = binding_by_source.get(row.source_id)
             if (
                 binding is None
@@ -1272,6 +1281,23 @@ class CaseAssemblyProposalFields(FrozenContractModel):
             and row.status is ComponentLayerStatus.BLOCKED
             for row in self.component_layer_results
         )
+        publishable_status = self.assembly_status in {
+            AssemblyStatus.OK,
+            AssemblyStatus.PARTIAL,
+        }
+        if publishable_status and not self.proposed_facts:
+            raise ValueError("publishable assembly requires formal facts")
+        if not publishable_status and (
+            self.proposed_facts
+            or self.profile_gaps
+            or self.evidence_bindings
+            or self.resolution_proposal_ids
+            or self.context_association_ids
+            or self.source_snapshot_bindings
+        ):
+            raise ValueError(
+                "non-publishable assembly cannot carry selected case content"
+            )
         if required_blocked:
             if self.assembly_status is not AssemblyStatus.BLOCKED:
                 raise ValueError("blocked required component requires blocked assembly")
@@ -1359,26 +1385,45 @@ def seal_validation_feedback(
     fields: ValidationFeedbackFields,
     binding: ContractExecutionBinding,
 ) -> ValidationFeedback:
-    if not (binding.run_id == task.run_id == proposal.run_id == fields.run_id):
-        raise ValueError("feedback binding, task, proposal, and fields run IDs must match")
-    if not (
-        fields.task_id == task.task_id == proposal.task_id
-        and fields.case_id == task.case_id == proposal.case_id
-    ):
-        raise ValueError("feedback task/case ownership mismatch")
+    task_binding_mismatch = (
+        fields.violation_code == "TASK_BINDING_MISMATCH"
+        and fields.affected_proposal_item_id == task.task_id
+    )
+    if task_binding_mismatch:
+        if not (binding.run_id == task.run_id == fields.run_id):
+            raise ValueError("feedback binding, task, and fields run IDs must match")
+        if (
+            fields.task_id != task.task_id
+            or fields.case_id != task.case_id
+            or fields.evidence_ids
+        ):
+            raise ValueError("binding-mismatch feedback must be task-owned")
+    else:
+        if not (
+            binding.run_id == task.run_id == proposal.run_id == fields.run_id
+        ):
+            raise ValueError(
+                "feedback binding, task, proposal, and fields run IDs must match"
+            )
+        if not (
+            fields.task_id == task.task_id == proposal.task_id
+            and fields.case_id == task.case_id == proposal.case_id
+        ):
+            raise ValueError("feedback task/case ownership mismatch")
     if fields.proposal_payload_checksum != proposal.payload_checksum:
         raise ValueError("feedback proposal payload checksum mismatch")
     proposal_item_ids = {
         item.proposal_item_id
         for item in (*proposal.proposed_facts, *proposal.profile_gaps)
     }
-    missing_formal_slot_anchor = (
-        fields.violation_code == "MISSING_REQUIRED_FORMAL_SLOT"
+    task_owned_anchor = (
+        fields.violation_code
+        in {"MISSING_REQUIRED_FORMAL_SLOT", "TASK_BINDING_MISMATCH"}
         and fields.affected_proposal_item_id == task.task_id
     )
     if (
         fields.affected_proposal_item_id not in proposal_item_ids
-        and not missing_formal_slot_anchor
+        and not task_owned_anchor
     ):
         raise ValueError("affected proposal item is not owned by bound proposal")
     available_evidence = set(proposal.evidence_bindings)

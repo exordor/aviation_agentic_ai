@@ -437,6 +437,21 @@ def compile_case_assembly_proposal(
 
     facts = tuple(task.proposed_facts if proposed_facts is None else proposed_facts)
     gaps = tuple(task.profile_gaps if profile_gaps is None else profile_gaps)
+    if not facts and assembly_status in {
+        AssemblyStatus.OK,
+        AssemblyStatus.PARTIAL,
+    }:
+        assembly_status = AssemblyStatus.INSUFFICIENT
+    if assembly_status in {
+        AssemblyStatus.BLOCKED,
+        AssemblyStatus.INSUFFICIENT,
+    }:
+        facts = ()
+        gaps = ()
+        evidence_bindings = ()
+        resolution_proposal_ids = ()
+        context_association_ids = ()
+        source_snapshot_bindings = ()
     ev_bindings = tuple(
         sorted(set(task.selected_evidence_claim_ids if evidence_bindings is None else evidence_bindings))
     )
@@ -579,16 +594,15 @@ def preflight_validate_case_assembly_proposal(
         or proposal.task_id != task.task_id
         or proposal.case_id != task.case_id
     ):
-        first_item = proposal.proposed_facts[0].proposal_item_id if proposal.proposed_facts else "task"
         return _make_validation_feedback(
             task=task,
             proposal=proposal,
-            affected_item_id=first_item,
+            affected_item_id=task.task_id,
             violation_code="TASK_BINDING_MISMATCH",
             constraint_id="constraint:binding",
             repairable=False,
             allowed_corrections=(),
-            evidence_ids=proposal.evidence_bindings,
+            evidence_ids=(),
             binding=binding,
         )
 
@@ -622,6 +636,12 @@ def preflight_validate_case_assembly_proposal(
     proposal_fact_by_id = {
         item.proposal_item_id: item for item in proposal.proposed_facts
     }
+    if not proposal_fact_by_id:
+        return feedback(
+            affected_item_id=task.task_id,
+            violation_code="MISSING_REQUIRED_FORMAL_SLOT",
+            constraint_id="constraint:required-formal:empty",
+        )
     required_fact_ids = set(task.core_event_fact_ids)
     proposal_fact_ids = set(proposal_fact_by_id)
     missing_fact_ids = sorted(required_fact_ids - proposal_fact_ids)

@@ -401,6 +401,8 @@ def _assembly_task_fields(resolution_proposal_id: str) -> CaseAssemblyTaskFields
         public_observations=(
             {
                 "observation_id": "observation:bts",
+                "run_id": "run-1",
+                "event_id": "event-1",
                 "phase": "active",
                 "metric_key": "cancelled_count",
                 "value": 2,
@@ -1007,12 +1009,42 @@ def test_assembly_task_binds_context_associations_to_one_task_event() -> None:
             "context_associations": (
                 association.model_copy(update={"event_id": absolute_event_id}),
             ),
+            "public_observations": tuple(
+                row.model_copy(update={"event_id": absolute_event_id})
+                for row in fields.public_observations
+            ),
         }
     )
 
     sealed = seal_case_assembly_task(fields=canonicalized, binding=_binding())
 
     assert sealed.context_associations[0].event_id == absolute_event_id
+
+
+def test_assembly_task_binds_public_observations_to_one_task_event() -> None:
+    fields = _assembly_task_fields("resolution-proposal-1")
+    observation = fields.public_observations[0]
+
+    invalid_fields = (
+        fields.model_copy(
+            update={
+                "public_observations": (
+                    observation.model_copy(update={"run_id": "run-foreign"}),
+                ),
+            }
+        ),
+        fields.model_copy(
+            update={
+                "public_observations": (
+                    observation.model_copy(update={"event_id": "event-foreign"}),
+                ),
+            }
+        ),
+    )
+
+    for invalid in invalid_fields:
+        with pytest.raises(ValueError, match="public observation task event ownership"):
+            seal_case_assembly_task(fields=invalid, binding=_binding())
 
 
 def test_fact_support_profile_gap_support_and_disposition_are_strict() -> None:

@@ -47,16 +47,20 @@ def _assembly_task(
     profile_gaps: tuple[CaseProfileGapProposal, ...] | None = None,
     event_source_family: SourceFamily = SourceFamily.ATCSCC_ADVISORY,
 ) -> CaseAssemblyTask:
-    facts = proposed_facts or (
-        CaseFactProposal(
-            proposal_item_id="proposal-fact-1",
-            subject_id="event-1",
-            predicate_iri="rdf:type",
-            object_kind="iri",
-            object_value="atm:GroundStopTMI",
-            evidence_claim_ids=("evidence:event:type",),
-            validation_profile_id="profile-1",
-        ),
+    facts = (
+        (
+            CaseFactProposal(
+                proposal_item_id="proposal-fact-1",
+                subject_id="event-1",
+                predicate_iri="rdf:type",
+                object_kind="iri",
+                object_value="atm:GroundStopTMI",
+                evidence_claim_ids=("evidence:event:type",),
+                validation_profile_id="profile-1",
+            ),
+        )
+        if proposed_facts is None
+        else proposed_facts
     )
     gaps = (
         (
@@ -149,6 +153,8 @@ def _assembly_task(
         public_observations=(
             {
                 "observation_id": "obs-bts-1",
+                "run_id": "run-1",
+                "event_id": "event-1",
                 "phase": "active",
                 "metric_key": "cancelled_count",
                 "value": 2,
@@ -465,14 +471,9 @@ def test_preflight_rejects_empty_and_missing_core_fact_proposals() -> None:
         profile_gaps=(),
         binding=_binding(),
     )
-    empty_feedback = preflight_validate_case_assembly_proposal(
-        task=task,
-        proposal=empty,
-        binding=_binding(),
-    )
-    assert empty_feedback is not None
-    assert empty_feedback.violation_code == "MISSING_REQUIRED_FORMAL_SLOT"
-    assert empty_feedback.affected_proposal_item_id == task.task_id
+    assert empty.assembly_status.value == "insufficient"
+    assert empty.proposed_facts == ()
+    assert empty.profile_gaps == ()
 
     missing = compile_case_assembly_proposal(
         task=task,
@@ -487,6 +488,54 @@ def test_preflight_rejects_empty_and_missing_core_fact_proposals() -> None:
     )
     assert missing_feedback is not None
     assert missing_feedback.violation_code == "MISSING_REQUIRED_FORMAL_SLOT"
+
+
+def test_gap_only_task_compiles_to_empty_insufficient_proposal() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+    )
+
+    gap = _assembly_task().profile_gaps[0]
+    task = _assembly_task(proposed_facts=(), profile_gaps=(gap,))
+    proposal = compile_case_assembly_proposal(
+        task=task,
+        proposed_facts=(),
+        profile_gaps=(gap,),
+        binding=_binding(),
+    )
+
+    assert proposal.assembly_status.value == "insufficient"
+    assert proposal.proposed_facts == ()
+    assert proposal.profile_gaps == ()
+    assert proposal.evidence_bindings == ()
+    assert proposal.resolution_proposal_ids == ()
+    assert proposal.context_association_ids == ()
+    assert proposal.source_snapshot_bindings == ()
+
+
+def test_preflight_returns_feedback_for_foreign_task_binding() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+        preflight_validate_case_assembly_proposal,
+    )
+
+    task = _assembly_task(profile_gaps=())
+    foreign_task = _assembly_task(case_id="case-foreign", profile_gaps=())
+    foreign_proposal = compile_case_assembly_proposal(
+        task=foreign_task,
+        binding=_binding(),
+    )
+
+    feedback = preflight_validate_case_assembly_proposal(
+        task=task,
+        proposal=foreign_proposal,
+        binding=_binding(),
+    )
+
+    assert feedback is not None
+    assert feedback.violation_code == "TASK_BINDING_MISMATCH"
+    assert feedback.affected_proposal_item_id == task.task_id
+    assert feedback.evidence_ids == ()
 
 
 def test_preflight_rejects_extra_formal_fact() -> None:
@@ -1359,6 +1408,12 @@ def test_case_assembly_agent_malformed_output_blocks_without_repair() -> None:
     )
 
     assert result.proposal.assembly_status.value == "blocked"
+    assert result.proposal.proposed_facts == ()
+    assert result.proposal.profile_gaps == ()
+    assert result.proposal.evidence_bindings == ()
+    assert result.proposal.resolution_proposal_ids == ()
+    assert result.proposal.context_association_ids == ()
+    assert result.proposal.source_snapshot_bindings == ()
     assert len(result.model_calls) == 2
 
 
