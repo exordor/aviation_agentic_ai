@@ -1603,6 +1603,53 @@ class CaseAnalysisTask(ChecksummedContract, CaseAnalysisTaskFields):
     pass
 
 
+class QueryToolTrace(FrozenContractModel):
+    """Sanitized trace of one validated, plan-bound read observation."""
+
+    trace_id: str
+    query_plan_id: str
+    step_id: str
+    operation: Literal[
+        "read_episode_timeline",
+        "read_operational_situation",
+        "read_applicability",
+        "read_observed_flight_outcome",
+        "read_similarity_corpus_gate",
+    ]
+    observation_status: Literal["ok", "partial", "insufficient", "blocked"]
+    fact_ids: tuple[str, ...] = ()
+    derivation_ids: tuple[str, ...] = ()
+    profile_gap_ids: tuple[str, ...] = ()
+    assessment_ids: tuple[str, ...] = ()
+    source_ids: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def validate_sanitized_trace(self) -> Self:
+        for field_name in (
+            "fact_ids",
+            "derivation_ids",
+            "profile_gap_ids",
+            "assessment_ids",
+            "source_ids",
+        ):
+            _validate_set_ids(getattr(self, field_name), field_name)
+        expected = stable_contract_id(
+            "query-tool-trace",
+            self.query_plan_id,
+            self.step_id,
+            self.operation,
+            self.observation_status,
+            canonical_id_tuple_token(self.fact_ids, sort_values=True),
+            canonical_id_tuple_token(self.derivation_ids, sort_values=True),
+            canonical_id_tuple_token(self.profile_gap_ids, sort_values=True),
+            canonical_id_tuple_token(self.assessment_ids, sort_values=True),
+            canonical_id_tuple_token(self.source_ids, sort_values=True),
+        )
+        if self.trace_id != expected:
+            raise ValueError("query tool trace_id is not stable")
+        return self
+
+
 class QueryEvidenceBundleFields(FrozenContractModel):
     query_id: str
     run_id: str

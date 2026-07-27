@@ -31,6 +31,7 @@ from aviation_agentic_ai.agent_system.decision_case_contracts import (
     FactAssessment,
     FactDisposition,
     QueryEvidenceBundleFields,
+    QueryToolTrace,
     QueryStatus,
     RawResolutionCandidateRef,
     ResolutionCandidate,
@@ -750,6 +751,44 @@ def test_binding_normalizes_to_utc_and_requires_prompt_or_tool_version() -> None
             run_id="run-1",
             created_at=datetime(2026, 5, 19, 20, 15),
             tool_version="v1",
+        )
+
+
+def test_query_tool_trace_has_stable_id_and_rejects_unsorted_evidence() -> None:
+    """A trace is a sanitized projection of a validated bound observation."""
+
+    trace_id = stable_contract_id(
+        "query-tool-trace",
+        "query-plan-1",
+        "step-1",
+        "read_operational_situation",
+        "ok",
+        canonical_id_tuple_token(("fact-1",), sort_values=True),
+        canonical_id_tuple_token((), sort_values=True),
+        canonical_id_tuple_token((), sort_values=True),
+        canonical_id_tuple_token((), sort_values=True),
+        canonical_id_tuple_token(("source:event",), sort_values=True),
+    )
+    trace = QueryToolTrace(
+        trace_id=trace_id,
+        query_plan_id="query-plan-1",
+        step_id="step-1",
+        operation="read_operational_situation",
+        observation_status="ok",
+        fact_ids=("fact-1",),
+        source_ids=("source:event",),
+    )
+
+    assert trace.trace_id == trace_id
+    with pytest.raises(ValidationError, match="fact_ids must be sorted"):
+        QueryToolTrace(
+            trace_id=trace_id,
+            query_plan_id="query-plan-1",
+            step_id="step-1",
+            operation="read_operational_situation",
+            observation_status="ok",
+            fact_ids=("fact-2", "fact-1"),
+            source_ids=("source:event",),
         )
 
 
