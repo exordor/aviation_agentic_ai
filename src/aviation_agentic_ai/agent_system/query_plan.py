@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
@@ -195,10 +196,16 @@ def _query_plan_id(
 
 def _registered_intent(question: str) -> AnalysisIntent:
     normalized = " ".join(question.casefold().split())
+    tokens = re.findall(r"[a-z0-9]+", normalized)
+    if any(
+        token == "best"
+        or token.startswith("similar")
+        or token.startswith("recommend")
+        for token in tokens
+    ):
+        return AnalysisIntent.HISTORICAL_SIMILARITY
     if "operational situation" in normalized:
         return AnalysisIntent.OPERATIONAL_SITUATION
-    if "historical similarity" in normalized or "historically similar" in normalized:
-        return AnalysisIntent.HISTORICAL_SIMILARITY
     if "applicability" in normalized or "impact" in normalized:
         return AnalysisIntent.APPLICABILITY_AND_IMPACT
     if "episode" in normalized:

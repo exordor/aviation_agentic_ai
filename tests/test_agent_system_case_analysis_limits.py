@@ -146,6 +146,48 @@ def test_similarity_gate_never_ranks_three_case_fixture(
 
 
 @pytest.mark.parametrize(
+    "question",
+    (
+        "Which operational situation is most similar?",
+        "Which operational situation is best?",
+        "Which operational situation do you recommend?",
+    ),
+)
+def test_mixed_operational_question_cannot_bypass_similarity_gate(
+    store: QueryGraphStore,
+    question: str,
+) -> None:
+    """Putting the operational match first must not activate model-bound analysis."""
+
+    from aviation_agentic_ai.agent_system.case_analysis_tools import BoundQueryGateway
+    from aviation_agentic_ai.agent_system.query_plan import (
+        AnalysisIntent,
+        compile_query_plan,
+    )
+
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question=question,
+        store=store,
+    )
+    result = BoundQueryGateway(plan=plan, store=store).execute_bound_query_step(
+        step_id=plan.steps[0].step_id
+    )
+
+    assert plan.intent_family is AnalysisIntent.HISTORICAL_SIMILARITY
+    assert tuple(step.operation for step in plan.steps) == (
+        "read_similarity_corpus_gate",
+    )
+    assert result.status == "insufficient"
+    assert result.fact_ids == ()
+    assert result.source_ids == ()
+    assert result.items == ()
+    assert result.limitation == (
+        "historical similarity requires an approved corpus and comparison profile"
+    )
+
+
+@pytest.mark.parametrize(
     ("reader_name", "arguments"),
     (
         ("read_applicability", {"event_id": "event:unknown"}),
