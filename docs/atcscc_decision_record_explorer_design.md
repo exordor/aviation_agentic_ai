@@ -284,10 +284,11 @@ If the expected call count exceeds eight, stop and request a scope decision.
 ## 13. Explicitly Deferred Work
 
 After this Explorer stage, the separately approved Decision Context Case v0
-increment adds time-bounded TAF/METAR context and BTS-reported operational observations
-for the same three records. It preserves the Explorer's reason semantics,
-creates no causal event-to-weather fact, and does not merge the paused browser
-branch.
+increment is superseded by Decision Case Graph v1. The active branch adds
+time-bounded TAF/METAR context and source-qualified BTS-reported public
+operational observations for the same three records. It preserves the
+Explorer's reason semantics, creates no causal event-to-weather fact, and does
+not merge the paused browser branch.
 
 Decision-episode grouping, ASPM demand/capacity evidence, flight-level impact,
 historical similarity, candidate ranking, and TMI recommendation remain later

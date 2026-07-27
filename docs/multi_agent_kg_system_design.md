@@ -1,8 +1,8 @@
 # Multi-Agent Aviation Event Knowledge System
 
 Status: normative implementation design
-Version: 1.1
-Date: 2026-07-26
+Version: 1.2
+Date: 2026-07-27
 
 ## 1. Purpose
 
@@ -13,8 +13,9 @@ The system reads one retrospective FAA ATCSCC advisory together with
 authoritative facility and terminology sources, coordinates source-specialist
 Agents, constructs an ontology-guided event knowledge graph, and answers a user
 question from that graph with source references. The Decision Context Case v0
-extension deterministically adds time-bounded METAR/TAF context and public BTS
-operational proxies without adding Agent roles or causal claims.
+extension established the bounded Weather/BTS adapters. Decision Case Graph v1
+adds source-qualified BTS-reported public operational observations without
+adding Agent roles or causal claims.
 
 The project objective is to build a useful and extensible system. It is not
 currently a Single-Agent versus Multi-Agent comparison experiment, a Gold-set
@@ -31,6 +32,7 @@ ATCSCC advisory
     -> core formal validation and materialization
     -> deterministic decision_context node
        -> Weather context and BTS outcome adapters
+       -> profile-owned public-observation facts and derivation traces
        -> final RDF and Neo4j artifacts
     -> Query Agent
     -> graph-grounded answer with source IDs
@@ -44,9 +46,11 @@ ATCSCC advisory
 - NASR and ARTCC authority data for facility resolution.
 - FAA terminology and the existing operational-term registry.
 - Deterministic METAR/TAF selection for decision-time and operational context.
-- Deterministic BTS On-Time aggregation for public operational proxies.
+- Deterministic BTS On-Time aggregation for source-qualified public operational
+  observations.
 - The existing NASA ATMONTO-derived ATCSCC schema profile.
 - The curated NASA ATMONTO weather profile slice.
+- The curated SOSA/PROV/TIME/QUDT public-observation profile.
 - Five named Agent roles:
   - Advisory Agent
   - Facility Agent
@@ -114,8 +118,9 @@ flowchart LR
     M --> S["Deterministic decision_context"]
     T["METAR / TAF Snapshots"] --> S
     U["BTS On-Time Snapshot"] --> S
-    S --> N["Final Formal Knowledge Graph"]
-    S --> W["Audit-only Context / Outcome Artifacts"]
+    S --> V["Multi-profile Formal Validation"]
+    V --> N["Final Formal Knowledge Graph"]
+    S --> W["Audit-only Context / Derivation Artifacts"]
     O["User Question"] --> P["Query Agent"]
     P --> Q["Graph Search Tools"]
     Q --> N
@@ -130,7 +135,7 @@ The Workflow Coordinator is a deterministic LangGraph controller. It creates
 tasks, performs fan-out and join, and records state transitions. It does not
 call an LLM and is not counted as an Agent role.
 
-### 4.1 Decision Context Case v0 extension
+### 4.1 Decision Case Graph v1 extension
 
 After the core event and canonical facility pass formal validation, the
 `decision_context` node invokes two deterministic adapters. Weather is
@@ -147,7 +152,9 @@ validated event + canonical airport + METAR/TAF snapshots
 
 validated event + canonical airport + normalized BTS snapshot
   -> baseline / active / recovery aggregation
-  -> audit-only public outcome summaries
+  -> audit-only aggregation summaries
+  -> profile-owned SOSA observations and QUDT results
+  -> observation derivations and fact traces
 ```
 
 TAF must be issued at or before the advisory signature time and overlap the
@@ -158,10 +165,12 @@ BTS windows are half-open and fixed to baseline `[-2h, start)`, active
 
 Weather reports may enter the formal graph only through the curated weather
 profile. Event-to-report associations remain outside RDF and Neo4j with
-`causal_claim=false`. BTS summaries never enter the formal graph and must not
-be mapped to FAA demand, AAR, capacity, EDCT, or ASPM fields.
-`WeatherDelay` and `NASDelay` retain their source meaning as carrier-reported
-attributions and are not causal labels.
+`causal_claim=false`. `outcome_summaries.jsonl` remains an audit intermediate,
+not query authority. BTS-reported observations enter the formal graph only
+through the dedicated public-observation profile and must not be mapped to FAA
+demand, AAR, capacity, EDCT, or ASPM fields. `WeatherDelay` and `NASDelay`
+retain their source meaning as carrier-reported attributions and are not causal
+labels.
 
 ## 5. Ontology and Schema Guide
 
@@ -174,15 +183,33 @@ The system must reuse:
 - `data/ontology/curated/nasa_atmonto_schema_catalog.json`
 - `data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json`
 - `data/ontology/curated/nasa_atmonto_atcscc_extraction_schema.json`
+- `data/ontology/curated/nasa_atmonto_decision_context_weather_slice.json`
+- `data/ontology/curated/decision_case_public_observation_slice.json`
 - `reports/stages/atcscc_ontology_profile_overview.md`
 
 The full OWL files are the ontology source. The schema catalog is the
 machine-readable inventory. The ATCSCC schema slice is the active application
 profile. The extraction JSON schema is a machine-readable reference for the
 existing extraction fields and constraints; it is not a requirement that the
-LLM use JSON or provider-side JSON Schema.
+LLM use JSON or provider-side JSON Schema. The Weather and public-observation
+profiles independently own their admitted classes, properties, units,
+datatypes, and checksums.
 
-### 5.2 Schema Guide service
+### 5.2 Profile-owned publication layers
+
+The final graph is the union of three independently validated layers:
+
+1. ATCSCC decision facts under the NASA ATMONTO decision profile;
+2. METAR/TAF report facts under the curated Weather profile;
+3. BTS-reported observations under the public-observation profile.
+
+Every accepted fact records its owning profile ID and checksum. The
+public-observation layer uses SOSA observations, TIME intervals, PROV
+derivation activities, and QUDT values. Its observable-property labels are
+explicitly BTS-reported, and its profile forbids mappings to FAA arrival
+demand, AAR, causal relations, or semantic-equivalence properties.
+
+### 5.3 Schema Guide service
 
 `SchemaGuide` is a deterministic service. It exposes:
 
@@ -197,7 +224,7 @@ LLM use JSON or provider-side JSON Schema.
 The Knowledge Graph Construction Agent receives only a compact relevant slice,
 not the complete OWL ontology.
 
-### 5.3 Initial ontology mappings
+### 5.4 Initial ontology mappings
 
 | Source meaning | Ontology representation |
 | --- | --- |
@@ -218,7 +245,7 @@ If a source-supported field has no valid representation in the active profile,
 it is recorded as a `profile_gap`; it is not silently assigned a newly invented
 property.
 
-### 5.4 Canonical identity versus ontology type
+### 5.5 Canonical identity versus ontology type
 
 Canonical identity and ontology typing solve different problems:
 
@@ -548,9 +575,9 @@ router, not to the model-visible tool registry:
 
 Registered deterministic intents cover measure, facility, operational period,
 declared reason, provenance, forecast known at decision time, observed weather
-context, public operational outcome proxies, and one reconstructed-case
-question. Unsupported, absent, or malformed optional context is decided before
-model construction.
+context, BTS-reported public operational observations, and one
+reconstructed-case question. Unsupported, absent, or malformed optional
+context is decided before model construction.
 
 ### 12.5 Limits
 
@@ -579,6 +606,8 @@ The following are infrastructure, not Agents:
 - structured-field parser;
 - Weather context adapter;
 - BTS outcome adapter;
+- BTS public-observation builder;
+- validation-profile registry;
 - context artifact validator;
 - Schema Guide;
 - Graph Patch parser;
@@ -625,7 +654,8 @@ START
   -> RDF/Neo4j materializer
   -> decision_context
        -> deterministic Weather/BTS adapters
-       -> optional-layer validation
+       -> independent profile validation
+       -> observation derivation validation
        -> final materialization and audit artifacts
   -> END
 ```
@@ -643,15 +673,17 @@ START
   -> END
 ```
 
-The Decision Context v0 extension is a post-validation deterministic branch:
+Decision Case Graph v1 is a post-validation deterministic branch:
 
 ```text
 validated event + canonical facility
   -> Weather adapter
   -> BTS adapter
-  -> optional-layer validation
+  -> Weather-profile validation
+  -> public-observation construction and profile validation
   -> append formal Weather facts
-  -> write audit-only associations and summaries
+  -> append formal BTS-reported observation facts
+  -> write audit-only associations, summaries, derivations, and fact traces
   -> bounded deterministic query tools
 ```
 
@@ -664,7 +696,8 @@ The system has three memory layers:
 3. **Audit memory:** versioned run directory with source references, evidence
    cards, tool traces, model responses, Graph Patch, schema version, and graph
    artifacts. New runs also record a multi-source registry, Weather fact trace,
-   non-causal context associations, and BTS proxy summaries.
+   non-causal context associations, BTS aggregation summaries, observation
+   derivations, observation fact traces, and an immutable reconstruction trace.
 
 There is no Memory Agent in this version. There is no vectorized conversation
 history, autonomous experience replay, or automatic prompt modification.
@@ -786,8 +819,11 @@ graph fact
 
 An EvidenceClaim is validated against its own `source_id` and checksum in
 `source_snapshots.jsonl`; the kernel must not assume that every claim comes
-from the advisory snapshot. Audit-only Weather associations and BTS summaries
-carry their own source ID and checksum but are not graph facts.
+from the advisory snapshot. Audit-only Weather associations and BTS aggregation
+summaries carry their own source ID and checksum but are not graph facts.
+Formal BTS-reported observations additionally bind their source snapshot,
+owning profile, aggregation procedure, selected row IDs, derivation, fact
+trace, and reconstruction membership.
 
 The trace stores concise decisions and evidence. It must not store credentials,
 hidden chain-of-thought, or unrelated environment values.
@@ -809,6 +845,8 @@ src/aviation_agentic_ai/agent_system/
   weather_context.py
   weather_context_validation.py
   bts_outcomes.py
+  public_observations.py
+  validation_profiles.py
   context_artifacts.py
   query_context_store.py
   query_tools.py
@@ -878,11 +916,17 @@ the raw advisory.
   trace.
 - Every new run records `source_snapshots.jsonl`,
   `context_associations.jsonl`, `outcome_summaries.jsonl`, and
-  `weather_fact_trace.jsonl` with path, count, checksum, and
-  `ok | insufficient | blocked` status.
+  `weather_fact_trace.jsonl`, plus `observation_derivations.jsonl`,
+  `observation_fact_trace.jsonl`, and `reconstruction_trace.json`, with path,
+  count, checksum, and `ok | insufficient | blocked` status.
 - Decision-time TAF selection excludes forecasts issued after the advisory.
 - Weather associations remain non-causal and absent from RDF/Neo4j.
-- BTS summaries remain audit-only public proxies and absent from RDF/Neo4j.
+- Aggregation summaries alone cannot authorize a query answer.
+- Validated BTS-reported observations appear identically in JSONL, RDF, and
+  Neo4j and retain profile, source, procedure, derivation, and row-selection
+  bindings.
+- The exact deterministic question `What BTS-reported public operational
+  observations are recorded?` makes zero provider calls.
 - The Ground Stop 123 reason remains a profile gap, GDP 138 retains the formal
   `weather` reason, and cancellation 020 remains missing-reason.
 - Missing or unsupported deterministic context queries make zero provider

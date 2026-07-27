@@ -1,16 +1,17 @@
 # TODO
 
-Last updated: 2026-07-26
+Last updated: 2026-07-27
 
 This file contains only the active execution queue and immediate deferred
 decisions. Historical experiment backlogs are discoverable through
 `ARTIFACT_INDEX.md` and Git history.
 
-## Current Stage - Decision Context Case v0
+## Current Stage - Decision Case Graph v1
 
 Objective: reconstruct three auditable historical decision cases by connecting
-validated ATCSCC records to time-bounded Weather context and public BTS
-operational proxies without causal, prescriptive, or model-generated expansion.
+validated ATCSCC records to time-bounded Weather context and BTS-reported public
+operational observations without causal, prescriptive, or model-generated
+expansion.
 
 - [x] Add a canonical multi-source snapshot registry and per-source checksum
   validation.
@@ -18,7 +19,11 @@ operational proxies without causal, prescriptive, or model-generated expansion.
 - [x] Keep event-to-Weather associations audit-only and non-causal.
 - [x] Add deterministic BTS normalization and baseline/active/recovery
   aggregation.
-- [x] Keep BTS summaries outside RDF and Neo4j.
+- [x] Add a source-qualified public-observation profile with explicit
+  properties, units, datatypes, reporting scope, and forbidden FAA mappings.
+- [x] Materialize validated BTS-reported observations in JSONL, RDF, and Neo4j.
+- [x] Bind every observation to its selected rows, aggregation procedure,
+  source snapshot, profile checksum, fact trace, and reconstruction trace.
 - [x] Integrate both adapters after core event/facility validation without
   adding an Agent role or model call.
 - [x] Add bounded deterministic context and outcome query tools.
@@ -29,9 +34,9 @@ operational proxies without causal, prescriptive, or model-generated expansion.
 - [x] Complete documentation review and the full repository verification gate.
 - [x] Keep the reviewed branch unpushed and unmerged for user review.
 
-Success: all three cases expose validated Weather context and BTS proxies with
-source provenance, exact reason-state preservation, and zero additional
-provider calls.
+Success: all three cases expose validated Weather context and BTS-reported
+observations with source provenance, exact reason-state preservation, and zero
+additional provider calls.
 
 ## Completed System Foundation
 
@@ -60,9 +65,9 @@ The read-only query evidence explorer is implemented and reviewed on
   interaction, and narrow layouts.
 - [ ] Merge the visualization branch only when the user wants it in `main`.
 
-## Next Decision After v0
+## Next Decision After v1
 
-Do not start another semantic expansion until the three-case v0 verification
+Do not start another semantic expansion until the three-case v1 verification
 and review are complete. The next approved task must choose only one bounded
 increment, such as ASPM validation, regional Weather context, decision-episode
 grouping, or historical-case retrieval.

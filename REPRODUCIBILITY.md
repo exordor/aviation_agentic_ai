@@ -1,6 +1,6 @@
 # Reproducibility
 
-Last updated: 2026-07-26
+Last updated: 2026-07-27
 
 This file describes the current Agent-system path. Historical formal experiments
 remain reproducible through `EXPERIMENTS.md` but are not the default workflow.
@@ -42,7 +42,7 @@ uv run python -c \
 The URL and checksum come from the local source manifest for the selected FAA
 cycle. Do not replace the snapshot implicitly during an ordinary run.
 
-Decision Context Case v0 also uses tracked normalized Weather inputs and the
+Decision Case Graph v1 also uses tracked normalized Weather inputs and the
 tracked 1,978-row BTS snapshot:
 
 ```text
@@ -68,8 +68,8 @@ uv run python -c \
 
 The tracked BTS manifest pins the archive member, normalized checksum, source
 fields, 1,978-row filter, natural key, and `America/New_York` timezone. Null
-values remain null. BTS rows are public operational proxies and are not FAA
-demand, AAR, capacity, EDCT, or ASPM records.
+values remain null. Derived observations are always labelled as BTS-reported
+and are not FAA demand, AAR, capacity, EDCT, or ASPM records.
 
 ## Build One Validated Run
 
@@ -92,9 +92,11 @@ not publish formal KG files.
 For new multi-source runs, `source_snapshots.jsonl` is the canonical registry.
 The deterministic post-validation branch writes
 `context_associations.jsonl`, `outcome_summaries.jsonl`, and
-`weather_fact_trace.jsonl`. Each manifest entry is `ok`, `insufficient`, or
-`blocked`. A failed optional layer does not invalidate already validated core
-ATCSCC facts, but that layer is not exposed.
+`weather_fact_trace.jsonl`. It also writes `observation_derivations.jsonl`,
+`observation_fact_trace.jsonl`, and `reconstruction_trace.json` for formal
+public operational observations. Each manifest entry is `ok`, `insufficient`,
+or `blocked`. A failed optional layer does not invalidate already validated
+core ATCSCC facts, but that layer is not exposed.
 
 ## Query A Validated Run
 
@@ -110,7 +112,7 @@ Supported deterministic fields include measure, facility, operational period,
 declared reason, and provenance. Missing or unsupported evidence returns an
 insufficient state without a provider call.
 
-Decision Context v0 adds four deterministic question families:
+Decision Case Graph v1 adds four deterministic question families:
 
 ```bash
 uv run aviation-ai agent-system ask \
@@ -123,7 +125,7 @@ uv run aviation-ai agent-system ask \
 
 uv run aviation-ai agent-system ask \
   --run-dir <validated-run-directory> \
-  --question "What public operational outcome proxies are recorded?"
+  --question "What BTS-reported public operational observations are recorded?"
 
 uv run aviation-ai agent-system ask \
   --run-dir <validated-run-directory> \
@@ -173,9 +175,9 @@ The tracked case contract is
 Routine verification uses deterministic tests and does not require provider
 calls. Temporary run directories belong outside Git.
 
-The active-window BTS acceptance values are:
+The active-window BTS-reported acceptance values are:
 
-| Case | Scheduled proxy | Completed | Cancelled | Diverted |
+| Case | Scheduled arrivals | Completed arrivals | Cancellations | Diversions |
 | --- | ---: | ---: | ---: | ---: |
 | Ground Stop 123 / KJFK | 20 | 18 | 2 | 0 |
 | GDP 138 / KJFK | 77 | 68 | 4 | 5 |

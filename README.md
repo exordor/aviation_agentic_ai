@@ -6,8 +6,8 @@ aviation event knowledge from retrospective FAA ATCSCC advisories.
 It coordinates four construction Agents, applies a deterministic publication
 gate, materializes a validated event graph, and answers a registered set of
 decision-record questions with explicit source evidence. The active feature
-branch also reconstructs time-bounded weather context and public BTS operational
-proxies through deterministic adapters.
+branch also reconstructs time-bounded weather context and BTS-reported public
+operational observations through deterministic adapters.
 
 ```text
 ATCSCC advisory
@@ -30,19 +30,19 @@ ATCSCC advisory
 - Preserves source IDs, evidence spans, fact traces, and profile gaps.
 - Selects eligible TAF/METAR records as time-bounded, non-causal decision
   context.
-- Summarizes public BTS records into baseline, active, and recovery-window
-  operational proxies without writing them to the formal graph.
+- Publishes source-qualified BTS-reported observations for baseline, active,
+  and recovery windows through a dedicated formal profile.
 - Generates RDF/Turtle and a Neo4j property-graph projection.
 - Answers registered measure, facility, operational-period, declared-reason,
-  provenance, decision-context, public-outcome-proxy, and combined-record
+  provenance, decision-context, public-observation, and combined-record
   questions through read-only tools.
 - Returns explicit insufficient or blocked states instead of filling missing
   facts from model knowledge.
 
 The system does not let a model write directly to RDF or Neo4j. Profile gaps
 remain audit records and never become formal graph facts. Weather associations
-are explicitly non-causal. BTS values are public operational proxies, not FAA
-demand, AAR, capacity, EDCT, or proof that a TMI caused an outcome.
+are explicitly non-causal. BTS-reported observations are not FAA demand, AAR,
+capacity, EDCT, or proof that a TMI caused an outcome.
 
 ## Quick Start
 
@@ -123,14 +123,15 @@ The decision-record critical fixes are also on `main`:
 - Cancellation `020` returns an honest missing-reason result without a model
   call.
 
-The active `codex/decision-context-cases` branch extends those records with
+The active `codex/decision-case-graph-v1` branch extends those records with
 deterministic Weather and BTS context:
 
 - TAF selection is limited to forecasts issued no later than the advisory and
   valid during the TMI operational period.
 - METAR selection is limited to the approved pre-issue and operational windows.
-- BTS summaries use fixed baseline, active, and recovery windows and remain
-  audit-only public operational proxies.
+- BTS-reported observations use fixed baseline, active, and recovery windows
+  and enter the formal graph only through the source-qualified public
+  observation profile.
 - Optional context failures do not erase a validated core advisory event.
 - The extension introduces no new Agent role and no additional model calls.
 

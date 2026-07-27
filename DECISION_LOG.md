@@ -440,3 +440,68 @@ Con: the reconstructed case does not establish why a TMI was selected, whether
 it caused an outcome, or whether it was operationally optimal. ASPM demand,
 AAR, capacity, EDCT, regional weather, lifecycle grouping, historical ranking,
 and TMI recommendation remain separate future decisions.
+
+## D012 - Publish Source-Qualified BTS-Reported Observations
+
+### Date
+
+2026-07-27
+
+### Context
+
+D011 kept BTS aggregation summaries outside the formal graph to avoid
+misrepresenting public BTS fields as FAA demand, AAR, capacity, or causal
+evidence. That boundary was safe but left verified public operational
+observations outside the system's shared knowledge memory and relied on
+ambiguous generic terminology.
+
+The user approved source-qualified graph publication instead. The existing BTS
+snapshot, deterministic aggregation procedure, source checksums, selected row
+IDs, and fixed observation windows provide enough evidence to publish what BTS
+reported without claiming an FAA operational metric or a causal decision
+effect.
+
+### Decision
+
+Supersede only the D011 restriction that kept all BTS-derived values outside
+RDF and Neo4j:
+
+- retain `outcome_summaries.jsonl` as an audit intermediate rather than query
+  authority;
+- validate public operational observations through a dedicated profile using
+  SOSA, TIME, PROV, and QUDT terms;
+- label each observable property explicitly as BTS-reported;
+- bind every observation fact to its source snapshot, aggregation procedure,
+  selected rows, derivation, fact trace, profile checksum, and reconstruction
+  membership;
+- materialize the same validated observation facts in JSONL, RDF, and Neo4j;
+- answer the exact registered observation question from formal facts only after
+  all audit bindings pass;
+- return `insufficient` for absent observations and `blocked` for malformed or
+  mismatched evidence before any model construction.
+
+The public-observation profile forbids mappings to FAA demand, AAR, capacity,
+EDCT, causal relations, and semantic-equivalence predicates. Weather
+associations remain non-causal. The three advisory reason states remain
+unchanged. No Agent role, graph-write tool, or model call is added.
+
+### Reason
+
+- Source-qualified observation semantics are clearer than generic substitute
+  terminology.
+- Formal publication makes validated observations available as shared,
+  queryable knowledge without weakening evidence boundaries.
+- Independent profile ownership prevents BTS fields from being confused with
+  NASA ATMONTO decision or Weather properties.
+- Derivation and reconstruction traces make deterministic aggregation
+  independently auditable.
+
+### Consequences
+
+Pro: the formal decision-case graph now contains decision facts, Weather report
+facts, and BTS-reported public operational observations with explicit semantic
+and provenance boundaries.
+
+Con: these observations still do not establish FAA demand or capacity, causal
+impact, decision quality, or an appropriate future TMI. ASPM evidence,
+lifecycle grouping, case ranking, and recommendation remain deferred.

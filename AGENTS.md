@@ -18,6 +18,7 @@ ATCSCC advisory + bounded FAA authority records
   -> Knowledge Graph Construction Agent
   -> deterministic Formal Graph Kernel
   -> deterministic Weather and BTS context adapters
+  -> profile-owned decision, Weather, and public-observation facts
   -> JSONL + RDF + Neo4j projection
   -> Query Agent with bounded read-only graph tools
 ```
@@ -36,10 +37,11 @@ names, not internal alphanumeric labels.
   projection, and bounded Query Agent path.
 - The three Decision Record Explorer cases have deterministic query support on
   `main`, including a profile-gap reason and an honest missing-reason outcome.
-- `codex/decision-context-cases` adds time-bounded, non-causal METAR/TAF context
-  and public BTS operational proxies for the same three records. The adapters
-  are deterministic, add no Agent role or model call, and keep BTS outside the
-  formal graph.
+- `codex/decision-case-graph-v1` adds time-bounded, non-causal METAR/TAF
+  context and BTS-reported public operational observations for the same three
+  records. Dedicated validation profiles admit source-qualified facts to the
+  formal graph; deterministic derivation and query paths add no Agent role or
+  model call.
 - The read-only visualization prototype is isolated on
   `codex/kg-visualization-research`. Visualization is paused and is not the
   active `main` implementation track.

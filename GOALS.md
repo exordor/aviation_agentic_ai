@@ -1,6 +1,6 @@
 # Project Goals
 
-Last updated: 2026-07-26
+Last updated: 2026-07-27
 
 This file defines durable system outcomes. Concrete work belongs in `TODO.md`;
 historical comparison hypotheses belong in the optional experiment documents.
@@ -33,12 +33,12 @@ record:
 - which reason the source declared;
 - which time-bounded forecast and observation records were available as
   non-causal context;
-- which public BTS operational proxies describe the baseline, active, and
-  recovery windows;
+- which BTS-reported public operational observations describe the baseline,
+  active, and recovery windows;
 - which source and graph fact support each statement.
 
 It must distinguish formal graph facts, source-bound profile gaps, derived
-provenance, non-causal context associations, public outcome proxies, and
+provenance, non-causal context associations, BTS-reported observations, and
 genuinely missing information.
 
 ## Completed Foundation
@@ -62,16 +62,19 @@ missing-reason cancellation `020` - exercise those capabilities.
 
 ## Current Approved Extension
 
-Decision Context Case v0 adds deterministic Weather and BTS adapters for the
-same three records:
+Decision Case Graph v1 adds deterministic Weather and BTS adapters for the same
+three records:
 
 - eligible TAF and METAR reports become source-bound weather report facts;
 - event-to-weather links remain audit-only associations with
   `causal_claim=false`;
-- BTS data is summarized into public operational proxies for fixed baseline,
-  active, and recovery windows;
-- BTS summaries remain outside RDF and Neo4j and are never represented as FAA
-  demand, AAR, capacity, or EDCT;
+- pinned BTS rows are deterministically aggregated into source-qualified public
+  operational observations for fixed baseline, active, and recovery windows;
+- validated BTS-reported observations enter RDF and Neo4j only through their
+  dedicated profile and are never represented as FAA demand, AAR, capacity, or
+  EDCT;
+- observation fact traces, derivations, reconstruction membership, source
+  bindings, and profile checksums remain independently auditable;
 - missing or invalid optional layers remain `insufficient` or `blocked` without
   invalidating an otherwise verified ATCSCC event.
 
@@ -99,8 +102,8 @@ The read-only visualization batch has reached a stable stopping point on
 `codex/kg-visualization-research`. It is an optional presentation layer and is
 not merged into `main`.
 
-The active semantic increment is Decision Context Case v0 on
-`codex/decision-context-cases`. It is under local review and is not merged into
+The active semantic increment is Decision Case Graph v1 on
+`codex/decision-case-graph-v1`. It is under local review and is not merged into
 `main`.
 
 Later increments still require an explicit user task and source boundary.

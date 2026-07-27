@@ -1,6 +1,6 @@
 # Project Audit And Context Router
 
-Audit date: 2026-07-26
+Audit date: 2026-07-27
 Canonical integration branch: `main`
 
 This is the default entry point for a new project task. It replaces the former
@@ -12,9 +12,9 @@ Aviation Agentic AI is a runnable, source-bounded multi-Agent system for
 converting one retrospective FAA ATCSCC advisory into a validated event
 knowledge graph, RDF/Turtle, and a Neo4j projection, then answering a small
 registered set of decision-record questions with explicit source evidence. The
-active Decision Context Case extension also attaches time-bounded weather
-context and public operational outcome proxies without treating either as a
-cause or recommendation.
+active Decision Case Graph v1 extension also attaches time-bounded weather
+context and BTS-reported public operational observations without treating
+either as a cause or recommendation.
 
 The active path is:
 
@@ -48,17 +48,18 @@ The browser visualization exists only on
 
 ## Active Feature Branch
 
-`codex/decision-context-cases` extends the three approved records with:
+`codex/decision-case-graph-v1` extends the three approved records with:
 
 - the latest eligible TAF known at advisory issue time;
 - the latest eligible pre-issue METAR and operational-period observations;
-- public BTS baseline, active, and recovery-window operational proxies;
-- separate source snapshots, context associations, and outcome summaries.
+- BTS-reported baseline, active, and recovery-window public operational
+  observations;
+- separate source snapshots, context associations, formal observation facts,
+  derivations, fact traces, and reconstruction membership.
 
-Weather associations are explicitly non-causal. BTS summaries are public
-operational proxies, not FAA demand, AAR, capacity, EDCT, or evidence that a
-particular TMI caused an outcome. This extension adds no Agent role and no model
-calls.
+Weather associations are explicitly non-causal. BTS-reported observations are
+not FAA demand, AAR, capacity, EDCT, or evidence that a particular TMI caused
+an outcome. This extension adds no Agent role and no model calls.
 
 ## Context Routing
 
@@ -89,8 +90,8 @@ The project does not currently provide:
 - a complete aviation ontology;
 - external expert certification.
 
-The approved current increment is Decision Context Case v0 on
-`codex/decision-context-cases`. Broader source expansion, lifecycle grouping,
+The approved current increment is Decision Case Graph v1 on
+`codex/decision-case-graph-v1`. Broader source expansion, lifecycle grouping,
 historical ranking, and recommendation do not become active merely because a
 historical document mentions them.
 
