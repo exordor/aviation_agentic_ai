@@ -579,6 +579,13 @@ The deterministic BTS adapter remains the only component that calculates
 summary values. Formal observations are projected from the already validated
 summary; they are not recalculated from raw rows.
 
+The observation builder may invoke the existing deterministic Weather selector
+against the same event, canonical facility, and checksum-pinned snapshot
+registry solely to recover the selected Weather report member IDs. It does not
+reimplement Weather selection or reinterpret Weather content. The integration
+layer cross-checks those IDs against the already validated Weather bundle
+before publication.
+
 Add:
 
 ```python

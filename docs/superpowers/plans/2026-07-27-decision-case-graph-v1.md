@@ -82,20 +82,22 @@ def load_validation_profile_registry(
 ) -> ValidationProfileRegistry: ...
 ```
 
-Extend `ValidatedFact`:
+Extend the writable `ValidatedFact` contract:
 
 ```python
-validation_profile: ValidationProfileRef | None = None
+validation_profile: ValidationProfileRef
 evidence_mode: Literal[
     "source_text",
     "deterministic_derivation",
     "profile_definition",
     "system_membership",
-] = "source_text"
-evidence_ref: str = ""
+]
+evidence_ref: str
 ```
 
-The optional type supports decoding old artifacts only. New builders and all publication entry points reject missing ownership or an empty evidence reference.
+Legacy decoding uses a separate read-only legacy contract and adapter. The
+writable `ValidatedFact` model never permits missing ownership or an empty
+evidence reference.
 
 ### Steps
 
@@ -167,20 +169,23 @@ git commit -m "feat(agent-system): add formal fact profile ownership"
 ```python
 class BTSOutcomeSummary(StrictModel):
     summary_id: str
+    run_id: str
     event_id: str
     facility_id: str
     phase: Literal["baseline", "active", "recovery"]
     window_start: datetime
     window_end: datetime
+    source_id: str
+    source_snapshot_sha256: str
     scheduled_arrival_count: int
     completed_arrival_count: int
     cancelled_count: int
     diverted_count: int
     arrival_delay_15_count: int
-    mean_arrival_delay_minutes: Decimal | None
-    median_arrival_delay_minutes: Decimal | None
-    carrier_reported_weather_delay_minutes: Decimal | None
-    carrier_reported_nas_delay_minutes: Decimal | None
+    mean_arrival_delay_minutes: float | None
+    median_arrival_delay_minutes: float | None
+    carrier_reported_weather_delay_minutes: float | None
+    carrier_reported_nas_delay_minutes: float | None
     reporting_scope: Literal[
         "BTS On-Time reporting carriers and scheduled domestic passenger operations."
     ]
@@ -242,6 +247,16 @@ uv run pytest -q \
 ```bash
 git grep -n -i 'scheduled_arrival_count_\\|public scheduled-demand' -- \
   src tests data
+```
+
+Expected: no matches.
+
+- [ ] Construct the retired general term without spelling it in active project
+  text and confirm it has no active code, test, message, or data match:
+
+```bash
+retired_term="$(printf '\\160\\162\\157\\170\\171')" &&
+git grep -n -i "${retired_term}" -- src tests data
 ```
 
 Expected: no matches.
@@ -339,13 +354,14 @@ def build_bts_observation_facts(
     outcome_bundle: BTSOutcomeBundle,
     snapshot_registry: SourceSnapshotRegistry,
     profile_registry: ValidationProfileRegistry,
-    *,
-    validated_event_fact_ids: tuple[str, ...],
-    selected_weather_report_ids: tuple[str, ...] = (),
 ) -> BTSObservationBundle: ...
 ```
 
 The builder validates existing summary and seed hashes. It never opens the BTS archive or normalized CSV and never recalculates an aggregate.
+It may invoke the existing deterministic Weather selector against the same
+event, facility, and checksum-pinned registry solely to derive the selected
+Weather member IDs. Task 5 cross-checks those IDs against the already validated
+Weather bundle before publication.
 
 ### Steps
 
@@ -363,7 +379,9 @@ The builder validates existing summary and seed hashes. It never opens the BTS a
   - all computed facts use the public-observation profile and a typed derivation evidence reference;
   - profile-definition and system-membership facts use their own declared evidence modes;
   - identical inputs produce identical bytes and IDs;
-  - changed source, profile, procedure, event fact set, or selected Weather report creates a new reconstruction;
+  - changed event, facility, source, profile, or procedure input creates a new reconstruction;
+  - every selected row ID resolves to an exact row in the checksum-pinned normalized BTS snapshot;
+  - tampered but self-consistently rehashed row IDs fail closed;
   - unknown metrics, wrong units/datatypes, stale summary hashes, wrong row digests, source mismatches, event/facility mismatches, forbidden predicates, and causal predicates return `blocked`.
 - [ ] Run and confirm RED:
 
@@ -577,6 +595,7 @@ git commit -m "feat(agent-system): publish decision case observations"
 - Modify: `src/aviation_agentic_ai/agent_system/query_context_store.py`
 - Modify: `src/aviation_agentic_ai/agent_system/query_tools.py`
 - Modify: `src/aviation_agentic_ai/agent_system/query_tool_graph.py`
+- Modify: `src/aviation_agentic_ai/agent_system/contracts.py`
 - Modify: `tests/test_agent_system_query_tools.py`
 - Modify: `tests/test_agent_system_query_tool_graph.py`
 - Modify: `tests/test_cli_agent_system.py`
@@ -625,6 +644,7 @@ PUBLIC_OUTCOME_QUESTION = (
 - [ ] Add RED tests proving that `QueryContextStore`:
   - reads public outcomes from formal observation facts;
   - cross-checks the profile registry, observation fact traces, derivations, reconstruction trace, source registry, and manifest;
+  - resolves every derivation row ID against the checksum-pinned normalized BTS snapshot and rejects tampered but self-consistently rehashed ID sets;
   - never treats `outcome_summaries.jsonl` alone as answer authority;
   - returns `blocked` on checksum, profile, derivation, schema, or source-binding failure;
   - returns `insufficient` when the validated context is absent;
@@ -657,6 +677,8 @@ reporting scope.
 
 - [ ] Preserve separate declared-reason and public-observation routes.
 - [ ] Record retrieved observation, fact, and derivation IDs in `query_run.json`.
+- [ ] Extend `QueryToolTrace` and `QueryToolOutcome` with explicit retrieved
+  observation and derivation ID collections; do not overload summary IDs.
 - [ ] Clean active terminology and update current scope in:
   - `AGENTS.md`
   - `ARTIFACT_INDEX.md`
@@ -673,6 +695,20 @@ reporting scope.
 
 ```bash
 git grep -n -i 'scheduled_arrival_count_\\|public scheduled-demand' -- \
+  AGENTS.md ARTIFACT_INDEX.md CLAUDE.md GOALS.md README.md \
+  REPRODUCIBILITY.md RESEARCH_AUDIT.md TODO.md \
+  docs/atcscc_decision_record_explorer_design.md \
+  docs/multi_agent_kg_system_design.md \
+  src tests data
+```
+
+Expected: no matches.
+
+- [ ] Run the constructed retired-term scan across every active project surface:
+
+```bash
+retired_term="$(printf '\\160\\162\\157\\170\\171')" &&
+git grep -n -i "${retired_term}" -- \
   AGENTS.md ARTIFACT_INDEX.md CLAUDE.md GOALS.md README.md \
   REPRODUCIBILITY.md RESEARCH_AUDIT.md TODO.md \
   docs/atcscc_decision_record_explorer_design.md \
@@ -711,6 +747,7 @@ git diff --check
 
 ```bash
 git add \
+  src/aviation_agentic_ai/agent_system/contracts.py \
   src/aviation_agentic_ai/agent_system/query_context_store.py \
   src/aviation_agentic_ai/agent_system/query_tools.py \
   src/aviation_agentic_ai/agent_system/query_tool_graph.py \
