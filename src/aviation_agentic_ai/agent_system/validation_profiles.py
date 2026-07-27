@@ -174,11 +174,16 @@ def _file_checksum(path: Path) -> str:
 
 
 def _mapping_entry(entry: dict[str, object]) -> tuple[str, dict[str, str]]:
+    if not all(
+        isinstance(key, str) and isinstance(value, str)
+        for key, value in entry.items()
+    ):
+        raise ValueError("malformed profile mapping entry")
     name = entry.get("prefixed_name") or entry.get("local_name") or entry.get("iri")
     iri = entry.get("iri")
     if not isinstance(name, str) or not isinstance(iri, str):
         raise ValueError("malformed profile mapping entry")
-    mapping = {"iri": iri}
+    mapping: dict[str, str] = {"iri": iri}
     label = entry.get("label")
     if isinstance(label, str):
         mapping["label"] = label
@@ -230,8 +235,12 @@ def _parse_mappings(raw: object, kind: str) -> dict[str, dict[str, str]]:
         for name, mapping in raw.items():
             if not isinstance(name, str) or not isinstance(mapping, dict):
                 raise ValueError(f"malformed {kind} mappings")
-            normalized = {key: value for key, value in mapping.items() if isinstance(key, str) and isinstance(value, str)}
-            mappings[name] = normalized
+            if not all(
+                isinstance(key, str) and isinstance(value, str)
+                for key, value in mapping.items()
+            ):
+                raise ValueError(f"malformed {kind} mapping: {name!r}")
+            mappings[name] = dict(mapping)
         return mappings
     if isinstance(raw, list) and all(isinstance(entry, dict) for entry in raw):
         return dict(_mapping_entry(entry) for entry in raw)

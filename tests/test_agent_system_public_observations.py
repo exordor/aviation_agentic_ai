@@ -26,6 +26,7 @@ from aviation_agentic_ai.agent_system.formal_graph import validate_graph_patch
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.validation_profiles import (
     DEFAULT_PUBLIC_OBSERVATION_PROFILE_PATH,
+    DEFAULT_WEATHER_PROFILE_PATH,
     LegacyValidatedFact,
     ValidationProfileRef,
     ValidationProfileRegistry,
@@ -51,6 +52,13 @@ def _registry(**overrides: object) -> ValidationProfileRegistry:
 def _copy_public_profile(tmp_path: Path) -> Path:
     payload = json.loads(Path(DEFAULT_PUBLIC_OBSERVATION_PROFILE_PATH).read_text())
     path = tmp_path / "public-observation-profile.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    return path
+
+
+def _copy_weather_profile(tmp_path: Path) -> Path:
+    payload = json.loads(Path(DEFAULT_WEATHER_PROFILE_PATH).read_text())
+    path = tmp_path / "weather-profile.json"
     path.write_text(json.dumps(payload), encoding="utf-8")
     return path
 
@@ -205,6 +213,57 @@ def test_registry_rejects_duplicate_ids_malformed_mappings_and_forbidden_predica
     path.write_text(json.dumps(payload), encoding="utf-8")
     with pytest.raises(ValueError, match="forbidden"):
         _registry(public_observation_profile_path=path)
+
+
+@pytest.mark.parametrize(
+    ("field", "malformed_value"),
+    [
+        ("kind", 7),
+        ("label", ["not", "a", "string"]),
+    ],
+)
+def test_registry_rejects_non_string_mapping_metadata(
+    tmp_path: Path,
+    field: str,
+    malformed_value: object,
+) -> None:
+    """Damaged mapping metadata must fail closed instead of being discarded."""
+
+    path = _copy_public_profile(tmp_path)
+    payload = json.loads(path.read_text())
+    payload["property_mappings"]["sosa:hasResult"][field] = malformed_value
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="malformed property mapping"):
+        _registry(public_observation_profile_path=path)
+
+
+def test_registry_preserves_valid_property_mapping_kind() -> None:
+    """Later writers must receive the declared property kind unchanged."""
+
+    registry = _registry()
+    public_ref = next(
+        ref
+        for ref in registry.refs
+        if ref.layer == "public_operational_observation"
+    )
+
+    assert (
+        registry.resolve(public_ref).property_mappings["sosa:hasResult"]["kind"]
+        == "object"
+    )
+
+
+def test_registry_rejects_non_string_list_mapping_metadata(tmp_path: Path) -> None:
+    """List-form profile mappings must not discard damaged metadata either."""
+
+    path = _copy_weather_profile(tmp_path)
+    payload = json.loads(path.read_text())
+    payload["classes"][0]["label"] = 7
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="malformed profile mapping"):
+        _registry(weather_profile_path=path)
 
 
 def test_registry_rejects_profile_file_changed_after_its_ref_is_pinned(tmp_path: Path) -> None:
