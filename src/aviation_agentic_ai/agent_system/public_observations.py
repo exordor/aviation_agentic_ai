@@ -230,6 +230,19 @@ def _parse_snapshot_rows(snapshot: SourceSnapshot) -> dict[str, BTSOnTimeRow]:
     return rows
 
 
+def _facility_iata(facility: CanonicalEntity) -> str:
+    values = sorted(
+        {
+            code.value
+            for code in facility.codes
+            if code.scheme.upper() == "IATA" and code.value
+        }
+    )
+    if len(values) != 1:
+        raise ValueError("canonical airport requires exactly one IATA code")
+    return values[0]
+
+
 def _validate_bundle(
     event: DecisionContextEvent,
     facility: CanonicalEntity,
@@ -328,10 +341,25 @@ def _validate_bundle(
         pairs.append((summary, seed))
     assert bts_snapshot is not None
     row_index = _parse_snapshot_rows(bts_snapshot)
-    for _, seed in pairs:
+    destination = _facility_iata(facility)
+    for summary, seed in pairs:
         missing = [row_id for row_id in seed.selected_row_ids if row_id not in row_index]
         if missing:
             raise ValueError(f"selected row ID is absent from pinned snapshot: {missing[0]}")
+        exact_selection = tuple(
+            sorted(
+                row.row_id
+                for row in row_index.values()
+                if row.Dest == destination
+                and summary.window_start.astimezone(UTC)
+                <= row.scheduled_arrival_utc.astimezone(UTC)
+                < summary.window_end.astimezone(UTC)
+            )
+        )
+        if seed.selected_row_ids != exact_selection:
+            raise ValueError(
+                "selected row IDs do not match the canonical facility and phase window"
+            )
     return pairs, bts_snapshot
 
 
@@ -667,31 +695,7 @@ def build_bts_observation_facts(
                 activity_iri=activity,
             )
             derivations.append(derivation)
-            activity_source_ids = (summary.source_id,)
-            activity_facts.extend(
-                [
-                    _typed_fact(
-                        activity,
-                        PROV + "Activity",
-                        profile=profile,
-                        evidence_mode="deterministic_derivation",
-                        evidence_ref=derivation.derivation_id,
-                        source_ids=activity_source_ids,
-                    ),
-                    _fact(
-                        subject=activity,
-                        subject_class=PROV + "Activity",
-                        predicate=PROV + "used",
-                        object_kind="iri",
-                        object_value=_source_iri(summary.source_id),
-                        object_class=PROV + "Entity",
-                        profile=profile,
-                        evidence_mode="deterministic_derivation",
-                        evidence_ref=derivation.derivation_id,
-                        source_ids=activity_source_ids,
-                    ),
-                ]
-            )
+            phase_trace_ids: list[str] = []
             for metric_key, local_name in _METRIC_FIELDS.items():
                 raw_value = getattr(summary, metric_key)
                 if raw_value is None:
@@ -749,6 +753,7 @@ def build_bts_observation_facts(
                     aggregation_procedure_checksum=procedure.checksum,
                 )
                 fact_traces.append(trace)
+                phase_trace_ids.append(trace.fact_id)
                 evidence_ref = trace.fact_id
                 source_ids = (summary.source_id,)
                 observation_facts.extend(
@@ -897,6 +902,34 @@ def build_bts_observation_facts(
                     ]
                 )
                 observation_ids.append(observation)
+            if not phase_trace_ids:
+                raise ValueError("BTS phase has no emitted observation trace")
+            activity_evidence_ref = sorted(phase_trace_ids)[0]
+            activity_source_ids = (summary.source_id,)
+            activity_facts.extend(
+                [
+                    _typed_fact(
+                        activity,
+                        PROV + "Activity",
+                        profile=profile,
+                        evidence_mode="deterministic_derivation",
+                        evidence_ref=activity_evidence_ref,
+                        source_ids=activity_source_ids,
+                    ),
+                    _fact(
+                        subject=activity,
+                        subject_class=PROV + "Activity",
+                        predicate=PROV + "used",
+                        object_kind="iri",
+                        object_value=_source_iri(summary.source_id),
+                        object_class=PROV + "Entity",
+                        profile=profile,
+                        evidence_mode="deterministic_derivation",
+                        evidence_ref=activity_evidence_ref,
+                        source_ids=activity_source_ids,
+                    ),
+                ]
+            )
 
         membership_ref = reconstruction_trace_id
         case_facts.extend(

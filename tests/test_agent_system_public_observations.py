@@ -611,6 +611,85 @@ def test_observation_builder_rejects_rehashed_unknown_selected_row_ids() -> None
     assert "selected row ID" in (bundle.failure_reason or "")
 
 
+def test_observation_builder_rejects_rehashed_existing_row_from_wrong_phase() -> None:
+    inputs = _observation_input()
+    outcome = inputs["outcome_bundle"]
+    baseline = next(
+        seed
+        for seed in outcome.derivation_seeds
+        if seed.summary_id
+        == next(
+            summary.summary_id
+            for summary in outcome.summaries
+            if summary.phase == "baseline"
+        )
+    )
+    active = next(
+        seed
+        for seed in outcome.derivation_seeds
+        if seed.summary_id
+        == next(
+            summary.summary_id
+            for summary in outcome.summaries
+            if summary.phase == "active"
+        )
+    )
+    assert active.selected_row_ids
+    selected = (active.selected_row_ids[0],)
+    digest = hashlib.sha256(
+        json.dumps(selected, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    derivation_payload = {
+        "aggregation_procedure_checksum": baseline.aggregation_procedure_checksum,
+        "aggregation_procedure_id": baseline.aggregation_procedure_id,
+        "archive_sha256": baseline.archive_sha256,
+        "selected_row_ids_sha256": digest,
+        "source_id": baseline.source_id,
+        "source_snapshot_sha256": baseline.source_snapshot_sha256,
+        "summary_id": baseline.summary_id,
+        "summary_sha256": baseline.summary_sha256,
+    }
+    changed = baseline.model_copy(
+        update={
+            "derivation_id": "bts-derivation:"
+            + hashlib.sha256(
+                json.dumps(
+                    derivation_payload, sort_keys=True, separators=(",", ":")
+                ).encode()
+            ).hexdigest()[:24],
+            "selected_row_ids": selected,
+            "selected_row_ids_sha256": digest,
+        }
+    )
+    tampered = outcome.model_copy(
+        update={
+            "derivation_seeds": [
+                changed if seed.summary_id == baseline.summary_id else seed
+                for seed in outcome.derivation_seeds
+            ]
+        }
+    )
+
+    bundle = build_bts_observation_facts(
+        **{**inputs, "outcome_bundle": tampered}
+    )
+    assert bundle.status == "blocked"
+    assert "phase window" in (bundle.failure_reason or "")
+
+
+def test_activity_derivation_evidence_refs_resolve_to_fact_traces() -> None:
+    bundle = build_bts_observation_facts(**_observation_input())
+    assert bundle.status == "ok"
+    trace_ids = {trace.fact_id for trace in bundle.fact_traces}
+
+    assert bundle.activity_facts
+    assert all(
+        fact.evidence_mode == "deterministic_derivation"
+        and fact.evidence_ref in trace_ids
+        for fact in bundle.activity_facts
+    )
+
+
 def test_observation_artifacts_are_byte_stable_and_strict(tmp_path: Path) -> None:
     bundle = build_bts_observation_facts(**_observation_input())
     assert bundle.status == "ok"
