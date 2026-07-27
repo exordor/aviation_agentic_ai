@@ -7,12 +7,7 @@ from string import Template
 import yaml
 
 
-PROMPT_PATH = (
-    Path(__file__).resolve().parents[1]
-    / "configs"
-    / "prompts"
-    / "agent_system_v1.yaml"
-)
+PROMPT_PATH = Path(__file__).resolve().parents[1] / "configs" / "prompts" / "agent_system_v1.yaml"
 
 EXPECTED_ROLES = {
     "advisory",
@@ -20,6 +15,7 @@ EXPECTED_ROLES = {
     "terminology",
     "knowledge_graph_construction",
     "query",
+    "semantic_resolution",
 }
 
 EXPECTED_PLACEHOLDERS = {
@@ -56,6 +52,15 @@ EXPECTED_PLACEHOLDERS = {
         "graph_scope",
         "allowed_predicates",
     },
+    "semantic_resolution": {
+        "task_id",
+        "mention",
+        "structural_slot",
+        "expected_entity_type",
+        "eligible_candidate_ids",
+        "authority_source_ids",
+        "schema_slice_id",
+    },
 }
 
 
@@ -81,6 +86,7 @@ def test_every_role_has_version_policy_and_bounded_output() -> None:
         "terminology": "terminology-agent-v2",
         "knowledge_graph_construction": "knowledge-graph-construction-agent-v4",
         "query": "query-agent-v4",
+        "semantic_resolution": "semantic-resolution-agent-v1",
     }
     for role, prompt in _catalog()["roles"].items():
         assert prompt["prompt_version"] == expected_versions[role]
@@ -98,6 +104,7 @@ def test_every_role_has_two_fictional_contrastive_few_shot_pairs() -> None:
         "terminology": {"TERMINOLOGY_DECISION"},
         "knowledge_graph_construction": {"GRAPH_PATCH"},
         "query": {"ANSWER", "Insufficient graph evidence."},
+        "semantic_resolution": {"{"},
     }
     forbidden_real_tokens = re.compile(r"\b(?:DCA|SFO|MIA|CLT|GDP|GS)\b")
     for role, prompt in _catalog()["roles"].items():
@@ -108,17 +115,15 @@ def test_every_role_has_two_fictional_contrastive_few_shot_pairs() -> None:
             assert "example:" in combined
             assert "urn:aviation-agentic-ai:" not in combined
             assert not forbidden_real_tokens.search(combined)
-            assert any(
-                example["assistant"].startswith(header)
-                for header in expected_headers[role]
-            )
+            assert any(example["assistant"].startswith(header) for header in expected_headers[role])
 
     roles = _catalog()["roles"]
     assert "STATUS: abstain" in roles["advisory"]["few_shot"][1]["assistant"]
     assert "STATUS: abstain" in roles["facility"]["few_shot"][1]["assistant"]
     assert "STATUS: abstain" in roles["terminology"]["few_shot"][1]["assistant"]
-    assert "PROFILE_GAPS\nEXAMPLE PRIORITY" in (
-        roles["knowledge_graph_construction"]["few_shot"][1]["assistant"]
+    assert (
+        "PROFILE_GAPS\nEXAMPLE PRIORITY"
+        in (roles["knowledge_graph_construction"]["few_shot"][1]["assistant"])
     )
     assert roles["query"]["few_shot"][1]["assistant"].strip() == "Insufficient graph evidence."
 
@@ -148,8 +153,7 @@ def test_prompts_do_not_request_provider_json_schema_or_hidden_reasoning() -> No
     }
     for prompt in _catalog()["roles"].values():
         examples = "\n".join(
-            f"{example['user']}\n{example['assistant']}"
-            for example in prompt["few_shot"]
+            f"{example['user']}\n{example['assistant']}" for example in prompt["few_shot"]
         )
         combined = f"{prompt['system']}\n{examples}\n{prompt['user_template']}".lower()
         normalized = " ".join(combined.split())
@@ -206,6 +210,16 @@ def test_query_prompt_requires_native_tool_evidence_and_english_answer() -> None
     assert "Insufficient graph evidence." in normalized
     assert "SOURCES" in normalized
     assert "Always answer in English" in normalized
+
+
+def test_semantic_resolution_prompt_requires_a_bounded_tool_then_strict_decision() -> None:
+    role = _catalog()["roles"]["semantic_resolution"]
+    system = " ".join(role["system"].split())
+    assert role["invocation_policy"] == "multiple_eligible_candidates_only"
+    assert role["max_output_tokens"] == 256
+    assert "one batch of one to three" in system
+    assert "After ToolMessages, return one JSON object and no tool call" in system
+    assert "Do not invent source IDs" in system
 
 
 def test_model_defaults_are_reproducibility_oriented() -> None:

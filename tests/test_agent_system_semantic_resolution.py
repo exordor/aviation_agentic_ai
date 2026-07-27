@@ -7,6 +7,8 @@ import json
 from datetime import UTC, datetime
 
 import pytest
+from langchain_core.messages import AIMessage
+from langchain_core.tools import BaseTool
 
 from aviation_agentic_ai.agent_system.decision_case_contracts import (
     AuthorityRecordEvidenceClaim,
@@ -28,6 +30,7 @@ from aviation_agentic_ai.agent_system.resolution_tools import (
     ResolutionToolGateway,
     build_resolution_tools,
 )
+from aviation_agentic_ai.agent_system.tool_model import ToolCallingModel, ToolModelTurn
 
 
 SHA_A = "a" * 64
@@ -89,9 +92,7 @@ def _check(
         status=status,
         reason_code=f"{check_kind}:{status.value}",
         evidence_ids=evidence_ids,
-        schema_snapshot_sha256=SHA_A
-        if check_kind == "schema_compatibility"
-        else None,
+        schema_snapshot_sha256=SHA_A if check_kind == "schema_compatibility" else None,
     )
 
 
@@ -101,9 +102,7 @@ def _candidate(
     eligible: bool = True,
 ) -> ResolutionCandidate:
     claim = _authority_claim(candidate_id)
-    schema_status = (
-        ConstraintCheckStatus.PASS if eligible else ConstraintCheckStatus.FAIL
-    )
+    schema_status = ConstraintCheckStatus.PASS if eligible else ConstraintCheckStatus.FAIL
     return ResolutionCandidate(
         candidate_id=candidate_id,
         candidate_kind="facility",
@@ -165,13 +164,26 @@ def _audit(candidate: ResolutionCandidate) -> ResolutionCandidateAudit:
     )
 
 
-def _task(*, candidate_ids: tuple[str, ...] = ("facility:KJFK", "facility:KBOS")):
+def _task(
+    *,
+    candidate_ids: tuple[str, ...] = ("facility:KJFK", "facility:KBOS"),
+    eligible_ids: tuple[str, ...] = ("facility:KJFK",),
+):
     candidates = tuple(
-        _candidate(candidate_id, eligible=candidate_id != "facility:KBOS")
+        _candidate(candidate_id, eligible=candidate_id in eligible_ids)
         for candidate_id in sorted(candidate_ids)
     )
-    audits = tuple(sorted((_audit(candidate) for candidate in candidates), key=lambda row: row.candidate_audit_id))
-    claims = tuple(sorted((_authority_claim(candidate.candidate_id) for candidate in candidates), key=lambda row: row.evidence_id))
+    audits = tuple(
+        sorted(
+            (_audit(candidate) for candidate in candidates), key=lambda row: row.candidate_audit_id
+        )
+    )
+    claims = tuple(
+        sorted(
+            (_authority_claim(candidate.candidate_id) for candidate in candidates),
+            key=lambda row: row.evidence_id,
+        )
+    )
     task_id = stable_contract_id(
         "resolution-task",
         "run-1",
@@ -249,14 +261,10 @@ def test_resolution_candidates_return_only_eligible_task_owned_candidates():
 def test_authority_record_projects_exact_task_owned_evidence_and_source():
     task = _task()
     claim = next(
-        claim
-        for claim in task.authority_evidence
-        if claim.candidate_id == "facility:KJFK"
+        claim for claim in task.authority_evidence if claim.candidate_id == "facility:KJFK"
     )
 
-    result = ResolutionToolGateway(task=task).get_authority_record(
-        candidate_id="facility:KJFK"
-    )
+    result = ResolutionToolGateway(task=task).get_authority_record(candidate_id="facility:KJFK")
 
     assert result.authority_evidence_ids == [claim.evidence_id]
     assert result.authority_source_ids == [claim.source_id]
@@ -280,9 +288,7 @@ def test_authority_record_projects_exact_task_owned_evidence_and_source():
         (["facility:KBOS"], "ineligible candidate IDs"),
     ],
 )
-def test_candidate_requests_fail_closed_outside_the_eligible_task_scope(
-    candidate_ids, message
-):
+def test_candidate_requests_fail_closed_outside_the_eligible_task_scope(candidate_ids, message):
     gateway = ResolutionToolGateway(task=_task())
 
     with pytest.raises(ResolutionToolError, match=message):
@@ -294,9 +300,7 @@ def test_cross_task_candidate_request_fails_closed():
     gateway = ResolutionToolGateway(task=_task())
 
     with pytest.raises(ResolutionToolError, match="outside the sealed task"):
-        gateway.get_authority_record(
-            candidate_id=other_task.candidates[0].candidate_id
-        )
+        gateway.get_authority_record(candidate_id=other_task.candidates[0].candidate_id)
 
 
 def test_source_mismatched_task_is_refused_before_candidate_reads():
@@ -310,18 +314,12 @@ def test_source_mismatched_task_is_refused_before_candidate_reads():
 def test_constraints_and_schema_context_are_typed_task_observations():
     task = _task()
     candidate = next(
-        candidate
-        for candidate in task.candidates
-        if candidate.candidate_id == "facility:KJFK"
+        candidate for candidate in task.candidates if candidate.candidate_id == "facility:KJFK"
     )
     gateway = ResolutionToolGateway(task=task)
 
-    constraint_result = gateway.check_candidate_constraints(
-        candidate_ids=[candidate.candidate_id]
-    )
-    ontology_result = gateway.get_ontology_context(
-        candidate_ids=[candidate.candidate_id]
-    )
+    constraint_result = gateway.check_candidate_constraints(candidate_ids=[candidate.candidate_id])
+    ontology_result = gateway.get_ontology_context(candidate_ids=[candidate.candidate_id])
 
     assert constraint_result.constraint_ids == sorted(
         check.constraint_id for check in candidate.constraint_checks
@@ -344,9 +342,7 @@ def test_result_serialization_is_stable_and_evidence_comparison_is_source_bound(
     task = _task()
     gateway = ResolutionToolGateway(task=task)
     claim = next(
-        claim
-        for claim in task.authority_evidence
-        if claim.candidate_id == "facility:KJFK"
+        claim for claim in task.authority_evidence if claim.candidate_id == "facility:KJFK"
     )
 
     result = gateway.compare_candidate_evidence(candidate_ids=["facility:KJFK"])
@@ -363,3 +359,326 @@ def test_result_serialization_is_stable_and_evidence_comparison_is_source_bound(
         '"schema_snapshot_sha256":null,"result_ids":[],"items":[],'
         '"failure_reason":""}'
     )
+
+
+class _ScriptedToolModel:
+    """Provider-free native-tool replay used to test the real local loop."""
+
+    def __init__(self, turns: list[ToolModelTurn]) -> None:
+        self.turns = list(turns)
+        self.invocations: list[str] = []
+
+    def invoke(self, messages, *, phase: str) -> ToolModelTurn:
+        self.invocations.append(phase)
+        return self.turns.pop(0)
+
+
+def _record(
+    *, raw_response: str = "", output_tokens: int = 1, error: str | None = None, tool_calls=()
+):
+    from aviation_agentic_ai.agent_system.contracts import ModelCallRecord, ModelToolCall
+
+    return ModelCallRecord(
+        agent="semantic_resolution",
+        raw_response=raw_response,
+        prompt_set_id="prompt:test",
+        prompt_version="semantic-resolution-agent-v1",
+        provider="scripted",
+        model="scripted-model",
+        temperature=0,
+        input_tokens=1,
+        output_tokens=output_tokens,
+        error=error,
+        tool_calls=[ModelToolCall(**call) for call in tool_calls],
+    )
+
+
+def _tool_turn(*calls: dict, output_tokens: int = 1) -> ToolModelTurn:
+    return ToolModelTurn(
+        message=AIMessage(
+            content="",
+            tool_calls=[
+                {
+                    "id": call["call_id"],
+                    "name": call["name"],
+                    "args": call["arguments"],
+                    "type": "tool_call",
+                }
+                for call in calls
+            ],
+        ),
+        record=_record(tool_calls=calls, output_tokens=output_tokens),
+    )
+
+
+def _final_turn(payload: str, *, output_tokens: int = 1) -> ToolModelTurn:
+    return ToolModelTurn(
+        message=AIMessage(content=payload),
+        record=_record(raw_response=payload, output_tokens=output_tokens),
+    )
+
+
+def _binding() -> ContractExecutionBinding:
+    return ContractExecutionBinding(
+        run_id="run-1",
+        created_at=NOW,
+        prompt_version="semantic-resolution-agent-v1",
+    )
+
+
+def _run(task, model: ToolCallingModel):
+    from aviation_agentic_ai.agent_system.semantic_resolution import (
+        run_semantic_resolution_agent,
+    )
+
+    return run_semantic_resolution_agent(
+        task=task,
+        binding=_binding(),
+        tool_model_factory=lambda _tools: model,
+    )
+
+
+def test_semantic_resolution_seals_a_selected_candidate_from_observed_authority_support():
+    task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
+    model = _ScriptedToolModel(
+        [
+            _tool_turn(
+                {
+                    "call_id": "call:authority",
+                    "name": "get_authority_record",
+                    "arguments": {"candidate_id": "facility:KJFK"},
+                },
+                {
+                    "call_id": "call:constraints",
+                    "name": "check_candidate_constraints",
+                    "arguments": {"candidate_ids": ["facility:KJFK"]},
+                },
+            ),
+            _final_turn(
+                '{"decision":"accepted","selected_candidate_id":"facility:KJFK","rejected_candidate_ids":["facility:KBOS"],"limitation":null}'
+            ),
+        ]
+    )
+
+    result = _run(task, model)
+    claim = next(row for row in task.authority_evidence if row.candidate_id == "facility:KJFK")
+
+    assert result.failure_reason is None
+    assert result.proposal.decision.value == "accepted"
+    assert result.proposal.selected_candidate_id == "facility:KJFK"
+    assert result.proposal.supporting_evidence_claim_ids == (claim.evidence_id,)
+    assert result.proposal.authority_source_ids == (claim.source_id,)
+    assert result.proposal.tool_trace_ids == ("call:authority", "call:constraints")
+    assert model.invocations == ["select_tool", "final_answer"]
+
+
+def test_semantic_resolution_seals_honest_abstention_after_a_bounded_observation_batch():
+    task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
+    model = _ScriptedToolModel(
+        [
+            _tool_turn(
+                {
+                    "call_id": "call:candidates",
+                    "name": "get_resolution_candidates",
+                    "arguments": {},
+                },
+            ),
+            _final_turn(
+                '{"decision":"abstained","selected_candidate_id":null,"rejected_candidate_ids":["facility:KBOS","facility:KJFK"],"limitation":"The observed candidates remain ambiguous."}'
+            ),
+        ]
+    )
+
+    result = _run(task, model)
+
+    assert result.failure_reason is None
+    assert result.proposal.decision.value == "abstained"
+    assert result.proposal.selected_candidate_id is None
+    assert result.proposal.supporting_evidence_claim_ids == ()
+    assert result.proposal.authority_source_ids == ()
+
+
+@pytest.mark.parametrize(
+    ("payload", "expected"),
+    [
+        (
+            '{"decision":"accepted","selected_candidate_id":"facility:KXXX","rejected_candidate_ids":["facility:KBOS","facility:KJFK"],"limitation":null}',
+            "not an eligible task candidate",
+        ),
+        (
+            '{"decision":"accepted","selected_candidate_id":"facility:KJFK","rejected_candidate_ids":["facility:KBOS"],"limitation":null}',
+            "did not observe authority support",
+        ),
+    ],
+)
+def test_semantic_resolution_rejects_uncontained_or_unsupported_acceptance(payload, expected):
+    task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
+    model = _ScriptedToolModel(
+        [
+            _tool_turn(
+                {
+                    "call_id": "call:candidates",
+                    "name": "get_resolution_candidates",
+                    "arguments": {},
+                },
+            ),
+            _final_turn(payload),
+        ]
+    )
+
+    result = _run(task, model)
+
+    assert result.proposal.decision.value == "blocked"
+    assert expected in str(result.failure_reason)
+    assert model.invocations == ["select_tool", "final_answer"]
+
+
+def test_semantic_resolution_blocks_malformed_final_json_without_a_repair_retry():
+    task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
+    model = _ScriptedToolModel(
+        [
+            _tool_turn(
+                {
+                    "call_id": "call:candidates",
+                    "name": "get_resolution_candidates",
+                    "arguments": {},
+                },
+            ),
+            _final_turn('{"decision":"abstained"} trailing'),
+        ]
+    )
+
+    result = _run(task, model)
+
+    assert result.proposal.decision.value == "blocked"
+    assert "strict JSON" in str(result.failure_reason)
+    assert model.invocations == ["select_tool", "final_answer"]
+
+
+def test_semantic_resolution_records_provider_failure_as_a_consumed_single_attempt():
+    from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
+
+    task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
+    model = _ScriptedToolModel(
+        [
+            ToolModelTurn(
+                message=None,
+                record=ModelCallRecord(
+                    agent="semantic_resolution",
+                    raw_response="",
+                    error="TimeoutError: scripted upstream timeout",
+                ),
+            )
+        ]
+    )
+
+    result = _run(task, model)
+
+    assert result.proposal.decision.value == "blocked"
+    assert result.failure_reason == "TimeoutError: scripted upstream timeout"
+    assert len(result.model_calls) == 1
+    assert model.invocations == ["select_tool"]
+
+
+def test_semantic_resolution_enforces_three_tool_and_two_provider_turn_budgets():
+    task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
+    model = _ScriptedToolModel(
+        [
+            _tool_turn(
+                {"call_id": "one", "name": "get_resolution_candidates", "arguments": {}},
+                {
+                    "call_id": "two",
+                    "name": "get_ontology_context",
+                    "arguments": {"candidate_ids": ["facility:KJFK"]},
+                },
+                {
+                    "call_id": "three",
+                    "name": "check_candidate_constraints",
+                    "arguments": {"candidate_ids": ["facility:KJFK"]},
+                },
+                {
+                    "call_id": "four",
+                    "name": "compare_candidate_evidence",
+                    "arguments": {"candidate_ids": ["facility:KJFK"]},
+                },
+            )
+        ]
+    )
+
+    result = _run(task, model)
+
+    assert result.proposal.decision.value == "blocked"
+    assert "tool-call budget" in str(result.failure_reason)
+    assert len(result.model_calls) == 1
+    assert model.invocations == ["select_tool"]
+
+
+def test_semantic_resolution_blocks_oversize_rendered_input_before_constructing_a_model():
+    task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
+    oversized = task.model_copy(
+        update={"mention": "J" * 20000},
+        deep=True,
+    )
+    factory_calls = 0
+
+    def _factory(_tools: list[BaseTool]) -> ToolCallingModel:
+        nonlocal factory_calls
+        factory_calls += 1
+        raise AssertionError("input overflow must not construct a provider model")
+
+    from aviation_agentic_ai.agent_system.semantic_resolution import (
+        run_semantic_resolution_agent,
+    )
+
+    result = run_semantic_resolution_agent(
+        task=oversized,
+        binding=_binding(),
+        tool_model_factory=_factory,
+    )
+
+    assert result.proposal.decision.value == "blocked"
+    assert "input budget" in str(result.failure_reason)
+    assert factory_calls == 0
+
+
+def test_semantic_resolution_enforces_the_256_token_provider_output_cap():
+    task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
+    model = _ScriptedToolModel(
+        [
+            _tool_turn(
+                {
+                    "call_id": "call:candidates",
+                    "name": "get_resolution_candidates",
+                    "arguments": {},
+                },
+                output_tokens=257,
+            )
+        ]
+    )
+
+    result = _run(task, model)
+
+    assert result.proposal.decision.value == "blocked"
+    assert "output-token cap" in str(result.failure_reason)
+    assert model.invocations == ["select_tool"]
+
+
+def test_semantic_resolution_scripted_replay_seals_byte_stable_proposals():
+    task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
+    turns = [
+        _tool_turn(
+            {
+                "call_id": "call:authority",
+                "name": "get_authority_record",
+                "arguments": {"candidate_id": "facility:KJFK"},
+            },
+        ),
+        _final_turn(
+            '{"decision":"accepted","selected_candidate_id":"facility:KJFK","rejected_candidate_ids":["facility:KBOS"],"limitation":null}'
+        ),
+    ]
+
+    first = _run(task, _ScriptedToolModel(turns))
+    second = _run(task, _ScriptedToolModel(turns))
+
+    assert first.proposal.model_dump_json() == second.proposal.model_dump_json()

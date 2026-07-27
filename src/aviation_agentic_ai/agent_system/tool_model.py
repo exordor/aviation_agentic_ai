@@ -51,7 +51,7 @@ class ToolModelTurn:
 
 
 class ToolCallingModel(Protocol):
-    """Narrow model interface consumed by the Query Agent graph."""
+    """Narrow native-tool interface shared by bounded Agent loops."""
 
     def invoke(
         self,
@@ -66,8 +66,7 @@ def _content_text(message: AIMessage) -> str:
     content = message.content
     if isinstance(content, list):
         return "".join(
-            part.get("text", "") if isinstance(part, dict) else str(part)
-            for part in content
+            part.get("text", "") if isinstance(part, dict) else str(part) for part in content
         )
     return str(content or "")
 
@@ -134,9 +133,7 @@ class LangChainToolCallingModel:
         phase: ToolPhase,
     ) -> ToolModelTurn:
         attempt = next(self._attempts)
-        runnable = (
-            self._tool_selector if phase == "select_tool" else self._answer_model
-        )
+        runnable = self._tool_selector if phase == "select_tool" else self._answer_model
         started = time.perf_counter()
         try:
             result = runnable.invoke(messages)
@@ -174,12 +171,8 @@ class LangChainToolCallingModel:
                     error="provider returned a non-AI message",
                 ),
             )
-        input_tokens, output_tokens, _provider, model, fingerprint = (
-            extract_model_metadata(result)
-        )
-        invalid_calls = [
-            sanitize_json_value(dict(call)) for call in result.invalid_tool_calls
-        ]
+        input_tokens, output_tokens, _provider, model, fingerprint = extract_model_metadata(result)
+        invalid_calls = [sanitize_json_value(dict(call)) for call in result.invalid_tool_calls]
         error = "provider returned an invalid native tool call" if invalid_calls else None
         record = ModelCallRecord(
             agent=self.agent,
@@ -210,7 +203,7 @@ def make_live_tool_calling_model(
     role: str = "query",
     catalog_path: str = DEFAULT_PROMPT_CATALOG,
 ) -> LangChainToolCallingModel:
-    """Build the frozen DeepSeek native tool adapter for one Agent run."""
+    """Build the frozen DeepSeek native tool adapter for one bounded Agent run."""
 
     from aviation_agentic_ai.llm.providers import get_deepseek_mve_llm
 

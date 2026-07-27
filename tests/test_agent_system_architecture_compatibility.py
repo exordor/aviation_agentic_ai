@@ -101,8 +101,7 @@ def test_core_run_artifact_writers_preserve_filenames(tmp_path) -> None:
     event_uri = stable_id("evt", source.source_id, event_class)
     materialization = materialize_graph_patch(
         graph_patch_raw=(
-            "GRAPH_PATCH\n"
-            f"{event_uri} | rdf:type | {event_class} | {source.source_id}\n"
+            f"GRAPH_PATCH\n{event_uri} | rdf:type | {event_class} | {source.source_id}\n"
         ),
         advisory_source_id=source.source_id,
         event_class=event_class,
@@ -138,16 +137,19 @@ def test_core_run_artifact_writers_preserve_filenames(tmp_path) -> None:
         profile_gap_count=0,
     )
 
-    assert {Path(path).name for path in (
-        materialization.jsonl_path,
-        materialization.ttl_path,
-        materialization.nodes_path,
-        materialization.relationships_path,
-        source_snapshots_path,
-        fact_trace_path,
-        profile_gaps_path,
-        manifest_path,
-    )} == {
+    assert {
+        Path(path).name
+        for path in (
+            materialization.jsonl_path,
+            materialization.ttl_path,
+            materialization.nodes_path,
+            materialization.relationships_path,
+            source_snapshots_path,
+            fact_trace_path,
+            profile_gaps_path,
+            manifest_path,
+        )
+    } == {
         "fact_trace.jsonl",
         "kg.jsonl",
         "kg.ttl",
@@ -270,13 +272,13 @@ def test_legacy_workflow_catalog_and_cli_surface_remain_loadable(tmp_path) -> No
 
     graph = build_ingest_graph()
     assert set(graph.get_graph().nodes) - {"__start__", "__end__"} == LEGACY_INGEST_NODES
-    assert set(load_prompt_catalog().roles) == {
+    assert {
         "advisory",
         "facility",
         "terminology",
         "knowledge_graph_construction",
         "query",
-    }
+    }.issubset(load_prompt_catalog().roles)
 
     runner = CliRunner()
     root_help = runner.invoke(agent_system, ["--help"])
@@ -325,10 +327,13 @@ def test_legacy_workflow_catalog_and_cli_surface_remain_loadable(tmp_path) -> No
     assert manifest_path.name == "run_manifest.json"
     assert manifest["profile_gaps"]["path"] == "profile_gaps.jsonl"
     cli_surface = "\n".join(
-        [root_help.output, *[
-            runner.invoke(agent_system, [command, "--help"]).output
-            for command in sorted(LEGACY_CLI_COMMANDS)
-        ]]
+        [
+            root_help.output,
+            *[
+                runner.invoke(agent_system, [command, "--help"]).output
+                for command in sorted(LEGACY_CLI_COMMANDS)
+            ],
+        ]
     ).lower()
     persisted_surface = json.dumps(manifest).lower()
     workflow_state_surface = "\n".join(IngestState.__annotations__).lower()

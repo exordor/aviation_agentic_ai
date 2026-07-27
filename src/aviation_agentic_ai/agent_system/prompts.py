@@ -34,14 +34,15 @@ from aviation_agentic_ai.config import resolve_project_path
 # Frozen catalog path (design §16). The single source of truth for role prompts.
 DEFAULT_PROMPT_CATALOG = "configs/prompts/agent_system_v1.yaml"
 
-# The five role keys the system exercises (design §§8-12). The catalog must
-# contain exactly these role entries.
+# The frozen role keys the system exercises. Legacy roles remain available
+# while the shared semantic-resolution loop is introduced incrementally.
 ROLE_KEYS: tuple[str, ...] = (
     "advisory",
     "facility",
     "terminology",
     "knowledge_graph_construction",
     "query",
+    "semantic_resolution",
 )
 
 # Backwards-compatible alias kept for legacy callers/tests that imported the
@@ -89,9 +90,7 @@ class PromptCatalog:
 
     def role(self, key: str) -> RolePrompt:
         if key not in self.roles:
-            raise KeyError(
-                f"role {key!r} not in catalog (have: {sorted(self.roles)})"
-            )
+            raise KeyError(f"role {key!r} not in catalog (have: {sorted(self.roles)})")
         return self.roles[key]
 
 
@@ -145,7 +144,9 @@ def load_prompt_catalog(catalog_path: str = DEFAULT_PROMPT_CATALOG) -> PromptCat
     if extra:
         raise ValueError(f"prompt catalog has unexpected roles: {extra}")
     for key in ROLE_KEYS:
-        roles[key] = _build_role(key, raw_roles[key], prompt_set_id, temperature, thinking, max_retries, timeout_seconds)
+        roles[key] = _build_role(
+            key, raw_roles[key], prompt_set_id, temperature, thinking, max_retries, timeout_seconds
+        )
 
     return PromptCatalog(
         prompt_set_id=prompt_set_id,
