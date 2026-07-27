@@ -25,6 +25,7 @@ from aviation_agentic_ai.agent_system.materialize import (
     load_validated_facts_neo4j,
 )
 from aviation_agentic_ai.agent_system.authority_evidence import (
+    AuthorityBuildStatus,
     load_authority_catalog,
 )
 from aviation_agentic_ai.agent_system.prompts import DEFAULT_PROMPT_CATALOG, get_prompt_catalog
@@ -43,11 +44,9 @@ from aviation_agentic_ai.agent_system.schema_guide import (
     load_schema_guide,
 )
 from aviation_agentic_ai.agent_system.sources import (
-    facility_candidates,
     load_advisory_source,
     load_bts_context_source,
     load_weather_sources,
-    term_candidates,
 )
 from aviation_agentic_ai.agent_system.tool_model import (
     make_live_tool_calling_model,
@@ -82,8 +81,6 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
     advisory = load_advisory_source(config, source_id)
     guide = load_schema_guide()
     catalog = get_prompt_catalog(DEFAULT_PROMPT_CATALOG)
-    facilities = facility_candidates(config)
-    terms = term_candidates(config)
     weather_sources = []
     bts_rows = []
     bts_source = None
@@ -112,6 +109,16 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
         guide=guide,
         schema_guide_path=DEFAULT_SCHEMA_SLICE,
         created_at=run_binding.run_started_at,
+    )
+    facilities = (
+        list(authority_catalog.facility.entities)
+        if authority_catalog.facility.status is AuthorityBuildStatus.OK
+        else []
+    )
+    terms = (
+        list(authority_catalog.terminology.registry_terms)
+        if authority_catalog.terminology.status is AuthorityBuildStatus.OK
+        else []
     )
     ctx = IngestContext(
         advisory=advisory,

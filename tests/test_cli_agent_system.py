@@ -5,12 +5,14 @@ from __future__ import annotations
 import json
 from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from click.testing import CliRunner
 from langchain_core.messages import AIMessage
 
 import aviation_agentic_ai.cli_agent_system as cli_module
+from aviation_agentic_ai.agent_system.authority_evidence import AuthorityBuildStatus
 from aviation_agentic_ai.agent_system.contracts import (
     BTSManifestBinding,
     ModelCallRecord,
@@ -39,6 +41,25 @@ def _run_binding(run_dir: Path) -> RunBinding:
         run_id=run_dir.name,
         run_dir=run_dir,
         run_started_at=RUN_STARTED_AT,
+    )
+
+
+def _authority_catalog(
+    *,
+    facility_status: AuthorityBuildStatus = AuthorityBuildStatus.OK,
+    facility_entities: tuple[object, ...] = (),
+    terminology_status: AuthorityBuildStatus = AuthorityBuildStatus.OK,
+    registry_terms: tuple[object, ...] = (),
+):
+    return SimpleNamespace(
+        facility=SimpleNamespace(
+            status=facility_status,
+            entities=facility_entities,
+        ),
+        terminology=SimpleNamespace(
+            status=terminology_status,
+            registry_terms=registry_terms,
+        ),
     )
 
 
@@ -276,12 +297,13 @@ def test_supported_cli_question_runs_native_tool_loop(tmp_path, monkeypatch):
     assert "tool_calls: 1" in result.output
 
 
-def test_ingest_wires_deterministic_context_loaders_without_extra_model_calls(
+def test_cli_preserves_domain_isolation_when_one_authority_file_is_missing(
     tmp_path,
     monkeypatch,
 ):
     captured = {}
     resolution_factory_calls = []
+    kg_factory_calls = []
     authority_load_calls = []
     advisory = SourceRecord(
         source_id=SOURCE_ID,
@@ -298,9 +320,28 @@ def test_ingest_wires_deterministic_context_loaders_without_extra_model_calls(
         family=SourceFamily.BTS_ON_TIME,
         content="{}\n",
     )
+    term_candidate = object()
+    authority_catalog = _authority_catalog(
+        facility_status=AuthorityBuildStatus.BLOCKED,
+        registry_terms=(term_candidate,),
+    )
     monkeypatch.setattr(cli_module, "load_advisory_source", lambda config, source_id: advisory)
-    monkeypatch.setattr(cli_module, "facility_candidates", lambda config: [])
-    monkeypatch.setattr(cli_module, "term_candidates", lambda config: [])
+    monkeypatch.setattr(
+        cli_module,
+        "facility_candidates",
+        lambda config: (_ for _ in ()).throw(
+            AssertionError("legacy facility loader must not run")
+        ),
+        raising=False,
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "term_candidates",
+        lambda config: (_ for _ in ()).throw(
+            AssertionError("legacy terminology loader must not run")
+        ),
+        raising=False,
+    )
     monkeypatch.setattr(cli_module, "load_weather_sources", lambda config: [weather])
     monkeypatch.setattr(
         cli_module,
@@ -329,13 +370,13 @@ def test_ingest_wires_deterministic_context_loaders_without_extra_model_calls(
         cli_module,
         "load_authority_catalog",
         lambda *args, **kwargs: authority_load_calls.append((args, kwargs))
-        or "authority-catalog",
+        or authority_catalog,
         raising=False,
     )
     monkeypatch.setattr(
         cli_module,
         "make_live_tool_calling_model",
-        lambda **kwargs: object(),
+        lambda **kwargs: kg_factory_calls.append(kwargs) or object(),
     )
 
     def fake_run(ctx):
@@ -378,10 +419,15 @@ def test_ingest_wires_deterministic_context_loaders_without_extra_model_calls(
     assert captured["ctx"].bts_manifest_binding is not None
     assert captured["ctx"].weather_failure_reason == ""
     assert captured["ctx"].bts_failure_reason == ""
-    assert captured["ctx"].authority_catalog == "authority-catalog"
+    assert captured["ctx"].authority_catalog is authority_catalog
+    assert captured["ctx"].facility_candidates == []
+    assert captured["ctx"].term_candidates == [term_candidate]
+    assert captured["ctx"].authority_catalog.facility.status is AuthorityBuildStatus.BLOCKED
+    assert captured["ctx"].authority_catalog.terminology.status is AuthorityBuildStatus.OK
     assert captured["ctx"].model_invoker is None
     assert callable(captured["ctx"].model_invoker_factory)
     assert resolution_factory_calls == []
+    assert kg_factory_calls == []
     assert len(authority_load_calls) == 1
     assert authority_load_calls[0][1]["created_at"] == RUN_STARTED_AT
     assert captured["ctx"].run_started_at == RUN_STARTED_AT
@@ -404,8 +450,6 @@ def test_ingest_records_optional_loader_failures_for_the_context_layer(
         content="SIGNATURE:\n26/05/19 21:38\n",
     )
     monkeypatch.setattr(cli_module, "load_advisory_source", lambda config, source_id: advisory)
-    monkeypatch.setattr(cli_module, "facility_candidates", lambda config: [])
-    monkeypatch.setattr(cli_module, "term_candidates", lambda config: [])
     monkeypatch.setattr(
         cli_module,
         "load_weather_sources",
@@ -478,8 +522,6 @@ def test_ingest_treats_missing_legacy_weather_config_as_an_optional_layer_failur
     config_path.write_text("{}\n", encoding="utf-8")
     monkeypatch.setattr(cli_module, "load_yaml", lambda path: legacy_config)
     monkeypatch.setattr(cli_module, "load_advisory_source", lambda config, source_id: advisory)
-    monkeypatch.setattr(cli_module, "facility_candidates", lambda config: [])
-    monkeypatch.setattr(cli_module, "term_candidates", lambda config: [])
     monkeypatch.setattr(
         cli_module,
         "load_bts_context_source",
