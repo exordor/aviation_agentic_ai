@@ -1315,6 +1315,7 @@ Batch A contracts and authority evidence are implemented. Batch B's shared
 Semantic Resolution Agent is implemented offline behind the facility and
 terminology compatibility branches; deterministic stub/replay acceptance is
 the current evidence, and the bounded live semantic smoke remains pending.
-Decision Case Assembly and Decision Case Analysis runtime migration remains
-inactive and requires separately approved later batches. The complete
-reader-facing three-Agent claim is therefore not active.
+Batch C Decision Case Assembly runtime is implemented and locally verified on
+the feature branch; merge and the bounded live semantic smoke remain pending.
+Decision Case Analysis remains inactive. The complete reader-facing
+three-Agent claim is therefore not active.
