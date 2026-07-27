@@ -95,7 +95,6 @@ from aviation_agentic_ai.agent_system.formal_graph import (
 from aviation_agentic_ai.agent_system.schema_guide import SchemaGuide, load_schema_guide
 from aviation_agentic_ai.agent_system.sources import (
     build_source_snapshot_registry,
-    write_source_snapshot_registry,
 )
 from aviation_agentic_ai.cross_source.identifiers import stable_id
 
@@ -1383,10 +1382,10 @@ def _materialize_node(state: dict) -> dict:
     if advisory_evidence:
         evidence_cards.append(advisory_evidence)
 
-    # Persist the source snapshot (plan §5.2) so every accepted fact binds to
-    # auditable, checksum-pinned source content.
+    # Keep the provisional advisory registry in memory for Kernel and trace
+    # validation. ``integrate_decision_context`` owns the one final,
+    # multi-source ``source_snapshots.jsonl`` artifact for the run.
     snapshot_registry = build_source_snapshot_registry([ctx.advisory])
-    write_source_snapshot_registry(snapshot_registry, ctx.output_dir)
 
     # Formal Graph Kernel: the deterministic gate between model output and the
     # formal graph (plan §4, §5.4). Runs the 10 authority/schema/source/

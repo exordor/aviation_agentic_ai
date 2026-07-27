@@ -20,7 +20,6 @@ from pathlib import Path
 import click
 
 from aviation_agentic_ai.agent_system.materialize import (
-    FactMaterialization,
     Neo4jLoadBlocked,
     load_validated_facts_neo4j,
 )
@@ -195,14 +194,7 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
             f"{'error=' + call.error if call.error else 'tokens=' + str(call.input_tokens) + '/' + str(call.output_tokens)}"
         )
     if materialization:
-        if isinstance(materialization, FactMaterialization):
-            click.echo(f"materialized: {materialization.fact_count} validated facts")
-        else:
-            click.echo(
-                f"materialized: {materialization.valid_count} valid / "
-                f"{materialization.schema_violation_count} schema_violation / "
-                f"{materialization.profile_gap_count} profile_gap"
-            )
+        click.echo(f"materialized: {materialization.fact_count} validated facts")
         click.echo(f"kg_jsonl: {materialization.jsonl_path}")
     else:
         click.echo("materialized: 0 (abstained — no resolved event type or non-publishable)")

@@ -139,47 +139,12 @@ class ValidationProfileRegistry(StrictModel):
         return profile
 
 
-class LegacyValidatedFact(StrictModel):
-    """Read-only decoder shape for artifacts written before profile ownership."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    fact_id: str = Field(min_length=1)
-    subject_iri: str = Field(min_length=1)
-    subject_class_iri: str = Field(min_length=1)
-    predicate_iri: str = Field(min_length=1)
-    object_kind: Literal["iri", "literal"]
-    object_value: str = Field(min_length=1)
-    object_class_iri: str | None = None
-    datatype_iri: str | None = None
-    source_ids: list[str] = Field(default_factory=list)
-    evidence_texts: list[str] = Field(default_factory=list)
-    validation_profile: ValidationProfileRef
-
-
-def decode_legacy_validated_fact(
-    payload: dict[str, object],
-    *,
-    registry: ValidationProfileRegistry,
-) -> LegacyValidatedFact:
-    """Decode an old fact for inspection only; never return a writable fact."""
-
-    decision_ref = next((ref for ref in registry.refs if ref.layer == "decision"), None)
-    if decision_ref is None:
-        raise ValueError("legacy decoder requires a decision validation profile")
-    legacy_payload = dict(payload)
-    legacy_payload["validation_profile"] = decision_ref
-    return LegacyValidatedFact.model_validate(legacy_payload)
-
-
 def validate_fact_for_publication(
-    fact: ValidatedFact | LegacyValidatedFact,
+    fact: ValidatedFact,
     registry: ValidationProfileRegistry,
 ) -> None:
-    """Reject ownership-less and read-only legacy facts before publication."""
+    """Require exact profile ownership and evidence before publication."""
 
-    if isinstance(fact, LegacyValidatedFact):
-        raise ValueError("legacy facts are read-only and cannot enter new publication")
     registry.resolve(fact.validation_profile)
     if not fact.evidence_ref.strip():
         raise ValueError("new facts require a non-empty evidence_ref")
@@ -326,11 +291,9 @@ __all__ = [
     "AggregationProcedureDescriptor",
     "DEFAULT_PUBLIC_OBSERVATION_PROFILE_PATH",
     "DEFAULT_WEATHER_PROFILE_PATH",
-    "LegacyValidatedFact",
     "LoadedValidationProfile",
     "ValidationProfileRef",
     "ValidationProfileRegistry",
-    "decode_legacy_validated_fact",
     "load_validation_profile_registry",
     "validate_fact_for_publication",
 ]

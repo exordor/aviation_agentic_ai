@@ -45,10 +45,8 @@ from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.validation_profiles import (
     DEFAULT_PUBLIC_OBSERVATION_PROFILE_PATH,
     DEFAULT_WEATHER_PROFILE_PATH,
-    LegacyValidatedFact,
     ValidationProfileRef,
     ValidationProfileRegistry,
-    decode_legacy_validated_fact,
     load_validation_profile_registry,
     validate_fact_for_publication,
 )
@@ -325,30 +323,6 @@ def test_new_fact_contract_requires_explicit_profile_ownership_and_evidence_refe
         validate_fact_for_publication(
             ValidatedFact.model_validate({**payload, "evidence_ref": ""}), registry
         )
-
-
-def test_legacy_fact_is_read_only_and_cannot_enter_new_publication() -> None:
-    """The legacy adapter is decode-only, so old artifacts cannot bypass ownership."""
-
-    registry = _registry()
-    legacy = decode_legacy_validated_fact(
-        {
-            "fact_id": "legacy:1",
-            "subject_iri": "urn:event:1",
-            "subject_class_iri": "https://example.test/Event",
-            "predicate_iri": "https://example.test/property",
-            "object_kind": "literal",
-            "object_value": "value",
-            "source_ids": ["source:1"],
-            "evidence_texts": ["value"],
-        },
-        registry=registry,
-    )
-
-    assert isinstance(legacy, LegacyValidatedFact)
-    assert legacy.validation_profile.layer == "decision"
-    with pytest.raises(ValueError, match="legacy"):
-        validate_fact_for_publication(legacy, registry)
 
 
 def test_graph_kernel_stamps_source_facts_with_decision_profile_and_trace_ref(
@@ -742,7 +716,6 @@ def test_multi_profile_materialization_preserves_explicit_projection_and_audit_m
         observation_fact_traces=bundle.fact_traces,
         reconstruction_trace=bundle.reconstruction_trace,
         output_dir=tmp_path / "first",
-        guide=load_schema_guide(),
     )
     second = materialize_validated_facts(
         facts=facts,
@@ -751,7 +724,6 @@ def test_multi_profile_materialization_preserves_explicit_projection_and_audit_m
         observation_fact_traces=bundle.fact_traces,
         reconstruction_trace=bundle.reconstruction_trace,
         output_dir=tmp_path / "second",
-        guide=load_schema_guide(),
     )
 
     rows = [

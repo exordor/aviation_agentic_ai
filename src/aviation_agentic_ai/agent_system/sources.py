@@ -347,16 +347,3 @@ def write_source_snapshot_registry(
     """Write the canonical ``source_snapshots.jsonl`` artifact for a new run."""
 
     return registry.write_jsonl(output_dir)
-
-
-def write_source_snapshot(snapshot: SourceSnapshot, output_dir: str | Path) -> Path:
-    """Write ``source_snapshot.json`` for one source (plan §5.2)."""
-
-    out = Path(output_dir)
-    out.mkdir(parents=True, exist_ok=True)
-    path = out / "source_snapshot.json"
-    path.write_text(
-        snapshot.model_dump_json(indent=2, exclude_none=True),
-        encoding="utf-8",
-    )
-    return path

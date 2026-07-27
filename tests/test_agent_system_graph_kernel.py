@@ -52,7 +52,7 @@ from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.sources import (
     build_source_snapshot,
     load_advisory_source,
-    write_source_snapshot,
+    write_source_snapshot_registry,
 )
 from aviation_agentic_ai.config import load_yaml
 from aviation_agentic_ai.cross_source.identifiers import stable_id
@@ -177,12 +177,19 @@ def test_extension_probability_and_impacting_condition_normalized(mentions):
     )
 
 
-def test_source_snapshot_records_content_and_sha256(advisory_record, tmp_path):
-    """Plan §5.2: source_snapshot.json pins content + SHA-256."""
+def test_source_snapshot_registry_records_content_and_sha256(
+    advisory_record,
+    tmp_path,
+):
+    """The current JSONL registry pins exact source content and SHA-256."""
 
     snapshot = build_source_snapshot(advisory_record)
-    path = write_source_snapshot(snapshot, tmp_path)
-    payload = json.loads(path.read_text(encoding="utf-8"))
+    path = write_source_snapshot_registry(
+        SourceSnapshotRegistry(snapshots=(snapshot,)),
+        tmp_path,
+    )
+    payload = json.loads(path.read_text(encoding="utf-8").strip())
+    assert path.name == "source_snapshots.jsonl"
     assert payload["source_id"] == SOURCE_ID
     assert payload["family"] == "atcscc_advisory"
     assert payload["content"] == ADVISORY_CONTENT

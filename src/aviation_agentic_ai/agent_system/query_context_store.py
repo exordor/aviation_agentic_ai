@@ -34,6 +34,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     WeatherContextAssociation,
 )
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
+from aviation_agentic_ai.agent_system.runtime import RUN_MANIFEST_VERSION
 from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
 )
@@ -328,13 +329,14 @@ class QueryContextStore:
         self._manifest_cache: dict[str, Any] | None = None
         self._snapshots_cache: SourceSnapshotRegistry | None = None
         self.last_outcome_summary_ids: tuple[str, ...] = ()
+        self._manifest()
 
-    def _manifest(self) -> dict[str, Any] | None:
+    def _manifest(self) -> dict[str, Any]:
         if self._manifest_cache is not None:
             return self._manifest_cache
         path = self.run_dir / "run_manifest.json"
         if not path.exists():
-            return None
+            raise QueryContextError("current run manifest is missing")
         if path.is_symlink() or not path.resolve().is_relative_to(self.run_dir):
             raise QueryContextError("run manifest escapes the requested run directory")
         try:
@@ -343,28 +345,37 @@ class QueryContextStore:
             raise QueryContextError("invalid run manifest") from exc
         if not isinstance(payload, dict):
             raise QueryContextError("run manifest is not a JSON object")
+        if payload.get("manifest_version") != RUN_MANIFEST_VERSION:
+            raise QueryContextError(
+                "run manifest is not the current run manifest version"
+            )
         run_id = payload.get("run_id")
         if not isinstance(run_id, str) or not run_id.strip():
             raise QueryContextError("run manifest has no valid run_id")
         artifacts = payload.get("context_artifacts", {})
         if not isinstance(artifacts, dict):
             raise QueryContextError("run manifest context_artifacts is malformed")
+        materialization = payload.get("materialization")
+        if (
+            not isinstance(materialization, dict)
+            or materialization.get("materialized") is not True
+        ):
+            raise QueryContextError(
+                "current run manifest has no current materialization"
+            )
+        layers = payload.get("formal_layers")
+        if not isinstance(layers, dict):
+            raise QueryContextError("current run formal_layers are malformed")
         self._manifest_cache = payload
         return payload
 
     @property
-    def run_id(self) -> str | None:
+    def run_id(self) -> str:
         manifest = self._manifest()
-        return str(manifest["run_id"]) if manifest is not None else None
+        return str(manifest["run_id"])
 
     def _artifact(self, key: str, filename: str) -> _Artifact | None:
         manifest = self._manifest()
-        if manifest is None:
-            if (self.run_dir / filename).exists():
-                raise QueryContextError(
-                    f"{key} artifact exists without manifest registration"
-                )
-            return None
         entry = manifest["context_artifacts"].get(key)
         if entry is None:
             if (self.run_dir / filename).exists():
@@ -463,12 +474,6 @@ class QueryContextStore:
     def _registered_snapshots(self) -> SourceSnapshotRegistry | None:
         manifest = self._manifest()
         registry_path = self.run_dir / "source_snapshots.jsonl"
-        if manifest is None:
-            if registry_path.exists():
-                raise QueryContextError(
-                    "source snapshot registry exists without manifest registration"
-                )
-            return None
         if "source_snapshots" not in manifest["context_artifacts"]:
             if registry_path.exists():
                 raise QueryContextError(
@@ -1162,18 +1167,14 @@ class QueryContextStore:
                 "outcome phases must be unique baseline, active, or recovery values"
             )
         manifest = self._manifest()
-        if manifest is None:
-            return OutcomeSummaryRead(status="insufficient", event_id=event_id)
         layers = manifest.get("formal_layers")
         if not isinstance(layers, dict):
-            # A summary-only legacy run remains queryable for core facts, but
-            # cannot authorize public observations.
-            self._require_no_bts_formal_rows()
-            return OutcomeSummaryRead(status="insufficient", event_id=event_id)
+            raise QueryContextError("current run formal_layers are malformed")
         layer = layers.get("public_operational_observation")
         if not isinstance(layer, dict):
-            self._require_no_bts_formal_rows()
-            return OutcomeSummaryRead(status="insufficient", event_id=event_id)
+            raise QueryContextError(
+                "current run public observation layer is malformed"
+            )
         layer_status = layer.get("status")
         if layer_status == "insufficient":
             self._require_empty_observation_artifacts()

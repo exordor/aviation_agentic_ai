@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
@@ -19,6 +20,8 @@ from aviation_agentic_ai.agent_system.contracts import (
     ModelToolCall,
     SourceFamily,
     SourceRecord,
+    SourceSnapshot,
+    SourceSnapshotRegistry,
 )
 from aviation_agentic_ai.agent_system.query_tool_graph import (
     DECLARED_REASON_QUESTION,
@@ -29,11 +32,16 @@ from aviation_agentic_ai.agent_system.query_tool_graph import (
     REGISTERED_COMPETENCY_QUESTION,
 )
 from aviation_agentic_ai.agent_system.runtime import RunBinding
+from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    load_validation_profile_registry,
+)
 
 EVENT_ID = "urn:aviation-agentic-ai:event:cli-test"
 SOURCE_ID = "2026-05-19:123"
 RUN_STARTED_AT = datetime(2026, 5, 19, 20, 30, tzinfo=UTC)
+ADVISORY_CONTENT = "SIGNATURE:\n26/05/19 20:30\nGROUND STOP\n"
 
 
 def _run_binding(run_dir: Path) -> RunBinding:
@@ -93,12 +101,106 @@ def _write_graph(run_dir: Path) -> None:
             "object": value,
             "subject_class": "atm:GroundStopTMI",
             "object_class": object_class,
+            "object_kind": "iri" if object_class else "literal",
             "source_document": SOURCE_ID,
+            "evidence_text": "GROUND STOP",
         }
         for fact_id, predicate, value, object_class in values
     ]
+    profile_registry = load_validation_profile_registry(
+        decision_guide=load_schema_guide()
+    )
+    profiles = {
+        profile.ref.layer: profile.ref
+        for profile in profile_registry.profiles
+    }
+    decision_profile = profiles["decision"]
+    snapshot = SourceSnapshot(
+        source_id=SOURCE_ID,
+        family=SourceFamily.ATCSCC_ADVISORY,
+        content=ADVISORY_CONTENT,
+        content_sha256=hashlib.sha256(
+            ADVISORY_CONTENT.encode()
+        ).hexdigest(),
+        snapshot_timestamp=RUN_STARTED_AT.isoformat(),
+    )
+    registry_path = SourceSnapshotRegistry(
+        snapshots=(snapshot,)
+    ).write_jsonl(run_dir)
+    for row in rows:
+        row.update(
+            {
+                "profile_id": decision_profile.profile_id,
+                "profile_checksum": decision_profile.profile_checksum,
+                "validation_layer": "decision",
+                "evidence_mode": "source_text",
+                "evidence_ref": row["triple_id"],
+                "source_ids": [SOURCE_ID],
+                "source_snapshot_checksums": {
+                    SOURCE_ID: snapshot.content_sha256,
+                },
+            }
+        )
     (run_dir / "kg.jsonl").write_text(
         "\n".join(json.dumps(row) for row in rows) + "\n",
+        encoding="utf-8",
+    )
+    context_artifacts: dict[str, dict[str, object]] = {}
+    registry_data = registry_path.read_bytes()
+    context_artifacts["source_snapshots"] = {
+        "path": "source_snapshots.jsonl",
+        "count": 1,
+        "sha256": hashlib.sha256(registry_data).hexdigest(),
+        "status": "ok",
+    }
+    for key, filename in (
+        ("context_associations", "context_associations.jsonl"),
+        ("outcome_summaries", "outcome_summaries.jsonl"),
+        ("weather_fact_trace", "weather_fact_trace.jsonl"),
+        ("observation_derivations", "observation_derivations.jsonl"),
+        ("observation_fact_trace", "observation_fact_trace.jsonl"),
+        ("reconstruction_trace", "reconstruction_trace.json"),
+    ):
+        path = run_dir / filename
+        path.write_text("", encoding="utf-8")
+        context_artifacts[key] = {
+            "path": filename,
+            "count": 0,
+            "sha256": hashlib.sha256(b"").hexdigest(),
+            "status": "insufficient",
+        }
+    (run_dir / "run_manifest.json").write_text(
+        json.dumps(
+            {
+                "manifest_version": "decision-case-run-v1",
+                "run_id": run_dir.name,
+                "materialization": {
+                    "materialized": True,
+                    "fact_count": len(rows),
+                    "profile_refs": [
+                        decision_profile.model_dump(mode="json")
+                    ],
+                    "layer_fact_counts": {"decision": len(rows)},
+                    "artifacts": {
+                        "kg_jsonl": str(run_dir / "kg.jsonl"),
+                    },
+                },
+                "formal_layers": {
+                    layer: {
+                        "status": (
+                            "ok" if layer == "decision" else "insufficient"
+                        ),
+                        "profile_id": profile.profile_id,
+                        "profile_checksum": profile.profile_checksum,
+                        "formal_fact_count": (
+                            len(rows) if layer == "decision" else 0
+                        ),
+                    }
+                    for layer, profile in profiles.items()
+                },
+                "context_artifacts": context_artifacts,
+            }
+        ),
         encoding="utf-8",
     )
 

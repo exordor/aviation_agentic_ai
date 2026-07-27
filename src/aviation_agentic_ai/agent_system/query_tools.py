@@ -19,13 +19,20 @@ from pydantic import Field
 from aviation_agentic_ai.agent_system.contracts import (
     PersistedProfileGap,
     SourceSnapshot,
+    SourceSnapshotRegistry,
     StrictModel,
+    ValidationProfileRef,
 )
 from aviation_agentic_ai.agent_system.query_context_store import (
     QueryContextError,
     QueryContextStore,
 )
 from aviation_agentic_ai.agent_system.schema_guide import TERM_TO_EVENT_CLASS
+from aviation_agentic_ai.agent_system.runtime import RUN_MANIFEST_VERSION
+from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    load_validation_profile_registry,
+)
 
 _REGISTERED_EVENT_CLASSES = frozenset(TERM_TO_EVENT_CLASS.values())
 
@@ -139,6 +146,9 @@ class QueryGraphStore:
 
     def __init__(self, run_dir: str | Path) -> None:
         root = Path(run_dir).resolve()
+        manifest, snapshots, profile_refs, formal_layers = (
+            self._load_current_run(root)
+        )
         graph_path = root / "kg.jsonl"
         if not graph_path.exists():
             raise QueryToolError(f"materialized graph not found: {graph_path}")
@@ -164,26 +174,37 @@ class QueryGraphStore:
                 raise QueryToolError(
                     f"graph row {line_number} is not a JSON object"
                 )
-            fact_id = str(row.get("triple_id") or row.get("fact_id") or "").strip()
+            normalized = self._validate_current_fact_row(
+                row,
+                line_number=line_number,
+                snapshots=snapshots,
+                profile_refs=profile_refs,
+                formal_layers=formal_layers,
+            )
+            fact_id = str(normalized["triple_id"]).strip()
             if not fact_id:
                 raise QueryToolError(f"graph row {line_number} has no fact ID")
             if fact_id in seen_fact_ids:
                 raise QueryToolError(f"duplicate graph fact ID: {fact_id}")
-            subject = str(row.get("subject") or "").strip()
-            predicate = str(row.get("predicate") or "").strip()
+            subject = str(normalized.get("subject") or "").strip()
+            predicate = str(normalized.get("predicate") or "").strip()
             if not subject or not predicate:
                 raise QueryToolError(
                     f"graph row {line_number} is missing subject or predicate"
                 )
-            normalized = dict(row)
             normalized["fact_id"] = fact_id
-            normalized["source_ids"] = _split_source_ids(
-                row.get("source_document")
-            )
             rows.append(normalized)
             seen_fact_ids.add(fact_id)
 
+        self._validate_materialized_counts(
+            manifest,
+            rows,
+            profile_refs=profile_refs,
+            formal_layers=formal_layers,
+        )
         self.run_dir = root
+        self.manifest = manifest
+        self.source_snapshots = snapshots
         self.graph_path = resolved_graph
         self.rows = rows
         self.fact_by_id = {row["fact_id"]: row for row in rows}
@@ -206,6 +227,346 @@ class QueryGraphStore:
         self.profile_gap_by_id = {
             gap.profile_gap_id: gap for gap in self.profile_gaps
         }
+
+    @staticmethod
+    def _load_current_run(
+        root: Path,
+    ) -> tuple[
+        dict[str, Any],
+        SourceSnapshotRegistry,
+        set[ValidationProfileRef],
+        dict[str, dict[str, Any]],
+    ]:
+        manifest_path = root / "run_manifest.json"
+        if (
+            manifest_path.is_symlink()
+            or not manifest_path.exists()
+            or not manifest_path.is_file()
+            or not manifest_path.resolve().is_relative_to(root)
+        ):
+            raise QueryToolError("current run manifest is missing or unsafe")
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise QueryToolError("invalid current run manifest") from exc
+        if not isinstance(manifest, dict):
+            raise QueryToolError("current run manifest is not a JSON object")
+        if manifest.get("manifest_version") != RUN_MANIFEST_VERSION:
+            raise QueryToolError(
+                "run manifest is not the current run manifest version"
+            )
+        if not isinstance(manifest.get("run_id"), str) or not str(
+            manifest["run_id"]
+        ).strip():
+            raise QueryToolError("current run manifest has no valid run_id")
+
+        materialization = manifest.get("materialization")
+        if (
+            not isinstance(materialization, dict)
+            or materialization.get("materialized") is not True
+        ):
+            raise QueryToolError(
+                "current run manifest has no current materialization"
+            )
+        fact_count = materialization.get("fact_count")
+        if (
+            not isinstance(fact_count, int)
+            or isinstance(fact_count, bool)
+            or fact_count < 1
+        ):
+            raise QueryToolError(
+                "current run materialization fact_count is invalid"
+            )
+        raw_profile_refs = materialization.get("profile_refs")
+        if not isinstance(raw_profile_refs, list) or not raw_profile_refs:
+            raise QueryToolError(
+                "current run materialization has no profile_refs"
+            )
+        try:
+            profile_refs = {
+                ValidationProfileRef.model_validate(value)
+                for value in raw_profile_refs
+            }
+        except Exception as exc:
+            raise QueryToolError(
+                "current run materialization profile_refs are invalid"
+            ) from exc
+        if len(profile_refs) != len(raw_profile_refs):
+            raise QueryToolError(
+                "current run materialization has duplicate profile_refs"
+            )
+        layer_fact_counts = materialization.get("layer_fact_counts")
+        if not isinstance(layer_fact_counts, dict):
+            raise QueryToolError(
+                "current run materialization layer_fact_counts are invalid"
+            )
+        artifacts = materialization.get("artifacts")
+        kg_path = artifacts.get("kg_jsonl") if isinstance(artifacts, dict) else None
+        if not isinstance(kg_path, str) or Path(kg_path).name != "kg.jsonl":
+            raise QueryToolError(
+                "current run materialization does not register kg.jsonl"
+            )
+
+        current_profiles = load_validation_profile_registry(
+            decision_guide=load_schema_guide()
+        )
+        for ref in profile_refs:
+            try:
+                current_profiles.resolve(ref)
+            except ValueError as exc:
+                raise QueryToolError(
+                    f"current run uses an unknown validation profile: "
+                    f"{ref.profile_id}"
+                ) from exc
+
+        raw_layers = manifest.get("formal_layers")
+        required_layers = {
+            "decision",
+            "weather",
+            "public_operational_observation",
+        }
+        if not isinstance(raw_layers, dict) or set(raw_layers) != required_layers:
+            raise QueryToolError("current run formal_layers are malformed")
+        formal_layers: dict[str, dict[str, Any]] = {}
+        for layer, entry in raw_layers.items():
+            if not isinstance(entry, dict):
+                raise QueryToolError(
+                    f"current run formal layer is malformed: {layer}"
+                )
+            status = entry.get("status")
+            count = entry.get("formal_fact_count")
+            if status not in {"ok", "insufficient", "blocked"}:
+                raise QueryToolError(
+                    f"current run formal layer status is invalid: {layer}"
+                )
+            if (
+                not isinstance(count, int)
+                or isinstance(count, bool)
+                or count < 0
+                or (status != "ok" and count != 0)
+            ):
+                raise QueryToolError(
+                    f"current run formal layer fact count is invalid: {layer}"
+                )
+            try:
+                ref = ValidationProfileRef(
+                    profile_id=entry["profile_id"],
+                    profile_checksum=entry["profile_checksum"],
+                    layer=layer,
+                )
+                current_profiles.resolve(ref)
+            except (KeyError, ValueError) as exc:
+                raise QueryToolError(
+                    f"current run formal layer profile is invalid: {layer}"
+                ) from exc
+            formal_layers[layer] = entry
+        if formal_layers["decision"]["status"] != "ok":
+            raise QueryToolError("current run decision layer is not queryable")
+
+        context_artifacts = manifest.get("context_artifacts")
+        entry = (
+            context_artifacts.get("source_snapshots")
+            if isinstance(context_artifacts, dict)
+            else None
+        )
+        if not isinstance(entry, dict):
+            raise QueryToolError(
+                "current run manifest does not register source_snapshots.jsonl"
+            )
+        if (
+            entry.get("path") != "source_snapshots.jsonl"
+            or entry.get("status") != "ok"
+        ):
+            raise QueryToolError(
+                "current run source_snapshots.jsonl registration is invalid"
+            )
+        registry_path = root / "source_snapshots.jsonl"
+        if (
+            registry_path.is_symlink()
+            or not registry_path.exists()
+            or not registry_path.is_file()
+            or not registry_path.resolve().is_relative_to(root)
+        ):
+            raise QueryToolError(
+                "current run source_snapshots.jsonl is missing or unsafe"
+            )
+        try:
+            data = registry_path.read_bytes()
+        except OSError as exc:
+            raise QueryToolError(
+                "current run source_snapshots.jsonl cannot be read"
+            ) from exc
+        if (
+            not isinstance(entry.get("sha256"), str)
+            or hashlib.sha256(data).hexdigest() != entry["sha256"]
+        ):
+            raise QueryToolError(
+                "current run source_snapshots.jsonl checksum mismatch"
+            )
+        row_count = sum(1 for line in data.splitlines() if line.strip())
+        if (
+            not isinstance(entry.get("count"), int)
+            or isinstance(entry.get("count"), bool)
+            or entry["count"] != row_count
+        ):
+            raise QueryToolError(
+                "current run source_snapshots.jsonl row count mismatch"
+            )
+        try:
+            snapshots = SourceSnapshotRegistry.read_jsonl(registry_path)
+        except ValueError as exc:
+            raise QueryToolError(
+                "current run source_snapshots.jsonl is invalid"
+            ) from exc
+        return manifest, snapshots, profile_refs, formal_layers
+
+    @staticmethod
+    def _validate_current_fact_row(
+        row: dict[str, Any],
+        *,
+        line_number: int,
+        snapshots: SourceSnapshotRegistry,
+        profile_refs: set[ValidationProfileRef],
+        formal_layers: dict[str, dict[str, Any]],
+    ) -> dict[str, Any]:
+        required_fields = {
+            "triple_id",
+            "subject",
+            "predicate",
+            "object",
+            "subject_class",
+            "object_class",
+            "object_kind",
+            "source_document",
+            "evidence_text",
+            "profile_id",
+            "profile_checksum",
+            "validation_layer",
+            "evidence_mode",
+            "evidence_ref",
+            "source_ids",
+            "source_snapshot_checksums",
+        }
+        missing = sorted(required_fields - set(row))
+        if missing:
+            raise QueryToolError(
+                f"graph row {line_number} is not a current profile-owned fact: "
+                f"missing {missing[0]}"
+            )
+        try:
+            ref = ValidationProfileRef(
+                profile_id=row["profile_id"],
+                profile_checksum=row["profile_checksum"],
+                layer=row["validation_layer"],
+            )
+        except ValueError as exc:
+            raise QueryToolError(
+                f"graph row {line_number} has invalid profile ownership"
+            ) from exc
+        if ref not in profile_refs:
+            raise QueryToolError(
+                f"graph row {line_number} profile is absent from materialization"
+            )
+        if formal_layers[ref.layer]["status"] != "ok":
+            raise QueryToolError(
+                f"graph row {line_number} belongs to a non-ok formal layer"
+            )
+        evidence_mode = row.get("evidence_mode")
+        if evidence_mode not in {
+            "source_text",
+            "deterministic_derivation",
+            "profile_definition",
+            "system_membership",
+        }:
+            raise QueryToolError(
+                f"graph row {line_number} has invalid evidence_mode"
+            )
+        if not isinstance(row.get("evidence_ref"), str) or not row[
+            "evidence_ref"
+        ].strip():
+            raise QueryToolError(
+                f"graph row {line_number} has no evidence_ref"
+            )
+        source_ids = row.get("source_ids")
+        if (
+            not isinstance(source_ids, list)
+            or any(
+                not isinstance(source_id, str) or not source_id.strip()
+                for source_id in source_ids
+            )
+            or len(source_ids) != len(set(source_ids))
+        ):
+            raise QueryToolError(
+                f"graph row {line_number} has invalid source_ids"
+            )
+        if set(source_ids) != set(_split_source_ids(row["source_document"])):
+            raise QueryToolError(
+                f"graph row {line_number} source fields disagree"
+            )
+        checksums = row.get("source_snapshot_checksums")
+        if not isinstance(checksums, dict) or set(checksums) != set(source_ids):
+            raise QueryToolError(
+                f"graph row {line_number} has incomplete snapshot checksums"
+            )
+        for source_id in source_ids:
+            snapshot = snapshots.get(source_id)
+            if (
+                snapshot is None
+                or checksums[source_id] != snapshot.content_sha256
+            ):
+                raise QueryToolError(
+                    f"graph row {line_number} source snapshot checksum mismatch"
+                )
+        if evidence_mode in {
+            "source_text",
+            "deterministic_derivation",
+        } and not source_ids:
+            raise QueryToolError(
+                f"graph row {line_number} has no evidence source"
+            )
+        normalized = dict(row)
+        normalized["source_ids"] = list(source_ids)
+        return normalized
+
+    @staticmethod
+    def _validate_materialized_counts(
+        manifest: dict[str, Any],
+        rows: list[dict[str, Any]],
+        *,
+        profile_refs: set[ValidationProfileRef],
+        formal_layers: dict[str, dict[str, Any]],
+    ) -> None:
+        materialization = manifest["materialization"]
+        if materialization["fact_count"] != len(rows):
+            raise QueryToolError(
+                "current run materialization fact count does not match kg.jsonl"
+            )
+        actual_layer_counts: dict[str, int] = {}
+        actual_refs: set[ValidationProfileRef] = set()
+        for row in rows:
+            layer = str(row["validation_layer"])
+            actual_layer_counts[layer] = actual_layer_counts.get(layer, 0) + 1
+            actual_refs.add(
+                ValidationProfileRef(
+                    profile_id=row["profile_id"],
+                    profile_checksum=row["profile_checksum"],
+                    layer=row["validation_layer"],
+                )
+            )
+        if materialization["layer_fact_counts"] != actual_layer_counts:
+            raise QueryToolError(
+                "current run materialization layer counts do not match kg.jsonl"
+            )
+        if actual_refs != profile_refs:
+            raise QueryToolError(
+                "current run materialization profile refs do not match kg.jsonl"
+            )
+        for layer, entry in formal_layers.items():
+            if entry["formal_fact_count"] != actual_layer_counts.get(layer, 0):
+                raise QueryToolError(
+                    f"current run formal layer count does not match kg.jsonl: "
+                    f"{layer}"
+                )
 
     def _load_profile_gaps(self, root: Path) -> list[PersistedProfileGap]:
         path = root / "profile_gaps.jsonl"
@@ -253,7 +614,6 @@ class QueryGraphStore:
             seen_ids.add(gap.profile_gap_id)
             gaps.append(gap)
         snapshots = self._load_profile_gap_snapshots(
-            root,
             {gap.source_id for gap in gaps},
         )
         for gap in gaps:
@@ -268,84 +628,22 @@ class QueryGraphStore:
                 )
         return gaps
 
-    @staticmethod
     def _load_profile_gap_snapshots(
-        root: Path,
+        self,
         required_source_ids: set[str],
     ) -> dict[str, SourceSnapshot]:
         if not required_source_ids:
             return {}
-        registry_path = root / "source_snapshots.jsonl"
-        legacy_snapshot_path = root / "source_snapshot.json"
-        selected: dict[str, SourceSnapshot] = {}
-        if registry_path.exists():
-            resolved_registry = registry_path.resolve()
-            if not resolved_registry.is_relative_to(root):
-                raise QueryToolError(
-                    "source-snapshot artifact escapes the requested run directory"
-                )
-            for line_number, line in enumerate(
-                resolved_registry.read_text(encoding="utf-8").splitlines(),
-                1,
-            ):
-                if not line.strip():
-                    continue
-                try:
-                    payload = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                if (
-                    not isinstance(payload, dict)
-                    or payload.get("source_id") not in required_source_ids
-                ):
-                    continue
-                source_id = str(payload["source_id"])
-                if source_id in selected:
-                    raise QueryToolError(
-                        f"duplicate profile-gap source snapshot ID: {source_id}"
-                    )
-                try:
-                    snapshot = SourceSnapshot.model_validate(payload)
-                except Exception as exc:
-                    raise QueryToolError(
-                        f"invalid profile-gap source snapshot at line {line_number}"
-                    ) from exc
-                if snapshot.content_sha256 != hashlib.sha256(
-                    snapshot.content.encode("utf-8")
-                ).hexdigest():
-                    raise QueryToolError(
-                        f"profile-gap source snapshot checksum mismatch: {source_id}"
-                    )
-                selected[source_id] = snapshot
-        elif legacy_snapshot_path.exists():
-            resolved_snapshot = legacy_snapshot_path.resolve()
-            if not resolved_snapshot.is_relative_to(root):
-                raise QueryToolError(
-                    "source-snapshot artifact escapes the requested run directory"
-                )
-            try:
-                snapshot = SourceSnapshot.model_validate_json(
-                    resolved_snapshot.read_text(encoding="utf-8")
-                )
-            except Exception as exc:
-                raise QueryToolError(
-                    "invalid source snapshot for profile gaps"
-                ) from exc
-            if snapshot.source_id in required_source_ids:
-                if snapshot.content_sha256 != hashlib.sha256(
-                    snapshot.content.encode("utf-8")
-                ).hexdigest():
-                    raise QueryToolError(
-                        "profile-gap source snapshot checksum mismatch: "
-                        f"{snapshot.source_id}"
-                    )
-                selected[snapshot.source_id] = snapshot
-        else:
-            raise QueryToolError("profile-gap artifact has no source snapshot")
+        selected = {
+            source_id: snapshot
+            for source_id in required_source_ids
+            if (snapshot := self.source_snapshots.get(source_id)) is not None
+        }
         missing = sorted(required_source_ids - set(selected))
         if missing:
             raise QueryToolError(
-                f"profile-gap source snapshot is missing: {missing[0]}"
+                "profile-gap source is missing from source_snapshots.jsonl: "
+                f"{missing[0]}"
             )
         return selected
 

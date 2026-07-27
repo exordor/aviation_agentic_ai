@@ -21,6 +21,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     PersistedProfileGap,
     SourceFamily,
     SourceSnapshot,
+    SourceSnapshotRegistry,
     WeatherContextAssociation,
 )
 from aviation_agentic_ai.agent_system.query_tool_graph import (
@@ -52,6 +53,10 @@ from aviation_agentic_ai.agent_system.weather_context import (
 from aviation_agentic_ai.agent_system.weather_context_validation import (
     expected_weather_fact_id,
 )
+from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    load_validation_profile_registry,
+)
 
 _REAL_QUERY_CONTEXT_STORE = query_tool_graph_module.QueryContextStore
 
@@ -69,6 +74,12 @@ PREDICATES = [
     "atm:effectiveStartTime",
     "atm:effectiveEndTime",
 ]
+PROFILE_REGISTRY = load_validation_profile_registry(
+    decision_guide=load_schema_guide()
+)
+PROFILE_BY_LAYER = {
+    profile.ref.layer: profile.ref for profile in PROFILE_REGISTRY.profiles
+}
 
 
 def _graph_rows() -> list[dict[str, Any]]:
@@ -113,12 +124,188 @@ def _graph_rows() -> list[dict[str, Any]]:
     ]
 
 
-def _write_graph(run_dir: Path, rows: list[dict[str, Any]] | None = None) -> None:
+def _write_graph(
+    run_dir: Path,
+    rows: list[dict[str, Any]] | None = None,
+    *,
+    snapshots: list[SourceSnapshot] | tuple[SourceSnapshot, ...] | None = None,
+) -> None:
     run_dir.mkdir(parents=True, exist_ok=True)
+    source_rows = rows or _graph_rows()
+    existing_manifest: dict[str, Any] = {}
+    manifest_path = run_dir / "run_manifest.json"
+    if manifest_path.exists():
+        existing_manifest = json.loads(
+            manifest_path.read_text(encoding="utf-8")
+        )
+    if snapshots is None and (run_dir / "source_snapshots.jsonl").exists():
+        snapshots = SourceSnapshotRegistry.read_jsonl(
+            run_dir / "source_snapshots.jsonl"
+        ).snapshots
+    if snapshots is None:
+        source_ids = sorted(
+            {
+                source_id.strip()
+                for row in source_rows
+                for source_id in str(
+                    row.get("source_document") or ""
+                ).split(";")
+                if source_id.strip()
+            }
+            or {SOURCE_ID}
+        )
+        snapshots = tuple(
+            SourceSnapshot(
+                source_id=source_id,
+                family=SourceFamily.ATCSCC_ADVISORY,
+                content=ADVISORY_CONTENT,
+                content_sha256=hashlib.sha256(
+                    ADVISORY_CONTENT.encode()
+                ).hexdigest(),
+                snapshot_timestamp="2026-05-19T20:30:00+00:00",
+            )
+            for source_id in source_ids
+        )
+    registry = SourceSnapshotRegistry(snapshots=tuple(snapshots))
+    registry_path = registry.write_jsonl(run_dir)
+    snapshot_checksums = {
+        snapshot.source_id: snapshot.content_sha256
+        for snapshot in registry.snapshots
+    }
+    payload: list[dict[str, Any]] = []
+    for source_row in source_rows:
+        row = dict(source_row)
+        layer = str(
+            row.get("validation_layer")
+            or (
+                "weather"
+                if row.get("subject_class") == "data:MeteorologicalReport"
+                else "decision"
+            )
+        )
+        profile = PROFILE_BY_LAYER[layer]
+        source_ids = row.get("source_ids")
+        if not isinstance(source_ids, list):
+            source_ids = [
+                source_id.strip()
+                for source_id in str(row.get("source_document") or "").split(";")
+                if source_id.strip()
+            ]
+        row.update(
+            {
+                "profile_id": str(
+                    row.get("profile_id") or profile.profile_id
+                ),
+                "profile_checksum": str(
+                    row.get("profile_checksum")
+                    or profile.profile_checksum
+                ),
+                "validation_layer": layer,
+                "evidence_mode": str(
+                    row.get("evidence_mode") or "source_text"
+                ),
+                "evidence_ref": str(
+                    row.get("evidence_ref") or row["triple_id"]
+                ),
+                "source_ids": source_ids,
+                "source_snapshot_checksums": {
+                    source_id: snapshot_checksums[source_id]
+                    for source_id in source_ids
+                    if source_id in snapshot_checksums
+                },
+            }
+        )
+        payload.append(row)
     (run_dir / "kg.jsonl").write_text(
-        "\n".join(json.dumps(row) for row in (rows or _graph_rows())) + "\n",
+        "\n".join(json.dumps(row) for row in payload) + "\n",
         encoding="utf-8",
     )
+    layer_counts = {
+        layer: sum(
+            row["validation_layer"] == layer for row in payload
+        )
+        for layer in PROFILE_BY_LAYER
+    }
+    used_refs = {
+        (
+            str(row["profile_id"]),
+            str(row["profile_checksum"]),
+            str(row["validation_layer"]),
+        )
+        for row in payload
+    }
+    registry_data = registry_path.read_bytes()
+    context_artifacts = dict(
+        existing_manifest.get("context_artifacts", {})
+    )
+    context_artifacts["source_snapshots"] = {
+        "path": "source_snapshots.jsonl",
+        "count": len(registry.snapshots),
+        "sha256": hashlib.sha256(registry_data).hexdigest(),
+        "status": "ok",
+    }
+    for key, filename in (
+        ("context_associations", "context_associations.jsonl"),
+        ("outcome_summaries", "outcome_summaries.jsonl"),
+        ("weather_fact_trace", "weather_fact_trace.jsonl"),
+        ("observation_derivations", "observation_derivations.jsonl"),
+        ("observation_fact_trace", "observation_fact_trace.jsonl"),
+        ("reconstruction_trace", "reconstruction_trace.json"),
+    ):
+        if key not in context_artifacts:
+            context_artifacts[key] = _artifact(
+                run_dir,
+                filename,
+                [],
+                status="insufficient",
+            )
+    formal_layers = {}
+    existing_layers = existing_manifest.get("formal_layers", {})
+    for layer, profile in PROFILE_BY_LAYER.items():
+        existing = (
+            existing_layers.get(layer, {})
+            if isinstance(existing_layers, dict)
+            else {}
+        )
+        status = "ok" if layer_counts[layer] else str(
+            existing.get("status") or "insufficient"
+        )
+        formal_layers[layer] = {
+            "status": status,
+            "profile_id": profile.profile_id,
+            "profile_checksum": profile.profile_checksum,
+            "formal_fact_count": layer_counts[layer],
+        }
+        if status == "blocked":
+            formal_layers[layer]["failure_reason"] = str(
+                existing.get("failure_reason") or "fixture layer blocked"
+            )
+    manifest = {
+        **existing_manifest,
+        "manifest_version": "decision-case-run-v1",
+        "run_id": run_dir.name,
+        "materialization": {
+            "materialized": True,
+            "fact_count": len(payload),
+            "profile_refs": [
+                {
+                    "profile_id": profile_id,
+                    "profile_checksum": checksum,
+                    "layer": layer,
+                }
+                for profile_id, checksum, layer in sorted(used_refs)
+            ],
+            "layer_fact_counts": {
+                layer: count
+                for layer, count in layer_counts.items()
+                if count
+            },
+            "artifacts": {"kg_jsonl": str(run_dir / "kg.jsonl")},
+        },
+        "formal_layers": formal_layers,
+        "context_artifacts": context_artifacts,
+    }
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
 
 
 def _write_profile_gap(
@@ -129,21 +316,14 @@ def _write_profile_gap(
     profile_gap_id: str = "profile-gap:reason",
 ) -> None:
     evidence = "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
-    content = ADVISORY_CONTENT
-    import hashlib
-
-    checksum = hashlib.sha256(content.encode("utf-8")).hexdigest()
-    snapshot = SourceSnapshot(
-        source_id=source_id,
-        family="atcscc_advisory",
-        content=content,
-        content_sha256=checksum,
-        snapshot_timestamp="2026-05-19T21:00:00+00:00",
+    registry = SourceSnapshotRegistry.read_jsonl(
+        run_dir / "source_snapshots.jsonl"
     )
-    (run_dir / "source_snapshot.json").write_text(
-        snapshot.model_dump_json(),
-        encoding="utf-8",
-    )
+    registered = registry.get(source_id)
+    if registered is None:
+        raise AssertionError(
+            f"fixture has no current snapshot for profile gap: {source_id}"
+        )
     gap = PersistedProfileGap(
         profile_gap_id=profile_gap_id,
         event_id=event_id,
@@ -152,7 +332,7 @@ def _write_profile_gap(
         evidence_text=evidence,
         reason="atm:impactingCondition domain is GDP-only in the active slice",
         source_id=source_id,
-        source_snapshot_sha256=checksum,
+        source_snapshot_sha256=registered.content_sha256,
     )
     (run_dir / "profile_gaps.jsonl").write_text(
         gap.model_dump_json() + "\n",
@@ -497,7 +677,7 @@ def _write_query_context(
                     datatype_iri=XSD_DATETIME,
                 )
             )
-    _write_graph(run_dir, rows)
+    _write_graph(run_dir, rows, snapshots=snapshots)
 
     start = datetime(2026, 5, 19, 21, tzinfo=UTC)
     end = datetime(2026, 5, 19, 22, 45, tzinfo=UTC)
@@ -561,10 +741,10 @@ def _write_query_context(
             [summary.model_dump_json() for summary in summaries],
         ),
     }
-    (run_dir / "run_manifest.json").write_text(
-        json.dumps({"run_id": run_id, "context_artifacts": metadata}),
-        encoding="utf-8",
-    )
+    manifest_path = run_dir / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["context_artifacts"].update(metadata)
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
 
 
 def _read_jsonl_objects(path: Path) -> list[dict[str, Any]]:
@@ -1423,7 +1603,7 @@ def test_optional_context_corruption_does_not_block_old_core_question(tmp_path):
         DECLARED_REASON_QUESTION,
     ],
 )
-def test_unrelated_corrupt_weather_snapshot_does_not_block_core_queries(
+def test_corrupt_registered_weather_snapshot_blocks_all_queries(
     tmp_path,
     question,
 ):
@@ -1449,7 +1629,8 @@ def test_unrelated_corrupt_weather_snapshot_does_not_block_core_queries(
         model_factory=factory,
     )
 
-    assert outcome.status == "ok"
+    assert outcome.status == "blocked"
+    assert "source_snapshots.jsonl checksum mismatch" in outcome.failure_reason
     assert factory.calls == 0
 
 
@@ -2384,7 +2565,7 @@ def test_unsourced_fact_is_blocked(tmp_path):
         model_factory=_Factory(_ScriptedModel([_tool_message()])),
     )
     assert outcome.status == "blocked"
-    assert "missing provenance" in outcome.failure_reason
+    assert "no evidence source" in outcome.failure_reason
 
 
 def test_second_model_tool_call_is_blocked_by_one_turn_contract(tmp_path):

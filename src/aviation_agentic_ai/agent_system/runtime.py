@@ -25,7 +25,6 @@ from typing import Any
 from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
 from aviation_agentic_ai.agent_system.materialize import (
     FactMaterialization,
-    GraphPatchMaterialization,
 )
 from aviation_agentic_ai.agent_system.prompts import (
     DEFAULT_PROMPT_CATALOG,
@@ -49,6 +48,7 @@ MAX_PROVIDER_CALLS = 8
 
 # Catalog metadata re-exported for the manifest's top-level prompt_version.
 PROMPT_CATALOG = DEFAULT_PROMPT_CATALOG
+RUN_MANIFEST_VERSION = "decision-case-run-v1"
 
 
 @dataclass(frozen=True)
@@ -214,7 +214,7 @@ def write_run_manifest(
     run_dir: Path,
     source_id: str,
     model_calls: list[ModelCallRecord],
-    materialization: GraphPatchMaterialization | FactMaterialization | None,
+    materialization: FactMaterialization | None,
     schema_slice_id: str,
     schema_checksum: str,
     evidence_cards: list[Any],
@@ -242,6 +242,7 @@ def write_run_manifest(
     if frozen_created_at.tzinfo is None or frozen_created_at.utcoffset() is None:
         raise ValueError("manifest created_at must be timezone-aware")
     manifest = {
+        "manifest_version": RUN_MANIFEST_VERSION,
         "run_id": run_dir.name,
         "source_id": source_id,
         "created_at": frozen_created_at.astimezone(UTC).isoformat(),
@@ -256,9 +257,6 @@ def write_run_manifest(
         },
         "schema_slice_id": schema_slice_id,
         "schema_checksum": schema_checksum,
-        # ``provider_calls`` is retained for artifact compatibility and now
-        # means attempted calls so failures cannot disappear from the budget.
-        "provider_calls": provider_attempts,
         "provider_attempts": provider_attempts,
         "provider_successes": provider_successes,
         "input_tokens": input_tokens,
@@ -283,37 +281,19 @@ def write_run_manifest(
 
 
 def _materialization_summary(
-    mat: GraphPatchMaterialization | FactMaterialization | None,
+    mat: FactMaterialization | None,
 ) -> dict[str, Any]:
     if mat is None:
         return {"materialized": False}
-    if isinstance(mat, FactMaterialization):
-        return {
-            "materialized": True,
-            "fact_count": mat.fact_count,
-            "schema_slice_id": mat.schema_slice_id,
-            "schema_checksum": mat.schema_checksum,
-            "profile_refs": [
-                ref.model_dump(mode="json") for ref in mat.profile_refs
-            ],
-            "layer_fact_counts": mat.layer_fact_counts,
-            "artifacts": {
-                "kg_jsonl": mat.jsonl_path,
-                "kg_ttl": mat.ttl_path,
-                "neo4j_nodes": mat.nodes_path,
-                "neo4j_relationships": mat.relationships_path,
-            },
-        }
     return {
         "materialized": True,
-        "valid_count": mat.valid_count,
-        "schema_violation_count": mat.schema_violation_count,
-        "profile_gap_count": mat.profile_gap_count,
-        "parse_error_count": mat.parse_error_count,
-        "parse_rate": mat.parse_rate,
+        "fact_count": mat.fact_count,
         "schema_slice_id": mat.schema_slice_id,
         "schema_checksum": mat.schema_checksum,
-        "triples_written": len(mat.triples),
+        "profile_refs": [
+            ref.model_dump(mode="json") for ref in mat.profile_refs
+        ],
+        "layer_fact_counts": mat.layer_fact_counts,
         "artifacts": {
             "kg_jsonl": mat.jsonl_path,
             "kg_ttl": mat.ttl_path,

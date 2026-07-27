@@ -39,6 +39,7 @@ import rdflib
 from rdflib.namespace import RDF
 
 from aviation_agentic_ai.agent_system.contracts import (
+    FactTraceRow,
     ModelCallRecord,
     SourceFamily,
     SourceRecord,
@@ -52,7 +53,10 @@ from aviation_agentic_ai.agent_system.materialize import (
 )
 from aviation_agentic_ai.agent_system.query import answer_question
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
-from aviation_agentic_ai.agent_system.sources import build_source_snapshot
+from aviation_agentic_ai.agent_system.sources import (
+    build_source_snapshot,
+    build_source_snapshot_registry,
+)
 from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
 )
@@ -103,6 +107,9 @@ DECISION_PROFILE_REF = next(
         decision_guide=load_schema_guide()
     ).refs
     if ref.layer == "decision"
+)
+PROFILE_REGISTRY = load_validation_profile_registry(
+    decision_guide=load_schema_guide()
 )
 
 
@@ -157,12 +164,72 @@ def _fixed_facts() -> list[ValidatedFact]:
             datatype_iri=XSD_STR, source_ids=[SOURCE_ID],
             evidence_texts=["PROBABILITY OF EXTENSION: MEDIUM"],
         ),
-        _decision_fact(
-            fact_id="f7", subject_iri=EVT_SUBJECT, subject_class_iri=GS_IRI,
-            predicate_iri=PROV_IRI, object_kind="iri", object_value=SOURCE_ID,
-            source_ids=[SOURCE_ID], evidence_texts=[],
-        ),
     ]
+
+
+def _snapshot_registry(facts: list[ValidatedFact]):
+    source_ids = sorted(
+        {
+            source_id
+            for fact in facts
+            for source_id in fact.source_ids
+        }
+    )
+    return build_source_snapshot_registry(
+        [
+            SourceRecord(
+                source_id=source_id,
+                family=SourceFamily.ATCSCC_ADVISORY,
+                content=ADVISORY_CONTENT,
+            )
+            for source_id in source_ids
+        ]
+    )
+
+
+def _materialize_current(
+    *,
+    facts: list[ValidatedFact],
+    output_dir: Path,
+):
+    registry = _snapshot_registry(facts)
+    snapshots = {
+        snapshot.source_id: snapshot
+        for snapshot in registry.snapshots
+    }
+    traces = [
+        FactTraceRow(
+            fact_id=fact.fact_id,
+            graph_patch_line="current profile-owned fixture",
+            source_id=fact.source_ids[0],
+            evidence_text=fact.evidence_texts[0],
+            evidence_agent_role="fixture",
+            source_snapshot_sha256=(
+                snapshots[fact.source_ids[0]].content_sha256
+            ),
+        )
+        for fact in facts
+    ]
+    return materialize_validated_facts(
+        facts=facts,
+        profile_registry=PROFILE_REGISTRY,
+        source_snapshot=registry,
+        fact_traces=traces,
+        output_dir=output_dir,
+    )
+
+
+def _project_current(
+    *,
+    facts: list[ValidatedFact],
+    output_dir: Path,
+):
+    return build_validated_facts_neo4j_projection(
+        facts=facts,
+        profile_registry=PROFILE_REGISTRY,
+        source_snapshot=_snapshot_registry(facts),
+        output_dir=output_dir,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -171,8 +238,8 @@ def _fixed_facts() -> list[ValidatedFact]:
 
 
 def test_rdf_has_actual_nasa_groundstop_iri(guide, snapshot, tmp_path):
-    mat = materialize_validated_facts(
-        facts=_fixed_facts(), guide=guide, source_snapshot=snapshot, output_dir=tmp_path,
+    mat = _materialize_current(
+        facts=_fixed_facts(), output_dir=tmp_path,
     )
     g = rdflib.Graph()
     g.parse(mat.ttl_path, format="turtle")
@@ -180,8 +247,8 @@ def test_rdf_has_actual_nasa_groundstop_iri(guide, snapshot, tmp_path):
 
 
 def test_rdf_has_actual_controlled_nas_element_iri(guide, snapshot, tmp_path):
-    mat = materialize_validated_facts(
-        facts=_fixed_facts(), guide=guide, source_snapshot=snapshot, output_dir=tmp_path,
+    mat = _materialize_current(
+        facts=_fixed_facts(), output_dir=tmp_path,
     )
     g = rdflib.Graph()
     g.parse(mat.ttl_path, format="turtle")
@@ -189,8 +256,8 @@ def test_rdf_has_actual_controlled_nas_element_iri(guide, snapshot, tmp_path):
 
 
 def test_rdf_advisory_number_is_integer_literal(guide, snapshot, tmp_path):
-    mat = materialize_validated_facts(
-        facts=_fixed_facts(), guide=guide, source_snapshot=snapshot, output_dir=tmp_path,
+    mat = _materialize_current(
+        facts=_fixed_facts(), output_dir=tmp_path,
     )
     g = rdflib.Graph()
     g.parse(mat.ttl_path, format="turtle")
@@ -203,8 +270,8 @@ def test_rdf_advisory_number_is_integer_literal(guide, snapshot, tmp_path):
 
 
 def test_rdf_times_are_datetime_literals(guide, snapshot, tmp_path):
-    mat = materialize_validated_facts(
-        facts=_fixed_facts(), guide=guide, source_snapshot=snapshot, output_dir=tmp_path,
+    mat = _materialize_current(
+        facts=_fixed_facts(), output_dir=tmp_path,
     )
     g = rdflib.Graph()
     g.parse(mat.ttl_path, format="turtle")
@@ -218,8 +285,8 @@ def test_rdf_times_are_datetime_literals(guide, snapshot, tmp_path):
 
 
 def test_rdf_provenance_exists(guide, snapshot, tmp_path):
-    mat = materialize_validated_facts(
-        facts=_fixed_facts(), guide=guide, source_snapshot=snapshot, output_dir=tmp_path,
+    mat = _materialize_current(
+        facts=_fixed_facts(), output_dir=tmp_path,
     )
     g = rdflib.Graph()
     g.parse(mat.ttl_path, format="turtle")
@@ -231,8 +298,8 @@ def test_rdf_provenance_exists(guide, snapshot, tmp_path):
 
 
 def test_rdf_has_zero_example_namespace_atmonto_terms(guide, snapshot, tmp_path):
-    mat = materialize_validated_facts(
-        facts=_fixed_facts(), guide=guide, source_snapshot=snapshot, output_dir=tmp_path,
+    mat = _materialize_current(
+        facts=_fixed_facts(), output_dir=tmp_path,
     )
     ttl = Path(mat.ttl_path).read_text(encoding="utf-8")
     assert "example.org" not in ttl
@@ -241,8 +308,8 @@ def test_rdf_has_zero_example_namespace_atmonto_terms(guide, snapshot, tmp_path)
 def test_rdf_facility_remains_uriref_not_literal(guide, snapshot, tmp_path):
     """§6.1: canonical facilities remain URIRefs; literals are never resources."""
 
-    mat = materialize_validated_facts(
-        facts=_fixed_facts(), guide=guide, source_snapshot=snapshot, output_dir=tmp_path,
+    mat = _materialize_current(
+        facts=_fixed_facts(), output_dir=tmp_path,
     )
     g = rdflib.Graph()
     g.parse(mat.ttl_path, format="turtle")
@@ -259,8 +326,8 @@ def test_rdf_facility_remains_uriref_not_literal(guide, snapshot, tmp_path):
 
 
 def test_neo4j_projection_has_no_literal_nodes(guide, tmp_path):
-    nodes, rels, nodes_path, rels_path = build_validated_facts_neo4j_projection(
-        facts=_fixed_facts(), guide=guide, output_dir=tmp_path,
+    nodes, rels, nodes_path, rels_path = _project_current(
+        facts=_fixed_facts(), output_dir=tmp_path,
     )
     labels = {n["label"] for n in nodes}
     assert "Literal" not in labels
@@ -268,8 +335,8 @@ def test_neo4j_projection_has_no_literal_nodes(guide, tmp_path):
 
 
 def test_neo4j_projection_all_endpoints_exist(guide, tmp_path):
-    nodes, rels, nodes_path, rels_path = build_validated_facts_neo4j_projection(
-        facts=_fixed_facts(), guide=guide, output_dir=tmp_path,
+    nodes, rels, nodes_path, rels_path = _project_current(
+        facts=_fixed_facts(), output_dir=tmp_path,
     )
     node_ids = {n["id"] for n in nodes}
     for rel in rels:
@@ -278,8 +345,8 @@ def test_neo4j_projection_all_endpoints_exist(guide, tmp_path):
 
 
 def test_neo4j_projection_datatype_props_on_event_node(guide, tmp_path):
-    nodes, rels, nodes_path, rels_path = build_validated_facts_neo4j_projection(
-        facts=_fixed_facts(), guide=guide, output_dir=tmp_path,
+    nodes, rels, nodes_path, rels_path = _project_current(
+        facts=_fixed_facts(), output_dir=tmp_path,
     )
     event = next(n for n in nodes if n["label"] == "AviationEvent")
     props = event["properties"]
@@ -290,8 +357,8 @@ def test_neo4j_projection_datatype_props_on_event_node(guide, tmp_path):
 
 
 def test_neo4j_relationships_retain_predicate_iri(guide, tmp_path):
-    nodes, rels, nodes_path, rels_path = build_validated_facts_neo4j_projection(
-        facts=_fixed_facts(), guide=guide, output_dir=tmp_path,
+    nodes, rels, nodes_path, rels_path = _project_current(
+        facts=_fixed_facts(), output_dir=tmp_path,
     )
     for rel in rels:
         assert rel["properties"]["predicate_iri"]
@@ -307,9 +374,8 @@ def test_neo4j_projection_deduplicates_stable_relationships(guide, tmp_path):
         update={"fact_id": "f2-duplicate", "source_ids": ["source:second"]}
     )
     _nodes, rels, _nodes_path, _rels_path = (
-        build_validated_facts_neo4j_projection(
+        _project_current(
             facts=_fixed_facts() + [duplicate],
-            guide=guide,
             output_dir=tmp_path,
         )
     )
@@ -375,8 +441,8 @@ def _fake_driver_factory(store: _FakeStore):
 def test_neo4j_load_uses_parameterized_merge(guide, tmp_path):
     """§6.4: parameterized MERGE is used."""
 
-    nodes, rels, nodes_path, rels_path = build_validated_facts_neo4j_projection(
-        facts=_fixed_facts(), guide=guide, output_dir=tmp_path,
+    nodes, rels, nodes_path, rels_path = _project_current(
+        facts=_fixed_facts(), output_dir=tmp_path,
     )
     store = _FakeStore()
     summary = load_validated_facts_neo4j(
@@ -394,8 +460,8 @@ def test_neo4j_load_uses_parameterized_merge(guide, tmp_path):
 def test_neo4j_load_twice_does_not_increase_counts(guide, tmp_path):
     """§6.4: loading twice does not increase node or relationship counts."""
 
-    nodes, rels, nodes_path, rels_path = build_validated_facts_neo4j_projection(
-        facts=_fixed_facts(), guide=guide, output_dir=tmp_path,
+    nodes, rels, nodes_path, rels_path = _project_current(
+        facts=_fixed_facts(), output_dir=tmp_path,
     )
     store = _FakeStore()
     factory = _fake_driver_factory(store)
@@ -417,8 +483,8 @@ def test_neo4j_load_twice_does_not_increase_counts(guide, tmp_path):
 def test_neo4j_load_preserves_unrelated_sentinel(guide, tmp_path):
     """§6.4: an unrelated sentinel node is preserved across loads."""
 
-    nodes, rels, nodes_path, rels_path = build_validated_facts_neo4j_projection(
-        facts=_fixed_facts(), guide=guide, output_dir=tmp_path,
+    nodes, rels, nodes_path, rels_path = _project_current(
+        facts=_fixed_facts(), output_dir=tmp_path,
     )
     store = _FakeStore()
     # Pre-populate an unrelated sentinel node the loader must never clear.
@@ -442,8 +508,8 @@ def test_neo4j_load_preserves_unrelated_sentinel(guide, tmp_path):
 def test_neo4j_load_missing_credentials_blocked(guide, tmp_path):
     """§6.2/§6.4: missing credentials -> BLOCKED (never faked)."""
 
-    nodes, rels, nodes_path, rels_path = build_validated_facts_neo4j_projection(
-        facts=_fixed_facts(), guide=guide, output_dir=tmp_path,
+    nodes, rels, nodes_path, rels_path = _project_current(
+        facts=_fixed_facts(), output_dir=tmp_path,
     )
     with pytest.raises(Neo4jLoadBlocked):
         load_validated_facts_neo4j(
@@ -455,8 +521,8 @@ def test_neo4j_load_missing_credentials_blocked(guide, tmp_path):
 def test_neo4j_load_connectivity_failure_blocked(guide, tmp_path):
     """§6.2/§6.4: a connectivity/load failure -> BLOCKED."""
 
-    nodes, rels, nodes_path, rels_path = build_validated_facts_neo4j_projection(
-        facts=_fixed_facts(), guide=guide, output_dir=tmp_path,
+    nodes, rels, nodes_path, rels_path = _project_current(
+        facts=_fixed_facts(), output_dir=tmp_path,
     )
 
     class _FailingDriver(_FakeDriver):
@@ -607,11 +673,10 @@ def test_supported_question_sees_only_matching_facts(tmp_path):
             raw_response="The graph records a Ground Stop at KJFK.\nSOURCES\n- " + SOURCE_ID,
         )
 
-    guide = load_schema_guide()
     # "ground stop" matches the rdf:type + controlledNASelement rows.
     status, answer, sources, rec, facts = answer_question(
         run_dir=tmp_path, question="ground stop KJFK",
-        model_invoker=invoker, guide=guide, write_run_record=True,
+        model_invoker=invoker, write_run_record=True,
     )
     assert facts  # the Query Agent saw matching facts only
     assert SOURCE_ID in sources
@@ -836,8 +901,8 @@ def test_sec13_regression1_provenance_without_explicit_prov_row(guide, tmp_path)
     """§13 regression 1: facts without an explicit PROV row still produce
     exactly one SourceRecord and one DERIVED_FROM."""
 
-    nodes, rels, _, _ = build_validated_facts_neo4j_projection(
-        facts=_no_prov_facts(), guide=guide, output_dir=tmp_path,
+    nodes, rels, _, _ = _project_current(
+        facts=_no_prov_facts(), output_dir=tmp_path,
     )
     source_nodes = sum(1 for n in nodes if n["label"] == "SourceRecord")
     derived = sum(1 for r in rels if r["type"] == "DERIVED_FROM")
@@ -856,11 +921,11 @@ def test_sec13_regression2_explicit_prov_row_does_not_increase_counts(guide, tmp
             source_ids=[SOURCE_ID], evidence_texts=[],
         )
     ]
-    nodes_a, rels_a, _, _ = build_validated_facts_neo4j_projection(
-        facts=_no_prov_facts(), guide=guide, output_dir=tmp_path / "a",
+    nodes_a, rels_a, _, _ = _project_current(
+        facts=_no_prov_facts(), output_dir=tmp_path / "a",
     )
-    nodes_b, rels_b, _, _ = build_validated_facts_neo4j_projection(
-        facts=facts_with_prov, guide=guide, output_dir=tmp_path / "b",
+    nodes_b, rels_b, _, _ = _project_current(
+        facts=facts_with_prov, output_dir=tmp_path / "b",
     )
     src_a = sum(1 for n in nodes_a if n["label"] == "SourceRecord")
     src_b = sum(1 for n in nodes_b if n["label"] == "SourceRecord")

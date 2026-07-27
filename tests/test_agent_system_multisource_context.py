@@ -255,7 +255,7 @@ def _write_core_fact_trace(
     output_dir: Path,
     facts: list[ValidatedFact],
     registry,
-) -> None:
+) -> list[FactTraceRow]:
     snapshot = registry.snapshots[0]
     rows = [
         FactTraceRow(
@@ -271,6 +271,29 @@ def _write_core_fact_trace(
     (output_dir / "fact_trace.jsonl").write_text(
         "".join(row.model_dump_json() + "\n" for row in rows),
         encoding="utf-8",
+    )
+    return rows
+
+
+def _materialize_core_current(
+    *,
+    facts: list[ValidatedFact],
+    source_snapshot,
+    output_dir: Path,
+):
+    traces = _write_core_fact_trace(
+        output_dir,
+        facts,
+        source_snapshot,
+    )
+    return materialize_validated_facts(
+        facts=facts,
+        profile_registry=load_validation_profile_registry(
+            decision_guide=load_schema_guide()
+        ),
+        source_snapshot=source_snapshot,
+        fact_traces=traces,
+        output_dir=output_dir,
     )
 
 
@@ -638,7 +661,6 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     reason,
     active_counts,
 ):
-    guide = load_schema_guide()
     advisory = load_advisory_source(config, source_id)
     facility = FACILITIES[facility_code]
     event_id = f"evt:{source_id.replace(':', '-')}"
@@ -653,9 +675,8 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     )
     validation = GraphValidationResult(accepted=facts, publishable=True)
     advisory_registry = build_source_snapshot_registry([advisory])
-    core_materialization = materialize_validated_facts(
+    core_materialization = _materialize_core_current(
         facts=facts,
-        guide=guide,
         source_snapshot=advisory_registry,
         output_dir=tmp_path,
     )
@@ -677,7 +698,6 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     ctx = IngestContext(
         advisory=advisory,
         facility_candidates=[facility],
-        guide=guide,
         weather_sources=weather_sources,
         bts_rows=bts_rows,
         bts_source=bts_source,
@@ -902,7 +922,6 @@ def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_a
     tmp_path,
     config,
 ):
-    guide = load_schema_guide()
     source_id = "2026-05-20:020"
     advisory = load_advisory_source(config, source_id)
     facility = FACILITIES["KEWR"]
@@ -917,9 +936,8 @@ def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_a
         reason=None,
     )
     registry = build_source_snapshot_registry([advisory])
-    core = materialize_validated_facts(
+    core = _materialize_core_current(
         facts=facts,
-        guide=guide,
         source_snapshot=registry,
         output_dir=tmp_path,
     )
@@ -927,7 +945,6 @@ def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_a
     ctx = IngestContext(
         advisory=advisory,
         facility_candidates=[facility],
-        guide=guide,
         weather_failure_reason="weather loader checksum mismatch",
         bts_failure_reason="BTS manifest checksum mismatch",
         run_id="run:blocked-context",
@@ -973,7 +990,6 @@ def test_reconstruction_rejects_an_extra_unvalidated_weather_member(
     bts_context,
     monkeypatch,
 ):
-    guide = load_schema_guide()
     source_id = "2026-05-19:138"
     advisory = load_advisory_source(config, source_id)
     facility = FACILITIES["KJFK"]
@@ -988,9 +1004,8 @@ def test_reconstruction_rejects_an_extra_unvalidated_weather_member(
         reason="weather",
     )
     registry = build_source_snapshot_registry([advisory])
-    core = materialize_validated_facts(
+    core = _materialize_core_current(
         facts=facts,
-        guide=guide,
         source_snapshot=registry,
         output_dir=tmp_path,
     )
@@ -999,7 +1014,6 @@ def test_reconstruction_rejects_an_extra_unvalidated_weather_member(
     ctx = IngestContext(
         advisory=advisory,
         facility_candidates=[facility],
-        guide=guide,
         weather_sources=weather_sources,
         bts_rows=bts_rows,
         bts_source=bts_source,
@@ -1058,7 +1072,6 @@ def test_duplicate_weather_fact_fails_closed_at_the_optional_layer(
     weather_sources,
     monkeypatch,
 ):
-    guide = load_schema_guide()
     source_id = "2026-05-19:138"
     advisory = load_advisory_source(config, source_id)
     facility = FACILITIES["KJFK"]
@@ -1073,14 +1086,13 @@ def test_duplicate_weather_fact_fails_closed_at_the_optional_layer(
         reason="weather",
     )
     registry = build_source_snapshot_registry([advisory])
-    core = materialize_validated_facts(
+    core = _materialize_core_current(
         facts=facts,
-        guide=guide,
         source_snapshot=registry,
         output_dir=tmp_path,
     )
     event = context_artifacts_module._build_event(
-        IngestContext(advisory=advisory, guide=guide, run_id="run:duplicate"),
+        IngestContext(advisory=advisory, run_id="run:duplicate"),
         {
             "event_uri": event_id,
             "validation": GraphValidationResult(accepted=facts, publishable=True),
@@ -1103,7 +1115,6 @@ def test_duplicate_weather_fact_fails_closed_at_the_optional_layer(
     ctx = IngestContext(
         advisory=advisory,
         facility_candidates=[facility],
-        guide=guide,
         weather_sources=weather_sources,
         run_id="run:duplicate",
         output_dir=str(tmp_path),
@@ -1135,7 +1146,6 @@ def test_integration_blocks_a_self_consistent_rdf_type_retarget_from_the_builder
     weather_sources,
     monkeypatch,
 ):
-    guide = load_schema_guide()
     source_id = "2026-05-19:138"
     advisory = load_advisory_source(config, source_id)
     facility = FACILITIES["KJFK"]
@@ -1150,9 +1160,8 @@ def test_integration_blocks_a_self_consistent_rdf_type_retarget_from_the_builder
         reason="weather",
     )
     registry = build_source_snapshot_registry([advisory])
-    core = materialize_validated_facts(
+    core = _materialize_core_current(
         facts=facts,
-        guide=guide,
         source_snapshot=registry,
         output_dir=tmp_path,
     )
@@ -1194,7 +1203,6 @@ def test_integration_blocks_a_self_consistent_rdf_type_retarget_from_the_builder
         IngestContext(
             advisory=advisory,
             facility_candidates=[facility],
-            guide=guide,
             weather_sources=weather_sources,
             run_id="run:retargeted-type",
             output_dir=str(tmp_path),
@@ -1223,7 +1231,6 @@ def test_integration_blocks_self_consistent_raw_evidence_from_a_regressed_parser
     weather_sources,
     monkeypatch,
 ):
-    guide = load_schema_guide()
     source_id = "2026-05-19:138"
     advisory = load_advisory_source(config, source_id)
     facility = FACILITIES["KJFK"]
@@ -1238,9 +1245,8 @@ def test_integration_blocks_self_consistent_raw_evidence_from_a_regressed_parser
         reason="weather",
     )
     registry = build_source_snapshot_registry([advisory])
-    core = materialize_validated_facts(
+    core = _materialize_core_current(
         facts=facts,
-        guide=guide,
         source_snapshot=registry,
         output_dir=tmp_path,
     )
@@ -1267,7 +1273,6 @@ def test_integration_blocks_self_consistent_raw_evidence_from_a_regressed_parser
         IngestContext(
             advisory=advisory,
             facility_candidates=[facility],
-            guide=guide,
             weather_sources=weather_sources,
             run_id="run:regressed-weather-parser",
             output_dir=str(tmp_path),
@@ -1297,7 +1302,6 @@ def test_weather_bundle_rejects_conflicting_report_source_bindings(
     config,
     weather_sources,
 ):
-    guide = load_schema_guide()
     source_id = "2026-05-19:138"
     advisory = load_advisory_source(config, source_id)
     facility = FACILITIES["KJFK"]
@@ -1311,7 +1315,7 @@ def test_weather_bundle_rejects_conflicting_report_source_bindings(
         reason="weather",
     )
     event = context_artifacts_module._build_event(
-        IngestContext(advisory=advisory, guide=guide, run_id="run:source-conflict"),
+        IngestContext(advisory=advisory, run_id="run:source-conflict"),
         {
             "event_uri": "evt:weather-source-conflict",
             "validation": GraphValidationResult(accepted=facts, publishable=True),
@@ -1366,7 +1370,7 @@ def test_outcome_bundle_rejects_duplicate_phase_with_a_distinct_id(
         reason="weather",
     )
     event = context_artifacts_module._build_event(
-        IngestContext(advisory=advisory, guide=guide, run_id="run:duplicate-phase"),
+        IngestContext(advisory=advisory, run_id="run:duplicate-phase"),
         {
             "event_uri": "evt:duplicate-outcome-phase",
             "validation": GraphValidationResult(accepted=facts, publishable=True),

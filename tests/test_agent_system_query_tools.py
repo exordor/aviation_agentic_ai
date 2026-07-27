@@ -65,6 +65,17 @@ from aviation_agentic_ai.cross_source.contracts import (
 EVENT_ID = "urn:aviation-agentic-ai:event:tool-test"
 FACILITY_ID = "urn:aviation-agentic-ai:facility:airport:KJFK"
 SOURCE_ID = "2026-05-19:123"
+ADVISORY_CONTENT = (
+    "SIGNATURE:\n"
+    "26/05/19 20:30\n"
+    "IMPACTING CONDITION: WEATHER / THUNDERSTORMS\n"
+)
+PROFILE_REGISTRY = load_validation_profile_registry(
+    decision_guide=load_schema_guide()
+)
+PROFILE_BY_LAYER = {
+    profile.ref.layer: profile.ref for profile in PROFILE_REGISTRY.profiles
+}
 
 
 def _rows() -> list[dict]:
@@ -112,11 +123,142 @@ def _rows() -> list[dict]:
     ]
 
 
-def _write_graph(run_dir: Path, rows: list[dict] | None = None) -> None:
+def _write_graph(
+    run_dir: Path,
+    rows: list[dict] | None = None,
+    *,
+    snapshots: list[SourceSnapshot] | tuple[SourceSnapshot, ...] | None = None,
+) -> None:
     run_dir.mkdir(parents=True, exist_ok=True)
-    payload = rows if rows is not None else _rows()
+    if snapshots is None:
+        snapshots = (
+            SourceSnapshot(
+                source_id=SOURCE_ID,
+                family=SourceFamily.ATCSCC_ADVISORY,
+                content=ADVISORY_CONTENT,
+                content_sha256=hashlib.sha256(
+                    ADVISORY_CONTENT.encode()
+                ).hexdigest(),
+                snapshot_timestamp="2026-05-19T20:30:00+00:00",
+            ),
+        )
+    registry = SourceSnapshotRegistry(snapshots=tuple(snapshots))
+    snapshot_path = registry.write_jsonl(run_dir)
+    snapshot_checksums = {
+        snapshot.source_id: snapshot.content_sha256
+        for snapshot in registry.snapshots
+    }
+    payload: list[dict[str, object]] = []
+    for source_row in rows if rows is not None else _rows():
+        row = dict(source_row)
+        layer = str(
+            row.get("validation_layer")
+            or (
+                "weather"
+                if row.get("subject_class") == "data:MeteorologicalReport"
+                else "decision"
+            )
+        )
+        profile = PROFILE_BY_LAYER[layer]
+        source_ids = row.get("source_ids")
+        if not isinstance(source_ids, list):
+            source_ids = [
+                source_id.strip()
+                for source_id in str(row.get("source_document") or "").split(";")
+                if source_id.strip()
+            ]
+        row.update(
+            {
+                "evidence_text": str(row.get("evidence_text") or ""),
+                "profile_id": str(
+                    row.get("profile_id") or profile.profile_id
+                ),
+                "profile_checksum": str(
+                    row.get("profile_checksum")
+                    or profile.profile_checksum
+                ),
+                "validation_layer": layer,
+                "evidence_mode": str(
+                    row.get("evidence_mode") or "source_text"
+                ),
+                "evidence_ref": str(
+                    row.get("evidence_ref") or row["triple_id"]
+                ),
+                "source_ids": source_ids,
+                "source_snapshot_checksums": {
+                    source_id: snapshot_checksums[source_id]
+                    for source_id in source_ids
+                    if source_id in snapshot_checksums
+                },
+            }
+        )
+        payload.append(row)
     (run_dir / "kg.jsonl").write_text(
         "\n".join(json.dumps(row) for row in payload) + "\n",
+        encoding="utf-8",
+    )
+    layer_counts = {
+        layer: sum(
+            row["validation_layer"] == layer for row in payload
+        )
+        for layer in PROFILE_BY_LAYER
+    }
+    profile_refs = {
+        (
+            str(row["profile_id"]),
+            str(row["profile_checksum"]),
+            str(row["validation_layer"]),
+        )
+        for row in payload
+    }
+    snapshot_data = snapshot_path.read_bytes()
+    (run_dir / "run_manifest.json").write_text(
+        json.dumps(
+            {
+                "manifest_version": "decision-case-run-v1",
+                "run_id": run_dir.name,
+                "materialization": {
+                    "materialized": True,
+                    "fact_count": len(payload),
+                    "profile_refs": [
+                        {
+                            "profile_id": profile_id,
+                            "profile_checksum": checksum,
+                            "layer": layer,
+                        }
+                        for profile_id, checksum, layer in sorted(
+                            profile_refs
+                        )
+                    ],
+                    "layer_fact_counts": {
+                        layer: count
+                        for layer, count in layer_counts.items()
+                        if count
+                    },
+                    "artifacts": {
+                        "kg_jsonl": str(run_dir / "kg.jsonl"),
+                    },
+                },
+                "formal_layers": {
+                    layer: {
+                        "status": "ok" if layer_counts[layer] else "insufficient",
+                        "profile_id": profile.profile_id,
+                        "profile_checksum": profile.profile_checksum,
+                        "formal_fact_count": layer_counts[layer],
+                    }
+                    for layer, profile in PROFILE_BY_LAYER.items()
+                },
+                "context_artifacts": {
+                    "source_snapshots": {
+                        "path": "source_snapshots.jsonl",
+                        "count": len(registry.snapshots),
+                        "sha256": hashlib.sha256(snapshot_data).hexdigest(),
+                        "status": "ok",
+                    }
+                },
+            },
+            sort_keys=True,
+        ),
         encoding="utf-8",
     )
 
@@ -187,11 +329,7 @@ def _write_context_layer(run_dir: Path) -> tuple[str, list[str]]:
     run_id = run_dir.name
     taf_source_id = "weather-source:taf:KJFK:test"
     bts_source_id = "bts_on_time:2026-05:nyc"
-    advisory_content = (
-        "SIGNATURE:\n"
-        "26/05/19 20:30\n"
-        "IMPACTING CONDITION: WEATHER / THUNDERSTORMS\n"
-    )
+    advisory_content = ADVISORY_CONTENT
     taf_content = json.dumps(
         {
             "icaoId": "KJFK",
@@ -396,7 +534,7 @@ def _write_context_layer(run_dir: Path) -> tuple[str, list[str]]:
             ),
         ]
     )
-    _write_graph(run_dir, graph_rows)
+    _write_graph(run_dir, graph_rows, snapshots=snapshots)
     metadata = {
         "source_snapshots": _write_artifact(
             run_dir,
@@ -414,10 +552,10 @@ def _write_context_layer(run_dir: Path) -> tuple[str, list[str]]:
             [outcome.model_dump_json() for outcome in outcomes],
         ),
     }
-    (run_dir / "run_manifest.json").write_text(
-        json.dumps({"run_id": run_id, "context_artifacts": metadata}),
-        encoding="utf-8",
-    )
+    manifest_path = run_dir / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["context_artifacts"].update(metadata)
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
     return report_id, [outcome.summary_id for outcome in outcomes]
 
 
@@ -556,7 +694,6 @@ def _write_formal_observation_layer(run_dir: Path) -> tuple[list[str], list[str]
     formal_dir = run_dir / "formal-observation-fixture"
     formal_path = write_validated_facts_jsonl(
         facts=formal_facts,
-        guide=None,
         output_dir=formal_dir,
         profile_registry=profile_registry,
         source_snapshot=registry,
@@ -571,7 +708,7 @@ def _write_formal_observation_layer(run_dir: Path) -> tuple[list[str], list[str]
         for line in Path(formal_path).read_text(encoding="utf-8").splitlines()
         if line.strip()
     )
-    _write_graph(run_dir, graph_rows)
+    _write_graph(run_dir, graph_rows, snapshots=registry.snapshots)
     snapshot_metadata = _write_artifact(
         run_dir,
         "source_snapshots.jsonl",
@@ -609,13 +746,11 @@ def _write_formal_observation_layer(run_dir: Path) -> tuple[list[str], list[str]
         }
     )
     trace = observations.reconstruction_trace
-    manifest["formal_layers"] = {
-        "public_operational_observation": {
+    manifest["formal_layers"]["public_operational_observation"] = {
             "status": "ok",
             "profile_id": public_profile.ref.profile_id,
             "profile_checksum": public_profile.ref.profile_checksum,
             "formal_fact_count": len(formal_facts),
-        }
     }
     manifest["public_observation_publication"] = {
         "status": "ok",
@@ -902,8 +1037,17 @@ def test_duplicate_outcome_phase_fails_closed(tmp_path):
     assert result.status == "insufficient"
 
 
-def test_legacy_run_without_optional_context_keeps_core_queries_available(tmp_path):
+def test_current_insufficient_context_keeps_core_queries_available(tmp_path):
     _write_graph(tmp_path)
+    manifest_path = tmp_path / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["context_artifacts"]["context_associations"] = _write_artifact(
+        tmp_path,
+        "context_associations.jsonl",
+        [],
+        status="insufficient",
+    )
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
     store = QueryGraphStore(tmp_path)
     gateway = QueryToolGateway(
         store,
@@ -983,12 +1127,8 @@ def test_tool_blocks_unsourced_fact(tmp_path):
     rows = _rows()
     rows[1]["source_document"] = ""
     _write_graph(tmp_path, rows)
-    gateway = _gateway(tmp_path)
-    with pytest.raises(QueryToolError, match="missing provenance"):
-        gateway.get_event_facts(
-            event_id=EVENT_ID,
-            predicates=[QueryPredicate.CONTROLLED_NAS_ELEMENT],
-        )
+    with pytest.raises(QueryToolError, match="no evidence source"):
+        _gateway(tmp_path)
 
 
 def test_tool_cannot_escape_run_directory_via_symlink(tmp_path):
@@ -997,6 +1137,8 @@ def test_tool_cannot_escape_run_directory_via_symlink(tmp_path):
     outside.mkdir()
     _write_graph(outside)
     run_dir.mkdir()
+    for name in ("run_manifest.json", "source_snapshots.jsonl"):
+        (run_dir / name).write_bytes((outside / name).read_bytes())
     (run_dir / "kg.jsonl").symlink_to(outside / "kg.jsonl")
     with pytest.raises(QueryToolError, match="escapes"):
         QueryGraphStore(run_dir)
