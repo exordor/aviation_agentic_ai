@@ -219,8 +219,10 @@ class QueryToolTrace(StrictModel):
     result_refs: list[str] = Field(default_factory=list)
     context_association_ids: list[str] = Field(default_factory=list)
     outcome_summary_ids: list[str] = Field(default_factory=list)
+    observation_ids: list[str] = Field(default_factory=list)
+    derivation_ids: list[str] = Field(default_factory=list)
     source_ids: list[str] = Field(default_factory=list)
-    status: Literal["ok", "blocked"]
+    status: Literal["ok", "insufficient", "blocked"]
     duration_ms: float = Field(default=0.0, ge=0.0)
     error: str | None = None
 
@@ -235,6 +237,8 @@ class QueryToolOutcome(StrictModel):
     retrieved_profile_gap_ids: list[str] = Field(default_factory=list)
     retrieved_context_association_ids: list[str] = Field(default_factory=list)
     retrieved_outcome_summary_ids: list[str] = Field(default_factory=list)
+    retrieved_observation_ids: list[str] = Field(default_factory=list)
+    retrieved_derivation_ids: list[str] = Field(default_factory=list)
     model_calls: list[ModelCallRecord] = Field(default_factory=list)
     tool_calls: list[QueryToolTrace] = Field(default_factory=list)
     failure_reason: str = ""
@@ -586,6 +590,35 @@ class ObservationFactTrace(StrictModel):
     summary_sha256: str = Field(min_length=64, max_length=64)
     aggregation_procedure_id: str = Field(min_length=1)
     aggregation_procedure_checksum: str = Field(min_length=1)
+
+
+class OutcomeObservationRead(StrictModel):
+    """One profile-owned public observation reconstructed from formal facts."""
+
+    observation_id: str = Field(min_length=1)
+    fact_ids: tuple[str, ...]
+    phase: Literal["baseline", "active", "recovery"]
+    metric_key: str = Field(min_length=1)
+    label: str = Field(min_length=1)
+    value: int | Decimal
+    datatype_iri: str = Field(min_length=1)
+    unit_iri: str = Field(min_length=1)
+    derivation_id: str = Field(min_length=1)
+    evidence_ref: str = Field(min_length=1)
+    source_id: str = Field(min_length=1)
+    source_snapshot_sha256: str = Field(min_length=64, max_length=64)
+    profile_id: str = Field(min_length=1)
+    profile_checksum: str = Field(min_length=64, max_length=64)
+
+
+class OutcomeSummaryRead(StrictModel):
+    """Validated formal public observations exposed to the bounded query tool."""
+
+    status: Literal["ok", "insufficient", "blocked"]
+    event_id: str = Field(min_length=1)
+    observations: tuple[OutcomeObservationRead, ...] = ()
+    source_ids: tuple[str, ...] = ()
+    failure_reason: str | None = None
 
 
 class ReconstructionTrace(StrictModel):

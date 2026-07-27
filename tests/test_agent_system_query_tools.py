@@ -11,10 +11,23 @@ import pytest
 from pydantic import ValidationError
 
 from aviation_agentic_ai.agent_system.contracts import (
+    BTSManifestBinding,
+    BTSOnTimeRow,
     BTSOutcomeSummary,
+    DecisionContextEvent,
     SourceFamily,
     SourceSnapshot,
+    SourceSnapshotRegistry,
     WeatherContextAssociation,
+)
+from aviation_agentic_ai.agent_system.bts_outcomes import (
+    build_bts_outcome_summaries,
+)
+from aviation_agentic_ai.agent_system.materialize import (
+    write_validated_facts_jsonl,
+)
+from aviation_agentic_ai.agent_system.public_observations import (
+    build_bts_observation_facts,
 )
 from aviation_agentic_ai.agent_system.query_context_store import QueryContextStore
 from aviation_agentic_ai.agent_system.query_tools import (
@@ -38,6 +51,15 @@ from aviation_agentic_ai.agent_system.weather_context import (
 )
 from aviation_agentic_ai.agent_system.weather_context_validation import (
     expected_weather_fact_id,
+)
+from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    load_validation_profile_registry,
+)
+from aviation_agentic_ai.cross_source.contracts import (
+    CanonicalEntity,
+    CodeValue,
+    EntityType,
 )
 
 EVENT_ID = "urn:aviation-agentic-ai:event:tool-test"
@@ -399,6 +421,224 @@ def _write_context_layer(run_dir: Path) -> tuple[str, list[str]]:
     return report_id, [outcome.summary_id for outcome in outcomes]
 
 
+def _write_formal_observation_layer(run_dir: Path) -> tuple[list[str], list[str]]:
+    """Upgrade the legacy context fixture with Task 5 formal observations."""
+
+    _write_context_layer(run_dir)
+    snapshot_rows = [
+        SourceSnapshot.model_validate_json(line)
+        for line in (run_dir / "source_snapshots.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    arrivals = (
+        datetime(2026, 5, 19, 20, 30, tzinfo=UTC),
+        datetime(2026, 5, 19, 21, 30, tzinfo=UTC),
+        datetime(2026, 5, 19, 23, 0, tzinfo=UTC),
+    )
+    archive_sha256 = "a" * 64
+    bts_rows = [
+        BTSOnTimeRow(
+            row_id="bts-row:"
+            + hashlib.sha256(
+                "|".join(
+                    (
+                        archive_sha256,
+                        "2026-05-19",
+                        "1",
+                        str(index),
+                        "1",
+                        "2",
+                        "1800",
+                    )
+                ).encode()
+            ).hexdigest(),
+            FlightDate="2026-05-19",
+            DOT_ID_Reporting_Airline=1,
+            Reporting_Airline="AA",
+            IATA_CODE_Reporting_Airline="AA",
+            Flight_Number_Reporting_Airline=index,
+            OriginAirportSeqID=1,
+            DestAirportSeqID=2,
+            CRSDepTime=1800,
+            Origin="ORD",
+            Dest="JFK",
+            CRSArrTime=2000,
+            CRSElapsedTime=120,
+            scheduled_arrival_utc=arrival,
+            Cancelled=0,
+            Diverted=0,
+            ArrDelay=0.0,
+            ArrDel15=0,
+            WeatherDelay=None,
+            NASDelay=0.0,
+        )
+        for index, arrival in enumerate(arrivals, 1)
+    ]
+    bts_content = "".join(
+        json.dumps(
+            row.model_dump(mode="json"),
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        + "\n"
+        for row in sorted(bts_rows, key=lambda item: item.row_id)
+    )
+    bts_snapshot = SourceSnapshot(
+        source_id="bts_on_time:2026-05:nyc",
+        family=SourceFamily.BTS_ON_TIME,
+        content=bts_content,
+        content_sha256=hashlib.sha256(bts_content.encode()).hexdigest(),
+        snapshot_timestamp="2026-05-19T20:00:00+00:00",
+    )
+    registry = SourceSnapshotRegistry(
+        snapshots=tuple(
+            bts_snapshot
+            if snapshot.family == SourceFamily.BTS_ON_TIME
+            else snapshot
+            for snapshot in snapshot_rows
+        )
+    )
+    profile_registry = load_validation_profile_registry(
+        decision_guide=load_schema_guide()
+    )
+    public_profile = next(
+        profile
+        for profile in profile_registry.profiles
+        if profile.ref.layer == "public_operational_observation"
+    )
+    assert public_profile.aggregation_procedure is not None
+    event = DecisionContextEvent(
+        run_id=run_dir.name,
+        event_id=EVENT_ID,
+        advisory_source_id=SOURCE_ID,
+        advisory_issued_at=datetime(2026, 5, 19, 20, 30, tzinfo=UTC),
+        operational_start=datetime(2026, 5, 19, 21, tzinfo=UTC),
+        operational_end=datetime(2026, 5, 19, 22, 45, tzinfo=UTC),
+    )
+    facility = CanonicalEntity(
+        entity_id=FACILITY_ID,
+        entity_type=EntityType.AIRPORT,
+        preferred_label="John F Kennedy International Airport",
+        codes=[
+            CodeValue(scheme="IATA", value="JFK"),
+            CodeValue(scheme="ICAO", value="KJFK"),
+        ],
+    )
+    outcome = build_bts_outcome_summaries(
+        event,
+        facility,
+        bts_rows,
+        source_id=bts_snapshot.source_id,
+        source_snapshot_sha256=bts_snapshot.content_sha256,
+        manifest_binding=BTSManifestBinding(
+            source_id=bts_snapshot.source_id,
+            archive_sha256=archive_sha256,
+            normalized_snapshot_sha256=bts_snapshot.content_sha256,
+        ),
+        aggregation_procedure=public_profile.aggregation_procedure,
+    )
+    assert outcome.status == "ok", outcome.failure_reason
+    observations = build_bts_observation_facts(
+        event,
+        facility,
+        outcome,
+        registry,
+        profile_registry,
+    )
+    assert observations.status == "ok"
+    assert observations.reconstruction_trace is not None
+    formal_facts = [
+        *observations.case_facts,
+        *observations.activity_facts,
+        *observations.observation_facts,
+    ]
+    formal_dir = run_dir / "formal-observation-fixture"
+    formal_path = write_validated_facts_jsonl(
+        facts=formal_facts,
+        guide=None,
+        output_dir=formal_dir,
+        profile_registry=profile_registry,
+        source_snapshot=registry,
+    )
+    graph_rows = [
+        json.loads(line)
+        for line in (run_dir / "kg.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    graph_rows.extend(
+        json.loads(line)
+        for line in Path(formal_path).read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    )
+    _write_graph(run_dir, graph_rows)
+    snapshot_metadata = _write_artifact(
+        run_dir,
+        "source_snapshots.jsonl",
+        [snapshot.model_dump_json() for snapshot in registry.snapshots],
+    )
+    outcome_metadata = _write_artifact(
+        run_dir,
+        "outcome_summaries.jsonl",
+        [summary.model_dump_json() for summary in outcome.summaries],
+    )
+    derivation_metadata = _write_artifact(
+        run_dir,
+        "observation_derivations.jsonl",
+        [row.model_dump_json() for row in observations.derivations],
+    )
+    trace_metadata = _write_artifact(
+        run_dir,
+        "observation_fact_trace.jsonl",
+        [row.model_dump_json() for row in observations.fact_traces],
+    )
+    reconstruction_metadata = _write_artifact(
+        run_dir,
+        "reconstruction_trace.json",
+        [observations.reconstruction_trace.model_dump_json()],
+    )
+    manifest_path = run_dir / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["context_artifacts"].update(
+        {
+            "source_snapshots": snapshot_metadata,
+            "outcome_summaries": outcome_metadata,
+            "observation_derivations": derivation_metadata,
+            "observation_fact_trace": trace_metadata,
+            "reconstruction_trace": reconstruction_metadata,
+        }
+    )
+    trace = observations.reconstruction_trace
+    manifest["formal_layers"] = {
+        "public_operational_observation": {
+            "status": "ok",
+            "profile_id": public_profile.ref.profile_id,
+            "profile_checksum": public_profile.ref.profile_checksum,
+            "formal_fact_count": len(formal_facts),
+        }
+    }
+    manifest["public_observation_publication"] = {
+        "status": "ok",
+        "aggregation_procedure_id": (
+            public_profile.aggregation_procedure.procedure_id
+        ),
+        "aggregation_procedure_checksum": (
+            public_profile.aggregation_procedure.checksum
+        ),
+        "bts_source_id": bts_snapshot.source_id,
+        "bts_source_snapshot_sha256": bts_snapshot.content_sha256,
+        "source_bindings": [
+            binding.model_dump(mode="json")
+            for binding in trace.source_bindings
+        ],
+    }
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    return (
+        [trace.observation_id for trace in observations.fact_traces],
+        [row.derivation_id for row in observations.derivations],
+    )
+
+
 def _replace_registered_artifact(
     run_dir: Path,
     key: str,
@@ -502,8 +742,54 @@ def test_context_tools_are_typed_read_only_and_not_model_visible(tmp_path):
             ),
         ]
     )
-    assert outcomes["outcome_summary_ids"] == outcome_ids
-    assert outcomes["items"][1]["mean_arrival_delay_minutes"] is None
+    assert outcome_ids
+    assert outcomes["status"] == "insufficient"
+    assert outcomes["outcome_summary_ids"] == []
+    assert outcomes["observation_ids"] == []
+
+
+def test_formal_outcome_tool_returns_distinct_observation_and_derivation_ids(
+    tmp_path,
+):
+    _write_graph(tmp_path)
+    expected_observations, expected_derivations = (
+        _write_formal_observation_layer(tmp_path)
+    )
+
+    result = _gateway(tmp_path, with_context=True).get_outcome_summary(
+        event_id=EVENT_ID,
+        phases=("active",),
+    )
+
+    assert result.status == "ok", result.failure_reason
+    assert set(result.observation_ids) == {
+        observation_id
+        for observation_id in expected_observations
+        if any(
+            item["observation_id"] == observation_id
+            and item["phase"] == "active"
+            for item in result.items
+        )
+    }
+    assert result.derivation_ids
+    assert set(result.derivation_ids).issubset(set(expected_derivations))
+    assert result.fact_ids
+    assert all(
+        item["item_type"] == "formal_outcome_observation"
+        for item in result.items
+    )
+    scheduled = next(
+        item
+        for item in result.items
+        if item["metric_key"] == "scheduled_arrival_count"
+    )
+    assert scheduled["phase"] == "active"
+    assert scheduled["value"] == 1
+    assert scheduled["unit_iri"] == "http://qudt.org/vocab/unit/NUM"
+    assert scheduled["datatype_iri"].endswith("#integer")
+    assert scheduled["profile_id"] == (
+        "decision_case_public_observation_slice_v1"
+    )
 
 
 def test_context_artifact_checksum_corruption_fails_closed(tmp_path):
@@ -610,10 +896,10 @@ def test_duplicate_outcome_phase_fails_closed(tmp_path):
     rows[1]["phase"] = rows[0]["phase"]
     _replace_registered_artifact(tmp_path, "outcome_summaries", rows)
 
-    with pytest.raises(QueryToolError, match="duplicate outcome phase"):
-        _gateway(tmp_path, with_context=True).get_outcome_summary(
-            event_id=EVENT_ID,
-        )
+    result = _gateway(tmp_path, with_context=True).get_outcome_summary(
+        event_id=EVENT_ID,
+    )
+    assert result.status == "insufficient"
 
 
 def test_legacy_run_without_optional_context_keeps_core_queries_available(tmp_path):

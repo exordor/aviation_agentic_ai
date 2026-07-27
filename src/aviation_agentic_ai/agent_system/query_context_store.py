@@ -11,19 +11,31 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import statistics
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any, Literal, TypeVar
 
 from pydantic import BaseModel
 
 from aviation_agentic_ai.agent_system.contracts import (
+    BTSOnTimeRow,
     BTSOutcomeSummary,
+    ObservationDerivation,
+    ObservationFactTrace,
+    OutcomeObservationRead,
+    OutcomeSummaryRead,
+    ReconstructionTrace,
     SourceFamily,
     SourceSnapshot,
     SourceSnapshotRegistry,
     WeatherContextAssociation,
+)
+from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    load_validation_profile_registry,
 )
 from aviation_agentic_ai.agent_system.weather_context import (
     FORECASTING_AIRPORT,
@@ -67,6 +79,22 @@ _PHASES = ("baseline", "active", "recovery")
 _BTS_REPORTING_SCOPE = (
     "BTS On-Time reporting carriers and scheduled domestic passenger operations."
 )
+_SOSA = "http://www.w3.org/ns/sosa/"
+_TIME = "http://www.w3.org/2006/time#"
+_QUDT = "http://qudt.org/schema/qudt/"
+_DCTERMS = "http://purl.org/dc/terms/"
+_PHASE = "urn:aviation-agentic-ai:observation-phase:"
+_METRIC_FIELDS = {
+    "scheduled_arrival_count": "scheduled-arrival-count",
+    "completed_arrival_count": "completed-arrival-count",
+    "cancelled_count": "cancelled-count",
+    "diverted_count": "diverted-count",
+    "arrival_delay_15_count": "arrival-delay-15-count",
+    "mean_arrival_delay_minutes": "mean-arrival-delay",
+    "median_arrival_delay_minutes": "median-arrival-delay",
+    "carrier_reported_weather_delay_minutes": "carrier-attributed-weather-delay",
+    "carrier_reported_nas_delay_minutes": "carrier-attributed-nas-delay",
+}
 _SIGNATURE_RE = re.compile(
     r"(?m)^SIGNATURE:\s*\n(?P<stamp>\d{2}/\d{2}/\d{2} \d{2}:\d{2})\s*$"
 )
@@ -88,15 +116,6 @@ class DecisionContextRead:
     associations: tuple[WeatherContextAssociation, ...] = ()
     formal_fact_rows: tuple[dict[str, Any], ...] = ()
     source_records: tuple[SourceSnapshot, ...] = ()
-    source_ids: tuple[str, ...] = ()
-
-
-@dataclass(frozen=True)
-class OutcomeSummaryRead:
-    """Validated result for one event's BTS-reported operational observations."""
-
-    status: Literal["ok", "insufficient"]
-    summaries: tuple[BTSOutcomeSummary, ...] = ()
     source_ids: tuple[str, ...] = ()
 
 
@@ -288,6 +307,18 @@ def _local_identity(value: str) -> str:
     return value.strip().removeprefix(_URN_PREFIX)
 
 
+def _canonical_digest(value: Any) -> str:
+    return hashlib.sha256(
+        json.dumps(
+            value,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            default=str,
+        ).encode("utf-8")
+    ).hexdigest()
+
+
 class QueryContextStore:
     """Lazy validator for one run's optional Weather and BTS read layers."""
 
@@ -296,6 +327,7 @@ class QueryContextStore:
         self.graph_store = graph_store
         self._manifest_cache: dict[str, Any] | None = None
         self._snapshots_cache: SourceSnapshotRegistry | None = None
+        self.last_outcome_summary_ids: tuple[str, ...] = ()
 
     def _manifest(self) -> dict[str, Any] | None:
         if self._manifest_cache is not None:
@@ -1099,47 +1131,27 @@ class QueryContextStore:
         event_id: str,
         phases: tuple[str, ...],
     ) -> OutcomeSummaryRead:
-        """Return requested, validated BTS-reported summaries."""
+        """Return profile-owned observations reconstructed from formal facts."""
 
+        self.last_outcome_summary_ids = ()
+        try:
+            return self._get_formal_outcome_observations(event_id, phases)
+        except QueryContextError as exc:
+            return OutcomeSummaryRead(
+                status="blocked",
+                event_id=event_id,
+                failure_reason=str(exc),
+            )
+
+    def _get_formal_outcome_observations(
+        self,
+        event_id: str,
+        phases: tuple[str, ...],
+    ) -> OutcomeSummaryRead:
         self._reject_reserved_graph_namespace(
             "bts-outcome:",
             label="BTS outcome audit identity",
         )
-        artifact = self._artifact("outcome_summaries", "outcome_summaries.jsonl")
-        if artifact is None:
-            snapshots = self._registered_snapshots()
-            if snapshots is not None:
-                raise QueryContextError(
-                    "registered multi-source run has no outcome summary artifact"
-                )
-            return OutcomeSummaryRead(status="insufficient")
-        if artifact.status == "blocked":
-            if any(line.strip() for line in artifact.data.splitlines()):
-                raise QueryContextError(
-                    "blocked outcome summary artifact contains rows"
-                )
-            raise QueryContextError("outcome summary artifact status is blocked")
-        summaries = self._typed_rows(
-            artifact,
-            BTSOutcomeSummary,
-            id_field="summary_id",
-            artifact_name="outcome_summaries",
-        )
-        if artifact.status == "insufficient":
-            if summaries:
-                raise QueryContextError(
-                    "insufficient outcome summary artifact contains rows"
-                )
-            snapshots = self._snapshots()
-            self._validate_source_family_formal_rows(
-                snapshots,
-                families={SourceFamily.BTS_ON_TIME},
-                allowed_fact_ids=set(),
-                label="BTS",
-            )
-            return OutcomeSummaryRead(status="insufficient")
-        if not summaries:
-            raise QueryContextError("ok outcome summary artifact is empty")
         requested = tuple(str(phase) for phase in phases)
         if (
             not requested
@@ -1148,55 +1160,360 @@ class QueryContextStore:
         ):
             raise QueryContextError(
                 "outcome phases must be unique baseline, active, or recovery values"
-        )
-        run_id = self.run_id
+            )
+        manifest = self._manifest()
+        if manifest is None:
+            return OutcomeSummaryRead(status="insufficient", event_id=event_id)
+        layers = manifest.get("formal_layers")
+        if not isinstance(layers, dict):
+            # A summary-only legacy run remains queryable for core facts, but
+            # cannot authorize public observations.
+            self._require_no_bts_formal_rows()
+            return OutcomeSummaryRead(status="insufficient", event_id=event_id)
+        layer = layers.get("public_operational_observation")
+        if not isinstance(layer, dict):
+            self._require_no_bts_formal_rows()
+            return OutcomeSummaryRead(status="insufficient", event_id=event_id)
+        layer_status = layer.get("status")
+        if layer_status == "insufficient":
+            self._require_empty_observation_artifacts()
+            self._require_no_bts_formal_rows()
+            return OutcomeSummaryRead(status="insufficient", event_id=event_id)
+        if layer_status == "blocked":
+            self._require_empty_observation_artifacts()
+            self._require_no_bts_formal_rows()
+            return OutcomeSummaryRead(
+                status="blocked",
+                event_id=event_id,
+                failure_reason=str(
+                    layer.get("failure_reason")
+                    or "public observation layer is blocked"
+                ),
+            )
+        if layer_status != "ok":
+            raise QueryContextError("public observation layer status is invalid")
+
         snapshots = self._snapshots()
+        facility_id, _issued_at, start, end = self._event_bindings(
+            event_id,
+            snapshots,
+        )
+        summaries = self._read_ok_rows(
+            "outcome_summaries",
+            "outcome_summaries.jsonl",
+            BTSOutcomeSummary,
+            "summary_id",
+        )
+        traces = self._read_ok_rows(
+            "observation_fact_trace",
+            "observation_fact_trace.jsonl",
+            ObservationFactTrace,
+            "fact_id",
+        )
+        derivations = self._read_ok_rows(
+            "observation_derivations",
+            "observation_derivations.jsonl",
+            ObservationDerivation,
+            "derivation_id",
+        )
+        reconstruction_artifact = self._artifact(
+            "reconstruction_trace",
+            "reconstruction_trace.json",
+        )
+        if reconstruction_artifact is None or reconstruction_artifact.status != "ok":
+            raise QueryContextError("formal observations have no reconstruction trace")
+        try:
+            reconstruction = ReconstructionTrace.model_validate_json(
+                reconstruction_artifact.data
+            )
+        except Exception as exc:
+            raise QueryContextError("invalid reconstruction trace") from exc
+
+        registry = load_validation_profile_registry(
+            decision_guide=load_schema_guide()
+        )
+        profile_candidates = [
+            candidate
+            for candidate in registry.profiles
+            if candidate.ref.layer == "public_operational_observation"
+        ]
+        if len(profile_candidates) != 1:
+            raise QueryContextError(
+                "exactly one public observation profile is required"
+            )
+        profile = registry.require_layer(
+            profile_candidates[0].ref,
+            "public_operational_observation",
+        )
+        profile_ref = profile.ref
+        if (
+            layer.get("profile_id") != profile_ref.profile_id
+            or layer.get("profile_checksum") != profile_ref.profile_checksum
+        ):
+            raise QueryContextError("public observation profile binding mismatch")
+        publication = manifest.get("public_observation_publication")
+        if not isinstance(publication, dict) or publication.get("status") != "ok":
+            raise QueryContextError("public observation publication is not ok")
+        procedure = profile.aggregation_procedure
+        if procedure is None:
+            raise QueryContextError("public observation profile has no procedure")
+        if (
+            publication.get("aggregation_procedure_id")
+            != procedure.procedure_id
+            or publication.get("aggregation_procedure_checksum")
+            != procedure.checksum
+            or reconstruction.aggregation_procedure_id
+            != procedure.procedure_id
+            or reconstruction.aggregation_procedure_checksum
+            != procedure.checksum
+        ):
+            raise QueryContextError("public observation procedure binding mismatch")
+        if profile_ref not in reconstruction.profile_refs:
+            raise QueryContextError(
+                "reconstruction omits the public observation profile"
+            )
+
+        bts_snapshots = [
+            snapshot
+            for snapshot in snapshots.snapshots
+            if snapshot.family == SourceFamily.BTS_ON_TIME
+        ]
+        if len(bts_snapshots) != 1:
+            raise QueryContextError(
+                "formal observations require exactly one BTS snapshot"
+            )
+        bts_snapshot = bts_snapshots[0]
+        if (
+            publication.get("bts_source_id") != bts_snapshot.source_id
+            or publication.get("bts_source_snapshot_sha256")
+            != bts_snapshot.content_sha256
+        ):
+            raise QueryContextError("BTS publication source binding mismatch")
+        source_bindings = {
+            binding.source_id: binding for binding in reconstruction.source_bindings
+        }
+        bts_binding = source_bindings.get(bts_snapshot.source_id)
+        if (
+            bts_binding is None
+            or bts_binding.source_family != SourceFamily.BTS_ON_TIME
+            or bts_binding.snapshot_sha256 != bts_snapshot.content_sha256
+        ):
+            raise QueryContextError("reconstruction BTS source binding mismatch")
+        if publication.get("source_bindings") != [
+            binding.model_dump(mode="json")
+            for binding in reconstruction.source_bindings
+        ]:
+            raise QueryContextError(
+                "publication and reconstruction source bindings differ"
+            )
+
+        summary_by_id = self._validated_audit_summaries(
+            summaries=summaries,
+            event_id=event_id,
+            facility_id=facility_id,
+            snapshots=snapshots,
+            start=start,
+            end=end,
+        )
+        derivation_by_id = {
+            derivation.derivation_id: derivation
+            for derivation in derivations
+        }
+        if len(derivation_by_id) != len(derivations):
+            raise QueryContextError("duplicate observation derivation ID")
+        rows_by_id = self._normalized_bts_rows(bts_snapshot)
+        metric_payload = json.loads(Path(profile.source_path).read_text("utf-8"))
+        metrics = metric_payload.get("metrics")
+        if not isinstance(metrics, dict):
+            raise QueryContextError("public observation profile metrics are malformed")
+        formal_rows = [
+            row
+            for row in self.graph_store.rows
+            if row.get("validation_layer")
+            == "public_operational_observation"
+        ]
+        expected_count = layer.get("formal_fact_count")
+        if (
+            not isinstance(expected_count, int)
+            or isinstance(expected_count, bool)
+            or expected_count != len(formal_rows)
+        ):
+            raise QueryContextError("public observation formal fact count mismatch")
+        if any(
+            row.get("profile_id") != profile_ref.profile_id
+            or row.get("profile_checksum") != profile_ref.profile_checksum
+            for row in formal_rows
+        ):
+            raise QueryContextError("formal observation profile ownership mismatch")
+        formal_members = {
+            str(row["object"])
+            for row in formal_rows
+            if row.get("subject") == reconstruction.reconstruction_iri
+            and row.get("predicate") == "prov:hadMember"
+        }
+        if formal_members != set(reconstruction.member_iris):
+            raise QueryContextError(
+                "formal reconstruction membership differs from its trace"
+            )
+        self._validate_source_family_formal_rows(
+            snapshots,
+            families={SourceFamily.BTS_ON_TIME},
+            allowed_fact_ids={
+                str(row["fact_id"])
+                for row in formal_rows
+                if bts_snapshot.source_id in row["source_ids"]
+            },
+            label="BTS",
+        )
+        graph_by_id = {str(row["fact_id"]): row for row in formal_rows}
+        observations: list[OutcomeObservationRead] = []
+        seen_observations: set[str] = set()
+        selected_summary_ids: set[str] = set()
+        for trace in sorted(
+            traces,
+            key=lambda item: (item.metric_key, item.observation_id),
+        ):
+            derivation = derivation_by_id.get(trace.derivation_id)
+            summary = summary_by_id.get(trace.summary_id)
+            if derivation is None or summary is None:
+                raise QueryContextError("observation trace has no audit binding")
+            self._validate_trace_and_derivation(
+                trace=trace,
+                derivation=derivation,
+                summary=summary,
+                snapshot=bts_snapshot,
+                rows_by_id=rows_by_id,
+                procedure_id=procedure.procedure_id,
+                procedure_checksum=procedure.checksum,
+            )
+            if summary.phase not in requested:
+                continue
+            if trace.observation_id in seen_observations:
+                raise QueryContextError("duplicate formal observation ID")
+            seen_observations.add(trace.observation_id)
+            selected_summary_ids.add(summary.summary_id)
+            observation = self._reconstruct_observation(
+                trace=trace,
+                summary=summary,
+                graph_by_id=graph_by_id,
+                metrics=metrics,
+                profile_id=profile_ref.profile_id,
+                profile_checksum=profile_ref.profile_checksum,
+                procedure_id=procedure.procedure_id,
+                activity_iri=derivation.activity_iri,
+            )
+            if observation.observation_id not in reconstruction.member_iris:
+                raise QueryContextError(
+                    "formal observation is absent from reconstruction membership"
+                )
+            observations.append(observation)
+        expected_traces = [
+            trace
+            for trace in traces
+            if summary_by_id.get(trace.summary_id) is not None
+            and summary_by_id[trace.summary_id].phase in requested
+        ]
+        if len(observations) != len(expected_traces):
+            raise QueryContextError("formal observation trace coverage mismatch")
+        if not observations:
+            return OutcomeSummaryRead(status="insufficient", event_id=event_id)
+        self.last_outcome_summary_ids = tuple(sorted(selected_summary_ids))
+        return OutcomeSummaryRead(
+            status="ok",
+            event_id=event_id,
+            observations=tuple(
+                sorted(
+                    observations,
+                    key=lambda item: (
+                        _PHASES.index(item.phase),
+                        item.metric_key,
+                        item.observation_id,
+                    ),
+                )
+            ),
+            source_ids=(bts_snapshot.source_id,),
+        )
+
+    def _read_ok_rows(
+        self,
+        key: str,
+        filename: str,
+        model: type[_T],
+        id_field: str,
+    ) -> list[_T]:
+        artifact = self._artifact(key, filename)
+        if artifact is None or artifact.status != "ok":
+            raise QueryContextError(f"formal observations have no ok {key} artifact")
+        rows = self._typed_rows(
+            artifact,
+            model,
+            id_field=id_field,
+            artifact_name=key,
+        )
+        if not rows:
+            raise QueryContextError(f"ok {key} artifact is empty")
+        return rows
+
+    def _require_empty_observation_artifacts(self) -> None:
+        for key, filename in (
+            ("observation_derivations", "observation_derivations.jsonl"),
+            ("observation_fact_trace", "observation_fact_trace.jsonl"),
+            ("reconstruction_trace", "reconstruction_trace.json"),
+        ):
+            artifact = self._artifact(key, filename)
+            if artifact is None:
+                continue
+            if any(line.strip() for line in artifact.data.splitlines()):
+                raise QueryContextError(
+                    f"{key} must be empty when observations are not published"
+                )
+
+    def _require_no_bts_formal_rows(self) -> None:
+        snapshots = self._registered_snapshots()
+        if snapshots is None:
+            return
         self._validate_source_family_formal_rows(
             snapshots,
             families={SourceFamily.BTS_ON_TIME},
             allowed_fact_ids=set(),
             label="BTS",
         )
-        facility_id, _issued_at, start, end = self._event_bindings(
-            event_id,
-            snapshots,
-        )
+
+    def _validated_audit_summaries(
+        self,
+        *,
+        summaries: list[BTSOutcomeSummary],
+        event_id: str,
+        facility_id: str,
+        snapshots: SourceSnapshotRegistry,
+        start: datetime,
+        end: datetime,
+    ) -> dict[str, BTSOutcomeSummary]:
         expected_windows = {
             "baseline": (start - timedelta(hours=2), start),
             "active": (start, end),
             "recovery": (end, end + timedelta(hours=6)),
         }
+        run_id = self.run_id
         by_phase: dict[str, BTSOutcomeSummary] = {}
-        source_ids: set[str] = set()
         for summary in summaries:
-            if summary.run_id != run_id:
+            if (
+                summary.run_id != run_id
+                or summary.event_id != event_id
+                or summary.facility_id != facility_id
+                or summary.causal_claim is not False
+                or summary.reporting_scope != _BTS_REPORTING_SCOPE
+            ):
                 raise QueryContextError(
-                    f"outcome summary run binding mismatch: {summary.summary_id}"
-                )
-            if summary.event_id not in self.graph_store.event_ids:
-                raise QueryContextError(
-                    f"outcome summary references unregistered event: "
-                    f"{summary.summary_id}"
-                )
-            if summary.event_id != event_id:
-                raise QueryContextError(
-                    f"outcome summary cross-event binding: {summary.summary_id}"
-                )
-            if summary.facility_id != facility_id:
-                raise QueryContextError(
-                    f"outcome summary facility binding mismatch: "
-                    f"{summary.summary_id}"
+                    f"outcome summary binding mismatch: {summary.summary_id}"
                 )
             if summary.phase in by_phase:
-                raise QueryContextError(
-                    f"duplicate outcome phase: {summary.phase}"
-                )
+                raise QueryContextError(f"duplicate outcome phase: {summary.phase}")
             snapshot = snapshots.get(summary.source_id)
             if (
                 snapshot is None
                 or snapshot.family != SourceFamily.BTS_ON_TIME
                 or summary.source_snapshot_sha256 != snapshot.content_sha256
-                or summary.causal_claim is not False
             ):
                 raise QueryContextError(
                     f"outcome summary source binding mismatch: {summary.summary_id}"
@@ -1209,12 +1526,7 @@ class QueryContextStore:
                 raise QueryContextError(
                     f"outcome summary window mismatch: {summary.summary_id}"
                 )
-            if summary.reporting_scope != _BTS_REPORTING_SCOPE:
-                raise QueryContextError(
-                    f"outcome summary semantic boundary mismatch: "
-                    f"{summary.summary_id}"
-                )
-            expected_summary_id = self._expected_bts_summary_id(
+            expected_id = self._expected_bts_summary_id(
                 run_id=str(run_id),
                 event_id=event_id,
                 facility_id=facility_id,
@@ -1224,26 +1536,301 @@ class QueryContextStore:
                 source_id=summary.source_id,
                 source_checksum=summary.source_snapshot_sha256,
             )
-            if summary.summary_id != expected_summary_id:
+            if summary.summary_id != expected_id:
                 raise QueryContextError(
-                    f"outcome summary ID is not deterministic: "
-                    f"{summary.summary_id}"
+                    f"outcome summary ID is not deterministic: {summary.summary_id}"
                 )
-            self._reject_graph_identity_collision(
-                summary.summary_id,
-                label="BTS outcome summary ID",
-            )
             by_phase[summary.phase] = summary
-            source_ids.add(summary.source_id)
         if set(by_phase) != set(_PHASES):
             raise QueryContextError(
-                "outcome summaries require exactly one baseline, active, and recovery row"
+                "outcome summaries require baseline, active, and recovery"
             )
-        selected = tuple(by_phase[phase] for phase in _PHASES if phase in requested)
-        if len(selected) != len(requested):
-            raise QueryContextError("requested outcome phase is missing")
-        return OutcomeSummaryRead(
-            status="ok",
-            summaries=selected,
-            source_ids=tuple(sorted(source_ids)),
+        return {summary.summary_id: summary for summary in by_phase.values()}
+
+    @staticmethod
+    def _normalized_bts_rows(snapshot: SourceSnapshot) -> dict[str, BTSOnTimeRow]:
+        rows: dict[str, BTSOnTimeRow] = {}
+        for line_number, line in enumerate(snapshot.content.splitlines(), 1):
+            if not line.strip():
+                continue
+            try:
+                row = BTSOnTimeRow.model_validate_json(line)
+            except Exception as exc:
+                raise QueryContextError(
+                    f"invalid normalized BTS row at line {line_number}"
+                ) from exc
+            if row.row_id in rows:
+                raise QueryContextError("duplicate normalized BTS row ID")
+            rows[row.row_id] = row
+        return rows
+
+    def _validate_trace_and_derivation(
+        self,
+        *,
+        trace: ObservationFactTrace,
+        derivation: ObservationDerivation,
+        summary: BTSOutcomeSummary,
+        snapshot: SourceSnapshot,
+        rows_by_id: dict[str, BTSOnTimeRow],
+        procedure_id: str,
+        procedure_checksum: str,
+    ) -> None:
+        summary_hash = _canonical_digest(summary.model_dump(mode="json"))
+        if (
+            trace.summary_sha256 != summary_hash
+            or derivation.summary_sha256 != summary_hash
+            or derivation.summary_id != summary.summary_id
+            or trace.source_id != summary.source_id
+            or derivation.source_id != summary.source_id
+            or trace.source_snapshot_sha256 != snapshot.content_sha256
+            or derivation.source_snapshot_sha256 != snapshot.content_sha256
+        ):
+            raise QueryContextError("observation audit source or summary mismatch")
+        if (
+            trace.aggregation_procedure_id != procedure_id
+            or derivation.aggregation_procedure_id != procedure_id
+            or trace.aggregation_procedure_checksum != procedure_checksum
+            or derivation.aggregation_procedure_checksum != procedure_checksum
+        ):
+            raise QueryContextError("observation audit procedure mismatch")
+        if (
+            derivation.selected_row_ids
+            != tuple(sorted(derivation.selected_row_ids))
+            or derivation.selected_row_ids_sha256
+            != _canonical_digest(derivation.selected_row_ids)
+        ):
+            raise QueryContextError("observation selected-row digest mismatch")
+        expected_derivation_id = "bts-derivation:" + _canonical_digest(
+            {
+                "aggregation_procedure_checksum": (
+                    derivation.aggregation_procedure_checksum
+                ),
+                "aggregation_procedure_id": derivation.aggregation_procedure_id,
+                "archive_sha256": derivation.archive_sha256,
+                "selected_row_ids_sha256": derivation.selected_row_ids_sha256,
+                "source_id": derivation.source_id,
+                "source_snapshot_sha256": (
+                    derivation.source_snapshot_sha256
+                ),
+                "summary_id": derivation.summary_id,
+                "summary_sha256": derivation.summary_sha256,
+            }
+        )[:24]
+        if derivation.derivation_id != expected_derivation_id:
+            raise QueryContextError("observation derivation ID mismatch")
+        if any(row_id not in rows_by_id for row_id in derivation.selected_row_ids):
+            raise QueryContextError("observation selected row is missing")
+        for row_id in derivation.selected_row_ids:
+            row = rows_by_id[row_id]
+            natural_key = (
+                row.FlightDate,
+                str(row.DOT_ID_Reporting_Airline),
+                str(row.Flight_Number_Reporting_Airline),
+                str(row.OriginAirportSeqID),
+                str(row.DestAirportSeqID),
+                str(row.CRSDepTime),
+            )
+            expected_row_id = "bts-row:" + hashlib.sha256(
+                "|".join((derivation.archive_sha256, *natural_key)).encode()
+            ).hexdigest()
+            if row.row_id != expected_row_id:
+                raise QueryContextError("normalized BTS row ID is not source-bound")
+        expected_selection = tuple(
+            sorted(
+                row.row_id
+                for row in rows_by_id.values()
+                if row.Dest == summary.facility_id.rsplit(":", 1)[-1].removeprefix("K")
+                and summary.window_start.astimezone(UTC)
+                <= row.scheduled_arrival_utc.astimezone(UTC)
+                < summary.window_end.astimezone(UTC)
+            )
+        )
+        if derivation.selected_row_ids != expected_selection:
+            raise QueryContextError("observation selected rows do not match window")
+        selected = [rows_by_id[row_id] for row_id in expected_selection]
+        completed = [
+            row
+            for row in selected
+            if row.Cancelled == 0 and row.Diverted == 0
+        ]
+        delays = [row.ArrDelay for row in completed if row.ArrDelay is not None]
+        weather_delays = [
+            row.WeatherDelay for row in selected if row.WeatherDelay is not None
+        ]
+        nas_delays = [
+            row.NASDelay for row in selected if row.NASDelay is not None
+        ]
+        expected_values: dict[str, int | float | None] = {
+            "scheduled_arrival_count": len(selected),
+            "completed_arrival_count": len(completed),
+            "cancelled_count": sum(row.Cancelled == 1 for row in selected),
+            "diverted_count": sum(row.Diverted == 1 for row in selected),
+            "arrival_delay_15_count": sum(
+                row.ArrDel15 == 1 for row in completed
+            ),
+            "mean_arrival_delay_minutes": (
+                statistics.mean(delays) if delays else None
+            ),
+            "median_arrival_delay_minutes": (
+                statistics.median(delays) if delays else None
+            ),
+            "carrier_reported_weather_delay_minutes": (
+                sum(weather_delays) if weather_delays else None
+            ),
+            "carrier_reported_nas_delay_minutes": (
+                sum(nas_delays) if nas_delays else None
+            ),
+        }
+        expected_value = expected_values.get(trace.metric_key)
+        summary_value = getattr(summary, trace.metric_key, None)
+        if expected_value is None or summary_value is None:
+            if expected_value is not summary_value:
+                raise QueryContextError(
+                    "outcome summary differs from selected source rows"
+                )
+        elif Decimal(str(expected_value)) != Decimal(str(summary_value)):
+            raise QueryContextError(
+                "outcome summary differs from selected source rows"
+            )
+        if trace.canonical_value is None or (
+            summary_value is not None
+            and Decimal(str(trace.canonical_value))
+            != Decimal(str(summary_value))
+        ):
+            raise QueryContextError(
+                "observation trace differs from the audit summary"
+            )
+
+    @staticmethod
+    def _rows_for_subject(
+        graph_by_id: dict[str, dict[str, Any]],
+        subject: str,
+    ) -> list[dict[str, Any]]:
+        return [
+            row for row in graph_by_id.values() if str(row["subject"]) == subject
+        ]
+
+    def _reconstruct_observation(
+        self,
+        *,
+        trace: ObservationFactTrace,
+        summary: BTSOutcomeSummary,
+        graph_by_id: dict[str, dict[str, Any]],
+        metrics: dict[str, Any],
+        profile_id: str,
+        profile_checksum: str,
+        procedure_id: str,
+        activity_iri: str,
+    ) -> OutcomeObservationRead:
+        numeric = graph_by_id.get(trace.fact_id)
+        if numeric is None or numeric.get("predicate") != "qudt:numericValue":
+            raise QueryContextError("observation numeric fact is missing")
+        if (
+            numeric.get("subject") is None
+            or numeric.get("evidence_ref") != trace.fact_id
+            or numeric.get("source_ids") != [trace.source_id]
+        ):
+            raise QueryContextError("observation numeric fact binding mismatch")
+        result_id = str(numeric["subject"])
+        observation_rows = self._rows_for_subject(
+            graph_by_id,
+            trace.observation_id,
+        )
+
+        def one(predicate: str) -> dict[str, Any]:
+            matches = [
+                row for row in observation_rows if row.get("predicate") == predicate
+            ]
+            if len(matches) != 1:
+                raise QueryContextError(
+                    f"observation requires one {predicate} fact"
+                )
+            return matches[0]
+
+        property_row = one("sosa:observedProperty")
+        interval_row = one("sosa:phenomenonTime")
+        result_row = one("sosa:hasResult")
+        procedure_row = one("sosa:usedProcedure")
+        generated_row = one("prov:wasGeneratedBy")
+        derived_row = one("prov:wasDerivedFrom")
+        expected_source_iri = (
+            "urn:aviation-agentic-ai:source-record:"
+            + _canonical_digest(trace.source_id)
+        )
+        if (
+            result_row.get("object") != result_id
+            or procedure_row.get("object") != procedure_id
+            or generated_row.get("object") != activity_iri
+            or derived_row.get("object") != expected_source_iri
+            or any(
+                row.get("evidence_ref") != trace.fact_id
+                for row in observation_rows
+            )
+        ):
+            raise QueryContextError("observation formal binding mismatch")
+        local_name = _METRIC_FIELDS.get(trace.metric_key)
+        descriptor = metrics.get(local_name) if local_name else None
+        if (
+            not isinstance(descriptor, dict)
+            or property_row.get("object") != descriptor.get("iri")
+        ):
+            raise QueryContextError("observation metric profile mismatch")
+        interval_id = str(interval_row["object"])
+        phase_rows = [
+            row
+            for row in self._rows_for_subject(graph_by_id, interval_id)
+            if row.get("predicate") == "dcterms:type"
+        ]
+        if (
+            len(phase_rows) != 1
+            or phase_rows[0].get("object") != _PHASE + summary.phase
+        ):
+            raise QueryContextError("observation phase binding mismatch")
+        unit_rows = [
+            row
+            for row in self._rows_for_subject(graph_by_id, result_id)
+            if row.get("predicate") == "qudt:unit"
+        ]
+        if (
+            len(unit_rows) != 1
+            or unit_rows[0].get("object") != descriptor.get("unit")
+            or numeric.get("datatype_iri") != descriptor.get("datatype")
+        ):
+            raise QueryContextError("observation unit or datatype mismatch")
+        try:
+            value = (
+                int(str(numeric["object"]))
+                if descriptor["datatype"].endswith("#integer")
+                else Decimal(str(numeric["object"]))
+            )
+        except (ValueError, InvalidOperation) as exc:
+            raise QueryContextError("observation numeric value is invalid") from exc
+        canonical = trace.canonical_value
+        if canonical is None or Decimal(str(value)) != Decimal(str(canonical)):
+            raise QueryContextError("observation value differs from trace")
+        support_rows = {
+            row["fact_id"]: row
+            for row in (
+                observation_rows
+                + self._rows_for_subject(graph_by_id, result_id)
+                + self._rows_for_subject(graph_by_id, interval_id)
+            )
+            if row.get("evidence_ref") == trace.fact_id
+            or row["fact_id"] == trace.fact_id
+        }
+        return OutcomeObservationRead(
+            observation_id=trace.observation_id,
+            fact_ids=tuple(sorted(support_rows)),
+            phase=summary.phase,
+            metric_key=trace.metric_key,
+            label=str(descriptor["label"]),
+            value=value,
+            datatype_iri=str(descriptor["datatype"]),
+            unit_iri=str(descriptor["unit"]),
+            derivation_id=trace.derivation_id,
+            evidence_ref=trace.fact_id,
+            source_id=trace.source_id,
+            source_snapshot_sha256=trace.source_snapshot_sha256,
+            profile_id=profile_id,
+            profile_checksum=profile_checksum,
         )

@@ -114,13 +114,16 @@ class QueryToolResult(StrictModel):
         "get_decision_context",
         "get_outcome_summary",
     ]
-    status: Literal["ok", "insufficient"] = "ok"
+    status: Literal["ok", "insufficient", "blocked"] = "ok"
     fact_ids: list[str] = Field(default_factory=list)
     profile_gap_ids: list[str] = Field(default_factory=list)
     context_association_ids: list[str] = Field(default_factory=list)
     outcome_summary_ids: list[str] = Field(default_factory=list)
+    observation_ids: list[str] = Field(default_factory=list)
+    derivation_ids: list[str] = Field(default_factory=list)
     source_ids: list[str] = Field(default_factory=list)
     items: list[dict[str, Any]] = Field(default_factory=list)
+    failure_reason: str = ""
 
 
 def _split_source_ids(value: Any) -> list[str]:
@@ -375,6 +378,8 @@ class QueryToolGateway:
         self.retrieved_profile_gap_ids: set[str] = set()
         self.retrieved_context_association_ids: set[str] = set()
         self.retrieved_outcome_summary_ids: set[str] = set()
+        self.retrieved_observation_ids: set[str] = set()
+        self.retrieved_derivation_ids: set[str] = set()
         self.retrieved_source_ids: set[str] = set()
 
     def find_events(
@@ -685,19 +690,45 @@ class QueryToolGateway:
             )
         except QueryContextError as exc:
             raise QueryToolError(str(exc)) from exc
-        if read.status == "insufficient":
+        if read.status != "ok":
             return QueryToolResult(
                 tool="get_outcome_summary",
-                status="insufficient",
+                status=read.status,
+                failure_reason=read.failure_reason or "",
             )
-        summary_ids = [summary.summary_id for summary in read.summaries]
+        summary_ids = list(self.context_store.last_outcome_summary_ids)
+        observation_ids = sorted(
+            observation.observation_id for observation in read.observations
+        )
+        derivation_ids = sorted(
+            {observation.derivation_id for observation in read.observations}
+        )
+        fact_ids = sorted(
+            {
+                fact_id
+                for observation in read.observations
+                for fact_id in observation.fact_ids
+            }
+        )
         self.retrieved_outcome_summary_ids.update(summary_ids)
+        self.retrieved_observation_ids.update(observation_ids)
+        self.retrieved_derivation_ids.update(derivation_ids)
+        self.retrieved_fact_ids.update(fact_ids)
         self.retrieved_source_ids.update(read.source_ids)
         return QueryToolResult(
             tool="get_outcome_summary",
+            fact_ids=fact_ids,
             outcome_summary_ids=summary_ids,
+            observation_ids=observation_ids,
+            derivation_ids=derivation_ids,
             source_ids=list(read.source_ids),
-            items=[summary.model_dump(mode="json") for summary in read.summaries],
+            items=[
+                {
+                    "item_type": "formal_outcome_observation",
+                    **observation.model_dump(mode="json"),
+                }
+                for observation in read.observations
+            ],
         )
 
 
