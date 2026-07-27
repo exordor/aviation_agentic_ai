@@ -36,6 +36,7 @@ from aviation_agentic_ai.agent_system.agents import (
     run_terminology_agent,
 )
 from aviation_agentic_ai.agent_system.contracts import (
+    BTSManifestBinding,
     AgentResult,
     AgentStatus,
     AgentTask,
@@ -76,6 +77,7 @@ class IngestContext:
     weather_sources: list[SourceRecord] = field(default_factory=list)
     bts_rows: list[BTSOnTimeRow] = field(default_factory=list)
     bts_source: SourceRecord | None = None
+    bts_manifest_binding: BTSManifestBinding | None = None
     weather_failure_reason: str = ""
     bts_failure_reason: str = ""
     guide: SchemaGuide | None = None

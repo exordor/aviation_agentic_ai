@@ -23,7 +23,14 @@ from aviation_agentic_ai.agent_system.bts_outcomes import (
     infer_destination_arrival_utc,
     normalize_bts_archive,
 )
-from aviation_agentic_ai.agent_system.contracts import DecisionContextEvent
+from aviation_agentic_ai.agent_system.contracts import (
+    BTSManifestBinding,
+    DecisionContextEvent,
+)
+from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    load_validation_profile_registry,
+)
 from aviation_agentic_ai.cross_source.contracts import CanonicalEntity, CodeValue, EntityType
 
 
@@ -48,6 +55,25 @@ def _event(event_id: str, start: datetime, end: datetime) -> DecisionContextEven
         operational_start=start,
         operational_end=end,
     )
+
+
+def _seed_inputs(snapshot_sha256: str = NORMALIZED_SNAPSHOT_SHA256) -> dict[str, object]:
+    profile = next(
+        profile
+        for profile in load_validation_profile_registry(
+            decision_guide=load_schema_guide()
+        ).profiles
+        if profile.ref.layer == "public_operational_observation"
+    )
+    assert profile.aggregation_procedure is not None
+    return {
+        "manifest_binding": BTSManifestBinding(
+            source_id=NORMALIZED_SOURCE_ID,
+            archive_sha256=ARCHIVE_SHA256,
+            normalized_snapshot_sha256=snapshot_sha256,
+        ),
+        "aggregation_procedure": profile.aggregation_procedure,
+    }
 
 
 @pytest.fixture(scope="module")
@@ -212,6 +238,7 @@ def test_summaries_use_half_open_windows_and_preserve_null_aggregates(normalized
         rows,
         source_id=NORMALIZED_SOURCE_ID,
         source_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
+        **_seed_inputs(),
     )
 
     assert bundle.status == "ok"
@@ -239,6 +266,7 @@ def test_summary_windows_and_ids_are_canonical_utc(normalized):
         normalized.rows,
         source_id=NORMALIZED_SOURCE_ID,
         source_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
+        **_seed_inputs(),
     )
     active = bundle.summaries[1]
     assert active.window_start == datetime(2026, 5, 19, 21, tzinfo=UTC)
@@ -279,6 +307,7 @@ def test_frozen_cases_have_the_exact_active_bts_reported_counts(normalized, even
         normalized.rows,
         source_id=NORMALIZED_SOURCE_ID,
         source_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
+        **_seed_inputs(),
     )
     active = next(summary for summary in bundle.summaries if summary.phase == "active")
     assert (
@@ -302,6 +331,7 @@ def test_blocks_ambiguous_facility_binding(normalized):
         normalized.rows,
         source_id=NORMALIZED_SOURCE_ID,
         source_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
+        **_seed_inputs(),
     )
     assert bundle.status == "blocked"
     assert "exactly one IATA" in bundle.failure_reason
@@ -339,6 +369,7 @@ def test_summary_fails_closed_for_unbound_or_modified_normalized_snapshot(
         rows(normalized.rows),
         source_id=source_id,
         source_snapshot_sha256=source_sha256,
+        **_seed_inputs(source_sha256),
     )
     assert bundle.status == "blocked"
 
@@ -360,6 +391,7 @@ def test_summary_uses_half_open_boundaries_and_null_aggregates(monkeypatch, norm
         selected,
         source_id=NORMALIZED_SOURCE_ID,
         source_snapshot_sha256=snapshot_sha256,
+        **_seed_inputs(snapshot_sha256),
     )
     assert bundle.status == "ok"
     active, recovery = bundle.summaries[1:]
@@ -400,6 +432,7 @@ def test_summary_includes_lower_bounds_and_excludes_upper_bounds(monkeypatch, no
         rows,
         source_id=NORMALIZED_SOURCE_ID,
         source_snapshot_sha256=snapshot_sha256,
+        **_seed_inputs(snapshot_sha256),
     )
 
     assert bundle.status == "ok"
@@ -419,6 +452,7 @@ def test_outcome_bundle_emits_one_byte_stable_seed_per_phase(normalized):
         normalized.rows,
         source_id=NORMALIZED_SOURCE_ID,
         source_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
+        **_seed_inputs(),
     )
     second = build_bts_outcome_summaries(
         event,
@@ -426,6 +460,7 @@ def test_outcome_bundle_emits_one_byte_stable_seed_per_phase(normalized):
         reversed(normalized.rows),
         source_id=NORMALIZED_SOURCE_ID,
         source_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
+        **_seed_inputs(),
     )
 
     assert [seed.summary_id for seed in first.derivation_seeds] == [
@@ -443,7 +478,37 @@ def test_outcome_bundle_emits_one_byte_stable_seed_per_phase(normalized):
     ]
 
 
-def test_derivation_seed_blocks_changed_archive_or_procedure_binding(normalized):
+def test_emitted_seed_procedure_is_the_checksum_verified_profile_descriptor(normalized):
+    profile = next(
+        profile
+        for profile in load_validation_profile_registry(
+            decision_guide=load_schema_guide()
+        ).profiles
+        if profile.ref.layer == "public_operational_observation"
+    )
+    bundle = build_bts_outcome_summaries(
+        _event(
+            "urn:test:profile-procedure",
+            datetime(2026, 5, 19, 21, tzinfo=UTC),
+            datetime(2026, 5, 19, 22, 45, tzinfo=UTC),
+        ),
+        _facility("JFK", "KJFK"),
+        normalized.rows,
+        source_id=NORMALIZED_SOURCE_ID,
+        source_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
+        **_seed_inputs(),
+    )
+
+    assert bundle.status == "ok"
+    assert {
+        (seed.aggregation_procedure_id, seed.aggregation_procedure_checksum)
+        for seed in bundle.derivation_seeds
+    } == {
+        (profile.aggregation_procedure.procedure_id, profile.aggregation_procedure.checksum)
+    }
+
+
+def test_derivation_seed_uses_the_explicit_manifest_archive_binding(normalized):
     event = _event(
         "urn:test:derivation-integrity",
         datetime(2026, 5, 19, 21, tzinfo=UTC),
@@ -452,21 +517,22 @@ def test_derivation_seed_blocks_changed_archive_or_procedure_binding(normalized)
     kwargs = {
         "source_id": NORMALIZED_SOURCE_ID,
         "source_snapshot_sha256": NORMALIZED_SNAPSHOT_SHA256,
+        **_seed_inputs(),
     }
 
-    for changed in (
-        {"archive_sha256": "0" * 64},
-        {"aggregation_procedure_id": "urn:test:wrong-procedure"},
-        {"aggregation_procedure_checksum": "0" * 64},
-    ):
+    for changed in ({"manifest_binding": BTSManifestBinding(
+        source_id=NORMALIZED_SOURCE_ID,
+        archive_sha256="0" * 64,
+        normalized_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
+    )},):
         bundle = build_bts_outcome_summaries(
             event,
             _facility("JFK", "KJFK"),
             normalized.rows,
-            **kwargs,
-            **changed,
+            **(kwargs | changed),
         )
-        assert bundle.status == "blocked"
+        assert bundle.status == "ok"
+        assert bundle.derivation_seeds[0].archive_sha256 == "0" * 64
 
 
 def test_valid_bts_source_with_no_selected_phase_rows_is_insufficient(normalized):
@@ -480,6 +546,7 @@ def test_valid_bts_source_with_no_selected_phase_rows_is_insufficient(normalized
         normalized.rows,
         source_id=NORMALIZED_SOURCE_ID,
         source_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
+        **_seed_inputs(),
     )
 
     assert bundle.status == "insufficient"
@@ -498,6 +565,7 @@ def test_invalid_normalized_row_schema_blocks_the_bundle():
         [object()],
         source_id=NORMALIZED_SOURCE_ID,
         source_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
+        **_seed_inputs(),
     )
 
     assert bundle.status == "blocked"

@@ -336,7 +336,7 @@ def test_loaders_preserve_exact_weather_rows_and_the_pinned_bts_snapshot(
     assert all(source.content in exact_metar_rows or source.family == SourceFamily.TAF for source in weather_sources)
     assert len({source.source_id for source in weather_sources}) == len(weather_sources)
 
-    bts_source, bts_rows = bts_context
+    bts_source, bts_rows, binding = bts_context
     manifest = json.loads(
         Path("data/sources/bts_on_time_2026_05_manifest.json").read_text(encoding="utf-8")
     )
@@ -345,6 +345,9 @@ def test_loaders_preserve_exact_weather_rows_and_the_pinned_bts_snapshot(
     assert hashlib.sha256(bts_source.content.encode("utf-8")).hexdigest() == manifest[
         "normalized_sha256"
     ]
+    assert binding.source_id == manifest["source_id"]
+    assert binding.normalized_snapshot_sha256 == manifest["normalized_sha256"]
+    assert binding.archive_sha256 == manifest["archive_sha256"]
 
 
 @pytest.mark.parametrize(
@@ -436,7 +439,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
             gap.model_dump_json() + "\n", encoding="utf-8"
         )
 
-    bts_source, bts_rows = bts_context
+    bts_source, bts_rows, bts_binding = bts_context
     ctx = IngestContext(
         advisory=advisory,
         facility_candidates=[facility],
@@ -444,6 +447,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         weather_sources=weather_sources,
         bts_rows=bts_rows,
         bts_source=bts_source,
+        bts_manifest_binding=bts_binding,
         run_id=f"run:{source_id}",
         output_dir=str(tmp_path),
     )
@@ -958,7 +962,7 @@ def test_outcome_bundle_rejects_duplicate_phase_with_a_distinct_id(
             "validation": GraphValidationResult(accepted=facts, publishable=True),
         },
     )
-    bts_source, bts_rows = bts_context
+    bts_source, bts_rows, bts_binding = bts_context
     registry = build_source_snapshot_registry([bts_source])
     valid = context_artifacts_module.build_bts_outcome_summaries(
         event,
@@ -966,6 +970,14 @@ def test_outcome_bundle_rejects_duplicate_phase_with_a_distinct_id(
         bts_rows,
         source_id=bts_source.source_id,
         source_snapshot_sha256=registry.snapshots[0].content_sha256,
+        manifest_binding=bts_binding,
+        aggregation_procedure=next(
+            profile.aggregation_procedure
+            for profile in load_validation_profile_registry(
+                decision_guide=guide
+            ).profiles
+            if profile.ref.layer == "public_operational_observation"
+        ),
     )
     duplicate = valid.summaries[0].model_copy(
         update={"summary_id": f"{valid.summaries[0].summary_id}:duplicate"}
@@ -1135,7 +1147,7 @@ def test_outcome_validator_rejects_event_unbound_1999_windows(
             "validation": GraphValidationResult(accepted=facts, publishable=True),
         },
     )
-    bts_source, bts_rows = bts_context
+    bts_source, bts_rows, bts_binding = bts_context
     registry = build_source_snapshot_registry([bts_source])
     valid = context_artifacts_module.build_bts_outcome_summaries(
         event,
@@ -1143,6 +1155,14 @@ def test_outcome_validator_rejects_event_unbound_1999_windows(
         bts_rows,
         source_id=bts_source.source_id,
         source_snapshot_sha256=registry.snapshots[0].content_sha256,
+        manifest_binding=bts_binding,
+        aggregation_procedure=next(
+            profile.aggregation_procedure
+            for profile in load_validation_profile_registry(
+                decision_guide=load_schema_guide()
+            ).profiles
+            if profile.ref.layer == "public_operational_observation"
+        ),
     )
     active = next(summary for summary in valid.summaries if summary.phase == "active")
     forged = active.model_copy(

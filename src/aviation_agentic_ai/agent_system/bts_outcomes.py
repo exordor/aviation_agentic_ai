@@ -14,11 +14,15 @@ from typing import Iterable
 from zoneinfo import ZoneInfo
 
 from aviation_agentic_ai.agent_system.contracts import (
+    BTSManifestBinding,
     BTSOnTimeRow,
     BTSOutcomeBundle,
     BTSOutcomeSummary,
     DecisionContextEvent,
     ObservationDerivationSeed,
+)
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    AggregationProcedureDescriptor,
 )
 from aviation_agentic_ai.cross_source.contracts import CanonicalEntity, EntityType
 
@@ -34,8 +38,6 @@ MEMBER_SHA256 = "12470de43703fe0c23e25510b5af6e6e4e1d5d0aa55818dcc7d0f0b407801be
 TIMEZONE_NAME = "America/New_York"
 NORMALIZED_SOURCE_ID = "bts_on_time:2026-05:nyc"
 NORMALIZED_SNAPSHOT_SHA256 = "434ef44bae82213607006b7a6888621245528fe5ca8a8a168be919329f84c20d"
-AGGREGATION_PROCEDURE_ID = "urn:aviation-agentic-ai:observation-procedure:bts-on-time-aggregation-v1"
-AGGREGATION_PROCEDURE_CHECKSUM = "e483b0bc458004bfc979e8986ff945271c43930d2f8f5d21f6b3ce5f27c428a7"
 REPORTING_SCOPE = "BTS On-Time reporting carriers and scheduled domestic passenger operations."
 FILTER_DATES = {"2026-05-19", "2026-05-20"}
 FILTER_DESTINATIONS = {"JFK", "EWR", "LGA"}
@@ -324,8 +326,7 @@ def _summary_and_seed(
     source_id: str,
     source_snapshot_sha256: str,
     archive_sha256: str,
-    aggregation_procedure_id: str,
-    aggregation_procedure_checksum: str,
+    aggregation_procedure: AggregationProcedureDescriptor,
     selected: list[BTSOnTimeRow],
 ) -> tuple[BTSOutcomeSummary, ObservationDerivationSeed]:
     completed = [row for row in selected if row.Cancelled == 0 and row.Diverted == 0]
@@ -375,8 +376,8 @@ def _summary_and_seed(
         _canonical_json_bytes(summary.model_dump(mode="json"))
     ).hexdigest()
     derivation_payload = {
-        "aggregation_procedure_checksum": aggregation_procedure_checksum,
-        "aggregation_procedure_id": aggregation_procedure_id,
+        "aggregation_procedure_checksum": aggregation_procedure.checksum,
+        "aggregation_procedure_id": aggregation_procedure.procedure_id,
         "archive_sha256": archive_sha256,
         "selected_row_ids_sha256": selected_row_ids_sha256,
         "source_id": source_id,
@@ -393,8 +394,8 @@ def _summary_and_seed(
         source_id=source_id,
         source_snapshot_sha256=source_snapshot_sha256,
         archive_sha256=archive_sha256,
-        aggregation_procedure_id=aggregation_procedure_id,
-        aggregation_procedure_checksum=aggregation_procedure_checksum,
+        aggregation_procedure_id=aggregation_procedure.procedure_id,
+        aggregation_procedure_checksum=aggregation_procedure.checksum,
         selected_row_ids=selected_row_ids,
         selected_row_ids_sha256=selected_row_ids_sha256,
     )
@@ -408,9 +409,8 @@ def build_bts_outcome_summaries(
     *,
     source_id: str,
     source_snapshot_sha256: str,
-    archive_sha256: str = ARCHIVE_SHA256,
-    aggregation_procedure_id: str = AGGREGATION_PROCEDURE_ID,
-    aggregation_procedure_checksum: str = AGGREGATION_PROCEDURE_CHECKSUM,
+    manifest_binding: BTSManifestBinding,
+    aggregation_procedure: AggregationProcedureDescriptor,
     timezone_name: str = TIMEZONE_NAME,
 ) -> BTSOutcomeBundle:
     """Aggregate BTS-reported arrivals and emit provenance seeds in one pass."""
@@ -418,16 +418,10 @@ def build_bts_outcome_summaries(
     try:
         if timezone_name != TIMEZONE_NAME:
             ZoneInfo(timezone_name)
-        if source_id != NORMALIZED_SOURCE_ID:
-            raise ValueError("BTS outcome source ID does not match the pinned normalized snapshot")
-        if source_snapshot_sha256 != NORMALIZED_SNAPSHOT_SHA256:
-            raise ValueError("BTS outcome source checksum does not match the pinned normalized snapshot")
-        if archive_sha256 != ARCHIVE_SHA256:
-            raise ValueError("BTS outcome archive checksum does not match the pinned archive")
-        if aggregation_procedure_id != AGGREGATION_PROCEDURE_ID:
-            raise ValueError("BTS aggregation procedure ID does not match the pinned procedure")
-        if aggregation_procedure_checksum != AGGREGATION_PROCEDURE_CHECKSUM:
-            raise ValueError("BTS aggregation procedure checksum does not match the pinned procedure")
+        if source_id != manifest_binding.source_id:
+            raise ValueError("BTS outcome source ID does not match the manifest binding")
+        if source_snapshot_sha256 != manifest_binding.normalized_snapshot_sha256:
+            raise ValueError("BTS outcome source checksum does not match the manifest binding")
         all_rows = list(rows)
         if len({row.row_id for row in all_rows}) != len(all_rows):
             raise ValueError("duplicate normalized BTS row ID")
@@ -474,9 +468,8 @@ def build_bts_outcome_summaries(
                 end,
                 source_id,
                 source_snapshot_sha256,
-                archive_sha256,
-                aggregation_procedure_id,
-                aggregation_procedure_checksum,
+                manifest_binding.archive_sha256,
+                aggregation_procedure,
                 selected,
             )
             for phase, start, end, selected in phase_rows

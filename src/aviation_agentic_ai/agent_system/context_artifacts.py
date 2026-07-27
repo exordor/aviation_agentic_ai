@@ -39,6 +39,9 @@ from aviation_agentic_ai.agent_system.weather_context import (
 from aviation_agentic_ai.agent_system.weather_context_validation import (
     validate_weather_context_bundle,
 )
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    load_validation_profile_registry,
+)
 from aviation_agentic_ai.cross_source.contracts import CanonicalEntity
 
 
@@ -316,17 +319,34 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
                 "insufficient",
                 "no BTS normalized snapshot was provided",
             )
+        elif ctx.bts_manifest_binding is None:
+            outcome_bundle = _empty_outcomes(
+                "blocked",
+                "BTS manifest binding was not provided",
+            )
         else:
             try:
                 bts_record = ctx.bts_source
                 bts_registry = build_source_snapshot_registry([bts_record])
                 bts_snapshot = bts_registry.snapshots[0]
+                profile_registry = load_validation_profile_registry(
+                    decision_guide=ctx.guide or load_schema_guide()
+                )
+                public_profile = next(
+                    profile
+                    for profile in profile_registry.profiles
+                    if profile.ref.layer == "public_operational_observation"
+                )
+                if public_profile.aggregation_procedure is None:
+                    raise ValueError("public-observation profile has no aggregation procedure")
                 outcome_bundle = build_bts_outcome_summaries(
                     decision_event,
                     facility,
                     ctx.bts_rows,
                     source_id=bts_record.source_id,
                     source_snapshot_sha256=bts_snapshot.content_sha256,
+                    manifest_binding=ctx.bts_manifest_binding,
+                    aggregation_procedure=public_profile.aggregation_procedure,
                 )
                 _validate_outcomes(
                     outcome_bundle,

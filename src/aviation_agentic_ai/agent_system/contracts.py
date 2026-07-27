@@ -480,6 +480,16 @@ class BTSOnTimeRow(StrictModel):
         return self
 
 
+class BTSManifestBinding(StrictModel):
+    """Immutable, loader-verified BTS archive and normalized-snapshot binding."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_id: str = Field(min_length=1)
+    archive_sha256: str = Field(min_length=1)
+    normalized_snapshot_sha256: str = Field(min_length=1)
+
+
 class BTSOutcomeSummary(StrictModel):
     """Audit-only BTS-reported operational summary for a resolved decision event."""
 

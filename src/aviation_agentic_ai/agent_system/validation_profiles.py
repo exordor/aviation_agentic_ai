@@ -48,6 +48,16 @@ _FORBIDDEN_OPERATIONAL_OR_CAUSAL_PREDICATES = frozenset(
 )
 
 
+class AggregationProcedureDescriptor(StrictModel):
+    """Pinned deterministic aggregation procedure admitted by one profile."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    procedure_id: str = Field(min_length=1)
+    checksum: str = Field(min_length=1)
+    null_rule: str = Field(min_length=1)
+
+
 class LoadedValidationProfile(StrictModel):
     """A checksum-verified profile with mappings needed by later writers."""
 
@@ -59,6 +69,7 @@ class LoadedValidationProfile(StrictModel):
     class_mappings: dict[str, dict[str, str]]
     property_mappings: dict[str, dict[str, str]]
     forbidden_predicates: tuple[str, ...] = ()
+    aggregation_procedure: AggregationProcedureDescriptor | None = None
 
     @model_validator(mode="after")
     def _validate_mappings(self) -> "LoadedValidationProfile":
@@ -80,6 +91,11 @@ class LoadedValidationProfile(StrictModel):
         conflict = sorted(admitted & forbidden)
         if conflict:
             raise ValueError(f"forbidden predicate admitted by profile: {conflict[0]}")
+        if (
+            self.ref.layer == "public_operational_observation"
+            and self.aggregation_procedure is None
+        ):
+            raise ValueError("public-observation profile has no aggregation procedure")
         return self
 
 
@@ -215,6 +231,20 @@ def _load_json_profile(path: Path, layer: ValidationLayer) -> LoadedValidationPr
     forbidden = payload.get("forbidden_predicates", [])
     if not isinstance(forbidden, list) or not all(isinstance(value, str) for value in forbidden):
         raise ValueError("forbidden_predicates must be a string list")
+    raw_procedure = payload.get("aggregation_procedure")
+    if raw_procedure is None:
+        procedure = None
+    elif isinstance(raw_procedure, dict) and all(
+        isinstance(raw_procedure.get(field), str) and raw_procedure[field]
+        for field in ("id", "checksum", "null_rule")
+    ):
+        procedure = AggregationProcedureDescriptor(
+            procedure_id=raw_procedure["id"],
+            checksum=raw_procedure["checksum"],
+            null_rule=raw_procedure["null_rule"],
+        )
+    else:
+        raise ValueError("aggregation_procedure must be a complete string descriptor")
     return LoadedValidationProfile(
         ref=ValidationProfileRef(
             profile_id=profile_id,
@@ -226,6 +256,7 @@ def _load_json_profile(path: Path, layer: ValidationLayer) -> LoadedValidationPr
         class_mappings=class_mappings,
         property_mappings=property_mappings,
         forbidden_predicates=tuple(forbidden),
+        aggregation_procedure=procedure,
     )
 
 
@@ -292,6 +323,7 @@ def load_validation_profile_registry(
 
 
 __all__ = [
+    "AggregationProcedureDescriptor",
     "DEFAULT_PUBLIC_OBSERVATION_PROFILE_PATH",
     "DEFAULT_WEATHER_PROFILE_PATH",
     "LegacyValidatedFact",

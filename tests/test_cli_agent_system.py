@@ -11,6 +11,7 @@ from langchain_core.messages import AIMessage
 
 import aviation_agentic_ai.cli_agent_system as cli_module
 from aviation_agentic_ai.agent_system.contracts import (
+    BTSManifestBinding,
     ModelCallRecord,
     ModelToolCall,
     SourceFamily,
@@ -288,7 +289,19 @@ def test_ingest_wires_deterministic_context_loaders_without_extra_model_calls(
     monkeypatch.setattr(cli_module, "facility_candidates", lambda config: [])
     monkeypatch.setattr(cli_module, "term_candidates", lambda config: [])
     monkeypatch.setattr(cli_module, "load_weather_sources", lambda config: [weather])
-    monkeypatch.setattr(cli_module, "load_bts_context_source", lambda config: (bts, []))
+    monkeypatch.setattr(
+        cli_module,
+        "load_bts_context_source",
+        lambda config: (
+            bts,
+            [],
+            BTSManifestBinding(
+                source_id=bts.source_id,
+                archive_sha256="a" * 64,
+                normalized_snapshot_sha256="b" * 64,
+            ),
+        ),
+    )
     monkeypatch.setattr(cli_module, "new_run_directory", lambda root, source_id: tmp_path)
     monkeypatch.setattr(cli_module, "make_live_model_invoker", lambda **kwargs: object())
     monkeypatch.setattr(
@@ -323,6 +336,7 @@ def test_ingest_wires_deterministic_context_loaders_without_extra_model_calls(
     assert result.exit_code == 0, result.output
     assert captured["ctx"].weather_sources == [weather]
     assert captured["ctx"].bts_source == bts
+    assert captured["ctx"].bts_manifest_binding is not None
     assert captured["ctx"].weather_failure_reason == ""
     assert captured["ctx"].bts_failure_reason == ""
 

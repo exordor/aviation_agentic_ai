@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.agent_system.contracts import (
+    BTSManifestBinding,
     BTSOnTimeRow,
     SourceFamily,
     SourceRecord,
@@ -237,7 +238,7 @@ def load_weather_sources(config: dict[str, Any]) -> list[SourceRecord]:
 
 def load_bts_context_source(
     config: dict[str, Any] | None = None,
-) -> tuple[SourceRecord, list[BTSOnTimeRow]]:
+) -> tuple[SourceRecord, list[BTSOnTimeRow], BTSManifestBinding]:
     """Load the configured, checksum-pinned BTS normalized snapshot."""
 
     configured = (
@@ -294,6 +295,11 @@ def load_bts_context_source(
             source_url=str(manifest.get("url") or "") or None,
         ),
         rows,
+        BTSManifestBinding(
+            source_id=str(manifest["source_id"]),
+            archive_sha256=str(manifest["archive_sha256"]),
+            normalized_snapshot_sha256=str(manifest["normalized_sha256"]),
+        ),
     )
 
 

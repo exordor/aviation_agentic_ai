@@ -81,6 +81,7 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
     weather_sources = []
     bts_rows = []
     bts_source = None
+    bts_manifest_binding = None
     weather_failure_reason = ""
     bts_failure_reason = ""
     try:
@@ -88,7 +89,7 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
     except (OSError, TypeError, ValueError) as exc:
         weather_failure_reason = str(exc)
     try:
-        bts_source, bts_rows = load_bts_context_source(config)
+        bts_source, bts_rows, bts_manifest_binding = load_bts_context_source(config)
     except (OSError, TypeError, ValueError) as exc:
         bts_failure_reason = str(exc)
     runs_root = resolve_project_path(
@@ -107,6 +108,7 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
         weather_sources=weather_sources,
         bts_rows=bts_rows,
         bts_source=bts_source,
+        bts_manifest_binding=bts_manifest_binding,
         weather_failure_reason=weather_failure_reason,
         bts_failure_reason=bts_failure_reason,
         guide=guide,
