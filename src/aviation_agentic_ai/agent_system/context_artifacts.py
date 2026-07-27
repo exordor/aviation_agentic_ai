@@ -14,7 +14,6 @@ from aviation_agentic_ai.agent_system.bts_outcomes import (
     build_bts_outcome_summaries,
 )
 from aviation_agentic_ai.agent_system.contracts import (
-    AgentStatus,
     BTSObservationBundle,
     BTSOutcomeBundle,
     BTSOutcomeSummary,
@@ -30,6 +29,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     WeatherContextBundle,
     WeatherFactTrace,
 )
+from aviation_agentic_ai.agent_system.decision_case_contracts import AssemblyStatus
 from aviation_agentic_ai.agent_system.materialize import (
     _absolute_event_iri,
     materialize_validated_facts,
@@ -471,13 +471,11 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
 
     decision_event: DecisionContextEvent | None = None
     facility: CanonicalEntity | None = None
-    kg_result = state.get("kg_result")
+    assembly_result = state.get("case_assembly_result")
     preflight_status = state.get("resolution_preflight_status")
-    if kg_result is not None and getattr(kg_result, "status", None) is AgentStatus.BLOCKED:
+    if getattr(getattr(assembly_result, "proposal", None), "assembly_status", None) is AssemblyStatus.BLOCKED:
         common_status = "blocked"
-        common_reason = (
-            getattr(kg_result, "failure_reason", None) or "knowledge graph construction was blocked"
-        )
+        common_reason = state.get("assembly_failure_reason") or "decision case assembly was blocked"
     elif preflight_status in {"blocked", "insufficient"}:
         common_status = preflight_status
         common_reason = state.get(
@@ -660,13 +658,10 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
     common_reason = ""
     if validation is None:
         preflight_status = state.get("resolution_preflight_status")
-        kg_result = state.get("kg_result")
-        if kg_result is not None and getattr(kg_result, "status", None) is AgentStatus.BLOCKED:
+        assembly_result = state.get("case_assembly_result")
+        if getattr(getattr(assembly_result, "proposal", None), "assembly_status", None) is AssemblyStatus.BLOCKED:
             common_status = "blocked"
-            common_reason = (
-                getattr(kg_result, "failure_reason", None)
-                or "knowledge graph construction was blocked"
-            )
+            common_reason = state.get("assembly_failure_reason") or "decision case assembly was blocked"
         elif preflight_status in {"blocked", "insufficient"}:
             common_status = preflight_status
             common_reason = state.get(

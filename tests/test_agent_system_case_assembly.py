@@ -1304,7 +1304,7 @@ def test_case_assembly_initial_prompt_lists_all_authorized_record_ids() -> None:
     from aviation_agentic_ai.agent_system.case_assembly import _base_messages
 
     task = _assembly_task()
-    prompt = str(_base_messages(task, catalog_path="configs/prompts/agent_system_v1.yaml")[-1].content)
+    prompt = str(_base_messages(task, catalog_path="configs/prompts/decision_case_agents_v1.yaml")[-1].content)
 
     assert "EVIDENCE_IDS:evidence:event:type\nevidence:event:weather" in prompt
     assert "RESOLUTION_IDS:res-prop-1" in prompt
@@ -1497,7 +1497,7 @@ def test_workflow_three_cases_decision_case_assembly_regression(tmp_path: Path) 
         assert task is not None
         assert proposal is not None
         assert proposal.assembly_status.value == expected_status
-        assert state["kg_result"].graph_patch is not None
+        assert state["assembly_graph_patch"] is not None
         assert state["validation"].publishable
         assert state["materialization"] is not None
 

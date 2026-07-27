@@ -805,7 +805,7 @@ def test_semantic_resolution_final_budget_excludes_unbound_tool_schemas(
     task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
     first_budget = semantic_resolution._estimated_input_tokens(
         semantic_resolution._base_messages(
-            task, catalog_path="configs/prompts/agent_system_v1.yaml"
+            task, catalog_path="configs/prompts/decision_case_agents_v1.yaml"
         ),
         bound_tools=build_resolution_tools(ResolutionToolGateway(task=task)),
     )

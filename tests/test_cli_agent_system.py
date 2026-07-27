@@ -302,7 +302,6 @@ def test_cli_preserves_domain_isolation_when_one_authority_file_is_missing(
     monkeypatch,
 ):
     captured = {}
-    resolution_factory_calls = []
     tool_factory_calls = []
     authority_load_calls = []
     advisory = SourceRecord(
@@ -363,11 +362,6 @@ def test_cli_preserves_domain_isolation_when_one_authority_file_is_missing(
     )
     monkeypatch.setattr(
         cli_module,
-        "make_live_model_invoker",
-        lambda **kwargs: resolution_factory_calls.append(kwargs) or object(),
-    )
-    monkeypatch.setattr(
-        cli_module,
         "load_authority_catalog",
         lambda *args, **kwargs: authority_load_calls.append((args, kwargs))
         or authority_catalog,
@@ -385,7 +379,7 @@ def test_cli_preserves_domain_isolation_when_one_authority_file_is_missing(
             "model_calls": [],
             "materialization": None,
             "validation": None,
-            "kg_result": None,
+            "assembly_graph_patch": None,
             "context_artifacts": {},
             "formal_layers": {
                 "decision": {
@@ -424,19 +418,13 @@ def test_cli_preserves_domain_isolation_when_one_authority_file_is_missing(
     assert captured["ctx"].term_candidates == [term_candidate]
     assert captured["ctx"].authority_catalog.facility.status is AuthorityBuildStatus.BLOCKED
     assert captured["ctx"].authority_catalog.terminology.status is AuthorityBuildStatus.OK
-    assert captured["ctx"].model_invoker is None
-    assert callable(captured["ctx"].model_invoker_factory)
     assert callable(captured["ctx"].semantic_resolution_tool_model_factory)
-    assert callable(captured["ctx"].kg_tool_model_factory)
     assert callable(captured["ctx"].case_assembly_model_factory)
-    assert resolution_factory_calls == []
     assert tool_factory_calls == []
     captured["ctx"].semantic_resolution_tool_model_factory([])
-    captured["ctx"].kg_tool_model_factory([])
     captured["ctx"].case_assembly_model_factory([])
     assert [call["role"] for call in tool_factory_calls] == [
         "semantic_resolution",
-        "knowledge_graph_construction",
         "decision_case_assembly",
     ]
     assert len(authority_load_calls) == 1
@@ -476,7 +464,6 @@ def test_ingest_records_optional_loader_failures_for_the_context_layer(
         "create_run_binding",
         lambda root, source_id: _run_binding(tmp_path),
     )
-    monkeypatch.setattr(cli_module, "make_live_model_invoker", lambda **kwargs: object())
     monkeypatch.setattr(
         cli_module,
         "make_live_tool_calling_model",
@@ -489,7 +476,7 @@ def test_ingest_records_optional_loader_failures_for_the_context_layer(
             "model_calls": [],
             "materialization": None,
             "validation": None,
-            "kg_result": None,
+            "assembly_graph_patch": None,
             "context_artifacts": {},
         }
 
@@ -543,7 +530,6 @@ def test_ingest_treats_missing_legacy_weather_config_as_an_optional_layer_failur
         "create_run_binding",
         lambda root, source_id: _run_binding(tmp_path),
     )
-    monkeypatch.setattr(cli_module, "make_live_model_invoker", lambda **kwargs: object())
     monkeypatch.setattr(
         cli_module,
         "make_live_tool_calling_model",
@@ -556,7 +542,7 @@ def test_ingest_treats_missing_legacy_weather_config_as_an_optional_layer_failur
             "model_calls": [],
             "materialization": None,
             "validation": None,
-            "kg_result": None,
+            "assembly_graph_patch": None,
             "context_artifacts": {},
         }
 

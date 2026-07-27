@@ -1,4 +1,4 @@
-"""The five Agent roles of the multi-Agent KG system (design §§8–12).
+"""Deterministic advisory evidence and bounded active Agent helpers.
 
 Each Agent follows the bounded lifecycle of design §7: receive task, inspect
 permitted context, choose an allowed tool when needed, collect authority-backed
@@ -26,7 +26,6 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from aviation_agentic_ai.agent_system.contracts import (
-    AgentResult,
     AgentStatus,
     AgentTask,
     EvidenceCard,
@@ -36,14 +35,12 @@ from aviation_agentic_ai.agent_system.contracts import (
     ToolTraceEntry,
 )
 from aviation_agentic_ai.agent_system.prompts import assemble_prompt
-from aviation_agentic_ai.agent_system.schema_guide import SchemaGuide
 
 # A model invoker takes (agent_role, template_variables) and returns a
 # ModelCallRecord. The invoker is responsible for assembling the frozen
 # 6-message prompt from the catalog (design §16) and recording the call
 # ledger (agent, prompt_set_id, prompt_version, attempt).
 ModelInvoker = Callable[[str, dict[str, Any]], ModelCallRecord]
-ToolModelFactory = Callable[[list[Any]], Any]
 
 # Shared English insufficient-evidence fallback for the active Query interface
 # (plan §13 T4: English-only active interface). Defined here so both the Query
@@ -264,33 +261,25 @@ def _trace(tool: str, **params: Any) -> ToolTraceEntry:
 
 
 # ---------------------------------------------------------------------------
-# Advisory Agent (design §8)
+# Deterministic advisory evidence builder
 # ---------------------------------------------------------------------------
 
 
-def run_advisory_agent(
+def build_advisory_evidence(
     *,
     task: AgentTask,
     advisory: SourceRecord,
     event_classes: list[str],
     mentions: AdvisoryMentions,
-    model_invoker: ModelInvoker | None = None,
-) -> AgentResult:
+) -> EvidenceCard:
     """Convert a raw advisory into a source-bounded evidence card.
 
     Makes no facility/term canonicalization. Uses the deterministic parse.
 
-    Plan §12 Advisory-call policy: the Advisory Agent must NOT make a model call
-    whose response is not consumed by a bounded output parser and cannot change
-    the EvidenceCard. For this vertical slice the deterministic parse is the sole
-    producer of advisory claims; a complete parse therefore makes zero Advisory
-    model calls, and an incomplete/ambiguous parse abstains without a model call
-    (a model-assisted fallback is deferred until its output contract and consumer
-    are explicitly designed). ``model_invoker`` is accepted for API symmetry but
-    is never invoked here.
+    This is a zero-call parser/service, not an Agent role. It makes no
+    facility or terminology canonicalization decision.
     """
 
-    del model_invoker  # §12: the Advisory Agent makes no model call.
     for tool in ("get_advisory", "parse_structured_fields", "get_schema_event_classes"):
         _check_tool(task, tool)
     source_id = advisory.source_id
@@ -336,11 +325,7 @@ def run_advisory_agent(
         )
 
     status = AgentStatus.RESOLVED if claims else AgentStatus.ABSTAIN
-    # §12: zero Advisory model calls. The deterministic parse is the sole
-    # producer; an incomplete parse abstains without a model call.
-    model_calls: list[ModelCallRecord] = []
-
-    card = EvidenceCard(
+    return EvidenceCard(
         agent_role="advisory",
         status=status,
         claims=claims,
@@ -348,130 +333,6 @@ def run_advisory_agent(
         tool_trace=tool_trace,
         decision_basis="deterministic structured-field parse of the advisory",
     )
-    return AgentResult(status=status, evidence_card=card, model_calls=model_calls)
-
-
-# ---------------------------------------------------------------------------
-# Knowledge Graph Construction Agent (design §11)
-# ---------------------------------------------------------------------------
-
-
-@dataclass
-class KGConstructionInput:
-    """Inputs to the KG Construction Agent (design §11.2)."""
-
-    advisory: SourceRecord
-    advisory_card: EvidenceCard
-    facility_card: EvidenceCard
-    terminology_card: EvidenceCard
-    event_uri: str
-    event_class: str
-    guide: SchemaGuide
-    allowed_source_ids: set[str] = field(default_factory=set)
-
-
-def run_kg_construction_agent(
-    *,
-    task: AgentTask,
-    inputs: KGConstructionInput,
-    tool_model_factory: ToolModelFactory | None = None,
-) -> AgentResult:
-    """Generate an ontology-constrained Graph Patch from the evidence cards.
-
-    Uses the program-supplied event URI and resolved canonical ids only. No
-    direct RDF/Turtle/Cypher/JSON-Schema output; no new ontology vocabulary.
-    If no event class was resolved the Agent abstains and emits no patch.
-    """
-
-    for tool in ("get_schema_context", "resolve_canonical_ref", "get_source_evidence"):
-        _check_tool(task, tool)
-    # Missing resolved event type -> abstain, no formal patch (design §11.6).
-    if not inputs.event_class:
-        card = EvidenceCard(
-            agent_role="knowledge_graph_construction",
-            status=AgentStatus.ABSTAIN,
-            source_ids=[inputs.advisory.source_id],
-            decision_basis="missing resolved event type; no graph constructed",
-        )
-        return AgentResult(status=AgentStatus.ABSTAIN, evidence_card=card)
-
-    allowed = sorted(inputs.allowed_source_ids)
-    if not allowed:
-        card = EvidenceCard(
-            agent_role="knowledge_graph_construction",
-            status=AgentStatus.BLOCKED,
-            decision_basis="no accepted event evidence sources are available",
-        )
-        return AgentResult(
-            status=AgentStatus.BLOCKED,
-            evidence_card=card,
-            failure_reason="no accepted event evidence sources are available",
-        )
-    known = _known_canonical_entities(
-        inputs.facility_card,
-        inputs.guide,
-        allowed_source_ids=set(allowed),
-    )
-    if tool_model_factory is None:
-        card = EvidenceCard(
-            agent_role="knowledge_graph_construction",
-            status=AgentStatus.BLOCKED,
-            source_ids=[inputs.advisory.source_id],
-            decision_basis="no native tool-calling model adapter is available",
-        )
-        return AgentResult(
-            status=AgentStatus.BLOCKED,
-            evidence_card=card,
-            failure_reason="no native tool-calling model adapter is available",
-        )
-
-    from aviation_agentic_ai.agent_system.kg_tool_graph import (
-        run_kg_tool_agent,
-    )
-    from aviation_agentic_ai.agent_system.kg_tools import (
-        KGConstructionToolGateway,
-        build_kg_construction_tools,
-    )
-
-    evidence_cards = {
-        "advisory": inputs.advisory_card,
-        "facility": inputs.facility_card,
-        "terminology": inputs.terminology_card,
-    }
-    gateway = KGConstructionToolGateway(
-        guide=inputs.guide,
-        event_class=inputs.event_class,
-        evidence_cards=evidence_cards,
-        canonical_entities=known,
-        allowed_source_ids=set(allowed),
-    )
-    tools = build_kg_construction_tools(gateway)
-    return run_kg_tool_agent(
-        model=tool_model_factory(tools),
-        tools=tools,
-        event_uri=inputs.event_uri,
-        event_class=inputs.event_class,
-        schema_slice_id=inputs.guide.schema_slice_id,
-        allowed_source_ids=set(allowed),
-        canonical_entities=known,
-        evidence_cards=evidence_cards,
-    )
-
-
-def _known_canonical_entities(
-    facility_card: EvidenceCard,
-    guide: SchemaGuide,
-    *,
-    allowed_source_ids: set[str],
-) -> dict[str, str]:
-    """Map resolved canonical facility ids -> ontology class for the patch."""
-
-    entities: dict[str, str] = {}
-    for claim in facility_card.claims:
-        if claim.source_id in allowed_source_ids and claim.canonical_ref and claim.ontology_target:
-            entities[claim.canonical_ref] = claim.ontology_target
-    return entities
-
 
 # ---------------------------------------------------------------------------
 # Query Agent (design §12)
@@ -663,7 +524,6 @@ def _now_ms() -> float:
 # Re-export the prompt assembler for callers that build messages directly.
 __all__ = [
     "AdvisoryMentions",
-    "KGConstructionInput",
     "ModelInvoker",
     "QueryGraphEvidence",
     "ToolNotAllowedError",
@@ -671,7 +531,6 @@ __all__ = [
     "parse_structured_fields",
     "parse_query_answer",
     "parse_query_answer_claims",
-    "run_advisory_agent",
-    "run_kg_construction_agent",
+    "build_advisory_evidence",
     "run_query_agent",
 ]

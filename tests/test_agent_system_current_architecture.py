@@ -7,7 +7,8 @@ from aviation_agentic_ai.agent_system.authority_resolution import (
     resolve_facility_authority,
     resolve_terminology_authority,
 )
-from aviation_agentic_ai.agent_system.contracts import AgentStatus, SourceFamily, SourceRecord
+from aviation_agentic_ai.agent_system.case_assembly import AssemblyStatus
+from aviation_agentic_ai.agent_system.contracts import AgentStatus
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.workflow import IngestContext, run_ingest
 from test_agent_system_runtime_binding import (
@@ -52,19 +53,34 @@ def test_unique_authority_candidates_resolve_without_semantic_model(tmp_path) ->
     assert factory.calls == 0
 
 
-def test_ingest_returns_direct_authority_results_without_split_bridge(tmp_path) -> None:
-    """Catches workflow state that reconstructs the removed result envelope."""
+def test_ingest_publishes_assembly_patch_without_legacy_kg_envelope(tmp_path) -> None:
+    """Catches reintroducing the removed KG-result bridge after Assembly."""
+
+    from aviation_agentic_ai.agent_system.sources import load_advisory_source
+    from test_agent_system_authority_evidence import _test_inputs
 
     catalog = _catalog(tmp_path)
-    advisory = SourceRecord(
-        source_id="2026-05-19:123",
-        family=SourceFamily.ATCSCC_ADVISORY,
-        content=(
-            "ADVZY 123 JFK 05/19/2026\nCTL ELEMENT: JFK\nELEMENT TYPE: APT\n"
-            "GROUND STOP\nGROUND STOP PERIOD: 19/2100Z - 19/2245Z\n"
-            "SIGNATURE:\n26/05/19 20:30\n"
-        ),
+    config, _ = _test_inputs(tmp_path)
+    advisory = load_advisory_source(config, "2026-05-19:123")
+    state = run_ingest(
+        IngestContext(
+            advisory=advisory,
+            facility_candidates=list(catalog.facility.entities),
+            term_candidates=list(catalog.terminology.registry_terms),
+            authority_catalog=catalog,
+            guide=load_schema_guide(),
+            run_id="run:direct-assembly",
+            run_started_at=STARTED,
+            output_dir=str(tmp_path / "direct-assembly"),
+        )
     )
+
+    assert state["case_assembly_result"].proposal.assembly_status in {
+        AssemblyStatus.OK,
+        AssemblyStatus.PARTIAL,
+    }
+    assert state["assembly_graph_patch"].patch_lines
+    assert state.get("kg_result") is None
     state = run_ingest(
         IngestContext(
             advisory=advisory,

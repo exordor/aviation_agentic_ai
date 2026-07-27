@@ -476,9 +476,6 @@ def test_gdp_138_assembly_sees_only_prepared_validated_multisource_rows(
             run_id="run:gdp-138-prepared-context",
             run_started_at=datetime(2026, 5, 19, 20, 0, tzinfo=UTC),
             output_dir=str(output_dir),
-            kg_tool_model_factory=lambda tools: (
-                provider_constructions.append("legacy-kg") or object()
-            ),
             case_assembly_model_factory=lambda tools: (
                 provider_constructions.append("assembly") or object()
             ),

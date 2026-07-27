@@ -36,7 +36,6 @@ from aviation_agentic_ai.agent_system.query_tool_graph import (
 from aviation_agentic_ai.agent_system.runtime import (
     MAX_PROVIDER_CALLS,
     create_run_binding,
-    make_live_model_invoker,
     write_run_manifest,
 )
 from aviation_agentic_ai.agent_system.schema_guide import (
@@ -131,15 +130,9 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
         weather_failure_reason=weather_failure_reason,
         bts_failure_reason=bts_failure_reason,
         guide=guide,
-        model_invoker_factory=lambda: make_live_model_invoker(catalog_path=DEFAULT_PROMPT_CATALOG),
         semantic_resolution_tool_model_factory=lambda tools: make_live_tool_calling_model(
             tools=tools,
             role="semantic_resolution",
-            catalog_path=DEFAULT_PROMPT_CATALOG,
-        ),
-        kg_tool_model_factory=lambda tools: make_live_tool_calling_model(
-            tools=tools,
-            role="knowledge_graph_construction",
             catalog_path=DEFAULT_PROMPT_CATALOG,
         ),
         case_assembly_model_factory=lambda tools: make_live_tool_calling_model(
@@ -158,17 +151,16 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
         raise click.ClickException(f"provider calls exceeded hard maximum {MAX_PROVIDER_CALLS}")
     materialization = state.get("materialization")
     validation = state.get("validation")
-    kg_result = state.get("kg_result")
-    graph_patch_raw = kg_result.graph_patch.raw if kg_result and kg_result.graph_patch else None
+    assembly_graph_patch = state.get("assembly_graph_patch")
+    graph_patch_raw = assembly_graph_patch.raw if assembly_graph_patch else None
     evidence_cards = [
-        r.evidence_card
+        getattr(r, "evidence_card", r)
         for r in (
-            state.get("advisory_result"),
+            state.get("advisory_evidence"),
             state.get("facility_authority_result"),
             state.get("terminology_authority_result"),
-            state.get("kg_result"),
         )
-        if r and r.evidence_card
+        if r and getattr(r, "evidence_card", r)
     ]
     write_run_manifest(
         run_dir=run_dir,

@@ -3,12 +3,12 @@
 The Workflow Coordinator is a deterministic LangGraph controller:
 
     START
-      -> Advisory Agent
+      -> deterministic advisory evidence builder
       -> parallel fan-out:
            facility authority service
            terminology authority service
       -> evidence-card join
-      -> Knowledge Graph Construction Agent
+      -> Decision Case Assembly
       -> Graph Patch parser + schema validator + RDF/Neo4j materializer
       -> END
 
@@ -29,12 +29,7 @@ from typing import Annotated, Any, TypedDict
 from langgraph.graph import END, START, StateGraph
 from pydantic import model_validator
 
-from aviation_agentic_ai.agent_system.agents import (
-    KGConstructionInput,  # noqa: F401
-    parse_structured_fields,
-    run_advisory_agent,
-    run_kg_construction_agent,  # noqa: F401
-)
+from aviation_agentic_ai.agent_system.agents import build_advisory_evidence, parse_structured_fields
 from aviation_agentic_ai.agent_system.authority_resolution import (
     AuthorityResolutionResult,
     FacilityAuthorityResolutionInput,
@@ -50,8 +45,6 @@ from aviation_agentic_ai.agent_system.authority_evidence import (
 )
 from aviation_agentic_ai.agent_system.contracts import (
     BTSManifestBinding,
-    AgentResult,
-    AgentStatus,
     AgentTask,
     BTSOnTimeRow,
     GraphValidationResult,
@@ -105,10 +98,6 @@ from aviation_agentic_ai.agent_system.sources import (
     write_source_snapshot_registry,
 )
 from aviation_agentic_ai.cross_source.identifiers import stable_id
-from aviation_agentic_ai.agent_system.runtime import (
-    ModelInvoker,
-    ModelInvokerFactory,
-)
 
 ToolModelFactory = Any
 
@@ -231,10 +220,7 @@ class IngestContext:
     weather_failure_reason: str = ""
     bts_failure_reason: str = ""
     guide: SchemaGuide | None = None
-    model_invoker: ModelInvoker | None = None
-    model_invoker_factory: ModelInvokerFactory | None = None
     semantic_resolution_tool_model_factory: ToolModelFactory | None = None
-    kg_tool_model_factory: ToolModelFactory | None = None
     case_assembly_model_factory: ToolModelFactory | None = None
     authority_catalog: LoadedAuthorityCatalog | None = None
     run_started_at: datetime | None = None
@@ -252,7 +238,7 @@ def _event_uri(run_id: str, source_id: str, event_class: str) -> str:
 # result key.
 class IngestState(TypedDict):
     mentions: Any
-    advisory_result: Any
+    advisory_evidence: Any
     facility_authority_result: AuthorityResolutionResult
     terminology_authority_result: AuthorityResolutionResult
     authority_source_records: Annotated[
@@ -270,7 +256,8 @@ class IngestState(TypedDict):
     case_assembly_proposal: Any
     case_assembly_feedback: Any
     case_assembly_result: Any
-    kg_result: Any
+    assembly_graph_patch: GraphPatchBlock | None
+    assembly_failure_reason: str | None
     event_uri: str
     event_class: str
     materialization: Any
@@ -297,19 +284,19 @@ def build_ingest_graph() -> Any:
     sg.add_node("terminology_authority", _terminology_authority_node)
     sg.add_node("join", _join_node)
     sg.add_node("prepare_context", _prepare_context_node)
-    sg.add_node("kg_construction", _kg_construction_node)
+    sg.add_node("decision_case_assembly", _decision_case_assembly_node)
     sg.add_node("materialize", _materialize_node)
     sg.add_node("decision_context", _decision_context_node)
     sg.add_edge(START, "advisory")
-    # Parallel fan-out after the Advisory Agent.
+    # Parallel fan-out after deterministic advisory evidence construction.
     sg.add_edge("advisory", "facility_authority")
     sg.add_edge("advisory", "terminology_authority")
     # Join after the two specialist Agents.
     sg.add_edge("facility_authority", "join")
     sg.add_edge("terminology_authority", "join")
     sg.add_edge("join", "prepare_context")
-    sg.add_edge("prepare_context", "kg_construction")
-    sg.add_edge("kg_construction", "materialize")
+    sg.add_edge("prepare_context", "decision_case_assembly")
+    sg.add_edge("decision_case_assembly", "materialize")
     sg.add_edge("materialize", "decision_context")
     sg.add_edge("decision_context", END)
     return sg.compile()
@@ -350,12 +337,11 @@ def _advisory_node(state: dict) -> dict:
         )
         if event_class
     ]
-    result = run_advisory_agent(
+    evidence = build_advisory_evidence(
         task=task,
         advisory=ctx.advisory,
         event_classes=event_classes,
         mentions=mentions,
-        model_invoker=ctx.model_invoker,
     )
     event_mention = (
         mentions.operational_term.strip().upper()
@@ -377,13 +363,13 @@ def _advisory_node(state: dict) -> dict:
         _event_uri(ctx.run_id, ctx.advisory.source_id, event_class_hint) if event_class_hint else ""
     )
     return {
-        "advisory_result": result,
+        "advisory_evidence": evidence,
         "mentions": mentions,
         "resolution_event_id": resolution_event_id,
         "resolution_event_mention": event_mention,
         "event_class_hint": event_class_hint or "",
         "formal_event_uri_hint": formal_event_uri_hint,
-        "model_calls": list(result.model_calls),
+        "model_calls": [],
     }
 
 
@@ -396,7 +382,7 @@ def _facility_candidates_for_mention(
 
     A candidate matches if the mention equals one of its codes or aliases
     (normalized, uppercase). This turns the facility registry into the
-    authority lookup the Facility Agent uses (design §9.4). Expected type is
+    authority lookup the facility resolution service uses (design §9.4). Expected type is
     carried to candidate-level audit and never removes a mention match here.
     """
 
@@ -448,7 +434,7 @@ def _facility_authority_node(state: dict) -> dict:
     mentions = state.get("mentions")
     mention_token = getattr(mentions, "controlled_facility", None) or "MISSING_FACILITY_MENTION"
     # §11.4: pass the exact advisory evidence span (e.g. ``CTL ELEMENT: JFK``)
-    # to the Facility Agent so its claim carries source-contained evidence, not
+    # to the facility resolution service so its claim carries source-contained evidence, not
     # a synthetic string.
     spans = getattr(mentions, "evidence_spans", {}) or {}
     advisory_evidence = spans.get("controlled_facility", "")
@@ -548,7 +534,7 @@ def _term_candidates_for_mention(all_terms: list, mention: str) -> list:
     """Filter authority term candidates to those whose abbreviation matches.
 
     A term matches if its abbreviation equals the mention token (normalized,
-    uppercase). This is the authority lookup the Terminology Agent uses
+    uppercase). This is the authority lookup the terminology resolution service uses
     (design §10.4); e.g. a ``GS`` mention yields both the Ground Stop TMI and
     the Glide Slope procedure, which the Agent then disambiguates by category.
     """
@@ -567,7 +553,7 @@ def _terminology_authority_node(state: dict) -> dict:
     mentions = state.get("mentions")
     mention_token = getattr(mentions, "operational_term", None) or "MISSING_EVENT_MENTION"
     # §11.4: pass the exact advisory evidence span (the Ground Stop mention in
-    # context) to the Terminology Agent so the resolved term claim carries
+    # context) to the terminology resolution service so the resolved term claim carries
     # source-contained evidence the Formal Graph Kernel can bind rdf:type to.
     spans = getattr(mentions, "evidence_spans", {}) or {}
     advisory_evidence = spans.get("operational_term", "") or spans.get("event_type", "")
@@ -710,15 +696,16 @@ def _prepare_context_node(state: dict) -> dict:
 
 def _accepted_event_source_ids(
     advisory_source_id: str,
-    *results: AgentResult | None,
+    *evidence_sources: Any,
 ) -> set[str]:
     """Return source IDs from retained event claims, bound to this advisory."""
 
     return {
         claim.source_id
-        for result in results
-        if result is not None and result.evidence_card is not None
-        for claim in result.evidence_card.claims
+        for source in evidence_sources
+        for card in (getattr(source, "evidence_card", source),)
+        if card is not None
+        for claim in card.claims
         if claim.source_id == advisory_source_id
     }
 
@@ -1149,24 +1136,28 @@ def _should_activate_case_assembly_agent(
     )
 
 
-def _kg_construction_node(state: dict) -> dict:
+def _decision_case_assembly_node(state: dict) -> dict:
     ctx: IngestContext = _ctx()
     preflight = state.get("resolution_preflight_status", "blocked")
     if preflight != "resolved":
-        blocked = preflight == "blocked"
         return {
-            "kg_result": AgentResult(
-                status=AgentStatus.BLOCKED if blocked else AgentStatus.ABSTAIN,
-                failure_reason=state.get(
-                    "resolution_preflight_reason",
-                    "required resolution preflight did not pass",
-                ),
-            )
+            "case_assembly_task": None,
+            "case_assembly_proposal": None,
+            "case_assembly_feedback": None,
+            "case_assembly_result": None,
+            "assembly_graph_patch": None,
+            "assembly_failure_reason": state.get(
+                "resolution_preflight_reason",
+                "required resolution preflight did not pass",
+            ),
+            "event_uri": "",
+            "event_class": "",
+            "model_calls": [],
         }
     terminology_authority_result: AuthorityResolutionResult = state["terminology_authority_result"]
     if ctx.guide is None:
         ctx.guide = load_schema_guide()
-    # The resolved event class comes ONLY from the Terminology Agent. If no
+    # The resolved event class comes only from the terminology resolution service. If no
     # event type was resolved the system abstains and constructs no graph
     # (design §11.6); there is no default GDP fallback.
     event_class = next(
@@ -1184,10 +1175,12 @@ def _kg_construction_node(state: dict) -> dict:
         formal_event_uri_hint and event_uri != formal_event_uri_hint
     ):
         return {
-            "kg_result": AgentResult(
-                status=AgentStatus.BLOCKED,
-                failure_reason="resolved event class differs from upstream schema binding",
-            ),
+            "case_assembly_task": None,
+            "case_assembly_proposal": None,
+            "case_assembly_feedback": None,
+            "case_assembly_result": None,
+            "assembly_graph_patch": None,
+            "assembly_failure_reason": "resolved event class differs from upstream schema binding",
             "event_uri": event_uri,
             "event_class": event_class,
         }
@@ -1336,28 +1329,13 @@ def _kg_construction_node(state: dict) -> dict:
         if publishable_assembly
         else None
     )
-    legacy_status = (
-        AgentStatus.RESOLVED
-        if publishable_assembly
-        else (
-            AgentStatus.BLOCKED
-            if proposal.assembly_status is AssemblyStatus.BLOCKED
-            else AgentStatus.ABSTAIN
-        )
-    )
-    kg_result = AgentResult(
-        status=legacy_status,
-        graph_patch=block,
-        model_calls=list(assembly_result.model_calls),
-        failure_reason=assembly_result.failure_reason,
-    )
-
     return {
         "case_assembly_task": assembly_task,
         "case_assembly_proposal": proposal,
         "case_assembly_feedback": feedback,
         "case_assembly_result": assembly_result,
-        "kg_result": kg_result,
+        "assembly_graph_patch": block,
+        "assembly_failure_reason": assembly_result.failure_reason,
         "event_uri": event_uri,
         "event_class": event_class,
         "model_calls": list(assembly_result.model_calls),
@@ -1366,8 +1344,8 @@ def _kg_construction_node(state: dict) -> dict:
 
 def _materialize_node(state: dict) -> dict:
     ctx: IngestContext = _ctx()
-    kg_result: AgentResult = state.get("kg_result")
-    if kg_result is None or kg_result.graph_patch is None:
+    assembly_graph_patch: GraphPatchBlock | None = state.get("assembly_graph_patch")
+    if assembly_graph_patch is None:
         return {"materialization": None, "validation": None}
     # No resolved event class -> the system abstained; do not materialize.
     event_class = state.get("event_class", "")
@@ -1380,14 +1358,14 @@ def _materialize_node(state: dict) -> dict:
     terminology_authority_result: AuthorityResolutionResult | None = state.get(
         "terminology_authority_result"
     )
-    advisory_result: AgentResult | None = state.get("advisory_result")
+    advisory_evidence = state.get("advisory_evidence")
     known_source_ids = _accepted_event_source_ids(
         ctx.advisory.source_id,
-        advisory_result,
+        advisory_evidence,
         facility_authority_result,
         terminology_authority_result,
     )
-    # Canonical entities resolved by the Facility Agent.
+    # Canonical entities resolved by the facility resolution service.
     canonical_entities: dict[str, str] = {}
     if facility_authority_result and facility_authority_result.evidence_card:
         for claim in facility_authority_result.evidence_card.claims:
@@ -1402,8 +1380,8 @@ def _materialize_node(state: dict) -> dict:
         evidence_cards.append(facility_authority_result.evidence_card)
     if terminology_authority_result and terminology_authority_result.evidence_card:
         evidence_cards.append(terminology_authority_result.evidence_card)
-    if advisory_result and advisory_result.evidence_card:
-        evidence_cards.append(advisory_result.evidence_card)
+    if advisory_evidence:
+        evidence_cards.append(advisory_evidence)
 
     # Persist the source snapshot (plan §5.2) so every accepted fact binds to
     # auditable, checksum-pinned source content.
@@ -1418,7 +1396,7 @@ def _materialize_node(state: dict) -> dict:
         ctx.run_id, ctx.advisory.source_id, event_class
     )
     validation: GraphValidationResult = validate_graph_patch(
-        block=kg_result.graph_patch,
+        block=assembly_graph_patch,
         event_iri=event_uri,
         event_class=event_class,
         schema_guide=guide,
@@ -1431,7 +1409,7 @@ def _materialize_node(state: dict) -> dict:
     # publishability so rejected/blocked runs still leave an audit trail.
     write_fact_trace(
         result=validation,
-        block=kg_result.graph_patch,
+        block=assembly_graph_patch,
         evidence_cards=evidence_cards,
         source_snapshot=snapshot_registry,
         output_dir=ctx.output_dir,

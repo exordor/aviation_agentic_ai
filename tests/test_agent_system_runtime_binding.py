@@ -21,7 +21,6 @@ from aviation_agentic_ai.agent_system.authority_evidence import (
     build_term_resolution_candidate,
 )
 from aviation_agentic_ai.agent_system.contracts import (
-    AgentResult,
     AgentStatus,
     AgentTask,
     EvidenceCard,
@@ -605,17 +604,15 @@ def test_required_blocked_domain_stops_kg_factory_and_preserves_blocked_status(
             run_id="run:test",
             run_started_at=STARTED,
             output_dir=str(tmp_path / "run"),
-            model_invoker_factory=lambda: calls.append("resolution") or None,
             semantic_resolution_tool_model_factory=lambda tools: (
                 calls.append("semantic-resolution") or None
             ),
-            kg_tool_model_factory=lambda tools: calls.append("kg") or None,
         )
     )
 
     assert calls == []
     assert state["resolution_preflight_status"] == "blocked"
-    assert state["kg_result"].status is AgentStatus.BLOCKED
+    assert state["assembly_graph_patch"] is None
     assert state["formal_layers"]["decision"]["status"] == "blocked"
 
 
@@ -740,7 +737,7 @@ def test_blocked_assembly_stops_before_kernel_and_materialization(tmp_path, monk
     )
 
     assert state["case_assembly_proposal"].assembly_status is AssemblyStatus.BLOCKED
-    assert state["kg_result"].graph_patch is None
+    assert state["assembly_graph_patch"] is None
     assert state["validation"] is None
     assert state["materialization"] is None
     assert state["formal_layers"]["decision"]["status"] == "blocked"
@@ -779,7 +776,7 @@ def test_missing_ground_stop_extension_is_insufficient_and_unpublished(tmp_path)
 
     assert "extension_probability" in state["case_assembly_task"].missing_slots
     assert state["case_assembly_proposal"].assembly_status is AssemblyStatus.INSUFFICIENT
-    assert state["kg_result"].graph_patch is None
+    assert state["assembly_graph_patch"] is None
     assert state["validation"] is None
     assert state["materialization"] is None
 
@@ -833,7 +830,7 @@ def test_explicit_ok_cannot_override_missing_required_slot(tmp_path, monkeypatch
     )
 
     assert state["case_assembly_proposal"].assembly_status is AssemblyStatus.INSUFFICIENT
-    assert state["kg_result"].graph_patch is None
+    assert state["assembly_graph_patch"] is None
     assert state["validation"] is None
     assert state["materialization"] is None
 
@@ -912,7 +909,7 @@ def test_hard_preflight_feedback_blocks_publication(tmp_path, monkeypatch):
     assert state["case_assembly_feedback"] is not None
     assert state["case_assembly_feedback"].repairable is False
     assert state["case_assembly_proposal"].assembly_status is AssemblyStatus.BLOCKED
-    assert state["kg_result"].graph_patch is None
+    assert state["assembly_graph_patch"] is None
     assert state["validation"] is None
     assert state["materialization"] is None
 
@@ -1025,7 +1022,7 @@ def test_hard_preflight_block_preserves_component_layer_audit_rows(
             missing_reason_code="optional_context_unavailable",
         ),
     )
-    assert state["kg_result"].graph_patch is None
+    assert state["assembly_graph_patch"] is None
     assert state["validation"] is None
     assert state["materialization"] is None
 
@@ -1089,17 +1086,15 @@ def test_required_insufficient_domain_stops_kg_and_resolution_factories(tmp_path
             run_id="run:test",
             run_started_at=STARTED,
             output_dir=str(tmp_path / "insufficient"),
-            model_invoker_factory=lambda: calls.append("resolution") or None,
             semantic_resolution_tool_model_factory=lambda tools: (
                 calls.append("semantic-resolution") or None
             ),
-            kg_tool_model_factory=lambda tools: calls.append("kg") or None,
         )
     )
 
     assert calls == []
     assert state["resolution_preflight_status"] == "insufficient"
-    assert state["kg_result"].status is AgentStatus.ABSTAIN
+    assert state["assembly_graph_patch"] is None
     assert state["formal_layers"]["decision"]["status"] == "insufficient"
 
 
@@ -1119,7 +1114,6 @@ def test_event_class_hint_mismatch_blocks_before_kg_factory(tmp_path, monkeypatc
             guide=guide,
             run_id="run:test",
             output_dir=str(tmp_path),
-            kg_tool_model_factory=lambda tools: calls.append("kg") or None,
         ),
     )
     advisory_card = EvidenceCard(
@@ -1144,13 +1138,10 @@ def test_event_class_hint_mismatch_blocks_before_kg_factory(tmp_path, monkeypatc
         ],
     )
 
-    result = workflow_module._kg_construction_node(
+    result = workflow_module._decision_case_assembly_node(
         {
             "resolution_preflight_status": "resolved",
-            "advisory_result": AgentResult(
-                status=AgentStatus.RESOLVED,
-                evidence_card=advisory_card,
-            ),
+            "advisory_evidence": advisory_card,
             "facility_authority_result": replace(
                 resolve_facility_authority(
                     task=_task("facility"), request=_facility_envelope(tmp_path)
@@ -1168,7 +1159,7 @@ def test_event_class_hint_mismatch_blocks_before_kg_factory(tmp_path, monkeypatc
         }
     )
 
-    assert result["kg_result"].status is AgentStatus.BLOCKED
+    assert result["assembly_graph_patch"] is None
     assert calls == []
 
     context_result = workflow_module._decision_context_node(
@@ -1293,13 +1284,10 @@ def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
         source_ids=[advisory.source_id, authority_source],
     )
 
-    workflow_module._kg_construction_node(
+    workflow_module._decision_case_assembly_node(
         {
             "resolution_preflight_status": "resolved",
-            "advisory_result": AgentResult(
-                status=AgentStatus.RESOLVED,
-                evidence_card=advisory_card,
-            ),
+            "advisory_evidence": advisory_card,
             "facility_authority_result": replace(
                 resolve_facility_authority(
                     task=_task("facility"), request=_facility_envelope(tmp_path)
@@ -1418,25 +1406,19 @@ def test_materialization_excludes_authority_only_canonical_entities(
 
     workflow_module._materialize_node(
         {
-            "kg_result": AgentResult(
-                status=AgentStatus.RESOLVED,
-                graph_patch=GraphPatchBlock(
-                    patch_lines=[
-                        GraphPatchLine(
-                            subject=event_uri,
-                            predicate="rdf:type",
-                            object="atm:GroundDelayProgramTMI",
-                            source_ids=[advisory.source_id],
-                        )
-                    ]
-                ),
+            "assembly_graph_patch": GraphPatchBlock(
+                patch_lines=[
+                    GraphPatchLine(
+                        subject=event_uri,
+                        predicate="rdf:type",
+                        object="atm:GroundDelayProgramTMI",
+                        source_ids=[advisory.source_id],
+                    )
+                ]
             ),
             "event_uri": event_uri,
             "event_class": "atm:GroundDelayProgramTMI",
-            "advisory_result": AgentResult(
-                status=AgentStatus.RESOLVED,
-                evidence_card=advisory_card,
-            ),
+            "advisory_evidence": advisory_card,
             "facility_authority_result": replace(
                 resolve_facility_authority(
                     task=_task("facility"), request=_facility_envelope(tmp_path)

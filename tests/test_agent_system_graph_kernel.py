@@ -24,14 +24,11 @@ from dataclasses import dataclass
 from enum import Enum
 
 import pytest
-from langchain_core.messages import AIMessage
 
 from aviation_agentic_ai.agent_system.agents import (
     AdvisoryMentions,
-    KGConstructionInput,
+    build_advisory_evidence,
     parse_structured_fields,
-    run_advisory_agent,
-    run_kg_construction_agent,
 )
 from aviation_agentic_ai.agent_system.contracts import (
     AgentStatus,
@@ -39,7 +36,6 @@ from aviation_agentic_ai.agent_system.contracts import (
     EvidenceCard,
     EvidenceClaim,
     ModelCallRecord,
-    ModelToolCall,
     SourceFamily,
     SourceRecord,
     SourceSnapshotRegistry,
@@ -58,7 +54,6 @@ from aviation_agentic_ai.agent_system.sources import (
     load_advisory_source,
     write_source_snapshot,
 )
-from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
 from aviation_agentic_ai.config import load_yaml
 from aviation_agentic_ai.cross_source.identifiers import stable_id
 
@@ -145,13 +140,13 @@ def test_advisory_extracts_exact_source_spans_for_all_fixed_fields(mentions, adv
         objective="extract mentions",
         allowed_tools=["get_advisory", "parse_structured_fields", "get_schema_event_classes"],
     )
-    result = run_advisory_agent(
+    evidence = build_advisory_evidence(
         task=task,
         advisory=advisory_record,
         event_classes=[EVENT_CLASS],
         mentions=mentions,
     )
-    fields = {c.field_name for c in result.evidence_card.claims}
+    fields = {c.field_name for c in evidence.claims}
     # All six fixed fields must produce claims with exact source spans.
     assert {
         "event_type",
@@ -162,7 +157,7 @@ def test_advisory_extracts_exact_source_spans_for_all_fixed_fields(mentions, adv
         "extension_probability",
         "impacting_condition",
     }.issubset(fields)
-    for claim in result.evidence_card.claims:
+    for claim in evidence.claims:
         # Plan §5.2 hard assertion: the evidence text must be source-contained.
         assert claim.evidence_text in advisory_record.content
         assert claim.source_id == advisory_record.source_id
@@ -230,185 +225,6 @@ def test_empty_profile_gap_artifact_is_still_written(snapshot, tmp_path):
     )
     assert path.exists()
     assert path.read_text(encoding="utf-8") == ""
-
-
-# ---------------------------------------------------------------------------
-# §5.3 fail-closed KG Construction Agent behavior
-# ---------------------------------------------------------------------------
-
-
-def _kg_task() -> AgentTask:
-    return AgentTask(
-        run_id="r",
-        source_id=SOURCE_ID,
-        objective="construct patch",
-        allowed_tools=["get_schema_context", "resolve_canonical_ref", "get_source_evidence"],
-    )
-
-
-def _kg_inputs(advisory_record, event_uri, guide) -> KGConstructionInput:
-    return KGConstructionInput(
-        advisory=advisory_record,
-        advisory_card=EvidenceCard(agent_role="advisory", status=AgentStatus.RESOLVED),
-        facility_card=EvidenceCard(agent_role="facility", status=AgentStatus.RESOLVED),
-        terminology_card=EvidenceCard(
-            agent_role="terminology",
-            status=AgentStatus.RESOLVED,
-            claims=[
-                EvidenceClaim(
-                    field_name="operational_term",
-                    value="urn:term:gs",
-                    ontology_target=EVENT_CLASS,
-                    evidence_text="GROUND STOP",
-                    source_id=SOURCE_ID,
-                )
-            ],
-        ),
-        event_uri=event_uri,
-        event_class=EVENT_CLASS,
-        guide=guide,
-        allowed_source_ids={SOURCE_ID},
-    )
-
-
-class _ScriptedKGToolModel:
-    def __init__(self, turns: list[ToolModelTurn]) -> None:
-        self.turns = list(turns)
-
-    def invoke(self, messages, *, phase):
-        return self.turns.pop(0)
-
-
-def _kg_tool_factory(
-    *,
-    raw_response: str = "",
-    provider_error: str | None = None,
-):
-    if provider_error:
-        model = _ScriptedKGToolModel(
-            [
-                ToolModelTurn(
-                    message=None,
-                    record=ModelCallRecord(
-                        agent="knowledge_graph_construction",
-                        raw_response="",
-                        prompt_version="knowledge-graph-construction-agent-v4",
-                        error=provider_error,
-                    ),
-                )
-            ]
-        )
-        return lambda tools: model
-
-    calls = [
-        {
-            "id": "call:schema",
-            "name": "get_schema_context",
-            "args": {"event_class": EVENT_CLASS},
-            "type": "tool_call",
-        },
-        {
-            "id": "call:evidence",
-            "name": "get_source_evidence",
-            "args": {"roles": ["advisory", "facility", "terminology"]},
-            "type": "tool_call",
-        },
-    ]
-    selection = AIMessage(content="", tool_calls=calls)
-    model = _ScriptedKGToolModel(
-        [
-            ToolModelTurn(
-                message=selection,
-                record=ModelCallRecord(
-                    agent="knowledge_graph_construction",
-                    raw_response="",
-                    prompt_version="knowledge-graph-construction-agent-v4",
-                    tool_calls=[
-                        ModelToolCall(
-                            call_id=call["id"],
-                            name=call["name"],
-                            arguments=call["args"],
-                        )
-                        for call in calls
-                    ],
-                ),
-            ),
-            ToolModelTurn(
-                message=AIMessage(content=raw_response),
-                record=ModelCallRecord(
-                    agent="knowledge_graph_construction",
-                    raw_response=raw_response,
-                    prompt_version="knowledge-graph-construction-agent-v4",
-                ),
-            ),
-        ]
-    )
-    return lambda tools: model
-
-
-def test_provider_failure_returns_blocked_and_no_artifacts(
-    advisory_record, event_uri, guide, tmp_path
-):
-    """§5.6 acceptance 1: provider failure -> BLOCKED, no KG artifacts."""
-
-    result = run_kg_construction_agent(
-        task=_kg_task(),
-        inputs=_kg_inputs(advisory_record, event_uri, guide),
-        tool_model_factory=_kg_tool_factory(provider_error="ProviderError: upstream timeout"),
-    )
-    assert result.status == AgentStatus.BLOCKED
-    assert result.graph_patch is None
-    assert result.failure_reason and "ProviderError" in result.failure_reason
-    # No KG artifacts exist for this run directory.
-    assert not (tmp_path / "kg.jsonl").exists()
-
-
-def test_empty_graph_patch_returns_blocked(advisory_record, event_uri, guide):
-    """§5.6 acceptance 2: empty Graph Patch -> BLOCKED."""
-
-    result = run_kg_construction_agent(
-        task=_kg_task(),
-        inputs=_kg_inputs(advisory_record, event_uri, guide),
-        tool_model_factory=_kg_tool_factory(raw_response=""),
-    )
-    assert result.status == AgentStatus.BLOCKED
-    assert result.graph_patch is None
-
-
-def test_missing_graph_patch_section_returns_blocked(advisory_record, event_uri, guide):
-    """§5.6 acceptance 2: response without GRAPH_PATCH section -> BLOCKED."""
-
-    result = run_kg_construction_agent(
-        task=_kg_task(),
-        inputs=_kg_inputs(advisory_record, event_uri, guide),
-        tool_model_factory=_kg_tool_factory(raw_response="I cannot help with that."),
-    )
-    assert result.status == AgentStatus.BLOCKED
-
-
-def test_malformed_graph_patch_row_returns_blocked(advisory_record, event_uri, guide):
-    """§5.6 acceptance 2: a malformed GRAPH_PATCH row -> BLOCKED."""
-
-    result = run_kg_construction_agent(
-        task=_kg_task(),
-        inputs=_kg_inputs(advisory_record, event_uri, guide),
-        tool_model_factory=_kg_tool_factory(
-            raw_response="GRAPH_PATCH\nthis is not a valid pipe row\n"
-        ),
-    )
-    assert result.status == AgentStatus.BLOCKED
-
-
-def test_parsed_empty_patch_returns_abstain(advisory_record, event_uri, guide):
-    """§5.3: a correctly parsed response with no formal facts -> ABSTAIN."""
-
-    result = run_kg_construction_agent(
-        task=_kg_task(),
-        inputs=_kg_inputs(advisory_record, event_uri, guide),
-        tool_model_factory=_kg_tool_factory(raw_response="GRAPH_PATCH\n\nPROFILE_GAPS\nNONE\n"),
-    )
-    assert result.status == AgentStatus.ABSTAIN
-    assert result.graph_patch is None
 
 
 # ---------------------------------------------------------------------------
@@ -1165,20 +981,17 @@ def test_complete_advisory_makes_zero_advisory_model_calls(advisory_record, ment
             prompt_version="advisory-agent-v2",
         )
 
-    result = run_advisory_agent(
+    evidence = build_advisory_evidence(
         task=task,
         advisory=advisory_record,
         event_classes=[EVENT_CLASS],
         mentions=mentions,
-        model_invoker=invoker,
     )
     # §12: zero Advisory model calls for the complete fixed record.
     assert calls == []
-    assert result.model_calls == []
+    assert calls == []
     # The deterministic parse still produced all fixed claims.
-    assert len(result.evidence_card.claims) >= 8
-    # No no-op model response was recorded in the ledger.
-    assert all(rec.agent != "advisory" for rec in result.model_calls)
+    assert len(evidence.claims) >= 8
 
 
 def test_impacting_condition_is_explicit_source_supported_profile_gap(
