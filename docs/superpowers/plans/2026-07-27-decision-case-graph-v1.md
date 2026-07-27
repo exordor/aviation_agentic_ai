@@ -161,6 +161,12 @@ git commit -m "feat(agent-system): add formal fact profile ownership"
 - Modify: `src/aviation_agentic_ai/agent_system/contracts.py`
 - Modify: `src/aviation_agentic_ai/agent_system/bts_outcomes.py`
 - Modify: `src/aviation_agentic_ai/agent_system/sources.py`
+- Modify: `src/aviation_agentic_ai/agent_system/validation_profiles.py`
+- Modify: `src/aviation_agentic_ai/agent_system/context_artifacts.py`
+- Modify: `src/aviation_agentic_ai/agent_system/workflow.py`
+- Modify: `src/aviation_agentic_ai/cli_agent_system.py`
+- Modify: direct query readers and tests only to migrate the retired summary field
+- Modify: current Decision Record Explorer design wording for the same migration
 - Modify: `tests/test_agent_system_bts_outcomes.py`
 - Modify: `tests/test_agent_system_multisource_contracts.py`
 
@@ -214,6 +220,13 @@ class BTSOutcomeBundle(StrictModel):
 
 `build_bts_outcome_summaries` remains the sole calculator and accepts the pinned archive and procedure identifiers needed for seed creation. It emits one summary and one seed per phase in the same row-selection pass.
 
+`load_bts_context_source` returns a typed manifest binding alongside the source
+record and rows. The CLI carries that binding into `IngestContext`, and the
+context integration passes its archive and normalized checksums explicitly to
+the adapter. The procedure ID and checksum come from the checksum-verified
+public-observation profile; the adapter has no independent conflicting
+procedure constant.
+
 ### Steps
 
 - [ ] Replace active tests and fixtures with `scheduled_arrival_count` and the exact `reporting_scope`.
@@ -237,6 +250,8 @@ uv run pytest -q \
 
 - [ ] Implement the contract migration and seed emission without a second raw-row pass.
 - [ ] Read the archive and normalized-snapshot checksums from the pinned BTS manifest.
+- [ ] Cross-check the aggregation procedure ID and checksum against the
+  checksum-verified public-observation profile before emitting any seed.
 - [ ] Derive stable IDs only from canonical serialized inputs.
 - [ ] Ensure the bundle returns:
   - `insufficient` for a valid source with no selected rows;

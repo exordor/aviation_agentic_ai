@@ -414,6 +414,14 @@ The adapter reads the normalized-snapshot and archive checksums from the pinned
 BTS manifest. It sorts selected row IDs before hashing them. The graph builder
 never reopens raw rows or independently recalculates a summary.
 
+The source loader returns those manifest values as a typed immutable binding;
+the CLI and `IngestContext` carry that binding to the adapter rather than
+discarding it and restamping module defaults. The aggregation procedure ID and
+checksum come from the checksum-verified public-observation profile. The
+profile loader rejects a procedure descriptor that differs from the one
+admitted by the application profile, and the adapter emits exactly that
+descriptor in every seed.
+
 ### 5.2 Observation profile
 
 Add a tracked, checksum-pinned application profile:
