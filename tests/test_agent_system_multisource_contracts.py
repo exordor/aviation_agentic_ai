@@ -210,6 +210,21 @@ def test_evidence_index_rejects_text_from_the_wrong_source_snapshot():
     assert build_evidence_index([card], registry) == {}
 
 
+def test_registered_authority_snapshot_alone_creates_no_event_evidence():
+    """Audit source registration is broader than event-fact authorization."""
+
+    authority = build_source_snapshot(
+        _record(
+            "authority:pcg:ground-stop",
+            SourceFamily.FAA_TERM,
+            "The GS is a process that requires aircraft to remain on the ground.",
+        )
+    )
+    registry = contracts.SourceSnapshotRegistry(snapshots=[authority])
+
+    assert build_evidence_index([], registry) == {}
+
+
 def test_evidence_index_rejects_a_snapshot_with_a_bad_checksum():
     """Legacy single-snapshot input also fails closed when its checksum is forged."""
 

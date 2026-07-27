@@ -1,0 +1,22 @@
+version: faa-atcscc-authority-definitions-v1
+authority_source: faa_pilot_controller_glossary
+authority_artifact_key: pilot_controller_glossary
+authority_artifact_sha256: 6bf5b614446668f4a431b6fd9a5424811b52db6f80e946cb285d00c8a2d6727b
+definitions:
+  - abbreviation: GDP
+    preferred_label: Ground Delay Program
+    text: >-
+      A traffic management process administered by the ATCSCC, when
+      aircraft are held on the ground.
+    source_ref: faa_pilot_controller_glossary:PCG_G-3:GROUND_DELAY_PROGRAM
+  - abbreviation: GS
+    preferred_label: Ground Stop
+    text: >-
+      The GS is a process that requires aircraft that meet a specific
+      criteria to remain on the ground.
+    source_ref: faa_pilot_controller_glossary:PCG_G-3:GROUND_STOP
+  - abbreviation: GS
+    preferred_label: Glide Slope
+    text: >-
+      Provides vertical guidance for aircraft during approach and landing.
+    source_ref: faa_pilot_controller_glossary:PCG_G-1:GLIDESLOPE

@@ -1,0 +1,8 @@
+GLIDESLOPE− Provides vertical guidance for aircraft during approach and landing.
+PCG G−1
+=== TEST PAGE BREAK ===
+GROUND DELAY PROGRAM (GDP)− A traffic management process administered by the ATCSCC, when aircraft are held on the ground.
+GROUND SPEED− The speed of an aircraft relative to the surface of the earth.
+GROUND STOP (GS)− The GS is a process that requires aircraft that meet a specific criteria to remain on the ground.
+GROUND VISIBILITY− See visibility.
+PCG G−3

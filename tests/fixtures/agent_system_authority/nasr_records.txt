@@ -1,0 +1,2 @@
+{"faa":"JFK","icao":"KJFK","name":"JOHN F KENNEDY INTL","city":"NEW YORK","state":"NY","artcc":"ZNY","effective":"05/14/2026"}
+{"faa":"EWR","icao":"KEWR","name":"NEWARK LIBERTY INTL","city":"NEWARK","state":"NJ","artcc":"ZNY","effective":"05/14/2026"}
