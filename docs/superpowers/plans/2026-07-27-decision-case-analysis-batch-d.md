@@ -36,7 +36,7 @@
 
 The dependency order is D1 → D2 → D3 → D4 → D5. Do not start a later task until the preceding task's focused tests are green and its review gate accepts the stated scope.
 
-## D1: Typed Bound Query Plans and Read-only Gateway
+## Task 1: D1 Typed Bound Query Plans and Read-only Gateway
 
 **Capability:** deterministically turn one registered analysis request into a sealed list of executable, typed steps instead of exposing generic retrieval.
 
@@ -151,7 +151,7 @@ git add src/aviation_agentic_ai/agent_system/query_plan.py src/aviation_agentic_
 git commit -m "feat(agent-system): add bound analysis query plans"
 ```
 
-## D2: D1 Episode Timeline and D2 Operational-Situation Readers
+## Task 2: D2 Episode Timeline and Operational-Situation Readers
 
 **Capability:** expose narrow current-run evidence projections for one-record episode information and source-qualified operational situation, without inferring lifecycle identity or operational causation.
 
@@ -214,7 +214,7 @@ git add src/aviation_agentic_ai/agent_system/query_context_store.py src/aviation
 git commit -m "feat(agent-system): add bounded case analysis readers"
 ```
 
-## D3: D3 Applicability/Observed-Flight Limits and D4 Similarity Corpus Gate
+## Task 3: D3 Applicability/Observed-Flight Limits and Similarity Corpus Gate
 
 **Capability:** make absent applicability and flight-outcome evidence honest, and make similarity impossible to overclaim from the three canonical records.
 
@@ -276,7 +276,7 @@ git add src/aviation_agentic_ai/agent_system/case_analysis_tools.py src/aviation
 git commit -m "feat(agent-system): gate analysis applicability and similarity"
 ```
 
-## D4: Decision Case Analysis Agent, Prompt, and Immutable Artifacts
+## Task 4: D4 Decision Case Analysis Agent, Prompt, and Immutable Artifacts
 
 **Capability:** allow controlled language synthesis only after the deterministic gate and bound-step observations, producing auditable immutable analysis artifacts.
 
@@ -362,7 +362,7 @@ git add src/aviation_agentic_ai/agent_system/case_analysis.py src/aviation_agent
 git commit -m "feat(agent-system): add bounded decision case analysis agent"
 ```
 
-## D5: Router, CLI, Three-Case Acceptance, and Current Documentation
+## Task 5: D5 Router, CLI, Three-Case Acceptance, and Current Documentation
 
 **Capability:** make the new analysis family reachable through the existing `ask` command while preserving the established user-facing routes and accurately documenting the narrow capability.
 
