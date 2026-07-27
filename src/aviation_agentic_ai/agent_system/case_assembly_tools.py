@@ -340,7 +340,7 @@ def build_case_assembly_task(
 def compile_case_assembly_proposal(
     *,
     task: CaseAssemblyTask,
-    assembly_status: AssemblyStatus = AssemblyStatus.OK,
+    assembly_status: AssemblyStatus | None = None,
     component_layer_results: Sequence[ComponentLayerResult] = (),
     proposed_facts: Sequence[CaseFactProposal] | None = None,
     evidence_bindings: Sequence[str] | None = None,
@@ -355,6 +355,18 @@ def compile_case_assembly_proposal(
     binding: ContractExecutionBinding,
 ) -> CaseAssemblyProposal:
     """Compile and seal one ``CaseAssemblyProposal`` deterministically."""
+
+    if assembly_status is None:
+        missing_required_slots = set(task.required_case_slots) & set(task.missing_slots)
+        assembly_status = (
+            AssemblyStatus.INSUFFICIENT
+            if missing_required_slots
+            else (
+                AssemblyStatus.PARTIAL
+                if task.missing_slots
+                else AssemblyStatus.OK
+            )
+        )
 
     facts = tuple(task.proposed_facts if proposed_facts is None else proposed_facts)
     gaps = tuple(task.profile_gaps if profile_gaps is None else profile_gaps)
@@ -559,4 +571,3 @@ def preflight_validate_case_assembly_proposal(
             )
 
     return None
-

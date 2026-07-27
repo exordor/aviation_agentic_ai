@@ -743,7 +743,11 @@ def _accepted_event_source_ids(
     }
 
 
-def _proposal_to_graph_patch_block(proposal: CaseAssemblyProposal) -> GraphPatchBlock:
+def _proposal_to_graph_patch_block(
+    proposal: CaseAssemblyProposal,
+    *,
+    evidence_spans: dict[str, str],
+) -> GraphPatchBlock:
     patch_lines: list[GraphPatchLine] = []
     for fact in proposal.proposed_facts:
         patch_lines.append(
@@ -760,7 +764,7 @@ def _proposal_to_graph_patch_block(proposal: CaseAssemblyProposal) -> GraphPatch
             ProfileGap(
                 field=gap.field,
                 value=gap.normalized_value,
-                evidence=gap.field,
+                evidence=evidence_spans.get(gap.field, ""),
                 reason=gap.schema_mapping_reason_code,
             )
         )
@@ -866,6 +870,26 @@ def _build_case_assembly_task_from_state(
             )
         )
 
+    extension_probability = getattr(mentions, "extension_probability", "")
+    if "GroundStop" in event_class and extension_probability:
+        proposed_facts.append(
+            CaseFactProposal(
+                proposal_item_id=stable_contract_id(
+                    "proposal-fact",
+                    ctx.run_id,
+                    event_uri,
+                    "atm:extensionProbability",
+                    extension_probability,
+                ),
+                subject_id=event_uri,
+                predicate_iri="atm:extensionProbability",
+                object_kind="literal",
+                object_value=extension_probability,
+                evidence_claim_ids=tuple(sorted({ctx.advisory.source_id})),
+                validation_profile_id=profile_id,
+            )
+        )
+
     start_time = getattr(mentions, "effective_start", "")
     end_time = getattr(mentions, "effective_end", "")
     if start_time:
@@ -944,9 +968,20 @@ def _build_case_assembly_task_from_state(
                 )
             )
 
-    required_slots = ("controlled_facility", "event_type")
+    required_slots = ("controlled_facility", "event_type") + (
+        ("extension_probability",) if "GroundStop" in event_class else ()
+    )
     optional_slots = ("impacting_condition",)
-    missing_slots = ("impacting_condition",) if not impacting else ()
+    missing_slots = tuple(
+        slot
+        for slot, value in (
+            ("controlled_facility", fac_ref),
+            ("event_type", event_class),
+            ("extension_probability", extension_probability),
+            ("impacting_condition", impacting),
+        )
+        if slot in (*required_slots, *optional_slots) and not value
+    )
 
     source_binding = SourceSnapshotBinding(
         source_id=ctx.advisory.source_id,
@@ -1066,11 +1101,27 @@ def _kg_construction_node(state: dict) -> dict:
         binding=binding,
     )
 
-    block = _proposal_to_graph_patch_block(proposal)
+    publishable_assembly = proposal.assembly_status in {
+        AssemblyStatus.OK,
+        AssemblyStatus.PARTIAL,
+    }
+    mentions = state.get("mentions") or parse_structured_fields(ctx.advisory.content)
+    block = (
+        _proposal_to_graph_patch_block(
+            proposal,
+            evidence_spans=mentions.evidence_spans,
+        )
+        if publishable_assembly
+        else None
+    )
     legacy_status = (
-        AgentStatus.RESOLVED if proposal.assembly_status is AssemblyStatus.OK
-        else AgentStatus.BLOCKED if proposal.assembly_status is AssemblyStatus.BLOCKED
-        else AgentStatus.ABSTAIN
+        AgentStatus.RESOLVED
+        if publishable_assembly
+        else (
+            AgentStatus.BLOCKED
+            if proposal.assembly_status is AssemblyStatus.BLOCKED
+            else AgentStatus.ABSTAIN
+        )
     )
     kg_result = AgentResult(
         status=legacy_status,

@@ -53,6 +53,7 @@ from test_agent_system_authority_evidence import (
     _catalog,
     _facility,
     _term,
+    _test_inputs,
 )
 
 
@@ -675,6 +676,96 @@ def test_required_blocked_domain_stops_kg_factory_and_preserves_blocked_status(
     assert state["resolution_preflight_status"] == "blocked"
     assert state["kg_result"].status is AgentStatus.BLOCKED
     assert state["formal_layers"]["decision"]["status"] == "blocked"
+
+
+def test_blocked_assembly_stops_before_kernel_and_materialization(tmp_path, monkeypatch):
+    """A sealed blocked Assembly result cannot enter the publication path."""
+
+    from aviation_agentic_ai.agent_system.case_assembly import CaseAssemblyResult
+    from aviation_agentic_ai.agent_system.decision_case_contracts import AssemblyStatus
+    from aviation_agentic_ai.agent_system.sources import load_advisory_source
+
+    config, _ = _test_inputs(tmp_path)
+    catalog = _catalog(tmp_path)
+    advisory = load_advisory_source(config, "2026-05-19:123")
+
+    def blocked_assembly(*, task, binding, tool_model_factory):
+        del tool_model_factory
+        proposal = workflow_module.compile_case_assembly_proposal(
+            task=task,
+            assembly_status=AssemblyStatus.BLOCKED,
+            limitations=("scripted hard semantic violation",),
+            binding=binding,
+        )
+        return CaseAssemblyResult(
+            proposal=proposal,
+            model_calls=(),
+            tool_traces=(),
+            failure_reason="scripted hard semantic violation",
+        )
+
+    monkeypatch.setattr(workflow_module, "run_case_assembly_agent", blocked_assembly)
+
+    state = run_ingest(
+        IngestContext(
+            advisory=advisory,
+            facility_candidates=list(catalog.facility.entities),
+            term_candidates=list(catalog.terminology.registry_terms),
+            authority_catalog=catalog,
+            guide=load_schema_guide(str(SCHEMA_PATH)),
+            run_id="run:blocked-assembly",
+            run_started_at=STARTED,
+            output_dir=str(tmp_path / "blocked-assembly"),
+            case_assembly_model_factory=lambda tools: object(),
+        )
+    )
+
+    assert state["case_assembly_proposal"].assembly_status is AssemblyStatus.BLOCKED
+    assert state["kg_result"].graph_patch is None
+    assert state["validation"] is None
+    assert state["materialization"] is None
+    assert state["formal_layers"]["decision"]["status"] == "blocked"
+
+
+def test_missing_ground_stop_extension_is_insufficient_and_unpublished(tmp_path):
+    """A Ground Stop without its required extension field cannot publish."""
+
+    from aviation_agentic_ai.agent_system.decision_case_contracts import AssemblyStatus
+    from aviation_agentic_ai.agent_system.sources import load_advisory_source
+
+    config, _ = _test_inputs(tmp_path)
+    catalog = _catalog(tmp_path)
+    source = load_advisory_source(config, "2026-05-19:123")
+    advisory = source.model_copy(
+        update={
+            "content": source.content.replace(
+                "PROBABILITY OF EXTENSION: MEDIUM ",
+                "",
+            )
+        }
+    )
+
+    state = run_ingest(
+        IngestContext(
+            advisory=advisory,
+            facility_candidates=list(catalog.facility.entities),
+            term_candidates=list(catalog.terminology.registry_terms),
+            authority_catalog=catalog,
+            guide=load_schema_guide(str(SCHEMA_PATH)),
+            run_id="run:missing-ground-stop-extension",
+            run_started_at=STARTED,
+            output_dir=str(tmp_path / "missing-ground-stop-extension"),
+        )
+    )
+
+    assert "extension_probability" in state["case_assembly_task"].missing_slots
+    assert (
+        state["case_assembly_proposal"].assembly_status
+        is AssemblyStatus.INSUFFICIENT
+    )
+    assert state["kg_result"].graph_patch is None
+    assert state["validation"] is None
+    assert state["materialization"] is None
 
 
 def test_blocked_authority_registry_is_absorbing_at_the_join(tmp_path):

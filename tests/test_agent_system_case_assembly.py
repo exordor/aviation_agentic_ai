@@ -571,13 +571,13 @@ def test_workflow_three_cases_decision_case_assembly_regression(tmp_path: Path) 
     }
 
     test_cases = [
-        ("2026-05-19:123", "KJFK", "GroundStopTMI", True),
-        ("2026-05-19:138", "KJFK", "GroundDelayProgramTMI", False),
-        ("2026-05-20:020", "KEWR", "GroundDelayProgramTMI", False),
+        ("2026-05-19:123", "KJFK", "GroundStopTMI", "ok"),
+        ("2026-05-19:138", "KJFK", "GroundDelayProgramTMI", "ok"),
+        ("2026-05-20:020", "KEWR", "GroundDelayProgramTMI", "partial"),
     ]
 
     now = datetime.now(UTC)
-    for source_id, fac_code, expected_class, is_gs in test_cases:
+    for source_id, fac_code, expected_class, expected_status in test_cases:
         advisory = load_advisory_source(config, source_id)
         out_dir = tmp_path / source_id.replace(":", "_")
         ctx = IngestContext(
@@ -599,7 +599,10 @@ def test_workflow_three_cases_decision_case_assembly_regression(tmp_path: Path) 
         proposal = state.get("case_assembly_proposal")
         assert task is not None
         assert proposal is not None
-        assert proposal.assembly_status.value == "ok"
+        assert proposal.assembly_status.value == expected_status
+        assert state["kg_result"].graph_patch is not None
+        assert state["validation"].publishable
+        assert state["materialization"] is not None
 
         # 3. Canonical facility verification
         fac_facts = [f for f in proposal.proposed_facts if f.predicate_iri == "atm:controlledNASelement"]
@@ -607,19 +610,35 @@ def test_workflow_three_cases_decision_case_assembly_regression(tmp_path: Path) 
         assert fac_facts[0].object_value == facilities[fac_code].entity_id
 
         # 4. Reason / Profile Gap verification
-        if is_gs:
+        if source_id == "2026-05-19:123":
             # Ground Stop has impacting_condition as profile gap
             assert len(proposal.profile_gaps) == 1
             assert proposal.profile_gaps[0].field == "impacting_condition"
             assert proposal.profile_gaps[0].normalized_value == "weather"
             reason_facts = [f for f in proposal.proposed_facts if f.predicate_iri == "atm:impactingCondition"]
             assert len(reason_facts) == 0
+            extension_facts = [
+                f
+                for f in proposal.proposed_facts
+                if f.predicate_iri == "atm:extensionProbability"
+            ]
+            assert len(extension_facts) == 1
+            assert extension_facts[0].object_value == "MEDIUM"
+            gaps = state["validation"].profile_gaps
+            assert len(gaps) == 1
+            assert gaps[0].evidence == "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
         elif source_id == "2026-05-19:138":
             # GDP has impacting_condition as formal fact
             reason_facts = [f for f in proposal.proposed_facts if f.predicate_iri == "atm:impactingCondition"]
             assert len(reason_facts) == 1
             assert reason_facts[0].object_value == "weather"
             assert len(proposal.profile_gaps) == 0
+            end_facts = [
+                f
+                for f in proposal.proposed_facts
+                if f.predicate_iri == "atm:effectiveEndTime"
+            ]
+            assert [f.object_value for f in end_facts] == ["2026-05-20T02:59:00Z"]
         elif source_id == "2026-05-20:020":
             # GDP cancellation has missing impacting_condition
             reason_facts = [f for f in proposal.proposed_facts if f.predicate_iri == "atm:impactingCondition"]
@@ -665,6 +684,5 @@ def test_workflow_canonical_node_identity_and_idempotency(tmp_path: Path) -> Non
     prop1_repeat = state1_repeat["case_assembly_proposal"]
     assert prop1.case_assembly_proposal_id == prop1_repeat.case_assembly_proposal_id
     assert prop1.payload_checksum == prop1_repeat.payload_checksum
-
 
 
