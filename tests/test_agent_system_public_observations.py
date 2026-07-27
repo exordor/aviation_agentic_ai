@@ -35,6 +35,12 @@ from aviation_agentic_ai.agent_system.context_artifacts import (
     write_reconstruction_trace,
 )
 from aviation_agentic_ai.agent_system.formal_graph import validate_graph_patch
+from aviation_agentic_ai.agent_system.materialize import (
+    Neo4jLoadBlocked,
+    load_validated_facts_neo4j,
+    materialize_validated_facts,
+    validate_fact_publication,
+)
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.validation_profiles import (
     DEFAULT_PUBLIC_OBSERVATION_PROFILE_PATH,
@@ -719,3 +725,136 @@ def test_observation_artifacts_are_byte_stable_and_strict(tmp_path: Path) -> Non
     )
     with pytest.raises(ValueError, match="duplicate"):
         read_observation_derivations(derivation_path)
+
+
+def test_multi_profile_materialization_preserves_explicit_projection_and_audit_metadata(
+    tmp_path: Path,
+) -> None:
+    inputs = _observation_input()
+    bundle = build_bts_observation_facts(**inputs)
+    assert bundle.status == "ok"
+    facts = _all_observation_facts(bundle)
+
+    first = materialize_validated_facts(
+        facts=facts,
+        profile_registry=inputs["profile_registry"],
+        source_snapshot=inputs["snapshot_registry"],
+        observation_fact_traces=bundle.fact_traces,
+        reconstruction_trace=bundle.reconstruction_trace,
+        output_dir=tmp_path / "first",
+        guide=load_schema_guide(),
+    )
+    second = materialize_validated_facts(
+        facts=facts,
+        profile_registry=inputs["profile_registry"],
+        source_snapshot=inputs["snapshot_registry"],
+        observation_fact_traces=bundle.fact_traces,
+        reconstruction_trace=bundle.reconstruction_trace,
+        output_dir=tmp_path / "second",
+        guide=load_schema_guide(),
+    )
+
+    rows = [
+        json.loads(line)
+        for line in Path(first.jsonl_path).read_text().splitlines()
+        if line
+    ]
+    assert rows
+    assert all(
+        row["profile_id"] == "decision_case_public_observation_slice_v1"
+        and row["validation_layer"] == "public_operational_observation"
+        and row["evidence_mode"]
+        and row["evidence_ref"]
+        for row in rows
+    )
+    nodes = [
+        json.loads(line)
+        for line in Path(first.nodes_path).read_text().splitlines()
+        if line
+    ]
+    relationships = [
+        json.loads(line)
+        for line in Path(first.relationships_path).read_text().splitlines()
+        if line
+    ]
+    assert {
+        "DecisionCase",
+        "DecisionCaseReconstruction",
+        "Observation",
+        "ObservationResult",
+        "TimeInterval",
+        "TimeInstant",
+        "ObservationPhase",
+        "ObservableProperty",
+        "Unit",
+        "AggregationActivity",
+        "ObservationProcedure",
+        "Facility",
+        "AviationEvent",
+        "SourceRecord",
+    }.issubset({node["label"] for node in nodes})
+    assert {
+        "HAS_MEMBER",
+        "SPECIALIZATION_OF",
+        "HAS_FEATURE_OF_INTEREST",
+        "OBSERVED_PROPERTY",
+        "PHENOMENON_TIME",
+        "HAS_RESULT",
+        "USED_PROCEDURE",
+        "HAS_BEGINNING",
+        "HAS_END",
+        "HAS_PHASE",
+        "HAS_UNIT",
+        "WAS_GENERATED_BY",
+        "USED",
+        "GENERATED",
+        "DERIVED_FROM",
+    }.issubset({relationship["type"] for relationship in relationships})
+    assert all(
+        relationship["properties"]["predicate_iri"]
+        for relationship in relationships
+    )
+    for attribute in ("jsonl_path", "nodes_path", "relationships_path"):
+        assert Path(getattr(first, attribute)).read_bytes() == Path(
+            getattr(second, attribute)
+        ).read_bytes()
+    with pytest.raises(Neo4jLoadBlocked, match="credentials"):
+        load_validated_facts_neo4j(
+            nodes_path=first.nodes_path,
+            relationships_path=first.relationships_path,
+        )
+
+
+def test_publication_rejects_unknown_derivation_reference_and_class() -> None:
+    inputs = _observation_input()
+    bundle = build_bts_observation_facts(**inputs)
+    facts = _all_observation_facts(bundle)
+    derived = next(
+        fact for fact in facts if fact.evidence_mode == "deterministic_derivation"
+    )
+    with pytest.raises(ValueError, match="deterministic"):
+        validate_fact_publication(
+            facts=[derived.model_copy(update={"evidence_ref": "missing-trace"})],
+            profile_registry=inputs["profile_registry"],
+            snapshot_registry=inputs["snapshot_registry"],
+            observation_fact_traces=bundle.fact_traces,
+            reconstruction_trace=bundle.reconstruction_trace,
+        )
+
+    definition = next(
+        fact for fact in facts if fact.evidence_mode == "profile_definition"
+    )
+    unknown = definition.model_copy(
+        update={
+            "subject_class_iri": "urn:unknown:Class",
+            "object_value": "urn:unknown:Class",
+            "object_class_iri": "urn:unknown:Class",
+        }
+    )
+    with pytest.raises(ValueError, match="class"):
+        validate_fact_publication(
+            facts=[unknown],
+            profile_registry=inputs["profile_registry"],
+            snapshot_registry=inputs["snapshot_registry"],
+            reconstruction_trace=bundle.reconstruction_trace,
+        )
