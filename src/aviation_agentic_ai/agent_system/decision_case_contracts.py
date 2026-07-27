@@ -1085,6 +1085,15 @@ class CaseAssemblyTaskFields(FrozenContractModel):
             )
         if set(fact_item_ids) & set(gap_item_ids):
             raise ValueError("proposal item IDs must be unique across facts and gaps")
+        task_event_ids = {
+            *(row.subject_id for row in self.proposed_facts),
+            *(row.event_id for row in self.profile_gaps),
+        }
+        if len(task_event_ids) != 1:
+            raise ValueError(
+                "task event ownership must resolve to exactly one event"
+            )
+        task_event_id = next(iter(task_event_ids))
         feedback_ids = [row.feedback_id for row in self.validation_feedback]
         _validate_ordered_ids(feedback_ids, "validation_feedback")
         _validate_source_bindings(self.source_snapshot_bindings)
@@ -1123,6 +1132,8 @@ class CaseAssemblyTaskFields(FrozenContractModel):
             if not set(row.authority_source_ids).issubset(binding_by_source):
                 raise ValueError("resolution authority source is not snapshot-bound")
         for row in self.context_associations:
+            if row.run_id != self.run_id or row.event_id != task_event_id:
+                raise ValueError("context association task event ownership mismatch")
             binding = binding_by_source.get(row.source_id)
             if (
                 binding is None

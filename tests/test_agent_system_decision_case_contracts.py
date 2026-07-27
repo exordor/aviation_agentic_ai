@@ -960,6 +960,39 @@ def test_assembly_task_core_ids_must_match_proposed_fact_ids() -> None:
         seal_case_assembly_task(fields=mismatched, binding=_binding())
 
 
+def test_assembly_task_binds_context_associations_to_one_task_event() -> None:
+    fields = _assembly_task_fields("resolution-proposal-1")
+    association = fields.context_associations[0]
+    gap = fields.profile_gaps[0]
+    invalid_fields = (
+        fields.model_copy(
+            update={
+                "context_associations": (
+                    association.model_copy(update={"run_id": "run-foreign"}),
+                ),
+            }
+        ),
+        fields.model_copy(
+            update={
+                "context_associations": (
+                    association.model_copy(update={"event_id": "event-foreign"}),
+                ),
+            }
+        ),
+        fields.model_copy(
+            update={
+                "profile_gaps": (
+                    gap.model_copy(update={"event_id": "event-foreign"}),
+                ),
+            }
+        ),
+    )
+
+    for invalid in invalid_fields:
+        with pytest.raises(ValueError, match="task event ownership"):
+            seal_case_assembly_task(fields=invalid, binding=_binding())
+
+
 def test_fact_support_profile_gap_support_and_disposition_are_strict() -> None:
     with pytest.raises(ValidationError):
         CaseFactProposal(
