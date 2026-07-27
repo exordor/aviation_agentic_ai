@@ -61,7 +61,9 @@ DECLARED_REASON_QUESTION = "What reason did the advisory state?"
 PROVENANCE_QUESTION = "Which source supports this decision record?"
 FORECAST_CONTEXT_QUESTION = "What forecast was known at decision time?"
 OBSERVED_WEATHER_CONTEXT_QUESTION = "What observed weather context was available?"
-PUBLIC_OUTCOME_QUESTION = "What BTS-reported operational observations are recorded?"
+PUBLIC_OUTCOME_QUESTION = (
+    "What BTS-reported public operational observations are recorded?"
+)
 RECONSTRUCTED_CASE_QUESTION = "Reconstruct this decision case."
 
 
@@ -756,6 +758,7 @@ def _write_query_tool_run(
     retrieved_profile_gaps: list[dict[str, Any]] | None = None,
     retrieved_context_associations: list[dict[str, Any]] | None = None,
     retrieved_outcome_summaries: list[dict[str, Any]] | None = None,
+    retrieved_outcome_observations: list[dict[str, Any]] | None = None,
 ) -> None:
     payload = {
         "execution": "native_tool_loop",
@@ -770,12 +773,17 @@ def _write_query_tool_run(
             outcome.retrieved_context_association_ids
         ),
         "retrieved_outcome_summary_ids": outcome.retrieved_outcome_summary_ids,
+        "retrieved_observation_ids": outcome.retrieved_observation_ids,
+        "retrieved_derivation_ids": outcome.retrieved_derivation_ids,
         "retrieved_facts": retrieved_facts,
         "retrieved_profile_gaps": retrieved_profile_gaps or [],
         "retrieved_context_associations": (
             retrieved_context_associations or []
         ),
         "retrieved_outcome_summaries": retrieved_outcome_summaries or [],
+        "retrieved_outcome_observations": (
+            retrieved_outcome_observations or []
+        ),
         "source_ids": outcome.source_ids,
         "answer": outcome.answer,
         "failure_reason": outcome.failure_reason,
@@ -821,6 +829,7 @@ def _terminal_outcome(
         retrieved_profile_gaps=[],
         retrieved_context_associations=[],
         retrieved_outcome_summaries=[],
+        retrieved_outcome_observations=[],
     )
     return outcome
 
@@ -862,6 +871,78 @@ def _raw_weather_values(
     )
 
 
+def _formal_outcome_items(result: QueryToolResult | None) -> list[dict[str, Any]]:
+    if result is None:
+        return []
+    return [
+        item
+        for item in result.items
+        if item.get("item_type") == "formal_outcome_observation"
+    ]
+
+
+def _active_count_values(
+    observations: list[dict[str, Any]],
+) -> dict[str, int] | None:
+    required = {
+        "scheduled_arrival_count",
+        "completed_arrival_count",
+        "cancelled_count",
+        "diverted_count",
+    }
+    selected = [
+        item
+        for item in observations
+        if item.get("phase") == "active"
+        and item.get("metric_key") in required
+    ]
+    by_metric: dict[str, int] = {}
+    for item in selected:
+        metric_key = str(item["metric_key"])
+        value = item.get("value")
+        if (
+            metric_key in by_metric
+            or not isinstance(value, int)
+            or isinstance(value, bool)
+            or value < 0
+        ):
+            return None
+        by_metric[metric_key] = value
+    return by_metric if set(by_metric) == required else None
+
+
+def _facility_display_code(store: QueryGraphStore, event_id: str) -> str | None:
+    values = {
+        str(row.get("object") or "").rsplit(":", 1)[-1]
+        for row in store.rows
+        if row.get("subject") == event_id
+        and row.get("predicate") == QueryPredicate.CONTROLLED_NAS_ELEMENT
+        and row.get("object")
+    }
+    if len(values) != 1:
+        return None
+    code = values.pop()
+    return code[1:] if re.fullmatch(r"K[A-Z]{3}", code) else code
+
+
+def _active_outcome_sentence(
+    *,
+    observations: list[dict[str, Any]],
+    facility_code: str,
+) -> str | None:
+    counts = _active_count_values(observations)
+    if counts is None:
+        return None
+    return (
+        "During the active interval, BTS reported "
+        f"{counts['scheduled_arrival_count']} scheduled arrivals, "
+        f"{counts['completed_arrival_count']} completed arrivals, "
+        f"{counts['cancelled_count']} cancellations, and "
+        f"{counts['diverted_count']} diversions for {facility_code} "
+        "within the tracked BTS reporting scope."
+    )
+
+
 def _context_trace(
     *,
     tool_call_id: str,
@@ -877,9 +958,12 @@ def _context_trace(
         result_refs=result.fact_ids,
         context_association_ids=result.context_association_ids,
         outcome_summary_ids=result.outcome_summary_ids,
+        observation_ids=result.observation_ids,
+        derivation_ids=result.derivation_ids,
         source_ids=result.source_ids,
-        status="ok",
+        status=result.status,
         duration_ms=(time.perf_counter() - started) * 1000.0,
+        error=result.failure_reason or None,
     )
 
 
@@ -961,6 +1045,20 @@ def _deterministic_context_outcome(
                 for summary_id in result.outcome_summary_ids
             )
         )
+        observation_ids = list(
+            dict.fromkeys(
+                observation_id
+                for result in completed_results
+                for observation_id in result.observation_ids
+            )
+        )
+        derivation_ids = list(
+            dict.fromkeys(
+                derivation_id
+                for result in completed_results
+                for derivation_id in result.derivation_ids
+            )
+        )
         source_ids = sorted(
             {
                 source_id
@@ -978,7 +1076,7 @@ def _deterministic_context_outcome(
             item
             for result in completed_results
             for item in result.items
-            if item.get("item_type") == "outcome_summary"
+            if item.get("item_type") == "formal_outcome_observation"
         ]
         return _write_deterministic_result(
             run_dir=run_dir,
@@ -990,6 +1088,8 @@ def _deterministic_context_outcome(
                 retrieved_fact_ids=fact_ids,
                 retrieved_context_association_ids=context_ids,
                 retrieved_outcome_summary_ids=outcome_ids,
+                retrieved_observation_ids=observation_ids,
+                retrieved_derivation_ids=derivation_ids,
                 tool_calls=[*traces, trace],
                 failure_reason=error,
             ),
@@ -1000,7 +1100,7 @@ def _deterministic_context_outcome(
             if core_result
             else [],
             retrieved_context_associations=context_items,
-            retrieved_outcome_summaries=outcome_items,
+            retrieved_outcome_observations=outcome_items,
         )
 
     if intent is QueryIntent.RECONSTRUCTED_CASE:
@@ -1127,7 +1227,7 @@ def _deterministic_context_outcome(
                 started=started,
             )
         )
-        if outcome_result.status == "insufficient":
+        if outcome_result.status in {"insufficient", "blocked"}:
             partial_associations = (
                 [
                     item
@@ -1137,12 +1237,14 @@ def _deterministic_context_outcome(
                 if context_result
                 else []
             )
+            partial_observations = _formal_outcome_items(outcome_result)
+            is_blocked = outcome_result.status == "blocked"
             return _write_deterministic_result(
                 run_dir=run_dir,
                 question=question,
                 outcome=QueryToolOutcome(
-                    status="insufficient",
-                    answer="Insufficient graph evidence.",
+                    status=outcome_result.status,
+                    answer="" if is_blocked else "Insufficient graph evidence.",
                     source_ids=sorted(
                         {
                             *(
@@ -1155,19 +1257,33 @@ def _deterministic_context_outcome(
                                 if context_result
                                 else []
                             ),
+                            *outcome_result.source_ids,
                         }
                     ),
                     retrieved_fact_ids=[
                         *(core_result.fact_ids if core_result else []),
                         *(context_result.fact_ids if context_result else []),
+                        *outcome_result.fact_ids,
                     ],
                     retrieved_context_association_ids=(
                         context_result.context_association_ids
                         if context_result
                         else []
                     ),
+                    retrieved_outcome_summary_ids=(
+                        outcome_result.outcome_summary_ids
+                    ),
+                    retrieved_observation_ids=outcome_result.observation_ids,
+                    retrieved_derivation_ids=outcome_result.derivation_ids,
                     tool_calls=traces,
-                    failure_reason="validated BTS-reported summaries are absent",
+                    failure_reason=(
+                        outcome_result.failure_reason
+                        or (
+                            "validated public observations are blocked"
+                            if is_blocked
+                            else "validated public observations are absent"
+                        )
+                    ),
                 ),
                 store=store,
                 allowed_predicates=[
@@ -1176,15 +1292,18 @@ def _deterministic_context_outcome(
                 if core_result
                 else [],
                 retrieved_context_associations=partial_associations,
+                retrieved_outcome_observations=partial_observations,
             )
 
     selected_associations: list[dict[str, Any]] = []
     selected_weather_facts: list[dict[str, Any]] = []
-    selected_outcomes = list(outcome_result.items) if outcome_result else []
+    selected_outcomes = _formal_outcome_items(outcome_result)
     source_ids: set[str] = set()
     retrieved_fact_ids: list[str] = core_result.fact_ids if core_result else []
     context_ids: list[str] = []
     outcome_ids = outcome_result.outcome_summary_ids if outcome_result else []
+    observation_ids = outcome_result.observation_ids if outcome_result else []
+    derivation_ids = outcome_result.derivation_ids if outcome_result else []
 
     if context_result is not None:
         relations = (
@@ -1234,6 +1353,10 @@ def _deterministic_context_outcome(
         )
     if outcome_result is not None:
         source_ids.update(outcome_result.source_ids)
+        retrieved_fact_ids = [
+            *retrieved_fact_ids,
+            *outcome_result.fact_ids,
+        ]
     if core_result is not None:
         source_ids.update(core_result.source_ids)
 
@@ -1270,26 +1393,46 @@ def _deterministic_context_outcome(
             status = "ok"
             reason = ""
     else:
+        facility_code = _facility_display_code(store, event_id)
+        active_sentence = (
+            _active_outcome_sentence(
+                observations=selected_outcomes,
+                facility_code=facility_code,
+            )
+            if facility_code is not None
+            else None
+        )
+        if active_sentence is None:
+            return _write_deterministic_result(
+                run_dir=run_dir,
+                question=question,
+                outcome=QueryToolOutcome(
+                    status="insufficient",
+                    answer="Insufficient graph evidence.",
+                    source_ids=sorted(source_ids),
+                    retrieved_fact_ids=list(dict.fromkeys(retrieved_fact_ids)),
+                    retrieved_context_association_ids=context_ids,
+                    retrieved_outcome_summary_ids=outcome_ids,
+                    retrieved_observation_ids=observation_ids,
+                    retrieved_derivation_ids=derivation_ids,
+                    tool_calls=traces,
+                    failure_reason=(
+                        "formal active public observations are incomplete"
+                    ),
+                ),
+                store=store,
+                allowed_predicates=[
+                    predicate.value for predicate in core_predicates
+                ]
+                if core_result
+                else [],
+                retrieved_context_associations=selected_associations,
+                retrieved_outcome_observations=selected_outcomes,
+            )
         status = "ok"
         reason = ""
-        outcome_lines = [
-            (
-                f"{item['phase']}: scheduled "
-                f"{item['scheduled_arrival_count']}, completed "
-                f"{item['completed_arrival_count']}, cancelled "
-                f"{item['cancelled_count']}, diverted "
-                f"{item['diverted_count']}"
-            )
-            for item in selected_outcomes
-        ]
-        outcome_text = "; ".join(outcome_lines)
-        bts_note = (
-            "These BTS-reported counts cover BTS On-Time reporting carriers and "
-            "scheduled domestic passenger operations. WeatherDelay and NASDelay are "
-            "BTS carrier-reported delay minutes."
-        )
         if intent is QueryIntent.PUBLIC_OUTCOME:
-            answer = f"{bts_note} {outcome_text}."
+            answer = active_sentence
         else:
             assert core_result is not None
             by_predicate = {
@@ -1316,8 +1459,7 @@ def _deterministic_context_outcome(
                 f"The reconstructed decision case records "
                 f"{ontology_labels.get(event_type, event_type)} controlling "
                 f"{facility} from {start} to {end}. Weather reports are "
-                    f"non-causal context: {weather_text}. {bts_note} "
-                f"{outcome_text}."
+                f"non-causal context: {weather_text}. {active_sentence}"
             )
 
     outcome = QueryToolOutcome(
@@ -1327,6 +1469,8 @@ def _deterministic_context_outcome(
         retrieved_fact_ids=list(dict.fromkeys(retrieved_fact_ids)),
         retrieved_context_association_ids=context_ids,
         retrieved_outcome_summary_ids=outcome_ids,
+        retrieved_observation_ids=observation_ids,
+        retrieved_derivation_ids=derivation_ids,
         tool_calls=traces,
         failure_reason=reason,
     )
@@ -1341,7 +1485,7 @@ def _deterministic_context_outcome(
         if core_result
         else [],
         retrieved_context_associations=selected_associations,
-        retrieved_outcome_summaries=selected_outcomes,
+        retrieved_outcome_observations=selected_outcomes,
     )
 
 
@@ -1541,6 +1685,7 @@ def _write_deterministic_result(
     allowed_predicates: list[str],
     retrieved_context_associations: list[dict[str, Any]] | None = None,
     retrieved_outcome_summaries: list[dict[str, Any]] | None = None,
+    retrieved_outcome_observations: list[dict[str, Any]] | None = None,
 ) -> QueryToolOutcome:
     retrieved_facts = [
         store.fact_by_id[fact_id]
@@ -1563,6 +1708,7 @@ def _write_deterministic_result(
         retrieved_profile_gaps=retrieved_gaps,
         retrieved_context_associations=retrieved_context_associations,
         retrieved_outcome_summaries=retrieved_outcome_summaries,
+        retrieved_outcome_observations=retrieved_outcome_observations,
     )
     return outcome
 

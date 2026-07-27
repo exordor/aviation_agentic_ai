@@ -11,10 +11,13 @@ from typing import Any
 import pytest
 from langchain_core.messages import AIMessage, ToolMessage
 
+import aviation_agentic_ai.agent_system.query_tool_graph as query_tool_graph_module
 from aviation_agentic_ai.agent_system.contracts import (
     BTSOutcomeSummary,
     ModelCallRecord,
     ModelToolCall,
+    OutcomeObservationRead,
+    OutcomeSummaryRead,
     PersistedProfileGap,
     SourceFamily,
     SourceSnapshot,
@@ -49,6 +52,8 @@ from aviation_agentic_ai.agent_system.weather_context import (
 from aviation_agentic_ai.agent_system.weather_context_validation import (
     expected_weather_fact_id,
 )
+
+_REAL_QUERY_CONTEXT_STORE = query_tool_graph_module.QueryContextStore
 
 EVENT_ID = "urn:aviation-agentic-ai:event:tool-graph-test"
 FACILITY_ID = "urn:aviation-agentic-ai:facility:airport:KJFK"
@@ -879,6 +884,22 @@ def _assert_deterministic_query_is_blocked(
     assert factory.calls == 0
 
 
+def _assert_deterministic_query_is_insufficient(
+    run_dir: Path,
+    *,
+    question: str,
+) -> None:
+    factory = _Factory(_ScriptedModel([]))
+    outcome = answer_question_with_tools(
+        run_dir=run_dir,
+        question=question,
+        model_factory=factory,
+    )
+    assert outcome.status == "insufficient"
+    assert outcome.model_calls == []
+    assert factory.calls == 0
+
+
 def _tool_message(
     *,
     name: str = "get_event_facts",
@@ -979,6 +1000,72 @@ class _Factory:
         return self.model
 
 
+class _FormalOutcomeContextStore:
+    """Routing-only double for the separately tested formal read validator."""
+
+    active_counts = (77, 68, 4, 5)
+
+    def __init__(self, run_dir, *, graph_store):
+        self._delegate = _REAL_QUERY_CONTEXT_STORE(
+            run_dir,
+            graph_store=graph_store,
+        )
+        self.last_outcome_summary_ids = ("summary:active",)
+
+    def get_decision_context(self, event_id):
+        return self._delegate.get_decision_context(event_id)
+
+    def get_outcome_summaries(self, event_id, phases):
+        observations = tuple(
+            OutcomeObservationRead(
+                observation_id=f"observation:active:{metric_key}",
+                fact_ids=(f"fact:active:{metric_key}",),
+                phase="active",
+                metric_key=metric_key,
+                label=label,
+                value=value,
+                datatype_iri="http://www.w3.org/2001/XMLSchema#integer",
+                unit_iri="http://qudt.org/vocab/unit/NUM",
+                derivation_id="derivation:active",
+                evidence_ref=f"fact:active:{metric_key}",
+                source_id="bts_on_time:2026-05:nyc",
+                source_snapshot_sha256="b" * 64,
+                profile_id="decision_case_public_observation_slice_v1",
+                profile_checksum="p" * 64,
+            )
+            for (metric_key, label), value in zip(
+                (
+                (
+                    "scheduled_arrival_count",
+                    "BTS-reported scheduled arrivals",
+                ),
+                (
+                    "completed_arrival_count",
+                    "BTS-reported completed arrivals",
+                ),
+                    ("cancelled_count", "BTS-reported cancellations"),
+                    ("diverted_count", "BTS-reported diversions"),
+                ),
+                self.active_counts,
+            )
+        )
+        return OutcomeSummaryRead(
+            status="ok",
+            event_id=event_id,
+            observations=observations,
+            source_ids=("bts_on_time:2026-05:nyc",),
+        )
+
+
+class _BlockedFormalOutcomeContextStore(_FormalOutcomeContextStore):
+    def get_outcome_summaries(self, event_id, phases):
+        return OutcomeSummaryRead(
+            status="blocked",
+            event_id=event_id,
+            failure_reason="public observation profile checksum mismatch",
+        )
+
+
 def test_only_preexisting_combined_question_requires_a_model():
     assert question_requires_model(REGISTERED_COMPETENCY_QUESTION) is True
     assert all(
@@ -990,6 +1077,95 @@ def test_only_preexisting_combined_question_requires_a_model():
             RECONSTRUCTED_CASE_QUESTION,
         )
     )
+
+
+def test_public_outcome_uses_formal_active_observations_and_persists_distinct_ids(
+    tmp_path,
+    monkeypatch,
+):
+    """Dropping formal observation IDs or reverting to summary-shaped items fails."""
+
+    _write_graph(tmp_path)
+    monkeypatch.setattr(
+        query_tool_graph_module,
+        "QueryContextStore",
+        _FormalOutcomeContextStore,
+    )
+    factory = _Factory(_ScriptedModel([]))
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question="What BTS-reported public operational observations are recorded?",
+        model_factory=factory,
+    )
+
+    expected_observation_ids = [
+        "observation:active:cancelled_count",
+        "observation:active:completed_arrival_count",
+        "observation:active:diverted_count",
+        "observation:active:scheduled_arrival_count",
+    ]
+    expected_fact_ids = [
+        "fact:active:cancelled_count",
+        "fact:active:completed_arrival_count",
+        "fact:active:diverted_count",
+        "fact:active:scheduled_arrival_count",
+    ]
+    expected_answer = (
+        "During the active interval, BTS reported 77 scheduled arrivals, "
+        "68 completed arrivals, 4 cancellations, and 5 diversions for JFK "
+        "within the tracked BTS reporting scope."
+    )
+    assert outcome.status == "ok"
+    assert outcome.answer == expected_answer
+    assert outcome.retrieved_observation_ids == expected_observation_ids
+    assert outcome.retrieved_fact_ids == expected_fact_ids
+    assert outcome.retrieved_derivation_ids == ["derivation:active"]
+    assert outcome.retrieved_outcome_summary_ids == ["summary:active"]
+    assert outcome.model_calls == []
+    assert factory.calls == 0
+    assert len(outcome.tool_calls) == 1
+    assert outcome.tool_calls[0].observation_ids == expected_observation_ids
+    assert outcome.tool_calls[0].derivation_ids == ["derivation:active"]
+    assert outcome.tool_calls[0].result_refs == expected_fact_ids
+
+    record = json.loads((tmp_path / "query_run.json").read_text(encoding="utf-8"))
+    assert record["retrieved_observation_ids"] == expected_observation_ids
+    assert record["retrieved_derivation_ids"] == ["derivation:active"]
+    assert record["retrieved_outcome_summary_ids"] == ["summary:active"]
+    assert {
+        item["observation_id"]
+        for item in record["retrieved_outcome_observations"]
+    } == set(expected_observation_ids)
+    assert record["retrieved_outcome_summaries"] == []
+
+
+def test_public_outcome_propagates_blocked_before_model_construction(
+    tmp_path,
+    monkeypatch,
+):
+    """A blocked formal read must not become a successful empty outcome answer."""
+
+    _write_graph(tmp_path)
+    monkeypatch.setattr(
+        query_tool_graph_module,
+        "QueryContextStore",
+        _BlockedFormalOutcomeContextStore,
+    )
+    factory = _Factory(_ScriptedModel([]))
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question="What BTS-reported public operational observations are recorded?",
+        model_factory=factory,
+    )
+
+    assert outcome.status == "blocked"
+    assert outcome.answer == ""
+    assert outcome.model_calls == []
+    assert factory.calls == 0
+    assert len(outcome.tool_calls) == 1
+    assert outcome.tool_calls[0].status == "blocked"
 
 
 def test_supported_question_runs_model_tool_model_and_cites_source(tmp_path):
@@ -1113,9 +1289,19 @@ def test_observed_context_uses_only_metar_associations_without_model(tmp_path):
 def test_public_outcome_response_preserves_three_case_active_counts(
     tmp_path,
     active_counts,
+    monkeypatch,
 ):
     _write_graph(tmp_path)
-    _write_query_context(tmp_path, active_counts=active_counts)
+    monkeypatch.setattr(
+        _FormalOutcomeContextStore,
+        "active_counts",
+        active_counts,
+    )
+    monkeypatch.setattr(
+        query_tool_graph_module,
+        "QueryContextStore",
+        _FormalOutcomeContextStore,
+    )
     factory = _Factory(_ScriptedModel([]))
 
     outcome = answer_question_with_tools(
@@ -1126,24 +1312,24 @@ def test_public_outcome_response_preserves_three_case_active_counts(
 
     scheduled, completed, cancelled, diverted = active_counts
     assert outcome.status == "ok"
-    assert "These BTS-reported counts cover" in outcome.answer
-    assert "BTS carrier-reported delay minutes" in outcome.answer
-    assert (
-        f"active: scheduled {scheduled}, completed {completed}, "
-        f"cancelled {cancelled}, diverted {diverted}"
-    ) in outcome.answer
-    assert outcome.retrieved_fact_ids == []
-    assert outcome.retrieved_outcome_summary_ids == [
-        BTSOutcomeSummary.model_validate_json(line).summary_id
-        for line in (tmp_path / "outcome_summaries.jsonl")
-        .read_text(encoding="utf-8")
-        .splitlines()
-    ]
+    assert outcome.answer == (
+        f"During the active interval, BTS reported {scheduled} scheduled "
+        f"arrivals, {completed} completed arrivals, {cancelled} "
+        f"cancellations, and {diverted} diversions for JFK within the tracked "
+        "BTS reporting scope."
+    )
+    assert outcome.retrieved_fact_ids
+    assert outcome.retrieved_observation_ids
+    assert outcome.retrieved_derivation_ids == ["derivation:active"]
+    assert outcome.retrieved_outcome_summary_ids == ["summary:active"]
     assert outcome.model_calls == []
     assert factory.calls == 0
 
 
-def test_reconstructed_case_uses_three_tools_without_retrieving_reason(tmp_path):
+def test_reconstructed_case_uses_three_tools_without_retrieving_reason(
+    tmp_path,
+    monkeypatch,
+):
     rows = _graph_rows()
     rows.append(
         {
@@ -1160,6 +1346,11 @@ def test_reconstructed_case_uses_three_tools_without_retrieving_reason(tmp_path)
     )
     _write_graph(tmp_path, rows)
     _write_query_context(tmp_path)
+    monkeypatch.setattr(
+        query_tool_graph_module,
+        "QueryContextStore",
+        _FormalOutcomeContextStore,
+    )
     factory = _Factory(_ScriptedModel([]))
 
     outcome = answer_question_with_tools(
@@ -1178,7 +1369,9 @@ def test_reconstructed_case_uses_three_tools_without_retrieving_reason(tmp_path)
     assert "fact:reason" not in outcome.retrieved_fact_ids
     assert "impacting condition" not in outcome.answer.lower()
     assert "non-causal context" in outcome.answer
-    assert "These BTS-reported counts cover" in outcome.answer
+    assert "During the active interval, BTS reported" in outcome.answer
+    assert outcome.retrieved_observation_ids
+    assert outcome.retrieved_derivation_ids == ["derivation:active"]
     assert outcome.model_calls == []
     assert factory.calls == 0
 
@@ -1522,10 +1715,16 @@ def test_registered_multisource_run_requires_each_context_artifact(
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
     (tmp_path / filename).unlink()
 
-    _assert_deterministic_query_is_blocked(
-        tmp_path,
-        question=question,
-    )
+    if question == PUBLIC_OUTCOME_QUESTION:
+        _assert_deterministic_query_is_insufficient(
+            tmp_path,
+            question=question,
+        )
+    else:
+        _assert_deterministic_query_is_blocked(
+            tmp_path,
+            question=question,
+        )
 
 
 def test_non_latest_qualifying_taf_relation_is_blocked(tmp_path):
@@ -1599,7 +1798,7 @@ def test_non_latest_qualifying_metar_relation_is_blocked(tmp_path):
     )
 
 
-def test_bts_reporting_scope_is_an_exact_audit_boundary(
+def test_legacy_summary_tamper_cannot_authorize_public_observations(
     tmp_path,
 ):
     _write_query_context(tmp_path)
@@ -1612,7 +1811,7 @@ def test_bts_reporting_scope_is_an_exact_audit_boundary(
         rows=summaries,
     )
 
-    _assert_deterministic_query_is_blocked(
+    _assert_deterministic_query_is_insufficient(
         tmp_path,
         question=PUBLIC_OUTCOME_QUESTION,
     )
@@ -1656,7 +1855,7 @@ def test_weather_association_id_must_be_deterministic_and_graph_disjoint(
         FACILITY_ID,
     ],
 )
-def test_bts_summary_id_must_be_deterministic_and_graph_disjoint(
+def test_legacy_forged_summary_id_cannot_authorize_public_observations(
     tmp_path,
     forged_id,
 ):
@@ -1670,7 +1869,7 @@ def test_bts_summary_id_must_be_deterministic_and_graph_disjoint(
         rows=summaries,
     )
 
-    _assert_deterministic_query_is_blocked(
+    _assert_deterministic_query_is_insufficient(
         tmp_path,
         question=PUBLIC_OUTCOME_QUESTION,
     )
@@ -1740,7 +1939,9 @@ def test_audit_only_namespaces_are_absent_from_the_formal_graph(
     )
 
 
-def test_blocked_reconstructed_case_persists_prior_validated_evidence(tmp_path):
+def test_legacy_summary_corruption_keeps_reconstructed_case_insufficient(
+    tmp_path,
+):
     _write_query_context(tmp_path)
     outcome_path = tmp_path / "outcome_summaries.jsonl"
     outcome_path.write_bytes(outcome_path.read_bytes() + b" ")
@@ -1751,7 +1952,7 @@ def test_blocked_reconstructed_case_persists_prior_validated_evidence(tmp_path):
         model_factory=_Factory(_ScriptedModel([])),
     )
 
-    assert outcome.status == "blocked"
+    assert outcome.status == "insufficient"
     record = json.loads((tmp_path / "query_run.json").read_text(encoding="utf-8"))
     successful_traces = [
         trace for trace in record["tool_calls"] if trace["status"] == "ok"
