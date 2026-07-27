@@ -125,7 +125,10 @@ Each current run is profile-owned: `kg.jsonl`, `kg.ttl`,
 `neo4j_nodes.jsonl`, and `neo4j_relationships.jsonl` are projections of
 validated facts, while `run_manifest.json`, `source_snapshots.jsonl`,
 `profile_gaps.jsonl`, context associations, and trace artifacts remain the
-auditable record. A query reads these validated run artifacts only.
+auditable record. Profile gaps carry the exact current decision-profile
+ownership and field-specific advisory evidence binding, and their artifact is
+registered with path, count, SHA-256, and status. A query reads these validated
+run artifacts only.
 
 ## Current Status
 

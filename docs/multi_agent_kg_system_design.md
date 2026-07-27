@@ -203,7 +203,13 @@ records paths, counts, checksums, and `ok | insufficient | blocked` layer
 states.
 
 RDF and Neo4j are projections of accepted formal facts. The audit artifacts do
-not become an independent semantic authority.
+not become an independent semantic authority. Each persisted profile gap is
+owned by the exact current decision profile and checksum, carries a stable
+event/source/snapshot identity plus a deterministic evidence reference, and
+must reproduce the advisory parser's exact field value and evidence span.
+`profile_gaps.jsonl` is registered independently in the manifest with its
+path, row count, SHA-256, and status; a generic substring from the source
+cannot authorize a profile-gap answer.
 
 ## 11. Query Agent
 

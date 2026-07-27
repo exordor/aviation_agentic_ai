@@ -293,11 +293,20 @@ def _write_graph(
         [],
         status="insufficient",
     )
+    profile_gap_metadata = _write_artifact(
+        run_dir,
+        "profile_gaps.jsonl",
+        [],
+        status=(
+            "ok" if layer_counts["decision"] else "insufficient"
+        ),
+    )
     (run_dir / "run_manifest.json").write_text(
         json.dumps(
             {
                 "manifest_version": "decision-case-run-v1",
                 "run_id": run_dir.name,
+                "source_id": SOURCE_ID,
                 "materialization": {
                     "materialized": True,
                     "fact_count": len(payload),
@@ -343,6 +352,7 @@ def _write_graph(
                     ),
                     "reconstruction_trace": reconstruction_metadata,
                 },
+                "profile_gaps": profile_gap_metadata,
             },
             sort_keys=True,
         ),

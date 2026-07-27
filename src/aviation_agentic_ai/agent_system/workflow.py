@@ -290,7 +290,7 @@ def build_ingest_graph() -> Any:
     # Parallel fan-out after deterministic advisory evidence construction.
     sg.add_edge("advisory", "facility_authority")
     sg.add_edge("advisory", "terminology_authority")
-    # Join after the two specialist Agents.
+    # Join after the two deterministic authority services.
     sg.add_edge("facility_authority", "join")
     sg.add_edge("terminology_authority", "join")
     sg.add_edge("join", "prepare_context")

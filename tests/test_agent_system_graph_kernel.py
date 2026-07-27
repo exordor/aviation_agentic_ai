@@ -19,6 +19,7 @@ exercised against real source text, not synthetic phrases.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from enum import Enum
@@ -35,7 +36,10 @@ from aviation_agentic_ai.agent_system.contracts import (
     AgentTask,
     EvidenceCard,
     EvidenceClaim,
+    GraphPatchBlock,
+    GraphPatchLine,
     ModelCallRecord,
+    ProfileGap,
     SourceFamily,
     SourceRecord,
     SourceSnapshotRegistry,
@@ -46,7 +50,6 @@ from aviation_agentic_ai.agent_system.formal_graph import (
     write_fact_trace,
     write_profile_gaps,
 )
-from aviation_agentic_ai.agent_system.graph_patch import parse_graph_patch_block
 from aviation_agentic_ai.agent_system.runtime import write_run_manifest
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.sources import (
@@ -104,7 +107,9 @@ def mentions(advisory_record) -> AdvisoryMentions:
 
 @pytest.fixture(scope="module")
 def snapshot(advisory_record):
-    return build_source_snapshot(advisory_record)
+    return SourceSnapshotRegistry(
+        snapshots=(build_source_snapshot(advisory_record),)
+    )
 
 
 @dataclass
@@ -202,6 +207,7 @@ def test_source_snapshot_registry_records_content_and_sha256(
 
 
 def test_run_manifest_registers_profile_gap_artifact(tmp_path):
+    (tmp_path / "profile_gaps.jsonl").write_text("", encoding="utf-8")
     path = write_run_manifest(
         run_dir=tmp_path,
         source_id=SOURCE_ID,
@@ -212,12 +218,14 @@ def test_run_manifest_registers_profile_gap_artifact(tmp_path):
         evidence_cards=[],
         graph_patch_raw=None,
         prompt_set_id="prompt:test",
-        profile_gap_count=1,
+        profile_gap_count=0,
     )
     payload = json.loads(path.read_text(encoding="utf-8"))
     assert payload["profile_gaps"] == {
         "path": "profile_gaps.jsonl",
-        "count": 1,
+        "count": 0,
+        "sha256": hashlib.sha256(b"").hexdigest(),
+        "status": "insufficient",
     }
 
 
@@ -319,7 +327,7 @@ def _evidence_cards_for_fixed_case(
 def _validate(
     block_raw, guide, event_uri, snapshot, evidence_cards, *, canonical=None, sources=None
 ):
-    block = parse_graph_patch_block(block_raw)
+    block = _test_block(block_raw)
     return validate_graph_patch(
         block=block,
         event_iri=event_uri,
@@ -330,6 +338,43 @@ def _validate(
         evidence_cards=evidence_cards,
         source_snapshot=snapshot,
     )
+
+
+def _test_block(raw: str) -> GraphPatchBlock:
+    """Build a Kernel input directly; production parses only Assembly JSON."""
+
+    section = "facts"
+    facts: list[GraphPatchLine] = []
+    gaps: list[ProfileGap] = []
+    for raw_line in raw.splitlines():
+        line = raw_line.strip()
+        if not line or line == "GRAPH_PATCH":
+            continue
+        if line == "PROFILE_GAPS":
+            section = "gaps"
+            continue
+        subject, predicate, object_value, support = (
+            value.strip() for value in line.split("|")
+        )
+        if section == "facts":
+            facts.append(
+                GraphPatchLine(
+                    subject=subject,
+                    predicate=predicate,
+                    object=object_value,
+                    source_ids=[support],
+                )
+            )
+        else:
+            gaps.append(
+                ProfileGap(
+                    field=subject,
+                    value=predicate,
+                    evidence=object_value,
+                    reason=support,
+                )
+            )
+    return GraphPatchBlock(patch_lines=facts, profile_gaps=gaps, raw=raw)
 
 
 def test_unknown_canonical_object_rejected(
@@ -386,7 +431,7 @@ def test_registry_rejects_mixed_and_unsnapshotted_provenance_sources(
 ):
     """Known caller IDs cannot bypass checksum-valid snapshot membership."""
 
-    registry = SourceSnapshotRegistry(snapshots=[snapshot])
+    registry = snapshot
     block = (
         f"GRAPH_PATCH\n"
         f"{event_uri} | rdf:type | {EVENT_CLASS} | {SOURCE_ID}, caller:extra\n"
@@ -423,14 +468,15 @@ def test_registry_binds_profile_gap_artifact_to_its_exact_snapshot(
             content="KJFK 192151Z TSRA",
         )
     )
-    registry = SourceSnapshotRegistry(snapshots=[snapshot, metar])
-    block = parse_graph_patch_block(
+    registry = SourceSnapshotRegistry(snapshots=[snapshot.snapshots[0], metar])
+    block = _test_block(
         "GRAPH_PATCH\n"
         f"{event_uri} | rdf:type | {EVENT_CLASS} | {SOURCE_ID}\n"
         f"{event_uri} | atm:controlledNASelement | {FACILITY_ID} | {SOURCE_ID}\n"
         f"{event_uri} | atm:extensionProbability | MEDIUM | {SOURCE_ID}\n"
         "PROFILE_GAPS\n"
-        "weather_observation | thunderstorm | KJFK 192151Z TSRA | outside active profile\n"
+        "impacting_condition | weather | "
+        "IMPACTING CONDITION: WEATHER / THUNDERSTORMS | not_in_profile\n"
     )
     result = validate_graph_patch(
         block=block,
@@ -451,8 +497,8 @@ def test_registry_binds_profile_gap_artifact_to_its_exact_snapshot(
     )
 
     row = json.loads(path.read_text(encoding="utf-8"))
-    assert row["source_id"] == metar.source_id
-    assert row["source_snapshot_sha256"] == metar.content_sha256
+    assert row["source_id"] == SOURCE_ID
+    assert row["source_snapshot_sha256"] == snapshot.snapshots[0].content_sha256
 
 
 def test_invalid_extension_probability_rejected(
@@ -623,7 +669,7 @@ def test_every_accepted_fact_has_exact_evidence_binding(
             # Every bound evidence text must appear verbatim in the source.
             assert text in advisory_record.content
     # The fact-trace file records one row per accepted fact with exact evidence.
-    block_parsed = parse_graph_patch_block(block)
+    block_parsed = _test_block(block)
     trace_path = write_fact_trace(
         result=result,
         block=block_parsed,
@@ -639,7 +685,10 @@ def test_every_accepted_fact_has_exact_evidence_binding(
         assert row["source_id"] == SOURCE_ID
         assert row["evidence_text"] in advisory_record.content
         assert row["evidence_agent_role"] in ("advisory", "facility")
-        assert row["source_snapshot_sha256"] == snapshot.content_sha256
+        assert (
+            row["source_snapshot_sha256"]
+            == snapshot.snapshots[0].content_sha256
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -832,7 +881,7 @@ def test_valid_fixed_case_trace_has_one_relevant_binding_per_fact(
         assert len(fact.evidence_texts) == 1, (
             f"fact {fact.predicate_iri} has {len(fact.evidence_texts)} evidence texts"
         )
-    block_parsed = parse_graph_patch_block(block)
+    block_parsed = _test_block(block)
     trace_path = write_fact_trace(
         result=result,
         block=block_parsed,
@@ -1017,7 +1066,7 @@ def test_impacting_condition_is_explicit_source_supported_profile_gap(
         f"\n"
         f"PROFILE_GAPS\n"
         f"impacting_condition | weather | IMPACTING CONDITION: WEATHER / THUNDERSTORMS | "
-        f"atm:impactingCondition domain is GDP-only in the active slice\n"
+        f"not_in_profile\n"
     )
     result = _validate(
         block,
@@ -1129,7 +1178,7 @@ def test_validated_profile_gap_is_persisted_as_a_source_bound_audit_row(
     mentions,
     tmp_path,
 ):
-    block = parse_graph_patch_block(
+    block = _test_block(
         "GRAPH_PATCH\n"
         f"{event_uri} | rdf:type | {EVENT_CLASS} | {SOURCE_ID}\n"
         f"{event_uri} | atm:controlledNASelement | {FACILITY_ID} | {SOURCE_ID}\n"
@@ -1137,7 +1186,7 @@ def test_validated_profile_gap_is_persisted_as_a_source_bound_audit_row(
         "\nPROFILE_GAPS\n"
         "impacting_condition | weather | "
         "IMPACTING CONDITION: WEATHER / THUNDERSTORMS | "
-        "atm:impactingCondition domain is GDP-only in the active slice\n"
+        "not_in_profile\n"
     )
     result = validate_graph_patch(
         block=block,
@@ -1161,10 +1210,16 @@ def test_validated_profile_gap_is_persisted_as_a_source_bound_audit_row(
     )
     rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
     assert len(rows) == 1
-    assert rows[0]["event_id"] == event_uri
+    assert rows[0]["event_id"] == (
+        "urn:aviation-agentic-ai:event:"
+        f"{event_uri.removeprefix('evt:')}"
+    )
     assert rows[0]["source_id"] == SOURCE_ID
     assert rows[0]["value"] == "weather"
-    assert rows[0]["source_snapshot_sha256"] == snapshot.content_sha256
+    assert (
+        rows[0]["source_snapshot_sha256"]
+        == snapshot.snapshots[0].content_sha256
+    )
     assert rows[0]["profile_gap_id"]
 
 
@@ -1230,7 +1285,7 @@ def test_gdp_reason_is_a_formal_lowercase_fact_with_exact_evidence(guide):
             source_ids=[source_id],
         ),
     ]
-    block = parse_graph_patch_block(
+    block = _test_block(
         "GRAPH_PATCH\n"
         f"{event_id} | rdf:type | {event_class} | {source_id}\n"
         f"{event_id} | atm:controlledNASelement | {FACILITY_ID} | {source_id}\n"
@@ -1249,7 +1304,7 @@ def test_gdp_reason_is_a_formal_lowercase_fact_with_exact_evidence(guide):
         canonical_entities={FACILITY_ID: "nas:Airport"},
         known_source_ids={source_id},
         evidence_cards=cards,
-        source_snapshot=snapshot,
+        source_snapshot=SourceSnapshotRegistry(snapshots=(snapshot,)),
     )
     assert result.publishable
     reason = next(

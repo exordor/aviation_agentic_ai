@@ -134,7 +134,9 @@ def valid_graph_input() -> dict[str, object]:
                 ],
             ),
         ],
-        "source_snapshot": snapshot,
+        "source_snapshot": SourceSnapshotRegistry(
+            snapshots=(snapshot,)
+        ),
     }
 
 

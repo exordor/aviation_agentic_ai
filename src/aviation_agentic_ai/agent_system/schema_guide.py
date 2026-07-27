@@ -3,12 +3,12 @@
 The system mainline inherits the schema-guided KG construction work already on
 ``main``. This module does NOT create a new ontology, does NOT regenerate any
 schema, and does NOT add an Ontology Agent. It loads the frozen ATCSCC schema
-slice and exposes the classes / properties / constraints the KG Construction
-Agent and the deterministic materializer need.
+slice and exposes the classes / properties / constraints Decision Case
+Assembly and the deterministic materializer need.
 
 The ontology is a shared knowledge-representation contract for all Agents, not
 a new LLM role. Only a compact slice relevant to the current event class is
-handed to the KG Construction Agent; the full OWL is never dumped into a prompt.
+available to Assembly; the full OWL is never dumped into a prompt.
 """
 
 from __future__ import annotations
@@ -200,7 +200,7 @@ class SchemaGuide:
                 return c.allowed_values
         return frozenset()
 
-    # ---- compact context for the KG Construction Agent --------------------
+    # ---- compact context for Decision Case Assembly ------------------------
 
     def compact_context_for_event(self, event_class: str) -> str:
         """A compact, prompt-sized schema slice for one event class.

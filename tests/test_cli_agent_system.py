@@ -200,11 +200,14 @@ def _write_graph(run_dir: Path) -> None:
             "sha256": hashlib.sha256(b"").hexdigest(),
             "status": "insufficient",
         }
+    profile_gap_path = run_dir / "profile_gaps.jsonl"
+    profile_gap_path.write_text("", encoding="utf-8")
     (run_dir / "run_manifest.json").write_text(
         json.dumps(
             {
                 "manifest_version": "decision-case-run-v1",
                 "run_id": run_dir.name,
+                "source_id": SOURCE_ID,
                 "materialization": {
                     "materialized": True,
                     "fact_count": len(rows),
@@ -230,6 +233,12 @@ def _write_graph(run_dir: Path) -> None:
                     for layer, profile in profiles.items()
                 },
                 "context_artifacts": context_artifacts,
+                "profile_gaps": {
+                    "path": profile_gap_path.name,
+                    "count": 0,
+                    "sha256": hashlib.sha256(b"").hexdigest(),
+                    "status": "ok",
+                },
             }
         ),
         encoding="utf-8",

@@ -1,4 +1,4 @@
-"""Structural-context regressions for the compatibility resolution paths."""
+"""Structural-context regressions for the current authority-resolution paths."""
 
 from __future__ import annotations
 

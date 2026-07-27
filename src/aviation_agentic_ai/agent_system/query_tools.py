@@ -16,6 +16,7 @@ from typing import Any, Literal
 from langchain_core.tools import BaseTool, tool
 from pydantic import Field
 
+from aviation_agentic_ai.agent_system.agents import parse_structured_fields
 from aviation_agentic_ai.agent_system.contracts import (
     FactTraceRow,
     ObservationFactTrace,
@@ -848,15 +849,56 @@ class QueryGraphStore:
                 )
 
     def _load_profile_gaps(self, root: Path) -> list[PersistedProfileGap]:
+        entry = self.manifest.get("profile_gaps")
+        if not isinstance(entry, dict):
+            raise QueryToolError(
+                "current run manifest does not register profile_gaps.jsonl"
+            )
+        expected_status = self.manifest["formal_layers"]["decision"]["status"]
+        if (
+            entry.get("path") != "profile_gaps.jsonl"
+            or entry.get("status") != expected_status
+        ):
+            raise QueryToolError(
+                "current run profile_gaps.jsonl registration is invalid"
+            )
         path = root / "profile_gaps.jsonl"
-        if not path.exists():
-            return []
-        resolved = path.resolve()
-        if not resolved.is_relative_to(root):
-            raise QueryToolError("profile-gap artifact escapes the requested run directory")
+        if (
+            path.is_symlink()
+            or not path.exists()
+            or not path.is_file()
+            or not path.resolve().is_relative_to(root)
+        ):
+            raise QueryToolError(
+                "current run profile_gaps.jsonl is missing or unsafe"
+            )
+        data = path.read_bytes()
+        if (
+            not isinstance(entry.get("sha256"), str)
+            or hashlib.sha256(data).hexdigest() != entry["sha256"]
+        ):
+            raise QueryToolError(
+                "current run profile_gaps.jsonl checksum mismatch"
+            )
+        row_count = sum(1 for line in data.splitlines() if line.strip())
+        if (
+            not isinstance(entry.get("count"), int)
+            or isinstance(entry.get("count"), bool)
+            or entry["count"] != row_count
+            or (expected_status != "ok" and row_count)
+        ):
+            raise QueryToolError(
+                "current run profile_gaps.jsonl row count mismatch"
+            )
 
         gaps: list[PersistedProfileGap] = []
         seen_ids: set[str] = set()
+        try:
+            text = data.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            raise QueryToolError(
+                "current run profile_gaps.jsonl is not valid UTF-8"
+            ) from exc
         event_sources = {
             event_id: {
                 source_id
@@ -867,7 +909,7 @@ class QueryGraphStore:
             for event_id in self.event_ids
         }
         for line_number, line in enumerate(
-            resolved.read_text(encoding="utf-8").splitlines(),
+            text.splitlines(),
             start=1,
         ):
             if not line.strip():
@@ -890,6 +932,36 @@ class QueryGraphStore:
                 raise QueryToolError(
                     f"profile gap source is not bound to its event: {gap.profile_gap_id}"
                 )
+            if gap.source_id != self.manifest.get("source_id"):
+                raise QueryToolError(
+                    f"profile gap source is not the run advisory: {gap.profile_gap_id}"
+                )
+            decision_layer = self.manifest["formal_layers"]["decision"]
+            expected_profile = ValidationProfileRef(
+                profile_id=decision_layer["profile_id"],
+                profile_checksum=decision_layer["profile_checksum"],
+                layer="decision",
+            )
+            if gap.validation_profile != expected_profile:
+                raise QueryToolError(
+                    f"profile gap does not use the current decision profile: "
+                    f"{gap.profile_gap_id}"
+                )
+            guide = load_schema_guide()
+            event_class = self.event_class(gap.event_id)
+            predicate = {
+                "impacting_condition": "atm:impactingCondition",
+            }.get(gap.field)
+            if (
+                predicate is None
+                or gap.reason != "not_in_profile"
+                or not guide.has_property(predicate)
+                or guide.datatype_property_ok(predicate, event_class)
+            ):
+                raise QueryToolError(
+                    f"profile gap has invalid field or schema mapping: "
+                    f"{gap.profile_gap_id}"
+                )
             seen_ids.add(gap.profile_gap_id)
             gaps.append(gap)
         snapshots = self._load_profile_gap_snapshots(
@@ -900,10 +972,24 @@ class QueryGraphStore:
             if (
                 snapshot is None
                 or gap.source_snapshot_sha256 != snapshot.content_sha256
-                or gap.evidence_text not in snapshot.content
             ):
                 raise QueryToolError(
                     f"profile gap does not match the run snapshot: {gap.profile_gap_id}"
+                )
+            if snapshot.family.value != "atcscc_advisory":
+                raise QueryToolError(
+                    f"profile gap does not use an advisory source: {gap.profile_gap_id}"
+                )
+            mentions = parse_structured_fields(snapshot.content)
+            exact_value = getattr(mentions, gap.field, None)
+            exact_evidence = mentions.evidence_spans.get(gap.field)
+            if (
+                exact_value != gap.value
+                or exact_evidence != gap.evidence_text
+            ):
+                raise QueryToolError(
+                    f"profile gap lacks exact field-specific evidence: "
+                    f"{gap.profile_gap_id}"
                 )
         return gaps
 

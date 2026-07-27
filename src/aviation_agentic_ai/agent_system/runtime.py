@@ -13,6 +13,7 @@ and provider binding; nothing is shared across runs.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import time
 from collections.abc import Callable
@@ -241,6 +242,26 @@ def write_run_manifest(
     frozen_created_at = created_at if created_at is not None else datetime.now(UTC)
     if frozen_created_at.tzinfo is None or frozen_created_at.utcoffset() is None:
         raise ValueError("manifest created_at must be timezone-aware")
+    decision_layer = (formal_layers or {}).get("decision", {})
+    profile_gap_status = decision_layer.get(
+        "status",
+        "ok" if materialization is not None else "insufficient",
+    )
+    if profile_gap_status not in {"ok", "insufficient", "blocked"}:
+        raise ValueError("profile-gap artifact status is invalid")
+    profile_gap_path = run_dir / "profile_gaps.jsonl"
+    if not profile_gap_path.exists():
+        if profile_gap_count:
+            raise ValueError("profile-gap artifact is missing")
+        profile_gap_path.write_text("", encoding="utf-8")
+    profile_gap_data = profile_gap_path.read_bytes()
+    actual_profile_gap_count = sum(
+        1 for line in profile_gap_data.splitlines() if line.strip()
+    )
+    if actual_profile_gap_count != profile_gap_count:
+        raise ValueError("profile-gap artifact row count does not match validation")
+    if profile_gap_status != "ok" and actual_profile_gap_count:
+        raise ValueError("non-ok profile-gap artifact must be empty")
     manifest = {
         "manifest_version": RUN_MANIFEST_VERSION,
         "run_id": run_dir.name,
@@ -266,6 +287,8 @@ def write_run_manifest(
         "profile_gaps": {
             "path": "profile_gaps.jsonl",
             "count": profile_gap_count,
+            "sha256": hashlib.sha256(profile_gap_data).hexdigest(),
+            "status": profile_gap_status,
         },
         "context_artifacts": context_artifacts or {},
         "formal_layers": formal_layers or {},

@@ -1,9 +1,9 @@
 """Shared Agent contracts for the multi-Agent KG system (design §6).
 
-These are the small Pydantic shapes that cross Agent boundaries. They do NOT
-imply that LLMs must emit JSON. Graph Patch (§11.5) is the only model output
-contract for the KG Construction Agent; the Query Agent returns a natural-
-language answer plus source IDs.
+These are the small Pydantic shapes that cross Agent and deterministic
+publication boundaries. Decision Case Assembly emits the only graph
+publication proposal; the Query Agent returns a natural-language answer plus
+source IDs.
 
 Every accepted claim must carry ``source_id`` and ``evidence_text``. Missing
 evidence produces ``abstain`` (or ``profile_gap`` / ``blocked``), never a model
@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 
 class StrictModel(BaseModel):
@@ -95,7 +96,6 @@ class EvidenceCard(StrictModel):
         "advisory",
         "facility",
         "terminology",
-        "knowledge_graph_construction",
     ]
     status: AgentStatus
     claims: list[EvidenceClaim] = Field(default_factory=list)
@@ -104,6 +104,16 @@ class EvidenceCard(StrictModel):
     uncertainties: list[str] = Field(default_factory=list)
     tool_trace: list[ToolTraceEntry] = Field(default_factory=list)
     decision_basis: str = ""
+
+
+class ValidationProfileRef(StrictModel):
+    """Immutable identity of the validation profile that owns one publication."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    profile_id: str = Field(min_length=1)
+    profile_checksum: str = Field(min_length=64, max_length=64)
+    layer: Literal["decision", "weather", "public_operational_observation"]
 
 
 # ---------------------------------------------------------------------------
@@ -133,6 +143,8 @@ class ProfileGap(StrictModel):
     reason: str = Field(min_length=1)
     source_id: str | None = None
     source_snapshot_sha256: str | None = None
+    evidence_ref: str | None = None
+    validation_profile: ValidationProfileRef | None = None
 
 
 class GraphPatchBlock(StrictModel):
@@ -258,16 +270,6 @@ class AgentRunResult(StrictModel):
 # ---------------------------------------------------------------------------
 # Formal Graph Kernel contracts (design §13; plan §4.1, §5.4, §5.5)
 # ---------------------------------------------------------------------------
-
-
-class ValidationProfileRef(StrictModel):
-    """Immutable identity of the validation profile that owns one fact."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    profile_id: str = Field(min_length=1)
-    profile_checksum: str = Field(min_length=64, max_length=64)
-    layer: Literal["decision", "weather", "public_operational_observation"]
 
 
 class ValidatedFact(StrictModel):
@@ -676,6 +678,35 @@ class PersistedProfileGap(StrictModel):
     reason: str = Field(min_length=1)
     source_id: str = Field(min_length=1)
     source_snapshot_sha256: str = Field(min_length=1)
+    evidence_ref: str = Field(min_length=1)
+    validation_profile: ValidationProfileRef
+
+    @model_validator(mode="after")
+    def validate_publication_binding(self) -> "PersistedProfileGap":
+        expected_evidence_ref = stable_id(
+            "profile-gap-evidence",
+            self.source_id,
+            self.source_snapshot_sha256,
+            self.field,
+            self.value,
+            self.evidence_text,
+        )
+        if self.evidence_ref != expected_evidence_ref:
+            raise ValueError("profile gap evidence_ref is not stable")
+        expected_gap_id = stable_id(
+            "profile-gap",
+            self.event_id,
+            self.field,
+            self.value,
+            self.reason,
+            self.evidence_ref,
+            self.validation_profile.profile_id,
+            self.validation_profile.profile_checksum,
+            self.validation_profile.layer,
+        )
+        if self.profile_gap_id != expected_gap_id:
+            raise ValueError("profile gap ID is not stable")
+        return self
 
 
 class GraphValidationResult(StrictModel):

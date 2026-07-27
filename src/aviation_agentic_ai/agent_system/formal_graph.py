@@ -27,7 +27,7 @@ Graph-level constraints (plan §5.4 GroundStop):
 - the active allowed values for extension probability;
 - the active allowed values for impacting condition when present.
 
-Provenance (plan §4.2) is derived here, not from the KG Construction Agent:
+Provenance (plan §4.2) is derived here, not accepted from Assembly output:
 every accepted fact carries the source IDs and bound evidence texts.
 """
 
@@ -48,7 +48,6 @@ from aviation_agentic_ai.agent_system.contracts import (
     PersistedProfileGap,
     ProfileGap,
     RejectedFact,
-    SourceSnapshot,
     SourceSnapshotRegistry,
     ValidatedFact,
     ValidationProfileRef,
@@ -88,7 +87,7 @@ GROUND_STOP_REQUIRED: tuple[tuple[str, str], ...] = (
 
 def build_evidence_index(
     evidence_cards: list[EvidenceCard],
-    source_snapshot: SourceSnapshot | SourceSnapshotRegistry,
+    source_snapshot: SourceSnapshotRegistry,
 ) -> dict[str, list[EvidenceClaim]]:
     """Index ``source_id -> [EvidenceClaim, ...]`` (source-contained claims only).
 
@@ -98,7 +97,7 @@ def build_evidence_index(
     to the *specific* claim that supports it via :func:`_bind_claim`.
     """
 
-    registry = _snapshot_registry(source_snapshot)
+    registry = _validated_snapshot_registry(source_snapshot)
     if registry is None:
         return {}
     index: dict[str, list[EvidenceClaim]] = defaultdict(list)
@@ -118,19 +117,14 @@ def build_evidence_index(
     return dict(index)
 
 
-def _snapshot_registry(
-    source_snapshot: SourceSnapshot | SourceSnapshotRegistry,
+def _validated_snapshot_registry(
+    source_snapshot: SourceSnapshotRegistry,
 ) -> SourceSnapshotRegistry | None:
-    """Return a checksum-validated registry, preserving legacy input support."""
+    """Return a checksum-validated copy of the current snapshot registry."""
 
-    snapshots = (
-        source_snapshot.snapshots
-        if isinstance(source_snapshot, SourceSnapshotRegistry)
-        else (source_snapshot,)
-    )
     try:
-        return SourceSnapshotRegistry(snapshots=snapshots)
-    except ValueError:
+        return SourceSnapshotRegistry(snapshots=source_snapshot.snapshots)
+    except (AttributeError, ValueError):
         return None
 
 
@@ -263,7 +257,7 @@ def validate_graph_patch(
     canonical_entities: dict[str, str],
     known_source_ids: set[str],
     evidence_cards: list[EvidenceCard],
-    source_snapshot: SourceSnapshot | SourceSnapshotRegistry,
+    source_snapshot: SourceSnapshotRegistry,
     profile_registry: ValidationProfileRegistry | None = None,
 ) -> GraphValidationResult:
     """Run the Formal Graph Kernel over one parsed Graph Patch (plan §5.4).
@@ -284,7 +278,7 @@ def validate_graph_patch(
         ),
         "decision",
     )
-    snapshot_registry = _snapshot_registry(source_snapshot)
+    snapshot_registry = _validated_snapshot_registry(source_snapshot)
     snapshot_source_ids = (
         {snapshot.source_id for snapshot in snapshot_registry.snapshots}
         if snapshot_registry is not None
@@ -320,7 +314,14 @@ def validate_graph_patch(
     # profile gap is NOT a formal fact and NOT a rejected row; it is recorded
     # only when its evidence is a verbatim source substring, and it must not
     # enter the formal graph.
-    profile_gaps = _collect_profile_gaps(block, source_snapshot)
+    profile_gaps = _collect_profile_gaps(
+        block,
+        source_snapshot,
+        evidence_cards=evidence_cards,
+        validation_profile=decision_profile.ref,
+        schema_guide=schema_guide,
+        event_class=event_class,
+    )
 
     # Graph-level required-property/cardinality/enum enforcement for GroundStop.
     if event_class == "atm:GroundStopTMI":
@@ -338,35 +339,68 @@ def validate_graph_patch(
 
 def _collect_profile_gaps(
     block: GraphPatchBlock,
-    source_snapshot: SourceSnapshot | SourceSnapshotRegistry,
+    source_snapshot: SourceSnapshotRegistry,
+    *,
+    evidence_cards: list[EvidenceCard],
+    validation_profile: ValidationProfileRef,
+    schema_guide: SchemaGuide,
+    event_class: str,
 ) -> list[ProfileGap]:
-    """Return the parsed PROFILE_GAPS whose evidence is source-contained (§12).
+    """Return only profile-owned gaps with an exact field-specific claim.
 
     A profile gap records a source-supported field the active profile cannot
-    represent. Its evidence must be a verbatim source substring; gaps whose
-    evidence is not source-contained are dropped (they cannot be audited).
+    represent. Generic source containment is insufficient: the field, value,
+    evidence span, source, profile, and schema-mapping reason must all agree.
     """
 
-    registry = _snapshot_registry(source_snapshot)
+    registry = _validated_snapshot_registry(source_snapshot)
     if registry is None:
         return []
     gaps: list[ProfileGap] = []
     for gap in block.profile_gaps:
-        matches = [
-            snapshot
-            for snapshot in registry.snapshots
-            if gap.evidence and gap.evidence in snapshot.content
+        predicate = {
+            "impacting_condition": "atm:impactingCondition",
+        }.get(gap.field)
+        if (
+            predicate is None
+            or gap.reason != "not_in_profile"
+            or not schema_guide.has_property(predicate)
+            or schema_guide.datatype_property_ok(predicate, event_class)
+        ):
+            continue
+        matching_claims = [
+            claim
+            for card in evidence_cards
+            for claim in card.claims
+            if claim.field_name == gap.field
+            and claim.value == gap.value
+            and claim.evidence_text == gap.evidence
+            and (snapshot := registry.get(claim.source_id)) is not None
+            and claim.evidence_text in snapshot.content
         ]
-        if len(matches) == 1:
-            snapshot = matches[0]
-            gaps.append(
-                gap.model_copy(
-                    update={
-                        "source_id": snapshot.source_id,
-                        "source_snapshot_sha256": snapshot.content_sha256,
-                    }
-                )
+        if len(matching_claims) != 1:
+            continue
+        claim = matching_claims[0]
+        snapshot = registry.get(claim.source_id)
+        assert snapshot is not None
+        evidence_ref = stable_id(
+            "profile-gap-evidence",
+            claim.source_id,
+            snapshot.content_sha256,
+            gap.field,
+            gap.value,
+            gap.evidence,
+        )
+        gaps.append(
+            gap.model_copy(
+                update={
+                    "source_id": snapshot.source_id,
+                    "source_snapshot_sha256": snapshot.content_sha256,
+                    "evidence_ref": evidence_ref,
+                    "validation_profile": validation_profile,
+                }
             )
+        )
     return gaps
 
 
@@ -699,7 +733,7 @@ def write_fact_trace(
     result: GraphValidationResult,
     block: GraphPatchBlock,
     evidence_cards: list[EvidenceCard],
-    source_snapshot: SourceSnapshot | SourceSnapshotRegistry,
+    source_snapshot: SourceSnapshotRegistry,
     output_dir: str | Path,
 ) -> Path:
     """Write ``fact_trace.jsonl``, one row per accepted fact (plan §5.5, §11.3).
@@ -719,7 +753,7 @@ def write_fact_trace(
     for line in block.patch_lines:
         fact_id = stable_id("fact", line.subject, line.predicate, line.object.strip())
         line_by_fact[fact_id] = _line_text(line)
-    registry = _snapshot_registry(source_snapshot)
+    registry = _validated_snapshot_registry(source_snapshot)
     if registry is None:
         path.write_text("", encoding="utf-8")
         return path
@@ -781,7 +815,7 @@ def write_profile_gaps(
     *,
     result: GraphValidationResult,
     event_id: str,
-    source_snapshot: SourceSnapshot | SourceSnapshotRegistry,
+    source_snapshot: SourceSnapshotRegistry,
     output_dir: str | Path,
 ) -> Path:
     """Persist validated profile gaps without promoting them to graph facts."""
@@ -789,7 +823,12 @@ def write_profile_gaps(
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
     path = out / "profile_gaps.jsonl"
-    registry = _snapshot_registry(source_snapshot)
+    registry = _validated_snapshot_registry(source_snapshot)
+    persisted_event_id = (
+        f"urn:aviation-agentic-ai:event:{event_id.removeprefix('evt:')}"
+        if event_id.startswith("evt:")
+        else event_id
+    )
     rows: list[str] = []
     for gap in result.profile_gaps:
         snapshot = registry.get(gap.source_id) if registry and gap.source_id else None
@@ -797,24 +836,31 @@ def write_profile_gaps(
             snapshot is None
             or gap.source_snapshot_sha256 != snapshot.content_sha256
             or gap.evidence not in snapshot.content
+            or gap.evidence_ref is None
+            or gap.validation_profile is None
         ):
             continue
         row = PersistedProfileGap(
             profile_gap_id=stable_id(
                 "profile-gap",
-                event_id,
+                persisted_event_id,
                 gap.field,
                 gap.value,
-                gap.evidence,
-                snapshot.source_id,
+                gap.reason,
+                gap.evidence_ref,
+                gap.validation_profile.profile_id,
+                gap.validation_profile.profile_checksum,
+                gap.validation_profile.layer,
             ),
-            event_id=event_id,
+            event_id=persisted_event_id,
             field=gap.field,
             value=gap.value,
             evidence_text=gap.evidence,
             reason=gap.reason,
             source_id=snapshot.source_id,
             source_snapshot_sha256=snapshot.content_sha256,
+            evidence_ref=gap.evidence_ref,
+            validation_profile=gap.validation_profile,
         )
         rows.append(row.model_dump_json())
     path.write_text("\n".join(rows) + ("\n" if rows else ""), encoding="utf-8")

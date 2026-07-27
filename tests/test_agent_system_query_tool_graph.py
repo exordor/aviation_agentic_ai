@@ -57,6 +57,7 @@ from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
 )
+from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 _REAL_QUERY_CONTEXT_STORE = query_tool_graph_module.QueryContextStore
 
@@ -355,6 +356,17 @@ def _write_graph(
         **existing_manifest,
         "manifest_version": "decision-case-run-v1",
         "run_id": run_dir.name,
+        "source_id": next(
+            iter(
+                sorted(
+                    {
+                        source_id
+                        for row in payload
+                        for source_id in row["source_ids"]
+                    }
+                )
+            )
+        ),
         "materialization": {
             "materialized": True,
             "fact_count": len(payload),
@@ -376,6 +388,16 @@ def _write_graph(
         "formal_layers": formal_layers,
         "context_artifacts": context_artifacts,
     }
+    profile_gap_path = run_dir / "profile_gaps.jsonl"
+    if not profile_gap_path.exists():
+        profile_gap_path.write_text("", encoding="utf-8")
+    profile_gap_data = profile_gap_path.read_bytes()
+    manifest["profile_gaps"] = {
+        "path": "profile_gaps.jsonl",
+        "count": sum(1 for line in profile_gap_data.splitlines() if line.strip()),
+        "sha256": hashlib.sha256(profile_gap_data).hexdigest(),
+        "status": formal_layers["decision"]["status"],
+    }
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
 
 
@@ -384,8 +406,7 @@ def _write_profile_gap(
     *,
     event_id: str = EVENT_ID,
     source_id: str = SOURCE_ID,
-    profile_gap_id: str = "profile-gap:reason",
-) -> None:
+) -> str:
     evidence = "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
     registry = SourceSnapshotRegistry.read_jsonl(
         run_dir / "source_snapshots.jsonl"
@@ -395,20 +416,54 @@ def _write_profile_gap(
         raise AssertionError(
             f"fixture has no current snapshot for profile gap: {source_id}"
         )
+    profile = PROFILE_BY_LAYER["decision"]
+    evidence_ref = stable_id(
+        "profile-gap-evidence",
+        source_id,
+        registered.content_sha256,
+        "impacting_condition",
+        "weather",
+        evidence,
+    )
+    profile_gap_id = stable_id(
+        "profile-gap",
+        event_id,
+        "impacting_condition",
+        "weather",
+        "not_in_profile",
+        evidence_ref,
+        profile.profile_id,
+        profile.profile_checksum,
+        profile.layer,
+    )
     gap = PersistedProfileGap(
         profile_gap_id=profile_gap_id,
         event_id=event_id,
         field="impacting_condition",
         value="weather",
         evidence_text=evidence,
-        reason="atm:impactingCondition domain is GDP-only in the active slice",
+        reason="not_in_profile",
         source_id=source_id,
         source_snapshot_sha256=registered.content_sha256,
+        evidence_ref=evidence_ref,
+        validation_profile=profile,
     )
-    (run_dir / "profile_gaps.jsonl").write_text(
+    profile_gap_path = run_dir / "profile_gaps.jsonl"
+    profile_gap_path.write_text(
         gap.model_dump_json() + "\n",
         encoding="utf-8",
     )
+    profile_gap_data = profile_gap_path.read_bytes()
+    manifest_path = run_dir / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["profile_gaps"] = {
+        "path": "profile_gaps.jsonl",
+        "count": 1,
+        "sha256": hashlib.sha256(profile_gap_data).hexdigest(),
+        "status": "ok",
+    }
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    return profile_gap_id
 
 
 def _artifact(
@@ -2285,7 +2340,7 @@ def test_weather_context_never_changes_the_three_reason_states(tmp_path):
     ground_stop = tmp_path / "ground-stop"
     _write_graph(ground_stop)
     _write_query_context(ground_stop)
-    _write_profile_gap(ground_stop)
+    ground_stop_gap_id = _write_profile_gap(ground_stop)
     ground_stop_factory = _Factory(_ScriptedModel([]))
     ground_stop_outcome = answer_question_with_tools(
         run_dir=ground_stop,
@@ -2294,7 +2349,7 @@ def test_weather_context_never_changes_the_three_reason_states(tmp_path):
     )
     assert ground_stop_outcome.status == "ok"
     assert ground_stop_outcome.retrieved_profile_gap_ids == [
-        "profile-gap:reason"
+        ground_stop_gap_id
     ]
     assert ground_stop_outcome.retrieved_fact_ids == []
 
@@ -2348,7 +2403,7 @@ def test_weather_context_never_changes_the_three_reason_states(tmp_path):
 
 def test_ground_stop_reason_uses_profile_gap_without_model_call(tmp_path):
     _write_graph(tmp_path)
-    _write_profile_gap(tmp_path)
+    profile_gap_id = _write_profile_gap(tmp_path)
     factory = _Factory(_ScriptedModel([]))
 
     outcome = answer_question_with_tools(
@@ -2361,7 +2416,7 @@ def test_ground_stop_reason_uses_profile_gap_without_model_call(tmp_path):
     assert "IMPACTING CONDITION: WEATHER / THUNDERSTORMS" in outcome.answer
     assert "outside the active formal profile" in outcome.answer
     assert outcome.retrieved_fact_ids == []
-    assert outcome.retrieved_profile_gap_ids == ["profile-gap:reason"]
+    assert outcome.retrieved_profile_gap_ids == [profile_gap_id]
     assert outcome.source_ids == [SOURCE_ID]
     assert outcome.model_calls == []
     assert factory.calls == 0
@@ -2430,6 +2485,83 @@ def test_missing_reason_is_insufficient_before_model_construction(tmp_path):
     assert factory.calls == 0
 
 
+def test_generic_source_substring_cannot_forge_missing_reason_profile_gap(tmp_path):
+    source_id = "2026-05-20:020"
+    evidence_text = "SIGNATURE: 26/05/20 01:24"
+    rows = _graph_rows()
+    for row in rows:
+        row["source_document"] = source_id
+        row["evidence_text"] = evidence_text
+    snapshot = SourceSnapshot(
+        source_id=source_id,
+        family=SourceFamily.ATCSCC_ADVISORY,
+        content=evidence_text,
+        content_sha256=hashlib.sha256(evidence_text.encode()).hexdigest(),
+        snapshot_timestamp="2026-05-20T01:24:00+00:00",
+    )
+    _write_graph(tmp_path, rows, snapshots=(snapshot,))
+    profile = PROFILE_BY_LAYER["decision"]
+    evidence_ref = stable_id(
+        "profile-gap-evidence",
+        source_id,
+        snapshot.content_sha256,
+        "impacting_condition",
+        "forged-reason",
+        evidence_text,
+    )
+    profile_gap_id = stable_id(
+        "profile-gap",
+        EVENT_ID,
+        "impacting_condition",
+        "forged-reason",
+        "not_in_profile",
+        evidence_ref,
+        profile.profile_id,
+        profile.profile_checksum,
+        profile.layer,
+    )
+    forged = PersistedProfileGap(
+        profile_gap_id=profile_gap_id,
+        event_id=EVENT_ID,
+        field="impacting_condition",
+        value="forged-reason",
+        evidence_text=evidence_text,
+        reason="not_in_profile",
+        source_id=source_id,
+        source_snapshot_sha256=snapshot.content_sha256,
+        evidence_ref=evidence_ref,
+        validation_profile=profile,
+    )
+    profile_gap_path = tmp_path / "profile_gaps.jsonl"
+    profile_gap_path.write_text(
+        forged.model_dump_json() + "\n",
+        encoding="utf-8",
+    )
+    manifest_path = tmp_path / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    profile_gap_data = profile_gap_path.read_bytes()
+    manifest["profile_gaps"] = {
+        "path": "profile_gaps.jsonl",
+        "count": 1,
+        "sha256": hashlib.sha256(profile_gap_data).hexdigest(),
+        "status": "ok",
+    }
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    factory = _Factory(_ScriptedModel([]))
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=DECLARED_REASON_QUESTION,
+        model_factory=factory,
+    )
+
+    assert outcome.status == "blocked"
+    assert "exact field-specific evidence" in outcome.failure_reason
+    assert outcome.retrieved_profile_gap_ids == []
+    assert outcome.model_calls == []
+    assert factory.calls == 0
+
+
 def test_operational_period_question_uses_only_time_predicates(tmp_path):
     _write_graph(tmp_path)
     factory = _Factory(_ScriptedModel([]))
@@ -2486,6 +2618,16 @@ def test_malformed_or_duplicate_profile_gap_artifact_blocks_before_model(tmp_pat
         path.read_text(encoding="utf-8") * 2,
         encoding="utf-8",
     )
+    manifest_path = tmp_path / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    data = path.read_bytes()
+    manifest["profile_gaps"].update(
+        {
+            "count": 2,
+            "sha256": hashlib.sha256(data).hexdigest(),
+        }
+    )
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
     factory = _Factory(_ScriptedModel([]))
 
     outcome = answer_question_with_tools(
@@ -2496,6 +2638,33 @@ def test_malformed_or_duplicate_profile_gap_artifact_blocks_before_model(tmp_pat
 
     assert outcome.status == "blocked"
     assert "duplicate profile-gap ID" in outcome.failure_reason
+    assert factory.calls == 0
+
+
+def test_non_utf8_profile_gap_artifact_blocks_before_model(tmp_path):
+    _write_graph(tmp_path)
+    path = tmp_path / "profile_gaps.jsonl"
+    data = b"\xff\n"
+    path.write_bytes(data)
+    manifest_path = tmp_path / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["profile_gaps"].update(
+        {
+            "count": 1,
+            "sha256": hashlib.sha256(data).hexdigest(),
+        }
+    )
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    factory = _Factory(_ScriptedModel([]))
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=DECLARED_REASON_QUESTION,
+        model_factory=factory,
+    )
+
+    assert outcome.status == "blocked"
+    assert "UTF-8" in outcome.failure_reason
     assert factory.calls == 0
 
 

@@ -7,8 +7,6 @@ import json
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, cast
-
 import pytest
 
 import aviation_agentic_ai.agent_system.context_artifacts as context_artifacts_module
@@ -21,9 +19,15 @@ from aviation_agentic_ai.agent_system.context_artifacts import (
     read_outcome_summaries,
     read_weather_fact_traces,
 )
-from aviation_agentic_ai.agent_system.authority_resolution import AuthorityResolutionResult
+from aviation_agentic_ai.agent_system.authority_evidence import AuthorityBuildStatus
+from aviation_agentic_ai.agent_system.authority_resolution import (
+    AuthorityResolutionResult,
+    FacilityAuthorityResolutionInput,
+    resolve_facility_authority,
+)
 from aviation_agentic_ai.agent_system.contracts import (
     AgentStatus,
+    AgentTask,
     BTSObservationBundle,
     EvidenceCard,
     EvidenceClaim,
@@ -34,8 +38,10 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceRecord,
     ValidatedFact,
 )
+from aviation_agentic_ai.agent_system.decision_case_contracts import stable_contract_id
 from aviation_agentic_ai.agent_system.materialize import materialize_validated_facts
 from aviation_agentic_ai.agent_system.runtime import write_run_manifest
+from aviation_agentic_ai.agent_system.query_tool_graph import answer_question_with_tools
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
@@ -66,6 +72,7 @@ from aviation_agentic_ai.cross_source.contracts import (
     CodeValue,
     EntityType,
 )
+from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 
 ATM = "https://data.nasa.gov/ontologies/atmonto/ATM#"
@@ -99,6 +106,15 @@ DECISION_PROFILE_REF = next(
     for ref in load_validation_profile_registry(decision_guide=load_schema_guide()).refs
     if ref.layer == "decision"
 )
+
+
+class _NoDeterministicModelFactory:
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def __call__(self, tools):
+        self.calls += 1
+        raise AssertionError("deterministic canonical cases must not construct a model")
 
 
 def _fact(
@@ -197,7 +213,43 @@ def _core_facts(
 def _facility_authority_result(
     facility: CanonicalEntity, source_id: str
 ) -> AuthorityResolutionResult:
-    return AuthorityResolutionResult(
+    run_id = f"fixture:{source_id}:{facility.entity_id}"
+    mention = facility.codes[0].value
+    guide = load_schema_guide()
+    result = resolve_facility_authority(
+        task=AgentTask(
+            run_id=run_id,
+            source_id=source_id,
+            objective="build a contract-valid context fixture",
+            allowed_tools=[
+                "lookup_nasr_facility",
+                "lookup_artcc",
+                "resolve_facility_alias",
+            ],
+        ),
+        request=FacilityAuthorityResolutionInput(
+            mention=mention,
+            source_id=source_id,
+            structural_slot="controlled_nas_element",
+            expected_entity_type="airport",
+            advisory_evidence="source-bound core evidence",
+            resolution_event_mention=mention,
+            resolution_event_id=stable_contract_id(
+                "resolution-event",
+                run_id,
+                source_id,
+                mention.upper(),
+            ),
+            run_started_at=datetime(2026, 7, 27, 12, 0, tzinfo=UTC),
+            schema_slice_id=guide.schema_slice_id,
+            schema_snapshot_sha256=guide.checksum,
+            resolution_tool_version="authority-resolution-v1",
+            authority_domain_status=AuthorityBuildStatus.INSUFFICIENT,
+            authority_domain_reason_code="FIXTURE_HAS_NO_AUTHORITY_CANDIDATE",
+        ),
+    )
+    return replace(
+        result,
         evidence_card=EvidenceCard(
             agent_role="facility",
             status=AgentStatus.RESOLVED,
@@ -206,7 +258,7 @@ def _facility_authority_result(
             claims=[
                 EvidenceClaim(
                     field_name="controlled_facility",
-                    value=facility.codes[0].value,
+                    value=mention,
                     ontology_target="nas:Airport",
                     evidence_text="source-bound core evidence",
                     source_id=source_id,
@@ -214,10 +266,6 @@ def _facility_authority_result(
                 )
             ],
         ),
-        domain_outcome=cast(Any, None),
-        authority_source_records=(),
-        resolution_task=cast(Any, None),
-        resolution_proposal=cast(Any, None),
     )
 
 
@@ -682,15 +730,41 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     )
     _write_core_fact_trace(tmp_path, facts, advisory_registry)
     if source_id.endswith(":123"):
+        evidence = "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
+        snapshot = advisory_registry.snapshots[0]
+        evidence_ref = stable_id(
+            "profile-gap-evidence",
+            source_id,
+            snapshot.content_sha256,
+            "impacting_condition",
+            "weather",
+            evidence,
+        )
+        persisted_event_id = (
+            "urn:aviation-agentic-ai:event:"
+            f"{event_id.removeprefix('evt:')}"
+        )
         gap = PersistedProfileGap(
-            profile_gap_id="gap:reason:123",
-            event_id=f"urn:aviation-agentic-ai:event:{event_id.removeprefix('evt:')}",
+            profile_gap_id=stable_id(
+                "profile-gap",
+                persisted_event_id,
+                "impacting_condition",
+                "weather",
+                "not_in_profile",
+                evidence_ref,
+                DECISION_PROFILE_REF.profile_id,
+                DECISION_PROFILE_REF.profile_checksum,
+                DECISION_PROFILE_REF.layer,
+            ),
+            event_id=persisted_event_id,
             field="impacting_condition",
             value="weather",
-            evidence_text="IMPACTING CONDITION: WEATHER / THUNDERSTORMS",
-            reason="Ground Stop reason is outside the active profile",
+            evidence_text=evidence,
+            reason="not_in_profile",
             source_id=source_id,
-            source_snapshot_sha256=advisory_registry.snapshots[0].content_sha256,
+            source_snapshot_sha256=snapshot.content_sha256,
+            evidence_ref=evidence_ref,
+            validation_profile=DECISION_PROFILE_REF,
         )
         (tmp_path / "profile_gaps.jsonl").write_text(gap.model_dump_json() + "\n", encoding="utf-8")
 
@@ -863,7 +937,9 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     )
 
     if source_id.endswith(":123"):
-        assert "gap:reason:123" in (tmp_path / "profile_gaps.jsonl").read_text(encoding="utf-8")
+        assert gap.profile_gap_id in (
+            tmp_path / "profile_gaps.jsonl"
+        ).read_text(encoding="utf-8")
     if source_id.endswith(":020"):
         assert not reasons
 
@@ -929,6 +1005,196 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
             "decision": len(facts),
             "weather": len(insufficient["weather_context"].formal_facts),
         }
+
+
+@pytest.mark.parametrize(
+    (
+        "source_id",
+        "facility_code",
+        "start",
+        "end",
+        "reason_state",
+        "active_counts",
+    ),
+    [
+        (
+            "2026-05-19:123",
+            "KJFK",
+            "2026-05-19T21:00:00Z",
+            "2026-05-19T22:45:00Z",
+            "profile_gap",
+            (20, 18, 2, 0),
+        ),
+        (
+            "2026-05-19:138",
+            "KJFK",
+            "2026-05-19T22:05:00Z",
+            "2026-05-20T02:59:00Z",
+            "formal_weather",
+            (77, 68, 4, 5),
+        ),
+        (
+            "2026-05-20:020",
+            "KEWR",
+            "2026-05-20T01:24:00Z",
+            "2026-05-20T05:46:00Z",
+            "missing",
+            (50, 49, 1, 0),
+        ),
+    ],
+)
+def test_current_authority_to_query_chain_preserves_all_three_cases(
+    tmp_path,
+    config,
+    weather_sources,
+    bts_context,
+    source_id,
+    facility_code,
+    start,
+    end,
+    reason_state,
+    active_counts,
+):
+    from test_agent_system_authority_evidence import _catalog
+
+    advisory = load_advisory_source(config, source_id)
+    bts_source, bts_rows, bts_binding = bts_context
+    semantic_factory = _NoDeterministicModelFactory()
+    assembly_factory = _NoDeterministicModelFactory()
+    query_factory = _NoDeterministicModelFactory()
+    ctx = IngestContext(
+        advisory=advisory,
+        facility_candidates=[FACILITIES[facility_code]],
+        weather_sources=weather_sources,
+        bts_rows=bts_rows,
+        bts_source=bts_source,
+        bts_manifest_binding=bts_binding,
+        authority_catalog=_catalog(tmp_path),
+        semantic_resolution_tool_model_factory=semantic_factory,
+        case_assembly_model_factory=assembly_factory,
+        run_started_at=datetime(2026, 7, 27, 12, 0, tzinfo=UTC),
+        run_id=f"run:{source_id}",
+        output_dir=str(tmp_path),
+    )
+
+    state = run_ingest(ctx)
+    materialization = state["materialization"]
+    validation = state["validation"]
+    evidence_cards = [
+        getattr(result, "evidence_card", result)
+        for result in (
+            state["advisory_evidence"],
+            state["facility_authority_result"],
+            state["terminology_authority_result"],
+        )
+    ]
+    guide = load_schema_guide()
+    write_run_manifest(
+        run_dir=tmp_path,
+        source_id=source_id,
+        model_calls=state["model_calls"],
+        materialization=materialization,
+        schema_slice_id=guide.schema_slice_id,
+        schema_checksum=guide.checksum,
+        evidence_cards=evidence_cards,
+        graph_patch_raw=state["assembly_graph_patch"].raw,
+        prompt_set_id="aviation-decision-case-agents-v1",
+        profile_gap_count=len(validation.profile_gaps),
+        context_artifacts=state["context_artifacts"],
+        formal_layers=state["formal_layers"],
+        public_observation_publication=state["public_observation_publication"],
+        created_at=ctx.run_started_at,
+    )
+
+    assert state["case_assembly_task"] is not None
+    assert state["case_assembly_proposal"] is not None
+    assert validation.publishable
+    assert materialization is not None
+    assert state["model_calls"] == []
+    assert semantic_factory.calls == 0
+    assert assembly_factory.calls == 0
+
+    event_facts = [
+        fact
+        for fact in validation.accepted
+        if fact.subject_iri == state["event_uri"]
+    ]
+    facility_fact = next(
+        fact for fact in event_facts if fact.predicate_iri.endswith("controlledNASelement")
+    )
+    assert facility_fact.object_value == FACILITIES[facility_code].entity_id
+    period = {
+        fact.predicate_iri.rsplit("#", 1)[-1]: fact.object_value
+        for fact in event_facts
+        if fact.predicate_iri.endswith(("effectiveStartTime", "effectiveEndTime"))
+    }
+    assert period == {
+        "effectiveStartTime": start,
+        "effectiveEndTime": end,
+    }
+    reason_facts = [
+        fact for fact in event_facts if fact.predicate_iri.endswith("impactingCondition")
+    ]
+    if reason_state == "formal_weather":
+        assert [fact.object_value for fact in reason_facts] == ["weather"]
+        assert reason_facts[0].evidence_texts == [
+            "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
+        ]
+        assert reason_facts[0].evidence_texts[0].endswith("THUNDERSTORMS")
+    else:
+        assert reason_facts == []
+    if reason_state == "profile_gap":
+        assert len(validation.profile_gaps) == 1
+        assert validation.profile_gaps[0].field == "impacting_condition"
+    else:
+        assert validation.profile_gaps == []
+
+    active = next(
+        summary
+        for summary in state["outcome_context"].summaries
+        if summary.phase == "active"
+    )
+    assert (
+        active.scheduled_arrival_count,
+        active.completed_arrival_count,
+        active.cancelled_count,
+        active.diverted_count,
+    ) == active_counts
+
+    manifest = json.loads((tmp_path / "run_manifest.json").read_text(encoding="utf-8"))
+    profile_gap_bytes = (tmp_path / "profile_gaps.jsonl").read_bytes()
+    persisted_gaps = [
+        PersistedProfileGap.model_validate_json(line)
+        for line in profile_gap_bytes.decode("utf-8").splitlines()
+        if line.strip()
+    ]
+    assert manifest["manifest_version"] == "decision-case-run-v1"
+    assert manifest["profile_gaps"] == {
+        "path": "profile_gaps.jsonl",
+        "count": 1 if reason_state == "profile_gap" else 0,
+        "sha256": hashlib.sha256(profile_gap_bytes).hexdigest(),
+        "status": "ok",
+    }
+    assert manifest["formal_layers"]["decision"]["status"] == "ok"
+    assert source_id in {
+        snapshot.source_id for snapshot in state["source_snapshot"].snapshots
+    }
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question="What reason was declared for this traffic management initiative?",
+        model_factory=query_factory,
+    )
+    assert outcome.status == (
+        "insufficient" if reason_state == "missing" else "ok"
+    ), outcome.failure_reason
+    assert outcome.retrieved_profile_gap_ids == (
+        [persisted_gaps[0].profile_gap_id]
+        if reason_state == "profile_gap"
+        else []
+    )
+    assert outcome.model_calls == []
+    assert query_factory.calls == 0
 
 
 def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_artifacts(

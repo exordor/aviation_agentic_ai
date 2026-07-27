@@ -40,6 +40,7 @@ from aviation_agentic_ai.agent_system.workflow import (
     AuthoritySourceRegistryStatus,
     merge_authority_source_records,
 )
+from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 
 def _record(source_id: str, family: SourceFamily, content: str) -> SourceRecord:
@@ -55,6 +56,14 @@ DECISION_PROFILE_REF = next(
 )
 PROFILE_REGISTRY = load_validation_profile_registry(
     decision_guide=load_schema_guide()
+)
+ADVISORY_CONTENT = (
+    "ATCSCC ADVZY 123 JFK/ZNY 05/19/2026 CDM GROUND STOP\n"
+    "MESSAGE:\n"
+    "CTL ELEMENT: JFK ELEMENT TYPE: APT ADL TIME: 2135Z "
+    "GROUND STOP PERIOD: 19/2100Z - 19/2245Z "
+    "PROBABILITY OF EXTENSION: MEDIUM "
+    "IMPACTING CONDITION: WEATHER / THUNDERSTORMS COMMENTS:\n"
 )
 
 
@@ -85,6 +94,56 @@ def _artifact_metadata(
     }
 
 
+def _profile_gap(
+    snapshot: contracts.SourceSnapshot,
+    *,
+    event_id: str = "urn:aviation-agentic-ai:event:1",
+) -> PersistedProfileGap:
+    evidence = "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
+    evidence_ref = stable_id(
+        "profile-gap-evidence",
+        snapshot.source_id,
+        snapshot.content_sha256,
+        "impacting_condition",
+        "weather",
+        evidence,
+    )
+    profile_gap_id = stable_id(
+        "profile-gap",
+        event_id,
+        "impacting_condition",
+        "weather",
+        "not_in_profile",
+        evidence_ref,
+        DECISION_PROFILE_REF.profile_id,
+        DECISION_PROFILE_REF.profile_checksum,
+        DECISION_PROFILE_REF.layer,
+    )
+    return PersistedProfileGap(
+        profile_gap_id=profile_gap_id,
+        event_id=event_id,
+        field="impacting_condition",
+        value="weather",
+        evidence_text=evidence,
+        reason="not_in_profile",
+        source_id=snapshot.source_id,
+        source_snapshot_sha256=snapshot.content_sha256,
+        evidence_ref=evidence_ref,
+        validation_profile=DECISION_PROFILE_REF,
+    )
+
+
+def _write_profile_gap(run_dir, snapshot: contracts.SourceSnapshot) -> str:
+    gap = _profile_gap(snapshot)
+    path = run_dir / "profile_gaps.jsonl"
+    path.write_text(gap.model_dump_json() + "\n", encoding="utf-8")
+    manifest_path = run_dir / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["profile_gaps"] = _artifact_metadata(path)
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    return gap.profile_gap_id
+
+
 def _write_current_query_run(
     run_dir,
     *,
@@ -96,7 +155,7 @@ def _write_current_query_run(
         _record(
             "advisory:1",
             SourceFamily.ATCSCC_ADVISORY,
-            "GROUND STOP",
+            ADVISORY_CONTENT,
         )
     )
     graph_path = run_dir / "kg.jsonl"
@@ -160,6 +219,8 @@ def _write_current_query_run(
             snapshots=[snapshot]
         ).write_jsonl(run_dir)
         context_artifacts["source_snapshots"] = _artifact_metadata(registry_path)
+    profile_gap_path = run_dir / "profile_gaps.jsonl"
+    profile_gap_path.write_text("", encoding="utf-8")
     layers = {}
     for profile in PROFILE_REGISTRY.profiles:
         layers[profile.ref.layer] = {
@@ -177,6 +238,7 @@ def _write_current_query_run(
             {
                 "manifest_version": "decision-case-run-v1",
                 "run_id": run_dir.name,
+                "source_id": snapshot.source_id,
                 "materialization": {
                     "materialized": True,
                     "fact_count": 1,
@@ -188,6 +250,7 @@ def _write_current_query_run(
                 },
                 "formal_layers": layers,
                 "context_artifacts": context_artifacts,
+                "profile_gaps": _artifact_metadata(profile_gap_path),
             },
             sort_keys=True,
         ),
@@ -224,16 +287,7 @@ def test_profile_gap_requires_registered_jsonl_snapshot(tmp_path):
 
     snapshot = _write_current_query_run(tmp_path, write_registry=False)
     (tmp_path / "profile_gaps.jsonl").write_text(
-        PersistedProfileGap(
-            profile_gap_id="gap:1",
-            event_id="urn:aviation-agentic-ai:event:1",
-            field="measure",
-            value="ground_stop",
-            evidence_text="GROUND STOP",
-            reason="not admitted by the active profile",
-            source_id=snapshot.source_id,
-            source_snapshot_sha256=snapshot.content_sha256,
-        ).model_dump_json()
+        _profile_gap(snapshot).model_dump_json()
         + "\n",
         encoding="utf-8",
     )
@@ -479,8 +533,8 @@ def test_registered_authority_snapshot_alone_creates_no_event_evidence():
     assert build_evidence_index([], registry) == {}
 
 
-def test_evidence_index_rejects_a_snapshot_with_a_bad_checksum():
-    """Legacy single-snapshot input also fails closed when its checksum is forged."""
+def test_evidence_index_rejects_a_registry_with_a_bad_snapshot_checksum():
+    """The current registry contract fails closed when a checksum is forged."""
 
     snapshot = build_source_snapshot(
         _record("advisory:1", SourceFamily.ATCSCC_ADVISORY, "GROUND STOP")
@@ -498,32 +552,25 @@ def test_evidence_index_rejects_a_snapshot_with_a_bad_checksum():
         ],
     )
 
-    assert build_evidence_index([card], snapshot) == {}
+    forged_registry = contracts.SourceSnapshotRegistry.model_construct(
+        snapshots=(snapshot,),
+        expected_families={},
+    )
+
+    assert build_evidence_index([card], forged_registry) == {}
 
 
 def test_query_store_reads_canonical_multisource_snapshot_artifact(tmp_path):
     """A new-run profile gap validates against its named JSONL source snapshot."""
 
     snapshot = _write_current_query_run(tmp_path)
-    event_id = "urn:aviation-agentic-ai:event:1"
-    (tmp_path / "profile_gaps.jsonl").write_text(
-        PersistedProfileGap(
-            profile_gap_id="gap:1",
-            event_id=event_id,
-            field="measure",
-            value="ground_stop",
-            evidence_text="GROUND STOP",
-            reason="not in the active profile",
-            source_id=snapshot.source_id,
-            source_snapshot_sha256=snapshot.content_sha256,
-        ).model_dump_json()
-        + "\n",
-        encoding="utf-8",
-    )
+    profile_gap_id = _write_profile_gap(tmp_path, snapshot)
 
     store = QueryGraphStore(tmp_path)
 
-    assert [gap.profile_gap_id for gap in store.profile_gaps] == ["gap:1"]
+    assert [gap.profile_gap_id for gap in store.profile_gaps] == [
+        profile_gap_id
+    ]
 
 
 def test_source_snapshot_registry_builds_from_records_and_writes_new_run_artifact(tmp_path):
