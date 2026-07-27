@@ -1449,7 +1449,11 @@ def run_kg_construction_agent(
             evidence_card=card,
             failure_reason="no accepted event evidence sources are available",
         )
-    known = _known_canonical_entities(inputs.facility_card, inputs.guide)
+    known = _known_canonical_entities(
+        inputs.facility_card,
+        inputs.guide,
+        allowed_source_ids=set(allowed),
+    )
     if tool_model_factory is None:
         card = EvidenceCard(
             agent_role="knowledge_graph_construction",
@@ -1496,12 +1500,21 @@ def run_kg_construction_agent(
     )
 
 
-def _known_canonical_entities(facility_card: EvidenceCard, guide: SchemaGuide) -> dict[str, str]:
+def _known_canonical_entities(
+    facility_card: EvidenceCard,
+    guide: SchemaGuide,
+    *,
+    allowed_source_ids: set[str],
+) -> dict[str, str]:
     """Map resolved canonical facility ids -> ontology class for the patch."""
 
     entities: dict[str, str] = {}
     for claim in facility_card.claims:
-        if claim.canonical_ref and claim.ontology_target:
+        if (
+            claim.source_id in allowed_source_ids
+            and claim.canonical_ref
+            and claim.ontology_target
+        ):
             entities[claim.canonical_ref] = claim.ontology_target
     return entities
 

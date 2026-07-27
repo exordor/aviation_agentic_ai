@@ -31,6 +31,7 @@ SOURCE_ID = "example:001"
 EVENT_URI = "urn:example:event:001"
 EVENT_CLASS = "atm:GroundStopTMI"
 FACILITY_ID = "urn:example:facility:airport:KZZQ"
+AUTHORITY_ONLY_FACILITY_ID = "urn:authority:facility:airport:KZZQ"
 
 
 class _ScriptedToolModel:
@@ -323,6 +324,74 @@ def test_agent_entrypoint_does_not_fallback_to_card_or_advisory_source_ids():
     assert result.status is AgentStatus.BLOCKED
     assert "accepted event evidence" in str(result.failure_reason)
     assert model.invocations == []
+
+
+def test_agent_entrypoint_excludes_authority_only_canonical_ref_from_prompt_and_tools():
+    """Authority audit claims cannot widen the model-visible canonical map."""
+
+    cards = _cards()
+    authority_source = "authority:nasr:KZZQ"
+    cards["facility"] = cards["facility"].model_copy(
+        update={
+            "claims": [
+                *cards["facility"].claims,
+                EvidenceClaim(
+                    field_name="authority_facility_record",
+                    value="KZZQ",
+                    ontology_target="nas:Airport",
+                    evidence_text="PRIVATE AUTHORITY FACILITY RECORD",
+                    source_id=authority_source,
+                    canonical_ref=AUTHORITY_ONLY_FACILITY_ID,
+                ),
+            ],
+            "canonical_refs": [FACILITY_ID, AUTHORITY_ONLY_FACILITY_ID],
+            "source_ids": [SOURCE_ID, authority_source],
+        }
+    )
+    calls = _required_calls()
+    calls[-1]["args"] = {"canonical_ref": AUTHORITY_ONLY_FACILITY_ID}
+    model = _ScriptedToolModel(
+        [_selection_turn(calls), _draft_turn(_patch())]
+    )
+
+    result = run_kg_construction_agent(
+        task=AgentTask(
+            run_id="run:example",
+            source_id=SOURCE_ID,
+            objective="construct event graph patch",
+            allowed_tools=[
+                "get_schema_context",
+                "resolve_canonical_ref",
+                "get_source_evidence",
+            ],
+        ),
+        inputs=KGConstructionInput(
+            advisory=SourceRecord(
+                source_id=SOURCE_ID,
+                family=SourceFamily.ATCSCC_ADVISORY,
+                content="GROUND STOP CTL ELEMENT: ZZQ",
+            ),
+            advisory_card=cards["advisory"],
+            facility_card=cards["facility"],
+            terminology_card=cards["terminology"],
+            event_uri=EVENT_URI,
+            event_class=EVENT_CLASS,
+            guide=load_schema_guide(),
+            allowed_source_ids={SOURCE_ID},
+        ),
+        tool_model_factory=lambda tools: model,
+    )
+
+    prompt_text = str(model.invocations[0][1])
+    assert FACILITY_ID in prompt_text
+    assert AUTHORITY_ONLY_FACILITY_ID not in prompt_text
+    assert result.status is AgentStatus.BLOCKED
+    assert result.evidence_card is not None
+    assert all(
+        AUTHORITY_ONLY_FACILITY_ID not in trace.result_refs
+        for trace in result.evidence_card.tool_trace
+    )
+    assert "outside the current task" in str(result.failure_reason)
 
 
 def test_agent_entrypoint_blocks_without_a_native_tool_model():

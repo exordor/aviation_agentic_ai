@@ -794,28 +794,32 @@ def _materialize_node(state: dict) -> dict:
     if not event_class:
         return {"materialization": None, "validation": None}
     guide = ctx.guide or load_schema_guide()
-    # Canonical entities resolved by the Facility Agent.
-    canonical_entities: dict[str, str] = {}
     facility_result: AgentResult | None = state.get("facility_result")
-    if facility_result and facility_result.evidence_card:
-        for claim in facility_result.evidence_card.claims:
-            if claim.canonical_ref and claim.ontology_target:
-                canonical_entities[claim.canonical_ref] = claim.ontology_target
-    evidence_cards = []
-    if facility_result and facility_result.evidence_card:
-        evidence_cards.append(facility_result.evidence_card)
     terminology_result: AgentResult | None = state.get("terminology_result")
-    if terminology_result and terminology_result.evidence_card:
-        evidence_cards.append(terminology_result.evidence_card)
     advisory_result: AgentResult | None = state.get("advisory_result")
-    if advisory_result and advisory_result.evidence_card:
-        evidence_cards.append(advisory_result.evidence_card)
     known_source_ids = _accepted_event_source_ids(
         ctx.advisory.source_id,
         advisory_result,
         facility_result,
         terminology_result,
     )
+    # Canonical entities resolved by the Facility Agent.
+    canonical_entities: dict[str, str] = {}
+    if facility_result and facility_result.evidence_card:
+        for claim in facility_result.evidence_card.claims:
+            if (
+                claim.source_id in known_source_ids
+                and claim.canonical_ref
+                and claim.ontology_target
+            ):
+                canonical_entities[claim.canonical_ref] = claim.ontology_target
+    evidence_cards = []
+    if facility_result and facility_result.evidence_card:
+        evidence_cards.append(facility_result.evidence_card)
+    if terminology_result and terminology_result.evidence_card:
+        evidence_cards.append(terminology_result.evidence_card)
+    if advisory_result and advisory_result.evidence_card:
+        evidence_cards.append(advisory_result.evidence_card)
 
     # Persist the source snapshot (plan §5.2) so every accepted fact binds to
     # auditable, checksum-pinned source content.

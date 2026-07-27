@@ -26,6 +26,9 @@ from aviation_agentic_ai.agent_system.contracts import (
     AgentTask,
     EvidenceCard,
     EvidenceClaim,
+    GraphPatchBlock,
+    GraphPatchLine,
+    GraphValidationResult,
     ModelCallRecord,
     SourceFamily,
     SourceRecord,
@@ -691,3 +694,128 @@ def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
     )
 
     assert captured["allowed_source_ids"] == {advisory.source_id}
+
+
+def test_materialization_excludes_authority_only_canonical_entities(
+    tmp_path,
+    monkeypatch,
+):
+    """Formal Graph canonical entities come only from accepted event claims."""
+
+    captured = {}
+    guide = load_schema_guide(str(SCHEMA_PATH))
+    advisory = SourceRecord(
+        source_id="2026-05-19:138",
+        family=SourceFamily.ATCSCC_ADVISORY,
+        content="GROUND DELAY PROGRAM CTL ELEMENT: JFK",
+    )
+    accepted_ref = "urn:aviation-agentic-ai:facility:airport:KJFK"
+    authority_ref = "urn:authority:facility:airport:KJFK"
+    authority_source = "authority:nasr:KJFK"
+    monkeypatch.setattr(
+        workflow_module,
+        "_CTX_HOLDER",
+        IngestContext(
+            advisory=advisory,
+            guide=guide,
+            run_id="run:test",
+            output_dir=str(tmp_path),
+        ),
+    )
+
+    def capture_validation(**kwargs):
+        captured["canonical_entities"] = kwargs["canonical_entities"]
+        return GraphValidationResult(publishable=False)
+
+    monkeypatch.setattr(
+        workflow_module,
+        "validate_graph_patch",
+        capture_validation,
+    )
+    monkeypatch.setattr(workflow_module, "write_fact_trace", lambda **kwargs: None)
+    monkeypatch.setattr(workflow_module, "write_profile_gaps", lambda **kwargs: None)
+
+    facility_card = EvidenceCard(
+        agent_role="facility",
+        status=AgentStatus.RESOLVED,
+        claims=[
+            EvidenceClaim(
+                field_name="controlled_facility",
+                value="JFK",
+                ontology_target="nas:Airport",
+                evidence_text="CTL ELEMENT: JFK",
+                source_id=advisory.source_id,
+                canonical_ref=accepted_ref,
+            ),
+            EvidenceClaim(
+                field_name="authority_facility_record",
+                value="KJFK",
+                ontology_target="nas:Airport",
+                evidence_text="PRIVATE AUTHORITY FACILITY RECORD",
+                source_id=authority_source,
+                canonical_ref=authority_ref,
+            ),
+        ],
+        canonical_refs=[accepted_ref, authority_ref],
+        source_ids=[advisory.source_id, authority_source],
+    )
+    advisory_card = EvidenceCard(
+        agent_role="advisory",
+        status=AgentStatus.RESOLVED,
+        claims=[
+            EvidenceClaim(
+                field_name="event_type",
+                value="GDP",
+                evidence_text="GROUND DELAY PROGRAM",
+                source_id=advisory.source_id,
+            )
+        ],
+    )
+    terminology_card = EvidenceCard(
+        agent_role="terminology",
+        status=AgentStatus.RESOLVED,
+        claims=[
+            EvidenceClaim(
+                field_name="operational_term",
+                value="GDP",
+                ontology_target="atm:GroundDelayProgramTMI",
+                evidence_text="GROUND DELAY PROGRAM",
+                source_id=advisory.source_id,
+            )
+        ],
+    )
+    event_uri = "urn:aviation-agentic-ai:event:test"
+
+    workflow_module._materialize_node(
+        {
+            "kg_result": AgentResult(
+                status=AgentStatus.RESOLVED,
+                graph_patch=GraphPatchBlock(
+                    patch_lines=[
+                        GraphPatchLine(
+                            subject=event_uri,
+                            predicate="rdf:type",
+                            object="atm:GroundDelayProgramTMI",
+                            source_ids=[advisory.source_id],
+                        )
+                    ]
+                ),
+            ),
+            "event_uri": event_uri,
+            "event_class": "atm:GroundDelayProgramTMI",
+            "advisory_result": AgentResult(
+                status=AgentStatus.RESOLVED,
+                evidence_card=advisory_card,
+            ),
+            "facility_result": AgentResult(
+                status=AgentStatus.RESOLVED,
+                evidence_card=facility_card,
+            ),
+            "terminology_result": AgentResult(
+                status=AgentStatus.RESOLVED,
+                evidence_card=terminology_card,
+            ),
+        }
+    )
+
+    assert captured["canonical_entities"] == {accepted_ref: "nas:Airport"}
