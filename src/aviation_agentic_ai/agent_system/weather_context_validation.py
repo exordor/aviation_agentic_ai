@@ -16,6 +16,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceSnapshot,
     SourceSnapshotRegistry,
     ValidatedFact,
+    ValidationProfileRef,
     WeatherContextAssociation,
     WeatherContextBundle,
     WeatherFactTrace,
@@ -34,6 +35,11 @@ from aviation_agentic_ai.agent_system.weather_context import (
     XSD_STRING,
 )
 from aviation_agentic_ai.cross_source.contracts import CanonicalEntity, EntityType
+from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    ValidationProfileRegistry,
+    load_validation_profile_registry,
+)
 
 
 _RelationType = Literal[
@@ -356,6 +362,7 @@ def _expected_selections(
 def _expected_facts(
     report: _SourceWeatherReport,
     facility: CanonicalEntity,
+    validation_profile: ValidationProfileRef,
 ) -> list[ValidatedFact]:
     values: list[tuple[str, str, str, str | None, str | None]] = [
         (
@@ -420,6 +427,9 @@ def _expected_facts(
             datatype_iri=datatype_iri,
             source_ids=[report.source.source_id],
             evidence_texts=[report.raw],
+            validation_profile=validation_profile,
+            evidence_mode="source_text",
+            evidence_ref=expected_weather_fact_id(report.report_id, predicate, value),
         )
         for predicate, value, object_kind, object_class_iri, datatype_iri in values
     ]
@@ -481,7 +491,10 @@ def _expected_bundle(
     event: DecisionContextEvent,
     facility: CanonicalEntity,
     registry: SourceSnapshotRegistry,
+    profile_registry: ValidationProfileRegistry,
 ) -> WeatherContextBundle:
+    weather_ref = next(ref for ref in profile_registry.refs if ref.layer == "weather")
+    weather_profile = profile_registry.require_layer(weather_ref, "weather")
     selections = _expected_selections(
         event,
         _source_weather_reports(registry, facility),
@@ -496,7 +509,7 @@ def _expected_bundle(
         [
             fact
             for report in selected.values()
-            for fact in _expected_facts(report, facility)
+            for fact in _expected_facts(report, facility, weather_profile.ref)
         ],
         key=lambda fact: fact.fact_id,
     )
@@ -551,10 +564,14 @@ def validate_weather_context_bundle(
     event: DecisionContextEvent,
     facility: CanonicalEntity,
     registry: SourceSnapshotRegistry,
+    profile_registry: ValidationProfileRegistry | None = None,
 ) -> None:
     """Validate a bundle independently against its pinned weather snapshots."""
 
-    expected = _expected_bundle(event, facility, registry)
+    profile_registry = profile_registry or load_validation_profile_registry(
+        decision_guide=load_schema_guide()
+    )
+    expected = _expected_bundle(event, facility, registry, profile_registry)
     if bundle.status != expected.status:
         raise ValueError("weather bundle status does not match eligible source context")
     if bundle.status != "ok":

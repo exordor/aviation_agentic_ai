@@ -51,12 +51,17 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceSnapshot,
     SourceSnapshotRegistry,
     ValidatedFact,
+    ValidationProfileRef,
 )
 from aviation_agentic_ai.agent_system.schema_guide import (
     SchemaGuide,
     TRACE_PREDICATES,
 )
 from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    ValidationProfileRegistry,
+    load_validation_profile_registry,
+)
 
 # Predicate that asserts an entity's ontology class.
 RDF_TYPE = "rdf:type"
@@ -259,6 +264,7 @@ def validate_graph_patch(
     known_source_ids: set[str],
     evidence_cards: list[EvidenceCard],
     source_snapshot: SourceSnapshot | SourceSnapshotRegistry,
+    profile_registry: ValidationProfileRegistry | None = None,
 ) -> GraphValidationResult:
     """Run the Formal Graph Kernel over one parsed Graph Patch (plan §5.4).
 
@@ -267,6 +273,17 @@ def validate_graph_patch(
     graph-level constraint for the event class is satisfied.
     """
 
+    profile_registry = profile_registry or load_validation_profile_registry(
+        decision_guide=schema_guide
+    )
+    decision_profile = profile_registry.require_layer(
+        ValidationProfileRef(
+            profile_id=schema_guide.schema_slice_id,
+            profile_checksum=schema_guide.checksum,
+            layer="decision",
+        ),
+        "decision",
+    )
     snapshot_registry = _snapshot_registry(source_snapshot)
     snapshot_source_ids = (
         {snapshot.source_id for snapshot in snapshot_registry.snapshots}
@@ -292,6 +309,7 @@ def validate_graph_patch(
             known_source_ids=known_source_ids,
             snapshot_source_ids=snapshot_source_ids,
             evidence_index=evidence_index,
+            validation_profile=decision_profile.ref,
         )
         if isinstance(outcome, ValidatedFact):
             accepted.append(outcome)
@@ -367,6 +385,7 @@ def _validate_line(
     known_source_ids: set[str],
     snapshot_source_ids: set[str],
     evidence_index: dict[str, list[EvidenceClaim]],
+    validation_profile: ValidationProfileRef,
 ) -> ValidatedFact | RejectedFact:
     """Validate one Graph Patch line; return a ValidatedFact or RejectedFact."""
 
@@ -419,7 +438,7 @@ def _validate_line(
         return _to_fact(line, subject_class_iri=schema_guide.classes[obj].iri if obj in schema_guide.classes else "",
                         predicate_iri=_RDF_TYPE_IRI, object_kind="iri", object_value=obj,
                         object_class_iri=schema_guide.classes[obj].iri if obj in schema_guide.classes else None,
-                        bound_claim=claim)
+                        bound_claim=claim, validation_profile=validation_profile)
 
     # Source-trace predicate (prov:wasDerivedFrom): deterministic provenance —
     # the cited registered source snapshot is the binding (plan §11.2, §4.2).
@@ -437,7 +456,8 @@ def _validate_line(
             )
         return _to_fact(line, subject_class_iri=_class_iri(schema_guide, subject_class),
                         predicate_iri=_PROV_WAS_DERIVED_FROM_IRI, object_kind="iri", object_value=obj,
-                        object_class_iri=None, bound_claim=None, bound_source_id=obj)
+                        object_class_iri=None, bound_claim=None, bound_source_id=obj,
+                        validation_profile=validation_profile)
 
     # Object property.
     if schema_guide.is_object_property(pred):
@@ -472,7 +492,7 @@ def _validate_line(
                         predicate_iri=_object_property_iri(schema_guide, pred),
                         object_kind="iri", object_value=obj,
                         object_class_iri=_class_iri(schema_guide, obj_class),
-                        bound_claim=claim)
+                        bound_claim=claim, validation_profile=validation_profile)
 
     # Datatype property.
     if schema_guide.is_datatype_property(pred):
@@ -503,7 +523,7 @@ def _validate_line(
                         predicate_iri=_datatype_property_iri(schema_guide, pred),
                         object_kind="literal", object_value=obj,
                         datatype_iri=_datatype_iri(schema_guide, pred),
-                        bound_claim=claim)
+                        bound_claim=claim, validation_profile=validation_profile)
 
     # Property exists in source but not in the current profile slice -> gap.
     return _reject(
@@ -523,6 +543,7 @@ def _to_fact(
     bound_source_id: str | None = None,
     object_class_iri: str | None = None,
     datatype_iri: str | None = None,
+    validation_profile: ValidationProfileRef,
 ) -> ValidatedFact:
     """Assemble a ValidatedFact bound to the single matched claim's evidence.
 
@@ -535,8 +556,9 @@ def _to_fact(
     if bound_claim is not None and bound_claim.evidence_text:
         evidence_texts.append(bound_claim.evidence_text)
     bound_source = bound_claim.source_id if bound_claim is not None else bound_source_id
+    fact_id = stable_id("fact", line.subject, line.predicate, object_value)
     return ValidatedFact(
-        fact_id=stable_id("fact", line.subject, line.predicate, object_value),
+        fact_id=fact_id,
         subject_iri=line.subject,
         subject_class_iri=subject_class_iri,
         predicate_iri=predicate_iri,
@@ -546,6 +568,9 @@ def _to_fact(
         datatype_iri=datatype_iri,
         source_ids=[bound_source] if bound_source else [],
         evidence_texts=evidence_texts,
+        validation_profile=validation_profile,
+        evidence_mode="source_text",
+        evidence_ref=fact_id,
     )
 
 

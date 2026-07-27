@@ -16,11 +16,17 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceSnapshot,
     SourceSnapshotRegistry,
     ValidatedFact,
+    ValidationProfileRef,
     WeatherContextAssociation,
     WeatherContextBundle,
     WeatherFactTrace,
 )
 from aviation_agentic_ai.cross_source.contracts import CanonicalEntity, EntityType
+from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    ValidationProfileRegistry,
+    load_validation_profile_registry,
+)
 
 
 RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
@@ -230,7 +236,11 @@ def _association(
     )
 
 
-def _facts_for_report(report: _WeatherReport, facility: CanonicalEntity) -> list[ValidatedFact]:
+def _facts_for_report(
+    report: _WeatherReport,
+    facility: CanonicalEntity,
+    validation_profile: ValidationProfileRef,
+) -> list[ValidatedFact]:
     values: list[tuple[str, str, str, str | None, str | None]] = [
         (RDF_TYPE, METEOROLOGICAL_REPORT, "iri", METEOROLOGICAL_REPORT, None),
         (FORECASTING_AIRPORT, facility.entity_id, "iri", NAS_AIRPORT, None),
@@ -258,6 +268,9 @@ def _facts_for_report(report: _WeatherReport, facility: CanonicalEntity) -> list
             datatype_iri=datatype_iri,
             source_ids=[report.source.source_id],
             evidence_texts=[report.raw],
+            validation_profile=validation_profile,
+            evidence_mode="source_text",
+            evidence_ref=_fact_id(report, predicate, value),
         )
         for predicate, value, object_kind, object_class_iri, datatype_iri in values
     ]
@@ -267,10 +280,16 @@ def build_weather_context(
     event: DecisionContextEvent,
     canonical_facility: CanonicalEntity,
     snapshot_registry: SourceSnapshotRegistry,
+    profile_registry: ValidationProfileRegistry | None = None,
 ) -> WeatherContextBundle:
     """Select source-pinned METAR/TAF context without asserting causality."""
 
     try:
+        profile_registry = profile_registry or load_validation_profile_registry(
+            decision_guide=load_schema_guide()
+        )
+        weather_ref = next(ref for ref in profile_registry.refs if ref.layer == "weather")
+        weather_profile = profile_registry.require_layer(weather_ref, "weather")
         _require_timezone_aware_event_clock(event)
         airport_code = _canonical_airport_code(canonical_facility)
         weather_snapshots = [
@@ -352,7 +371,7 @@ def build_weather_context(
         [
             fact
             for report in selected_by_id.values()
-            for fact in _facts_for_report(report, canonical_facility)
+            for fact in _facts_for_report(report, canonical_facility, weather_profile.ref)
         ],
         key=lambda fact: fact.fact_id,
     )

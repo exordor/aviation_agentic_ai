@@ -255,6 +255,16 @@ class AgentRunResult(StrictModel):
 # ---------------------------------------------------------------------------
 
 
+class ValidationProfileRef(StrictModel):
+    """Immutable identity of the validation profile that owns one fact."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    profile_id: str = Field(min_length=1)
+    profile_checksum: str = Field(min_length=64, max_length=64)
+    layer: Literal["decision", "weather", "public_operational_observation"]
+
+
 class ValidatedFact(StrictModel):
     """One formal graph fact that passed the Formal Graph Kernel (plan §4.1).
 
@@ -273,6 +283,14 @@ class ValidatedFact(StrictModel):
     datatype_iri: str | None = None
     source_ids: list[str] = Field(default_factory=list)
     evidence_texts: list[str] = Field(default_factory=list)
+    validation_profile: ValidationProfileRef
+    evidence_mode: Literal[
+        "source_text",
+        "deterministic_derivation",
+        "profile_definition",
+        "system_membership",
+    ] = "source_text"
+    evidence_ref: str = Field(min_length=1)
 
 
 class RejectedFact(StrictModel):

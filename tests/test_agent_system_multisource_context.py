@@ -32,6 +32,9 @@ from aviation_agentic_ai.agent_system.contracts import (
 from aviation_agentic_ai.agent_system.materialize import materialize_validated_facts
 from aviation_agentic_ai.agent_system.runtime import write_run_manifest
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    load_validation_profile_registry,
+)
 from aviation_agentic_ai.agent_system.sources import (
     build_source_snapshot_registry,
     load_advisory_source,
@@ -80,6 +83,14 @@ FACILITIES = {
     ),
 }
 
+DECISION_PROFILE_REF = next(
+    ref
+    for ref in load_validation_profile_registry(
+        decision_guide=load_schema_guide()
+    ).refs
+    if ref.layer == "decision"
+)
+
 
 def _fact(
     fact_id: str,
@@ -104,6 +115,9 @@ def _fact(
         datatype_iri=datatype_iri if object_kind == "literal" else None,
         source_ids=[source_id],
         evidence_texts=["source-bound core evidence"],
+        validation_profile=DECISION_PROFILE_REF,
+        evidence_mode="source_text",
+        evidence_ref=fact_id,
     )
 
 
