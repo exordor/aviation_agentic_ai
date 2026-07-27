@@ -15,6 +15,10 @@ from aviation_agentic_ai.agent_system.query_plan import (
     QueryPlan,
     validate_registered_evidence_layers,
 )
+from aviation_agentic_ai.agent_system.query_context_store import (
+    QueryContextError,
+    QueryContextStore,
+)
 from aviation_agentic_ai.agent_system.query_tools import QueryGraphStore
 
 
@@ -88,6 +92,100 @@ def _formal_observation(
     )
 
 
+def _formal_item(row: dict[str, Any]) -> dict[str, Any]:
+    return {"evidence_role": "formal_event_fact", **_item_for_fact(row)}
+
+
+def read_episode_timeline(
+    store: QueryGraphStore,
+    *,
+    event_id: str,
+    step_id: str = "episode-timeline",
+) -> BoundQueryObservation:
+    """Return the record-level timeline without inferring a lifecycle episode."""
+
+    read = QueryContextStore(
+        store.run_dir,
+        graph_store=store,
+    ).get_episode_timeline(event_id)
+    return BoundQueryObservation(
+        step_id=step_id,
+        status=read.status,
+        fact_ids=tuple(str(row["fact_id"]) for row in read.formal_fact_rows),
+        source_ids=read.source_ids,
+        items=tuple(_formal_item(row) for row in read.formal_fact_rows),
+        limitation=read.limitation,
+    )
+
+
+def read_operational_situation(
+    store: QueryGraphStore,
+    *,
+    event_id: str,
+    step_id: str = "operational-situation",
+) -> BoundQueryObservation:
+    """Return source-qualified current-run evidence without operational causation."""
+
+    try:
+        read = QueryContextStore(
+            store.run_dir,
+            graph_store=store,
+        ).get_operational_situation(event_id)
+    except QueryContextError:
+        if not (store.run_dir / "run_manifest.json").is_file():
+            step = BoundQueryStep(
+                step_id=step_id,
+                operation="read_operational_situation",
+                event_ids=(event_id,),
+                required=True,
+                allowed_evidence_layers=(
+                    "formal",
+                    "non_causal_weather_context",
+                    "bts_reported_public_observation",
+                ),
+            )
+            return _formal_observation(step=step, store=store, status="ok")
+        return BoundQueryObservation(
+            step_id=step_id,
+            status="insufficient",
+            limitation="missing evidence layer: active BTS observation",
+        )
+    bts_fact_ids = tuple(
+        fact_id
+        for observation in read.public_observations
+        for fact_id in observation.fact_ids
+    )
+    return BoundQueryObservation(
+        step_id=step_id,
+        status=read.status,
+        fact_ids=tuple(
+            str(row["fact_id"]) for row in read.formal_fact_rows
+        )
+        + bts_fact_ids,
+        derivation_ids=tuple(
+            observation.derivation_id for observation in read.public_observations
+        ),
+        source_ids=read.source_ids,
+        items=tuple(_formal_item(row) for row in read.formal_fact_rows)
+        + tuple(
+            {
+                "evidence_role": "non_causal_weather_context",
+                **association.model_dump(mode="json"),
+            }
+            for association in read.weather_associations
+        )
+        + tuple(
+            {
+                "evidence_role": "bts_reported_public_observation",
+                "causal_claim": False,
+                **observation.model_dump(mode="json"),
+            }
+            for observation in read.public_observations
+        ),
+        limitation=read.limitation,
+    )
+
+
 def _execute_registered_step(
     *,
     step: BoundQueryStep,
@@ -95,10 +193,19 @@ def _execute_registered_step(
 ) -> BoundQueryObservation:
     """Execute the fixed operation set without generic retrieval input."""
 
+    if step.operation == "read_episode_timeline":
+        return read_episode_timeline(
+            store,
+            event_id=step.event_ids[0],
+            step_id=step.step_id,
+        )
     if step.operation == "read_operational_situation":
-        return _formal_observation(step=step, store=store, status="ok")
+        return read_operational_situation(
+            store,
+            event_id=step.event_ids[0],
+            step_id=step.step_id,
+        )
     if step.operation in {
-        "read_episode_timeline",
         "read_applicability",
         "read_observed_flight_outcome",
         "read_similarity_corpus_gate",
@@ -197,6 +304,27 @@ class BoundQueryGateway:
     ) -> None:
         if observation.step_id != step.step_id:
             raise ValueError("bound observation step_id differs from executing step")
+        if step.operation == "read_episode_timeline":
+            expected = read_episode_timeline(
+                self._store,
+                event_id=step.event_ids[0],
+                step_id=step.step_id,
+            )
+            if observation != expected:
+                raise ValueError("episode observation does not match current store")
+            return
+        if step.operation == "read_operational_situation":
+            if (self._store.run_dir / "run_manifest.json").is_file():
+                expected = read_operational_situation(
+                    self._store,
+                    event_id=step.event_ids[0],
+                    step_id=step.step_id,
+                )
+                if observation != expected:
+                    raise ValueError(
+                        "operational situation observation does not match current store"
+                    )
+                return
         if len(set(observation.fact_ids)) != len(observation.fact_ids):
             raise ValueError("bound observation contains duplicate fact IDs")
         if not set(observation.fact_ids).issubset(self._store.fact_by_id):

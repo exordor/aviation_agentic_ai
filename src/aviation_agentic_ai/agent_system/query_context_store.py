@@ -121,6 +121,28 @@ class DecisionContextRead:
 
 
 @dataclass(frozen=True)
+class EpisodeTimelineRead:
+    """One-record formal timeline with no inferred advisory lifecycle."""
+
+    status: Literal["partial", "blocked"]
+    formal_fact_rows: tuple[dict[str, Any], ...] = ()
+    source_ids: tuple[str, ...] = ()
+    limitation: str = ""
+
+
+@dataclass(frozen=True)
+class OperationalSituationRead:
+    """Validated formal, non-causal Weather, and public BTS projections."""
+
+    status: Literal["ok", "insufficient", "blocked"]
+    formal_fact_rows: tuple[dict[str, Any], ...] = ()
+    weather_associations: tuple[WeatherContextAssociation, ...] = ()
+    public_observations: tuple[OutcomeObservationRead, ...] = ()
+    source_ids: tuple[str, ...] = ()
+    limitation: str = ""
+
+
+@dataclass(frozen=True)
 class _Artifact:
     status: Literal["ok", "insufficient", "blocked"]
     data: bytes
@@ -527,6 +549,103 @@ class QueryContextStore:
         issued_at = _parse_advisory_issue_time(advisory_snapshots[0].content)
         return facilities[0], issued_at, start, end
 
+    def get_episode_timeline(self, event_id: str) -> EpisodeTimelineRead:
+        """Expose one source-bound record without forming a lifecycle episode."""
+
+        if event_id not in self.graph_store.event_ids:
+            return EpisodeTimelineRead(
+                status="blocked",
+                limitation="event is not registered in the current run",
+            )
+        rows = self.graph_store.get_event_rows(event_id=event_id)
+        selected = tuple(
+            row
+            for row in rows
+            if row["predicate"]
+            in {
+                "rdf:type",
+                "atm:effectiveStartTime",
+                "atm:effectiveEndTime",
+            }
+        )
+        if not selected:
+            return EpisodeTimelineRead(
+                status="blocked",
+                limitation="event has no validated single-record timeline facts",
+            )
+        return EpisodeTimelineRead(
+            status="partial",
+            formal_fact_rows=selected,
+            source_ids=tuple(
+                sorted(
+                    {
+                        source_id
+                        for row in selected
+                        for source_id in row["source_ids"]
+                    }
+                )
+            ),
+            limitation=(
+                "single-record timeline; no advisory lifecycle grouping evidence"
+            ),
+        )
+
+    def get_operational_situation(
+        self,
+        event_id: str,
+    ) -> OperationalSituationRead:
+        """Project only validated non-causal Weather and BTS evidence."""
+
+        if event_id not in self.graph_store.event_ids:
+            return OperationalSituationRead(
+                status="blocked",
+                limitation="event is not registered in the current run",
+            )
+        event_rows = self.graph_store.get_event_rows(event_id=event_id)
+        try:
+            context = self.get_decision_context(event_id)
+        except QueryContextError:
+            return OperationalSituationRead(
+                status="insufficient",
+                limitation="missing evidence layer: non-causal Weather context",
+            )
+        if context.status != "ok":
+            return OperationalSituationRead(
+                status="insufficient",
+                limitation="missing evidence layer: non-causal Weather context",
+            )
+        outcomes = self.get_outcome_summaries(
+            event_id,
+            ("baseline", "active", "recovery"),
+        )
+        active_observations = tuple(
+            observation
+            for observation in outcomes.observations
+            if observation.phase == "active"
+        )
+        if outcomes.status != "ok" or not active_observations:
+            return OperationalSituationRead(
+                status="insufficient",
+                limitation="missing evidence layer: active BTS observation",
+            )
+        return OperationalSituationRead(
+            status="ok",
+            formal_fact_rows=event_rows,
+            weather_associations=context.associations,
+            public_observations=outcomes.observations,
+            source_ids=tuple(
+                sorted(
+                    {
+                        source_id
+                        for row in event_rows
+                        for source_id in row["source_ids"]
+                    }
+                    | set(context.source_ids)
+                    | set(outcomes.source_ids)
+                )
+            ),
+        )
+
     def _graph_identity_set(self) -> set[str]:
         identities: set[str] = set()
         for row in self.graph_store.rows:
@@ -575,6 +694,7 @@ class QueryContextStore:
         snapshots: SourceSnapshotRegistry,
         *,
         families: set[SourceFamily],
+        validation_layer: str,
         allowed_fact_ids: set[str],
         label: str,
     ) -> None:
@@ -587,6 +707,7 @@ class QueryContextStore:
             str(row["fact_id"])
             for row in self.graph_store.rows
             if _source_ids(row).intersection(family_source_ids)
+            and row.get("validation_layer") == validation_layer
         }
         if actual_fact_ids != allowed_fact_ids:
             raise QueryContextError(
@@ -848,6 +969,7 @@ class QueryContextStore:
             for row in self.graph_store.rows
             if row["subject"] == subject
             and str(row["predicate"]) in _WEATHER_PREDICATES
+            and row.get("validation_layer") == "weather"
         ]
         if not rows:
             raise QueryContextError(
@@ -1007,6 +1129,7 @@ class QueryContextStore:
             self._validate_source_family_formal_rows(
                 snapshots,
                 families={SourceFamily.METAR, SourceFamily.TAF},
+                validation_layer="weather",
                 allowed_fact_ids=set(),
                 label="Weather",
             )
@@ -1112,6 +1235,7 @@ class QueryContextStore:
         self._validate_source_family_formal_rows(
             snapshots,
             families={SourceFamily.METAR, SourceFamily.TAF},
+            validation_layer="weather",
             allowed_fact_ids=set(formal_rows),
             label="Weather",
         )
@@ -1359,6 +1483,7 @@ class QueryContextStore:
         self._validate_source_family_formal_rows(
             snapshots,
             families={SourceFamily.BTS_ON_TIME},
+            validation_layer="public_operational_observation",
             allowed_fact_ids={
                 str(row["fact_id"])
                 for row in formal_rows
@@ -1476,6 +1601,7 @@ class QueryContextStore:
         self._validate_source_family_formal_rows(
             snapshots,
             families={SourceFamily.BTS_ON_TIME},
+            validation_layer="public_operational_observation",
             allowed_fact_ids=set(),
             label="BTS",
         )

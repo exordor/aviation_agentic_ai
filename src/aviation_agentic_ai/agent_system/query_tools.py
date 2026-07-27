@@ -1021,6 +1021,18 @@ class QueryGraphStore:
                 return str(row.get("subject_class") or "")
         return ""
 
+    def get_event_rows(self, *, event_id: str) -> tuple[dict[str, Any], ...]:
+        """Return the current validated formal facts for one registered event."""
+
+        if event_id not in self.event_ids:
+            raise QueryToolError(f"unregistered event ID: {event_id}")
+        return tuple(
+            sorted(
+                (row for row in self.rows if row["subject"] == event_id),
+                key=lambda row: str(row["fact_id"]),
+            )
+        )
+
 
 class QueryToolGateway:
     """Session-scoped authority boundary behind the LangChain tools."""
