@@ -15,6 +15,7 @@ import aviation_agentic_ai.agent_system.weather_context as weather_context_modul
 from aviation_agentic_ai.agent_system.context_artifacts import (
     integrate_decision_context,
     parse_advisory_signature,
+    prepare_decision_context,
     read_context_associations,
     read_outcome_summaries,
     read_weather_fact_traces,
@@ -56,6 +57,7 @@ from aviation_agentic_ai.agent_system.workflow import (
     AuthoritySourceRegistryStatus,
     IngestContext,
     build_ingest_graph,
+    run_ingest,
 )
 from aviation_agentic_ai.config import load_yaml
 from aviation_agentic_ai.cross_source.contracts import (
@@ -411,6 +413,174 @@ def test_loaders_preserve_exact_weather_rows_and_the_pinned_bts_snapshot(
     assert binding.source_id == manifest["source_id"]
     assert binding.normalized_snapshot_sha256 == manifest["normalized_sha256"]
     assert binding.archive_sha256 == manifest["archive_sha256"]
+
+
+def test_gdp_138_assembly_sees_only_prepared_validated_multisource_rows(
+    tmp_path,
+    config,
+    weather_sources,
+    bts_context,
+    monkeypatch,
+):
+    """Assembly consumes in-memory validated context before publication."""
+
+    import aviation_agentic_ai.agent_system.workflow as workflow_module
+    from test_agent_system_authority_evidence import _catalog
+
+    advisory = load_advisory_source(config, "2026-05-19:138")
+    catalog = _catalog(tmp_path)
+    bts_source, bts_rows, bts_binding = bts_context
+    output_dir = tmp_path / "gdp-138-prepared-context"
+    provider_constructions: list[str] = []
+    observed_before_assembly: dict[str, object] = {}
+    original_builder = workflow_module._build_case_assembly_task_from_state
+
+    def capture_prepared_task(ctx, state, *, event_uri, event_class):
+        observed_before_assembly["weather_status"] = state["weather_context"].status
+        observed_before_assembly["observation_status"] = state[
+            "observation_context"
+        ].status
+        observed_before_assembly["artifacts_exist"] = any(
+            (output_dir / name).exists()
+            for name in (
+                "context_associations.jsonl",
+                "outcome_summaries.jsonl",
+                "source_snapshots.jsonl",
+            )
+        )
+        return original_builder(
+            ctx,
+            state,
+            event_uri=event_uri,
+            event_class=event_class,
+        )
+
+    monkeypatch.setattr(
+        workflow_module,
+        "_build_case_assembly_task_from_state",
+        capture_prepared_task,
+    )
+    state = run_ingest(
+        IngestContext(
+            advisory=advisory,
+            facility_candidates=[FACILITIES["KJFK"]],
+            term_candidates=list(catalog.terminology.registry_terms),
+            weather_sources=weather_sources,
+            bts_rows=bts_rows,
+            bts_source=bts_source,
+            bts_manifest_binding=bts_binding,
+            authority_catalog=catalog,
+            guide=load_schema_guide(),
+            run_id="run:gdp-138-prepared-context",
+            run_started_at=datetime(2026, 5, 19, 20, 0, tzinfo=UTC),
+            output_dir=str(output_dir),
+            kg_tool_model_factory=lambda tools: (
+                provider_constructions.append("legacy-kg") or object()
+            ),
+            case_assembly_model_factory=lambda tools: (
+                provider_constructions.append("assembly") or object()
+            ),
+        )
+    )
+
+    task = state["case_assembly_task"]
+    weather = state["weather_context"]
+    observations = state["observation_context"]
+    assert observations.status == "ok", observations.failure_reason
+    assert observed_before_assembly == {
+        "weather_status": "ok",
+        "observation_status": "ok",
+        "artifacts_exist": False,
+    }
+    assert provider_constructions == []
+    assert task.available_evidence_layer_ids == (
+        "layer:advisory",
+        "layer:bts",
+        "layer:weather",
+    )
+    assert task.context_association_ids == tuple(
+        sorted(association.association_id for association in weather.associations)
+    )
+    expected_observation_ids = tuple(
+        sorted({trace.observation_id for trace in observations.fact_traces})
+    )
+    assert task.public_observation_ids == expected_observation_ids
+    assert tuple(
+        row.association_id for row in task.context_associations
+    ) == task.context_association_ids
+    assert tuple(
+        row.observation_id for row in task.public_observations
+    ) == task.public_observation_ids
+    expected_source_ids = {
+        advisory.source_id,
+        bts_source.source_id,
+        *(association.source_id for association in weather.associations),
+    }
+    assert {
+        binding.source_id for binding in task.source_snapshot_bindings
+    } == expected_source_ids
+    assert state["validation"].publishable
+    assert state["materialization"] is not None
+
+
+def test_prepared_context_is_rejected_when_kernel_accepts_a_different_event(
+    tmp_path,
+    config,
+    weather_sources,
+):
+    advisory = load_advisory_source(config, "2026-05-19:138")
+    facility = FACILITIES["KJFK"]
+    event_id = "evt:prepared-kernel-recheck"
+    candidate_facts = _core_facts(
+        event_id=event_id,
+        event_class="GroundDelayProgramTMI",
+        facility=facility,
+        start="2026-05-19T22:05:00Z",
+        end="2026-05-20T02:59:00Z",
+        source_id=advisory.source_id,
+        reason="weather",
+    )
+    ctx = IngestContext(
+        advisory=advisory,
+        facility_candidates=[facility],
+        weather_sources=weather_sources,
+        guide=load_schema_guide(),
+        run_id="run:prepared-kernel-recheck",
+        output_dir=str(tmp_path),
+    )
+    base_state = {
+        "event_uri": event_id,
+        "facility_result": _facility_result(facility, advisory.source_id),
+        "validation": GraphValidationResult(
+            accepted=candidate_facts,
+            publishable=True,
+        ),
+    }
+    prepared = prepare_decision_context(ctx, base_state)
+    changed_facts = [
+        fact.model_copy(update={"object_value": "2026-05-20T03:30:00Z"})
+        if fact.predicate_iri == f"{ATM}effectiveEndTime"
+        else fact
+        for fact in candidate_facts
+    ]
+
+    result = integrate_decision_context(
+        ctx,
+        {
+            **base_state,
+            **prepared,
+            "validation": GraphValidationResult(
+                accepted=changed_facts,
+                publishable=True,
+            ),
+        },
+    )
+
+    assert result["weather_context"].status == "blocked"
+    assert "differs from Formal Graph Kernel" in (
+        result["weather_context"].failure_reason
+    )
+    assert (tmp_path / "context_associations.jsonl").read_bytes() == b""
 
 
 @pytest.mark.parametrize(

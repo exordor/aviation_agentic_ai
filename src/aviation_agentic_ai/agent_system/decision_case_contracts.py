@@ -25,7 +25,10 @@ from pydantic import (
     model_validator,
 )
 
-from aviation_agentic_ai.agent_system.contracts import SourceFamily
+from aviation_agentic_ai.agent_system.contracts import (
+    SourceFamily,
+    WeatherContextAssociation,
+)
 
 
 DECISION_CASE_CONTRACT_VERSION = "decision-case-agent-contracts-v1"
@@ -981,6 +984,55 @@ def _validate_source_bindings(
     _validate_set_ids(source_ids, "source_snapshot_bindings")
 
 
+class CaseAssemblyEvidenceRecord(FrozenContractModel):
+    """One source-bound evidence record exposed through the Assembly gateway."""
+
+    evidence_id: str
+    field_name: str
+    value: str
+    evidence_text: str
+    source_id: str
+    canonical_ref: str | None = None
+
+
+class CaseAssemblyResolutionRecord(FrozenContractModel):
+    """Typed projection of one accepted or abstained resolution proposal."""
+
+    resolution_proposal_id: str
+    decision: ResolutionDecision
+    selected_candidate_id: str | None = None
+    supporting_evidence_claim_ids: tuple[str, ...] = ()
+    authority_source_ids: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def validate_resolution_record(self) -> Self:
+        _validate_set_ids(
+            self.supporting_evidence_claim_ids,
+            "supporting_evidence_claim_ids",
+        )
+        _validate_set_ids(self.authority_source_ids, "authority_source_ids")
+        if self.decision is ResolutionDecision.ACCEPTED:
+            if self.selected_candidate_id is None:
+                raise ValueError("accepted resolution record requires a candidate")
+        elif self.selected_candidate_id is not None:
+            raise ValueError("only accepted resolution records select a candidate")
+        return self
+
+
+class CaseAssemblyPublicObservation(FrozenContractModel):
+    """Profile-validated public observation available to Assembly."""
+
+    observation_id: str
+    phase: Literal["baseline", "active", "recovery"]
+    metric_key: str
+    value: int | float
+    derivation_id: str
+    validation_profile_id: str
+    validation_profile_checksum: Sha256Hex
+    source_id: str
+    source_snapshot_sha256: Sha256Hex
+
+
 class CaseAssemblyTaskFields(FrozenContractModel):
     task_id: str
     run_id: str
@@ -995,10 +1047,14 @@ class CaseAssemblyTaskFields(FrozenContractModel):
     schema_context_id: str
     schema_snapshot_sha256: Sha256Hex
     selected_evidence_claim_ids: tuple[str, ...]
+    evidence_records: tuple[CaseAssemblyEvidenceRecord, ...] = ()
+    resolution_records: tuple[CaseAssemblyResolutionRecord, ...] = ()
     proposed_facts: tuple[CaseFactProposal, ...]
     profile_gaps: tuple[CaseProfileGapProposal, ...]
     context_association_ids: tuple[str, ...]
+    context_associations: tuple[WeatherContextAssociation, ...] = ()
     public_observation_ids: tuple[str, ...]
+    public_observations: tuple[CaseAssemblyPublicObservation, ...] = ()
     omitted_slots: tuple[str, ...]
     validation_feedback: tuple[ValidationFeedback, ...]
     source_snapshot_bindings: tuple[SourceSnapshotBinding, ...]
@@ -1028,6 +1084,53 @@ class CaseAssemblyTaskFields(FrozenContractModel):
         feedback_ids = [row.feedback_id for row in self.validation_feedback]
         _validate_ordered_ids(feedback_ids, "validation_feedback")
         _validate_source_bindings(self.source_snapshot_bindings)
+        evidence_record_ids = tuple(row.evidence_id for row in self.evidence_records)
+        resolution_record_ids = tuple(
+            row.resolution_proposal_id for row in self.resolution_records
+        )
+        association_record_ids = tuple(
+            row.association_id for row in self.context_associations
+        )
+        observation_record_ids = tuple(
+            row.observation_id for row in self.public_observations
+        )
+        for values, field_name in (
+            (evidence_record_ids, "evidence_records"),
+            (resolution_record_ids, "resolution_records"),
+            (association_record_ids, "context_associations"),
+            (observation_record_ids, "public_observations"),
+        ):
+            _validate_set_ids(values, field_name)
+        if self.evidence_records and evidence_record_ids != self.selected_evidence_claim_ids:
+            raise ValueError("evidence records must exactly match selected evidence IDs")
+        if self.resolution_records and resolution_record_ids != self.resolution_proposal_ids:
+            raise ValueError("resolution records must exactly match proposal IDs")
+        if self.context_associations and association_record_ids != self.context_association_ids:
+            raise ValueError("context associations must exactly match association IDs")
+        if self.public_observations and observation_record_ids != self.public_observation_ids:
+            raise ValueError("public observations must exactly match observation IDs")
+        binding_by_source = {
+            row.source_id: row for row in self.source_snapshot_bindings
+        }
+        for row in self.evidence_records:
+            if row.source_id not in binding_by_source:
+                raise ValueError("evidence record source is not snapshot-bound")
+        for row in self.context_associations:
+            binding = binding_by_source.get(row.source_id)
+            if (
+                binding is None
+                or binding.source_snapshot_sha256
+                != row.source_snapshot_sha256
+            ):
+                raise ValueError("context association source binding mismatch")
+        for row in self.public_observations:
+            binding = binding_by_source.get(row.source_id)
+            if (
+                binding is None
+                or binding.source_snapshot_sha256
+                != row.source_snapshot_sha256
+            ):
+                raise ValueError("public observation source binding mismatch")
         selected = set(self.selected_evidence_claim_ids)
         for item in (*self.proposed_facts, *self.profile_gaps):
             if item.validation_profile_id != self.schema_profile_id:

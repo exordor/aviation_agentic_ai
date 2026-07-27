@@ -7,11 +7,17 @@ from langchain_core.tools import BaseTool, tool
 from pydantic import Field
 
 from collections.abc import Sequence
-from aviation_agentic_ai.agent_system.contracts import StrictModel
+from aviation_agentic_ai.agent_system.contracts import (
+    StrictModel,
+    WeatherContextAssociation,
+)
 from aviation_agentic_ai.agent_system.decision_case_contracts import (
     AssemblyStatus,
+    CaseAssemblyEvidenceRecord,
     CaseAssemblyProposal,
     CaseAssemblyProposalFields,
+    CaseAssemblyPublicObservation,
+    CaseAssemblyResolutionRecord,
     CaseAssemblyTask,
     CaseAssemblyTaskFields,
     CaseFactProposal,
@@ -83,7 +89,19 @@ class CaseAssemblyToolResult(StrictModel):
     resolution_proposal_ids: list[str] = Field(default_factory=list)
     association_ids: list[str] = Field(default_factory=list)
     observation_ids: list[str] = Field(default_factory=list)
-    source_snapshot_bindings: list[dict[str, str]] = Field(default_factory=list)
+    evidence_records: list[CaseAssemblyEvidenceRecord] = Field(default_factory=list)
+    resolution_records: list[CaseAssemblyResolutionRecord] = Field(
+        default_factory=list
+    )
+    context_associations: list[WeatherContextAssociation] = Field(
+        default_factory=list
+    )
+    public_observations: list[CaseAssemblyPublicObservation] = Field(
+        default_factory=list
+    )
+    source_snapshot_bindings: list[SourceSnapshotBinding] = Field(
+        default_factory=list
+    )
     failure_reason: str = ""
 
 
@@ -96,6 +114,18 @@ class CaseAssemblyToolGateway:
         self._resolution_proposal_ids = set(task.resolution_proposal_ids)
         self._context_association_ids = set(task.context_association_ids)
         self._public_observation_ids = set(task.public_observation_ids)
+        self._evidence_records = {
+            row.evidence_id: row for row in task.evidence_records
+        }
+        self._resolution_records = {
+            row.resolution_proposal_id: row for row in task.resolution_records
+        }
+        self._context_associations = {
+            row.association_id: row for row in task.context_associations
+        }
+        self._public_observations = {
+            row.observation_id: row for row in task.public_observations
+        }
 
     def get_case_requirements(self) -> CaseAssemblyToolResult:
         """Read required, optional, and missing case slots and available evidence layers."""
@@ -136,19 +166,18 @@ class CaseAssemblyToolGateway:
             raise CaseAssemblyToolError(
                 f"evidence IDs are outside the sealed task: {unknown}"
             )
-        bindings = [
-            {
-                "source_id": b.source_id,
-                "source_family": b.source_family.value,
-                "source_snapshot_sha256": b.source_snapshot_sha256,
-            }
-            for b in self.task.source_snapshot_bindings
-        ]
+        records = [self._evidence_records[row_id] for row_id in sorted(evidence_ids)]
         return CaseAssemblyToolResult(
             tool="get_source_evidence",
             case_id=self.task.case_id,
             requested_evidence_ids=sorted(evidence_ids),
-            source_snapshot_bindings=bindings,
+            evidence_records=records,
+            source_snapshot_bindings=[
+                binding
+                for binding in self.task.source_snapshot_bindings
+                if binding.source_id
+                in {record.source_id for record in records}
+            ],
         )
 
     def get_resolution_result(
@@ -169,6 +198,10 @@ class CaseAssemblyToolGateway:
             tool="get_resolution_result",
             case_id=self.task.case_id,
             resolution_proposal_ids=sorted(resolution_proposal_ids),
+            resolution_records=[
+                self._resolution_records[row_id]
+                for row_id in sorted(resolution_proposal_ids)
+            ],
         )
 
     def get_context_associations(
@@ -189,6 +222,10 @@ class CaseAssemblyToolGateway:
             tool="get_context_associations",
             case_id=self.task.case_id,
             association_ids=sorted(association_ids),
+            context_associations=[
+                self._context_associations[row_id]
+                for row_id in sorted(association_ids)
+            ],
         )
 
     def get_public_observations(
@@ -209,6 +246,10 @@ class CaseAssemblyToolGateway:
             tool="get_public_observations",
             case_id=self.task.case_id,
             observation_ids=sorted(observation_ids),
+            public_observations=[
+                self._public_observations[row_id]
+                for row_id in sorted(observation_ids)
+            ],
         )
 
 
@@ -275,10 +316,14 @@ def build_case_assembly_task(
     schema_context_id: str,
     schema_snapshot_sha256: str,
     selected_evidence_claim_ids: Sequence[str],
+    evidence_records: Sequence[CaseAssemblyEvidenceRecord] = (),
+    resolution_records: Sequence[CaseAssemblyResolutionRecord] = (),
     proposed_facts: Sequence[CaseFactProposal] = (),
     profile_gaps: Sequence[CaseProfileGapProposal] = (),
     context_association_ids: Sequence[str] = (),
+    context_associations: Sequence[WeatherContextAssociation] = (),
     public_observation_ids: Sequence[str] = (),
+    public_observations: Sequence[CaseAssemblyPublicObservation] = (),
     omitted_slots: Sequence[str] = (),
     validation_feedback: Sequence[ValidationFeedback] = (),
     source_snapshot_bindings: Sequence[SourceSnapshotBinding] = (),
@@ -324,10 +369,31 @@ def build_case_assembly_task(
         schema_context_id=schema_context_id,
         schema_snapshot_sha256=schema_snapshot_sha256,
         selected_evidence_claim_ids=sorted_selected_evidence,
+        evidence_records=tuple(
+            sorted(evidence_records, key=lambda row: row.evidence_id)
+        ),
+        resolution_records=tuple(
+            sorted(
+                resolution_records,
+                key=lambda row: row.resolution_proposal_id,
+            )
+        ),
         proposed_facts=tuple(proposed_facts),
         profile_gaps=tuple(profile_gaps),
         context_association_ids=sorted_ctx_assoc,
+        context_associations=tuple(
+            sorted(
+                context_associations,
+                key=lambda row: row.association_id,
+            )
+        ),
         public_observation_ids=sorted_pub_obs,
+        public_observations=tuple(
+            sorted(
+                public_observations,
+                key=lambda row: row.observation_id,
+            )
+        ),
         omitted_slots=sorted_omitted,
         validation_feedback=tuple(validation_feedback),
         source_snapshot_bindings=tuple(source_snapshot_bindings),

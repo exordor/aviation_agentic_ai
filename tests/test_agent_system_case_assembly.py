@@ -14,6 +14,7 @@ from aviation_agentic_ai.agent_system.decision_case_contracts import (
     CaseFactProposal,
     CaseProfileGapProposal,
     ContractExecutionBinding,
+    ResolutionDecision,
     SourceSnapshotBinding,
     canonical_id_tuple_token,
     seal_case_assembly_task,
@@ -87,17 +88,80 @@ def _assembly_task(
         schema_context_id="context-1",
         schema_snapshot_sha256=SHA_A,
         selected_evidence_claim_ids=selected,
+        evidence_records=(
+            {
+                "evidence_id": "evidence:event:type",
+                "field_name": "event_type",
+                "value": "GS",
+                "evidence_text": "GROUND STOP",
+                "source_id": "source:event",
+            },
+            {
+                "evidence_id": "evidence:event:weather",
+                "field_name": "impacting_condition",
+                "value": "weather",
+                "evidence_text": "IMPACTING CONDITION: WEATHER",
+                "source_id": "source:event",
+            },
+        ),
+        resolution_records=(
+            {
+                "resolution_proposal_id": resolution_proposal_id,
+                "decision": ResolutionDecision.ACCEPTED,
+                "selected_candidate_id": "candidate:ground-stop",
+                "supporting_evidence_claim_ids": ("evidence:event:type",),
+                "authority_source_ids": ("source:event",),
+            },
+        ),
         proposed_facts=(fact,),
         profile_gaps=(gap,),
         context_association_ids=("assoc-weather-1",),
+        context_associations=(
+            {
+                "association_id": "assoc-weather-1",
+                "run_id": "run-1",
+                "event_id": "event-1",
+                "report_id": "weather-report-1",
+                "facility_id": "facility-1",
+                "relation_type": "observation_during_operation",
+                "selection_method": "latest eligible report",
+                "relevant_times": {"observed_at": "2026-05-19T21:30:00Z"},
+                "source_id": "source:weather",
+                "source_snapshot_sha256": SHA_A,
+                "causal_claim": False,
+            },
+        ),
         public_observation_ids=("obs-bts-1",),
+        public_observations=(
+            {
+                "observation_id": "obs-bts-1",
+                "phase": "active",
+                "metric_key": "cancelled_count",
+                "value": 2,
+                "derivation_id": "derivation-bts-1",
+                "validation_profile_id": "profile-public-1",
+                "validation_profile_checksum": SHA_B,
+                "source_id": "source:bts",
+                "source_snapshot_sha256": SHA_B,
+            },
+        ),
         omitted_slots=(),
         validation_feedback=(),
         source_snapshot_bindings=(
             SourceSnapshotBinding(
+                source_id="source:bts",
+                source_family=SourceFamily.BTS_ON_TIME,
+                source_snapshot_sha256=SHA_B,
+            ),
+            SourceSnapshotBinding(
                 source_id="source:event",
                 source_family=SourceFamily.ATCSCC_ADVISORY,
                 source_snapshot_sha256=SHA_B,
+            ),
+            SourceSnapshotBinding(
+                source_id="source:weather",
+                source_family=SourceFamily.METAR,
+                source_snapshot_sha256=SHA_A,
             ),
         ),
         remaining_tool_budget=6,
@@ -137,7 +201,11 @@ def test_case_assembly_gateway_get_source_evidence() -> None:
 
     assert result.status == "ok"
     assert result.requested_evidence_ids == ["evidence:event:type"]
-    assert len(result.source_snapshot_bindings) == 1
+    assert [row.evidence_id for row in result.evidence_records] == [
+        "evidence:event:type"
+    ]
+    assert result.evidence_records[0].source_id == "source:event"
+    assert result.evidence_records[0].evidence_text == "GROUND STOP"
 
     # Foreign evidence ID must fail closed
     with pytest.raises(CaseAssemblyToolError):
@@ -151,6 +219,10 @@ def test_case_assembly_gateway_get_resolution_result() -> None:
 
     assert result.status == "ok"
     assert result.resolution_proposal_ids == ["res-prop-1"]
+    assert [row.resolution_proposal_id for row in result.resolution_records] == [
+        "res-prop-1"
+    ]
+    assert result.resolution_records[0].authority_source_ids == ("source:event",)
 
     with pytest.raises(CaseAssemblyToolError):
         gateway.get_resolution_result(resolution_proposal_ids=["unknown-proposal"])
@@ -163,6 +235,17 @@ def test_case_assembly_gateway_get_context_associations() -> None:
 
     assert result.status == "ok"
     assert result.association_ids == ["assoc-weather-1"]
+    assert [row.association_id for row in result.context_associations] == [
+        "assoc-weather-1"
+    ]
+    association = result.context_associations[0]
+    assert association.event_id == "event-1"
+    assert association.report_id == "weather-report-1"
+    assert association.facility_id == "facility-1"
+    assert association.relation_type == "observation_during_operation"
+    assert association.source_id == "source:weather"
+    assert association.source_snapshot_sha256 == SHA_A
+    assert association.causal_claim is False
 
     with pytest.raises(CaseAssemblyToolError):
         gateway.get_context_associations(association_ids=["unknown-assoc"])
@@ -175,6 +258,17 @@ def test_case_assembly_gateway_get_public_observations() -> None:
 
     assert result.status == "ok"
     assert result.observation_ids == ["obs-bts-1"]
+    assert [row.observation_id for row in result.public_observations] == [
+        "obs-bts-1"
+    ]
+    observation = result.public_observations[0]
+    assert observation.phase == "active"
+    assert observation.metric_key == "cancelled_count"
+    assert observation.value == 2
+    assert observation.derivation_id == "derivation-bts-1"
+    assert observation.validation_profile_id == "profile-public-1"
+    assert observation.source_id == "source:bts"
+    assert observation.source_snapshot_sha256 == SHA_B
 
     with pytest.raises(CaseAssemblyToolError):
         gateway.get_public_observations(observation_ids=["unknown-obs"])
@@ -396,6 +490,8 @@ def test_case_assembly_agent_evidence_schema_choice_success() -> None:
     assert result.proposal.assembly_status.value == "ok"
     assert len(result.model_calls) == 2
     assert len(result.tool_traces) == 1
+    assert result.tool_traces[0].result_refs == ["evidence:event:type"]
+    assert result.tool_traces[0].source_ids == ["source:event"]
     assert result.feedback is None
     assert result.failure_reason is None
 
@@ -571,8 +667,8 @@ def test_workflow_three_cases_decision_case_assembly_regression(tmp_path: Path) 
     }
 
     test_cases = [
-        ("2026-05-19:123", "KJFK", "GroundStopTMI", "ok"),
-        ("2026-05-19:138", "KJFK", "GroundDelayProgramTMI", "ok"),
+        ("2026-05-19:123", "KJFK", "GroundStopTMI", "partial"),
+        ("2026-05-19:138", "KJFK", "GroundDelayProgramTMI", "partial"),
         ("2026-05-20:020", "KEWR", "GroundDelayProgramTMI", "partial"),
     ]
 
@@ -684,5 +780,3 @@ def test_workflow_canonical_node_identity_and_idempotency(tmp_path: Path) -> Non
     prop1_repeat = state1_repeat["case_assembly_proposal"]
     assert prop1.case_assembly_proposal_id == prop1_repeat.case_assembly_proposal_id
     assert prop1.payload_checksum == prop1_repeat.payload_checksum
-
-

@@ -144,6 +144,11 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
             role="knowledge_graph_construction",
             catalog_path=DEFAULT_PROMPT_CATALOG,
         ),
+        case_assembly_model_factory=lambda tools: make_live_tool_calling_model(
+            tools=tools,
+            role="decision_case_assembly",
+            catalog_path=DEFAULT_PROMPT_CATALOG,
+        ),
         authority_catalog=authority_catalog,
         run_started_at=run_binding.run_started_at,
         run_id=run_binding.run_id,

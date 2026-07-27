@@ -445,12 +445,44 @@ def _public_observation_publication(
     return metadata
 
 
-def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
-    """Attach optional deterministic context while preserving the core event."""
+def _build_candidate_event(
+    ctx: Any,
+    state: dict[str, Any],
+) -> DecisionContextEvent:
+    """Build the pre-Kernel event candidate from deterministic parse output."""
 
-    output_dir = Path(ctx.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    core_materialization = state.get("materialization")
+    if state.get("validation") is not None:
+        return _build_event(ctx, state)
+    issued_at = parse_advisory_signature(ctx.advisory.content)
+    if issued_at is None:
+        raise LookupError("advisory SIGNATURE is missing")
+    mentions = state.get("mentions")
+    start_value = getattr(mentions, "effective_start", "") if mentions else ""
+    end_value = getattr(mentions, "effective_end", "") if mentions else ""
+    if not start_value or not end_value:
+        raise LookupError("candidate operational period is missing")
+    start = datetime.fromisoformat(start_value.replace("Z", "+00:00"))
+    end = datetime.fromisoformat(end_value.replace("Z", "+00:00"))
+    event_uri = str(
+        state.get("formal_event_uri_hint")
+        or state.get("event_uri")
+        or ""
+    )
+    if not event_uri:
+        raise LookupError("candidate event ID is missing")
+    return DecisionContextEvent(
+        run_id=ctx.run_id,
+        event_id=_absolute_event_iri(event_uri),
+        advisory_source_id=ctx.advisory.source_id,
+        advisory_issued_at=issued_at,
+        operational_start=start,
+        operational_end=end,
+    )
+
+
+def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
+    """Prepare and validate optional context in memory before Assembly."""
+
     decision_event: DecisionContextEvent | None = None
     facility: CanonicalEntity | None = None
     kg_result = state.get("kg_result")
@@ -474,7 +506,7 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
         common_status = "ok"
         common_reason = ""
         try:
-            decision_event = _build_event(ctx, state)
+            decision_event = _build_candidate_event(ctx, state)
             facility = _resolve_facility(ctx, state)
         except LookupError as exc:
             common_status = "insufficient"
@@ -563,6 +595,140 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
             except (TypeError, ValueError) as exc:
                 outcome_bundle = _empty_outcomes("blocked", str(exc))
 
+    profile_registry = load_validation_profile_registry(
+        decision_guide=ctx.guide or load_schema_guide()
+    )
+    selected_records = [ctx.advisory]
+    if weather_bundle.status == "ok":
+        selected_records.extend(
+            weather_records_by_id[source_id]
+            for source_id in sorted(
+                {association.source_id for association in weather_bundle.associations}
+            )
+        )
+    if outcome_bundle.status == "ok" and bts_record is not None:
+        selected_records.append(bts_record)
+    selected_registry = build_source_snapshot_registry(selected_records)
+    observation_bundle = _empty_observations(
+        outcome_bundle.status,
+        outcome_bundle.failure_reason,
+    )
+    if (
+        outcome_bundle.status == "ok"
+        and decision_event is not None
+        and facility is not None
+    ):
+        try:
+            observation_bundle = build_bts_observation_facts(
+                decision_event,
+                facility,
+                outcome_bundle,
+                selected_registry,
+                profile_registry,
+            )
+        except (TypeError, ValueError) as exc:
+            observation_bundle = _empty_observations("blocked", str(exc))
+        if (
+            observation_bundle.status == "ok"
+            and observation_bundle.reconstruction_trace is not None
+        ):
+            expected_weather_ids = set(
+                (
+                    f"urn:aviation-agentic-ai:{report_id}"
+                    for report_id in weather_bundle.selected_report_ids
+                )
+                if weather_bundle.status == "ok"
+                else ()
+            )
+            published_weather_ids = {
+                member
+                for member in observation_bundle.reconstruction_trace.member_iris
+                if member.startswith("urn:aviation-agentic-ai:weather-report:")
+            }
+            if expected_weather_ids != published_weather_ids:
+                observation_bundle = _empty_observations(
+                    "blocked",
+                    (
+                        "reconstruction trace weather members do not match "
+                        "validated weather members"
+                    ),
+                )
+    return {
+        "decision_context_prepared": True,
+        "decision_context_event": decision_event,
+        "weather_context": weather_bundle,
+        "outcome_context": outcome_bundle,
+        "observation_context": observation_bundle,
+        "prepared_source_snapshot": selected_registry,
+        "model_calls": [],
+    }
+
+
+def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
+    """Publish prepared context after revalidating the Kernel-accepted event."""
+
+    output_dir = Path(ctx.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    core_materialization = state.get("materialization")
+    prepared = (
+        state
+        if state.get("decision_context_prepared")
+        else {**state, **prepare_decision_context(ctx, state)}
+    )
+    decision_event = prepared.get("decision_context_event")
+    weather_bundle = prepared["weather_context"]
+    outcome_bundle = prepared["outcome_context"]
+    observation_bundle = prepared["observation_context"]
+    weather_records_by_id = {
+        record.source_id: record for record in ctx.weather_sources
+    }
+    bts_record = ctx.bts_source
+
+    validation = state.get("validation")
+    common_status = "ok"
+    common_reason = ""
+    if validation is None:
+        preflight_status = state.get("resolution_preflight_status")
+        kg_result = state.get("kg_result")
+        if (
+            kg_result is not None
+            and getattr(kg_result, "status", None) is AgentStatus.BLOCKED
+        ):
+            common_status = "blocked"
+            common_reason = (
+                getattr(kg_result, "failure_reason", None)
+                or "knowledge graph construction was blocked"
+            )
+        elif preflight_status in {"blocked", "insufficient"}:
+            common_status = preflight_status
+            common_reason = state.get(
+                "resolution_preflight_reason",
+                "required resolution preflight did not pass",
+            )
+        else:
+            common_status = "blocked"
+            common_reason = "core event is not publishable"
+    elif not validation.publishable:
+        common_status = "blocked"
+        common_reason = "core event is not publishable"
+    elif decision_event is not None:
+        try:
+            accepted_event = _build_event(ctx, state)
+        except (LookupError, TypeError, ValueError) as exc:
+            accepted_event = None
+            common_status = "blocked"
+            common_reason = str(exc)
+        if accepted_event != decision_event:
+            common_status = "blocked"
+            common_reason = (
+                "prepared decision context event differs from "
+                "Formal Graph Kernel accepted event"
+            )
+    if common_status == "blocked":
+        weather_bundle = _empty_weather("blocked", common_reason)
+        outcome_bundle = _empty_outcomes("blocked", common_reason)
+        observation_bundle = _empty_observations("blocked", common_reason)
+
     authority_registry = state.get("authority_source_records")
     authority_status = getattr(
         getattr(authority_registry, "status", None),
@@ -598,49 +764,6 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
     profile_registry = load_validation_profile_registry(
         decision_guide=ctx.guide or load_schema_guide()
     )
-    observation_bundle = _empty_observations(
-        outcome_bundle.status,
-        outcome_bundle.failure_reason,
-    )
-    if (
-        outcome_bundle.status == "ok"
-        and decision_event is not None
-        and facility is not None
-    ):
-        observation_bundle = build_bts_observation_facts(
-            decision_event,
-            facility,
-            outcome_bundle,
-            persisted_registry,
-            profile_registry,
-        )
-        if (
-            observation_bundle.status == "ok"
-            and observation_bundle.reconstruction_trace is not None
-        ):
-            expected_weather_ids = set(
-                (
-                    f"urn:aviation-agentic-ai:{report_id}"
-                    for report_id in weather_bundle.selected_report_ids
-                )
-                if weather_bundle.status == "ok"
-                else ()
-            )
-            published_weather_ids = {
-                member
-                for member in observation_bundle.reconstruction_trace.member_iris
-                if member.startswith(
-                    "urn:aviation-agentic-ai:weather-report:"
-                )
-            }
-            if expected_weather_ids != published_weather_ids:
-                observation_bundle = _empty_observations(
-                    "blocked",
-                    (
-                        "reconstruction trace weather members do not match "
-                        "validated weather members"
-                    ),
-                )
 
     materialization = core_materialization
 

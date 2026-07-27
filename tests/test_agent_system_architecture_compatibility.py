@@ -59,6 +59,7 @@ LEGACY_INGEST_NODES = {
     "facility",
     "terminology",
     "join",
+    "prepare_context",
     "kg_construction",
     "materialize",
     "decision_context",

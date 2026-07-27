@@ -60,10 +60,15 @@ from aviation_agentic_ai.agent_system.contracts import (
 )
 from aviation_agentic_ai.agent_system.decision_case_contracts import (
     AssemblyStatus,
+    CaseAssemblyEvidenceRecord,
+    CaseAssemblyPublicObservation,
+    CaseAssemblyResolutionRecord,
     CaseAssemblyProposal,
     CaseAssemblyTask,
     CaseFactProposal,
     CaseProfileGapProposal,
+    ComponentLayerResult,
+    ComponentLayerStatus,
     ContractExecutionBinding,
     FrozenContractModel,
     ResolutionDecision,
@@ -81,6 +86,10 @@ from aviation_agentic_ai.agent_system.case_assembly_tools import (
 )
 from aviation_agentic_ai.agent_system.context_artifacts import (
     integrate_decision_context,
+    prepare_decision_context,
+)
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    load_validation_profile_registry,
 )
 from aviation_agentic_ai.agent_system.formal_graph import (
     validate_graph_patch,
@@ -275,6 +284,8 @@ class IngestState(TypedDict):
     validation: Any
     source_snapshot: Any
     decision_context_event: Any
+    decision_context_prepared: bool
+    prepared_source_snapshot: Any
     weather_context: Any
     outcome_context: Any
     observation_context: Any
@@ -292,6 +303,7 @@ def build_ingest_graph() -> Any:
     sg.add_node("facility", _facility_node)
     sg.add_node("terminology", _terminology_node)
     sg.add_node("join", _join_node)
+    sg.add_node("prepare_context", _prepare_context_node)
     sg.add_node("kg_construction", _kg_construction_node)
     sg.add_node("materialize", _materialize_node)
     sg.add_node("decision_context", _decision_context_node)
@@ -302,7 +314,8 @@ def build_ingest_graph() -> Any:
     # Join after the two specialist Agents.
     sg.add_edge("facility", "join")
     sg.add_edge("terminology", "join")
-    sg.add_edge("join", "kg_construction")
+    sg.add_edge("join", "prepare_context")
+    sg.add_edge("prepare_context", "kg_construction")
     sg.add_edge("kg_construction", "materialize")
     sg.add_edge("materialize", "decision_context")
     sg.add_edge("decision_context", END)
@@ -728,6 +741,12 @@ def _join_node(state: dict) -> dict:
     }
 
 
+def _prepare_context_node(state: dict) -> dict:
+    """Prepare validated optional context in memory before Case Assembly."""
+
+    return prepare_decision_context(_ctx(), state)
+
+
 def _accepted_event_source_ids(
     advisory_source_id: str,
     *results: AgentResult | None,
@@ -783,29 +802,43 @@ def _build_case_assembly_task_from_state(
     event_class: str,
 ) -> CaseAssemblyTask:
     guide = ctx.guide or load_schema_guide()
-    advisory_result: AgentResult = state["advisory_result"]
     facility_result: AgentResult = state["facility_result"]
-    terminology_result: AgentResult = state["terminology_result"]
 
-    selected_claims: list[str] = [ctx.advisory.source_id]
-    if advisory_result and advisory_result.evidence_card:
-        selected_claims.extend(c.field_name for c in advisory_result.evidence_card.claims)
-    if facility_result and facility_result.evidence_card:
-        selected_claims.extend(
-            c.canonical_ref for c in facility_result.evidence_card.claims if c.canonical_ref
-        )
-    if terminology_result and terminology_result.evidence_card:
-        selected_claims.extend(
-            c.canonical_ref for c in terminology_result.evidence_card.claims if c.canonical_ref
-        )
+    evidence_records = (
+        CaseAssemblyEvidenceRecord(
+            evidence_id=ctx.advisory.source_id,
+            field_name="advisory_record",
+            value=ctx.advisory.source_id,
+            evidence_text=ctx.advisory.content,
+            source_id=ctx.advisory.source_id,
+        ),
+    )
+    selected_claims = (ctx.advisory.source_id,)
 
     facility_prop = state.get("facility_resolution_proposal")
     term_prop = state.get("terminology_resolution_proposal")
-    res_prop_ids: list[str] = []
-    if facility_prop and hasattr(facility_prop, "resolution_proposal_id"):
-        res_prop_ids.append(facility_prop.resolution_proposal_id)
-    if term_prop and hasattr(term_prop, "resolution_proposal_id"):
-        res_prop_ids.append(term_prop.resolution_proposal_id)
+    resolution_records = tuple(
+        sorted(
+            (
+                CaseAssemblyResolutionRecord(
+                    resolution_proposal_id=proposal.resolution_proposal_id,
+                    decision=proposal.decision,
+                    selected_candidate_id=proposal.selected_candidate_id,
+                    supporting_evidence_claim_ids=(
+                        proposal.supporting_evidence_claim_ids
+                    ),
+                    authority_source_ids=proposal.authority_source_ids,
+                )
+                for proposal in (facility_prop, term_prop)
+                if proposal is not None
+                and hasattr(proposal, "resolution_proposal_id")
+            ),
+            key=lambda row: row.resolution_proposal_id,
+        )
+    )
+    res_prop_ids = tuple(
+        row.resolution_proposal_id for row in resolution_records
+    )
 
     mentions = state.get("mentions") or parse_structured_fields(ctx.advisory.content)
     profile_id = (
@@ -983,13 +1016,89 @@ def _build_case_assembly_task_from_state(
         if slot in (*required_slots, *optional_slots) and not value
     )
 
-    source_binding = SourceSnapshotBinding(
-        source_id=ctx.advisory.source_id,
-        source_family=SourceFamily.ATCSCC_ADVISORY,
-        source_snapshot_sha256=hashlib.sha256(
-            ctx.advisory.content.encode("utf-8")
-        ).hexdigest(),
+    weather_bundle = state.get("weather_context")
+    context_associations = tuple(
+        sorted(
+            (
+                weather_bundle.associations
+                if weather_bundle is not None and weather_bundle.status == "ok"
+                else ()
+            ),
+            key=lambda row: row.association_id,
+        )
     )
+    outcome_bundle = state.get("outcome_context")
+    observation_bundle = state.get("observation_context")
+    profile_registry = load_validation_profile_registry(decision_guide=guide)
+    public_profile = next(
+        profile
+        for profile in profile_registry.profiles
+        if profile.ref.layer == "public_operational_observation"
+    )
+    summary_phase = {
+        summary.summary_id: summary.phase
+        for summary in (
+            outcome_bundle.summaries
+            if outcome_bundle is not None and outcome_bundle.status == "ok"
+            else ()
+        )
+    }
+    public_observations = tuple(
+        sorted(
+            (
+                CaseAssemblyPublicObservation(
+                    observation_id=trace.observation_id,
+                    phase=summary_phase[trace.summary_id],
+                    metric_key=trace.metric_key,
+                    value=trace.canonical_value,
+                    derivation_id=trace.derivation_id,
+                    validation_profile_id=public_profile.ref.profile_id,
+                    validation_profile_checksum=(
+                        public_profile.ref.profile_checksum
+                    ),
+                    source_id=trace.source_id,
+                    source_snapshot_sha256=trace.source_snapshot_sha256,
+                )
+                for trace in (
+                    observation_bundle.fact_traces
+                    if observation_bundle is not None
+                    and observation_bundle.status == "ok"
+                    else ()
+                )
+                if trace.canonical_value is not None
+            ),
+            key=lambda row: row.observation_id,
+        )
+    )
+    prepared_registry = state.get("prepared_source_snapshot")
+    selected_source_ids = {
+        ctx.advisory.source_id,
+        *(row.source_id for row in context_associations),
+        *(row.source_id for row in public_observations),
+    }
+    source_bindings = tuple(
+        sorted(
+            (
+                SourceSnapshotBinding(
+                    source_id=snapshot.source_id,
+                    source_family=snapshot.family,
+                    source_snapshot_sha256=snapshot.content_sha256,
+                )
+                for snapshot in (
+                    prepared_registry.snapshots
+                    if prepared_registry is not None
+                    else build_source_snapshot_registry([ctx.advisory]).snapshots
+                )
+                if snapshot.source_id in selected_source_ids
+            ),
+            key=lambda row: row.source_id,
+        )
+    )
+    available_layers = ["layer:advisory"]
+    if context_associations:
+        available_layers.append("layer:weather")
+    if public_observations:
+        available_layers.append("layer:bts")
 
     binding = ContractExecutionBinding(
         run_id=ctx.run_id,
@@ -1004,19 +1113,57 @@ def _build_case_assembly_task_from_state(
         run_id=ctx.run_id,
         case_id=f"case:{ctx.advisory.source_id}",
         core_event_fact_ids=tuple(f.proposal_item_id for f in sorted_proposed_facts),
-        resolution_proposal_ids=tuple(res_prop_ids),
-        available_evidence_layer_ids=("layer:advisory", "layer:weather", "layer:bts"),
+        resolution_proposal_ids=res_prop_ids,
+        available_evidence_layer_ids=available_layers,
         required_case_slots=required_slots,
         optional_case_slots=optional_slots,
         missing_slots=missing_slots,
         schema_profile_id=profile_id,
         schema_context_id=guide.schema_slice_id,
         schema_snapshot_sha256=guide.checksum,
-        selected_evidence_claim_ids=tuple(sorted(set(selected_claims))),
+        selected_evidence_claim_ids=selected_claims,
+        evidence_records=evidence_records,
+        resolution_records=resolution_records,
         proposed_facts=sorted_proposed_facts,
         profile_gaps=sorted_profile_gaps,
-        source_snapshot_bindings=(source_binding,),
+        context_association_ids=tuple(
+            row.association_id for row in context_associations
+        ),
+        context_associations=context_associations,
+        public_observation_ids=tuple(
+            row.observation_id for row in public_observations
+        ),
+        public_observations=public_observations,
+        source_snapshot_bindings=source_bindings,
         binding=binding,
+    )
+
+
+_FIXED_CASE_ASSEMBLY_SOURCE_IDS = frozenset(
+    {
+        "2026-05-19:123",
+        "2026-05-19:138",
+        "2026-05-20:020",
+    }
+)
+
+
+def _should_activate_case_assembly_agent(
+    *,
+    source_id: str,
+    task: Any,
+    case_assembly_model_factory: ToolModelFactory | None,
+) -> bool:
+    """Activate only a dedicated provider for a genuine non-fixed choice."""
+
+    return (
+        case_assembly_model_factory is not None
+        and source_id not in _FIXED_CASE_ASSEMBLY_SOURCE_IDS
+        and (
+            bool(task.missing_slots)
+            or set(getattr(task, "available_evidence_layer_ids", ()))
+            != {"layer:advisory", "layer:weather", "layer:bts"}
+        )
     )
 
 
@@ -1073,12 +1220,80 @@ def _kg_construction_node(state: dict) -> dict:
         tool_version="deterministic-assembly-v1",
     )
 
-    model_factory = ctx.case_assembly_model_factory or ctx.kg_tool_model_factory
+    activate_agent = _should_activate_case_assembly_agent(
+        source_id=ctx.advisory.source_id,
+        task=assembly_task,
+        case_assembly_model_factory=ctx.case_assembly_model_factory,
+    )
+    optional_layer_results: list[ComponentLayerResult] = [
+        ComponentLayerResult(
+            layer_id="core",
+            status=ComponentLayerStatus.OK,
+            required_for_task=True,
+            artifact_ids=assembly_task.core_event_fact_ids,
+        )
+    ]
+    optional_limitations: list[str] = []
+    for layer_id, bundle, artifact_ids in (
+        (
+            "layer:weather",
+            state.get("weather_context"),
+            assembly_task.context_association_ids,
+        ),
+        (
+            "layer:bts",
+            state.get("observation_context"),
+            assembly_task.public_observation_ids,
+        ),
+    ):
+        status = getattr(bundle, "status", "insufficient")
+        failure_reason = getattr(bundle, "failure_reason", "") or (
+            f"{layer_id} context is unavailable"
+        )
+        if status == "ok" and artifact_ids:
+            optional_layer_results.append(
+                ComponentLayerResult(
+                    layer_id=layer_id,
+                    status=ComponentLayerStatus.OK,
+                    required_for_task=False,
+                    artifact_ids=artifact_ids,
+                )
+            )
+        elif status == "blocked":
+            optional_layer_results.append(
+                ComponentLayerResult(
+                    layer_id=layer_id,
+                    status=ComponentLayerStatus.BLOCKED,
+                    required_for_task=False,
+                    blocking_error_id=stable_contract_id(
+                        "case-assembly-layer-error",
+                        ctx.run_id,
+                        layer_id,
+                        failure_reason,
+                    ),
+                )
+            )
+            optional_limitations.append(f"{layer_id}: {failure_reason}")
+        else:
+            optional_layer_results.append(
+                ComponentLayerResult(
+                    layer_id=layer_id,
+                    status=ComponentLayerStatus.INSUFFICIENT,
+                    required_for_task=False,
+                    missing_reason_code=failure_reason,
+                )
+            )
+            optional_limitations.append(f"{layer_id}: {failure_reason}")
 
-    if model_factory is None:
+    if not activate_agent:
         # Deterministic assembly compiler (0 model calls)
         proposal = compile_case_assembly_proposal(
             task=assembly_task,
+            assembly_status=(
+                AssemblyStatus.PARTIAL if optional_limitations else None
+            ),
+            component_layer_results=optional_layer_results,
+            limitations=optional_limitations,
             binding=binding,
         )
         assembly_result = CaseAssemblyResult(
@@ -1091,7 +1306,7 @@ def _kg_construction_node(state: dict) -> dict:
         assembly_result = run_case_assembly_agent(
             task=assembly_task,
             binding=binding,
-            tool_model_factory=model_factory,
+            tool_model_factory=ctx.case_assembly_model_factory,
         )
         proposal = assembly_result.proposal
 

@@ -228,6 +228,37 @@ def _model_tool_observation(result: CaseAssemblyToolResult) -> str:
     return result.model_dump_json()
 
 
+def _tool_result_bindings(
+    result: CaseAssemblyToolResult,
+) -> tuple[list[str], list[str]]:
+    """Project exact returned record and source IDs into the audit trace."""
+
+    result_refs = sorted(
+        {
+            *(row.evidence_id for row in result.evidence_records),
+            *(
+                row.resolution_proposal_id
+                for row in result.resolution_records
+            ),
+            *(row.association_id for row in result.context_associations),
+            *(row.observation_id for row in result.public_observations),
+        }
+    )
+    source_ids = sorted(
+        {
+            *(row.source_id for row in result.evidence_records),
+            *(
+                source_id
+                for row in result.resolution_records
+                for source_id in row.authority_source_ids
+            ),
+            *(row.source_id for row in result.context_associations),
+            *(row.source_id for row in result.public_observations),
+        }
+    )
+    return result_refs, source_ids
+
+
 def _message_text(message: AIMessage) -> str:
     if isinstance(message.content, list):
         return "".join(
@@ -434,12 +465,15 @@ def run_case_assembly_agent(
             )
 
         duration = (time.perf_counter() - started) * 1000.0
+        result_refs, source_ids = _tool_result_bindings(result)
         traces.append(
             _build_case_assembly_trace(
                 task=task,
                 ordinal=len(traces),
                 tool=name,
                 parameters=safe_parameters,
+                result_refs=result_refs,
+                source_ids=source_ids,
                 status="ok",
                 duration_ms=duration,
             )

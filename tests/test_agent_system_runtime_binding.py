@@ -678,6 +678,60 @@ def test_required_blocked_domain_stops_kg_factory_and_preserves_blocked_status(
     assert state["formal_layers"]["decision"]["status"] == "blocked"
 
 
+def test_case_assembly_complexity_gate_uses_only_dedicated_factory() -> None:
+    """Legacy KG factories never activate Assembly; fixed cases never need it."""
+
+    from types import SimpleNamespace
+
+    def legacy_factory(tools):
+        del tools
+        return object()
+
+    def dedicated_factory(tools):
+        del tools
+        return object()
+    complete = SimpleNamespace(
+        missing_slots=(),
+        available_evidence_layer_ids=(
+            "layer:advisory",
+            "layer:bts",
+            "layer:weather",
+        ),
+    )
+    unresolved = SimpleNamespace(
+        missing_slots=("impacting_condition",),
+        available_evidence_layer_ids=("layer:advisory",),
+    )
+
+    for source_id in (
+        "2026-05-19:123",
+        "2026-05-19:138",
+        "2026-05-20:020",
+    ):
+        assert not workflow_module._should_activate_case_assembly_agent(
+            source_id=source_id,
+            task=unresolved,
+            case_assembly_model_factory=dedicated_factory,
+        )
+    assert not workflow_module._should_activate_case_assembly_agent(
+        source_id="fixture:unresolved",
+        task=unresolved,
+        case_assembly_model_factory=None,
+    )
+    assert not workflow_module._should_activate_case_assembly_agent(
+        source_id="fixture:unresolved",
+        task=complete,
+        case_assembly_model_factory=dedicated_factory,
+    )
+    assert workflow_module._should_activate_case_assembly_agent(
+        source_id="fixture:unresolved",
+        task=unresolved,
+        case_assembly_model_factory=dedicated_factory,
+    )
+    # A legacy KG factory cannot change the Assembly activation result.
+    assert legacy_factory is not dedicated_factory
+
+
 def test_blocked_assembly_stops_before_kernel_and_materialization(tmp_path, monkeypatch):
     """A sealed blocked Assembly result cannot enter the publication path."""
 
@@ -687,7 +741,17 @@ def test_blocked_assembly_stops_before_kernel_and_materialization(tmp_path, monk
 
     config, _ = _test_inputs(tmp_path)
     catalog = _catalog(tmp_path)
-    advisory = load_advisory_source(config, "2026-05-19:123")
+    canonical = load_advisory_source(config, "2026-05-19:123")
+    advisory = canonical.model_copy(
+        update={
+            "source_id": "fixture:blocked-assembly",
+            "content": "\n".join(
+                line
+                for line in canonical.content.splitlines()
+                if not line.startswith("IMPACTING CONDITION:")
+            ),
+        }
+    )
 
     def blocked_assembly(*, task, binding, tool_model_factory):
         del tool_model_factory
@@ -834,7 +898,17 @@ def test_hard_preflight_feedback_blocks_publication(tmp_path, monkeypatch):
 
     config, _ = _test_inputs(tmp_path)
     catalog = _catalog(tmp_path)
-    advisory = load_advisory_source(config, "2026-05-19:123")
+    canonical = load_advisory_source(config, "2026-05-19:123")
+    advisory = canonical.model_copy(
+        update={
+            "source_id": "fixture:hard-preflight-violation",
+            "content": "\n".join(
+                line
+                for line in canonical.content.splitlines()
+                if not line.startswith("IMPACTING CONDITION:")
+            ),
+        }
+    )
 
     def hard_violation_assembly(*, task, binding, tool_model_factory):
         del tool_model_factory
@@ -897,7 +971,17 @@ def test_hard_preflight_block_preserves_component_layer_audit_rows(
 
     config, _ = _test_inputs(tmp_path)
     catalog = _catalog(tmp_path)
-    advisory = load_advisory_source(config, "2026-05-19:123")
+    canonical = load_advisory_source(config, "2026-05-19:123")
+    advisory = canonical.model_copy(
+        update={
+            "source_id": "fixture:hard-preflight-preserve-layers",
+            "content": "\n".join(
+                line
+                for line in canonical.content.splitlines()
+                if not line.startswith("IMPACTING CONDITION:")
+            ),
+        }
+    )
 
     def hard_violation_assembly(*, task, binding, tool_model_factory):
         del tool_model_factory
@@ -1129,7 +1213,7 @@ def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
     captured = {}
     guide = load_schema_guide(str(SCHEMA_PATH))
     advisory = SourceRecord(
-        source_id="2026-05-19:138",
+        source_id="fixture:assembly-allowlist",
         family=SourceFamily.ATCSCC_ADVISORY,
         content="GROUND DELAY PROGRAM",
     )
@@ -1141,7 +1225,7 @@ def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
             guide=guide,
             run_id="run:test",
             output_dir=str(tmp_path),
-            kg_tool_model_factory=lambda tools: object(),
+            case_assembly_model_factory=lambda tools: object(),
         ),
     )
 

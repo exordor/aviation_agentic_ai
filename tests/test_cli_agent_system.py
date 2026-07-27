@@ -428,13 +428,16 @@ def test_cli_preserves_domain_isolation_when_one_authority_file_is_missing(
     assert callable(captured["ctx"].model_invoker_factory)
     assert callable(captured["ctx"].semantic_resolution_tool_model_factory)
     assert callable(captured["ctx"].kg_tool_model_factory)
+    assert callable(captured["ctx"].case_assembly_model_factory)
     assert resolution_factory_calls == []
     assert tool_factory_calls == []
     captured["ctx"].semantic_resolution_tool_model_factory([])
     captured["ctx"].kg_tool_model_factory([])
+    captured["ctx"].case_assembly_model_factory([])
     assert [call["role"] for call in tool_factory_calls] == [
         "semantic_resolution",
         "knowledge_graph_construction",
+        "decision_case_assembly",
     ]
     assert len(authority_load_calls) == 1
     assert authority_load_calls[0][1]["created_at"] == RUN_STARTED_AT
