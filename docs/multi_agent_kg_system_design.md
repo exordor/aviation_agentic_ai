@@ -1,7 +1,7 @@
 # Multi-Agent Aviation Event Knowledge System
 
 Status: normative implementation design
-Version: 1.2
+Version: 1.3
 Date: 2026-07-27
 
 ## 1. Purpose
@@ -15,7 +15,9 @@ Agents, constructs an ontology-guided event knowledge graph, and answers a user
 question from that graph with source references. The Decision Context Case v0
 extension established the bounded Weather/BTS adapters. Decision Case Graph v1
 adds source-qualified BTS-reported public operational observations without
-adding Agent roles or causal claims.
+adding Agent roles or causal claims. Batch B adds one shared Semantic
+Resolution Agent behind the existing facility and terminology compatibility
+branches. It activates only for genuine multi-candidate ambiguity.
 
 The project objective is to build a useful and extensible system. It is not
 currently a Single-Agent versus Multi-Agent comparison experiment, a Gold-set
@@ -26,7 +28,9 @@ The required vertical slice is:
 ```text
 ATCSCC advisory
     -> Advisory Agent
-    -> Facility Agent and Terminology Agent
+    -> Facility Agent and Terminology Agent compatibility branches
+       -> deterministic blocked / insufficient / unique outcomes
+       -> shared Semantic Resolution Agent for multiple eligible candidates
     -> Knowledge Graph Construction Agent
     -> ontology-constrained Graph Patch
     -> core formal validation and materialization
@@ -51,18 +55,21 @@ ATCSCC advisory
 - The existing NASA ATMONTO-derived ATCSCC schema profile.
 - The curated NASA ATMONTO weather profile slice.
 - The curated SOSA/PROV/TIME/QUDT public-observation profile.
-- Five named Agent roles:
+- Five existing compatibility role surfaces:
   - Advisory Agent
   - Facility Agent
   - Terminology Agent
   - Knowledge Graph Construction Agent
   - Query Agent
+- One shared Semantic Resolution Agent that is conditionally activated behind
+  the facility and terminology branches.
 - LangGraph for the fixed collaboration topology.
 - LangChain for model invocation.
 - Pydantic for internal Python contracts.
 - A tolerant line-oriented Graph Patch model output.
 - RDF, Neo4j projection, canonical-ID merging, and provenance.
-- A bounded real DeepSeek end-to-end smoke run.
+- A separately authorized bounded live semantic smoke gate, which remains
+  pending for Batch B.
 
 ### 2.2 Deferred
 
@@ -106,12 +113,15 @@ flowchart LR
     D --> F["Terminology Agent"]
     G["NASR / ARTCC Tools"] --> E
     H["FAA Glossary / Term Registry"] --> F
+    E -. "multiple eligible candidates" .-> X["Shared Semantic Resolution Agent"]
+    F -. "multiple eligible candidates" .-> X
     I["ATCSCC Schema Guide"] --> B
     I --> F
     I --> J["Knowledge Graph Construction Agent"]
     B --> J
     E --> J
     F --> J
+    X -->|"sealed proposal through compatibility branch"| J
     J --> K["Graph Patch Parser"]
     K --> L["Schema Validator"]
     L --> M["Core RDF / Neo4j Materializer"]
@@ -377,6 +387,11 @@ event-type, facility, operational-term, time, and status mentions.
 
 ## 9. Facility Agent
 
+`Facility Agent` remains the compatibility role name during migration. Its
+authority lookup and zero- or one-candidate decisions are deterministic. Only
+a set of multiple eligible candidates is delegated to the shared Semantic
+Resolution Agent.
+
 ### 9.1 Goal
 
 Resolve a facility mention to an authoritative canonical facility entity and
@@ -400,16 +415,20 @@ its ontology type.
 1. Use the structural slot to select an authority lookup.
 2. Retrieve authority candidates.
 3. Accept a unique authority candidate.
-4. If multiple candidates remain, use the local evidence context only.
-5. If context does not uniquely resolve the mention, return `abstain`.
+4. If multiple eligible candidates remain, seal a candidate-bounded
+   `ResolutionTask` and invoke the shared Semantic Resolution Agent.
+5. Translate its sealed accepted or abstained proposal back into the
+   compatibility evidence card.
 6. Emit canonical ID, authority source, and `nas:Airport`, `nas:ARTCC`, or the
    applicable existing profile type.
 
 ### 9.5 Limits
 
 - at most three tool calls;
-- no model call for a unique authority candidate;
-- at most one model call for a genuine multi-candidate case;
+- no Semantic Resolution model factory for pre-activation blocked,
+  insufficient, or unique authority outcomes;
+- at most two provider calls through the shared Semantic Resolution Agent for
+  a genuine multi-candidate case;
 - no model-created facility IDs.
 
 ### 9.6 Stop conditions
@@ -419,6 +438,12 @@ its ontology type.
 - authority-source failure: `blocked`.
 
 ## 10. Terminology Agent
+
+`Terminology Agent` also remains a compatibility role name. Candidate
+generation, authority lookup, schema compatibility, and zero- or
+one-candidate decisions remain deterministic. Only a set of multiple eligible
+candidates is delegated to the same Semantic Resolution Agent used by the
+facility branch.
 
 ### 10.1 Goal
 
@@ -445,14 +470,17 @@ and map the term to an existing ATCSCC ontology class when supported.
 3. Retrieve the authority definition and source reference.
 4. Map the canonical term to an existing ATMONTO class.
 5. Accept a unique authority mapping.
-6. Return `abstain` when genuine ambiguity remains.
+6. For multiple eligible mappings, seal a candidate-bounded `ResolutionTask`
+   and use the shared Semantic Resolution Agent.
 7. Emit `TerminologyEvidenceCard`.
 
 ### 10.5 Limits
 
 - at most four tool calls;
-- no model call for a unique authority mapping;
-- at most one model call for a genuine multi-candidate case;
+- no Semantic Resolution model factory for pre-activation blocked,
+  insufficient, or unique authority outcomes;
+- at most two provider calls through the shared Semantic Resolution Agent for
+  a genuine multi-candidate case;
 - no new ontology class or property.
 
 ### 10.6 Stop conditions
@@ -460,6 +488,55 @@ and map the term to an existing ATCSCC ontology class when supported.
 - no authority candidate: `abstain`;
 - canonical term exists but no schema mapping: `profile_gap`;
 - authority-source failure: `blocked`.
+
+## Shared Semantic Resolution Agent (Batch B)
+
+The Batch B offline implementation uses one internal Agent runtime for both
+facility and terminology ambiguity. Facility and terminology candidate
+generation and authority sources remain separate. Compatibility wrappers keep
+the existing workflow node names, fan-out, join, CLI commands, and downstream
+evidence-card contracts unchanged.
+
+The Agent receives an immutable `ResolutionTask` containing registered
+candidates and their eligibility audits, source-bound authority evidence,
+schema constraints, and the remaining budget. It may select only an eligible
+candidate and may request one batch of one to three read-only tools:
+
+```text
+get_resolution_candidates
+get_authority_record
+get_ontology_context
+check_candidate_constraints
+compare_candidate_evidence
+```
+
+The first provider turn may request that single tool batch. The second and
+final turn returns exactly the four provider-facing fields `decision`,
+`selected_candidate_id`, `rejected_candidate_ids`, and `limitation`. The
+runtime, not the model, constructs the full `ResolutionProposal`, stable IDs,
+source bindings, and ordered tool traces.
+
+The limits are:
+
+- at most two provider calls and three read-only tool calls;
+- a 4,096-token maximum rendered input and 256-token output cap;
+- no parse-repair retry, second tool batch, graph write, new candidate, or
+  source-family crossover;
+- accepted output requires an eligible candidate and observed distinguishing
+  authority content; ontology or constraint observations may inform the
+  decision but do not replace source-bound authority support;
+- indistinguishable evidence returns `abstained`;
+- malformed output, contract corruption, provider setup failure, or provider
+  invocation failure returns a sealed `blocked` proposal.
+
+Pre-activation blocked, insufficient, zero-candidate, and unique-candidate
+paths do not construct the Semantic Resolution model factory and therefore use
+zero provider calls. A factory construction failure returns a sealed `blocked`
+proposal with a limitation but no provider-attempt record. A provider invocation
+failure adds a failed `ModelCallRecord`, consumes that provider-call budget, and
+returns `blocked`. Automated Batch B acceptance uses scripted tool-model stubs
+or replay only. The separate bounded live semantic smoke remains pending.
+Decision Case Assembly and Decision Case Analysis are not active.
 
 ## 11. Knowledge Graph Construction Agent
 
@@ -645,8 +722,14 @@ The ingest graph is:
 START
   -> Advisory Agent
   -> parallel fan-out:
-       Facility Agent
-       Terminology Agent
+       Facility Agent compatibility branch
+         -> deterministic blocked / insufficient / unique result
+         -> shared Semantic Resolution Agent only for multiple eligible
+            facility candidates
+       Terminology Agent compatibility branch
+         -> deterministic blocked / insufficient / unique result
+         -> the same shared Semantic Resolution Agent only for multiple
+            eligible terminology candidates
   -> evidence-card join
   -> Knowledge Graph Construction Agent
   -> Graph Patch parser
@@ -687,14 +770,29 @@ validated event + canonical facility
   -> bounded deterministic query tools
 ```
 
-### 14.1 Batch A compatibility status
+### 14.1 Batch B compatibility status
 
-Batch A contracts and authority evidence are implemented. Task-referenced
-authority records are retained as audit snapshots after formal graph
-validation, but they do not authorize event facts or enter the KG
-Construction Agent's evidence view. Three-Agent runtime migration has not
-started; the current workflow and reader-facing role names remain the
-compatibility runtime.
+Batch A contracts and authority evidence remain in force. Batch B is
+implemented offline behind the existing facility and terminology compatibility
+entrypoints. Task-referenced authority records are retained as audit snapshots
+after formal graph validation, but they do not authorize event facts or enter
+the KG Construction Agent's evidence view.
+
+The facility and terminology branches construct the same strict
+`ResolutionTask`/`ResolutionProposal` contract family. Deterministic
+pre-activation blocked, insufficient, zero-candidate, and unique-candidate
+outcomes construct no provider. Only multiple eligible candidates activate the
+shared Semantic Resolution Agent, and its result is translated back into the
+existing `AgentResult`, resolution-domain outcome, authority-source registry,
+and model-call ledger. The sealed task, proposal, and safe tool trace remain in
+workflow state for replay and testing.
+
+The workflow node topology, public compatibility entrypoints, CLI commands,
+artifacts, Formal Graph Kernel, Weather/BTS behavior, and facility-versus-term
+authority boundaries remain unchanged. Automated acceptance makes no real
+provider call. The bounded live semantic smoke remains pending, so the system
+does not yet claim that the complete three-Agent target architecture is
+active. Decision Case Assembly and Decision Case Analysis remain inactive.
 
 ## 15. Memory Model
 
@@ -806,6 +904,11 @@ Prompt acceptance has two layers:
    predicates, and graph-source citations. It is implementation QA, not a
    semantic benchmark.
 
+The legacy five-role smoke remains a compatibility check. Batch B adds the
+frozen `semantic_resolution` prompt and deterministic scripted/replay
+acceptance for its model-tool-model loop. Those offline checks do not replace
+the separately authorized bounded live semantic smoke, which remains pending.
+
 The prompt-engineering QA permits one fixed-input diagnostic pass and one
 fixed-input confirmation pass after correcting observed prompt failures. This
 is capped at ten provider calls in total. It is not best-of-N sampling, prompt
@@ -845,7 +948,10 @@ The intended package is:
 src/aviation_agentic_ai/agent_system/
   __init__.py
   contracts.py
+  decision_case_contracts.py
   prompts.py
+  resolution_tools.py
+  semantic_resolution.py
   sources.py
   schema_guide.py
   agents.py
@@ -904,7 +1010,17 @@ the raw advisory.
 - The KG tool loop makes at most two model calls and three tool calls.
 - The Advisory Agent does not canonicalize facilities or terms.
 - Unique authority facility and terminology paths make no model call.
-- Unresolved multiple candidates produce `abstain`.
+- Pre-activation blocked, insufficient, zero-candidate, and unique-candidate
+  resolution paths do not construct a provider. Factory construction failure
+  yields a sealed blocked limitation; provider invocation failure records and
+  consumes the failed attempt.
+- Facility and terminology multiple-candidate paths use the same shared
+  Semantic Resolution runtime while retaining separate authority sources.
+- A resolvable ambiguity requires recorded distinguishing authority content;
+  an indistinguishable ambiguity produces `abstained`.
+- Semantic Resolution remains inside the sealed task candidate set, uses at
+  most two provider calls and one batch of three read-only tools, and blocks on
+  malformed or out-of-scope output without repair.
 - Every EvidenceClaim carries source ID and evidence text.
 - Facility and Terminology Agents fan out and join after the Advisory Agent.
 - Unresolved canonical references cannot enter a formal Graph Patch.

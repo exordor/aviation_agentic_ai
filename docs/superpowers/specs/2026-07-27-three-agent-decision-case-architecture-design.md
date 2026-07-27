@@ -1,6 +1,7 @@
 # Three-Agent Decision Case Architecture Design
 
-Status: approved design; Batch A contracts and authority evidence implemented
+Status: approved design; Batch A complete; Batch B implemented offline with
+the bounded live semantic smoke pending; Batches C and D inactive
 
 Date: 2026-07-27
 
@@ -108,9 +109,17 @@ The following behavior remains unchanged:
 - RDF and Neo4j remain projections of accepted formal facts rather than
   independent semantic authorities.
 
-The active runtime is not changed by this document. Each implementation batch
-must amend the normative parent design, prompts, contracts, manifests, tests,
-and reader-facing claims together.
+Batch B now changes the internal runtime only for genuine multi-candidate
+facility or terminology ambiguity. Existing compatibility entrypoints,
+workflow nodes, fan-out and join, CLI commands, and downstream artifacts remain
+unchanged. Pre-activation blocked, insufficient, zero-candidate, and
+unique-candidate paths remain deterministic and do not construct a provider.
+A factory construction failure returns a sealed blocked limitation without a
+provider-attempt record. An invocation failure adds a failed `ModelCallRecord`,
+consumes the provider-call budget, and returns `blocked`. Decision Case
+Assembly and Decision Case Analysis remain inactive. Each later implementation
+batch must continue to amend the normative parent design, prompts, contracts,
+manifests, tests, and reader-facing claims together.
 
 ## 4. Approved Architecture
 
@@ -174,6 +183,12 @@ Agents merely because an Agent can call them.
 
 ## 6. Semantic Resolution Agent
 
+Implementation status: complete for deterministic stub/replay execution behind
+the existing facility and terminology compatibility branches. Both domains use
+the same Agent runtime while retaining separate candidate generators,
+authority records, and source families. The bounded live semantic smoke is
+pending.
+
 ### 6.1 Goal
 
 Resolve a mention to one registered canonical entity or concept only when
@@ -231,18 +246,26 @@ abstain
 - zero candidates return `insufficient` without provider construction;
 - one authority-valid and type-compatible candidate is accepted
   deterministically without provider construction;
-- only multiple eligible candidates or conflicting constraints activate the
-  Agent;
+- pre-activation blocked or otherwise insufficient tasks also terminate without
+  constructing the model factory;
+- only multiple eligible candidates activate the Agent;
 - one Agent action may request a batch of at most three read-only tool calls;
 - the Agent receives the typed results and makes one final decision;
 - the path therefore permits at most two provider calls;
 - a selected ID must belong to the supplied eligible candidate set;
+- acceptance requires distinguishing source-bound authority content observed
+  through the executed tool batch; ontology and constraint observations may
+  inform the decision but do not replace authority support;
 - insufficient distinguishing evidence must terminate as `abstained`.
+- provider construction or invocation failure, malformed final output, or an
+  out-of-scope candidate produces a sealed `blocked` proposal without a repair
+  retry.
 
 ### 6.6 Memory and Termination
 
 Working memory is the current `ResolutionTask` state. Audit memory is the
-immutable tool and decision trace. There is no long-term learning loop.
+content-bound, replay-verifiable tool and decision trace. There is no long-term
+learning loop.
 
 Termination states are:
 
@@ -300,8 +323,7 @@ query_ontology_hierarchy
 check_schema_compatibility
 ```
 
-Before the Semantic Resolution Agent is enabled for terminology, every term
-candidate must carry:
+Every terminology candidate eligible for Semantic Resolution must carry:
 
 ```text
 term_id
@@ -671,7 +693,7 @@ Their meanings are:
 | Resolution | `accepted` | One supplied candidate has sufficient authority support. |
 | Resolution | `abstained` | Eligible candidates exist, but evidence cannot distinguish them. |
 | Resolution | `insufficient` | No eligible candidate or required resolution evidence exists. |
-| Resolution | `blocked` | Resolution contract, authority record, or checksum is corrupt. |
+| Resolution | `blocked` | Resolution contract, authority record, or checksum is corrupt; provider setup/invocation fails; or provider output is malformed or out of scope. |
 | Assembly | `ok` | Required case evidence is valid and no requested slot is unresolved. |
 | Assembly | `partial` | Core case evidence is valid, but an optional slot or layer is absent, abstained, or blocked. |
 | Assembly | `insufficient` | A required case slot lacks sufficient evidence or resolution. |
@@ -919,8 +941,9 @@ new contracts and regression tests pass.
 
 ### Batch A: Contracts and Authority Evidence
 
-Implementation status: complete. Three-Agent runtime migration has not
-started, and the current workflow and reader-facing role names remain the
+Implementation status: complete. At the Batch A checkpoint no Agent runtime
+migration had started. Batch B now adds only the shared Semantic Resolution
+runtime; the current workflow and reader-facing role names remain the
 compatibility runtime.
 
 - add the three task and result contract families;
@@ -933,13 +956,33 @@ compatibility runtime.
 
 ### Batch B: Semantic Resolution Agent
 
+Implementation status: complete offline. Final acceptance remains subject to
+the separately authorized bounded live semantic smoke.
+
 - consolidate ambiguous facility and terminology decisions;
 - keep source-specific authority tools separate;
 - preserve zero-model unique-candidate paths;
 - add accepted, abstained, insufficient, and blocked traces;
 - test candidate-set containment and source binding.
 
+The implementation retains the public compatibility entrypoints and current
+workflow topology. Facility and terminology tasks with multiple eligible
+candidates enter one shared model-tool-model loop: the first provider turn may
+select one batch of at most three tools from
+`get_resolution_candidates`, `get_authority_record`,
+`get_ontology_context`, `check_candidate_constraints`, and
+`compare_candidate_evidence`; the second turn emits the strict four-field
+decision. The runtime seals IDs, source bindings, supporting observations, and
+safe traces into `ResolutionProposal`. Pre-activation blocked, insufficient,
+zero-candidate, and unique-candidate paths use zero provider calls and do not
+construct the factory. A factory construction failure returns a sealed blocked
+limitation without a provider-attempt record. An invocation failure adds a
+failed `ModelCallRecord`, consumes the provider-call budget, and returns
+`blocked`.
+
 ### Batch C: Decision Case Assembly Agent
+
+Implementation status: inactive.
 
 - evolve the current graph-construction tool loop into case-slot-aware
   assembly;
@@ -949,6 +992,8 @@ compatibility runtime.
 - keep deterministic assembly for fixed complete mappings.
 
 ### Batch D: Decision Case Analysis Agent
+
+Implementation status: inactive.
 
 Add one high-level task family at a time:
 
@@ -976,8 +1021,9 @@ behavior, prompt version, and acceptance cases before opening the next family.
 
 Two frozen ambiguity fixtures are required:
 
-1. a source-grounded ambiguity that can be resolved only after an authority or
-   ontology tool observation;
+1. a source-grounded ambiguity that can be resolved only after observing
+   distinguishing source-bound authority content; ontology or constraint
+   observations may be supplementary;
 2. a source-grounded ambiguity whose evidence remains insufficient and must
    terminate as `abstained`.
 
@@ -1061,10 +1107,16 @@ are changed.
 
 ```text
 ambiguous candidate set
-  -> authority or ontology tool choice
+  -> source-bound authority tool choice
+  -> optional ontology or constraint tool choice
   -> typed observation
   -> accept or abstain
 ```
+
+The offline implementation covers both the accepted and abstained traces with
+deterministic scripted tool-model fixtures. It also preserves the sealed task,
+proposal, source bindings, and safe tool-trace IDs. This does not close the
+live semantic smoke requirement.
 
 ### Trace B: Case Assembly
 
@@ -1164,6 +1216,9 @@ boundaries, and call-count invariants before the full suite.
 
 ### Gate 1: Semantic Resolution
 
+Offline status: implemented. The final gate remains pending because no
+separately authorized bounded live semantic smoke is recorded.
+
 Go:
 
 - real definitions and sources enter the candidate contract;
@@ -1254,6 +1309,10 @@ The following claims remain unsupported:
 
 ## 22. Planning Boundary
 
-Batch A contracts and authority evidence are implemented. The Semantic
-Resolution, Decision Case Assembly, and Decision Case Analysis Agent runtime
-migration remains deferred to separately approved later batches.
+Batch A contracts and authority evidence are implemented. Batch B's shared
+Semantic Resolution Agent is implemented offline behind the facility and
+terminology compatibility branches; deterministic stub/replay acceptance is
+the current evidence, and the bounded live semantic smoke remains pending.
+Decision Case Assembly and Decision Case Analysis runtime migration remains
+inactive and requires separately approved later batches. The complete
+reader-facing three-Agent claim is therefore not active.
