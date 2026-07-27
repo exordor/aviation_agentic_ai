@@ -825,18 +825,23 @@ def preflight_validate_case_assembly_proposal(
                 constraint_id=f"constraint:declared-reason:{fact.proposal_item_id}",
                 evidence_ids=fact.evidence_claim_ids,
             )
-
-        if fact.object_value.islower() and (
-            fact.predicate_iri in ("atm:controlledFacility", "atm:controlled_facility")
-            or fact.object_kind == "iri"
-        ):
-            corrected = fact.object_value.upper()
+        if fact.object_value != task_fact.object_value:
+            if (
+                fact.object_value.islower()
+                and fact.object_value.upper() == task_fact.object_value
+            ):
+                return feedback(
+                    affected_item_id=fact.proposal_item_id,
+                    violation_code="ALLOWED_VALUE_FORMAT_DEFECT",
+                    constraint_id=f"constraint:format:{fact.proposal_item_id}",
+                    repairable=True,
+                    allowed_corrections=(task_fact.object_value,),
+                    evidence_ids=fact.evidence_claim_ids,
+                )
             return feedback(
                 affected_item_id=fact.proposal_item_id,
-                violation_code="ALLOWED_VALUE_FORMAT_DEFECT",
-                constraint_id=f"constraint:format:{fact.proposal_item_id}",
-                repairable=True,
-                allowed_corrections=(corrected,),
+                violation_code="OUT_OF_TASK_OBJECT_VALUE",
+                constraint_id=f"constraint:object-value:{fact.proposal_item_id}",
                 evidence_ids=fact.evidence_claim_ids,
             )
 

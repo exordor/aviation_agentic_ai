@@ -372,6 +372,40 @@ def test_preflight_validator_repairable_formatting_defect() -> None:
     assert "KJFK" in feedback.allowed_corrections or "https://example.test/facility/KJFK" in feedback.allowed_corrections or len(feedback.allowed_corrections) > 0
 
 
+def test_preflight_rejects_unlisted_non_type_object_value() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+        preflight_validate_case_assembly_proposal,
+    )
+
+    task_fact = CaseFactProposal(
+        proposal_item_id="proposal-fact-1",
+        subject_id="event-1",
+        predicate_iri="atm:controlledFacility",
+        object_kind="iri",
+        object_value="KJFK",
+        evidence_claim_ids=("evidence:event:type",),
+        validation_profile_id="profile-1",
+    )
+    task = _assembly_task(proposed_facts=(task_fact,), profile_gaps=())
+    unlisted = task_fact.model_copy(update={"object_value": "KXYZ"})
+    proposal = compile_case_assembly_proposal(
+        task=task,
+        proposed_facts=(unlisted,),
+        profile_gaps=(),
+        binding=_binding(),
+    )
+
+    feedback = preflight_validate_case_assembly_proposal(
+        task=task,
+        proposal=proposal,
+        binding=_binding(),
+    )
+    assert feedback is not None
+    assert feedback.violation_code == "OUT_OF_TASK_OBJECT_VALUE"
+    assert feedback.repairable is False
+
+
 def test_preflight_validator_hard_causal_violation() -> None:
     from aviation_agentic_ai.agent_system.case_assembly_tools import (
         compile_case_assembly_proposal,
