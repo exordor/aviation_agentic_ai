@@ -109,6 +109,32 @@ def test_operational_situation_preserves_evidence_roles(
     )
 
 
+def test_operational_situation_gateway_trace_deduplicates_phase_derivations(
+    store: QueryGraphStore,
+) -> None:
+    """One phase derivation shared by several facts must remain one trace ID."""
+
+    from aviation_agentic_ai.agent_system.case_analysis_tools import (
+        BoundQueryGateway,
+    )
+    from aviation_agentic_ai.agent_system.query_plan import compile_query_plan
+
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What public operational situation is recorded?",
+        store=store,
+    )
+    gateway = BoundQueryGateway(plan=plan, store=store)
+
+    result = gateway.execute_bound_query_step(step_id=plan.steps[0].step_id)
+
+    assert result.status == "ok"
+    assert len(gateway.traces) == 1
+    assert gateway.traces[0].derivation_ids == tuple(
+        sorted(set(result.derivation_ids))
+    )
+
+
 def test_operational_situation_requires_active_bts_observations(tmp_path) -> None:
     """Treating a missing active public-observation layer as ok hides a gap."""
 

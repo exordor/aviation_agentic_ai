@@ -38,6 +38,7 @@ DEFAULT_PROMPT_CATALOG = "configs/prompts/decision_case_agents_v1.yaml"
 ROLE_KEYS: tuple[str, ...] = (
     "semantic_resolution",
     "decision_case_assembly",
+    "decision_case_analysis",
     "query",
 )
 

@@ -376,6 +376,7 @@ class BoundQueryGateway:
         self._executed.add(step_id)
         observation = _execute_registered_step(step=step, store=self._store)
         self._validate_observation(step=step, observation=observation)
+        derivation_ids = tuple(sorted(set(observation.derivation_ids)))
         self._traces.append(
             QueryToolTrace(
                 trace_id=stable_contract_id(
@@ -386,7 +387,7 @@ class BoundQueryGateway:
                     observation.status,
                     canonical_id_tuple_token(observation.fact_ids, sort_values=True),
                     canonical_id_tuple_token(
-                        observation.derivation_ids,
+                        derivation_ids,
                         sort_values=True,
                     ),
                     canonical_id_tuple_token(
@@ -404,7 +405,7 @@ class BoundQueryGateway:
                 operation=step.operation,
                 observation_status=observation.status,
                 fact_ids=tuple(sorted(observation.fact_ids)),
-                derivation_ids=tuple(sorted(observation.derivation_ids)),
+                derivation_ids=derivation_ids,
                 profile_gap_ids=tuple(sorted(observation.profile_gap_ids)),
                 assessment_ids=tuple(sorted(observation.assessment_ids)),
                 source_ids=tuple(sorted(observation.source_ids)),
