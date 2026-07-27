@@ -1101,13 +1101,13 @@ class CaseAssemblyTaskFields(FrozenContractModel):
             (observation_record_ids, "public_observations"),
         ):
             _validate_set_ids(values, field_name)
-        if self.evidence_records and evidence_record_ids != self.selected_evidence_claim_ids:
+        if evidence_record_ids != self.selected_evidence_claim_ids:
             raise ValueError("evidence records must exactly match selected evidence IDs")
-        if self.resolution_records and resolution_record_ids != self.resolution_proposal_ids:
+        if resolution_record_ids != self.resolution_proposal_ids:
             raise ValueError("resolution records must exactly match proposal IDs")
-        if self.context_associations and association_record_ids != self.context_association_ids:
+        if association_record_ids != self.context_association_ids:
             raise ValueError("context associations must exactly match association IDs")
-        if self.public_observations and observation_record_ids != self.public_observation_ids:
+        if observation_record_ids != self.public_observation_ids:
             raise ValueError("public observations must exactly match observation IDs")
         binding_by_source = {
             row.source_id: row for row in self.source_snapshot_bindings
@@ -1115,6 +1115,9 @@ class CaseAssemblyTaskFields(FrozenContractModel):
         for row in self.evidence_records:
             if row.source_id not in binding_by_source:
                 raise ValueError("evidence record source is not snapshot-bound")
+        for row in self.resolution_records:
+            if not set(row.authority_source_ids).issubset(binding_by_source):
+                raise ValueError("resolution authority source is not snapshot-bound")
         for row in self.context_associations:
             binding = binding_by_source.get(row.source_id)
             if (
@@ -1131,6 +1134,20 @@ class CaseAssemblyTaskFields(FrozenContractModel):
                 != row.source_snapshot_sha256
             ):
                 raise ValueError("public observation source binding mismatch")
+        expected_source_ids = {
+            *(row.source_id for row in self.evidence_records),
+            *(
+                source_id
+                for row in self.resolution_records
+                for source_id in row.authority_source_ids
+            ),
+            *(row.source_id for row in self.context_associations),
+            *(row.source_id for row in self.public_observations),
+        }
+        if set(binding_by_source) != expected_source_ids:
+            raise ValueError(
+                "source snapshot bindings must exactly match referenced record sources"
+            )
         selected = set(self.selected_evidence_claim_ids)
         for item in (*self.proposed_facts, *self.profile_gaps):
             if item.validation_profile_id != self.schema_profile_id:

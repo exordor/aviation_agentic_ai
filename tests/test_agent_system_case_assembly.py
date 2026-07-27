@@ -466,10 +466,39 @@ def _valid_proposal_text() -> str:
 def test_case_assembly_agent_evidence_schema_choice_success() -> None:
     from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
     from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
+    from aviation_agentic_ai.agent_system.decision_case_contracts import (
+        AssemblyStatus,
+        ComponentLayerResult,
+        ComponentLayerStatus,
+    )
     from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
     from langchain_core.messages import AIMessage
 
     task = _assembly_task()
+    component_layer_results = (
+        ComponentLayerResult(
+            layer_id="core",
+            status=ComponentLayerStatus.OK,
+            required_for_task=True,
+            artifact_ids=("fact:event:type",),
+        ),
+        ComponentLayerResult(
+            layer_id="weather",
+            status=ComponentLayerStatus.BLOCKED,
+            required_for_task=False,
+            blocking_error_id="weather:source-unavailable",
+        ),
+        ComponentLayerResult(
+            layer_id="bts",
+            status=ComponentLayerStatus.INSUFFICIENT,
+            required_for_task=False,
+            missing_reason_code="no_matching_public_observation",
+        ),
+    )
+    limitations = (
+        "BTS observation layer is insufficient",
+        "Weather context layer is blocked",
+    )
     turn_1 = _assembly_tool_turn()
     turn_2 = ToolModelTurn(
         message=AIMessage(content=_valid_proposal_text()),
@@ -485,9 +514,14 @@ def test_case_assembly_agent_evidence_schema_choice_success() -> None:
         task=task,
         binding=_binding(),
         tool_model_factory=lambda tools: scripted_model,
+        assembly_status=AssemblyStatus.PARTIAL,
+        component_layer_results=component_layer_results,
+        limitations=limitations,
     )
 
-    assert result.proposal.assembly_status.value == "ok"
+    assert result.proposal.assembly_status is AssemblyStatus.PARTIAL
+    assert result.proposal.component_layer_results == component_layer_results
+    assert result.proposal.limitations == limitations
     assert len(result.model_calls) == 2
     assert len(result.tool_traces) == 1
     assert result.tool_traces[0].result_refs == ["evidence:event:type"]
@@ -499,10 +533,29 @@ def test_case_assembly_agent_evidence_schema_choice_success() -> None:
 def test_case_assembly_agent_one_allowed_revision_success() -> None:
     from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
     from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
+    from aviation_agentic_ai.agent_system.decision_case_contracts import (
+        AssemblyStatus,
+        ComponentLayerResult,
+        ComponentLayerStatus,
+    )
     from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
     from langchain_core.messages import AIMessage
 
     task = _assembly_task()
+    component_layer_results = (
+        ComponentLayerResult(
+            layer_id="core",
+            status=ComponentLayerStatus.OK,
+            required_for_task=True,
+            artifact_ids=("fact:event:type",),
+        ),
+        ComponentLayerResult(
+            layer_id="weather",
+            status=ComponentLayerStatus.BLOCKED,
+            required_for_task=False,
+            blocking_error_id="weather:source-unavailable",
+        ),
+    )
     turn_1 = _assembly_tool_turn()
 
     # Repairable formatting defect: lowercase 'kjfk' for facility
@@ -541,21 +594,59 @@ def test_case_assembly_agent_one_allowed_revision_success() -> None:
         task=task,
         binding=_binding(),
         tool_model_factory=lambda tools: scripted_model,
+        assembly_status=AssemblyStatus.PARTIAL,
+        component_layer_results=component_layer_results,
+        limitations=("Weather context layer is blocked",),
     )
 
-    assert result.proposal.assembly_status.value == "ok"
+    assert result.proposal.assembly_status is AssemblyStatus.PARTIAL
+    assert result.proposal.component_layer_results == component_layer_results
+    assert result.proposal.limitations == ("Weather context layer is blocked",)
     assert result.proposal.revision_count == 1
     assert len(result.model_calls) == 3
     assert result.feedback is None
 
 
+def test_case_assembly_initial_prompt_lists_all_authorized_record_ids() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly import _base_messages
+
+    task = _assembly_task()
+    prompt = str(_base_messages(task, catalog_path="configs/prompts/agent_system_v1.yaml")[-1].content)
+
+    assert "EVIDENCE_IDS:evidence:event:type\nevidence:event:weather" in prompt
+    assert "RESOLUTION_IDS:res-prop-1" in prompt
+    assert "CONTEXT_ASSOCIATION_IDS:assoc-weather-1" in prompt
+    assert "PUBLIC_OBSERVATION_IDS:obs-bts-1" in prompt
+    assert "GROUND STOP" not in prompt
+    assert "cancelled_count" not in prompt
+
+
 def test_case_assembly_agent_hard_semantic_violation_blocks() -> None:
     from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
     from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
+    from aviation_agentic_ai.agent_system.decision_case_contracts import (
+        AssemblyStatus,
+        ComponentLayerResult,
+        ComponentLayerStatus,
+    )
     from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
     from langchain_core.messages import AIMessage
 
     task = _assembly_task()
+    component_layer_results = (
+        ComponentLayerResult(
+            layer_id="core",
+            status=ComponentLayerStatus.OK,
+            required_for_task=True,
+            artifact_ids=("fact:event:type",),
+        ),
+        ComponentLayerResult(
+            layer_id="weather",
+            status=ComponentLayerStatus.BLOCKED,
+            required_for_task=False,
+            blocking_error_id="weather:source-unavailable",
+        ),
+    )
     turn_1 = _assembly_tool_turn()
 
     # Forbidden causal claim
@@ -579,9 +670,20 @@ def test_case_assembly_agent_hard_semantic_violation_blocks() -> None:
         task=task,
         binding=_binding(),
         tool_model_factory=lambda tools: scripted_model,
+        assembly_status=AssemblyStatus.PARTIAL,
+        component_layer_results=component_layer_results,
+        limitations=("Weather context layer is blocked",),
     )
 
     assert result.proposal.assembly_status.value == "blocked"
+    assert (
+        result.proposal.component_layer_results[: len(component_layer_results)]
+        == component_layer_results
+    )
+    assert result.proposal.component_layer_results[-1].layer_id == (
+        "decision_case_assembly"
+    )
+    assert "Weather context layer is blocked" in result.proposal.limitations
     assert len(result.model_calls) == 2  # No turn 3 attempted!
     assert result.feedback is not None
     assert result.feedback.repairable is False

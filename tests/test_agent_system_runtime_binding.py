@@ -753,8 +753,21 @@ def test_blocked_assembly_stops_before_kernel_and_materialization(tmp_path, monk
         }
     )
 
-    def blocked_assembly(*, task, binding, tool_model_factory):
-        del tool_model_factory
+    def blocked_assembly(
+        *,
+        task,
+        binding,
+        tool_model_factory,
+        assembly_status,
+        component_layer_results,
+        limitations,
+    ):
+        del (
+            tool_model_factory,
+            assembly_status,
+            component_layer_results,
+            limitations,
+        )
         proposal = workflow_module.compile_case_assembly_proposal(
             task=task,
             assembly_status=AssemblyStatus.BLOCKED,
@@ -910,8 +923,21 @@ def test_hard_preflight_feedback_blocks_publication(tmp_path, monkeypatch):
         }
     )
 
-    def hard_violation_assembly(*, task, binding, tool_model_factory):
-        del tool_model_factory
+    def hard_violation_assembly(
+        *,
+        task,
+        binding,
+        tool_model_factory,
+        assembly_status,
+        component_layer_results,
+        limitations,
+    ):
+        del (
+            tool_model_factory,
+            assembly_status,
+            component_layer_results,
+            limitations,
+        )
         forbidden_fact = task.proposed_facts[0].model_copy(
             update={
                 "proposal_item_id": "proposal-fact:forbidden-causal",
@@ -983,8 +1009,21 @@ def test_hard_preflight_block_preserves_component_layer_audit_rows(
         }
     )
 
-    def hard_violation_assembly(*, task, binding, tool_model_factory):
-        del tool_model_factory
+    def hard_violation_assembly(
+        *,
+        task,
+        binding,
+        tool_model_factory,
+        assembly_status,
+        component_layer_results,
+        limitations,
+    ):
+        del (
+            tool_model_factory,
+            assembly_status,
+            component_layer_results,
+            limitations,
+        )
         component_layers = (
             ComponentLayerResult(
                 layer_id="core",
@@ -1229,8 +1268,22 @@ def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
         ),
     )
 
-    def capture_inputs(*, task, binding, tool_model_factory):
-        del binding, tool_model_factory
+    def capture_inputs(
+        *,
+        task,
+        binding,
+        tool_model_factory,
+        assembly_status,
+        component_layer_results,
+        limitations,
+    ):
+        del (
+            binding,
+            tool_model_factory,
+            assembly_status,
+            component_layer_results,
+            limitations,
+        )
         captured["allowed_source_ids"] = {b.source_id for b in task.source_snapshot_bindings}
         proposal = workflow_module.compile_case_assembly_proposal(
             task=task,

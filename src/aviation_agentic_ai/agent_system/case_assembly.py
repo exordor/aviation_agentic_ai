@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from functools import partial
 import json
 import time
 from typing import Any, Literal
@@ -17,6 +18,8 @@ from aviation_agentic_ai.agent_system.decision_case_contracts import (
     AssemblyStatus,
     CaseAssemblyProposal,
     CaseAssemblyTask,
+    ComponentLayerResult,
+    ComponentLayerStatus,
     ContractExecutionBinding,
     ValidationFeedback,
     stable_contract_id,
@@ -59,6 +62,16 @@ def _base_messages(task: CaseAssemblyTask, *, catalog_path: str) -> list[BaseMes
             "missing_slots": "\n".join(task.missing_slots) or "(none)",
             "schema_profile_id": task.schema_profile_id,
             "available_evidence_layer_ids": "\n".join(task.available_evidence_layer_ids) or "(none)",
+            "selected_evidence_claim_ids": "\n".join(
+                task.selected_evidence_claim_ids
+            )
+            or "(none)",
+            "resolution_proposal_ids": "\n".join(task.resolution_proposal_ids)
+            or "(none)",
+            "context_association_ids": "\n".join(task.context_association_ids)
+            or "(none)",
+            "public_observation_ids": "\n".join(task.public_observation_ids)
+            or "(none)",
         },
         catalog_path=catalog_path,
     )
@@ -268,7 +281,7 @@ def _message_text(message: AIMessage) -> str:
     return str(message.content or "")
 
 
-def _blocked(
+def _compile_blocked_result(
     *,
     task: CaseAssemblyTask,
     binding: ContractExecutionBinding,
@@ -276,11 +289,30 @@ def _blocked(
     traces: list[ToolTraceEntry],
     reason: str,
     feedback: ValidationFeedback | None = None,
+    component_layer_results: Sequence[ComponentLayerResult] = (),
+    limitations: Sequence[str] = (),
 ) -> CaseAssemblyResult:
+    blocked_layers = tuple(component_layer_results)
+    if blocked_layers:
+        blocked_layers = (
+            *blocked_layers,
+            ComponentLayerResult(
+                layer_id="decision_case_assembly",
+                status=ComponentLayerStatus.BLOCKED,
+                required_for_task=True,
+                blocking_error_id=stable_contract_id(
+                    "case-assembly-agent-error",
+                    task.task_id,
+                    task.payload_checksum,
+                    reason,
+                ),
+            ),
+        )
     proposal = compile_case_assembly_proposal(
         task=task,
         assembly_status=AssemblyStatus.BLOCKED,
-        limitations=(reason,),
+        component_layer_results=blocked_layers,
+        limitations=(*limitations, reason),
         tool_trace_ids=[trace.tool_call_id for trace in traces if trace.tool_call_id],
         binding=binding,
     )
@@ -299,12 +331,20 @@ def run_case_assembly_agent(
     binding: ContractExecutionBinding,
     tool_model_factory: Callable[[list[BaseTool]], ToolCallingModel] | None,
     catalog_path: str = DEFAULT_PROMPT_CATALOG,
+    assembly_status: AssemblyStatus | None = None,
+    component_layer_results: Sequence[ComponentLayerResult] = (),
+    limitations: Sequence[str] = (),
 ) -> CaseAssemblyResult:
     """Run the bounded Case Assembly Agent loop."""
 
     model_calls: list[ModelCallRecord] = []
     traces: list[ToolTraceEntry] = []
     messages = _base_messages(task, catalog_path=catalog_path)
+    _blocked = partial(
+        _compile_blocked_result,
+        component_layer_results=tuple(component_layer_results),
+        limitations=tuple(limitations),
+    )
 
     if tool_model_factory is None:
         return _blocked(
@@ -562,8 +602,11 @@ def run_case_assembly_agent(
     try:
         proposal = compile_case_assembly_proposal(
             task=task,
+            assembly_status=assembly_status,
+            component_layer_results=component_layer_results,
             proposed_facts=parsed_sections.proposed_facts,
             profile_gaps=parsed_sections.profile_gaps,
+            limitations=limitations,
             tool_trace_ids=[trace.tool_call_id for trace in traces if trace.tool_call_id],
             binding=binding,
         )
@@ -698,8 +741,11 @@ def run_case_assembly_agent(
     try:
         revised_proposal = compile_case_assembly_proposal(
             task=task,
+            assembly_status=assembly_status,
+            component_layer_results=component_layer_results,
             proposed_facts=revised_sections.proposed_facts,
             profile_gaps=revised_sections.profile_gaps,
+            limitations=limitations,
             tool_trace_ids=[trace.tool_call_id for trace in traces if trace.tool_call_id],
             revision_count=1,
             binding=binding,

@@ -515,6 +515,11 @@ def test_gdp_138_assembly_sees_only_prepared_validated_multisource_rows(
         advisory.source_id,
         bts_source.source_id,
         *(association.source_id for association in weather.associations),
+        *(
+            authority_source_id
+            for record in task.resolution_records
+            for authority_source_id in record.authority_source_ids
+        ),
     }
     assert {
         binding.source_id for binding in task.source_snapshot_bindings

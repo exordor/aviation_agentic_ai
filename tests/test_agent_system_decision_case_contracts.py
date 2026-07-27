@@ -309,6 +309,7 @@ def _proposal_fields(task_id: str, task_checksum: str) -> ResolutionProposalFiel
 
 
 def _assembly_task_fields(resolution_proposal_id: str) -> CaseAssemblyTaskFields:
+    authority_claim = _authority_claim()
     fact = CaseFactProposal(
         proposal_item_id="proposal-fact-1",
         subject_id="event-1",
@@ -353,21 +354,199 @@ def _assembly_task_fields(resolution_proposal_id: str) -> CaseAssemblyTaskFields
         schema_context_id="context-1",
         schema_snapshot_sha256=SHA_A,
         selected_evidence_claim_ids=selected,
+        evidence_records=(
+            {
+                "evidence_id": "evidence:event:type",
+                "field_name": "event_type",
+                "value": "GS",
+                "evidence_text": "GROUND STOP",
+                "source_id": "source:event",
+            },
+            {
+                "evidence_id": "evidence:event:weather",
+                "field_name": "impacting_condition",
+                "value": "weather",
+                "evidence_text": "IMPACTING CONDITION: WEATHER",
+                "source_id": "source:event",
+            },
+        ),
+        resolution_records=(
+            {
+                "resolution_proposal_id": resolution_proposal_id,
+                "decision": ResolutionDecision.ACCEPTED,
+                "selected_candidate_id": "facility:KJFK",
+                "supporting_evidence_claim_ids": (authority_claim.evidence_id,),
+                "authority_source_ids": (authority_claim.source_id,),
+            },
+        ),
         proposed_facts=(fact,),
         profile_gaps=(gap,),
-        context_association_ids=(),
-        public_observation_ids=(),
+        context_association_ids=("association:weather",),
+        context_associations=(
+            {
+                "association_id": "association:weather",
+                "run_id": "run-1",
+                "event_id": "event-1",
+                "report_id": "weather-report-1",
+                "facility_id": "facility:KJFK",
+                "relation_type": "observation_during_operation",
+                "selection_method": "latest eligible report",
+                "relevant_times": {"observed_at": "2026-05-19T21:30:00Z"},
+                "source_id": "source:weather",
+                "source_snapshot_sha256": SHA_A,
+                "causal_claim": False,
+            },
+        ),
+        public_observation_ids=("observation:bts",),
+        public_observations=(
+            {
+                "observation_id": "observation:bts",
+                "phase": "active",
+                "metric_key": "cancelled_count",
+                "value": 2,
+                "derivation_id": "derivation:bts",
+                "validation_profile_id": "profile-public-1",
+                "validation_profile_checksum": SHA_B,
+                "source_id": "source:bts",
+                "source_snapshot_sha256": SHA_B,
+            },
+        ),
         omitted_slots=(),
         validation_feedback=(),
         source_snapshot_bindings=(
+            SourceSnapshotBinding(
+                source_id=authority_claim.source_id,
+                source_family=SourceFamily.NASR_FACILITY,
+                source_snapshot_sha256=SHA_B,
+            ),
+            SourceSnapshotBinding(
+                source_id="source:bts",
+                source_family=SourceFamily.BTS_ON_TIME,
+                source_snapshot_sha256=SHA_B,
+            ),
             SourceSnapshotBinding(
                 source_id="source:event",
                 source_family=SourceFamily.ATCSCC_ADVISORY,
                 source_snapshot_sha256=SHA_B,
             ),
+            SourceSnapshotBinding(
+                source_id="source:weather",
+                source_family=SourceFamily.METAR,
+                source_snapshot_sha256=SHA_A,
+            ),
         ),
         remaining_tool_budget=6,
     )
+
+
+@pytest.mark.parametrize(
+    ("id_field", "record_field", "error_match"),
+    (
+        (
+            "selected_evidence_claim_ids",
+            "evidence_records",
+            "evidence records must exactly match",
+        ),
+        (
+            "resolution_proposal_ids",
+            "resolution_records",
+            "resolution records must exactly match",
+        ),
+        (
+            "context_association_ids",
+            "context_associations",
+            "context associations must exactly match",
+        ),
+        (
+            "public_observation_ids",
+            "public_observations",
+            "public observations must exactly match",
+        ),
+    ),
+)
+def test_case_assembly_task_rejects_advertised_ids_without_typed_records(
+    id_field: str,
+    record_field: str,
+    error_match: str,
+) -> None:
+    fields = _assembly_task_fields("resolution:accepted")
+    assert getattr(fields, id_field)
+    missing_records = fields.model_copy(update={record_field: ()})
+
+    with pytest.raises(ValueError, match=error_match):
+        seal_case_assembly_task(fields=missing_records, binding=_binding())
+
+
+@pytest.mark.parametrize(
+    ("id_field", "record_field", "error_match"),
+    (
+        (
+            "selected_evidence_claim_ids",
+            "evidence_records",
+            "evidence records must exactly match",
+        ),
+        (
+            "resolution_proposal_ids",
+            "resolution_records",
+            "resolution records must exactly match",
+        ),
+        (
+            "context_association_ids",
+            "context_associations",
+            "context associations must exactly match",
+        ),
+        (
+            "public_observation_ids",
+            "public_observations",
+            "public observations must exactly match",
+        ),
+    ),
+)
+def test_case_assembly_task_rejects_typed_records_without_advertised_ids(
+    id_field: str,
+    record_field: str,
+    error_match: str,
+) -> None:
+    fields = _assembly_task_fields("resolution:accepted")
+    assert getattr(fields, record_field)
+    missing_ids = fields.model_copy(update={id_field: ()})
+
+    with pytest.raises(ValueError, match=error_match):
+        seal_case_assembly_task(fields=missing_ids, binding=_binding())
+
+
+def test_case_assembly_task_rejects_unbound_authority_and_unrelated_sources() -> None:
+    fields = _assembly_task_fields("resolution:accepted")
+    authority_source_id = fields.resolution_records[0].authority_source_ids[0]
+    without_authority = fields.model_copy(
+        update={
+            "source_snapshot_bindings": tuple(
+                row
+                for row in fields.source_snapshot_bindings
+                if row.source_id != authority_source_id
+            )
+        }
+    )
+    with pytest.raises(ValueError, match="resolution authority source"):
+        seal_case_assembly_task(fields=without_authority, binding=_binding())
+
+    unrelated = SourceSnapshotBinding(
+        source_id="source:unrelated",
+        source_family=SourceFamily.METAR,
+        source_snapshot_sha256=SHA_C,
+    )
+    with_unrelated = fields.model_copy(
+        update={
+            "source_snapshot_bindings": tuple(
+                sorted(
+                    (*fields.source_snapshot_bindings, unrelated),
+                    key=lambda row: row.source_id,
+                )
+            )
+        }
+    )
+    with pytest.raises(ValueError, match="exactly match referenced record sources"):
+        seal_case_assembly_task(fields=with_unrelated, binding=_binding())
 
 
 def _assembly_proposal_fields(

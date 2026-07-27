@@ -69,6 +69,10 @@ EXPECTED_PLACEHOLDERS = {
         "missing_slots",
         "schema_profile_id",
         "available_evidence_layer_ids",
+        "selected_evidence_claim_ids",
+        "resolution_proposal_ids",
+        "context_association_ids",
+        "public_observation_ids",
     },
 }
 

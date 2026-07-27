@@ -1071,28 +1071,70 @@ def _build_case_assembly_task_from_state(
         )
     )
     prepared_registry = state.get("prepared_source_snapshot")
+    resolution_source_ids = {
+        source_id
+        for row in resolution_records
+        for source_id in row.authority_source_ids
+    }
+    authority_registry = state.get("authority_source_records")
+    authority_records_by_id = {
+        record.source_id: record
+        for record in (
+            authority_registry.records
+            if authority_registry is not None
+            and authority_registry.status is AuthoritySourceRegistryStatus.OK
+            else ()
+        )
+    }
+    missing_authority_source_ids = resolution_source_ids - set(
+        authority_records_by_id
+    )
+    if missing_authority_source_ids:
+        raise ValueError(
+            "resolution authority sources are unavailable for snapshot binding: "
+            f"{sorted(missing_authority_source_ids)!r}"
+        )
+    authority_snapshots = (
+        build_source_snapshot_registry(
+            [
+                authority_records_by_id[source_id]
+                for source_id in sorted(resolution_source_ids)
+            ]
+        ).snapshots
+        if resolution_source_ids
+        else ()
+    )
     selected_source_ids = {
         ctx.advisory.source_id,
+        *resolution_source_ids,
         *(row.source_id for row in context_associations),
         *(row.source_id for row in public_observations),
     }
-    source_bindings = tuple(
-        sorted(
-            (
-                SourceSnapshotBinding(
-                    source_id=snapshot.source_id,
-                    source_family=snapshot.family,
-                    source_snapshot_sha256=snapshot.content_sha256,
-                )
-                for snapshot in (
-                    prepared_registry.snapshots
-                    if prepared_registry is not None
-                    else build_source_snapshot_registry([ctx.advisory]).snapshots
-                )
-                if snapshot.source_id in selected_source_ids
-            ),
-            key=lambda row: row.source_id,
+    prepared_snapshots = (
+        prepared_registry.snapshots
+        if prepared_registry is not None
+        else build_source_snapshot_registry([ctx.advisory]).snapshots
+    )
+    selected_snapshots_by_id = {
+        snapshot.source_id: snapshot
+        for snapshot in (*prepared_snapshots, *authority_snapshots)
+        if snapshot.source_id in selected_source_ids
+    }
+    missing_source_ids = selected_source_ids - set(selected_snapshots_by_id)
+    if missing_source_ids:
+        raise ValueError(
+            "case assembly source snapshots are unavailable: "
+            f"{sorted(missing_source_ids)!r}"
         )
+    source_bindings = tuple(
+        SourceSnapshotBinding(
+            source_id=source_id,
+            source_family=selected_snapshots_by_id[source_id].family,
+            source_snapshot_sha256=selected_snapshots_by_id[
+                source_id
+            ].content_sha256,
+        )
+        for source_id in sorted(selected_source_ids)
     )
     available_layers = ["layer:advisory"]
     if context_associations:
@@ -1307,6 +1349,11 @@ def _kg_construction_node(state: dict) -> dict:
             task=assembly_task,
             binding=binding,
             tool_model_factory=ctx.case_assembly_model_factory,
+            assembly_status=(
+                AssemblyStatus.PARTIAL if optional_limitations else None
+            ),
+            component_layer_results=optional_layer_results,
+            limitations=optional_limitations,
         )
         proposal = assembly_result.proposal
 

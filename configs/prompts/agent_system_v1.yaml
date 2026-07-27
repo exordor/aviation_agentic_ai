@@ -663,4 +663,7 @@ roles:
       MISSING:${missing_slots}
       PROFILE:${schema_profile_id}
       EVIDENCE_LAYERS:${available_evidence_layer_ids}
-
+      EVIDENCE_IDS:${selected_evidence_claim_ids}
+      RESOLUTION_IDS:${resolution_proposal_ids}
+      CONTEXT_ASSOCIATION_IDS:${context_association_ids}
+      PUBLIC_OBSERVATION_IDS:${public_observation_ids}
