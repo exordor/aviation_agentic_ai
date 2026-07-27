@@ -1054,8 +1054,8 @@ def test_blocked_authority_registry_is_absorbing_at_the_join(tmp_path):
 
     joined = workflow_module._join_node(
         {
-            "facility_resolution_outcome": facility.domain_outcome,
-            "terminology_resolution_outcome": terminology.domain_outcome,
+            "facility_authority_result": facility,
+            "terminology_authority_result": terminology,
             "authority_source_records": authority_registry,
         }
     )
@@ -1151,12 +1151,16 @@ def test_event_class_hint_mismatch_blocks_before_kg_factory(tmp_path, monkeypatc
                 status=AgentStatus.RESOLVED,
                 evidence_card=advisory_card,
             ),
-            "facility_authority_result": AgentResult(
-                status=AgentStatus.RESOLVED,
+            "facility_authority_result": replace(
+                resolve_facility_authority(
+                    task=_task("facility"), request=_facility_envelope(tmp_path)
+                ),
                 evidence_card=facility_card,
             ),
-            "terminology_authority_result": AgentResult(
-                status=AgentStatus.RESOLVED,
+            "terminology_authority_result": replace(
+                resolve_terminology_authority(
+                    task=_task("terminology"), request=_gs_envelope(tmp_path)
+                ),
                 evidence_card=terminology_card,
             ),
             "event_class_hint": "atm:GroundStopTMI",
@@ -1296,13 +1300,23 @@ def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
                 status=AgentStatus.RESOLVED,
                 evidence_card=advisory_card,
             ),
-            "facility_authority_result": AgentResult(
-                status=AgentStatus.RESOLVED,
+            "facility_authority_result": replace(
+                resolve_facility_authority(
+                    task=_task("facility"), request=_facility_envelope(tmp_path)
+                ),
                 evidence_card=facility_card,
+                resolution_proposal=resolve_facility_authority(
+                    task=_task("facility"), request=_facility_envelope(tmp_path)
+                ).resolution_proposal.model_copy(update={"authority_source_ids": ()}),
             ),
-            "terminology_authority_result": AgentResult(
-                status=AgentStatus.RESOLVED,
+            "terminology_authority_result": replace(
+                resolve_terminology_authority(
+                    task=_task("terminology"), request=_gs_envelope(tmp_path)
+                ),
                 evidence_card=terminology_card,
+                resolution_proposal=resolve_terminology_authority(
+                    task=_task("terminology"), request=_gs_envelope(tmp_path)
+                ).resolution_proposal.model_copy(update={"authority_source_ids": ()}),
             ),
             "event_class_hint": "atm:GroundDelayProgramTMI",
             "formal_event_uri_hint": "",
@@ -1423,12 +1437,16 @@ def test_materialization_excludes_authority_only_canonical_entities(
                 status=AgentStatus.RESOLVED,
                 evidence_card=advisory_card,
             ),
-            "facility_authority_result": AgentResult(
-                status=AgentStatus.RESOLVED,
+            "facility_authority_result": replace(
+                resolve_facility_authority(
+                    task=_task("facility"), request=_facility_envelope(tmp_path)
+                ),
                 evidence_card=facility_card,
             ),
-            "terminology_authority_result": AgentResult(
-                status=AgentStatus.RESOLVED,
+            "terminology_authority_result": replace(
+                resolve_terminology_authority(
+                    task=_task("terminology"), request=_gs_envelope(tmp_path)
+                ),
                 evidence_card=terminology_card,
             ),
         }

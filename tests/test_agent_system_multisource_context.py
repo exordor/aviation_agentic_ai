@@ -7,6 +7,7 @@ import json
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
 
@@ -20,8 +21,8 @@ from aviation_agentic_ai.agent_system.context_artifacts import (
     read_outcome_summaries,
     read_weather_fact_traces,
 )
+from aviation_agentic_ai.agent_system.authority_resolution import AuthorityResolutionResult
 from aviation_agentic_ai.agent_system.contracts import (
-    AgentResult,
     AgentStatus,
     BTSObservationBundle,
     EvidenceCard,
@@ -193,9 +194,10 @@ def _core_facts(
     return facts
 
 
-def _facility_result(facility: CanonicalEntity, source_id: str) -> AgentResult:
-    return AgentResult(
-        status=AgentStatus.RESOLVED,
+def _facility_authority_result(
+    facility: CanonicalEntity, source_id: str
+) -> AuthorityResolutionResult:
+    return AuthorityResolutionResult(
         evidence_card=EvidenceCard(
             agent_role="facility",
             status=AgentStatus.RESOLVED,
@@ -212,6 +214,10 @@ def _facility_result(facility: CanonicalEntity, source_id: str) -> AgentResult:
                 )
             ],
         ),
+        domain_outcome=cast(Any, None),
+        authority_source_records=(),
+        resolution_task=cast(Any, None),
+        resolution_proposal=cast(Any, None),
     )
 
 
@@ -369,7 +375,7 @@ def test_missing_or_malformed_signature_fails_the_optional_context_layer(
         ),
         {
             "event_uri": "evt:signature-status",
-            "facility_authority_result": _facility_result(facility, source_id),
+            "facility_authority_result": _facility_authority_result(facility, source_id),
             "validation": GraphValidationResult(accepted=facts, publishable=True),
             "materialization": core_materialization,
         },
@@ -550,7 +556,7 @@ def test_prepared_context_is_rejected_when_kernel_accepts_a_different_event(
     )
     base_state = {
         "event_uri": event_id,
-        "facility_authority_result": _facility_result(facility, advisory.source_id),
+        "facility_authority_result": _facility_authority_result(facility, advisory.source_id),
         "validation": GraphValidationResult(
             accepted=candidate_facts,
             publishable=True,
@@ -685,7 +691,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     state = {
         "event_uri": event_id,
         "event_class": f"atm:{event_class}",
-        "facility_authority_result": _facility_result(facility, source_id),
+        "facility_authority_result": _facility_authority_result(facility, source_id),
         "validation": validation,
         "materialization": core_materialization,
         "source_snapshot": advisory_registry,
@@ -936,7 +942,7 @@ def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_a
         {
             "event_uri": event_id,
             "event_class": "atm:GroundDelayProgramTMI",
-            "facility_authority_result": _facility_result(facility, source_id),
+            "facility_authority_result": _facility_authority_result(facility, source_id),
             "validation": GraphValidationResult(accepted=facts, publishable=True),
             "materialization": core,
             "source_snapshot": registry,
@@ -1034,7 +1040,7 @@ def test_reconstruction_rejects_an_extra_unvalidated_weather_member(
         {
             "event_uri": event_id,
             "event_class": "atm:GroundDelayProgramTMI",
-            "facility_authority_result": _facility_result(facility, source_id),
+            "facility_authority_result": _facility_authority_result(facility, source_id),
             "validation": GraphValidationResult(accepted=facts, publishable=True),
             "materialization": core,
             "source_snapshot": registry,
@@ -1110,7 +1116,7 @@ def test_duplicate_weather_fact_fails_closed_at_the_optional_layer(
         ctx,
         {
             "event_uri": event_id,
-            "facility_authority_result": _facility_result(facility, source_id),
+            "facility_authority_result": _facility_authority_result(facility, source_id),
             "validation": GraphValidationResult(accepted=facts, publishable=True),
             "materialization": core,
             "source_snapshot": registry,
@@ -1198,7 +1204,7 @@ def test_integration_blocks_a_self_consistent_rdf_type_retarget_from_the_builder
         ),
         {
             "event_uri": event_id,
-            "facility_authority_result": _facility_result(facility, source_id),
+            "facility_authority_result": _facility_authority_result(facility, source_id),
             "validation": GraphValidationResult(accepted=facts, publishable=True),
             "materialization": core,
             "source_snapshot": registry,
@@ -1271,7 +1277,7 @@ def test_integration_blocks_self_consistent_raw_evidence_from_a_regressed_parser
         ),
         {
             "event_uri": event_id,
-            "facility_authority_result": _facility_result(facility, source_id),
+            "facility_authority_result": _facility_authority_result(facility, source_id),
             "validation": GraphValidationResult(
                 accepted=facts,
                 publishable=True,

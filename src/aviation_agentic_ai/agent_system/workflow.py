@@ -5,8 +5,8 @@ The Workflow Coordinator is a deterministic LangGraph controller:
     START
       -> Advisory Agent
       -> parallel fan-out:
-           Facility Agent
-           Terminology Agent
+           facility authority service
+           terminology authority service
       -> evidence-card join
       -> Knowledge Graph Construction Agent
       -> Graph Patch parser + schema validator + RDF/Neo4j materializer
@@ -36,6 +36,7 @@ from aviation_agentic_ai.agent_system.agents import (
     run_kg_construction_agent,  # noqa: F401
 )
 from aviation_agentic_ai.agent_system.authority_resolution import (
+    AuthorityResolutionResult,
     FacilityAuthorityResolutionInput,
     TerminologyAuthorityResolutionInput,
     resolve_facility_authority,
@@ -246,22 +247,14 @@ def _event_uri(run_id: str, source_id: str, event_class: str) -> str:
 
 
 # Typed state schema for the ingest graph. Additive reducers (operator.add)
-# let the parallel Facility/Terminology branches contribute to ``model_calls``
+# let the parallel authority-service branches contribute to ``model_calls``
 # without a concurrent-write conflict; each branch also writes its own distinct
 # result key.
 class IngestState(TypedDict):
     mentions: Any
     advisory_result: Any
-    facility_authority_result: Any
-    terminology_authority_result: Any
-    facility_resolution_outcome: Any
-    terminology_resolution_outcome: Any
-    facility_resolution_task: Any
-    facility_resolution_proposal: Any
-    facility_resolution_tool_traces: Any
-    terminology_resolution_task: Any
-    terminology_resolution_proposal: Any
-    terminology_resolution_tool_traces: Any
+    facility_authority_result: AuthorityResolutionResult
+    terminology_authority_result: AuthorityResolutionResult
     authority_source_records: Annotated[
         AuthoritySourceRecordRegistry,
         merge_authority_source_records,
@@ -544,10 +537,6 @@ def _facility_authority_node(state: dict) -> dict:
     # model_calls uses an additive reducer so parallel branches can each contribute.
     return {
         "facility_authority_result": authority_result,
-        "facility_resolution_outcome": authority_result.domain_outcome,
-        "facility_resolution_task": authority_result.resolution_task,
-        "facility_resolution_proposal": authority_result.resolution_proposal,
-        "facility_resolution_tool_traces": authority_result.resolution_tool_traces,
         "authority_source_records": _authority_source_registry(
             authority_result.authority_source_records
         ),
@@ -671,10 +660,6 @@ def _terminology_authority_node(state: dict) -> dict:
     authority_result = resolve_terminology_authority(**resolution_kwargs)
     return {
         "terminology_authority_result": authority_result,
-        "terminology_resolution_outcome": authority_result.domain_outcome,
-        "terminology_resolution_task": authority_result.resolution_task,
-        "terminology_resolution_proposal": authority_result.resolution_proposal,
-        "terminology_resolution_tool_traces": authority_result.resolution_tool_traces,
         "authority_source_records": _authority_source_registry(
             authority_result.authority_source_records
         ),
@@ -686,8 +671,8 @@ def _join_node(state: dict) -> dict:
     """Join independently audited domains and compute the required preflight."""
 
     outcomes = (
-        state.get("facility_resolution_outcome"),
-        state.get("terminology_resolution_outcome"),
+        state.get("facility_authority_result"),
+        state.get("terminology_authority_result"),
     )
     authority_registry = state.get("authority_source_records")
     if (
@@ -697,11 +682,14 @@ def _join_node(state: dict) -> dict:
         status = "blocked"
         reason = authority_registry.reason_code or "authority source registry blocked"
     elif any(
-        outcome is None or outcome.decision is ResolutionDecision.BLOCKED for outcome in outcomes
+        outcome is None or outcome.domain_outcome.decision is ResolutionDecision.BLOCKED
+        for outcome in outcomes
     ):
         status = "blocked"
         reason = "required resolution domain blocked"
-    elif any(outcome.decision is not ResolutionDecision.ACCEPTED for outcome in outcomes):
+    elif any(
+        outcome.domain_outcome.decision is not ResolutionDecision.ACCEPTED for outcome in outcomes
+    ):
         status = "insufficient"
         reason = "required resolution domain insufficient"
     else:
@@ -775,7 +763,7 @@ def _build_case_assembly_task_from_state(
     event_class: str,
 ) -> CaseAssemblyTask:
     guide = ctx.guide or load_schema_guide()
-    facility_authority_result: AgentResult = state["facility_authority_result"]
+    facility_authority_result: AuthorityResolutionResult = state["facility_authority_result"]
 
     evidence_records = (
         CaseAssemblyEvidenceRecord(
@@ -788,8 +776,8 @@ def _build_case_assembly_task_from_state(
     )
     selected_claims = (ctx.advisory.source_id,)
 
-    facility_prop = state.get("facility_resolution_proposal")
-    term_prop = state.get("terminology_resolution_proposal")
+    facility_prop = facility_authority_result.resolution_proposal
+    term_prop = state["terminology_authority_result"].resolution_proposal
     resolution_records = tuple(
         sorted(
             (
@@ -801,7 +789,6 @@ def _build_case_assembly_task_from_state(
                     authority_source_ids=proposal.authority_source_ids,
                 )
                 for proposal in (facility_prop, term_prop)
-                if proposal is not None and hasattr(proposal, "resolution_proposal_id")
             ),
             key=lambda row: row.resolution_proposal_id,
         )
@@ -1176,7 +1163,7 @@ def _kg_construction_node(state: dict) -> dict:
                 ),
             )
         }
-    terminology_authority_result: AgentResult = state["terminology_authority_result"]
+    terminology_authority_result: AuthorityResolutionResult = state["terminology_authority_result"]
     if ctx.guide is None:
         ctx.guide = load_schema_guide()
     # The resolved event class comes ONLY from the Terminology Agent. If no
@@ -1387,8 +1374,12 @@ def _materialize_node(state: dict) -> dict:
     if not event_class:
         return {"materialization": None, "validation": None}
     guide = ctx.guide or load_schema_guide()
-    facility_authority_result: AgentResult | None = state.get("facility_authority_result")
-    terminology_authority_result: AgentResult | None = state.get("terminology_authority_result")
+    facility_authority_result: AuthorityResolutionResult | None = state.get(
+        "facility_authority_result"
+    )
+    terminology_authority_result: AuthorityResolutionResult | None = state.get(
+        "terminology_authority_result"
+    )
     advisory_result: AgentResult | None = state.get("advisory_result")
     known_source_ids = _accepted_event_source_ids(
         ctx.advisory.source_id,
