@@ -113,6 +113,47 @@ def _final_turn(payload: dict[str, Any]) -> ToolModelTurn:
     )
 
 
+def _final_turn_with_record_only_tool_call(
+    payload: dict[str, Any],
+    *,
+    step_id: str,
+) -> ToolModelTurn:
+    """Forge an audit-only synthesis call hidden from the native message."""
+
+    raw = json.dumps(payload)
+    return ToolModelTurn(
+        message=AIMessage(content=raw),
+        record=ModelCallRecord(
+            agent="decision_case_analysis",
+            raw_response=raw,
+            prompt_version="decision-case-analysis-v1",
+            provider="scripted",
+            model="scripted",
+            tool_calls=[
+                ModelToolCall(
+                    call_id="call:record-only",
+                    name="execute_bound_query_step",
+                    arguments={"step_id": step_id},
+                )
+            ],
+        ),
+    )
+
+
+def _provider_error_turn(error: str) -> ToolModelTurn:
+    return ToolModelTurn(
+        message=None,
+        record=ModelCallRecord(
+            agent="decision_case_analysis",
+            raw_response=f"<think>{error}</think>",
+            prompt_version="decision-case-analysis-v1",
+            provider="scripted",
+            model="scripted",
+            error=error,
+        ),
+    )
+
+
 class _ScriptedAnalysisModel:
     def __init__(self, turns: list[ToolModelTurn]) -> None:
         self.turns = list(turns)
@@ -490,6 +531,37 @@ def test_synthesis_turn_tool_request_blocks_without_a_third_model_call(
     ]
 
 
+def test_synthesis_record_only_tool_request_is_rejected_before_json_parsing(
+    store: QueryGraphStore,
+) -> None:
+    """The native message and persisted synthesis audit must agree exactly."""
+
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What public operational situation is recorded?",
+        store=store,
+    )
+    model = _ScriptedAnalysisModel(
+        [
+            _tool_turn(plan.steps[0].step_id),
+            _final_turn_with_record_only_tool_call(
+                _supported_payload(store),
+                step_id=plan.steps[0].step_id,
+            ),
+        ]
+    )
+
+    _plan, _factory, (_task, bundle, outcome) = _run_operational(store, model)
+
+    assert outcome.status == "blocked"
+    assert bundle.answer_statements == ()
+    assert outcome.failure_reason == (
+        "analysis model tool-call record differs from native message"
+    )
+    assert len(outcome.model_calls) == 2
+    assert len(model.invocations) == 2
+
+
 def test_analysis_artifacts_are_round_trip_immutable_and_isolated(
     store: QueryGraphStore,
 ) -> None:
@@ -550,3 +622,80 @@ def test_analysis_artifacts_are_round_trip_immutable_and_isolated(
             bundle=bundle,
             outcome=outcome,
         )
+
+
+def test_analysis_artifacts_reject_a_symlinked_analysis_root(
+    store: QueryGraphStore,
+) -> None:
+    """A pre-created analysis symlink must never redirect immutable writes."""
+
+    from aviation_agentic_ai.agent_system.case_analysis import (
+        write_case_analysis_artifacts,
+    )
+
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What public operational situation is recorded?",
+        store=store,
+    )
+    model = _ScriptedAnalysisModel(
+        [_tool_turn(plan.steps[0].step_id), _final_turn(_supported_payload(store))]
+    )
+    _plan, _factory, (task, bundle, outcome) = _run_operational(store, model)
+    outside = store.run_dir.parent / f"{store.run_dir.name}-outside-analysis"
+    outside.mkdir()
+    (store.run_dir / "analysis").symlink_to(outside, target_is_directory=True)
+
+    with pytest.raises(RuntimeError, match="symlinked analysis root"):
+        write_case_analysis_artifacts(
+            run_dir=store.run_dir,
+            task=task,
+            bundle=bundle,
+            outcome=outcome,
+        )
+
+    assert list(outside.iterdir()) == []
+
+
+def test_persisted_provider_error_uses_only_a_generic_status_marker(
+    store: QueryGraphStore,
+) -> None:
+    """Provider error prose and hidden reasoning must not enter artifacts."""
+
+    from aviation_agentic_ai.agent_system.case_analysis import (
+        write_case_analysis_artifacts,
+    )
+    from aviation_agentic_ai.agent_system.case_analysis_tools import BoundQueryGateway
+    from aviation_agentic_ai.agent_system.case_analysis import run_case_analysis_agent
+
+    secret_error = "provider-reasoning-token-9f2c: internal chain of thought"
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What public operational situation is recorded?",
+        store=store,
+    )
+    task, bundle, outcome = run_case_analysis_agent(
+        plan=plan,
+        gateway=BoundQueryGateway(plan=plan, store=store),
+        model_factory=_ModelFactory(
+            _ScriptedAnalysisModel([_provider_error_turn(secret_error)])
+        ),
+        binding=_binding(store),
+    )
+
+    analysis_dir = write_case_analysis_artifacts(
+        run_dir=store.run_dir,
+        task=task,
+        bundle=bundle,
+        outcome=outcome,
+    )
+    persisted = (analysis_dir / "case_analysis_run.json").read_text(
+        encoding="utf-8"
+    )
+    payload = json.loads(persisted)
+
+    assert outcome.status == "blocked"
+    assert secret_error not in persisted
+    assert "raw_response" not in persisted
+    assert payload["outcome"]["model_calls"][0]["status"] == "error"
+    assert "error" not in payload["outcome"]["model_calls"][0]

@@ -1,4 +1,4 @@
-"""CLI contracts for the active native tool-using Query Agent."""
+"""CLI contracts for deterministic reads and bounded Agent execution."""
 
 from __future__ import annotations
 
@@ -10,14 +10,12 @@ from types import SimpleNamespace
 
 import pytest
 from click.testing import CliRunner
-from langchain_core.messages import AIMessage
 
 import aviation_agentic_ai.cli_agent_system as cli_module
 from aviation_agentic_ai.agent_system.authority_evidence import AuthorityBuildStatus
 from aviation_agentic_ai.agent_system.contracts import (
     BTSManifestBinding,
     ModelCallRecord,
-    ModelToolCall,
     SourceFamily,
     SourceRecord,
     SourceSnapshot,
@@ -33,7 +31,6 @@ from aviation_agentic_ai.agent_system.query_tool_graph import (
 )
 from aviation_agentic_ai.agent_system.runtime import RunBinding
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
-from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
 from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
 )
@@ -245,61 +242,6 @@ def _write_graph(run_dir: Path) -> None:
     )
 
 
-class _SuccessfulModel:
-    def __init__(self) -> None:
-        self.attempt = 0
-
-    def invoke(self, messages, *, phase):
-        self.attempt += 1
-        if phase == "select_tool":
-            message = AIMessage(
-                content="",
-                tool_calls=[
-                    {
-                        "id": "call:cli",
-                        "name": "get_event_facts",
-                        "args": {
-                            "event_id": EVENT_ID,
-                            "predicates": [
-                                "rdf:type",
-                                "atm:controlledNASelement",
-                                "atm:effectiveStartTime",
-                                "atm:effectiveEndTime",
-                            ],
-                        },
-                        "type": "tool_call",
-                    }
-                ],
-            )
-        else:
-            message = AIMessage(
-                content=(
-                    "ANSWER\n"
-                    "MEASURE: Ground Stop (GS)\n"
-                    "AIRPORT: KJFK\n"
-                    "START: 2026-05-19T21:00:00Z\n"
-                    "END: 2026-05-19T22:45:00Z\n"
-                    f"SOURCES\n- {SOURCE_ID}"
-                )
-            )
-        return ToolModelTurn(
-            message=message,
-            record=ModelCallRecord(
-                agent="query",
-                raw_response=str(message.content or "") if not message.tool_calls else "",
-                attempt=self.attempt,
-                tool_calls=[
-                    ModelToolCall(
-                        call_id=str(call["id"]),
-                        name=str(call["name"]),
-                        arguments=dict(call["args"]),
-                    )
-                    for call in message.tool_calls
-                ],
-            ),
-        )
-
-
 def test_unsupported_cli_question_needs_no_live_authorization(tmp_path, monkeypatch):
     _write_graph(tmp_path)
 
@@ -327,8 +269,20 @@ def test_unsupported_cli_question_needs_no_live_authorization(tmp_path, monkeypa
     assert "tool_calls: 0" in result.output
 
 
-def test_supported_cli_question_requires_live_authorization(tmp_path):
+def test_combined_record_cli_question_is_zero_call_without_authorization(
+    tmp_path,
+    monkeypatch,
+):
     _write_graph(tmp_path)
+
+    def forbidden_live_model(*args, **kwargs):
+        raise AssertionError("combined-record query constructed a live model")
+
+    monkeypatch.setattr(
+        cli_module,
+        "make_live_tool_calling_model",
+        forbidden_live_model,
+    )
     result = CliRunner().invoke(
         cli_module.agent_system,
         [
@@ -339,8 +293,9 @@ def test_supported_cli_question_requires_live_authorization(tmp_path):
             REGISTERED_COMPETENCY_QUESTION,
         ],
     )
-    assert result.exit_code != 0
-    assert "requires --allow-live-model" in result.output
+    assert result.exit_code == 0
+    assert "status: ok" in result.output
+    assert "model_calls: 0" in result.output
 
 
 def test_missing_reason_question_needs_no_live_authorization(
@@ -412,13 +367,19 @@ def test_context_questions_need_no_live_authorization(
     assert "model_calls: 0" in result.output
 
 
-def test_supported_cli_question_runs_native_tool_loop(tmp_path, monkeypatch):
+def test_combined_record_remains_zero_call_when_live_flag_is_present(
+    tmp_path,
+    monkeypatch,
+):
     _write_graph(tmp_path)
-    model = _SuccessfulModel()
+
+    def forbidden_live_model(*args, **kwargs):
+        raise AssertionError("combined-record query constructed a live model")
+
     monkeypatch.setattr(
         cli_module,
         "make_live_tool_calling_model",
-        lambda *, tools: model,
+        forbidden_live_model,
     )
     result = CliRunner().invoke(
         cli_module.agent_system,
@@ -435,7 +396,7 @@ def test_supported_cli_question_runs_native_tool_loop(tmp_path, monkeypatch):
     assert "status: ok" in result.output
     assert f"sources: {SOURCE_ID}" in result.output
     assert "graph_facts_seen: 4" in result.output
-    assert "model_calls: 2" in result.output
+    assert "model_calls: 0" in result.output
     assert "tool_calls: 1" in result.output
 
 

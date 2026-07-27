@@ -1,4 +1,4 @@
-"""End-to-end offline contracts for the bounded Query Agent tool loop."""
+"""End-to-end offline contracts for deterministic bounded Query reads."""
 
 from __future__ import annotations
 
@@ -9,13 +9,10 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from langchain_core.messages import AIMessage, ToolMessage
 
 import aviation_agentic_ai.agent_system.query_tool_graph as query_tool_graph_module
 from aviation_agentic_ai.agent_system.contracts import (
     BTSOutcomeSummary,
-    ModelCallRecord,
-    ModelToolCall,
     OutcomeObservationRead,
     OutcomeSummaryRead,
     PersistedProfileGap,
@@ -36,9 +33,7 @@ from aviation_agentic_ai.agent_system.query_tool_graph import (
     RECONSTRUCTED_CASE_QUESTION,
     REGISTERED_COMPETENCY_QUESTION,
     answer_question_with_tools,
-    question_requires_model,
 )
-from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
 from aviation_agentic_ai.agent_system.weather_context import (
     FORECASTING_AIRPORT,
     FORECAST_ISSUE_TIME,
@@ -70,12 +65,6 @@ ADVISORY_CONTENT = (
     "ADVZY 123\n"
     "IMPACTING CONDITION: WEATHER / THUNDERSTORMS\n"
 )
-PREDICATES = [
-    "rdf:type",
-    "atm:controlledNASelement",
-    "atm:effectiveStartTime",
-    "atm:effectiveEndTime",
-]
 PROFILE_REGISTRY = load_validation_profile_registry(
     decision_guide=load_schema_guide()
 )
@@ -1179,7 +1168,7 @@ def _assert_deterministic_query_is_blocked(
     *,
     question: str,
 ) -> None:
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
     outcome = answer_question_with_tools(
         run_dir=run_dir,
         question=question,
@@ -1195,7 +1184,7 @@ def _assert_deterministic_query_is_insufficient(
     *,
     question: str,
 ) -> None:
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
     outcome = answer_question_with_tools(
         run_dir=run_dir,
         question=question,
@@ -1206,104 +1195,13 @@ def _assert_deterministic_query_is_insufficient(
     assert factory.calls == 0
 
 
-def _tool_message(
-    *,
-    name: str = "get_event_facts",
-    call_id: str = "call:1",
-    args: dict[str, Any] | None = None,
-) -> AIMessage:
-    return AIMessage(
-        content="",
-        tool_calls=[
-            {
-                "id": call_id,
-                "name": name,
-                "args": args
-                or {
-                    "event_id": EVENT_ID,
-                    "predicates": PREDICATES,
-                },
-                "type": "tool_call",
-            }
-        ],
-    )
-
-
-def _final_message(
-    *,
-    sources: list[str] | None = None,
-    answer: str = (
-        "MEASURE: Ground Stop (GS)\n"
-        "AIRPORT: KJFK\n"
-        "START: 2026-05-19T21:00:00Z\n"
-        "END: 2026-05-19T22:45:00Z"
-    ),
-) -> AIMessage:
-    source_lines = "\n".join(
-        f"- {source}" for source in (sources if sources is not None else [SOURCE_ID])
-    )
-    return AIMessage(
-        content=f"ANSWER\n{answer}\nSOURCES\n{source_lines}",
-    )
-
-
-class _ScriptedModel:
-    def __init__(self, turns: list[AIMessage | Exception]) -> None:
-        self.turns = list(turns)
-        self.invocations: list[tuple[str, list[Any]]] = []
-
-    def invoke(self, messages, *, phase):
-        self.invocations.append((phase, list(messages)))
-        attempt = len(self.invocations)
-        item = self.turns.pop(0)
-        if isinstance(item, Exception):
-            return ToolModelTurn(
-                message=None,
-                record=ModelCallRecord(
-                    agent="query",
-                    raw_response="",
-                    prompt_set_id="prompt:test",
-                    prompt_version="query-agent-v4",
-                    provider="deepseek",
-                    model="deepseek-test",
-                    temperature=0,
-                    attempt=attempt,
-                    error=f"{type(item).__name__}: {item}",
-                ),
-            )
-        return ToolModelTurn(
-            message=item,
-            record=ModelCallRecord(
-                agent="query",
-                raw_response=str(item.content or "") if not item.tool_calls else "",
-                prompt_set_id="prompt:test",
-                prompt_version="query-agent-v4",
-                provider="deepseek",
-                model="deepseek-test",
-                temperature=0,
-                attempt=attempt,
-                tool_calls=[
-                    ModelToolCall(
-                        call_id=str(call["id"]),
-                        name=str(call["name"]),
-                        arguments=dict(call["args"]),
-                    )
-                    for call in item.tool_calls
-                ],
-            ),
-        )
-
-
 class _Factory:
-    def __init__(self, model: _ScriptedModel) -> None:
-        self.model = model
+    def __init__(self) -> None:
         self.calls = 0
-        self.tool_names: list[str] = []
 
     def __call__(self, tools):
         self.calls += 1
-        self.tool_names = [tool.name for tool in tools]
-        return self.model
+        raise AssertionError("deterministic query constructed a model")
 
 
 class _FormalOutcomeContextStore:
@@ -1372,17 +1270,9 @@ class _BlockedFormalOutcomeContextStore(_FormalOutcomeContextStore):
         )
 
 
-def test_only_preexisting_combined_question_requires_a_model():
-    assert question_requires_model(REGISTERED_COMPETENCY_QUESTION) is True
-    assert all(
-        question_requires_model(question) is False
-        for question in (
-            FORECAST_CONTEXT_QUESTION,
-            OBSERVED_WEATHER_CONTEXT_QUESTION,
-            PUBLIC_OUTCOME_QUESTION,
-            RECONSTRUCTED_CASE_QUESTION,
-        )
-    )
+def test_legacy_query_model_loop_api_is_removed():
+    assert not hasattr(query_tool_graph_module, "question_requires_model")
+    assert not hasattr(query_tool_graph_module, "build_query_tool_graph")
 
 
 def test_public_outcome_uses_formal_active_observations_and_persists_distinct_ids(
@@ -1397,7 +1287,7 @@ def test_public_outcome_uses_formal_active_observations_and_persists_distinct_id
         "QueryContextStore",
         _FormalOutcomeContextStore,
     )
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -1458,7 +1348,7 @@ def test_public_outcome_propagates_blocked_before_model_construction(
         "QueryContextStore",
         _BlockedFormalOutcomeContextStore,
     )
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -1474,10 +1364,9 @@ def test_public_outcome_propagates_blocked_before_model_construction(
     assert outcome.tool_calls[0].status == "blocked"
 
 
-def test_supported_question_runs_model_tool_model_and_cites_source(tmp_path):
+def test_combined_record_question_is_deterministic_and_cites_source(tmp_path):
     _write_graph(tmp_path)
-    model = _ScriptedModel([_tool_message(), _final_message()])
-    factory = _Factory(model)
+    factory = _Factory()
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
         question=REGISTERED_COMPETENCY_QUESTION,
@@ -1495,21 +1384,13 @@ def test_supported_question_runs_model_tool_model_and_cites_source(tmp_path):
         "fact:start",
         "fact:end",
     }
-    assert len(outcome.model_calls) == 2
+    assert outcome.model_calls == []
     assert len(outcome.tool_calls) == 1
     assert outcome.tool_calls[0].tool == "get_event_facts"
-    assert outcome.tool_calls[0].tool_call_id == "call:1"
-    assert set(factory.tool_names) == {
-        "find_events",
-        "get_event_facts",
-        "get_neighbors",
-        "get_profile_gaps",
-        "get_provenance",
-    }
-    assert [phase for phase, _messages in model.invocations] == [
-        "select_tool",
-        "final_answer",
-    ]
+    assert outcome.tool_calls[0].tool_call_id == (
+        "deterministic:combined_record:facts"
+    )
+    assert factory.calls == 0
 
 
 def test_forecast_context_is_deterministic_non_causal_and_query_run_is_separate(
@@ -1517,7 +1398,7 @@ def test_forecast_context_is_deterministic_non_causal_and_query_run_is_separate(
 ):
     _write_graph(tmp_path)
     _write_query_context(tmp_path)
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -1556,7 +1437,7 @@ def test_forecast_context_is_deterministic_non_causal_and_query_run_is_separate(
 def test_observed_context_uses_only_metar_associations_without_model(tmp_path):
     _write_graph(tmp_path)
     _write_query_context(tmp_path)
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -1608,7 +1489,7 @@ def test_public_outcome_response_preserves_three_case_active_counts(
         "QueryContextStore",
         _FormalOutcomeContextStore,
     )
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -1657,7 +1538,7 @@ def test_reconstructed_case_uses_three_tools_without_retrieving_reason(
         "QueryContextStore",
         _FormalOutcomeContextStore,
     )
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -1684,7 +1565,7 @@ def test_reconstructed_case_uses_three_tools_without_retrieving_reason(
 
 def test_absent_context_is_insufficient_before_model_construction(tmp_path):
     _write_graph(tmp_path)
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -1706,7 +1587,7 @@ def test_optional_context_corruption_does_not_block_old_core_question(tmp_path):
         "not-json\n",
         encoding="utf-8",
     )
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -1747,7 +1628,7 @@ def test_corrupt_registered_weather_snapshot_blocks_all_queries(
         "".join(json.dumps(row) + "\n" for row in rows),
         encoding="utf-8",
     )
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -2256,7 +2137,7 @@ def test_legacy_summary_corruption_keeps_reconstructed_case_insufficient(
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
         question=RECONSTRUCTED_CASE_QUESTION,
-        model_factory=_Factory(_ScriptedModel([])),
+        model_factory=_Factory(),
     )
 
     assert outcome.status == "insufficient"
@@ -2319,7 +2200,7 @@ def test_reconstructed_case_persists_partial_context_when_outcomes_are_absent(
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
         question=RECONSTRUCTED_CASE_QUESTION,
-        model_factory=_Factory(_ScriptedModel([])),
+        model_factory=_Factory(),
     )
 
     assert outcome.status == "insufficient"
@@ -2341,7 +2222,7 @@ def test_weather_context_never_changes_the_three_reason_states(tmp_path):
     _write_graph(ground_stop)
     _write_query_context(ground_stop)
     ground_stop_gap_id = _write_profile_gap(ground_stop)
-    ground_stop_factory = _Factory(_ScriptedModel([]))
+    ground_stop_factory = _Factory()
     ground_stop_outcome = answer_question_with_tools(
         run_dir=ground_stop,
         question=DECLARED_REASON_QUESTION,
@@ -2374,7 +2255,7 @@ def test_weather_context_never_changes_the_three_reason_states(tmp_path):
         }
     )
     _write_graph(gdp, gdp_rows)
-    gdp_factory = _Factory(_ScriptedModel([]))
+    gdp_factory = _Factory()
     gdp_outcome = answer_question_with_tools(
         run_dir=gdp,
         question=DECLARED_REASON_QUESTION,
@@ -2387,7 +2268,7 @@ def test_weather_context_never_changes_the_three_reason_states(tmp_path):
     cancellation = tmp_path / "cancellation"
     _write_graph(cancellation)
     _write_query_context(cancellation)
-    cancellation_factory = _Factory(_ScriptedModel([]))
+    cancellation_factory = _Factory()
     cancellation_outcome = answer_question_with_tools(
         run_dir=cancellation,
         question=DECLARED_REASON_QUESTION,
@@ -2404,7 +2285,7 @@ def test_weather_context_never_changes_the_three_reason_states(tmp_path):
 def test_ground_stop_reason_uses_profile_gap_without_model_call(tmp_path):
     _write_graph(tmp_path)
     profile_gap_id = _write_profile_gap(tmp_path)
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -2446,7 +2327,7 @@ def test_gdp_reason_uses_formal_fact_and_exact_source_wording(tmp_path):
     for row in rows:
         row["source_document"] = "2026-05-19:138"
     _write_graph(tmp_path, rows)
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -2471,7 +2352,7 @@ def test_missing_reason_is_insufficient_before_model_construction(tmp_path):
     for row in rows:
         row["source_document"] = "2026-05-20:020"
     _write_graph(tmp_path, rows)
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -2547,7 +2428,7 @@ def test_generic_source_substring_cannot_forge_missing_reason_profile_gap(tmp_pa
         "status": "ok",
     }
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -2564,7 +2445,7 @@ def test_generic_source_substring_cannot_forge_missing_reason_profile_gap(tmp_pa
 
 def test_operational_period_question_uses_only_time_predicates(tmp_path):
     _write_graph(tmp_path)
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -2602,7 +2483,7 @@ def test_provenance_question_requires_advisory_number(tmp_path):
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
         question=PROVENANCE_QUESTION,
-        model_factory=_Factory(_ScriptedModel([])),
+        model_factory=_Factory(),
     )
 
     assert outcome.status == "ok"
@@ -2628,7 +2509,7 @@ def test_malformed_or_duplicate_profile_gap_artifact_blocks_before_model(tmp_pat
         }
     )
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -2655,7 +2536,7 @@ def test_non_utf8_profile_gap_artifact_blocks_before_model(tmp_path):
         }
     )
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -2674,7 +2555,7 @@ def test_profile_gap_cannot_reference_another_event(tmp_path):
         tmp_path,
         event_id="urn:aviation-agentic-ai:event:other",
     )
-    factory = _Factory(_ScriptedModel([]))
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -2687,425 +2568,53 @@ def test_profile_gap_cannot_reference_another_event(tmp_path):
     assert factory.calls == 0
 
 
-def test_second_model_turn_contains_matching_tool_message(tmp_path):
+def test_unsupported_question_constructs_no_model(tmp_path):
     _write_graph(tmp_path)
-    first = _tool_message(call_id="call:matching")
-    model = _ScriptedModel([first, _final_message()])
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(model),
-    )
-    assert outcome.status == "ok"
-    second_messages = model.invocations[1][1]
-    assert first in second_messages
-    observations = [
-        message for message in second_messages if isinstance(message, ToolMessage)
-    ]
-    assert len(observations) == 1
-    assert observations[0].tool_call_id == "call:matching"
-    payload = json.loads(str(observations[0].content))
-    assert set(payload["fact_ids"]) == set(outcome.retrieved_fact_ids)
-    assert payload["source_ids"] == [SOURCE_ID]
+    factory = _Factory()
 
-
-def test_unsupported_question_constructs_neither_model_nor_tools(tmp_path):
-    _write_graph(tmp_path)
-    model = _ScriptedModel([])
-    factory = _Factory(model)
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
         question="What is the runway surface at LAX?",
         model_factory=factory,
     )
+
     assert outcome.status == "insufficient"
     assert outcome.answer == "Insufficient graph evidence."
     assert outcome.model_calls == []
     assert outcome.tool_calls == []
     assert factory.calls == 0
-    record = json.loads((tmp_path / "query_run.json").read_text(encoding="utf-8"))
-    assert record["model_calls"] == []
-    assert record["tool_calls"] == []
 
 
-def test_first_model_answer_without_tool_call_is_blocked(tmp_path):
+def test_non_ascii_prompt_suffix_cannot_bypass_capability_gate(tmp_path):
     _write_graph(tmp_path)
-    model = _ScriptedModel([_final_message()])
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(model),
-    )
-    assert outcome.status == "blocked"
-    assert "before retrieving graph evidence" in outcome.failure_reason
-    assert len(outcome.model_calls) == 1
-    assert outcome.tool_calls == []
+    factory = _Factory()
 
-
-def test_unknown_tool_is_blocked(tmp_path):
-    _write_graph(tmp_path)
-    model = _ScriptedModel([_tool_message(name="write_graph")])
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(model),
-    )
-    assert outcome.status == "blocked"
-    assert outcome.failure_reason == "unknown Query Agent tool: write_graph"
-
-
-def test_invalid_tool_arguments_are_blocked(tmp_path):
-    _write_graph(tmp_path)
-    model = _ScriptedModel(
-        [
-            _tool_message(
-                args={
-                    "event_id": EVENT_ID,
-                    "predicates": ["atm:runwaySurface"],
-                }
-            )
-        ]
-    )
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(model),
-    )
-    assert outcome.status == "blocked"
-    assert "registered competency contract" in outcome.failure_reason
-    assert outcome.tool_calls == []
-
-
-def test_missing_required_graph_fact_is_insufficient_without_second_model(tmp_path):
-    rows = [
-        row
-        for row in _graph_rows()
-        if row["predicate"] != "atm:effectiveEndTime"
-    ]
-    _write_graph(tmp_path, rows)
-    model = _ScriptedModel([_tool_message()])
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(model),
-    )
-    assert outcome.status == "insufficient"
-    assert "effectiveEndTime" in outcome.failure_reason
-    assert len(outcome.model_calls) == 1
-    assert len(model.invocations) == 1
-
-
-def test_unsourced_fact_is_blocked(tmp_path):
-    rows = _graph_rows()
-    rows[1]["source_document"] = ""
-    _write_graph(tmp_path, rows)
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(_ScriptedModel([_tool_message()])),
-    )
-    assert outcome.status == "blocked"
-    assert "no evidence source" in outcome.failure_reason
-
-
-def test_second_model_tool_call_is_blocked_by_one_turn_contract(tmp_path):
-    _write_graph(tmp_path)
-    model = _ScriptedModel([_tool_message(), _tool_message(call_id="call:2")])
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(model),
-    )
-    assert outcome.status == "blocked"
-    assert "one-turn tool budget" in outcome.failure_reason
-    assert len(outcome.model_calls) == 2
-
-
-def test_missing_or_duplicate_tool_call_id_is_blocked(tmp_path):
-    _write_graph(tmp_path)
-    duplicate = AIMessage(
-        content="",
-        tool_calls=[
-            {
-                "id": "call:1",
-                "name": "get_event_facts",
-                "args": {"event_id": EVENT_ID, "predicates": PREDICATES},
-                "type": "tool_call",
-            },
-            {
-                "id": "call:1",
-                "name": "find_events",
-                "args": {},
-                "type": "tool_call",
-            },
-        ],
-    )
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(_ScriptedModel([duplicate])),
-    )
-    assert outcome.status == "blocked"
-    assert "duplicate native tool-call ID" in outcome.failure_reason
-
-
-def test_more_than_three_parallel_tool_calls_exceeds_budget(tmp_path):
-    _write_graph(tmp_path)
-    calls = [
-        {
-            "id": f"call:{index}",
-            "name": "find_events",
-            "args": {},
-            "type": "tool_call",
-        }
-        for index in range(4)
-    ]
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(
-            _ScriptedModel([AIMessage(content="", tool_calls=calls)])
-        ),
-    )
-    assert outcome.status == "blocked"
-    assert "tool-call budget exceeded" in outcome.failure_reason
-
-
-def test_provider_error_is_blocked_and_counts_attempt(tmp_path):
-    _write_graph(tmp_path)
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(
-            _ScriptedModel([TimeoutError("upstream timeout")])
-        ),
-    )
-    assert outcome.status == "blocked"
-    assert "TimeoutError" in outcome.failure_reason
-    assert len(outcome.model_calls) == 1
-
-
-def test_final_answer_without_retrieved_source_is_blocked(tmp_path):
-    _write_graph(tmp_path)
-    model = _ScriptedModel(
-        [_tool_message(), _final_message(sources=["forged:source"])]
-    )
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(model),
-    )
-    assert outcome.status == "blocked"
-    assert "outside retrieved evidence" in outcome.failure_reason
-    assert outcome.source_ids == []
-
-
-def test_valid_and_forged_citations_are_blocked(tmp_path):
-    _write_graph(tmp_path)
-    model = _ScriptedModel(
-        [
-            _tool_message(),
-            _final_message(sources=[SOURCE_ID, "forged:source"]),
-        ]
-    )
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(model),
-    )
-    assert outcome.status == "blocked"
-    assert "outside retrieved evidence" in outcome.failure_reason
-
-
-def test_citations_must_cover_every_retrieved_fact(tmp_path):
-    rows = _graph_rows()
-    for index, row in enumerate(rows):
-        row["source_document"] = f"source:{index}"
-    _write_graph(tmp_path, rows)
-    model = _ScriptedModel(
-        [_tool_message(), _final_message(sources=["source:0"])]
-    )
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(model),
-    )
-    assert outcome.status == "blocked"
-    assert "do not cover retrieved facts" in outcome.failure_reason
-
-
-def test_final_answer_must_include_required_graph_values(tmp_path):
-    _write_graph(tmp_path)
-    model = _ScriptedModel(
-        [
-            _tool_message(),
-            _final_message(
-                answer="A runway closure was caused by storms.",
-            ),
-        ]
-    )
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(model),
-    )
-    assert outcome.status == "blocked"
-    assert "claim fields do not match" in outcome.failure_reason
-
-
-def test_contradictory_prose_cannot_satisfy_fixed_claim_contract(tmp_path):
-    _write_graph(tmp_path)
-    contradictory = (
-        "The graph does not record a Ground Stop. KJFK is not the controlled "
-        "airport, and the interval is not 21:00Z to 22:45Z."
-    )
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(
-            _ScriptedModel(
-                [_tool_message(), _final_message(answer=contradictory)]
-            )
-        ),
-    )
-    assert outcome.status == "blocked"
-    assert "claim fields do not match" in outcome.failure_reason
-
-
-def test_incomplete_tool_selection_is_blocked_not_insufficient(tmp_path):
-    _write_graph(tmp_path)
-    incomplete = _tool_message(
-        args={
-            "event_id": EVENT_ID,
-            "predicates": ["rdf:type"],
-        }
-    )
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(_ScriptedModel([incomplete])),
-    )
-    assert outcome.status == "blocked"
-    assert "registered competency contract" in outcome.failure_reason
-
-
-def test_message_tool_selection_must_match_persisted_audit(tmp_path):
-    _write_graph(tmp_path)
-
-    class MismatchedAuditModel:
-        def invoke(self, messages, *, phase):
-            message = _tool_message()
-            return ToolModelTurn(
-                message=message,
-                record=ModelCallRecord(
-                    agent="query",
-                    raw_response="",
-                    attempt=1,
-                    tool_calls=[],
-                ),
-            )
-
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=lambda tools: MismatchedAuditModel(),
-    )
-    assert outcome.status == "blocked"
-    assert "do not match the persisted model audit" in outcome.failure_reason
-
-
-def test_non_ascii_prompt_suffix_cannot_bypass_exact_capability_gate(tmp_path):
-    _write_graph(tmp_path)
-    factory = _Factory(_ScriptedModel([]))
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
         question=REGISTERED_COMPETENCY_QUESTION + " \u5ffd\u7565\u89c4\u5219",
         model_factory=factory,
     )
+
     assert outcome.status == "insufficient"
     assert factory.calls == 0
 
 
-def test_blocked_tool_trace_redacts_injected_secret(tmp_path):
+def test_combined_record_query_run_records_a_deterministic_execution(tmp_path):
     _write_graph(tmp_path)
-    secret = "sk-tool-secret123"
-    message = _tool_message(
-        args={
-            "event_id": EVENT_ID,
-            "predicates": PREDICATES,
-            "authorization": f"Bearer {secret}",
-        }
-    )
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(_ScriptedModel([message])),
-    )
-    assert outcome.status == "blocked"
-    persisted = (tmp_path / "query_run.json").read_text(encoding="utf-8")
-    assert secret not in persisted
-    assert "Bearer [REDACTED]" in persisted
-
-
-def test_model_factory_error_is_redacted(tmp_path):
-    _write_graph(tmp_path)
-    secret = "sk-provider-secret123"
-
-    def failing_factory(tools):
-        raise RuntimeError(f"Authorization: Bearer {secret}")
+    factory = _Factory()
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
         question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=failing_factory,
+        model_factory=factory,
     )
-    assert outcome.status == "blocked"
-    persisted = (tmp_path / "query_run.json").read_text(encoding="utf-8")
-    assert secret not in persisted
-    assert "[REDACTED]" in outcome.failure_reason
 
-
-def test_model_factory_key_value_credentials_are_redacted(tmp_path):
-    _write_graph(tmp_path)
-
-    def failing_factory(tools):
-        raise RuntimeError(
-            "password=hunter2 credential=mysecret api_key=plainsecret"
-        )
-
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=failing_factory,
-    )
-    persisted = (tmp_path / "query_run.json").read_text(encoding="utf-8")
-    assert outcome.status == "blocked"
-    assert "hunter2" not in persisted
-    assert "mysecret" not in persisted
-    assert "plainsecret" not in persisted
-
-
-def test_query_run_is_sanitized_and_records_budgets(tmp_path):
-    _write_graph(tmp_path)
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=REGISTERED_COMPETENCY_QUESTION,
-        model_factory=_Factory(
-            _ScriptedModel([_tool_message(), _final_message()])
-        ),
+    payload = json.loads(
+        (tmp_path / "query_run.json").read_text(encoding="utf-8")
     )
     assert outcome.status == "ok"
-    text = (tmp_path / "query_run.json").read_text(encoding="utf-8")
-    payload = json.loads(text)
-    assert payload["execution"] == "native_tool_loop"
-    assert payload["budgets"] == {
-        "maximum_model_calls": 2,
-        "maximum_tool_calls": 3,
-        "maximum_calls_per_tool": 1,
-    }
-    assert len(payload["model_calls"]) == 2
+    assert payload["execution"] == "deterministic_bound_read"
+    assert "budgets" not in payload
+    assert payload["model_calls"] == []
     assert len(payload["tool_calls"]) == 1
-    assert "RAW ADVISORY SPAN MUST REMAIN HIDDEN" not in text
-    assert "api_key" not in text.lower()
-    assert "password" not in text.lower()
-    assert "chain-of-thought" not in text.lower()
+    assert factory.calls == 0

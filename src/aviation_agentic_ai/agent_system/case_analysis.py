@@ -139,7 +139,12 @@ def _base_messages(
 def _sanitized_record(record: ModelCallRecord) -> ModelCallRecord:
     """Retain call metadata and validated tool selections, never raw reasoning."""
 
-    return record.model_copy(update={"raw_response": ""})
+    return record.model_copy(
+        update={
+            "raw_response": "",
+            "error": "model_call_failed" if record.error else None,
+        }
+    )
 
 
 def _selection_error(
@@ -149,7 +154,7 @@ def _selection_error(
     record: ModelCallRecord,
 ) -> tuple[str | None, tuple[tuple[str, str], ...]]:
     if record.error:
-        return sanitize_text(record.error), ()
+        return "analysis model call failed", ()
     if turn_message is None:
         return "analysis model returned no tool-selection message", ()
     if record.invalid_tool_calls:
@@ -197,6 +202,38 @@ def _selection_error(
         seen_step_ids.add(step_id)
         selected.append((call.call_id, step_id))
     return None, tuple(selected)
+
+
+def _synthesis_error(
+    *,
+    turn_message: AIMessage | None,
+    record: ModelCallRecord,
+) -> str | None:
+    """Reject provider failures and any mismatch before parsing answer JSON."""
+
+    if record.error:
+        return "analysis model call failed"
+    if turn_message is None:
+        return "analysis model returned no synthesis message"
+    if record.invalid_tool_calls or turn_message.invalid_tool_calls:
+        return "analysis model returned an invalid synthesis tool call"
+    message_calls = tuple(
+        (
+            str(call.get("id") or ""),
+            str(call.get("name") or ""),
+            sanitize_json_value(call.get("args")),
+        )
+        for call in turn_message.tool_calls
+    )
+    record_calls = tuple(
+        (call.call_id, call.name, sanitize_json_value(call.arguments))
+        for call in record.tool_calls
+    )
+    if message_calls != record_calls:
+        return "analysis model tool-call record differs from native message"
+    if record_calls:
+        return "analysis synthesis turn cannot request another tool"
+    return None
 
 
 def _observation_status(
@@ -854,11 +891,12 @@ def run_case_analysis_agent(
     ]
     final_turn = model.invoke(final_messages, phase="final_answer")
     records.append(_sanitized_record(final_turn.record))
-    failure_reason = final_turn.record.error
+    failure_reason = _synthesis_error(
+        turn_message=final_turn.message,
+        record=final_turn.record,
+    )
     statements: tuple[AnswerStatement, ...] = ()
     limitations: tuple[str, ...] = ()
-    if failure_reason is None and final_turn.message is None:
-        failure_reason = "analysis model returned no synthesis message"
     if failure_reason is None:
         try:
             assert final_turn.message is not None
@@ -920,7 +958,7 @@ def _sanitized_outcome_payload(outcome: QueryToolOutcome) -> dict[str, Any]:
                 "provider": record.provider,
                 "model": record.model,
                 "attempt": record.attempt,
-                "error": record.error,
+                "status": "error" if record.error else "ok",
                 "tool_calls": [
                     call.model_dump(mode="json") for call in record.tool_calls
                 ],
@@ -942,7 +980,7 @@ def write_case_analysis_artifacts(
 ) -> Path:
     """Write one immutable, idempotent per-analysis artifact directory."""
 
-    root = Path(run_dir).resolve()
+    root = Path(run_dir).resolve(strict=True)
     sanitized_outcome = _sanitized_outcome_payload(outcome)
     outcome_checksum = hashlib.sha256(
         _stable_json_bytes(sanitized_outcome)
@@ -954,10 +992,24 @@ def write_case_analysis_artifacts(
         outcome_checksum,
     )
     analysis_root = root / "analysis"
+    if analysis_root.is_symlink():
+        raise RuntimeError("symlinked analysis root is not allowed")
     analysis_root.mkdir(parents=True, exist_ok=True)
+    resolved_analysis_root = analysis_root.resolve(strict=True)
+    if (
+        analysis_root.is_symlink()
+        or not resolved_analysis_root.is_relative_to(root)
+    ):
+        raise RuntimeError("analysis artifact path escaped the resolved run")
     target = analysis_root / analysis_run_id
-    if not target.resolve().is_relative_to(analysis_root.resolve()):
-        raise RuntimeError("analysis artifact path escaped the run")
+    if target.is_symlink():
+        raise RuntimeError("symlinked analysis artifact target is not allowed")
+    resolved_target = target.resolve()
+    if (
+        not resolved_target.is_relative_to(root)
+        or resolved_target.parent != resolved_analysis_root
+    ):
+        raise RuntimeError("analysis artifact path escaped the resolved run")
 
     run_payload = {
         "analysis_run_id": analysis_run_id,

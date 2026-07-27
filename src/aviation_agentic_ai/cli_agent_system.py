@@ -30,7 +30,6 @@ from aviation_agentic_ai.agent_system.authority_evidence import (
 from aviation_agentic_ai.agent_system.prompts import DEFAULT_PROMPT_CATALOG, get_prompt_catalog
 from aviation_agentic_ai.agent_system.query_tool_graph import (
     answer_question_with_tools,
-    question_requires_model,
 )
 from aviation_agentic_ai.agent_system.runtime import (
     MAX_PROVIDER_CALLS,
@@ -264,14 +263,16 @@ def _write_neo4j_load(run_dir: Path, summary: dict) -> None:
 @agent_system.command("ask")
 @click.option("--run-dir", "run_dir", type=click.Path(path_type=Path), required=True)
 @click.option("--question", required=True, help="Question to answer from the graph.")
-@click.option("--allow-live-model", is_flag=True, help="Authorize the Query Agent model call.")
+@click.option(
+    "--allow-live-model",
+    is_flag=True,
+    help="Authorize a bounded Decision Case Analysis model call.",
+)
 def ask(run_dir: Path, question: str, allow_live_model: bool) -> None:
     """Answer through the bounded native tool-using Query Agent."""
 
     if not (run_dir / "kg.jsonl").exists():
         raise click.ClickException(f"no materialized KG at {run_dir / 'kg.jsonl'}")
-    if question_requires_model(question) and not allow_live_model:
-        raise click.ClickException("ask requires --allow-live-model to run the Query Agent.")
     outcome = answer_question_with_tools(
         run_dir=run_dir,
         question=question,
