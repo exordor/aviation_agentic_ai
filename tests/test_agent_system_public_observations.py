@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import hashlib
 from datetime import UTC, datetime
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
@@ -12,6 +13,8 @@ from pydantic import ValidationError
 
 from aviation_agentic_ai.agent_system.contracts import (
     AgentStatus,
+    BTSManifestBinding,
+    BTSOnTimeRow,
     DecisionContextEvent,
     EvidenceCard,
     EvidenceClaim,
@@ -21,6 +24,15 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceSnapshot,
     SourceSnapshotRegistry,
     ValidatedFact,
+)
+from aviation_agentic_ai.agent_system.bts_outcomes import build_bts_outcome_summaries
+from aviation_agentic_ai.agent_system.context_artifacts import (
+    read_observation_derivations,
+    read_observation_fact_traces,
+    read_reconstruction_trace,
+    write_observation_derivations,
+    write_observation_fact_traces,
+    write_reconstruction_trace,
 )
 from aviation_agentic_ai.agent_system.formal_graph import validate_graph_patch
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
@@ -33,6 +45,9 @@ from aviation_agentic_ai.agent_system.validation_profiles import (
     decode_legacy_validated_fact,
     load_validation_profile_registry,
     validate_fact_for_publication,
+)
+from aviation_agentic_ai.agent_system.public_observations import (
+    build_bts_observation_facts,
 )
 from aviation_agentic_ai.agent_system.weather_context import build_weather_context
 from aviation_agentic_ai.cross_source.contracts import (
@@ -360,3 +375,268 @@ def test_weather_builder_stamps_weather_profile_and_exact_trace_ref(
     assert {fact.evidence_ref for fact in bundle.formal_facts} == {
         trace.fact_id for trace in bundle.fact_traces
     }
+
+
+def _observation_input() -> dict[str, object]:
+    event = DecisionContextEvent(
+        run_id="run:observation-test",
+        event_id="urn:aviation-agentic-ai:event:observation-test",
+        advisory_source_id="advisory:observation-test",
+        advisory_issued_at=datetime(2026, 5, 19, 20, tzinfo=UTC),
+        operational_start=datetime(2026, 5, 19, 21, tzinfo=UTC),
+        operational_end=datetime(2026, 5, 19, 22, tzinfo=UTC),
+    )
+    facility = CanonicalEntity(
+        entity_id="urn:aviation-agentic-ai:facility:airport:KJFK",
+        entity_type=EntityType.AIRPORT,
+        preferred_label="John F Kennedy International Airport",
+        codes=[
+            CodeValue(scheme="IATA", value="JFK"),
+            CodeValue(scheme="ICAO", value="KJFK"),
+        ],
+    )
+    arrivals = (
+        datetime(2026, 5, 19, 20, tzinfo=UTC),
+        datetime(2026, 5, 19, 21, 30, tzinfo=UTC),
+        datetime(2026, 5, 19, 23, tzinfo=UTC),
+    )
+    rows = [
+        BTSOnTimeRow(
+            row_id=f"bts-row:{index}",
+            FlightDate="2026-05-19",
+            DOT_ID_Reporting_Airline=1,
+            Reporting_Airline="AA",
+            IATA_CODE_Reporting_Airline="AA",
+            Flight_Number_Reporting_Airline=index,
+            OriginAirportSeqID=1,
+            DestAirportSeqID=2,
+            CRSDepTime=1800,
+            Origin="ORD",
+            Dest="JFK",
+            CRSArrTime=2000,
+            CRSElapsedTime=120,
+            scheduled_arrival_utc=arrival,
+            Cancelled=0,
+            Diverted=0,
+            ArrDelay=None if index == 1 else float(index),
+            ArrDel15=0,
+            WeatherDelay=None,
+            NASDelay=0.0,
+        )
+        for index, arrival in enumerate(arrivals, 1)
+    ]
+    content = "".join(
+        json.dumps(
+            row.model_dump(mode="json"),
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        + "\n"
+        for row in sorted(rows, key=lambda item: item.row_id)
+    )
+    source_id = "bts_on_time:test"
+    source_sha = hashlib.sha256(content.encode()).hexdigest()
+    advisory_content = "GS 123"
+    snapshot_registry = SourceSnapshotRegistry(
+        snapshots=(
+            SourceSnapshot(
+                source_id=event.advisory_source_id,
+                family=SourceFamily.ATCSCC_ADVISORY,
+                content=advisory_content,
+                content_sha256=hashlib.sha256(advisory_content.encode()).hexdigest(),
+                snapshot_timestamp="2026-07-27T00:00:00+00:00",
+            ),
+            SourceSnapshot(
+                source_id=source_id,
+                family=SourceFamily.BTS_ON_TIME,
+                content=content,
+                content_sha256=source_sha,
+                snapshot_timestamp="2026-07-27T00:00:00+00:00",
+            ),
+        )
+    )
+    profile_registry = _registry()
+    public_profile = next(
+        profile
+        for profile in profile_registry.profiles
+        if profile.ref.layer == "public_operational_observation"
+    )
+    assert public_profile.aggregation_procedure is not None
+    outcome_bundle = build_bts_outcome_summaries(
+        event,
+        facility,
+        rows,
+        source_id=source_id,
+        source_snapshot_sha256=source_sha,
+        manifest_binding=BTSManifestBinding(
+            source_id=source_id,
+            archive_sha256="a" * 64,
+            normalized_snapshot_sha256=source_sha,
+        ),
+        aggregation_procedure=public_profile.aggregation_procedure,
+    )
+    assert outcome_bundle.status == "ok"
+    return {
+        "event": event,
+        "canonical_facility": facility,
+        "outcome_bundle": outcome_bundle,
+        "snapshot_registry": snapshot_registry,
+        "profile_registry": profile_registry,
+    }
+
+
+def _all_observation_facts(bundle) -> list[ValidatedFact]:
+    return [*bundle.case_facts, *bundle.activity_facts, *bundle.observation_facts]
+
+
+def test_observation_builder_emits_typed_noncausal_graph_with_null_omission() -> None:
+    inputs = _observation_input()
+    bundle = build_bts_observation_facts(**inputs)
+
+    assert bundle.status == "ok", bundle.failure_reason
+    facts = _all_observation_facts(bundle)
+    assert {
+        fact.object_value
+        for fact in facts
+        if fact.predicate_iri == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+        and fact.object_value == "urn:aviation-agentic-ai:decision-case-schema:DecisionCase"
+    }
+    assert {
+        fact.object_value
+        for fact in facts
+        if fact.predicate_iri == "http://www.w3.org/ns/sosa/hasFeatureOfInterest"
+    } == {inputs["canonical_facility"].entity_id}
+    assert not any(
+        fact.object_value == inputs["event"].event_id
+        for fact in facts
+        if fact.predicate_iri == "http://www.w3.org/ns/sosa/hasFeatureOfInterest"
+    )
+    assert len(bundle.derivations) == 3
+    assert all(
+        tuple(sorted(row.selected_row_ids)) == row.selected_row_ids
+        for row in bundle.derivations
+    )
+    assert all(
+        fact.validation_profile.layer == "public_operational_observation"
+        for fact in facts
+    )
+    assert {
+        fact.evidence_mode
+        for fact in facts
+    } == {"deterministic_derivation", "profile_definition", "system_membership"}
+    assert not any("caused" in fact.predicate_iri.lower() for fact in facts)
+
+    numeric_facts = [
+        fact
+        for fact in facts
+        if fact.predicate_iri == "http://qudt.org/schema/qudt/numericValue"
+    ]
+    assert any(fact.object_value == "0" for fact in numeric_facts)
+    assert not any(
+        trace.metric_key == "mean_arrival_delay_minutes"
+        and trace.canonical_value is None
+        for trace in bundle.fact_traces
+    )
+    assert all(trace.canonical_value is not None for trace in bundle.fact_traces)
+    assert any(
+        fact.object_value == "http://qudt.org/vocab/unit/NUM"
+        for fact in facts
+        if fact.predicate_iri == "http://qudt.org/schema/qudt/unit"
+    )
+    assert any(
+        fact.object_value == "http://qudt.org/vocab/unit/MIN"
+        for fact in facts
+        if fact.predicate_iri == "http://qudt.org/schema/qudt/unit"
+    )
+    assert any(
+        fact.datatype_iri == "http://www.w3.org/2001/XMLSchema#decimal"
+        and Decimal(fact.object_value) == Decimal("0")
+        for fact in numeric_facts
+    )
+
+
+def test_observation_ids_are_stable_and_reconstruction_tracks_exact_inputs() -> None:
+    inputs = _observation_input()
+    first = build_bts_observation_facts(**inputs)
+    second = build_bts_observation_facts(**inputs)
+    assert first.model_dump_json() == second.model_dump_json()
+    assert first.reconstruction_trace == second.reconstruction_trace
+
+    changed_event = inputs["event"].model_copy(
+        update={"event_id": "urn:aviation-agentic-ai:event:changed"}
+    )
+    blocked = build_bts_observation_facts(**{**inputs, "event": changed_event})
+    assert blocked.status == "blocked"
+    assert "event" in (blocked.failure_reason or "")
+
+
+def test_observation_builder_rejects_rehashed_unknown_selected_row_ids() -> None:
+    inputs = _observation_input()
+    outcome = inputs["outcome_bundle"]
+    seed = outcome.derivation_seeds[0]
+    selected = ("bts-row:not-in-snapshot",)
+    digest = hashlib.sha256(
+        json.dumps(selected, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    derivation_payload = {
+        "aggregation_procedure_checksum": seed.aggregation_procedure_checksum,
+        "aggregation_procedure_id": seed.aggregation_procedure_id,
+        "archive_sha256": seed.archive_sha256,
+        "selected_row_ids_sha256": digest,
+        "source_id": seed.source_id,
+        "source_snapshot_sha256": seed.source_snapshot_sha256,
+        "summary_id": seed.summary_id,
+        "summary_sha256": seed.summary_sha256,
+    }
+    derivation_id = "bts-derivation:" + hashlib.sha256(
+        json.dumps(
+            derivation_payload, sort_keys=True, separators=(",", ":")
+        ).encode()
+    ).hexdigest()[:24]
+    tampered_seed = seed.model_copy(
+        update={
+            "derivation_id": derivation_id,
+            "selected_row_ids": selected,
+            "selected_row_ids_sha256": digest,
+        }
+    )
+    tampered = outcome.model_copy(
+        update={"derivation_seeds": [tampered_seed, *outcome.derivation_seeds[1:]]}
+    )
+
+    bundle = build_bts_observation_facts(
+        **{**inputs, "outcome_bundle": tampered}
+    )
+    assert bundle.status == "blocked"
+    assert "selected row ID" in (bundle.failure_reason or "")
+
+
+def test_observation_artifacts_are_byte_stable_and_strict(tmp_path: Path) -> None:
+    bundle = build_bts_observation_facts(**_observation_input())
+    assert bundle.status == "ok"
+    derivation_path = write_observation_derivations(tmp_path, bundle.derivations)
+    trace_path = write_observation_fact_traces(tmp_path, bundle.fact_traces)
+    reconstruction_path = write_reconstruction_trace(
+        tmp_path, bundle.reconstruction_trace
+    )
+    before = {
+        path.name: path.read_bytes()
+        for path in (derivation_path, trace_path, reconstruction_path)
+    }
+
+    assert read_observation_derivations(derivation_path) == bundle.derivations
+    assert read_observation_fact_traces(trace_path) == bundle.fact_traces
+    assert read_reconstruction_trace(reconstruction_path) == bundle.reconstruction_trace
+    write_observation_derivations(tmp_path, bundle.derivations)
+    write_observation_fact_traces(tmp_path, bundle.fact_traces)
+    write_reconstruction_trace(tmp_path, bundle.reconstruction_trace)
+    assert before == {
+        path.name: path.read_bytes()
+        for path in (derivation_path, trace_path, reconstruction_path)
+    }
+
+    derivation_path.write_text(
+        derivation_path.read_text() + derivation_path.read_text().splitlines()[0] + "\n"
+    )
+    with pytest.raises(ValueError, match="duplicate"):
+        read_observation_derivations(derivation_path)

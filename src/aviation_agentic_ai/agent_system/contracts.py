@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import hashlib
 from datetime import datetime
+from decimal import Decimal
 from enum import Enum
 from pathlib import Path
 from typing import Any, Literal
@@ -539,6 +540,81 @@ class BTSOutcomeBundle(StrictModel):
     summaries: list[BTSOutcomeSummary] = Field(default_factory=list)
     derivation_seeds: list[ObservationDerivationSeed] = Field(default_factory=list)
     failure_reason: str = ""
+
+
+class SourceBinding(StrictModel):
+    """Checksum-bound source identity included in one reconstruction."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_id: str = Field(min_length=1)
+    source_family: SourceFamily
+    snapshot_sha256: str = Field(min_length=64, max_length=64)
+
+
+class ObservationDerivation(StrictModel):
+    """Audit bridge from one BTS phase summary to its aggregation activity."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    derivation_id: str = Field(min_length=1)
+    activity_iri: str = Field(min_length=1)
+    summary_id: str = Field(min_length=1)
+    summary_sha256: str = Field(min_length=64, max_length=64)
+    source_id: str = Field(min_length=1)
+    source_snapshot_sha256: str = Field(min_length=64, max_length=64)
+    archive_sha256: str = Field(min_length=64, max_length=64)
+    aggregation_procedure_id: str = Field(min_length=1)
+    aggregation_procedure_checksum: str = Field(min_length=1)
+    selected_row_ids: tuple[str, ...]
+    selected_row_ids_sha256: str = Field(min_length=64, max_length=64)
+
+
+class ObservationFactTrace(StrictModel):
+    """Typed provenance for one deterministically derived observation value."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    fact_id: str = Field(min_length=1)
+    observation_id: str = Field(min_length=1)
+    derivation_id: str = Field(min_length=1)
+    summary_id: str = Field(min_length=1)
+    metric_key: str = Field(min_length=1)
+    canonical_value: int | Decimal | None
+    source_id: str = Field(min_length=1)
+    source_snapshot_sha256: str = Field(min_length=64, max_length=64)
+    summary_sha256: str = Field(min_length=64, max_length=64)
+    aggregation_procedure_id: str = Field(min_length=1)
+    aggregation_procedure_checksum: str = Field(min_length=1)
+
+
+class ReconstructionTrace(StrictModel):
+    """Exact immutable input binding for one decision-case reconstruction."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    reconstruction_trace_id: str = Field(min_length=1)
+    conceptual_case_iri: str = Field(min_length=1)
+    reconstruction_iri: str = Field(min_length=1)
+    reconstruction_input_sha256: str = Field(min_length=64, max_length=64)
+    member_iris: tuple[str, ...]
+    profile_refs: tuple[ValidationProfileRef, ...]
+    source_bindings: tuple[SourceBinding, ...]
+    aggregation_procedure_id: str = Field(min_length=1)
+    aggregation_procedure_checksum: str = Field(min_length=1)
+
+
+class BTSObservationBundle(StrictModel):
+    """Validated formal public-observation layer and its audit artifacts."""
+
+    status: Literal["ok", "insufficient", "blocked"]
+    case_facts: list[ValidatedFact] = Field(default_factory=list)
+    activity_facts: list[ValidatedFact] = Field(default_factory=list)
+    observation_facts: list[ValidatedFact] = Field(default_factory=list)
+    fact_traces: list[ObservationFactTrace] = Field(default_factory=list)
+    derivations: list[ObservationDerivation] = Field(default_factory=list)
+    reconstruction_trace: ReconstructionTrace | None = None
+    failure_reason: str | None = None
 
 
 class FactTraceRow(StrictModel):

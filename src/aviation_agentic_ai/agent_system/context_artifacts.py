@@ -17,6 +17,9 @@ from aviation_agentic_ai.agent_system.contracts import (
     BTSOutcomeBundle,
     BTSOutcomeSummary,
     DecisionContextEvent,
+    ObservationDerivation,
+    ObservationFactTrace,
+    ReconstructionTrace,
     SourceFamily,
     SourceRecord,
     SourceSnapshotRegistry,
@@ -229,6 +232,81 @@ def read_outcome_summaries(path: str | Path) -> list[BTSOutcomeSummary]:
 
 def read_weather_fact_traces(path: str | Path) -> list[WeatherFactTrace]:
     return _read_typed_jsonl(path, WeatherFactTrace, id_field="fact_id")
+
+
+def write_observation_derivations(
+    output_dir: str | Path,
+    rows: list[ObservationDerivation],
+) -> Path:
+    """Write the canonical derivation audit bridge."""
+
+    return _write_typed_jsonl(
+        Path(output_dir) / "observation_derivations.jsonl",
+        rows,
+        id_field="derivation_id",
+    )
+
+
+def read_observation_derivations(
+    path: str | Path,
+) -> list[ObservationDerivation]:
+    """Read a strict, duplicate-free derivation artifact."""
+
+    return _read_typed_jsonl(
+        path,
+        ObservationDerivation,
+        id_field="derivation_id",
+    )
+
+
+def write_observation_fact_traces(
+    output_dir: str | Path,
+    rows: list[ObservationFactTrace],
+) -> Path:
+    """Write canonical typed observation fact provenance."""
+
+    return _write_typed_jsonl(
+        Path(output_dir) / "observation_fact_trace.jsonl",
+        rows,
+        id_field="fact_id",
+    )
+
+
+def read_observation_fact_traces(
+    path: str | Path,
+) -> list[ObservationFactTrace]:
+    """Read a strict, duplicate-free observation fact trace artifact."""
+
+    return _read_typed_jsonl(
+        path,
+        ObservationFactTrace,
+        id_field="fact_id",
+    )
+
+
+def write_reconstruction_trace(
+    output_dir: str | Path,
+    trace: ReconstructionTrace | None,
+) -> Path:
+    """Write the one immutable reconstruction input binding."""
+
+    if trace is None:
+        raise ValueError("reconstruction trace is required")
+    path = Path(output_dir) / "reconstruction_trace.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(trace.model_dump_json() + "\n", encoding="utf-8")
+    return path
+
+
+def read_reconstruction_trace(path: str | Path) -> ReconstructionTrace:
+    """Read and strictly validate the reconstruction input binding."""
+
+    try:
+        return ReconstructionTrace.model_validate_json(
+            Path(path).read_text(encoding="utf-8")
+        )
+    except Exception as exc:
+        raise ValueError("invalid reconstruction trace JSON") from exc
 
 
 def _artifact_metadata(
