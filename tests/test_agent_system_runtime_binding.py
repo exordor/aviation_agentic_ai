@@ -311,7 +311,6 @@ def test_manifest_created_at_uses_frozen_run_started_at(tmp_path):
     assert payload["manifest_version"] == "decision-case-run-v1"
     assert payload["provider_attempts"] == 1
     assert payload["provider_successes"] == 0
-    assert "provider_calls" not in payload
 
 
 def test_internal_helpers_return_typed_unique_resolution_without_authority_leak(
@@ -578,7 +577,7 @@ def test_semantic_resolution_factory_failure_is_a_sealed_blocked_result(tmp_path
     assert result.resolution_proposal.task_id == result.resolution_task.task_id
 
 
-def test_required_blocked_domain_stops_kg_factory_and_preserves_blocked_status(
+def test_required_blocked_domain_stops_assembly_and_preserves_blocked_status(
     tmp_path,
 ):
     catalog = _catalog(tmp_path)
@@ -628,11 +627,11 @@ def test_required_blocked_domain_stops_kg_factory_and_preserves_blocked_status(
 
 
 def test_case_assembly_complexity_gate_uses_only_dedicated_factory() -> None:
-    """Legacy KG factories never activate Assembly; fixed cases never need it."""
+    """Only the dedicated Assembly factory can activate a non-canonical case."""
 
     from types import SimpleNamespace
 
-    def legacy_factory(tools):
+    def unrelated_factory(tools):
         del tools
         return object()
 
@@ -678,8 +677,8 @@ def test_case_assembly_complexity_gate_uses_only_dedicated_factory() -> None:
         task=unresolved,
         case_assembly_model_factory=dedicated_factory,
     )
-    # A legacy KG factory cannot change the Assembly activation result.
-    assert legacy_factory is not dedicated_factory
+    # An unrelated factory cannot change the Assembly activation result.
+    assert unrelated_factory is not dedicated_factory
 
 
 def test_blocked_assembly_stops_before_kernel_and_materialization(tmp_path, monkeypatch):

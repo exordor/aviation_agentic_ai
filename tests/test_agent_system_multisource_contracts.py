@@ -220,13 +220,9 @@ def test_query_store_rejects_a_run_with_the_wrong_manifest_version(tmp_path):
 
 
 def test_profile_gap_requires_registered_jsonl_snapshot(tmp_path):
-    """A legacy single snapshot cannot authorize a current profile gap."""
+    """A current profile gap requires the registered source snapshot."""
 
     snapshot = _write_current_query_run(tmp_path, write_registry=False)
-    (tmp_path / "source_snapshot.json").write_text(
-        snapshot.model_dump_json(),
-        encoding="utf-8",
-    )
     (tmp_path / "profile_gaps.jsonl").write_text(
         PersistedProfileGap(
             profile_gap_id="gap:1",

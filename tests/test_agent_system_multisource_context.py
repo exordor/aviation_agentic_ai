@@ -611,10 +611,10 @@ def test_prepared_context_is_rejected_when_kernel_accepts_a_different_event(
     (
         "source_id",
         "event_class",
-        "facility_code",
+        "facility",
         "start",
         "end",
-        "reason",
+        "reason_state",
         "active_counts",
     ),
     [
@@ -624,7 +624,7 @@ def test_prepared_context_is_rejected_when_kernel_accepts_a_different_event(
             "KJFK",
             "2026-05-19T21:00:00Z",
             "2026-05-19T22:45:00Z",
-            None,
+            "profile_gap",
             (20, 18, 2, 0),
         ),
         (
@@ -633,7 +633,7 @@ def test_prepared_context_is_rejected_when_kernel_accepts_a_different_event(
             "KJFK",
             "2026-05-19T22:05:00Z",
             "2026-05-20T02:59:00Z",
-            "weather",
+            "formal_weather",
             (77, 68, 4, 5),
         ),
         (
@@ -642,7 +642,7 @@ def test_prepared_context_is_rejected_when_kernel_accepts_a_different_event(
             "KEWR",
             "2026-05-20T01:24:00Z",
             "2026-05-20T05:46:00Z",
-            None,
+            "missing",
             (50, 49, 1, 0),
         ),
     ],
@@ -655,23 +655,23 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     monkeypatch,
     source_id,
     event_class,
-    facility_code,
+    facility,
     start,
     end,
-    reason,
+    reason_state,
     active_counts,
 ):
     advisory = load_advisory_source(config, source_id)
-    facility = FACILITIES[facility_code]
+    facility_entity = FACILITIES[facility]
     event_id = f"evt:{source_id.replace(':', '-')}"
     facts = _core_facts(
         event_id=event_id,
         event_class=event_class,
-        facility=facility,
+        facility=facility_entity,
         start=start,
         end=end,
         source_id=source_id,
-        reason=reason,
+        reason="weather" if reason_state == "formal_weather" else None,
     )
     validation = GraphValidationResult(accepted=facts, publishable=True)
     advisory_registry = build_source_snapshot_registry([advisory])
@@ -697,7 +697,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     bts_source, bts_rows, bts_binding = bts_context
     ctx = IngestContext(
         advisory=advisory,
-        facility_candidates=[facility],
+        facility_candidates=[facility_entity],
         weather_sources=weather_sources,
         bts_rows=bts_rows,
         bts_source=bts_source,
@@ -708,13 +708,13 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     state = {
         "event_uri": event_id,
         "event_class": f"atm:{event_class}",
-        "facility_authority_result": _facility_authority_result(facility, source_id),
+        "facility_authority_result": _facility_authority_result(facility_entity, source_id),
         "validation": validation,
         "materialization": core_materialization,
         "source_snapshot": advisory_registry,
         "authority_source_records": AuthoritySourceRecordRegistry(
             records=_authority_records(
-                facility_code,
+                facility,
                 ground_stop=source_id.endswith(":123"),
             )
         ),
@@ -790,7 +790,13 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     ]
     event_rows = [row for row in kg_rows if row["subject"].endswith(event_id.removeprefix("evt:"))]
     reasons = [row["object"] for row in event_rows if row["predicate"] == "atm:impactingCondition"]
-    assert reasons == ([reason] if reason is not None else [])
+    assert reasons == (["weather"] if reason_state == "formal_weather" else [])
+    if reason_state == "profile_gap":
+        assert not reasons
+        persisted_gaps = (tmp_path / "profile_gaps.jsonl").read_text(encoding="utf-8")
+        assert "IMPACTING CONDITION: WEATHER / THUNDERSTORMS" in persisted_gaps
+    if reason_state == "missing":
+        assert not reasons
     assert not any(
         row["subject"].endswith(event_id.removeprefix("evt:"))
         and row["predicate"].startswith("data:")
@@ -885,7 +891,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         .splitlines()
     ]
     assert len({node["id"] for node in repeated_nodes}) == len(repeated_nodes)
-    assert sum(node["id"] == facility.entity_id for node in repeated_nodes) == 1
+    assert sum(node["id"] == facility_entity.entity_id for node in repeated_nodes) == 1
 
     if source_id == "2026-05-19:138":
         monkeypatch.setattr(

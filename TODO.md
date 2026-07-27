@@ -6,7 +6,7 @@ This file contains only the active execution queue and immediate deferred
 decisions. Historical experiment backlogs are discoverable through
 `ARTIFACT_INDEX.md` and Git history.
 
-## Current Stage - Batch C Decision Case Assembly
+## Current Stage - Batch C.1 Architecture Cutover
 
 Objective: reconstruct three auditable historical decision cases by preparing
 validated Weather/BTS context, sealing one task-bounded Assembly input, and
@@ -45,6 +45,11 @@ Kernel.
   explicit causal denial, and one value-only repair turn.
 - [x] Keep the Formal Graph Kernel as the sole final publication authority.
 - [x] Keep Decision Case Analysis inactive.
+- [x] Complete the breaking cutover to deterministic parsing and authority
+  services, conditional Semantic Resolution and Decision Case Assembly Agents,
+  the Formal Graph Kernel, and current profile-owned run artifacts.
+- [x] Require regeneration for old runs while retaining `ingest`,
+  `neo4j-export`, and `ask` as current UX only.
 
 Success: all three cases expose validated Weather context and BTS-reported
 observations with source provenance, exact reason-state preservation, and zero
@@ -52,9 +57,11 @@ Decision Case Assembly provider calls.
 
 ## Completed System Foundation
 
-- [x] Implement the fixed multi-Agent construction workflow.
-- [x] Add bounded facility and terminology authority resolution.
-- [x] Add the tool-using Knowledge Graph Construction Agent.
+- [x] Implement deterministic advisory parsing and bounded facility and
+  terminology authority services.
+- [x] Add the shared Semantic Resolution Agent for genuine ambiguity.
+- [x] Replace the predecessor construction path with the canonical compiler or bounded
+  Decision Case Assembly Agent.
 - [x] Enforce the deterministic Formal Graph Kernel publication gate.
 - [x] Preserve fact-level evidence, provenance, profile gaps, and explicit
   failure states.
@@ -77,10 +84,10 @@ The read-only query evidence explorer is implemented and reviewed on
   interaction, and narrow layouts.
 - [ ] Merge the visualization branch only when the user wants it in `main`.
 
-## Next Decision After Batch C
+## Next Decision After Batch C.1
 
-Do not activate Decision Case Analysis or another semantic expansion until the
-three-case Batch C verification and review are complete. The next approved task
+Do not activate Decision Case Analysis or another semantic expansion without a
+new approved task. The next approved task
 must choose only one bounded increment, such as a first read-only analysis
 question family, ASPM validation, regional Weather context, decision-episode
 grouping, or historical-case retrieval.

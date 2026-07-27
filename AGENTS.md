@@ -13,8 +13,9 @@ The active pipeline is:
 
 ```text
 ATCSCC advisory + bounded FAA authority records
-  -> Advisory Agent
-  -> facility and terminology authority resolution
+  -> deterministic AdvisoryParser
+  -> facility and terminology authority services
+     -> shared Semantic Resolution Agent only for genuine ambiguity
   -> deterministic Weather and BTS context preparation and validation
   -> sealed Decision Case Assembly task
   -> deterministic compiler for the three canonical cases or bounded
@@ -47,6 +48,9 @@ names, not internal alphanumeric labels.
   preflight precedes the Formal Graph Kernel, which remains the sole final
   publication authority.
 - Decision Case Analysis is inactive.
+- Batch C.1 is the completed breaking cutover. Runs made by an earlier
+  architecture must be regenerated; `ingest`, `neo4j-export`, and `ask` are
+  retained as current user-facing commands, not compatibility guarantees.
 - The read-only visualization prototype is isolated on
   `codex/kg-visualization-research`. Visualization is paused and is not the
   active `main` implementation track.

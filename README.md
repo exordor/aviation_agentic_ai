@@ -11,8 +11,9 @@ context and BTS-reported public operational observations before assembly.
 
 ```text
 ATCSCC advisory
-  -> Advisory Agent
-  -> Facility + terminology authority resolution
+  -> deterministic AdvisoryParser
+  -> facility and terminology authority services
+     -> shared Semantic Resolution Agent only for genuine ambiguity
   -> deterministic Weather + BTS context preparation
   -> sealed Decision Case Assembly task
   -> deterministic compiler or bounded Decision Case Assembly Agent
@@ -48,6 +49,11 @@ remain audit records and never become formal graph facts. Weather associations
 are explicitly non-causal. BTS-reported observations are not FAA demand, AAR,
 capacity, EDCT, or proof that a TMI caused an outcome.
 
+Batch C.1 is a breaking architecture cutover. Regenerate old runs before using
+them with the current system. The useful command names `ingest`,
+`neo4j-export`, and `ask` remain current UX; they do not promise an old-run
+reader, writer, alias, or artifact compatibility layer.
+
 ## Quick Start
 
 Install the active system and development dependencies:
@@ -73,10 +79,11 @@ uv run aviation-ai agent-system ingest \
   --allow-live-model
 ```
 
-The live flag authorizes the bounded DeepSeek calls used by the construction
-workflow. Set `DEEPSEEK_API_KEY` and optionally `DEEPSEEK_BASE_URL`; the active
-system never substitutes the ambient general provider. The flag does not
-authorize full-corpus processing.
+The live flag permits a bounded model only when a conditional semantic or
+assembly path genuinely activates. Set `DEEPSEEK_API_KEY` and optionally
+`DEEPSEEK_BASE_URL`; the active system never substitutes the ambient general
+provider. The flag does not authorize full-corpus processing, and the three
+canonical cases do not need a provider.
 
 Ask a registered question from a validated run:
 
@@ -104,15 +111,21 @@ the loader never clears unrelated graph data.
 
 | Component | Responsibility |
 | --- | --- |
-| Advisory Agent | Parses one advisory and identifies source-supported mentions. |
-| Facility and Terminology compatibility branches | Generate bounded authority candidates and resolve deterministic outcomes. |
+| AdvisoryParser | Deterministically parses one advisory into source-supported mentions. |
+| Facility and terminology authority services | Build bounded authority candidates and decide blocked, insufficient, or unique results deterministically. |
 | Semantic Resolution Agent | Resolves only genuine multi-candidate ambiguity through source-bounded tools. |
-| Decision Case Assembly Agent | Selects among admitted evidence/schema choices and proposes an exact projection of a sealed task. |
+| Decision Case Assembly Agent | Is activated only for a genuine evidence/schema choice; the three canonical cases use the zero-call compiler. |
 | Formal Graph Kernel | Validates schema, identity, evidence, provenance, datatype, and graph constraints. |
 | Query Agent | Selects bounded read-only tools and composes source-grounded answers. |
 
 The LangGraph coordinator schedules the fixed workflow but is not counted as an
 Agent. The ontology profile is a shared contract, not an Agent.
+
+Each current run is profile-owned: `kg.jsonl`, `kg.ttl`,
+`neo4j_nodes.jsonl`, and `neo4j_relationships.jsonl` are projections of
+validated facts, while `run_manifest.json`, `source_snapshots.jsonl`,
+`profile_gaps.jsonl`, context associations, and trace artifacts remain the
+auditable record. A query reads these validated run artifacts only.
 
 ## Current Status
 

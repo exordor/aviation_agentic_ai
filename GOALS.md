@@ -10,8 +10,9 @@ historical comparison hypotheses belong in the optional experiment documents.
 Build a useful, extensible multi-Agent aviation event knowledge system that:
 
 1. reads a retrospective FAA ATCSCC advisory and bounded authority records;
-2. coordinates bounded Agents for source interpretation, ambiguous semantic
-   resolution, decision-case assembly, and graph-grounded query;
+2. coordinates deterministic parsing and authority services, conditionally
+   activated semantic resolution and decision-case assembly Agents, and a
+   graph-grounded Query Agent;
 3. publishes only evidence-bound facts accepted by a deterministic schema and
    provenance gate;
 4. materializes one canonical event graph as JSONL, RDF/Turtle, and a Neo4j
@@ -43,11 +44,13 @@ genuinely missing information.
 
 ## Completed Foundation
 
-The current `main` branch provides:
+The current system provides:
 
-- one-record ingest through a fixed LangGraph construction workflow;
-- bounded Facility and Terminology authority resolution;
-- a tool-using Knowledge Graph Construction Agent;
+- deterministic one-record parsing and authority-resolution services;
+- a shared Semantic Resolution Agent only for genuine multi-candidate
+  authority ambiguity;
+- a deterministic canonical-case compiler and a bounded Decision Case
+  Assembly Agent only for genuine evidence/schema choice;
 - deterministic formal validation as the sole publication gate;
 - fact-level evidence binding and source provenance;
 - canonical facility reuse and idempotent Neo4j merge behavior;
@@ -110,9 +113,10 @@ The read-only visualization batch has reached a stable stopping point on
 `codex/kg-visualization-research`. It is an optional presentation layer and is
 not merged into `main`.
 
-The active semantic increment is Batch C Decision Case Assembly on
-`codex/decision-case-assembly-agent`. It is under local review and is not
-merged into `main`.
+Batch C.1 completed the breaking architecture cutover on
+`codex/decision-case-assembly-agent`. Old runs require regeneration. The
+current command names are retained for user continuity, not as an artifact or
+runtime compatibility guarantee.
 
 Later increments still require an explicit user task and source boundary.
 Possible directions include decision-episode identity, regional weather,

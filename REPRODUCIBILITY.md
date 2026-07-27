@@ -5,6 +5,10 @@ Last updated: 2026-07-27
 This file describes the current Agent-system path. Historical formal experiments
 remain reproducible through `EXPERIMENTS.md` but are not the default workflow.
 
+Batch C.1 is a breaking cutover. Regenerate an old run rather than attempting
+to read or extend it with the current runtime. `ingest`, `neo4j-export`, and
+`ask` retain useful current names only; they are not compatibility guarantees.
+
 ## Environment
 
 - Python: 3.11 or newer; see `pyproject.toml`.
@@ -89,8 +93,8 @@ A publishable run contains the validated graph and audit artifacts described in
 `ARTIFACT_INDEX.md`. Non-publishable runs may preserve audit records but must
 not publish formal KG files.
 
-For new multi-source runs, `source_snapshots.jsonl` is the canonical registry.
-The deterministic post-validation branch writes
+For every current multi-source run, `source_snapshots.jsonl` is the canonical
+registry. The deterministic post-validation branch writes
 `context_associations.jsonl`, `outcome_summaries.jsonl`, and
 `weather_fact_trace.jsonl`. It also writes `observation_derivations.jsonl`,
 `observation_fact_trace.jsonl`, and `reconstruction_trace.json` for formal
@@ -183,8 +187,11 @@ The active-window BTS-reported acceptance values are:
 | GDP 138 / KJFK | 77 | 68 | 4 | 5 |
 | GDP cancellation 020 / KEWR | 50 | 49 | 1 | 0 |
 
-Ground Stop 123 retains a profile-gap reason, GDP 138 retains formal
-`weather`, and cancellation 020 remains missing-reason.
+Ground Stop 123 retains a source-bound profile-gap reason and no formal
+`atm:impactingCondition`; GDP 138 retains formal `weather` with source evidence
+ending at `THUNDERSTORMS`; and cancellation 020 remains missing-reason and is
+`insufficient` before model construction. Weather context never changes these
+reason states.
 
 ## Verification
 

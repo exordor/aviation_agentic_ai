@@ -43,13 +43,15 @@ decision process.
 
 ## 2. Current Foundation
 
-The existing system already provides:
+The current system provides:
 
-- Advisory, Facility, Terminology, and Knowledge Graph Construction Agents;
+- deterministic advisory parsing and facility/terminology authority services;
+- a shared Semantic Resolution Agent only for genuine ambiguity;
+- a canonical compiler or bounded Decision Case Assembly Agent;
 - a source-bounded Graph Patch;
 - deterministic formal-graph validation;
 - RDF and Neo4j projections with provenance;
-- bounded native tool use in the KG Construction and Query Agents;
+- bounded native tool use in the conditional Assembly and Query Agents;
 - stable canonical facility identifiers and idempotent Neo4j merge behavior;
 - explicit `ok`, `insufficient`, and `blocked` outcomes.
 
@@ -280,6 +282,10 @@ If the expected call count exceeds eight, stop and request a scope decision.
 - Merge of `codex/kg-visualization-research` into `main`.
 - Optional live-model acceptance smoke.
 - Any broader multi-record or interactive search API.
+
+The Explorer contract consumes current, regenerated run artifacts. Batch C.1
+does not provide a reader for earlier run formats; the retained command names
+are current UX, not a compatibility promise.
 
 ## 13. Explicitly Deferred Work
 

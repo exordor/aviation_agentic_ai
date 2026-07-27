@@ -1,6 +1,6 @@
 # System And Research Overview
 
-Last updated: 2026-07-26
+Last updated: 2026-07-27
 
 This document explains the current system direction. Formal comparison
 experiments remain optional and are routed through `EXPERIMENTS.md`.
@@ -23,16 +23,16 @@ must preserve:
 
 ## Project Outcome
 
-The project builds a multi-Agent aviation event knowledge system that converts
+The project builds an aviation event knowledge system that converts
 one retrospective advisory and bounded FAA authority records into a validated
 event knowledge graph, RDF/Turtle, and a Neo4j projection, then answers a
 registered set of decision-record questions.
 
 The core value is not the number of Agents. It is the separation of:
 
-- source interpretation;
-- authority lookup and normalization;
-- model-proposed graph construction;
+- deterministic source interpretation;
+- deterministic authority lookup and normalization;
+- conditional semantic resolution and case assembly;
 - deterministic publication;
 - read-only graph-grounded interaction.
 
@@ -40,10 +40,11 @@ The core value is not the number of Agents. It is the separation of:
 
 ```text
 ATCSCC advisory
-  -> Advisory Agent
-  -> Facility Agent and Terminology Agent
-  -> Knowledge Graph Construction Agent
-  -> Graph Patch
+  -> deterministic AdvisoryParser
+  -> facility and terminology authority services
+     -> Semantic Resolution Agent only for genuine ambiguity
+  -> deterministic Weather/BTS adapters
+  -> canonical compiler or Decision Case Assembly Agent
   -> Formal Graph Kernel
   -> validated event KG
   -> RDF/Turtle and Neo4j projection
@@ -56,13 +57,14 @@ deterministic and is the sole publication gate.
 
 ## Why Multi-Agent
 
-The roles reflect real information boundaries:
+The current components reflect real information boundaries:
 
-- the Advisory Agent observes the advisory;
-- the Facility Agent can use facility authority records;
-- the Terminology Agent can use the admitted term registry;
-- the Knowledge Graph Construction Agent sees normalized evidence and a compact
-  schema guide;
+- the AdvisoryParser sees the advisory;
+- authority services see their own facility or terminology sources;
+- the Semantic Resolution Agent sees a sealed candidate set only when unique
+  deterministic resolution is impossible;
+- the Decision Case Assembly Agent sees a sealed task and compact schema
+  context only when the zero-call compiler is not applicable;
 - the Query Agent receives only read-only graph tools.
 
 No role receives unrestricted source access or graph-write authority. This
@@ -115,11 +117,11 @@ that the published measure was optimal.
 
 ## Current Implementation Boundary
 
-Implemented on `main`:
+Implemented by the current Batch C.1 architecture:
 
 - bounded one-record ingest;
-- facility and terminology authority resolution;
-- tool-using graph construction;
+- deterministic facility and terminology authority services;
+- conditional semantic resolution and decision-case assembly;
 - deterministic validation and audit artifacts;
 - JSONL, RDF/Turtle, and Neo4j projection;
 - bounded decision-record queries;
@@ -164,3 +166,6 @@ contract.
 
 See `GOALS.md` for durable outcomes, `TODO.md` for active work, and
 `ARTIFACT_INDEX.md` for context routing.
+
+The cutover is breaking: regenerate earlier runs. The familiar command names
+remain current UX and do not promise backward compatibility.

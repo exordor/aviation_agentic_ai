@@ -8,11 +8,11 @@ thesis-first navigation model.
 
 ## Current Project Snapshot
 
-Aviation Agentic AI is a runnable, source-bounded multi-Agent system for
+Aviation Agentic AI is a runnable, source-bounded system for
 converting one retrospective FAA ATCSCC advisory into a validated event
 knowledge graph, RDF/Turtle, and a Neo4j projection, then answering a small
 registered set of decision-record questions with explicit source evidence. The
-active Batch C branch prepares time-bounded weather context and BTS-reported
+completed Batch C.1 cutover prepares time-bounded weather context and BTS-reported
 public operational observations, seals them into one task-bounded decision
 case, and preserves their non-causal/source-qualified meaning.
 
@@ -20,7 +20,8 @@ The active path is:
 
 ```text
 one advisory + FAA facility and terminology records
-  -> advisory interpretation and authority resolution
+  -> deterministic AdvisoryParser and authority services
+  -> shared Semantic Resolution Agent only for genuine ambiguity
   -> deterministic Weather/BTS context preparation and validation
   -> sealed Decision Case Assembly task
   -> deterministic compiler for the three canonical cases or bounded
@@ -51,7 +52,8 @@ The browser visualization exists only on
 
 ## Active Feature Branch
 
-`codex/decision-case-assembly-agent` extends the three approved records with:
+`codex/decision-case-assembly-agent` implements the current architecture for
+the three approved records:
 
 - the latest eligible TAF known at advisory issue time;
 - the latest eligible pre-issue METAR and operational-period observations;
@@ -69,6 +71,10 @@ an outcome. Ground Stop `123`, GDP `138`, and cancellation `020` use the
 deterministic Assembly compiler and make zero Assembly provider calls. The
 bounded Assembly Agent is reserved for genuine evidence/schema choice, and
 Decision Case Analysis remains inactive.
+
+Batch C.1 deliberately breaks old-run compatibility: regenerate old runs.
+`ingest`, `neo4j-export`, and `ask` are retained as current command names, not
+as a guarantee that earlier artifacts remain readable.
 
 ## Context Routing
 
