@@ -1,4 +1,4 @@
-"""Deterministic, audit-only BTS On-Time normalization and outcome proxies."""
+"""Deterministic, audit-only BTS On-Time normalization and observations."""
 
 from __future__ import annotations
 
@@ -18,6 +18,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     BTSOutcomeBundle,
     BTSOutcomeSummary,
     DecisionContextEvent,
+    ObservationDerivationSeed,
 )
 from aviation_agentic_ai.cross_source.contracts import CanonicalEntity, EntityType
 
@@ -33,6 +34,9 @@ MEMBER_SHA256 = "12470de43703fe0c23e25510b5af6e6e4e1d5d0aa55818dcc7d0f0b407801be
 TIMEZONE_NAME = "America/New_York"
 NORMALIZED_SOURCE_ID = "bts_on_time:2026-05:nyc"
 NORMALIZED_SNAPSHOT_SHA256 = "434ef44bae82213607006b7a6888621245528fe5ca8a8a168be919329f84c20d"
+AGGREGATION_PROCEDURE_ID = "urn:aviation-agentic-ai:observation-procedure:bts-on-time-aggregation-v1"
+AGGREGATION_PROCEDURE_CHECKSUM = "e483b0bc458004bfc979e8986ff945271c43930d2f8f5d21f6b3ce5f27c428a7"
+REPORTING_SCOPE = "BTS On-Time reporting carriers and scheduled domestic passenger operations."
 FILTER_DATES = {"2026-05-19", "2026-05-20"}
 FILTER_DESTINATIONS = {"JFK", "EWR", "LGA"}
 
@@ -97,6 +101,10 @@ def _canonical_rows_bytes(rows: Iterable[BTSOnTimeRow]) -> bytes:
         json.dumps(row.model_dump(mode="json"), sort_keys=True, separators=(",", ":")) + "\n"
         for row in sorted(rows, key=lambda row: row.row_id)
     ).encode("utf-8")
+
+
+def _canonical_json_bytes(value: object) -> bytes:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
 
 
 def _as_int(value: str | None, field: str, *, required: bool = True) -> int | None:
@@ -307,7 +315,7 @@ def _facility_iata(canonical_facility: CanonicalEntity) -> str:
     return iata[0]
 
 
-def _summary(
+def _summary_and_seed(
     event: DecisionContextEvent,
     facility: CanonicalEntity,
     phase: str,
@@ -315,17 +323,29 @@ def _summary(
     window_end: datetime,
     source_id: str,
     source_snapshot_sha256: str,
-    rows: list[BTSOnTimeRow],
-) -> BTSOutcomeSummary:
-    selected = [row for row in rows if window_start <= row.scheduled_arrival_utc < window_end]
+    archive_sha256: str,
+    aggregation_procedure_id: str,
+    aggregation_procedure_checksum: str,
+    selected: list[BTSOnTimeRow],
+) -> tuple[BTSOutcomeSummary, ObservationDerivationSeed]:
     completed = [row for row in selected if row.Cancelled == 0 and row.Diverted == 0]
     arrival_delays = [row.ArrDelay for row in completed if row.ArrDelay is not None]
     weather_delays = [row.WeatherDelay for row in selected if row.WeatherDelay is not None]
     nas_delays = [row.NASDelay for row in selected if row.NASDelay is not None]
+    summary_id_payload = {
+        "event_id": event.event_id,
+        "facility_id": facility.entity_id,
+        "phase": phase,
+        "run_id": event.run_id,
+        "source_id": source_id,
+        "source_snapshot_sha256": source_snapshot_sha256,
+        "window_end": window_end.isoformat(),
+        "window_start": window_start.isoformat(),
+    }
     summary_id = "bts-outcome:" + source_id + ":" + hashlib.sha256(
-        "|".join((event.run_id, event.event_id, facility.entity_id, phase, window_start.isoformat(), window_end.isoformat(), source_id, source_snapshot_sha256)).encode()
+        _canonical_json_bytes(summary_id_payload)
     ).hexdigest()[:24]
-    return BTSOutcomeSummary(
+    summary = BTSOutcomeSummary(
         summary_id=summary_id,
         run_id=event.run_id,
         event_id=event.event_id,
@@ -335,7 +355,7 @@ def _summary(
         window_end=window_end,
         source_id=source_id,
         source_snapshot_sha256=source_snapshot_sha256,
-        scheduled_arrival_count_proxy=len(selected),
+        scheduled_arrival_count=len(selected),
         completed_arrival_count=len(completed),
         cancelled_count=sum(row.Cancelled == 1 for row in selected),
         diverted_count=sum(row.Diverted == 1 for row in selected),
@@ -344,11 +364,41 @@ def _summary(
         median_arrival_delay_minutes=statistics.median(arrival_delays) if arrival_delays else None,
         carrier_reported_weather_delay_minutes=sum(weather_delays) if weather_delays else None,
         carrier_reported_nas_delay_minutes=sum(nas_delays) if nas_delays else None,
-        scheduled_arrival_semantics="public scheduled-demand proxy; not FAA arrival demand",
-        weather_delay_semantics="carrier-reported attribution; not a causal claim",
-        nas_delay_semantics="carrier-reported attribution; not a causal claim",
+        reporting_scope=REPORTING_SCOPE,
         causal_claim=False,
     )
+    selected_row_ids = tuple(sorted(row.row_id for row in selected))
+    selected_row_ids_sha256 = hashlib.sha256(
+        _canonical_json_bytes(selected_row_ids)
+    ).hexdigest()
+    summary_sha256 = hashlib.sha256(
+        _canonical_json_bytes(summary.model_dump(mode="json"))
+    ).hexdigest()
+    derivation_payload = {
+        "aggregation_procedure_checksum": aggregation_procedure_checksum,
+        "aggregation_procedure_id": aggregation_procedure_id,
+        "archive_sha256": archive_sha256,
+        "selected_row_ids_sha256": selected_row_ids_sha256,
+        "source_id": source_id,
+        "source_snapshot_sha256": source_snapshot_sha256,
+        "summary_id": summary.summary_id,
+        "summary_sha256": summary_sha256,
+    }
+    seed = ObservationDerivationSeed(
+        derivation_id="bts-derivation:" + hashlib.sha256(
+            _canonical_json_bytes(derivation_payload)
+        ).hexdigest()[:24],
+        summary_id=summary.summary_id,
+        summary_sha256=summary_sha256,
+        source_id=source_id,
+        source_snapshot_sha256=source_snapshot_sha256,
+        archive_sha256=archive_sha256,
+        aggregation_procedure_id=aggregation_procedure_id,
+        aggregation_procedure_checksum=aggregation_procedure_checksum,
+        selected_row_ids=selected_row_ids,
+        selected_row_ids_sha256=selected_row_ids_sha256,
+    )
+    return summary, seed
 
 
 def build_bts_outcome_summaries(
@@ -358,9 +408,12 @@ def build_bts_outcome_summaries(
     *,
     source_id: str,
     source_snapshot_sha256: str,
+    archive_sha256: str = ARCHIVE_SHA256,
+    aggregation_procedure_id: str = AGGREGATION_PROCEDURE_ID,
+    aggregation_procedure_checksum: str = AGGREGATION_PROCEDURE_CHECKSUM,
     timezone_name: str = TIMEZONE_NAME,
 ) -> BTSOutcomeBundle:
-    """Aggregate public BTS scheduled-arrival proxies into three audit windows."""
+    """Aggregate BTS-reported arrivals and emit provenance seeds in one pass."""
 
     try:
         if timezone_name != TIMEZONE_NAME:
@@ -369,7 +422,15 @@ def build_bts_outcome_summaries(
             raise ValueError("BTS outcome source ID does not match the pinned normalized snapshot")
         if source_snapshot_sha256 != NORMALIZED_SNAPSHOT_SHA256:
             raise ValueError("BTS outcome source checksum does not match the pinned normalized snapshot")
+        if archive_sha256 != ARCHIVE_SHA256:
+            raise ValueError("BTS outcome archive checksum does not match the pinned archive")
+        if aggregation_procedure_id != AGGREGATION_PROCEDURE_ID:
+            raise ValueError("BTS aggregation procedure ID does not match the pinned procedure")
+        if aggregation_procedure_checksum != AGGREGATION_PROCEDURE_CHECKSUM:
+            raise ValueError("BTS aggregation procedure checksum does not match the pinned procedure")
         all_rows = list(rows)
+        if len({row.row_id for row in all_rows}) != len(all_rows):
+            raise ValueError("duplicate normalized BTS row ID")
         reconstructed_sha256 = hashlib.sha256(_canonical_rows_bytes(all_rows)).hexdigest()
         if reconstructed_sha256 != source_snapshot_sha256:
             raise ValueError("BTS outcome rows do not match the supplied normalized snapshot checksum")
@@ -386,19 +447,44 @@ def build_bts_outcome_summaries(
             ("active", event.operational_start, event.operational_end),
             ("recovery", event.operational_end, event.operational_end + timedelta(hours=6)),
         )
-        summaries = [
-            _summary(
-                event,
-                canonical_facility,
+        phase_rows = [
+            (
                 phase,
                 start.astimezone(UTC),
                 end.astimezone(UTC),
-                source_id,
-                source_snapshot_sha256,
-                source_rows,
+                [
+                    row
+                    for row in source_rows
+                    if start.astimezone(UTC) <= row.scheduled_arrival_utc < end.astimezone(UTC)
+                ],
             )
             for phase, start, end in phases
         ]
-    except (TypeError, ValueError) as exc:
+        if not any(selected for _, _, _, selected in phase_rows):
+            return BTSOutcomeBundle(
+                status="insufficient",
+                failure_reason="no BTS rows in decision-context phase windows",
+            )
+        summary_seed_pairs = [
+            _summary_and_seed(
+                event,
+                canonical_facility,
+                phase,
+                start,
+                end,
+                source_id,
+                source_snapshot_sha256,
+                archive_sha256,
+                aggregation_procedure_id,
+                aggregation_procedure_checksum,
+                selected,
+            )
+            for phase, start, end, selected in phase_rows
+        ]
+    except (AttributeError, TypeError, ValueError) as exc:
         return BTSOutcomeBundle(status="blocked", failure_reason=str(exc))
-    return BTSOutcomeBundle(status="ok", summaries=summaries)
+    return BTSOutcomeBundle(
+        status="ok",
+        summaries=[summary for summary, _ in summary_seed_pairs],
+        derivation_seeds=[seed for _, seed in summary_seed_pairs],
+    )

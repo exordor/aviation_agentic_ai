@@ -674,7 +674,7 @@ class QueryToolGateway:
             "recovery",
         ),
     ) -> QueryToolResult:
-        """Read validated public BTS proxies for the requested phases."""
+        """Read validated BTS-reported summaries for the requested phases."""
 
         if self.context_store is None:
             raise QueryToolError("decision-context store is not configured")
@@ -775,7 +775,7 @@ def build_context_query_tools(gateway: QueryToolGateway) -> list[BaseTool]:
         event_id: str,
         phases: list[Literal["baseline", "active", "recovery"]],
     ) -> str:
-        """Read validated public BTS outcome proxies for selected phases."""
+        """Read validated BTS-reported summaries for selected phases."""
 
         return gateway.get_outcome_summary(
             event_id=event_id,

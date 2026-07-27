@@ -64,10 +64,9 @@ _WEATHER_PREDICATES = frozenset(
     }
 )
 _PHASES = ("baseline", "active", "recovery")
-_SCHEDULED_ARRIVAL_SEMANTICS = (
-    "public scheduled-demand proxy; not FAA arrival demand"
+_BTS_REPORTING_SCOPE = (
+    "BTS On-Time reporting carriers and scheduled domestic passenger operations."
 )
-_DELAY_SEMANTICS = "carrier-reported attribution; not a causal claim"
 _SIGNATURE_RE = re.compile(
     r"(?m)^SIGNATURE:\s*\n(?P<stamp>\d{2}/\d{2}/\d{2} \d{2}:\d{2})\s*$"
 )
@@ -94,7 +93,7 @@ class DecisionContextRead:
 
 @dataclass(frozen=True)
 class OutcomeSummaryRead:
-    """Validated result for one event's public BTS outcome proxies."""
+    """Validated result for one event's BTS-reported operational observations."""
 
     status: Literal["ok", "insufficient"]
     summaries: tuple[BTSOutcomeSummary, ...] = ()
@@ -777,17 +776,19 @@ class QueryContextStore:
         source_checksum: str,
     ) -> str:
         digest = hashlib.sha256(
-            "|".join(
-                (
-                    run_id,
-                    event_id,
-                    facility_id,
-                    phase,
-                    window_start.isoformat(),
-                    window_end.isoformat(),
-                    source_id,
-                    source_checksum,
-                )
+            json.dumps(
+                {
+                    "event_id": event_id,
+                    "facility_id": facility_id,
+                    "phase": phase,
+                    "run_id": run_id,
+                    "source_id": source_id,
+                    "source_snapshot_sha256": source_checksum,
+                    "window_end": window_end.isoformat(),
+                    "window_start": window_start.isoformat(),
+                },
+                sort_keys=True,
+                separators=(",", ":"),
             ).encode("utf-8")
         ).hexdigest()[:24]
         return f"bts-outcome:{source_id}:{digest}"
@@ -1098,7 +1099,7 @@ class QueryContextStore:
         event_id: str,
         phases: tuple[str, ...],
     ) -> OutcomeSummaryRead:
-        """Return requested, validated BTS proxy summaries."""
+        """Return requested, validated BTS-reported summaries."""
 
         self._reject_reserved_graph_namespace(
             "bts-outcome:",
@@ -1208,12 +1209,7 @@ class QueryContextStore:
                 raise QueryContextError(
                     f"outcome summary window mismatch: {summary.summary_id}"
                 )
-            if (
-                summary.scheduled_arrival_semantics
-                != _SCHEDULED_ARRIVAL_SEMANTICS
-                or summary.weather_delay_semantics != _DELAY_SEMANTICS
-                or summary.nas_delay_semantics != _DELAY_SEMANTICS
-            ):
+            if summary.reporting_scope != _BTS_REPORTING_SCOPE:
                 raise QueryContextError(
                     f"outcome summary semantic boundary mismatch: "
                     f"{summary.summary_id}"

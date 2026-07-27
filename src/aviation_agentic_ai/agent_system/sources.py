@@ -27,6 +27,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceSnapshotRegistry,
 )
 from aviation_agentic_ai.agent_system.bts_outcomes import (
+    ARCHIVE_SHA256,
     NORMALIZED_SNAPSHOT_SHA256,
     NORMALIZED_SOURCE_ID,
 )
@@ -262,6 +263,8 @@ def load_bts_context_source(
         raise ValueError("BTS manifest must be an object")
     if manifest.get("source_id") != NORMALIZED_SOURCE_ID:
         raise ValueError("BTS manifest source ID does not match the pinned snapshot")
+    if manifest.get("archive_sha256") != ARCHIVE_SHA256:
+        raise ValueError("BTS manifest archive checksum does not match the pinned archive")
     checksum = hashlib.sha256(content.encode("utf-8")).hexdigest()
     if (
         manifest.get("normalized_sha256") != checksum

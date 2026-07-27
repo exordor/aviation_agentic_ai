@@ -61,7 +61,7 @@ DECLARED_REASON_QUESTION = "What reason did the advisory state?"
 PROVENANCE_QUESTION = "Which source supports this decision record?"
 FORECAST_CONTEXT_QUESTION = "What forecast was known at decision time?"
 OBSERVED_WEATHER_CONTEXT_QUESTION = "What observed weather context was available?"
-PUBLIC_OUTCOME_QUESTION = "What public operational outcome proxies are recorded?"
+PUBLIC_OUTCOME_QUESTION = "What BTS-reported operational observations are recorded?"
 RECONSTRUCTED_CASE_QUESTION = "Reconstruct this decision case."
 
 
@@ -166,8 +166,8 @@ def classify_registered_question(question: str) -> QueryIntent | None:
         {"weather", "context", "available"}
     ):
         matches.append(QueryIntent.OBSERVED_WEATHER_CONTEXT)
-    if words.intersection({"outcome", "outcomes"}) and words.intersection(
-        {"public", "operational", "proxy", "proxies"}
+    if {"bts", "reported"}.issubset(words) and words.intersection(
+        {"observation", "observations", "operational", "outcome", "outcomes"}
     ):
         matches.append(QueryIntent.PUBLIC_OUTCOME)
     if words.intersection({"reconstruct", "reconstructed"}) and {
@@ -1167,7 +1167,7 @@ def _deterministic_context_outcome(
                         else []
                     ),
                     tool_calls=traces,
-                    failure_reason="validated public outcome proxies are absent",
+                    failure_reason="validated BTS-reported summaries are absent",
                 ),
                 store=store,
                 allowed_predicates=[
@@ -1275,7 +1275,7 @@ def _deterministic_context_outcome(
         outcome_lines = [
             (
                 f"{item['phase']}: scheduled "
-                f"{item['scheduled_arrival_count_proxy']}, completed "
+                f"{item['scheduled_arrival_count']}, completed "
                 f"{item['completed_arrival_count']}, cancelled "
                 f"{item['cancelled_count']}, diverted "
                 f"{item['diverted_count']}"
@@ -1283,12 +1283,13 @@ def _deterministic_context_outcome(
             for item in selected_outcomes
         ]
         outcome_text = "; ".join(outcome_lines)
-        proxy_note = (
-            "These counts use a public scheduled-demand proxy, not FAA arrival "
-            "demand; WeatherDelay and NASDelay are carrier-reported attribution."
+        bts_note = (
+            "These BTS-reported counts cover BTS On-Time reporting carriers and "
+            "scheduled domestic passenger operations. WeatherDelay and NASDelay are "
+            "BTS carrier-reported delay minutes."
         )
         if intent is QueryIntent.PUBLIC_OUTCOME:
-            answer = f"{proxy_note} {outcome_text}."
+            answer = f"{bts_note} {outcome_text}."
         else:
             assert core_result is not None
             by_predicate = {
@@ -1315,7 +1316,7 @@ def _deterministic_context_outcome(
                 f"The reconstructed decision case records "
                 f"{ontology_labels.get(event_type, event_type)} controlling "
                 f"{facility} from {start} to {end}. Weather reports are "
-                f"non-causal context: {weather_text}. {proxy_note} "
+                    f"non-causal context: {weather_text}. {bts_note} "
                 f"{outcome_text}."
             )
 

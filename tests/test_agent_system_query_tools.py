@@ -272,17 +272,19 @@ def _write_context_layer(run_dir: Path) -> tuple[str, list[str]]:
                 summary_id=(
                     f"bts-outcome:{bts_source_id}:"
                     + hashlib.sha256(
-                        "|".join(
-                            (
-                                run_id,
-                                EVENT_ID,
-                                FACILITY_ID,
-                                phase,
-                                window_start.isoformat(),
-                                window_end.isoformat(),
-                                bts_source_id,
-                                snapshots[2].content_sha256,
-                            )
+                        json.dumps(
+                            {
+                                "event_id": EVENT_ID,
+                                "facility_id": FACILITY_ID,
+                                "phase": phase,
+                                "run_id": run_id,
+                                "source_id": bts_source_id,
+                                "source_snapshot_sha256": snapshots[2].content_sha256,
+                                "window_end": window_end.isoformat(),
+                                "window_start": window_start.isoformat(),
+                            },
+                            sort_keys=True,
+                            separators=(",", ":"),
                         ).encode()
                     ).hexdigest()[:24]
                 ),
@@ -294,7 +296,7 @@ def _write_context_layer(run_dir: Path) -> tuple[str, list[str]]:
                 window_end=window_end,
                 source_id=bts_source_id,
                 source_snapshot_sha256=snapshots[2].content_sha256,
-                scheduled_arrival_count_proxy=scheduled,
+                scheduled_arrival_count=scheduled,
                 completed_arrival_count=completed,
                 cancelled_count=cancelled,
                 diverted_count=diverted,
@@ -303,14 +305,8 @@ def _write_context_layer(run_dir: Path) -> tuple[str, list[str]]:
                 median_arrival_delay_minutes=None,
                 carrier_reported_weather_delay_minutes=None,
                 carrier_reported_nas_delay_minutes=5.0,
-                scheduled_arrival_semantics=(
-                    "public scheduled-demand proxy; not FAA arrival demand"
-                ),
-                weather_delay_semantics=(
-                    "carrier-reported attribution; not a causal claim"
-                ),
-                nas_delay_semantics=(
-                    "carrier-reported attribution; not a causal claim"
+                reporting_scope=(
+                    "BTS On-Time reporting carriers and scheduled domestic passenger operations."
                 ),
                 causal_claim=False,
             )

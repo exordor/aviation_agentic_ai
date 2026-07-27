@@ -481,7 +481,7 @@ class BTSOnTimeRow(StrictModel):
 
 
 class BTSOutcomeSummary(StrictModel):
-    """Audit-only public BTS outcome proxy for a resolved decision event."""
+    """Audit-only BTS-reported operational summary for a resolved decision event."""
 
     summary_id: str = Field(min_length=1)
     run_id: str = Field(min_length=1)
@@ -492,7 +492,7 @@ class BTSOutcomeSummary(StrictModel):
     window_end: datetime
     source_id: str = Field(min_length=1)
     source_snapshot_sha256: str = Field(min_length=1)
-    scheduled_arrival_count_proxy: int = Field(ge=0)
+    scheduled_arrival_count: int = Field(ge=0)
     completed_arrival_count: int = Field(ge=0)
     cancelled_count: int = Field(ge=0)
     diverted_count: int = Field(ge=0)
@@ -501,10 +501,25 @@ class BTSOutcomeSummary(StrictModel):
     median_arrival_delay_minutes: float | None = None
     carrier_reported_weather_delay_minutes: float | None = None
     carrier_reported_nas_delay_minutes: float | None = None
-    scheduled_arrival_semantics: str = Field(min_length=1)
-    weather_delay_semantics: str = Field(min_length=1)
-    nas_delay_semantics: str = Field(min_length=1)
+    reporting_scope: Literal[
+        "BTS On-Time reporting carriers and scheduled domestic passenger operations."
+    ]
     causal_claim: Literal[False] = False
+
+
+class ObservationDerivationSeed(StrictModel):
+    """Checksum-bound row selection used to derive one BTS summary."""
+
+    derivation_id: str = Field(min_length=1)
+    summary_id: str = Field(min_length=1)
+    summary_sha256: str = Field(min_length=1)
+    source_id: str = Field(min_length=1)
+    source_snapshot_sha256: str = Field(min_length=1)
+    archive_sha256: str = Field(min_length=1)
+    aggregation_procedure_id: str = Field(min_length=1)
+    aggregation_procedure_checksum: str = Field(min_length=1)
+    selected_row_ids: tuple[str, ...]
+    selected_row_ids_sha256: str = Field(min_length=1)
 
 
 class BTSOutcomeBundle(StrictModel):
@@ -512,6 +527,7 @@ class BTSOutcomeBundle(StrictModel):
 
     status: Literal["ok", "insufficient", "blocked"]
     summaries: list[BTSOutcomeSummary] = Field(default_factory=list)
+    derivation_seeds: list[ObservationDerivationSeed] = Field(default_factory=list)
     failure_reason: str = ""
 
 

@@ -220,8 +220,9 @@ def test_summaries_use_half_open_windows_and_preserve_null_aggregates(normalized
     assert active.window_start == event.operational_start
     assert active.window_end == event.operational_end
     assert active.causal_claim is False
-    assert active.scheduled_arrival_semantics == "public scheduled-demand proxy; not FAA arrival demand"
-    assert active.weather_delay_semantics == "carrier-reported attribution; not a causal claim"
+    assert active.reporting_scope == (
+        "BTS On-Time reporting carriers and scheduled domestic passenger operations."
+    )
     assert all("arrivalDemand" not in summary.model_dump_json() for summary in bundle.summaries)
     assert active.summary_id != ""
 
@@ -271,7 +272,7 @@ def test_summary_windows_and_ids_are_canonical_utc(normalized):
         ),
     ],
 )
-def test_frozen_cases_have_the_exact_active_proxy_counts(normalized, event_id, facility, start, end, expected):
+def test_frozen_cases_have_the_exact_active_bts_reported_counts(normalized, event_id, facility, start, end, expected):
     bundle = build_bts_outcome_summaries(
         _event(event_id, start, end),
         facility,
@@ -281,7 +282,7 @@ def test_frozen_cases_have_the_exact_active_proxy_counts(normalized, event_id, f
     )
     active = next(summary for summary in bundle.summaries if summary.phase == "active")
     assert (
-        active.scheduled_arrival_count_proxy,
+        active.scheduled_arrival_count,
         active.completed_arrival_count,
         active.cancelled_count,
         active.diverted_count,
@@ -362,8 +363,8 @@ def test_summary_uses_half_open_boundaries_and_null_aggregates(monkeypatch, norm
     )
     assert bundle.status == "ok"
     active, recovery = bundle.summaries[1:]
-    assert active.scheduled_arrival_count_proxy == 1
-    assert recovery.scheduled_arrival_count_proxy == 1
+    assert active.scheduled_arrival_count == 1
+    assert recovery.scheduled_arrival_count == 1
     assert active.mean_arrival_delay_minutes is None
     assert active.median_arrival_delay_minutes is None
     assert active.carrier_reported_weather_delay_minutes is None
@@ -402,4 +403,101 @@ def test_summary_includes_lower_bounds_and_excludes_upper_bounds(monkeypatch, no
     )
 
     assert bundle.status == "ok"
-    assert [summary.scheduled_arrival_count_proxy for summary in bundle.summaries] == [1, 1, 1]
+    assert [summary.scheduled_arrival_count for summary in bundle.summaries] == [1, 1, 1]
+
+
+def test_outcome_bundle_emits_one_byte_stable_seed_per_phase(normalized):
+    event = _event(
+        "urn:test:derivation-seeds",
+        datetime(2026, 5, 19, 21, tzinfo=UTC),
+        datetime(2026, 5, 19, 22, 45, tzinfo=UTC),
+    )
+
+    first = build_bts_outcome_summaries(
+        event,
+        _facility("JFK", "KJFK"),
+        normalized.rows,
+        source_id=NORMALIZED_SOURCE_ID,
+        source_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
+    )
+    second = build_bts_outcome_summaries(
+        event,
+        _facility("JFK", "KJFK"),
+        reversed(normalized.rows),
+        source_id=NORMALIZED_SOURCE_ID,
+        source_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
+    )
+
+    assert [seed.summary_id for seed in first.derivation_seeds] == [
+        summary.summary_id for summary in first.summaries
+    ]
+    assert [seed.selected_row_ids for seed in first.derivation_seeds] == [
+        tuple(sorted(seed.selected_row_ids)) for seed in first.derivation_seeds
+    ]
+    assert first.derivation_seeds == second.derivation_seeds
+    assert [seed.summary_sha256 for seed in first.derivation_seeds] == [
+        seed.summary_sha256 for seed in second.derivation_seeds
+    ]
+    assert [seed.selected_row_ids_sha256 for seed in first.derivation_seeds] == [
+        seed.selected_row_ids_sha256 for seed in second.derivation_seeds
+    ]
+
+
+def test_derivation_seed_blocks_changed_archive_or_procedure_binding(normalized):
+    event = _event(
+        "urn:test:derivation-integrity",
+        datetime(2026, 5, 19, 21, tzinfo=UTC),
+        datetime(2026, 5, 19, 22, 45, tzinfo=UTC),
+    )
+    kwargs = {
+        "source_id": NORMALIZED_SOURCE_ID,
+        "source_snapshot_sha256": NORMALIZED_SNAPSHOT_SHA256,
+    }
+
+    for changed in (
+        {"archive_sha256": "0" * 64},
+        {"aggregation_procedure_id": "urn:test:wrong-procedure"},
+        {"aggregation_procedure_checksum": "0" * 64},
+    ):
+        bundle = build_bts_outcome_summaries(
+            event,
+            _facility("JFK", "KJFK"),
+            normalized.rows,
+            **kwargs,
+            **changed,
+        )
+        assert bundle.status == "blocked"
+
+
+def test_valid_bts_source_with_no_selected_phase_rows_is_insufficient(normalized):
+    bundle = build_bts_outcome_summaries(
+        _event(
+            "urn:test:no-selected-rows",
+            datetime(2026, 5, 25, 21, tzinfo=UTC),
+            datetime(2026, 5, 25, 22, tzinfo=UTC),
+        ),
+        _facility("JFK", "KJFK"),
+        normalized.rows,
+        source_id=NORMALIZED_SOURCE_ID,
+        source_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
+    )
+
+    assert bundle.status == "insufficient"
+    assert bundle.summaries == []
+    assert bundle.derivation_seeds == []
+
+
+def test_invalid_normalized_row_schema_blocks_the_bundle():
+    bundle = build_bts_outcome_summaries(
+        _event(
+            "urn:test:invalid-row-schema",
+            datetime(2026, 5, 19, 21, tzinfo=UTC),
+            datetime(2026, 5, 19, 22, tzinfo=UTC),
+        ),
+        _facility("JFK", "KJFK"),
+        [object()],
+        source_id=NORMALIZED_SOURCE_ID,
+        source_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
+    )
+
+    assert bundle.status == "blocked"

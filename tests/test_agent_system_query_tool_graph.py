@@ -249,17 +249,19 @@ def _bts_summary_id(
     source_checksum: str,
 ) -> str:
     digest = hashlib.sha256(
-        "|".join(
-            (
-                run_id,
-                EVENT_ID,
-                FACILITY_ID,
-                phase,
-                window_start.isoformat(),
-                window_end.isoformat(),
-                source_id,
-                source_checksum,
-            )
+        json.dumps(
+            {
+                "event_id": EVENT_ID,
+                "facility_id": FACILITY_ID,
+                "phase": phase,
+                "run_id": run_id,
+                "source_id": source_id,
+                "source_snapshot_sha256": source_checksum,
+                "window_end": window_end.isoformat(),
+                "window_start": window_start.isoformat(),
+            },
+            sort_keys=True,
+            separators=(",", ":"),
         ).encode("utf-8")
     ).hexdigest()[:24]
     return f"bts-outcome:{source_id}:{digest}"
@@ -522,7 +524,7 @@ def _write_query_context(
                 window_end=window_end,
                 source_id=bts_source,
                 source_snapshot_sha256=snapshots[-1].content_sha256,
-                scheduled_arrival_count_proxy=scheduled,
+                scheduled_arrival_count=scheduled,
                 completed_arrival_count=completed,
                 cancelled_count=cancelled,
                 diverted_count=diverted,
@@ -531,14 +533,8 @@ def _write_query_context(
                 median_arrival_delay_minutes=None,
                 carrier_reported_weather_delay_minutes=None,
                 carrier_reported_nas_delay_minutes=5.0,
-                scheduled_arrival_semantics=(
-                    "public scheduled-demand proxy; not FAA arrival demand"
-                ),
-                weather_delay_semantics=(
-                    "carrier-reported attribution; not a causal claim"
-                ),
-                nas_delay_semantics=(
-                    "carrier-reported attribution; not a causal claim"
+                reporting_scope=(
+                    "BTS On-Time reporting carriers and scheduled domestic passenger operations."
                 ),
                 causal_claim=False,
             )
@@ -1130,8 +1126,8 @@ def test_public_outcome_response_preserves_three_case_active_counts(
 
     scheduled, completed, cancelled, diverted = active_counts
     assert outcome.status == "ok"
-    assert "public scheduled-demand proxy, not FAA arrival demand" in outcome.answer
-    assert "carrier-reported attribution" in outcome.answer
+    assert "These BTS-reported counts cover" in outcome.answer
+    assert "BTS carrier-reported delay minutes" in outcome.answer
     assert (
         f"active: scheduled {scheduled}, completed {completed}, "
         f"cancelled {cancelled}, diverted {diverted}"
@@ -1182,7 +1178,7 @@ def test_reconstructed_case_uses_three_tools_without_retrieving_reason(tmp_path)
     assert "fact:reason" not in outcome.retrieved_fact_ids
     assert "impacting condition" not in outcome.answer.lower()
     assert "non-causal context" in outcome.answer
-    assert "public scheduled-demand proxy, not FAA arrival demand" in outcome.answer
+    assert "These BTS-reported counts cover" in outcome.answer
     assert outcome.model_calls == []
     assert factory.calls == 0
 
@@ -1603,22 +1599,12 @@ def test_non_latest_qualifying_metar_relation_is_blocked(tmp_path):
     )
 
 
-@pytest.mark.parametrize(
-    ("field", "tampered_value"),
-    [
-        ("scheduled_arrival_semantics", "FAA arrival demand"),
-        ("weather_delay_semantics", "weather caused the recorded delay"),
-        ("nas_delay_semantics", "NAS constraints caused the recorded delay"),
-    ],
-)
-def test_bts_semantic_labels_are_exact_audit_boundaries(
+def test_bts_reporting_scope_is_an_exact_audit_boundary(
     tmp_path,
-    field,
-    tampered_value,
 ):
     _write_query_context(tmp_path)
     summaries = _read_jsonl_objects(tmp_path / "outcome_summaries.jsonl")
-    summaries[0][field] = tampered_value
+    summaries[0]["reporting_scope"] = "FAA arrival demand"
     _rewrite_registered_artifact(
         tmp_path,
         key="outcome_summaries",

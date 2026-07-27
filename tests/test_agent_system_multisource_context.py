@@ -477,7 +477,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         if summary.phase == "active"
     )
     assert (
-        active.scheduled_arrival_count_proxy,
+        active.scheduled_arrival_count,
         active.completed_arrival_count,
         active.cancelled_count,
         active.diverted_count,

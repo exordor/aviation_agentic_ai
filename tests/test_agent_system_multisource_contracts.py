@@ -84,6 +84,12 @@ def test_source_snapshot_registry_round_trips_canonical_jsonl(tmp_path):
     assert contracts.SourceSnapshotRegistry.read_jsonl(path) == registry
 
 
+def test_bts_outcome_bundle_requires_derivation_seeds_for_an_ok_result():
+    """BTS aggregation cannot publish a summary without its row-level derivation seed."""
+
+    assert "derivation_seeds" in contracts.BTSOutcomeBundle.model_fields
+
+
 def test_source_snapshot_is_immutable_after_checksum_binding():
     """Bound source content cannot be replaced after its checksum is recorded."""
 
