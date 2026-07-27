@@ -63,6 +63,22 @@ _EVIDENCE_LAYERS_BY_OPERATION: dict[BoundOperation, tuple[str, ...]] = {
 }
 
 
+def registered_evidence_layers(operation: BoundOperation) -> tuple[str, ...]:
+    """Return the complete evidence contract for one closed operation."""
+
+    return _EVIDENCE_LAYERS_BY_OPERATION[operation]
+
+
+def validate_registered_evidence_layers(step: "BoundQueryStep") -> None:
+    """Reject an operation whose declared evidence contract was altered."""
+
+    expected = registered_evidence_layers(step.operation)
+    if step.allowed_evidence_layers != expected:
+        raise ValueError(
+            "step evidence layers do not match the registered operation"
+        )
+
+
 def _validate_nonempty_unique(values: tuple[str, ...], field_name: str) -> None:
     if not values or any(not value for value in values):
         raise ValueError(f"{field_name} must contain nonempty IDs")
@@ -86,6 +102,7 @@ class BoundQueryStep(FrozenContractModel):
             self.allowed_evidence_layers,
             "allowed_evidence_layers",
         )
+        validate_registered_evidence_layers(self)
         return self
 
 
@@ -134,6 +151,7 @@ class QueryPlan(ChecksummedContract):
         for step in self.steps:
             if step.operation not in allowed_operations:
                 raise ValueError("step operation is not registered for intent")
+            validate_registered_evidence_layers(step)
             if not set(step.event_ids).issubset(scope):
                 raise ValueError("step event IDs are outside event_or_case_scope")
         expected = _query_plan_id(

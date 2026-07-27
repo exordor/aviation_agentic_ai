@@ -10,7 +10,11 @@ from aviation_agentic_ai.agent_system.decision_case_contracts import (
     canonical_id_tuple_token,
     stable_contract_id,
 )
-from aviation_agentic_ai.agent_system.query_plan import BoundQueryStep, QueryPlan
+from aviation_agentic_ai.agent_system.query_plan import (
+    BoundQueryStep,
+    QueryPlan,
+    validate_registered_evidence_layers,
+)
 from aviation_agentic_ai.agent_system.query_tools import QueryGraphStore
 
 
@@ -45,6 +49,18 @@ def _rows_for_step(
     )
 
 
+def _item_for_fact(row: dict[str, Any]) -> dict[str, Any]:
+    """Project exactly the fields a D1 formal-row observation may expose."""
+
+    return {
+        "fact_id": str(row["fact_id"]),
+        "subject": str(row["subject"]),
+        "predicate": str(row["predicate"]),
+        "object": row.get("object"),
+        "source_ids": tuple(row["source_ids"]),
+    }
+
+
 def _formal_observation(
     *,
     step: BoundQueryStep,
@@ -67,16 +83,7 @@ def _formal_observation(
         status=status,
         fact_ids=tuple(str(row["fact_id"]) for row in rows),
         source_ids=source_ids,
-        items=tuple(
-            {
-                "fact_id": str(row["fact_id"]),
-                "subject": str(row["subject"]),
-                "predicate": str(row["predicate"]),
-                "object": row.get("object"),
-                "source_ids": tuple(row["source_ids"]),
-            }
-            for row in rows
-        ),
+        items=tuple(_item_for_fact(row) for row in rows),
         limitation=limitation,
     )
 
@@ -113,6 +120,10 @@ class BoundQueryGateway:
             raise ValueError("query plan run_id does not match the current store")
         if not set(plan.event_or_case_scope).issubset(store.event_ids):
             raise ValueError("query plan scope is outside the current store")
+        for step in plan.steps:
+            validate_registered_evidence_layers(step)
+            if not set(step.event_ids).issubset(plan.event_or_case_scope):
+                raise ValueError("query plan step scope is outside the plan scope")
         self._store = store
         self._steps_by_id = {step.step_id: step for step in plan.steps}
         self._plan = plan
@@ -141,7 +152,7 @@ class BoundQueryGateway:
             )
         self._executed.add(step_id)
         observation = _execute_registered_step(step=step, store=self._store)
-        self._validate_observation(observation=observation)
+        self._validate_observation(step=step, observation=observation)
         self._traces.append(
             QueryToolTrace(
                 trace_id=stable_contract_id(
@@ -178,22 +189,36 @@ class BoundQueryGateway:
         )
         return observation
 
-    def _validate_observation(self, *, observation: BoundQueryObservation) -> None:
+    def _validate_observation(
+        self,
+        *,
+        step: BoundQueryStep,
+        observation: BoundQueryObservation,
+    ) -> None:
+        if observation.step_id != step.step_id:
+            raise ValueError("bound observation step_id differs from executing step")
+        if len(set(observation.fact_ids)) != len(observation.fact_ids):
+            raise ValueError("bound observation contains duplicate fact IDs")
         if not set(observation.fact_ids).issubset(self._store.fact_by_id):
             raise ValueError("bound observation cites a fact outside the current store")
-        store_source_ids = {
-            source_id for row in self._store.rows for source_id in row["source_ids"]
-        }
-        if not set(observation.source_ids).issubset(store_source_ids):
-            raise ValueError(
-                "bound observation cites a source outside the current store"
+        cited_rows = tuple(
+            self._store.fact_by_id[fact_id] for fact_id in observation.fact_ids
+        )
+        if any(row["subject"] not in step.event_ids for row in cited_rows):
+            raise ValueError("bound observation cites a fact outside the bound step scope")
+        expected_source_ids = tuple(
+            sorted(
+                {
+                    source_id
+                    for row in cited_rows
+                    for source_id in row["source_ids"]
+                }
             )
-        for item in observation.items:
-            item_fact_id = item.get("fact_id")
-            if item_fact_id is not None and item_fact_id not in self._store.fact_by_id:
-                raise ValueError("bound observation item cites a foreign fact")
-            item_source_ids = item.get("source_ids", ())
-            if not isinstance(item_source_ids, (list, tuple)) or not set(
-                item_source_ids
-            ).issubset(store_source_ids):
-                raise ValueError("bound observation item cites a foreign source")
+        )
+        if observation.source_ids != expected_source_ids:
+            raise ValueError(
+                "bound observation sources are not bound to cited facts"
+            )
+        expected_items = tuple(_item_for_fact(row) for row in cited_rows)
+        if observation.items != expected_items:
+            raise ValueError("bound observation item does not match its cited fact")

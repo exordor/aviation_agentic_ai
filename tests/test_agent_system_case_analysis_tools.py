@@ -118,6 +118,53 @@ def test_compiled_plan_cannot_be_mutated_after_sealing(
         plan.steps[0].step_id = "step:mutated"
 
 
+def test_query_plan_rejects_evidence_layers_not_registered_for_operation(
+    store: QueryGraphStore,
+) -> None:
+    """An arbitrary layer must not become executable by changing one step."""
+
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What public operational situation is recorded?",
+        store=store,
+    )
+    unregistered_layer_step = plan.steps[0].model_copy(
+        update={"allowed_evidence_layers": ("made_up_layer",)}
+    )
+
+    with pytest.raises(ValidationError, match="evidence layers"):
+        QueryPlan.model_validate(
+            {
+                **plan.model_dump(mode="python"),
+                "steps": (unregistered_layer_step,),
+            },
+            context={"skip_payload_checksum": True},
+        )
+
+
+def test_gateway_rejects_a_tampered_plan_evidence_layer(
+    store: QueryGraphStore,
+) -> None:
+    """The gateway must repeat layer checks before it dispatches a step."""
+
+    from aviation_agentic_ai.agent_system.case_analysis_tools import (
+        BoundQueryGateway,
+    )
+
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What public operational situation is recorded?",
+        store=store,
+    )
+    tampered_step = plan.steps[0].model_copy(
+        update={"allowed_evidence_layers": ("made_up_layer",)}
+    )
+    tampered_plan = plan.model_copy(update={"steps": (tampered_step,)})
+
+    with pytest.raises(ValueError, match="evidence layers"):
+        BoundQueryGateway(plan=tampered_plan, store=store)
+
+
 def test_query_plan_rejects_duplicate_steps_and_foreign_event_scope(
     store: QueryGraphStore,
 ) -> None:
@@ -149,7 +196,7 @@ def test_query_plan_rejects_duplicate_steps_and_foreign_event_scope(
         operation=plan.steps[0].operation,
         event_ids=("urn:aviation-agentic-ai:event:foreign",),
         required=True,
-        allowed_evidence_layers=("formal",),
+        allowed_evidence_layers=plan.steps[0].allowed_evidence_layers,
     )
     with pytest.raises(ValidationError, match="outside event_or_case_scope"):
         QueryPlan.model_validate(
@@ -190,3 +237,156 @@ def test_gateway_observation_cites_only_current_store_sources(
         for item in observation.items
         for source_id in item["source_ids"]
     }.issubset(source_ids_in_store)
+
+
+def test_gateway_rejects_a_fact_outside_the_executing_step_scope(
+    store: QueryGraphStore,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A current-store fact is still forbidden when its event is not bound."""
+
+    from aviation_agentic_ai.agent_system import case_analysis_tools
+    from aviation_agentic_ai.agent_system.case_analysis_tools import (
+        BoundQueryGateway,
+        BoundQueryObservation,
+    )
+
+    foreign_event_id = "urn:aviation-agentic-ai:event:foreign"
+    foreign_source_id = "source:advisory:foreign"
+    foreign_row = {
+        "fact_id": "fact:foreign",
+        "subject": foreign_event_id,
+        "predicate": "rdf:type",
+        "object": "atm:GroundStopTMI",
+        "source_ids": [foreign_source_id],
+    }
+    store.rows.append(foreign_row)
+    store.fact_by_id["fact:foreign"] = foreign_row
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What public operational situation is recorded?",
+        store=store,
+    )
+    forged = BoundQueryObservation(
+        step_id=plan.steps[0].step_id,
+        status="ok",
+        fact_ids=("fact:foreign",),
+        source_ids=(foreign_source_id,),
+        items=(
+            {
+                "fact_id": "fact:foreign",
+                "subject": foreign_event_id,
+                "predicate": "rdf:type",
+                "object": "atm:GroundStopTMI",
+                "source_ids": (foreign_source_id,),
+            },
+        ),
+    )
+    monkeypatch.setattr(
+        case_analysis_tools,
+        "_execute_registered_step",
+        lambda **_: forged,
+    )
+
+    with pytest.raises(ValueError, match="outside the bound step scope"):
+        BoundQueryGateway(plan=plan, store=store).execute_bound_query_step(
+            step_id=plan.steps[0].step_id
+        )
+
+
+def test_gateway_rejects_forged_item_content_for_a_cited_fact(
+    store: QueryGraphStore,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A cited ID cannot be paired with an altered item projection."""
+
+    from aviation_agentic_ai.agent_system import case_analysis_tools
+    from aviation_agentic_ai.agent_system.case_analysis_tools import (
+        BoundQueryGateway,
+        BoundQueryObservation,
+    )
+
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What public operational situation is recorded?",
+        store=store,
+    )
+    forged = BoundQueryObservation(
+        step_id=plan.steps[0].step_id,
+        status="ok",
+        fact_ids=("fact:type",),
+        source_ids=(SOURCE_ID,),
+        items=(
+            {
+                "fact_id": "fact:type",
+                "subject": EVENT_ID,
+                "predicate": "rdf:type",
+                "object": "forged-object",
+                "source_ids": (SOURCE_ID,),
+            },
+        ),
+    )
+    monkeypatch.setattr(
+        case_analysis_tools,
+        "_execute_registered_step",
+        lambda **_: forged,
+    )
+
+    with pytest.raises(ValueError, match="does not match its cited fact"):
+        BoundQueryGateway(plan=plan, store=store).execute_bound_query_step(
+            step_id=plan.steps[0].step_id
+        )
+
+
+def test_gateway_rejects_sources_not_bound_to_cited_facts(
+    store: QueryGraphStore,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A store source cannot be cited unless the returned fact carries it."""
+
+    from aviation_agentic_ai.agent_system import case_analysis_tools
+    from aviation_agentic_ai.agent_system.case_analysis_tools import (
+        BoundQueryGateway,
+        BoundQueryObservation,
+    )
+
+    unrelated_source_id = "source:advisory:unrelated"
+    store.rows.append(
+        {
+            "fact_id": "fact:unrelated",
+            "subject": EVENT_ID,
+            "predicate": "rdf:type",
+            "object": "atm:GroundStopTMI",
+            "source_ids": [unrelated_source_id],
+        }
+    )
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What public operational situation is recorded?",
+        store=store,
+    )
+    forged = BoundQueryObservation(
+        step_id=plan.steps[0].step_id,
+        status="ok",
+        fact_ids=("fact:type",),
+        source_ids=(unrelated_source_id,),
+        items=(
+            {
+                "fact_id": "fact:type",
+                "subject": EVENT_ID,
+                "predicate": "rdf:type",
+                "object": "atm:GroundStopTMI",
+                "source_ids": (SOURCE_ID,),
+            },
+        ),
+    )
+    monkeypatch.setattr(
+        case_analysis_tools,
+        "_execute_registered_step",
+        lambda **_: forged,
+    )
+
+    with pytest.raises(ValueError, match="sources are not bound to cited facts"):
+        BoundQueryGateway(plan=plan, store=store).execute_bound_query_step(
+            step_id=plan.steps[0].step_id
+        )
