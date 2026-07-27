@@ -785,8 +785,15 @@ def seal_resolution_proposal(
     elif fields.decision is ResolutionDecision.ABSTAINED:
         if len(eligible_ids) < 2:
             raise ValueError("abstained proposal requires at least two eligible candidates")
-    elif fields.decision is ResolutionDecision.INSUFFICIENT and eligible_ids:
-        raise ValueError("insufficient proposal cannot ignore an eligible candidate")
+    elif (
+        fields.decision is ResolutionDecision.INSUFFICIENT
+        and eligible_ids
+        and task.authority_domain_status is not CandidateBuildStatus.INSUFFICIENT
+    ):
+        raise ValueError(
+            "insufficient proposal cannot ignore an eligible candidate unless "
+            "the bound authority domain is incomplete"
+        )
 
     expected_rejected = {
         audit.candidate_id for audit in task.candidate_audits

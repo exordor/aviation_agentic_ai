@@ -18,8 +18,8 @@ It does NOT call an LLM and is not an Agent role.
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from dataclasses import dataclass, field
+from datetime import datetime
 import operator
 from typing import Annotated, Any, TypedDict
 
@@ -29,11 +29,17 @@ from aviation_agentic_ai.agent_system.agents import (
     FacilityCandidates,
     KGConstructionInput,
     TermCandidates,
+    _resolve_facility_compatibility,
+    _resolve_terminology_compatibility,
     parse_structured_fields,
     run_advisory_agent,
-    run_facility_agent,
     run_kg_construction_agent,
-    run_terminology_agent,
+)
+from aviation_agentic_ai.agent_system.authority_evidence import (
+    AuthorityBuildStatus,
+    LoadedAuthorityCatalog,
+    build_facility_resolution_candidate,
+    build_term_resolution_candidate,
 )
 from aviation_agentic_ai.agent_system.contracts import (
     BTSManifestBinding,
@@ -42,8 +48,11 @@ from aviation_agentic_ai.agent_system.contracts import (
     AgentTask,
     BTSOnTimeRow,
     GraphValidationResult,
-    ModelCallRecord,
     SourceRecord,
+)
+from aviation_agentic_ai.agent_system.decision_case_contracts import (
+    ResolutionDecision,
+    stable_contract_id,
 )
 from aviation_agentic_ai.agent_system.context_artifacts import (
     integrate_decision_context,
@@ -59,9 +68,12 @@ from aviation_agentic_ai.agent_system.sources import (
     write_source_snapshot_registry,
 )
 from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.agent_system.runtime import (
+    ModelInvoker,
+    ModelInvokerFactory,
+)
 
-ModelInvoker = Callable[[str, dict[str, Any]], ModelCallRecord]
-ToolModelFactory = Callable[[list[Any]], Any]
+ToolModelFactory = Any
 
 
 @dataclass
@@ -79,7 +91,10 @@ class IngestContext:
     bts_failure_reason: str = ""
     guide: SchemaGuide | None = None
     model_invoker: ModelInvoker | None = None
+    model_invoker_factory: ModelInvokerFactory | None = None
     kg_tool_model_factory: ToolModelFactory | None = None
+    authority_catalog: LoadedAuthorityCatalog | None = None
+    run_started_at: datetime | None = None
     run_id: str = "agent-system"
     output_dir: str = ""
 
@@ -97,6 +112,16 @@ class IngestState(TypedDict):
     advisory_result: Any
     facility_result: Any
     terminology_result: Any
+    facility_resolution_outcome: Any
+    terminology_resolution_outcome: Any
+    facility_authority_source_records: Any
+    terminology_authority_source_records: Any
+    resolution_event_id: str
+    resolution_event_mention: str
+    event_class_hint: str
+    formal_event_uri_hint: str
+    resolution_preflight_status: str
+    resolution_preflight_reason: str
     joined: bool
     kg_result: Any
     event_uri: str
@@ -157,19 +182,23 @@ def _ctx() -> IngestContext:
 
 def _advisory_node(state: dict) -> dict:
     ctx: IngestContext = _ctx()
+    guide = ctx.guide or load_schema_guide()
     task = AgentTask(
         run_id=ctx.run_id,
         source_id=ctx.advisory.source_id,
         objective="extract advisory mentions",
         allowed_tools=["get_advisory", "parse_structured_fields", "get_schema_event_classes"],
-        schema_slice_id=ctx.guide.schema_slice_id if ctx.guide else None,
+        schema_slice_id=guide.schema_slice_id,
     )
     mentions = parse_structured_fields(ctx.advisory.content)
-    event_classes = (
-        [c for c in (ctx.guide.event_class_for_term("GDP"), ctx.guide.event_class_for_term("GS")) if c]
-        if ctx.guide
-        else []
-    )
+    event_classes = [
+        event_class
+        for event_class in (
+            guide.event_class_for_term("GDP"),
+            guide.event_class_for_term("GS"),
+        )
+        if event_class
+    ]
     result = run_advisory_agent(
         task=task,
         advisory=ctx.advisory,
@@ -177,9 +206,34 @@ def _advisory_node(state: dict) -> dict:
         mentions=mentions,
         model_invoker=ctx.model_invoker,
     )
+    event_mention = (
+        mentions.operational_term.strip().upper()
+        if mentions.operational_term
+        else "MISSING_EVENT_MENTION"
+    )
+    resolution_event_id = stable_contract_id(
+        "resolution-event",
+        ctx.run_id,
+        ctx.advisory.source_id,
+        event_mention,
+    )
+    event_class_hint = (
+        guide.event_class_for_term(event_mention)
+        if event_mention != "MISSING_EVENT_MENTION"
+        else None
+    )
+    formal_event_uri_hint = (
+        _event_uri(ctx.run_id, ctx.advisory.source_id, event_class_hint)
+        if event_class_hint
+        else ""
+    )
     return {
         "advisory_result": result,
         "mentions": mentions,
+        "resolution_event_id": resolution_event_id,
+        "resolution_event_mention": event_mention,
+        "event_class_hint": event_class_hint or "",
+        "formal_event_uri_hint": formal_event_uri_hint,
         "model_calls": list(result.model_calls),
     }
 
@@ -210,10 +264,43 @@ def _facility_candidates_for_mention(
     return sorted(matches, key=lambda entity: entity.entity_id)
 
 
+def _candidate_domain_status(
+    results: tuple[Any, ...],
+    *,
+    missing_reason: str,
+) -> tuple[AuthorityBuildStatus, str, str]:
+    blocked = next(
+        (row for row in results if row.status is AuthorityBuildStatus.BLOCKED),
+        None,
+    )
+    if blocked is not None:
+        return (
+            AuthorityBuildStatus.BLOCKED,
+            blocked.reason_code or "AUTHORITY_CANDIDATE_BLOCKED",
+            blocked.error_id or "",
+        )
+    insufficient = next(
+        (row for row in results if row.status is AuthorityBuildStatus.INSUFFICIENT),
+        None,
+    )
+    if insufficient is not None:
+        return (
+            AuthorityBuildStatus.INSUFFICIENT,
+            insufficient.reason_code or "AUTHORITY_EVIDENCE_INSUFFICIENT",
+            "",
+        )
+    if not results:
+        return AuthorityBuildStatus.INSUFFICIENT, missing_reason, ""
+    return AuthorityBuildStatus.OK, "", ""
+
+
 def _facility_node(state: dict) -> dict:
     ctx: IngestContext = _ctx()
     mentions = state.get("mentions")
-    mention_token = getattr(mentions, "controlled_facility", None) or ""
+    mention_token = (
+        getattr(mentions, "controlled_facility", None)
+        or "MISSING_FACILITY_MENTION"
+    )
     # §11.4: pass the exact advisory evidence span (e.g. ``CTL ELEMENT: JFK``)
     # to the Facility Agent so its claim carries source-contained evidence, not
     # a synthetic string.
@@ -225,23 +312,91 @@ def _facility_node(state: dict) -> dict:
         objective="resolve facility mention",
         allowed_tools=["lookup_nasr_facility", "lookup_artcc", "resolve_facility_alias"],
     )
-    cands = FacilityCandidates(
-        mention=mention_token,
-        candidates=_facility_candidates_for_mention(
-            ctx.facility_candidates,
+    guide = ctx.guide or load_schema_guide()
+    authority_catalog = ctx.authority_catalog
+    if authority_catalog is None:
+        matched = []
+        built = ()
+        domain_status = AuthorityBuildStatus.BLOCKED
+        domain_reason = "AUTHORITY_CATALOG_NOT_LOADED"
+        domain_error = stable_contract_id(
+            "resolution-error",
+            ctx.run_id,
+            "facility",
+            domain_reason,
+        )
+    elif authority_catalog.facility.status is AuthorityBuildStatus.BLOCKED:
+        matched = []
+        built = ()
+        domain_status = AuthorityBuildStatus.BLOCKED
+        domain_reason = (
+            authority_catalog.facility.reason_code
+            or "FACILITY_AUTHORITY_BLOCKED"
+        )
+        domain_error = authority_catalog.facility.error_id or ""
+    else:
+        matched = _facility_candidates_for_mention(
+            list(authority_catalog.facility.entities),
             mention_token,
             getattr(mentions, "facility_expected_entity_type", None),
-        ),
+        )
+        built = tuple(
+            build_facility_resolution_candidate(
+                entity,
+                structural_slot=(
+                    getattr(mentions, "facility_structural_slot", None)
+                    or "controlled_nas_element"
+                ),
+                expected_entity_type=(
+                    getattr(mentions, "facility_expected_entity_type", None)
+                    or "unknown_facility_type"
+                ),
+                catalog=authority_catalog.facility,
+                authority_snapshots=authority_catalog.snapshots,
+                guide=guide,
+            )
+            for entity in matched
+        )
+        domain_status, domain_reason, domain_error = _candidate_domain_status(
+            built,
+            missing_reason="FACILITY_MENTION_OR_CANDIDATES_MISSING",
+        )
+    cands = FacilityCandidates(
+        mention=mention_token,
+        candidates=matched,
         source_id=ctx.advisory.source_id,
-        structural_slot=getattr(mentions, "facility_structural_slot", None) or "",
+        structural_slot=(
+            getattr(mentions, "facility_structural_slot", None)
+            or "controlled_nas_element"
+        ),
         expected_entity_type=(
-            getattr(mentions, "facility_expected_entity_type", None) or ""
+            getattr(mentions, "facility_expected_entity_type", None)
+            or "unknown_facility_type"
         ),
         advisory_evidence=advisory_evidence,
+        resolution_event_id=state.get("resolution_event_id", ""),
+        resolution_event_mention=state.get(
+            "resolution_event_mention",
+            "MISSING_EVENT_MENTION",
+        ),
+        run_started_at=ctx.run_started_at,
+        schema_slice_id=guide.schema_slice_id,
+        schema_snapshot_sha256=guide.checksum,
+        resolution_tool_version="resolution-compatibility-v1",
+        authority_domain_status=domain_status,
+        authority_domain_reason_code=domain_reason,
+        authority_domain_error_id=domain_error,
+        authority_candidate_results=built,
     )
-    result = run_facility_agent(task=task, candidates=cands, model_invoker=ctx.model_invoker)
+    compatibility = _resolve_facility_compatibility(task=task, candidates=cands)
+    result = compatibility.agent_result
     # model_calls uses an additive reducer so parallel branches can each contribute.
-    return {"facility_result": result, "model_calls": list(result.model_calls)}
+    return {
+        "facility_result": result,
+        "facility_resolution_outcome": compatibility.domain_outcome,
+        "facility_authority_source_records": compatibility.authority_source_records,
+        "model_calls": list(result.model_calls),
+    }
 
 
 def _term_candidates_for_mention(all_terms: list, mention: str) -> list:
@@ -269,7 +424,9 @@ def _term_candidates_for_mention(all_terms: list, mention: str) -> list:
 def _terminology_node(state: dict) -> dict:
     ctx: IngestContext = _ctx()
     mentions = state.get("mentions")
-    mention_token = getattr(mentions, "operational_term", None) or ""
+    mention_token = (
+        getattr(mentions, "operational_term", None) or "MISSING_EVENT_MENTION"
+    )
     # §11.4: pass the exact advisory evidence span (the Ground Stop mention in
     # context) to the Terminology Agent so the resolved term claim carries
     # source-contained evidence the Formal Graph Kernel can bind rdf:type to.
@@ -281,28 +438,137 @@ def _terminology_node(state: dict) -> dict:
         objective="resolve operational term",
         allowed_tools=["lookup_faa_glossary", "lookup_pcg_term", "resolve_term_registry", "resolve_schema_event_class"],
     )
+    guide = ctx.guide or load_schema_guide()
+    authority_catalog = ctx.authority_catalog
+    if authority_catalog is None:
+        matched = []
+        built = ()
+        domain_status = AuthorityBuildStatus.BLOCKED
+        domain_reason = "AUTHORITY_CATALOG_NOT_LOADED"
+        domain_error = stable_contract_id(
+            "resolution-error",
+            ctx.run_id,
+            "terminology",
+            domain_reason,
+        )
+    elif authority_catalog.terminology.status is AuthorityBuildStatus.BLOCKED:
+        matched = []
+        built = ()
+        domain_status = AuthorityBuildStatus.BLOCKED
+        domain_reason = (
+            authority_catalog.terminology.reason_code
+            or "TERMINOLOGY_AUTHORITY_BLOCKED"
+        )
+        domain_error = authority_catalog.terminology.error_id or ""
+    else:
+        matched = _term_candidates_for_mention(
+            list(authority_catalog.terminology.registry_terms),
+            mention_token,
+        )
+        built = tuple(
+            build_term_resolution_candidate(
+                term,
+                structural_slot=(
+                    getattr(mentions, "term_structural_slot", None)
+                    or "traffic_management_initiative_type"
+                ),
+                expected_entity_type=(
+                    getattr(mentions, "term_expected_entity_type", None)
+                    or "traffic_management_initiative"
+                ),
+                catalog=authority_catalog.terminology,
+                authority_snapshots=authority_catalog.snapshots,
+                guide=guide,
+            )
+            for term in matched
+        )
+        domain_status, domain_reason, domain_error = _candidate_domain_status(
+            built,
+            missing_reason="EVENT_MENTION_OR_CANDIDATES_MISSING",
+        )
     cands = TermCandidates(
         mention=mention_token,
-        candidates=_term_candidates_for_mention(ctx.term_candidates, mention_token),
+        candidates=matched,
         source_id=ctx.advisory.source_id,
-        guide=ctx.guide,
-        structural_slot=getattr(mentions, "term_structural_slot", None) or "",
-        expected_entity_type=getattr(mentions, "term_expected_entity_type", None)
-        or "",
+        guide=guide,
+        structural_slot=(
+            getattr(mentions, "term_structural_slot", None)
+            or "traffic_management_initiative_type"
+        ),
+        expected_entity_type=(
+            getattr(mentions, "term_expected_entity_type", None)
+            or "traffic_management_initiative"
+        ),
         advisory_evidence=advisory_evidence,
+        resolution_event_id=state.get("resolution_event_id", ""),
+        resolution_event_mention=state.get(
+            "resolution_event_mention",
+            "MISSING_EVENT_MENTION",
+        ),
+        run_started_at=ctx.run_started_at,
+        schema_slice_id=guide.schema_slice_id,
+        schema_snapshot_sha256=guide.checksum,
+        resolution_tool_version="resolution-compatibility-v1",
+        authority_domain_status=domain_status,
+        authority_domain_reason_code=domain_reason,
+        authority_domain_error_id=domain_error,
+        authority_candidate_results=built,
     )
-    result = run_terminology_agent(task=task, candidates=cands, model_invoker=ctx.model_invoker)
-    return {"terminology_result": result, "model_calls": list(result.model_calls)}
+    compatibility = _resolve_terminology_compatibility(task=task, candidates=cands)
+    result = compatibility.agent_result
+    return {
+        "terminology_result": result,
+        "terminology_resolution_outcome": compatibility.domain_outcome,
+        "terminology_authority_source_records": (
+            compatibility.authority_source_records
+        ),
+        "model_calls": list(result.model_calls),
+    }
 
 
 def _join_node(state: dict) -> dict:
-    """Evidence-card join: synchronization point only (model_calls are additive)."""
+    """Join independently audited domains and compute the required preflight."""
 
-    return {"joined": True}
+    outcomes = (
+        state.get("facility_resolution_outcome"),
+        state.get("terminology_resolution_outcome"),
+    )
+    if any(
+        outcome is None or outcome.decision is ResolutionDecision.BLOCKED
+        for outcome in outcomes
+    ):
+        status = "blocked"
+        reason = "required resolution domain blocked"
+    elif any(
+        outcome.decision is not ResolutionDecision.ACCEPTED
+        for outcome in outcomes
+    ):
+        status = "insufficient"
+        reason = "required resolution domain insufficient"
+    else:
+        status = "resolved"
+        reason = ""
+    return {
+        "joined": True,
+        "resolution_preflight_status": status,
+        "resolution_preflight_reason": reason,
+    }
 
 
 def _kg_construction_node(state: dict) -> dict:
     ctx: IngestContext = _ctx()
+    preflight = state.get("resolution_preflight_status", "blocked")
+    if preflight != "resolved":
+        blocked = preflight == "blocked"
+        return {
+            "kg_result": AgentResult(
+                status=AgentStatus.BLOCKED if blocked else AgentStatus.ABSTAIN,
+                failure_reason=state.get(
+                    "resolution_preflight_reason",
+                    "required resolution preflight did not pass",
+                ),
+            )
+        }
     advisory_result: AgentResult = state["advisory_result"]
     facility_result: AgentResult = state["facility_result"]
     terminology_result: AgentResult = state["terminology_result"]
@@ -316,6 +582,23 @@ def _kg_construction_node(state: dict) -> dict:
         "",
     )
     event_uri = _event_uri(ctx.run_id, ctx.advisory.source_id, event_class or "UNRESOLVED")
+    event_class_hint = state.get("event_class_hint", "")
+    formal_event_uri_hint = state.get("formal_event_uri_hint", "")
+    if (
+        (event_class_hint and event_class != event_class_hint)
+        or (
+            formal_event_uri_hint
+            and event_uri != formal_event_uri_hint
+        )
+    ):
+        return {
+            "kg_result": AgentResult(
+                status=AgentStatus.BLOCKED,
+                failure_reason="resolved event class differs from upstream schema binding",
+            ),
+            "event_uri": event_uri,
+            "event_class": event_class,
+        }
     task = AgentTask(
         run_id=ctx.run_id,
         source_id=ctx.advisory.source_id,

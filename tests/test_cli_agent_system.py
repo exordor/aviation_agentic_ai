@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -25,10 +26,20 @@ from aviation_agentic_ai.agent_system.query_tool_graph import (
     RECONSTRUCTED_CASE_QUESTION,
     REGISTERED_COMPETENCY_QUESTION,
 )
+from aviation_agentic_ai.agent_system.runtime import RunBinding
 from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
 
 EVENT_ID = "urn:aviation-agentic-ai:event:cli-test"
 SOURCE_ID = "2026-05-19:123"
+RUN_STARTED_AT = datetime(2026, 5, 19, 20, 30, tzinfo=UTC)
+
+
+def _run_binding(run_dir: Path) -> RunBinding:
+    return RunBinding(
+        run_id=run_dir.name,
+        run_dir=run_dir,
+        run_started_at=RUN_STARTED_AT,
+    )
 
 
 def _write_graph(run_dir: Path) -> None:
@@ -270,6 +281,8 @@ def test_ingest_wires_deterministic_context_loaders_without_extra_model_calls(
     monkeypatch,
 ):
     captured = {}
+    resolution_factory_calls = []
+    authority_load_calls = []
     advisory = SourceRecord(
         source_id=SOURCE_ID,
         family=SourceFamily.ATCSCC_ADVISORY,
@@ -302,8 +315,23 @@ def test_ingest_wires_deterministic_context_loaders_without_extra_model_calls(
             ),
         ),
     )
-    monkeypatch.setattr(cli_module, "new_run_directory", lambda root, source_id: tmp_path)
-    monkeypatch.setattr(cli_module, "make_live_model_invoker", lambda **kwargs: object())
+    monkeypatch.setattr(
+        cli_module,
+        "create_run_binding",
+        lambda root, source_id: _run_binding(tmp_path),
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "make_live_model_invoker",
+        lambda **kwargs: resolution_factory_calls.append(kwargs) or object(),
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "load_authority_catalog",
+        lambda *args, **kwargs: authority_load_calls.append((args, kwargs))
+        or "authority-catalog",
+        raising=False,
+    )
     monkeypatch.setattr(
         cli_module,
         "make_live_tool_calling_model",
@@ -350,7 +378,15 @@ def test_ingest_wires_deterministic_context_loaders_without_extra_model_calls(
     assert captured["ctx"].bts_manifest_binding is not None
     assert captured["ctx"].weather_failure_reason == ""
     assert captured["ctx"].bts_failure_reason == ""
+    assert captured["ctx"].authority_catalog == "authority-catalog"
+    assert captured["ctx"].model_invoker is None
+    assert callable(captured["ctx"].model_invoker_factory)
+    assert resolution_factory_calls == []
+    assert len(authority_load_calls) == 1
+    assert authority_load_calls[0][1]["created_at"] == RUN_STARTED_AT
+    assert captured["ctx"].run_started_at == RUN_STARTED_AT
     manifest = json.loads((tmp_path / "run_manifest.json").read_text())
+    assert manifest["created_at"] == RUN_STARTED_AT.isoformat()
     assert manifest["formal_layers"]["decision"]["formal_fact_count"] == 4
     assert manifest["public_observation_publication"] == {
         "status": "insufficient"
@@ -380,7 +416,11 @@ def test_ingest_records_optional_loader_failures_for_the_context_layer(
         "load_bts_context_source",
         lambda config: (_ for _ in ()).throw(ValueError("BTS checksum mismatch")),
     )
-    monkeypatch.setattr(cli_module, "new_run_directory", lambda root, source_id: tmp_path)
+    monkeypatch.setattr(
+        cli_module,
+        "create_run_binding",
+        lambda root, source_id: _run_binding(tmp_path),
+    )
     monkeypatch.setattr(cli_module, "make_live_model_invoker", lambda **kwargs: object())
     monkeypatch.setattr(
         cli_module,
@@ -445,7 +485,11 @@ def test_ingest_treats_missing_legacy_weather_config_as_an_optional_layer_failur
         "load_bts_context_source",
         lambda config: (_ for _ in ()).throw(ValueError("BTS unavailable")),
     )
-    monkeypatch.setattr(cli_module, "new_run_directory", lambda root, source_id: tmp_path)
+    monkeypatch.setattr(
+        cli_module,
+        "create_run_binding",
+        lambda root, source_id: _run_binding(tmp_path),
+    )
     monkeypatch.setattr(cli_module, "make_live_model_invoker", lambda **kwargs: object())
     monkeypatch.setattr(
         cli_module,

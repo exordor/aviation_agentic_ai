@@ -14,6 +14,7 @@ from aviation_agentic_ai.agent_system.bts_outcomes import (
     build_bts_outcome_summaries,
 )
 from aviation_agentic_ai.agent_system.contracts import (
+    AgentStatus,
     BTSObservationBundle,
     BTSOutcomeBundle,
     BTSOutcomeSummary,
@@ -452,17 +453,35 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
     core_materialization = state.get("materialization")
     decision_event: DecisionContextEvent | None = None
     facility: CanonicalEntity | None = None
-    common_status = "ok"
-    common_reason = ""
-    try:
-        decision_event = _build_event(ctx, state)
-        facility = _resolve_facility(ctx, state)
-    except LookupError as exc:
-        common_status = "insufficient"
-        common_reason = str(exc)
-    except (TypeError, ValueError) as exc:
+    kg_result = state.get("kg_result")
+    preflight_status = state.get("resolution_preflight_status")
+    if (
+        kg_result is not None
+        and getattr(kg_result, "status", None) is AgentStatus.BLOCKED
+    ):
         common_status = "blocked"
-        common_reason = str(exc)
+        common_reason = (
+            getattr(kg_result, "failure_reason", None)
+            or "knowledge graph construction was blocked"
+        )
+    elif preflight_status in {"blocked", "insufficient"}:
+        common_status = preflight_status
+        common_reason = state.get(
+            "resolution_preflight_reason",
+            "required resolution preflight did not pass",
+        )
+    else:
+        common_status = "ok"
+        common_reason = ""
+        try:
+            decision_event = _build_event(ctx, state)
+            facility = _resolve_facility(ctx, state)
+        except LookupError as exc:
+            common_status = "insufficient"
+            common_reason = str(exc)
+        except (TypeError, ValueError) as exc:
+            common_status = "blocked"
+            common_reason = str(exc)
 
     weather_bundle = _empty_weather(common_status, common_reason)
     weather_records_by_id: dict[str, SourceRecord] = {}

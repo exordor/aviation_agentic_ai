@@ -16,6 +16,7 @@ from __future__ import annotations
 import json
 import time
 from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from itertools import count
 from pathlib import Path
@@ -36,6 +37,7 @@ from aviation_agentic_ai.config import resolve_project_path
 # ModelCallRecord. The invoker is the sole caller of the provider and the sole
 # assembler of the frozen prompt (design §16).
 ModelInvoker = Callable[[str, dict[str, Any]], ModelCallRecord]
+ModelInvokerFactory = Callable[[], ModelInvoker]
 
 # Frozen DeepSeek config for the system mainline (design §16).
 FROZEN_PROVIDER = "deepseek"
@@ -47,6 +49,15 @@ MAX_PROVIDER_CALLS = 8
 
 # Catalog metadata re-exported for the manifest's top-level prompt_version.
 PROMPT_CATALOG = DEFAULT_PROMPT_CATALOG
+
+
+@dataclass(frozen=True)
+class RunBinding:
+    """One immutable identity and timestamp shared by a complete ingest run."""
+
+    run_id: str
+    run_dir: Path
+    run_started_at: datetime
 
 
 def extract_model_metadata(
@@ -163,12 +174,21 @@ def make_live_model_invoker(
     return _invoke
 
 
-def new_run_directory(base_root: str | Path, source_id: str) -> Path:
-    """Create a versioned run directory for one ingest."""
+def create_run_binding(
+    base_root: str | Path,
+    source_id: str,
+    *,
+    started_at: datetime | None = None,
+) -> RunBinding:
+    """Create a run directory after sampling and normalizing one UTC timestamp."""
 
+    sampled = started_at if started_at is not None else datetime.now(UTC)
+    if sampled.tzinfo is None or sampled.utcoffset() is None:
+        raise ValueError("run started_at must be timezone-aware")
+    run_started_at = sampled.astimezone(UTC)
     base = Path(base_root)
     base.mkdir(parents=True, exist_ok=True)
-    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S") + f"{datetime.now(UTC).microsecond // 1000:03d}"
+    stamp = run_started_at.strftime("%Y%m%dT%H%M%S%f")[:18]
     safe = source_id.replace("/", "_").replace(":", "_")
     run_dir = base / f"{safe}_{stamp}Z"
     counter = 1
@@ -176,7 +196,17 @@ def new_run_directory(base_root: str | Path, source_id: str) -> Path:
         run_dir = base / f"{safe}_{stamp}_{counter:03d}Z"
         counter += 1
     run_dir.mkdir(parents=True, exist_ok=True)
-    return run_dir
+    return RunBinding(
+        run_id=run_dir.name,
+        run_dir=run_dir,
+        run_started_at=run_started_at,
+    )
+
+
+def new_run_directory(base_root: str | Path, source_id: str) -> Path:
+    """Create a versioned run directory for one ingest."""
+
+    return create_run_binding(base_root, source_id).run_dir
 
 
 def write_run_manifest(
@@ -195,6 +225,7 @@ def write_run_manifest(
     formal_layers: dict[str, dict[str, Any]] | None = None,
     public_observation_publication: dict[str, Any] | None = None,
     catalog_path: str = DEFAULT_PROMPT_CATALOG,
+    created_at: datetime | None = None,
 ) -> Path:
     """Write the run manifest (audit memory, design §15).
 
@@ -207,10 +238,13 @@ def write_run_manifest(
     provider_successes = sum(1 for c in model_calls if c.error is None)
     input_tokens = sum(c.input_tokens for c in model_calls)
     output_tokens = sum(c.output_tokens for c in model_calls)
+    frozen_created_at = created_at if created_at is not None else datetime.now(UTC)
+    if frozen_created_at.tzinfo is None or frozen_created_at.utcoffset() is None:
+        raise ValueError("manifest created_at must be timezone-aware")
     manifest = {
         "run_id": run_dir.name,
         "source_id": source_id,
-        "created_at": datetime.now(UTC).isoformat(),
+        "created_at": frozen_created_at.astimezone(UTC).isoformat(),
         "prompt_set_id": prompt_set_id,
         "prompt_catalog": catalog_path,
         "frozen_model": {

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from types import SimpleNamespace
 
 from aviation_agentic_ai.agent_system.agents import (
     FacilityCandidates,
@@ -118,12 +119,16 @@ def test_workflow_propagates_known_facility_slot_and_expected_type(monkeypatch) 
 
     observed: list[FacilityCandidates] = []
 
-    def capture(*, task, candidates, model_invoker=None):
-        del task, model_invoker
+    def capture(*, task, candidates):
+        del task
         observed.append(candidates)
-        return AgentResult(status=AgentStatus.ABSTAIN)
+        return SimpleNamespace(
+            agent_result=AgentResult(status=AgentStatus.ABSTAIN),
+            domain_outcome=None,
+            authority_source_records=(),
+        )
 
-    monkeypatch.setattr(workflow, "run_facility_agent", capture)
+    monkeypatch.setattr(workflow, "_resolve_facility_compatibility", capture)
     monkeypatch.setattr(
         workflow,
         "_CTX_HOLDER",
@@ -145,12 +150,16 @@ def test_workflow_propagates_known_term_slot_and_expected_type(monkeypatch) -> N
 
     observed: list[TermCandidates] = []
 
-    def capture(*, task, candidates, model_invoker=None):
-        del task, model_invoker
+    def capture(*, task, candidates):
+        del task
         observed.append(candidates)
-        return AgentResult(status=AgentStatus.ABSTAIN)
+        return SimpleNamespace(
+            agent_result=AgentResult(status=AgentStatus.ABSTAIN),
+            domain_outcome=None,
+            authority_source_records=(),
+        )
 
-    monkeypatch.setattr(workflow, "run_terminology_agent", capture)
+    monkeypatch.setattr(workflow, "_resolve_terminology_compatibility", capture)
     monkeypatch.setattr(
         workflow,
         "_CTX_HOLDER",

@@ -24,6 +24,9 @@ from aviation_agentic_ai.agent_system.materialize import (
     Neo4jLoadBlocked,
     load_validated_facts_neo4j,
 )
+from aviation_agentic_ai.agent_system.authority_evidence import (
+    load_authority_catalog,
+)
 from aviation_agentic_ai.agent_system.prompts import DEFAULT_PROMPT_CATALOG, get_prompt_catalog
 from aviation_agentic_ai.agent_system.query_tool_graph import (
     answer_question_with_tools,
@@ -31,11 +34,14 @@ from aviation_agentic_ai.agent_system.query_tool_graph import (
 )
 from aviation_agentic_ai.agent_system.runtime import (
     MAX_PROVIDER_CALLS,
+    create_run_binding,
     make_live_model_invoker,
-    new_run_directory,
     write_run_manifest,
 )
-from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
+from aviation_agentic_ai.agent_system.schema_guide import (
+    DEFAULT_SCHEMA_SLICE,
+    load_schema_guide,
+)
 from aviation_agentic_ai.agent_system.sources import (
     facility_candidates,
     load_advisory_source,
@@ -95,12 +101,18 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
     runs_root = resolve_project_path(
         config.get("paths", {}).get("agent_system_runs_root", "data/runs/agent_system")
     )
-    run_dir = new_run_directory(runs_root, source_id)
+    run_binding = create_run_binding(runs_root, source_id)
+    run_dir = run_binding.run_dir
     if not allow_live_model:
         raise click.ClickException(
             "ingest requires --allow-live-model to run the real DeepSeek Agents."
         )
-    invoker = make_live_model_invoker(catalog_path=DEFAULT_PROMPT_CATALOG)
+    authority_catalog = load_authority_catalog(
+        config,
+        guide=guide,
+        schema_guide_path=DEFAULT_SCHEMA_SLICE,
+        created_at=run_binding.run_started_at,
+    )
     ctx = IngestContext(
         advisory=advisory,
         facility_candidates=facilities,
@@ -112,13 +124,17 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
         weather_failure_reason=weather_failure_reason,
         bts_failure_reason=bts_failure_reason,
         guide=guide,
-        model_invoker=invoker,
+        model_invoker_factory=lambda: make_live_model_invoker(
+            catalog_path=DEFAULT_PROMPT_CATALOG
+        ),
         kg_tool_model_factory=lambda tools: make_live_tool_calling_model(
             tools=tools,
             role="knowledge_graph_construction",
             catalog_path=DEFAULT_PROMPT_CATALOG,
         ),
-        run_id=run_dir.name,
+        authority_catalog=authority_catalog,
+        run_started_at=run_binding.run_started_at,
+        run_id=run_binding.run_id,
         output_dir=str(run_dir),
     )
     state = run_ingest(ctx)
@@ -159,6 +175,7 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
             {},
         ),
         catalog_path=DEFAULT_PROMPT_CATALOG,
+        created_at=run_binding.run_started_at,
     )
     click.echo(f"run_dir: {run_dir}")
     click.echo(f"prompt_set_id: {catalog.prompt_set_id}")

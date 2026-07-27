@@ -18,6 +18,8 @@ Runtime code never rewrites, extends, or replaces the prompt text.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 import time
 from collections.abc import Callable
@@ -32,8 +34,30 @@ from aviation_agentic_ai.agent_system.contracts import (
     EvidenceCard,
     EvidenceClaim,
     ModelCallRecord,
+    SourceFamily,
     SourceRecord,
     ToolTraceEntry,
+)
+from aviation_agentic_ai.agent_system.authority_evidence import (
+    AuthoritySourceContentFields,
+    AuthorityBuildStatus,
+    AuthorityCandidateBuildResult,
+    canonical_authority_source_content,
+)
+from aviation_agentic_ai.agent_system.decision_case_contracts import (
+    CandidateBuildStatus,
+    ContractExecutionBinding,
+    RawResolutionCandidateRef,
+    ResolutionCandidateAudit,
+    ResolutionDecision,
+    ResolutionDomainOutcome,
+    ResolutionProposalFields,
+    ResolutionTaskFields,
+    canonical_id_tuple_token,
+    canonicalize_contract_value,
+    seal_resolution_proposal,
+    seal_resolution_task,
+    stable_contract_id,
 )
 from aviation_agentic_ai.agent_system.prompts import assemble_prompt
 from aviation_agentic_ai.agent_system.schema_guide import SchemaGuide
@@ -368,6 +392,748 @@ class FacilityCandidates:
     structural_slot: str = ""
     expected_entity_type: str = ""
     advisory_evidence: str = ""
+    resolution_event_id: str = ""
+    resolution_event_mention: str = ""
+    run_started_at: datetime | None = None
+    schema_slice_id: str = ""
+    schema_snapshot_sha256: str = ""
+    resolution_tool_version: str = ""
+    authority_domain_status: AuthorityBuildStatus | None = None
+    authority_domain_reason_code: str = ""
+    authority_domain_error_id: str = ""
+    authority_candidate_results: tuple[AuthorityCandidateBuildResult, ...] = ()
+
+
+@dataclass(frozen=True)
+class CompatibilityResolutionResult:
+    """Strict resolution result plus the unchanged legacy Agent envelope."""
+
+    agent_result: AgentResult
+    domain_outcome: ResolutionDomainOutcome
+    authority_source_records: tuple[SourceRecord, ...]
+
+
+def _compatibility_requested(candidates: FacilityCandidates | TermCandidates) -> bool:
+    """Return true once any Task 5 execution binding is supplied."""
+
+    return any(
+        (
+            candidates.resolution_event_id,
+            candidates.resolution_event_mention,
+            candidates.run_started_at,
+            candidates.schema_slice_id,
+            candidates.schema_snapshot_sha256,
+            candidates.resolution_tool_version,
+            candidates.authority_domain_status,
+            candidates.authority_domain_reason_code,
+            candidates.authority_domain_error_id,
+            candidates.authority_candidate_results,
+        )
+    )
+
+
+def _candidate_payload_checksum(candidate: Any) -> str:
+    payload = candidate.model_dump(
+        mode="python",
+        exclude_computed_fields=True,
+    )
+    canonical = canonicalize_contract_value(payload)
+    encoded = json.dumps(
+        canonical,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _candidate_key(candidate: Any, domain: str) -> tuple[str, str]:
+    return (
+        "facility" if domain == "facility" else "term",
+        candidate.entity_id if domain == "facility" else candidate.term_id,
+    )
+
+
+def _safe_binding(
+    task: AgentTask,
+    candidates: FacilityCandidates | TermCandidates,
+) -> ContractExecutionBinding:
+    started_at = candidates.run_started_at
+    if (
+        started_at is None
+        or started_at.tzinfo is None
+        or started_at.utcoffset() is None
+    ):
+        started_at = datetime(1970, 1, 1, tzinfo=UTC)
+    return ContractExecutionBinding(
+        run_id=task.run_id,
+        created_at=started_at.astimezone(UTC),
+        tool_version=(
+            candidates.resolution_tool_version or "resolution-compatibility-v1"
+        ),
+    )
+
+
+def _terminal_compatibility_result(
+    *,
+    task: AgentTask,
+    candidates: FacilityCandidates | TermCandidates,
+    domain: str,
+    reason_code: str,
+    decision: ResolutionDecision,
+) -> CompatibilityResolutionResult:
+    """Return a sealed terminal result without inspecting candidate rows."""
+
+    if decision not in {
+        ResolutionDecision.BLOCKED,
+        ResolutionDecision.INSUFFICIENT,
+    }:
+        raise ValueError("terminal compatibility decision is unsupported")
+    blocked = decision is ResolutionDecision.BLOCKED
+    domain_status = (
+        CandidateBuildStatus.BLOCKED
+        if blocked
+        else CandidateBuildStatus.INSUFFICIENT
+    )
+    agent_status = AgentStatus.BLOCKED if blocked else AgentStatus.ABSTAIN
+    binding = _safe_binding(task, candidates)
+    event_id = candidates.resolution_event_id or "INVALID_RESOLUTION_EVENT"
+    mention = candidates.mention or "MISSING_EVENT_MENTION"
+    structural_slot = candidates.structural_slot or "INVALID_STRUCTURAL_SLOT"
+    expected_entity_type = (
+        candidates.expected_entity_type or "INVALID_EXPECTED_ENTITY_TYPE"
+    )
+    schema_slice_id = candidates.schema_slice_id or "INVALID_SCHEMA_SLICE"
+    schema_checksum = (
+        candidates.schema_snapshot_sha256
+        if re.fullmatch(r"[0-9a-f]{64}", candidates.schema_snapshot_sha256 or "")
+        else "0" * 64
+    )
+    error_id = (
+        stable_contract_id(
+            "resolution-error",
+            task.run_id,
+            domain,
+            reason_code,
+        )
+        if blocked
+        else None
+    )
+    task_id = stable_contract_id(
+        "resolution-task",
+        task.run_id,
+        event_id,
+        mention,
+        structural_slot,
+        expected_entity_type,
+        canonical_id_tuple_token((), sort_values=True),
+        schema_slice_id,
+        schema_checksum,
+    )
+    sealed_task = seal_resolution_task(
+        fields=ResolutionTaskFields(
+            task_id=task_id,
+            run_id=task.run_id,
+            event_id=event_id,
+            mention=mention,
+            structural_slot=structural_slot,
+            expected_entity_type=expected_entity_type,
+            authority_domain_status=domain_status,
+            authority_domain_reason_code=reason_code,
+            authority_domain_error_id=error_id,
+            raw_candidate_refs=(),
+            candidates=(),
+            candidate_audits=(),
+            authority_evidence=(),
+            authority_source_ids=(),
+            ontology_constraints=(),
+            schema_slice_id=schema_slice_id,
+            schema_snapshot_sha256=schema_checksum,
+            rejected_candidate_ids=(),
+            remaining_tool_budget=0,
+            decision=decision,
+        ),
+        binding=binding,
+    )
+    proposal_id = stable_contract_id(
+        "resolution-proposal",
+        task_id,
+        decision.value,
+        "NONE",
+        canonical_id_tuple_token((), sort_values=True),
+        canonical_id_tuple_token((), sort_values=True),
+    )
+    proposal = seal_resolution_proposal(
+        task=sealed_task,
+        fields=ResolutionProposalFields(
+            resolution_proposal_id=proposal_id,
+            run_id=task.run_id,
+            task_id=task_id,
+            task_payload_checksum=sealed_task.payload_checksum,
+            event_id=event_id,
+            mention=mention,
+            structural_slot=structural_slot,
+            expected_entity_type=expected_entity_type,
+            selected_candidate_id=None,
+            rejected_candidate_ids=(),
+            decision=decision,
+            supporting_evidence_claim_ids=(),
+            authority_source_ids=(),
+            tool_trace_ids=(),
+            limitation=reason_code,
+        ),
+        binding=binding,
+    )
+    card = EvidenceCard(
+        agent_role=domain,
+        status=agent_status,
+        source_ids=[candidates.source_id] if candidates.source_id else [],
+        uncertainties=[reason_code] if not blocked else [],
+        decision_basis=(
+            f"{decision.value}: {reason_code}; resolution_task_id={task_id}; "
+            f"tool_version={binding.tool_version}"
+        ),
+    )
+    return CompatibilityResolutionResult(
+        agent_result=AgentResult(
+            status=agent_status,
+            evidence_card=card,
+            failure_reason=reason_code if blocked else None,
+        ),
+        domain_outcome=ResolutionDomainOutcome(
+            domain=domain,
+            required_for_case=True,
+            decision=decision,
+            task_id=task_id,
+            task_payload_checksum=sealed_task.payload_checksum,
+            resolution_proposal_id=proposal.resolution_proposal_id,
+            limitation_code=reason_code,
+            error_id=error_id,
+        ),
+        authority_source_records=(),
+    )
+
+
+def _blocked_compatibility_result(
+    *,
+    task: AgentTask,
+    candidates: FacilityCandidates | TermCandidates,
+    domain: str,
+    reason_code: str,
+) -> CompatibilityResolutionResult:
+    """Return a sealed fail-closed result without trusting malformed rows."""
+
+    return _terminal_compatibility_result(
+        task=task,
+        candidates=candidates,
+        domain=domain,
+        reason_code=reason_code,
+        decision=ResolutionDecision.BLOCKED,
+    )
+
+
+def _insufficient_compatibility_result(
+    *,
+    task: AgentTask,
+    candidates: FacilityCandidates | TermCandidates,
+    domain: str,
+    reason_code: str,
+) -> CompatibilityResolutionResult:
+    """Return an explicit authority insufficiency before candidate inspection."""
+
+    return _terminal_compatibility_result(
+        task=task,
+        candidates=candidates,
+        domain=domain,
+        reason_code=reason_code,
+        decision=ResolutionDecision.INSUFFICIENT,
+    )
+
+
+def _normalized_resolution_event_mention(value: str) -> str:
+    normalized = value.strip().upper()
+    return normalized or "MISSING_EVENT_MENTION"
+
+
+def _validate_authority_source_record(
+    row: AuthorityCandidateBuildResult,
+    *,
+    domain: str,
+) -> SourceRecord:
+    """Revalidate one source record against its checksum-bound evidence."""
+
+    if row.evidence_claim is None or row.source_record is None:
+        raise ValueError("authority source record requires bound evidence")
+    evidence = type(row.evidence_claim).model_validate(
+        row.evidence_claim.model_dump(mode="python")
+    )
+    source_record = SourceRecord.model_validate(
+        row.source_record.model_dump(mode="python")
+    )
+    expected_family = (
+        SourceFamily.NASR_FACILITY
+        if domain == "facility"
+        else SourceFamily.FAA_TERM
+    )
+    if source_record.family is not expected_family:
+        raise ValueError("authority source record family is outside the domain")
+    expected_kind = "facility" if domain == "facility" else "term"
+    if (
+        row.candidate_kind != expected_kind
+        or evidence.candidate_id != row.candidate_id
+    ):
+        raise ValueError("authority source record candidate binding is invalid")
+    if source_record.source_id != evidence.source_id:
+        raise ValueError("authority source record differs from evidence source")
+    snapshot_sha256 = hashlib.sha256(
+        source_record.content.encode("utf-8")
+    ).hexdigest()
+    if snapshot_sha256 != evidence.source_snapshot_sha256:
+        raise ValueError("authority source record checksum differs from evidence")
+    fields = AuthoritySourceContentFields.model_validate_json(
+        source_record.content
+    )
+    if (
+        fields.candidate_id != row.candidate_id
+        or fields.candidate_kind != expected_kind
+        or fields.authority_source_ref != evidence.authority_source_ref
+        or canonical_authority_source_content(fields) != source_record.content
+    ):
+        raise ValueError("authority source record is not canonically bound")
+    return source_record
+
+
+def _resolve_compatibility_validated(
+    *,
+    task: AgentTask,
+    candidates: FacilityCandidates | TermCandidates,
+    domain: str,
+) -> CompatibilityResolutionResult:
+    """Audit authority candidates and deterministically map one bounded result."""
+
+    for tool in (
+        ("lookup_nasr_facility", "lookup_artcc", "resolve_facility_alias")
+        if domain == "facility"
+        else (
+            "lookup_faa_glossary",
+            "lookup_pcg_term",
+            "resolve_term_registry",
+            "resolve_schema_event_class",
+        )
+    ):
+        _check_tool(task, tool)
+
+    required_bindings = (
+        candidates.mention,
+        candidates.source_id,
+        candidates.resolution_event_id,
+        candidates.resolution_event_mention,
+        candidates.run_started_at,
+        candidates.structural_slot,
+        candidates.expected_entity_type,
+        candidates.schema_slice_id,
+        candidates.schema_snapshot_sha256,
+        candidates.resolution_tool_version,
+        candidates.authority_domain_status,
+    )
+    if (
+        not all(required_bindings)
+        or candidates.resolution_tool_version != "resolution-compatibility-v1"
+        or not re.fullmatch(
+            r"[0-9a-f]{64}",
+            candidates.schema_snapshot_sha256 or "",
+        )
+    ):
+        return _blocked_compatibility_result(
+            task=task,
+            candidates=candidates,
+            domain=domain,
+            reason_code="RESOLUTION_EXECUTION_BINDING_INVALID",
+        )
+    if (
+        candidates.run_started_at is None
+        or candidates.run_started_at.tzinfo is None
+        or candidates.run_started_at.utcoffset() is None
+    ):
+        return _blocked_compatibility_result(
+            task=task,
+            candidates=candidates,
+            domain=domain,
+            reason_code="RESOLUTION_RUN_TIMESTAMP_INVALID",
+        )
+    expected_resolution_event_id = stable_contract_id(
+        "resolution-event",
+        task.run_id,
+        task.source_id,
+        _normalized_resolution_event_mention(
+            candidates.resolution_event_mention
+        ),
+    )
+    if candidates.resolution_event_id != expected_resolution_event_id:
+        return _blocked_compatibility_result(
+            task=task,
+            candidates=candidates,
+            domain=domain,
+            reason_code="RESOLUTION_EVENT_BINDING_MISMATCH",
+        )
+    if candidates.authority_domain_status is AuthorityBuildStatus.BLOCKED:
+        return _blocked_compatibility_result(
+            task=task,
+            candidates=candidates,
+            domain=domain,
+            reason_code=(
+                candidates.authority_domain_reason_code
+                or f"{domain.upper()}_AUTHORITY_BLOCKED"
+            ),
+        )
+    if candidates.authority_domain_status is AuthorityBuildStatus.INSUFFICIENT:
+        return _insufficient_compatibility_result(
+            task=task,
+            candidates=candidates,
+            domain=domain,
+            reason_code=(
+                candidates.authority_domain_reason_code
+                or f"{domain.upper()}_AUTHORITY_INSUFFICIENT"
+            ),
+        )
+
+    raw_keys = [_candidate_key(row, domain) for row in candidates.candidates]
+    result_keys = [
+        (row.candidate_kind, row.candidate_id)
+        for row in candidates.authority_candidate_results
+    ]
+    if (
+        len(raw_keys) != len(set(raw_keys))
+        or len(result_keys) != len(set(result_keys))
+        or set(raw_keys) != set(result_keys)
+    ):
+        return _blocked_compatibility_result(
+            task=task,
+            candidates=candidates,
+            domain=domain,
+            reason_code="AUTHORITY_CANDIDATE_SET_MISMATCH",
+        )
+
+    result_by_key = {
+        (row.candidate_kind, row.candidate_id): row
+        for row in candidates.authority_candidate_results
+    }
+    ordered_results = tuple(result_by_key[key] for key in sorted(raw_keys))
+    if any(row.status is AuthorityBuildStatus.BLOCKED for row in ordered_results):
+        effective_status = AuthorityBuildStatus.BLOCKED
+    elif any(
+        row.status is AuthorityBuildStatus.INSUFFICIENT for row in ordered_results
+    ):
+        effective_status = AuthorityBuildStatus.INSUFFICIENT
+    else:
+        effective_status = AuthorityBuildStatus.OK
+    if effective_status is AuthorityBuildStatus.BLOCKED:
+        return _blocked_compatibility_result(
+            task=task,
+            candidates=candidates,
+            domain=domain,
+            reason_code=next(
+                (
+                    row.reason_code
+                    for row in ordered_results
+                    if row.status is AuthorityBuildStatus.BLOCKED
+                ),
+                "AUTHORITY_CANDIDATE_BLOCKED",
+            ),
+        )
+    if (
+        candidates.authority_domain_status is AuthorityBuildStatus.OK
+        and effective_status is AuthorityBuildStatus.INSUFFICIENT
+    ):
+        return _blocked_compatibility_result(
+            task=task,
+            candidates=candidates,
+            domain=domain,
+            reason_code="AUTHORITY_DOMAIN_STATUS_MISMATCH",
+        )
+
+    audits: list[ResolutionCandidateAudit] = []
+    validated_candidates = []
+    authority_evidence = []
+    authority_records = []
+    for row in ordered_results:
+        assert row.candidate is not None
+        validated_candidates.append(row.candidate)
+        checksum = _candidate_payload_checksum(row.candidate)
+        build_status = CandidateBuildStatus(row.status.value)
+        evidence_id = row.evidence_claim.evidence_id if row.evidence_claim else None
+        source_id = row.source_record.source_id if row.source_record else None
+        audit_id = stable_contract_id(
+            "resolution-candidate-audit",
+            row.candidate_id,
+            row.candidate_kind,
+            build_status.value,
+            checksum,
+            evidence_id or "NONE",
+            source_id or "NONE",
+            row.reason_code or "NONE",
+            row.error_id or "NONE",
+        )
+        audits.append(
+            ResolutionCandidateAudit(
+                candidate_audit_id=audit_id,
+                candidate_id=row.candidate_id,
+                candidate_kind=row.candidate_kind,
+                build_status=build_status,
+                candidate_payload_checksum=checksum,
+                evidence_id=evidence_id,
+                source_id=source_id,
+                reason_code=row.reason_code,
+                error_id=row.error_id,
+            )
+        )
+        if row.evidence_claim:
+            authority_evidence.append(row.evidence_claim)
+        if row.source_record:
+            authority_records.append(
+                _validate_authority_source_record(row, domain=domain)
+            )
+
+    domain_status = CandidateBuildStatus(effective_status.value)
+    domain_reason = candidates.authority_domain_reason_code or None
+    if domain_status is CandidateBuildStatus.INSUFFICIENT and not domain_reason:
+        domain_reason = next(
+            (
+                row.reason_code
+                for row in ordered_results
+                if row.status is AuthorityBuildStatus.INSUFFICIENT
+            ),
+            "AUTHORITY_EVIDENCE_INSUFFICIENT",
+        )
+    if not candidates.advisory_evidence.strip():
+        domain_status = CandidateBuildStatus.INSUFFICIENT
+        domain_reason = "ADVISORY_EVIDENCE_MISSING"
+
+    eligible = [candidate for candidate in validated_candidates if candidate.eligible]
+    if domain_status is CandidateBuildStatus.INSUFFICIENT:
+        decision = ResolutionDecision.INSUFFICIENT
+        selected = None
+        limitation = domain_reason
+    elif len(eligible) == 1:
+        decision = ResolutionDecision.ACCEPTED
+        selected = eligible[0]
+        limitation = None
+    elif len(eligible) > 1:
+        decision = ResolutionDecision.ABSTAINED
+        selected = None
+        limitation = "MODEL_MEDIATED_RESOLUTION_DEFERRED_BATCH_B"
+    else:
+        decision = ResolutionDecision.INSUFFICIENT
+        selected = None
+        limitation = "NO_ELIGIBLE_AUTHORITY_CANDIDATE"
+
+    raw_refs = tuple(
+        RawResolutionCandidateRef(candidate_kind=kind, candidate_id=candidate_id)
+        for kind, candidate_id in sorted(raw_keys)
+    )
+    ordered_candidates = tuple(
+        sorted(validated_candidates, key=lambda row: row.candidate_id)
+    )
+    ordered_audits = tuple(
+        sorted(audits, key=lambda row: row.candidate_audit_id)
+    )
+    evidence = tuple(
+        sorted(authority_evidence, key=lambda row: row.evidence_id)
+    )
+    authority_source_ids = tuple(sorted({row.source_id for row in evidence}))
+    rejected_ids = tuple(
+        sorted(
+            audit.candidate_id
+            for audit in ordered_audits
+            if selected is None or audit.candidate_id != selected.candidate_id
+        )
+    )
+    task_id = stable_contract_id(
+        "resolution-task",
+        task.run_id,
+        candidates.resolution_event_id,
+        candidates.mention,
+        candidates.structural_slot,
+        candidates.expected_entity_type,
+        canonical_id_tuple_token(
+            [row.candidate_audit_id for row in ordered_audits],
+            sort_values=True,
+        ),
+        candidates.schema_slice_id,
+        candidates.schema_snapshot_sha256,
+    )
+    binding = _safe_binding(task, candidates)
+    sealed_task = seal_resolution_task(
+        fields=ResolutionTaskFields(
+            task_id=task_id,
+            run_id=task.run_id,
+            event_id=candidates.resolution_event_id,
+            mention=candidates.mention,
+            structural_slot=candidates.structural_slot,
+            expected_entity_type=candidates.expected_entity_type,
+            authority_domain_status=domain_status,
+            authority_domain_reason_code=domain_reason,
+            authority_domain_error_id=None,
+            raw_candidate_refs=raw_refs,
+            candidates=ordered_candidates,
+            candidate_audits=ordered_audits,
+            authority_evidence=evidence,
+            authority_source_ids=authority_source_ids,
+            ontology_constraints=tuple(
+                sorted(
+                    {
+                        f"slot:{candidates.structural_slot}",
+                        f"type:{candidates.expected_entity_type}",
+                    }
+                )
+            ),
+            schema_slice_id=candidates.schema_slice_id,
+            schema_snapshot_sha256=candidates.schema_snapshot_sha256,
+            rejected_candidate_ids=rejected_ids,
+            remaining_tool_budget=0,
+            decision=decision,
+        ),
+        binding=binding,
+    )
+    support_ids = (
+        tuple(sorted(selected.authority_evidence_ids)) if selected else ()
+    )
+    support_sources = tuple(
+        sorted(
+            {
+                row.source_id
+                for row in evidence
+                if row.evidence_id in support_ids
+            }
+        )
+    )
+    proposal_id = stable_contract_id(
+        "resolution-proposal",
+        task_id,
+        decision.value,
+        selected.candidate_id if selected else "NONE",
+        canonical_id_tuple_token(rejected_ids, sort_values=True),
+        canonical_id_tuple_token(support_ids, sort_values=True),
+    )
+    proposal = seal_resolution_proposal(
+        task=sealed_task,
+        fields=ResolutionProposalFields(
+            resolution_proposal_id=proposal_id,
+            run_id=task.run_id,
+            task_id=task_id,
+            task_payload_checksum=sealed_task.payload_checksum,
+            event_id=candidates.resolution_event_id,
+            mention=candidates.mention,
+            structural_slot=candidates.structural_slot,
+            expected_entity_type=candidates.expected_entity_type,
+            selected_candidate_id=selected.candidate_id if selected else None,
+            rejected_candidate_ids=rejected_ids,
+            decision=decision,
+            supporting_evidence_claim_ids=support_ids,
+            authority_source_ids=support_sources,
+            tool_trace_ids=(),
+            limitation=limitation,
+        ),
+        binding=binding,
+    )
+
+    legacy_status = (
+        AgentStatus.RESOLVED
+        if decision is ResolutionDecision.ACCEPTED
+        else AgentStatus.BLOCKED
+        if decision is ResolutionDecision.BLOCKED
+        else AgentStatus.ABSTAIN
+    )
+    claim = None
+    if selected is not None:
+        claim = EvidenceClaim(
+            field_name=(
+                "controlled_facility"
+                if domain == "facility"
+                else "operational_term"
+            ),
+            value=selected.candidate_id,
+            ontology_target=selected.ontology_class_prefixed,
+            evidence_text=candidates.advisory_evidence.strip(),
+            source_id=candidates.source_id,
+            canonical_ref=selected.candidate_id,
+        )
+    trace = ToolTraceEntry(
+        tool=(
+            "lookup_nasr_facility"
+            if domain == "facility"
+            else "resolve_term_registry"
+        ),
+        parameters={"mention": candidates.mention},
+        result_refs=[
+            task_id,
+            *([selected.candidate_id] if selected is not None else []),
+        ],
+    )
+    card = EvidenceCard(
+        agent_role=domain,
+        status=legacy_status,
+        claims=[claim] if claim else [],
+        canonical_refs=[selected.candidate_id] if selected else [],
+        source_ids=[candidates.source_id] if candidates.source_id else [],
+        uncertainties=[limitation] if limitation else [],
+        tool_trace=[trace],
+        decision_basis=(
+            f"{decision.value}: {limitation or 'unique eligible authority candidate'}; "
+            f"resolution_task_id={task_id}; "
+            f"tool_version={candidates.resolution_tool_version}"
+        ),
+    )
+    return CompatibilityResolutionResult(
+        agent_result=AgentResult(status=legacy_status, evidence_card=card),
+        domain_outcome=ResolutionDomainOutcome(
+            domain=domain,
+            required_for_case=True,
+            decision=decision,
+            task_id=task_id,
+            task_payload_checksum=sealed_task.payload_checksum,
+            resolution_proposal_id=proposal.resolution_proposal_id,
+            limitation_code=limitation,
+            error_id=None,
+        ),
+        authority_source_records=tuple(
+            sorted(authority_records, key=lambda row: row.source_id)
+        ),
+    )
+
+
+def _resolve_compatibility(
+    *,
+    task: AgentTask,
+    candidates: FacilityCandidates | TermCandidates,
+    domain: str,
+) -> CompatibilityResolutionResult:
+    try:
+        return _resolve_compatibility_validated(
+            task=task,
+            candidates=candidates,
+            domain=domain,
+        )
+    except (AssertionError, TypeError, ValueError):
+        return _blocked_compatibility_result(
+            task=task,
+            candidates=candidates,
+            domain=domain,
+            reason_code="RESOLUTION_CONTRACT_VALIDATION_FAILED",
+        )
+
+
+def _resolve_facility_compatibility(
+    *,
+    task: AgentTask,
+    candidates: FacilityCandidates,
+) -> CompatibilityResolutionResult:
+    return _resolve_compatibility(
+        task=task,
+        candidates=candidates,
+        domain="facility",
+    )
 
 
 def run_facility_agent(
@@ -381,6 +1147,13 @@ def run_facility_agent(
     No model call for a unique authority candidate; abstain on unresolved
     multiples; no model-created facility ids.
     """
+
+    if _compatibility_requested(candidates):
+        del model_invoker
+        return _resolve_facility_compatibility(
+            task=task,
+            candidates=candidates,
+        ).agent_result
 
     for tool in ("lookup_nasr_facility", "lookup_artcc", "resolve_facility_alias"):
         _check_tool(task, tool)
@@ -430,9 +1203,10 @@ def run_facility_agent(
             decision_basis="unique authority candidate",
         )
         return AgentResult(status=AgentStatus.RESOLVED, evidence_card=card)
-    # Multiple candidates: model may disambiguate among authority candidates
-    # only; never invents a facility id.
-    model_calls: list[ModelCallRecord] = []
+    # Batch A does not ask a provider to resolve ambiguous candidates. Strict
+    # compatibility metadata handles deterministic candidate-level filtering;
+    # metadata-free legacy calls retain an honest abstention.
+    del model_invoker
     if not candidates.structural_slot or not candidates.expected_entity_type:
         card = EvidenceCard(
             agent_role="facility",
@@ -443,57 +1217,15 @@ def run_facility_agent(
             decision_basis="missing structural slot or expected entity type",
         )
         return AgentResult(status=AgentStatus.ABSTAIN, evidence_card=card)
-    chosen = None
-    if model_invoker is not None:
-        cand_rows = [_facility_candidate_row(e) for e in candidates.candidates]
-        rec = model_invoker(
-            "facility",
-            {
-                "source_id": candidates.source_id,
-                "facility_mention": candidates.mention,
-                "structural_slot": candidates.structural_slot,
-                "advisory_evidence": advisory_evidence,
-                "authority_candidates": "\n".join(cand_rows),
-            },
-        )
-        model_calls.append(rec)
-        chosen = _pick_candidate_from_response(rec.raw_response, candidates.candidates)
-    if chosen is None:
-        card = EvidenceCard(
-            agent_role="facility", status=AgentStatus.ABSTAIN,
-            source_ids=[candidates.source_id] if candidates.source_id else [],
-            uncertainties=[f"{len(candidates.candidates)} unresolved candidates"],
-            tool_trace=tool_trace, decision_basis="unresolved multiple candidates",
-        )
-        return AgentResult(status=AgentStatus.ABSTAIN, evidence_card=card, model_calls=model_calls)
-    ontology_type = _facility_ontology_type(chosen)
-    if ontology_type is None:
-        card = EvidenceCard(
-            agent_role="facility",
-            status=AgentStatus.ABSTAIN,
-            source_ids=[candidates.source_id] if candidates.source_id else [],
-            tool_trace=tool_trace,
-            decision_basis="selected facility type is not mapped by the active profile",
-        )
-        return AgentResult(
-            status=AgentStatus.ABSTAIN,
-            evidence_card=card,
-            model_calls=model_calls,
-        )
-    claim = EvidenceClaim(
-        field_name="controlled_facility", value=chosen.entity_id,
-        ontology_target=ontology_type,
-        evidence_text=advisory_evidence,
-        source_id=candidates.source_id or chosen.entity_id,
-        canonical_ref=chosen.entity_id,
-    )
     card = EvidenceCard(
-        agent_role="facility", status=AgentStatus.RESOLVED,
-        claims=[claim], canonical_refs=[chosen.entity_id],
-        source_ids=[claim.source_id], tool_trace=tool_trace,
-        decision_basis="disambiguated among authority candidates",
+        agent_role="facility",
+        status=AgentStatus.ABSTAIN,
+        source_ids=[candidates.source_id] if candidates.source_id else [],
+        uncertainties=[f"{len(candidates.candidates)} unresolved candidates"],
+        tool_trace=tool_trace,
+        decision_basis="multiple candidates require compatibility audit",
     )
-    return AgentResult(status=AgentStatus.RESOLVED, evidence_card=card, model_calls=model_calls)
+    return AgentResult(status=AgentStatus.ABSTAIN, evidence_card=card)
 
 
 def _facility_ontology_type(entity: Any) -> str | None:
@@ -504,26 +1236,6 @@ def _facility_ontology_type(entity: Any) -> str | None:
         return "nas:ARTCC"
     if etype == "airport":
         return "nas:Airport"
-    return None
-
-
-def _facility_candidate_row(entity: Any) -> str:
-    """Render one authority facility candidate row for the Facility prompt."""
-
-    return (
-        f"{entity.entity_id} | {getattr(entity, 'preferred_label', '')} | "
-        f"{_facility_ontology_type(entity) or 'NONE'} | airport facility record | "
-        f"{getattr(entity, 'entity_id', '')}"
-    )
-
-
-def _pick_candidate_from_response(raw: str, candidates: list[Any]) -> Any | None:
-    """Pick an authority candidate whose id appears in the model response."""
-
-    by_id = {e.entity_id: e for e in candidates}
-    for eid in by_id:
-        if eid in raw:
-            return by_id[eid]
     return None
 
 
@@ -543,6 +1255,28 @@ class TermCandidates:
     structural_slot: str = ""
     expected_entity_type: str = ""
     advisory_evidence: str = ""
+    resolution_event_id: str = ""
+    resolution_event_mention: str = ""
+    run_started_at: datetime | None = None
+    schema_slice_id: str = ""
+    schema_snapshot_sha256: str = ""
+    resolution_tool_version: str = ""
+    authority_domain_status: AuthorityBuildStatus | None = None
+    authority_domain_reason_code: str = ""
+    authority_domain_error_id: str = ""
+    authority_candidate_results: tuple[AuthorityCandidateBuildResult, ...] = ()
+
+
+def _resolve_terminology_compatibility(
+    *,
+    task: AgentTask,
+    candidates: TermCandidates,
+) -> CompatibilityResolutionResult:
+    return _resolve_compatibility(
+        task=task,
+        candidates=candidates,
+        domain="terminology",
+    )
 
 
 def run_terminology_agent(
@@ -552,6 +1286,13 @@ def run_terminology_agent(
     model_invoker: ModelInvoker | None = None,
 ) -> AgentResult:
     """Normalize a term mention, resolve its canonical term, map to event class."""
+
+    if _compatibility_requested(candidates):
+        del model_invoker
+        return _resolve_terminology_compatibility(
+            task=task,
+            candidates=candidates,
+        ).agent_result
 
     for tool in ("lookup_faa_glossary", "lookup_pcg_term", "resolve_term_registry", "resolve_schema_event_class"):
         _check_tool(task, tool)
@@ -586,21 +1327,6 @@ def run_terminology_agent(
         decision_basis="multiple candidates require candidate-level compatibility audit",
     )
     return AgentResult(status=AgentStatus.ABSTAIN, evidence_card=card)
-
-
-def _term_candidate_row(term: Any, guide: SchemaGuide | None) -> str:
-    """Render one authority term candidate row for the Terminology prompt."""
-
-    abbrev = getattr(term, "abbreviation", "")
-    ontology_class = "NONE"
-    if guide is not None:
-        event_class = guide.event_class_for_term(abbrev)
-        if event_class:
-            ontology_class = event_class
-    return (
-        f"{term.term_id} | {getattr(term, 'preferred_label', '')} | {ontology_class} | "
-        f"an authority term definition | {term.term_id}"
-    )
 
 
 def _resolve_term(term: Any, candidates: TermCandidates, tool_trace, model_calls) -> AgentResult:
@@ -665,14 +1391,6 @@ def _resolve_term(term: Any, candidates: TermCandidates, tool_trace, model_calls
         tool_trace=tool_trace, decision_basis=f"unique authority mapping -> {event_class}",
     )
     return AgentResult(status=AgentStatus.RESOLVED, evidence_card=card, model_calls=model_calls)
-
-
-def _pick_term_from_response(raw: str, pool: list[Any]) -> Any | None:
-    by_id = {t.term_id: t for t in pool}
-    for tid in by_id:
-        if tid in raw:
-            return by_id[tid]
-    return None
 
 
 # ---------------------------------------------------------------------------
