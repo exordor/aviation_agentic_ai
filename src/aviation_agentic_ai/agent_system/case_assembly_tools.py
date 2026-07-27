@@ -6,9 +6,27 @@ from typing import Literal
 from langchain_core.tools import BaseTool, tool
 from pydantic import Field
 
+from collections.abc import Sequence
 from aviation_agentic_ai.agent_system.contracts import StrictModel
 from aviation_agentic_ai.agent_system.decision_case_contracts import (
+    AssemblyStatus,
+    CaseAssemblyProposal,
+    CaseAssemblyProposalFields,
     CaseAssemblyTask,
+    CaseAssemblyTaskFields,
+    CaseFactProposal,
+    CaseProfileGapProposal,
+    ComponentLayerResult,
+    ComponentLayerStatus,
+    ContractExecutionBinding,
+    SourceSnapshotBinding,
+    ValidationFeedback,
+    ValidationFeedbackFields,
+    canonical_id_tuple_token,
+    seal_case_assembly_proposal,
+    seal_case_assembly_task,
+    seal_validation_feedback,
+    stable_contract_id,
 )
 
 
@@ -241,3 +259,304 @@ def build_case_assembly_tools(gateway: CaseAssemblyToolGateway) -> list[BaseTool
         get_context_associations,
         get_public_observations,
     ]
+
+
+def build_case_assembly_task(
+    *,
+    run_id: str,
+    case_id: str,
+    core_event_fact_ids: Sequence[str],
+    resolution_proposal_ids: Sequence[str],
+    available_evidence_layer_ids: Sequence[str],
+    required_case_slots: Sequence[str],
+    optional_case_slots: Sequence[str],
+    missing_slots: Sequence[str] = (),
+    schema_profile_id: str,
+    schema_context_id: str,
+    schema_snapshot_sha256: str,
+    selected_evidence_claim_ids: Sequence[str],
+    proposed_facts: Sequence[CaseFactProposal] = (),
+    profile_gaps: Sequence[CaseProfileGapProposal] = (),
+    context_association_ids: Sequence[str] = (),
+    public_observation_ids: Sequence[str] = (),
+    omitted_slots: Sequence[str] = (),
+    validation_feedback: Sequence[ValidationFeedback] = (),
+    source_snapshot_bindings: Sequence[SourceSnapshotBinding] = (),
+    remaining_tool_budget: int = 6,
+    binding: ContractExecutionBinding,
+) -> CaseAssemblyTask:
+    """Construct and seal one ``CaseAssemblyTask`` deterministically."""
+
+    sorted_core_facts = tuple(sorted(set(core_event_fact_ids)))
+    sorted_resolutions = tuple(sorted(set(resolution_proposal_ids)))
+    sorted_layers = tuple(sorted(set(available_evidence_layer_ids)))
+    sorted_req = tuple(sorted(set(required_case_slots)))
+    sorted_opt = tuple(sorted(set(optional_case_slots)))
+    sorted_missing = tuple(sorted(set(missing_slots)))
+    sorted_selected_evidence = tuple(sorted(set(selected_evidence_claim_ids)))
+    sorted_ctx_assoc = tuple(sorted(set(context_association_ids)))
+    sorted_pub_obs = tuple(sorted(set(public_observation_ids)))
+    sorted_omitted = tuple(sorted(set(omitted_slots)))
+
+    task_id = stable_contract_id(
+        "case-assembly-task",
+        run_id,
+        case_id,
+        canonical_id_tuple_token(sorted_core_facts, sort_values=True),
+        canonical_id_tuple_token(sorted_resolutions, sort_values=True),
+        canonical_id_tuple_token(sorted_selected_evidence, sort_values=True),
+        schema_profile_id,
+        schema_context_id,
+        schema_snapshot_sha256,
+    )
+
+    fields = CaseAssemblyTaskFields(
+        task_id=task_id,
+        run_id=run_id,
+        case_id=case_id,
+        core_event_fact_ids=sorted_core_facts,
+        resolution_proposal_ids=sorted_resolutions,
+        available_evidence_layer_ids=sorted_layers,
+        required_case_slots=sorted_req,
+        optional_case_slots=sorted_opt,
+        missing_slots=sorted_missing,
+        schema_profile_id=schema_profile_id,
+        schema_context_id=schema_context_id,
+        schema_snapshot_sha256=schema_snapshot_sha256,
+        selected_evidence_claim_ids=sorted_selected_evidence,
+        proposed_facts=tuple(proposed_facts),
+        profile_gaps=tuple(profile_gaps),
+        context_association_ids=sorted_ctx_assoc,
+        public_observation_ids=sorted_pub_obs,
+        omitted_slots=sorted_omitted,
+        validation_feedback=tuple(validation_feedback),
+        source_snapshot_bindings=tuple(source_snapshot_bindings),
+        remaining_tool_budget=remaining_tool_budget,
+    )
+
+    return seal_case_assembly_task(fields=fields, binding=binding)
+
+
+def compile_case_assembly_proposal(
+    *,
+    task: CaseAssemblyTask,
+    assembly_status: AssemblyStatus = AssemblyStatus.OK,
+    component_layer_results: Sequence[ComponentLayerResult] = (),
+    proposed_facts: Sequence[CaseFactProposal] | None = None,
+    evidence_bindings: Sequence[str] | None = None,
+    resolution_proposal_ids: Sequence[str] | None = None,
+    context_association_ids: Sequence[str] | None = None,
+    profile_gaps: Sequence[CaseProfileGapProposal] | None = None,
+    omitted_slots: Sequence[str] | None = None,
+    limitations: Sequence[str] = (),
+    tool_trace_ids: Sequence[str] = (),
+    source_snapshot_bindings: Sequence[SourceSnapshotBinding] | None = None,
+    revision_count: int = 0,
+    binding: ContractExecutionBinding,
+) -> CaseAssemblyProposal:
+    """Compile and seal one ``CaseAssemblyProposal`` deterministically."""
+
+    facts = tuple(task.proposed_facts if proposed_facts is None else proposed_facts)
+    gaps = tuple(task.profile_gaps if profile_gaps is None else profile_gaps)
+    ev_bindings = tuple(
+        sorted(set(task.selected_evidence_claim_ids if evidence_bindings is None else evidence_bindings))
+    )
+    res_proposal_ids = tuple(
+        sorted(set(task.resolution_proposal_ids if resolution_proposal_ids is None else resolution_proposal_ids))
+    )
+    ctx_assoc_ids = tuple(
+        sorted(set(task.context_association_ids if context_association_ids is None else context_association_ids))
+    )
+    omitted = tuple(
+        sorted(set(task.omitted_slots if omitted_slots is None else omitted_slots))
+    )
+    src_bindings = tuple(
+        task.source_snapshot_bindings if source_snapshot_bindings is None else source_snapshot_bindings
+    )
+
+    if not component_layer_results:
+        layer_status = (
+            ComponentLayerStatus.OK
+            if assembly_status in (AssemblyStatus.OK, AssemblyStatus.PARTIAL)
+            else (
+                ComponentLayerStatus.INSUFFICIENT
+                if assembly_status is AssemblyStatus.INSUFFICIENT
+                else ComponentLayerStatus.BLOCKED
+            )
+        )
+        component_layer_results = (
+            ComponentLayerResult(
+                layer_id="core",
+                status=layer_status,
+                required_for_task=True,
+                artifact_ids=task.core_event_fact_ids if layer_status is ComponentLayerStatus.OK else (),
+                missing_reason_code=(
+                    "missing_required_case_evidence"
+                    if layer_status is ComponentLayerStatus.INSUFFICIENT
+                    else None
+                ),
+                blocking_error_id=(
+                    "core_assembly_blocked"
+                    if layer_status is ComponentLayerStatus.BLOCKED
+                    else None
+                ),
+            ),
+        )
+
+    fact_item_ids = tuple(item.proposal_item_id for item in facts)
+    gap_item_ids = tuple(item.proposal_item_id for item in gaps)
+
+    proposal_id = stable_contract_id(
+        "case-assembly-proposal",
+        task.task_id,
+        task.payload_checksum,
+        assembly_status.value,
+        canonical_id_tuple_token(fact_item_ids, sort_values=True),
+        canonical_id_tuple_token(gap_item_ids, sort_values=True),
+        canonical_id_tuple_token(res_proposal_ids, sort_values=True),
+    )
+
+    fields = CaseAssemblyProposalFields(
+        case_assembly_proposal_id=proposal_id,
+        run_id=task.run_id,
+        task_id=task.task_id,
+        task_payload_checksum=task.payload_checksum,
+        case_id=task.case_id,
+        assembly_status=assembly_status,
+        component_layer_results=tuple(component_layer_results),
+        proposed_facts=facts,
+        evidence_bindings=ev_bindings,
+        resolution_proposal_ids=res_proposal_ids,
+        context_association_ids=ctx_assoc_ids,
+        profile_gaps=gaps,
+        omitted_slots=omitted,
+        limitations=tuple(sorted(set(limitations))),
+        tool_trace_ids=tuple(tool_trace_ids),
+        source_snapshot_bindings=src_bindings,
+        revision_count=revision_count,
+    )
+
+    return seal_case_assembly_proposal(task=task, fields=fields, binding=binding)
+
+
+def _make_validation_feedback(
+    *,
+    task: CaseAssemblyTask,
+    proposal: CaseAssemblyProposal,
+    affected_item_id: str,
+    violation_code: str,
+    constraint_id: str,
+    repairable: bool,
+    allowed_corrections: Sequence[str],
+    evidence_ids: Sequence[str],
+    binding: ContractExecutionBinding,
+) -> ValidationFeedback:
+    sorted_corrections = tuple(allowed_corrections)
+    sorted_evidence = tuple(sorted(set(evidence_ids)))
+
+    feedback_id = stable_contract_id(
+        "validation-feedback",
+        task.task_id,
+        proposal.payload_checksum,
+        affected_item_id,
+        violation_code,
+        constraint_id,
+        canonical_id_tuple_token(sorted_corrections, sort_values=False),
+        canonical_id_tuple_token(sorted_evidence, sort_values=True),
+    )
+
+    fields = ValidationFeedbackFields(
+        feedback_id=feedback_id,
+        run_id=task.run_id,
+        task_id=task.task_id,
+        case_id=task.case_id,
+        proposal_payload_checksum=proposal.payload_checksum,
+        violation_code=violation_code,
+        constraint_id=constraint_id,
+        affected_proposal_item_id=affected_item_id,
+        repairable=repairable,
+        allowed_corrections=sorted_corrections,
+        evidence_ids=sorted_evidence,
+    )
+
+    return seal_validation_feedback(
+        task=task,
+        proposal=proposal,
+        fields=fields,
+        binding=binding,
+    )
+
+
+def preflight_validate_case_assembly_proposal(
+    *,
+    task: CaseAssemblyTask,
+    proposal: CaseAssemblyProposal,
+    binding: ContractExecutionBinding,
+) -> ValidationFeedback | None:
+    """Preflight validate one ``CaseAssemblyProposal`` against its task."""
+
+    if (
+        proposal.run_id != task.run_id
+        or proposal.task_id != task.task_id
+        or proposal.case_id != task.case_id
+    ):
+        first_item = proposal.proposed_facts[0].proposal_item_id if proposal.proposed_facts else "task"
+        return _make_validation_feedback(
+            task=task,
+            proposal=proposal,
+            affected_item_id=first_item,
+            violation_code="TASK_BINDING_MISMATCH",
+            constraint_id="constraint:binding",
+            repairable=False,
+            allowed_corrections=(),
+            evidence_ids=proposal.evidence_bindings,
+            binding=binding,
+        )
+
+    for fact in proposal.proposed_facts:
+        pred_lower = fact.predicate_iri.lower()
+        if "caused" in pred_lower or "causal" in pred_lower or "reasonfor" in pred_lower:
+            return _make_validation_feedback(
+                task=task,
+                proposal=proposal,
+                affected_item_id=fact.proposal_item_id,
+                violation_code="FORBIDDEN_CAUSAL_CLAIM",
+                constraint_id=f"constraint:no_causal:{fact.proposal_item_id}",
+                repairable=False,
+                allowed_corrections=(),
+                evidence_ids=fact.evidence_claim_ids,
+                binding=binding,
+            )
+
+        if fact.validation_profile_id != task.schema_profile_id:
+            return _make_validation_feedback(
+                task=task,
+                proposal=proposal,
+                affected_item_id=fact.proposal_item_id,
+                violation_code="OUT_OF_PROFILE_ASSERTION",
+                constraint_id=f"constraint:profile:{fact.proposal_item_id}",
+                repairable=False,
+                allowed_corrections=(),
+                evidence_ids=fact.evidence_claim_ids,
+                binding=binding,
+            )
+
+        if fact.object_value.islower() and (
+            fact.predicate_iri in ("atm:controlledFacility", "atm:controlled_facility")
+            or fact.object_kind == "iri"
+        ):
+            corrected = fact.object_value.upper()
+            return _make_validation_feedback(
+                task=task,
+                proposal=proposal,
+                affected_item_id=fact.proposal_item_id,
+                violation_code="ALLOWED_VALUE_FORMAT_DEFECT",
+                constraint_id=f"constraint:format:{fact.proposal_item_id}",
+                repairable=True,
+                allowed_corrections=(corrected,),
+                evidence_ids=fact.evidence_claim_ids,
+                binding=binding,
+            )
+
+    return None
+

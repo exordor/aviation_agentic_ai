@@ -202,3 +202,121 @@ def test_build_case_assembly_tools_returns_six_tools() -> None:
     parsed = json.loads(out)
     assert parsed["status"] == "ok"
     assert parsed["case_id"] == "case-1"
+
+
+def test_deterministic_compiler_compiles_fixed_proposal() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+    )
+
+    task = _assembly_task()
+    proposal = compile_case_assembly_proposal(
+        task=task,
+        binding=_binding(),
+    )
+
+    assert proposal.case_id == "case-1"
+    assert proposal.assembly_status.value == "ok"
+    assert proposal.task_payload_checksum == task.payload_checksum
+    assert len(proposal.proposed_facts) == 1
+    assert len(proposal.profile_gaps) == 1
+
+
+def test_preflight_validator_repairable_formatting_defect() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+        preflight_validate_case_assembly_proposal,
+    )
+
+    task = _assembly_task()
+    # Fact with repairable formatting issue (e.g. lowercase facility code in object_value requiring uppercase)
+    repairable_fact = CaseFactProposal(
+        proposal_item_id="proposal-fact-1",
+        subject_id="event-1",
+        predicate_iri="atm:controlledFacility",
+        object_kind="iri",
+        object_value="kjfk",
+        evidence_claim_ids=("evidence:event:type",),
+        validation_profile_id="profile-1",
+    )
+    proposal = compile_case_assembly_proposal(
+        task=task,
+        proposed_facts=(repairable_fact,),
+        binding=_binding(),
+    )
+    feedback = preflight_validate_case_assembly_proposal(
+        task=task,
+        proposal=proposal,
+        binding=_binding(),
+    )
+
+    assert feedback is not None
+    assert feedback.repairable is True
+    assert "KJFK" in feedback.allowed_corrections or "https://example.test/facility/KJFK" in feedback.allowed_corrections or len(feedback.allowed_corrections) > 0
+
+
+def test_preflight_validator_hard_causal_violation() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+        preflight_validate_case_assembly_proposal,
+    )
+
+    task = _assembly_task()
+    # Fact attempting forbidden causal assertion
+    forbidden_fact = CaseFactProposal(
+        proposal_item_id="proposal-fact-1",
+        subject_id="event-1",
+        predicate_iri="atm:causedByWeather",
+        object_kind="iri",
+        object_value="atm:Thunderstorm",
+        evidence_claim_ids=("evidence:event:type",),
+        validation_profile_id="profile-1",
+    )
+    proposal = compile_case_assembly_proposal(
+        task=task,
+        proposed_facts=(forbidden_fact,),
+        binding=_binding(),
+    )
+    feedback = preflight_validate_case_assembly_proposal(
+        task=task,
+        proposal=proposal,
+        binding=_binding(),
+    )
+
+    assert feedback is not None
+    assert feedback.repairable is False
+    assert feedback.allowed_corrections == ()
+
+
+def test_mutated_bindings_fail_closed() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+    )
+
+    task = _assembly_task()
+    wrong_binding_source = SourceSnapshotBinding(
+        source_id="source:event:mutated",
+        source_family=SourceFamily.ATCSCC_ADVISORY,
+        source_snapshot_sha256=SHA_B,
+    )
+
+    with pytest.raises(ValueError, match="source binding differs"):
+        compile_case_assembly_proposal(
+            task=task,
+            source_snapshot_bindings=(wrong_binding_source,),
+            binding=_binding(),
+        )
+
+
+def test_repeated_compilation_produces_identical_ids() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+    )
+
+    task = _assembly_task()
+    p1 = compile_case_assembly_proposal(task=task, binding=_binding())
+    p2 = compile_case_assembly_proposal(task=task, binding=_binding())
+
+    assert p1.case_assembly_proposal_id == p2.case_assembly_proposal_id
+    assert p1.payload_checksum == p2.payload_checksum
+
