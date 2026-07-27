@@ -52,6 +52,63 @@ class CaseAssemblyResult:
     failure_reason: str | None = None
 
 
+def _revision_scope_violation(
+    *,
+    original: CaseAssemblyProposal,
+    revised: CaseAssemblyProposal,
+    feedback: ValidationFeedback,
+) -> str | None:
+    """Return a reason when a revision changes more than the named value."""
+
+    invariant_fields = (
+        "run_id",
+        "task_id",
+        "task_payload_checksum",
+        "case_id",
+        "assembly_status",
+        "component_layer_results",
+        "evidence_bindings",
+        "resolution_proposal_ids",
+        "context_association_ids",
+        "profile_gaps",
+        "omitted_slots",
+        "limitations",
+        "tool_trace_ids",
+        "source_snapshot_bindings",
+    )
+    for field_name in invariant_fields:
+        if getattr(original, field_name) != getattr(revised, field_name):
+            return f"revision changed invariant field {field_name}"
+
+    original_facts = {
+        fact.proposal_item_id: fact for fact in original.proposed_facts
+    }
+    revised_facts = {
+        fact.proposal_item_id: fact for fact in revised.proposed_facts
+    }
+    affected_id = feedback.affected_proposal_item_id
+    if affected_id not in original_facts or affected_id not in revised_facts:
+        return "affected fact is missing from the revision"
+    if set(original_facts) != set(revised_facts):
+        return "revision changed the formal fact set"
+
+    for item_id, original_fact in original_facts.items():
+        revised_fact = revised_facts[item_id]
+        if item_id != affected_id:
+            if revised_fact != original_fact:
+                return f"revision changed unrelated fact {item_id}"
+            continue
+        if (
+            original_fact.model_dump(exclude={"object_value"})
+            != revised_fact.model_dump(exclude={"object_value"})
+        ):
+            return "revision changed fields other than the affected object value"
+        if revised_fact.object_value not in feedback.allowed_corrections:
+            return "revision used a correction outside the allowed set"
+
+    return None
+
+
 def _base_messages(task: CaseAssemblyTask, *, catalog_path: str) -> list[BaseMessage]:
     assembled = assemble_prompt(
         "decision_case_assembly",
@@ -757,6 +814,21 @@ def run_case_assembly_agent(
             model_calls=model_calls,
             traces=traces,
             reason=sanitize_text(f"revised case assembly proposal compilation error: {exc}"),
+            feedback=feedback,
+        )
+
+    revision_scope_error = _revision_scope_violation(
+        original=proposal,
+        revised=revised_proposal,
+        feedback=feedback,
+    )
+    if revision_scope_error is not None:
+        return _blocked(
+            task=task,
+            binding=binding,
+            model_calls=model_calls,
+            traces=traces,
+            reason=f"REVISION_SCOPE_VIOLATION: {revision_scope_error}",
             feedback=feedback,
         )
 

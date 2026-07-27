@@ -1341,7 +1341,14 @@ def seal_validation_feedback(
         item.proposal_item_id
         for item in (*proposal.proposed_facts, *proposal.profile_gaps)
     }
-    if fields.affected_proposal_item_id not in proposal_item_ids:
+    missing_formal_slot_anchor = (
+        fields.violation_code == "MISSING_REQUIRED_FORMAL_SLOT"
+        and fields.affected_proposal_item_id == task.task_id
+    )
+    if (
+        fields.affected_proposal_item_id not in proposal_item_ids
+        and not missing_formal_slot_anchor
+    ):
         raise ValueError("affected proposal item is not owned by bound proposal")
     available_evidence = set(proposal.evidence_bindings)
     available_evidence.update(

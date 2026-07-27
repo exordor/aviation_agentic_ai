@@ -8,6 +8,7 @@ from pydantic import Field
 
 from collections.abc import Sequence
 from aviation_agentic_ai.agent_system.contracts import (
+    SourceFamily,
     StrictModel,
     WeatherContextAssociation,
 )
@@ -591,32 +592,238 @@ def preflight_validate_case_assembly_proposal(
             binding=binding,
         )
 
+    if proposal.assembly_status not in (AssemblyStatus.OK, AssemblyStatus.PARTIAL):
+        return None
+
+    def feedback(
+        *,
+        affected_item_id: str,
+        violation_code: str,
+        constraint_id: str,
+        evidence_ids: Sequence[str] = (),
+        repairable: bool = False,
+        allowed_corrections: Sequence[str] = (),
+    ) -> ValidationFeedback:
+        return _make_validation_feedback(
+            task=task,
+            proposal=proposal,
+            affected_item_id=affected_item_id,
+            violation_code=violation_code,
+            constraint_id=constraint_id,
+            repairable=repairable,
+            allowed_corrections=allowed_corrections,
+            evidence_ids=evidence_ids,
+            binding=binding,
+        )
+
+    task_fact_by_id = {
+        item.proposal_item_id: item for item in task.proposed_facts
+    }
+    proposal_fact_by_id = {
+        item.proposal_item_id: item for item in proposal.proposed_facts
+    }
+    required_fact_ids = set(task.core_event_fact_ids)
+    proposal_fact_ids = set(proposal_fact_by_id)
+    missing_fact_ids = sorted(required_fact_ids - proposal_fact_ids)
+    if missing_fact_ids:
+        return feedback(
+            affected_item_id=task.task_id,
+            violation_code="MISSING_REQUIRED_FORMAL_SLOT",
+            constraint_id=f"constraint:required-formal:{missing_fact_ids[0]}",
+        )
+    extra_fact_ids = sorted(proposal_fact_ids - required_fact_ids)
+    if extra_fact_ids:
+        extra_id = extra_fact_ids[0]
+        return feedback(
+            affected_item_id=extra_id,
+            violation_code="OUT_OF_TASK_FORMAL_FACT",
+            constraint_id=f"constraint:task-fact:{extra_id}",
+            evidence_ids=proposal_fact_by_id[extra_id].evidence_claim_ids,
+        )
+
+    task_gap_by_id = {
+        item.proposal_item_id: item for item in task.profile_gaps
+    }
+    proposal_gap_by_id = {
+        item.proposal_item_id: item for item in proposal.profile_gaps
+    }
+    missing_gap_ids = sorted(set(task_gap_by_id) - set(proposal_gap_by_id))
+    if missing_gap_ids:
+        anchor = next(iter(proposal_fact_by_id), task.task_id)
+        return feedback(
+            affected_item_id=anchor,
+            violation_code="MISSING_REQUIRED_PROFILE_GAP",
+            constraint_id=f"constraint:required-gap:{missing_gap_ids[0]}",
+        )
+    extra_gap_ids = sorted(set(proposal_gap_by_id) - set(task_gap_by_id))
+    if extra_gap_ids:
+        extra_id = extra_gap_ids[0]
+        return feedback(
+            affected_item_id=extra_id,
+            violation_code="OUT_OF_TASK_PROFILE_GAP",
+            constraint_id=f"constraint:task-gap:{extra_id}",
+            evidence_ids=proposal_gap_by_id[extra_id].evidence_claim_ids,
+        )
+
+    anchor = next(iter(proposal_fact_by_id), task.task_id)
+    exact_top_level_sets = (
+        (
+            proposal.evidence_bindings,
+            task.selected_evidence_claim_ids,
+            "TASK_EVIDENCE_SET_MISMATCH",
+            "constraint:task-evidence-set",
+        ),
+        (
+            proposal.resolution_proposal_ids,
+            task.resolution_proposal_ids,
+            "TASK_RESOLUTION_SET_MISMATCH",
+            "constraint:task-resolution-set",
+        ),
+        (
+            proposal.context_association_ids,
+            task.context_association_ids,
+            "TASK_CONTEXT_SET_MISMATCH",
+            "constraint:task-context-set",
+        ),
+    )
+    for actual, expected, code, constraint_id in exact_top_level_sets:
+        if actual != expected:
+            return feedback(
+                affected_item_id=anchor,
+                violation_code=code,
+                constraint_id=constraint_id,
+            )
+    if proposal.source_snapshot_bindings != task.source_snapshot_bindings:
+        return feedback(
+            affected_item_id=anchor,
+            violation_code="TASK_SOURCE_BINDING_SET_MISMATCH",
+            constraint_id="constraint:task-source-bindings",
+        )
+
+    expected_layer_artifacts = {
+        "core": (
+            task.core_event_fact_ids,
+            "OUT_OF_TASK_FORMAL_FACT",
+        ),
+        "weather": (
+            task.context_association_ids,
+            "OUT_OF_TASK_CONTEXT_ASSOCIATION",
+        ),
+        "layer:weather": (
+            task.context_association_ids,
+            "OUT_OF_TASK_CONTEXT_ASSOCIATION",
+        ),
+        "bts": (
+            task.public_observation_ids,
+            "OUT_OF_TASK_PUBLIC_OBSERVATION",
+        ),
+        "layer:bts": (
+            task.public_observation_ids,
+            "OUT_OF_TASK_PUBLIC_OBSERVATION",
+        ),
+    }
+    for layer in proposal.component_layer_results:
+        expected_layer = expected_layer_artifacts.get(layer.layer_id)
+        if (
+            layer.status is not ComponentLayerStatus.OK
+            or expected_layer is None
+        ):
+            continue
+        expected_artifacts, violation_code = expected_layer
+        if layer.artifact_ids != expected_artifacts:
+            return feedback(
+                affected_item_id=anchor,
+                violation_code=violation_code,
+                constraint_id=f"constraint:component:{layer.layer_id}",
+            )
+
+    evidence_by_id = {
+        record.evidence_id: record for record in task.evidence_records
+    }
+    source_binding_by_id = {
+        row.source_id: row for row in task.source_snapshot_bindings
+    }
+
+    def reason_support_is_advisory_only(
+        evidence_ids: Sequence[str],
+    ) -> bool:
+        if not evidence_ids:
+            return False
+        for evidence_id in evidence_ids:
+            record = evidence_by_id.get(evidence_id)
+            if record is None:
+                return False
+            source_binding = source_binding_by_id.get(record.source_id)
+            if (
+                source_binding is None
+                or source_binding.source_family
+                is not SourceFamily.ATCSCC_ADVISORY
+            ):
+                return False
+        return True
+
     for fact in proposal.proposed_facts:
+        task_fact = task_fact_by_id[fact.proposal_item_id]
         pred_lower = fact.predicate_iri.lower()
         if "caused" in pred_lower or "causal" in pred_lower or "reasonfor" in pred_lower:
-            return _make_validation_feedback(
-                task=task,
-                proposal=proposal,
+            return feedback(
                 affected_item_id=fact.proposal_item_id,
                 violation_code="FORBIDDEN_CAUSAL_CLAIM",
                 constraint_id=f"constraint:no_causal:{fact.proposal_item_id}",
-                repairable=False,
-                allowed_corrections=(),
                 evidence_ids=fact.evidence_claim_ids,
-                binding=binding,
             )
 
+        if fact.subject_id != task_fact.subject_id:
+            return feedback(
+                affected_item_id=fact.proposal_item_id,
+                violation_code="OUT_OF_TASK_EVENT",
+                constraint_id=f"constraint:event:{fact.proposal_item_id}",
+                evidence_ids=fact.evidence_claim_ids,
+            )
         if fact.validation_profile_id != task.schema_profile_id:
-            return _make_validation_feedback(
-                task=task,
-                proposal=proposal,
+            return feedback(
                 affected_item_id=fact.proposal_item_id,
                 violation_code="OUT_OF_PROFILE_ASSERTION",
                 constraint_id=f"constraint:profile:{fact.proposal_item_id}",
-                repairable=False,
-                allowed_corrections=(),
                 evidence_ids=fact.evidence_claim_ids,
-                binding=binding,
+            )
+        if (
+            fact.predicate_iri != task_fact.predicate_iri
+            or fact.object_kind != task_fact.object_kind
+            or (
+                task_fact.predicate_iri == "rdf:type"
+                and fact.object_value != task_fact.object_value
+            )
+        ):
+            return feedback(
+                affected_item_id=fact.proposal_item_id,
+                violation_code="OUT_OF_SCHEMA_ASSERTION",
+                constraint_id=f"constraint:schema-slice:{fact.proposal_item_id}",
+                evidence_ids=fact.evidence_claim_ids,
+            )
+        if fact.evidence_claim_ids != task_fact.evidence_claim_ids:
+            return feedback(
+                affected_item_id=fact.proposal_item_id,
+                violation_code="OUT_OF_TASK_EVIDENCE",
+                constraint_id=f"constraint:evidence:{fact.proposal_item_id}",
+                evidence_ids=fact.evidence_claim_ids,
+            )
+        if fact.derivation_ids != task_fact.derivation_ids:
+            return feedback(
+                affected_item_id=fact.proposal_item_id,
+                violation_code="OUT_OF_TASK_DERIVATION",
+                constraint_id=f"constraint:derivation:{fact.proposal_item_id}",
+                evidence_ids=fact.evidence_claim_ids,
+            )
+        if fact.predicate_iri == "atm:impactingCondition" and (
+            fact.derivation_ids
+            or not reason_support_is_advisory_only(fact.evidence_claim_ids)
+        ):
+            return feedback(
+                affected_item_id=fact.proposal_item_id,
+                violation_code="INVALID_DECLARED_REASON_SUPPORT",
+                constraint_id=f"constraint:declared-reason:{fact.proposal_item_id}",
+                evidence_ids=fact.evidence_claim_ids,
             )
 
         if fact.object_value.islower() and (
@@ -624,16 +831,58 @@ def preflight_validate_case_assembly_proposal(
             or fact.object_kind == "iri"
         ):
             corrected = fact.object_value.upper()
-            return _make_validation_feedback(
-                task=task,
-                proposal=proposal,
+            return feedback(
                 affected_item_id=fact.proposal_item_id,
                 violation_code="ALLOWED_VALUE_FORMAT_DEFECT",
                 constraint_id=f"constraint:format:{fact.proposal_item_id}",
                 repairable=True,
                 allowed_corrections=(corrected,),
                 evidence_ids=fact.evidence_claim_ids,
-                binding=binding,
+            )
+
+    for gap in proposal.profile_gaps:
+        task_gap = task_gap_by_id[gap.proposal_item_id]
+        if gap.event_id != task_gap.event_id:
+            return feedback(
+                affected_item_id=gap.proposal_item_id,
+                violation_code="OUT_OF_TASK_EVENT",
+                constraint_id=f"constraint:gap-event:{gap.proposal_item_id}",
+                evidence_ids=gap.evidence_claim_ids,
+            )
+        if gap.validation_profile_id != task.schema_profile_id:
+            return feedback(
+                affected_item_id=gap.proposal_item_id,
+                violation_code="OUT_OF_PROFILE_ASSERTION",
+                constraint_id=f"constraint:gap-profile:{gap.proposal_item_id}",
+                evidence_ids=gap.evidence_claim_ids,
+            )
+        if gap.evidence_claim_ids != task_gap.evidence_claim_ids:
+            return feedback(
+                affected_item_id=gap.proposal_item_id,
+                violation_code="OUT_OF_TASK_EVIDENCE",
+                constraint_id=f"constraint:gap-evidence:{gap.proposal_item_id}",
+                evidence_ids=gap.evidence_claim_ids,
+            )
+        if (
+            gap.field != task_gap.field
+            or gap.normalized_value != task_gap.normalized_value
+            or gap.schema_mapping_reason_code
+            != task_gap.schema_mapping_reason_code
+        ):
+            return feedback(
+                affected_item_id=gap.proposal_item_id,
+                violation_code="OUT_OF_TASK_PROFILE_GAP",
+                constraint_id=f"constraint:gap-signature:{gap.proposal_item_id}",
+                evidence_ids=gap.evidence_claim_ids,
+            )
+        if gap.field == "impacting_condition" and not reason_support_is_advisory_only(
+            gap.evidence_claim_ids
+        ):
+            return feedback(
+                affected_item_id=gap.proposal_item_id,
+                violation_code="INVALID_DECLARED_REASON_SUPPORT",
+                constraint_id=f"constraint:declared-reason-gap:{gap.proposal_item_id}",
+                evidence_ids=gap.evidence_claim_ids,
             )
 
     return None

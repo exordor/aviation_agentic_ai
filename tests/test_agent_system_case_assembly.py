@@ -43,31 +43,45 @@ def _assembly_task(
     *,
     case_id: str = "case-1",
     resolution_proposal_id: str = "res-prop-1",
+    proposed_facts: tuple[CaseFactProposal, ...] | None = None,
+    profile_gaps: tuple[CaseProfileGapProposal, ...] | None = None,
+    event_source_family: SourceFamily = SourceFamily.ATCSCC_ADVISORY,
 ) -> CaseAssemblyTask:
-    fact = CaseFactProposal(
-        proposal_item_id="proposal-fact-1",
-        subject_id="event-1",
-        predicate_iri="rdf:type",
-        object_kind="iri",
-        object_value="atm:GroundStopTMI",
-        evidence_claim_ids=("evidence:event:type",),
-        validation_profile_id="profile-1",
+    facts = proposed_facts or (
+        CaseFactProposal(
+            proposal_item_id="proposal-fact-1",
+            subject_id="event-1",
+            predicate_iri="rdf:type",
+            object_kind="iri",
+            object_value="atm:GroundStopTMI",
+            evidence_claim_ids=("evidence:event:type",),
+            validation_profile_id="profile-1",
+        ),
     )
-    gap = CaseProfileGapProposal(
-        proposal_item_id="proposal-gap-1",
-        event_id="event-1",
-        field="impacting_condition",
-        normalized_value="weather",
-        evidence_claim_ids=("evidence:event:weather",),
-        schema_mapping_reason_code="not_in_profile",
-        validation_profile_id="profile-1",
+    gaps = (
+        (
+            CaseProfileGapProposal(
+                proposal_item_id="proposal-gap-1",
+                event_id="event-1",
+                field="impacting_condition",
+                normalized_value="weather",
+                evidence_claim_ids=("evidence:event:weather",),
+                schema_mapping_reason_code="not_in_profile",
+                validation_profile_id="profile-1",
+            ),
+        )
+        if profile_gaps is None
+        else profile_gaps
     )
     selected = ("evidence:event:type", "evidence:event:weather")
+    core_event_fact_ids = tuple(
+        sorted(fact.proposal_item_id for fact in facts)
+    )
     task_id = stable_contract_id(
         "case-assembly-task",
         "run-1",
         case_id,
-        canonical_id_tuple_token(("fact:event:type",), sort_values=True),
+        canonical_id_tuple_token(core_event_fact_ids, sort_values=True),
         canonical_id_tuple_token((resolution_proposal_id,), sort_values=True),
         canonical_id_tuple_token(selected, sort_values=True),
         "profile-1",
@@ -78,7 +92,7 @@ def _assembly_task(
         task_id=task_id,
         run_id="run-1",
         case_id=case_id,
-        core_event_fact_ids=("fact:event:type",),
+        core_event_fact_ids=core_event_fact_ids,
         resolution_proposal_ids=(resolution_proposal_id,),
         available_evidence_layer_ids=("layer:advisory", "layer:weather"),
         required_case_slots=("controlled_facility", "event_type"),
@@ -113,8 +127,8 @@ def _assembly_task(
                 "authority_source_ids": ("source:event",),
             },
         ),
-        proposed_facts=(fact,),
-        profile_gaps=(gap,),
+        proposed_facts=facts,
+        profile_gaps=gaps,
         context_association_ids=("assoc-weather-1",),
         context_associations=(
             {
@@ -155,7 +169,7 @@ def _assembly_task(
             ),
             SourceSnapshotBinding(
                 source_id="source:event",
-                source_family=SourceFamily.ATCSCC_ADVISORY,
+                source_family=event_source_family,
                 source_snapshot_sha256=SHA_B,
             ),
             SourceSnapshotBinding(
@@ -323,8 +337,16 @@ def test_preflight_validator_repairable_formatting_defect() -> None:
         preflight_validate_case_assembly_proposal,
     )
 
-    task = _assembly_task()
-    # Fact with repairable formatting issue (e.g. lowercase facility code in object_value requiring uppercase)
+    task_fact = CaseFactProposal(
+        proposal_item_id="proposal-fact-1",
+        subject_id="event-1",
+        predicate_iri="atm:controlledFacility",
+        object_kind="iri",
+        object_value="KJFK",
+        evidence_claim_ids=("evidence:event:type",),
+        validation_profile_id="profile-1",
+    )
+    task = _assembly_task(proposed_facts=(task_fact,), profile_gaps=())
     repairable_fact = CaseFactProposal(
         proposal_item_id="proposal-fact-1",
         subject_id="event-1",
@@ -381,6 +403,452 @@ def test_preflight_validator_hard_causal_violation() -> None:
     assert feedback is not None
     assert feedback.repairable is False
     assert feedback.allowed_corrections == ()
+
+
+def test_preflight_rejects_empty_and_missing_core_fact_proposals() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+        preflight_validate_case_assembly_proposal,
+    )
+
+    second_fact = CaseFactProposal(
+        proposal_item_id="proposal-fact-2",
+        subject_id="event-1",
+        predicate_iri="atm:advisoryNumber",
+        object_kind="literal",
+        object_value="123",
+        evidence_claim_ids=("evidence:event:type",),
+        validation_profile_id="profile-1",
+    )
+    task = _assembly_task(
+        proposed_facts=(*_assembly_task().proposed_facts, second_fact),
+        profile_gaps=(),
+    )
+
+    empty = compile_case_assembly_proposal(
+        task=task,
+        proposed_facts=(),
+        profile_gaps=(),
+        binding=_binding(),
+    )
+    empty_feedback = preflight_validate_case_assembly_proposal(
+        task=task,
+        proposal=empty,
+        binding=_binding(),
+    )
+    assert empty_feedback is not None
+    assert empty_feedback.violation_code == "MISSING_REQUIRED_FORMAL_SLOT"
+    assert empty_feedback.affected_proposal_item_id == task.task_id
+
+    missing = compile_case_assembly_proposal(
+        task=task,
+        proposed_facts=(task.proposed_facts[0],),
+        profile_gaps=(),
+        binding=_binding(),
+    )
+    missing_feedback = preflight_validate_case_assembly_proposal(
+        task=task,
+        proposal=missing,
+        binding=_binding(),
+    )
+    assert missing_feedback is not None
+    assert missing_feedback.violation_code == "MISSING_REQUIRED_FORMAL_SLOT"
+
+
+def test_preflight_rejects_extra_formal_fact() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+        preflight_validate_case_assembly_proposal,
+    )
+
+    task = _assembly_task(profile_gaps=())
+    extra = CaseFactProposal(
+        proposal_item_id="proposal-fact-extra",
+        subject_id="event-1",
+        predicate_iri="atm:advisoryNumber",
+        object_kind="literal",
+        object_value="123",
+        evidence_claim_ids=("evidence:event:type",),
+        validation_profile_id="profile-1",
+    )
+    proposal = compile_case_assembly_proposal(
+        task=task,
+        proposed_facts=(*task.proposed_facts, extra),
+        profile_gaps=(),
+        binding=_binding(),
+    )
+
+    feedback = preflight_validate_case_assembly_proposal(
+        task=task,
+        proposal=proposal,
+        binding=_binding(),
+    )
+    assert feedback is not None
+    assert feedback.violation_code == "OUT_OF_TASK_FORMAL_FACT"
+    assert feedback.affected_proposal_item_id == "proposal-fact-extra"
+
+
+@pytest.mark.parametrize(
+    ("field_name", "replacement", "expected_code"),
+    (
+        ("subject_id", "event-foreign", "OUT_OF_TASK_EVENT"),
+        ("predicate_iri", "atm:foreignPredicate", "OUT_OF_SCHEMA_ASSERTION"),
+        ("object_value", "atm:GroundDelayProgramTMI", "OUT_OF_SCHEMA_ASSERTION"),
+        ("object_kind", "literal", "OUT_OF_SCHEMA_ASSERTION"),
+        ("validation_profile_id", "profile-foreign", "OUT_OF_PROFILE_ASSERTION"),
+        (
+            "evidence_claim_ids",
+            ("evidence:event:weather",),
+            "OUT_OF_TASK_EVIDENCE",
+        ),
+        ("derivation_ids", ("derivation-bts-1",), "OUT_OF_TASK_DERIVATION"),
+    ),
+)
+def test_preflight_rejects_formal_fact_signature_mutation(
+    field_name: str,
+    replacement: object,
+    expected_code: str,
+) -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+        preflight_validate_case_assembly_proposal,
+    )
+
+    task = _assembly_task(profile_gaps=())
+    proposal = compile_case_assembly_proposal(
+        task=task,
+        profile_gaps=(),
+        binding=_binding(),
+    )
+    mutated_fact = proposal.proposed_facts[0].model_copy(
+        update={field_name: replacement}
+    )
+    mutated = proposal.model_copy(update={"proposed_facts": (mutated_fact,)})
+
+    feedback = preflight_validate_case_assembly_proposal(
+        task=task,
+        proposal=mutated,
+        binding=_binding(),
+    )
+    assert feedback is not None
+    assert feedback.violation_code == expected_code
+
+
+@pytest.mark.parametrize(
+    ("field_name", "replacement", "expected_code"),
+    (
+        ("event_id", "event-foreign", "OUT_OF_TASK_EVENT"),
+        ("field", "other_field", "OUT_OF_TASK_PROFILE_GAP"),
+        ("normalized_value", "volume", "OUT_OF_TASK_PROFILE_GAP"),
+        (
+            "evidence_claim_ids",
+            ("evidence:event:type",),
+            "OUT_OF_TASK_EVIDENCE",
+        ),
+        ("schema_mapping_reason_code", "other_reason", "OUT_OF_TASK_PROFILE_GAP"),
+        ("validation_profile_id", "profile-foreign", "OUT_OF_PROFILE_ASSERTION"),
+    ),
+)
+def test_preflight_rejects_profile_gap_signature_mutation(
+    field_name: str,
+    replacement: object,
+    expected_code: str,
+) -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+        preflight_validate_case_assembly_proposal,
+    )
+
+    task = _assembly_task()
+    proposal = compile_case_assembly_proposal(task=task, binding=_binding())
+    mutated_gap = proposal.profile_gaps[0].model_copy(
+        update={field_name: replacement}
+    )
+    mutated = proposal.model_copy(update={"profile_gaps": (mutated_gap,)})
+
+    feedback = preflight_validate_case_assembly_proposal(
+        task=task,
+        proposal=mutated,
+        binding=_binding(),
+    )
+    assert feedback is not None
+    assert feedback.violation_code == expected_code
+
+
+@pytest.mark.parametrize(
+    ("profile_gaps", "expected_code"),
+    (
+        ((), "MISSING_REQUIRED_PROFILE_GAP"),
+        (
+            (
+                _assembly_task().profile_gaps[0],
+                CaseProfileGapProposal(
+                    proposal_item_id="proposal-gap-foreign",
+                    event_id="event-1",
+                    field="impacting_condition",
+                    normalized_value="weather",
+                    evidence_claim_ids=("evidence:event:weather",),
+                    schema_mapping_reason_code="not_in_profile",
+                    validation_profile_id="profile-1",
+                ),
+            ),
+            "OUT_OF_TASK_PROFILE_GAP",
+        ),
+    ),
+)
+def test_preflight_requires_exact_profile_gap_item_ids(
+    profile_gaps: tuple[CaseProfileGapProposal, ...],
+    expected_code: str,
+) -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+        preflight_validate_case_assembly_proposal,
+    )
+
+    task = _assembly_task()
+    proposal = compile_case_assembly_proposal(
+        task=task,
+        profile_gaps=profile_gaps,
+        binding=_binding(),
+    )
+    feedback = preflight_validate_case_assembly_proposal(
+        task=task,
+        proposal=proposal,
+        binding=_binding(),
+    )
+    assert feedback is not None
+    assert feedback.violation_code == expected_code
+
+
+@pytest.mark.parametrize(
+    ("field_name", "replacement", "expected_code"),
+    (
+        (
+            "evidence_bindings",
+            ("evidence:foreign",),
+            "TASK_EVIDENCE_SET_MISMATCH",
+        ),
+        (
+            "resolution_proposal_ids",
+            ("resolution-foreign",),
+            "TASK_RESOLUTION_SET_MISMATCH",
+        ),
+        (
+            "context_association_ids",
+            ("association-foreign",),
+            "TASK_CONTEXT_SET_MISMATCH",
+        ),
+    ),
+)
+def test_preflight_requires_exact_top_level_task_sets(
+    field_name: str,
+    replacement: tuple[str, ...],
+    expected_code: str,
+) -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+        preflight_validate_case_assembly_proposal,
+    )
+
+    task = _assembly_task()
+    proposal = compile_case_assembly_proposal(task=task, binding=_binding())
+    mutated = proposal.model_copy(update={field_name: replacement})
+
+    feedback = preflight_validate_case_assembly_proposal(
+        task=task,
+        proposal=mutated,
+        binding=_binding(),
+    )
+    assert feedback is not None
+    assert feedback.violation_code == expected_code
+
+
+def test_preflight_requires_exact_source_bindings() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+        preflight_validate_case_assembly_proposal,
+    )
+
+    task = _assembly_task()
+    proposal = compile_case_assembly_proposal(task=task, binding=_binding())
+    foreign_binding = SourceSnapshotBinding(
+        source_id="source:foreign",
+        source_family=SourceFamily.METAR,
+        source_snapshot_sha256=SHA_A,
+    )
+    mutated = proposal.model_copy(
+        update={"source_snapshot_bindings": (foreign_binding,)}
+    )
+
+    feedback = preflight_validate_case_assembly_proposal(
+        task=task,
+        proposal=mutated,
+        binding=_binding(),
+    )
+    assert feedback is not None
+    assert feedback.violation_code == "TASK_SOURCE_BINDING_SET_MISMATCH"
+
+
+@pytest.mark.parametrize(
+    ("layer_id", "artifact_id", "expected_code"),
+    (
+        ("core", "proposal-fact-foreign", "OUT_OF_TASK_FORMAL_FACT"),
+        ("weather", "association-foreign", "OUT_OF_TASK_CONTEXT_ASSOCIATION"),
+        ("bts", "observation-foreign", "OUT_OF_TASK_PUBLIC_OBSERVATION"),
+    ),
+)
+def test_preflight_rejects_foreign_component_artifacts(
+    layer_id: str,
+    artifact_id: str,
+    expected_code: str,
+) -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+        preflight_validate_case_assembly_proposal,
+    )
+    from aviation_agentic_ai.agent_system.decision_case_contracts import (
+        ComponentLayerResult,
+        ComponentLayerStatus,
+    )
+
+    task = _assembly_task()
+    proposal = compile_case_assembly_proposal(task=task, binding=_binding())
+    foreign_layer = ComponentLayerResult(
+        layer_id=layer_id,
+        status=ComponentLayerStatus.OK,
+        required_for_task=layer_id == "core",
+        artifact_ids=(artifact_id,),
+    )
+    mutated = proposal.model_copy(
+        update={"component_layer_results": (foreign_layer,)}
+    )
+
+    feedback = preflight_validate_case_assembly_proposal(
+        task=task,
+        proposal=mutated,
+        binding=_binding(),
+    )
+    assert feedback is not None
+    assert feedback.violation_code == expected_code
+
+
+def test_preflight_accepts_advisory_backed_reason_and_ground_stop_gap() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+        preflight_validate_case_assembly_proposal,
+    )
+
+    reason_fact = CaseFactProposal(
+        proposal_item_id="proposal-fact-1",
+        subject_id="event-1",
+        predicate_iri="atm:impactingCondition",
+        object_kind="literal",
+        object_value="weather",
+        evidence_claim_ids=("evidence:event:weather",),
+        validation_profile_id="profile-1",
+    )
+    gdp_task = _assembly_task(
+        proposed_facts=(reason_fact,),
+        profile_gaps=(),
+    )
+    gdp_proposal = compile_case_assembly_proposal(
+        task=gdp_task,
+        profile_gaps=(),
+        binding=_binding(),
+    )
+    assert (
+        preflight_validate_case_assembly_proposal(
+            task=gdp_task,
+            proposal=gdp_proposal,
+            binding=_binding(),
+        )
+        is None
+    )
+
+    ground_stop_task = _assembly_task()
+    ground_stop_proposal = compile_case_assembly_proposal(
+        task=ground_stop_task,
+        binding=_binding(),
+    )
+    assert (
+        preflight_validate_case_assembly_proposal(
+            task=ground_stop_task,
+            proposal=ground_stop_proposal,
+            binding=_binding(),
+        )
+        is None
+    )
+
+
+@pytest.mark.parametrize("as_gap", (False, True))
+def test_preflight_rejects_weather_backed_declared_reason(as_gap: bool) -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+        preflight_validate_case_assembly_proposal,
+    )
+
+    reason_fact = CaseFactProposal(
+        proposal_item_id="proposal-fact-1",
+        subject_id="event-1",
+        predicate_iri="atm:impactingCondition",
+        object_kind="literal",
+        object_value="weather",
+        evidence_claim_ids=("evidence:event:weather",),
+        validation_profile_id="profile-1",
+    )
+    reason_gap = CaseProfileGapProposal(
+        proposal_item_id="proposal-gap-1",
+        event_id="event-1",
+        field="impacting_condition",
+        normalized_value="weather",
+        evidence_claim_ids=("evidence:event:weather",),
+        schema_mapping_reason_code="not_in_profile",
+        validation_profile_id="profile-1",
+    )
+    task = _assembly_task(
+        proposed_facts=(
+            _assembly_task().proposed_facts[0] if as_gap else reason_fact,
+        ),
+        profile_gaps=(reason_gap,) if as_gap else (),
+        event_source_family=SourceFamily.METAR,
+    )
+    proposal = compile_case_assembly_proposal(task=task, binding=_binding())
+
+    feedback = preflight_validate_case_assembly_proposal(
+        task=task,
+        proposal=proposal,
+        binding=_binding(),
+    )
+    assert feedback is not None
+    assert feedback.violation_code == "INVALID_DECLARED_REASON_SUPPORT"
+
+
+def test_preflight_rejects_bts_derived_declared_reason() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        compile_case_assembly_proposal,
+        preflight_validate_case_assembly_proposal,
+    )
+
+    reason_fact = CaseFactProposal(
+        proposal_item_id="proposal-fact-1",
+        subject_id="event-1",
+        predicate_iri="atm:impactingCondition",
+        object_kind="literal",
+        object_value="weather",
+        evidence_claim_ids=("evidence:event:weather",),
+        derivation_ids=("derivation-bts-1",),
+        validation_profile_id="profile-1",
+    )
+    task = _assembly_task(proposed_facts=(reason_fact,), profile_gaps=())
+    proposal = compile_case_assembly_proposal(task=task, binding=_binding())
+
+    feedback = preflight_validate_case_assembly_proposal(
+        task=task,
+        proposal=proposal,
+        binding=_binding(),
+    )
+    assert feedback is not None
+    assert feedback.violation_code == "INVALID_DECLARED_REASON_SUPPORT"
 
 
 def test_mutated_bindings_fail_closed() -> None:
@@ -463,6 +931,53 @@ def _valid_proposal_text() -> str:
     )
 
 
+def _proposal_text(
+    facts: tuple[CaseFactProposal, ...],
+    gaps: tuple[CaseProfileGapProposal, ...] = (),
+) -> str:
+    fact_lines = "\n".join(fact.model_dump_json() for fact in facts) or "NONE"
+    gap_lines = "\n".join(gap.model_dump_json() for gap in gaps) or "NONE"
+    return f"GRAPH_PATCH\n{fact_lines}\n\nPROFILE_GAPS\n{gap_lines}\n"
+
+
+def _run_revision_script(
+    *,
+    task: CaseAssemblyTask,
+    initial_text: str,
+    revised_text: str,
+):
+    from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
+    from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
+    from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
+    from langchain_core.messages import AIMessage
+
+    turns = [
+        _assembly_tool_turn(),
+        ToolModelTurn(
+            message=AIMessage(content=initial_text),
+            record=ModelCallRecord(
+                agent="decision_case_assembly",
+                raw_response=initial_text,
+                prompt_version="decision-case-assembly-v1",
+            ),
+        ),
+        ToolModelTurn(
+            message=AIMessage(content=revised_text),
+            record=ModelCallRecord(
+                agent="decision_case_assembly",
+                raw_response=revised_text,
+                prompt_version="decision-case-assembly-v1",
+            ),
+        ),
+    ]
+    scripted_model = _ScriptedAssemblyModel(turns)
+    return run_case_assembly_agent(
+        task=task,
+        binding=_binding(),
+        tool_model_factory=lambda tools: scripted_model,
+    )
+
+
 def test_case_assembly_agent_evidence_schema_choice_success() -> None:
     from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
     from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
@@ -480,7 +995,7 @@ def test_case_assembly_agent_evidence_schema_choice_success() -> None:
             layer_id="core",
             status=ComponentLayerStatus.OK,
             required_for_task=True,
-            artifact_ids=("fact:event:type",),
+            artifact_ids=("proposal-fact-1",),
         ),
         ComponentLayerResult(
             layer_id="weather",
@@ -541,13 +1056,22 @@ def test_case_assembly_agent_one_allowed_revision_success() -> None:
     from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
     from langchain_core.messages import AIMessage
 
-    task = _assembly_task()
+    task_fact = CaseFactProposal(
+        proposal_item_id="proposal-fact-1",
+        subject_id="event-1",
+        predicate_iri="atm:controlledFacility",
+        object_kind="iri",
+        object_value="KJFK",
+        evidence_claim_ids=("evidence:event:type",),
+        validation_profile_id="profile-1",
+    )
+    task = _assembly_task(proposed_facts=(task_fact,), profile_gaps=())
     component_layer_results = (
         ComponentLayerResult(
             layer_id="core",
             status=ComponentLayerStatus.OK,
             required_for_task=True,
-            artifact_ids=("fact:event:type",),
+            artifact_ids=("proposal-fact-1",),
         ),
         ComponentLayerResult(
             layer_id="weather",
@@ -607,6 +1131,92 @@ def test_case_assembly_agent_one_allowed_revision_success() -> None:
     assert result.feedback is None
 
 
+@pytest.mark.parametrize("mutation", ("unrelated_fact", "profile_gap"))
+def test_case_assembly_revision_cannot_change_unrelated_items(
+    mutation: str,
+) -> None:
+    facility_fact = CaseFactProposal(
+        proposal_item_id="proposal-fact-1",
+        subject_id="event-1",
+        predicate_iri="atm:controlledFacility",
+        object_kind="iri",
+        object_value="KJFK",
+        evidence_claim_ids=("evidence:event:type",),
+        validation_profile_id="profile-1",
+    )
+    type_fact = CaseFactProposal(
+        proposal_item_id="proposal-fact-2",
+        subject_id="event-1",
+        predicate_iri="rdf:type",
+        object_kind="iri",
+        object_value="atm:GroundStopTMI",
+        evidence_claim_ids=("evidence:event:type",),
+        validation_profile_id="profile-1",
+    )
+    gap = _assembly_task().profile_gaps[0]
+    task = _assembly_task(
+        proposed_facts=(facility_fact, type_fact),
+        profile_gaps=(gap,),
+    )
+    initial_facility = facility_fact.model_copy(update={"object_value": "kjfk"})
+    revised_facility = facility_fact
+    revised_type = (
+        type_fact.model_copy(update={"object_value": "atm:GroundDelayProgramTMI"})
+        if mutation == "unrelated_fact"
+        else type_fact
+    )
+    revised_gap = (
+        gap.model_copy(update={"normalized_value": "volume"})
+        if mutation == "profile_gap"
+        else gap
+    )
+
+    result = _run_revision_script(
+        task=task,
+        initial_text=_proposal_text(
+            (initial_facility, type_fact),
+            (gap,),
+        ),
+        revised_text=_proposal_text(
+            (revised_facility, revised_type),
+            (revised_gap,),
+        ),
+    )
+
+    assert result.proposal.assembly_status.value == "blocked"
+    assert result.failure_reason is not None
+    assert "REVISION_SCOPE_VIOLATION" in result.failure_reason
+    assert len(result.model_calls) == 3
+
+
+def test_case_assembly_revision_requires_listed_correction() -> None:
+    facility_fact = CaseFactProposal(
+        proposal_item_id="proposal-fact-1",
+        subject_id="event-1",
+        predicate_iri="atm:controlledFacility",
+        object_kind="iri",
+        object_value="KJFK",
+        evidence_claim_ids=("evidence:event:type",),
+        validation_profile_id="profile-1",
+    )
+    task = _assembly_task(proposed_facts=(facility_fact,), profile_gaps=())
+
+    result = _run_revision_script(
+        task=task,
+        initial_text=_proposal_text(
+            (facility_fact.model_copy(update={"object_value": "kjfk"}),),
+        ),
+        revised_text=_proposal_text(
+            (facility_fact.model_copy(update={"object_value": "KXYZ"}),),
+        ),
+    )
+
+    assert result.proposal.assembly_status.value == "blocked"
+    assert result.failure_reason is not None
+    assert "REVISION_SCOPE_VIOLATION" in result.failure_reason
+    assert len(result.model_calls) == 3
+
+
 def test_case_assembly_initial_prompt_lists_all_authorized_record_ids() -> None:
     from aviation_agentic_ai.agent_system.case_assembly import _base_messages
 
@@ -638,7 +1248,7 @@ def test_case_assembly_agent_hard_semantic_violation_blocks() -> None:
             layer_id="core",
             status=ComponentLayerStatus.OK,
             required_for_task=True,
-            artifact_ids=("fact:event:type",),
+            artifact_ids=("proposal-fact-1",),
         ),
         ComponentLayerResult(
             layer_id="weather",
