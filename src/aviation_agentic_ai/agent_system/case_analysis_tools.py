@@ -173,6 +173,127 @@ def read_operational_situation(
     )
 
 
+_APPLICABILITY_PREDICATES = frozenset(
+    {
+        "atm:controlledNASelement",
+        "atm:effectiveStartTime",
+        "atm:effectiveEndTime",
+    }
+)
+_APPLICABILITY_LIMITATION = (
+    "no explicit applicability scope beyond controlled facility and effective interval"
+)
+_OBSERVED_FLIGHT_LIMITATION = (
+    "BTS aggregate observations do not establish an individual-flight outcome; "
+    "no source-bound observed-flight fact is available in the current profile"
+)
+_SIMILARITY_LIMITATION = (
+    "historical similarity requires an approved corpus and comparison profile"
+)
+
+
+def _unknown_event_observation(
+    *,
+    step_id: str,
+    event_ids: tuple[str, ...],
+    store: QueryGraphStore,
+) -> BoundQueryObservation | None:
+    """Block a limit reader before it can look outside its current run."""
+
+    if not event_ids or not set(event_ids).issubset(store.event_ids):
+        return BoundQueryObservation(
+            step_id=step_id,
+            status="blocked",
+            limitation="event is outside the current store",
+        )
+    return None
+
+
+def read_applicability(
+    store: QueryGraphStore,
+    *,
+    event_id: str,
+    step_id: str = "applicability",
+) -> BoundQueryObservation:
+    """Expose only source-bound facility and effective-time applicability facts."""
+
+    blocked = _unknown_event_observation(
+        step_id=step_id,
+        event_ids=(event_id,),
+        store=store,
+    )
+    if blocked is not None:
+        return blocked
+    rows = tuple(
+        row
+        for row in _rows_for_step(
+            step=BoundQueryStep(
+                step_id=step_id,
+                operation="read_applicability",
+                event_ids=(event_id,),
+                required=True,
+                allowed_evidence_layers=("formal",),
+            ),
+            store=store,
+        )
+        if row["predicate"] in _APPLICABILITY_PREDICATES
+    )
+    return BoundQueryObservation(
+        step_id=step_id,
+        status="partial",
+        fact_ids=tuple(str(row["fact_id"]) for row in rows),
+        source_ids=tuple(
+            sorted({source_id for row in rows for source_id in row["source_ids"]})
+        ),
+        items=tuple(_item_for_fact(row) for row in rows),
+        limitation=_APPLICABILITY_LIMITATION,
+    )
+
+
+def read_observed_flight_outcome(
+    store: QueryGraphStore,
+    *,
+    event_id: str,
+    step_id: str = "observed-flight-outcome",
+) -> BoundQueryObservation:
+    """Refuse individual-flight outcome claims without an admitted flight profile."""
+
+    blocked = _unknown_event_observation(
+        step_id=step_id,
+        event_ids=(event_id,),
+        store=store,
+    )
+    if blocked is not None:
+        return blocked
+    return BoundQueryObservation(
+        step_id=step_id,
+        status="insufficient",
+        limitation=_OBSERVED_FLIGHT_LIMITATION,
+    )
+
+
+def read_similarity_corpus_gate(
+    store: QueryGraphStore,
+    *,
+    event_ids: tuple[str, ...],
+    step_id: str = "similarity-corpus-gate",
+) -> BoundQueryObservation:
+    """Refuse similarity output until a corpus and comparison profile are approved."""
+
+    blocked = _unknown_event_observation(
+        step_id=step_id,
+        event_ids=event_ids,
+        store=store,
+    )
+    if blocked is not None:
+        return blocked
+    return BoundQueryObservation(
+        step_id=step_id,
+        status="insufficient",
+        limitation=_SIMILARITY_LIMITATION,
+    )
+
+
 def _execute_registered_step(
     *,
     step: BoundQueryStep,
@@ -192,15 +313,23 @@ def _execute_registered_step(
             event_id=step.event_ids[0],
             step_id=step.step_id,
         )
-    if step.operation in {
-        "read_applicability",
-        "read_observed_flight_outcome",
-        "read_similarity_corpus_gate",
-    }:
-        return BoundQueryObservation(
+    if step.operation == "read_applicability":
+        return read_applicability(
+            store,
+            event_id=step.event_ids[0],
             step_id=step.step_id,
-            status="blocked",
-            limitation="registered operation is not available in the D1 gateway",
+        )
+    if step.operation == "read_observed_flight_outcome":
+        return read_observed_flight_outcome(
+            store,
+            event_id=step.event_ids[0],
+            step_id=step.step_id,
+        )
+    if step.operation == "read_similarity_corpus_gate":
+        return read_similarity_corpus_gate(
+            store,
+            event_ids=step.event_ids,
+            step_id=step.step_id,
         )
     raise AssertionError("validated query plan contains an unknown operation")
 

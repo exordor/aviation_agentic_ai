@@ -1475,11 +1475,8 @@ class AnswerStatement(FrozenContractModel):
             _validate_set_ids(getattr(self, field_name), field_name)
         _validate_ordered_ids(self.support_statement_ids, "support_statement_ids")
         if self.statement_kind is AnswerStatementKind.SOURCE_FACT:
-            if not (
-                (self.support_fact_ids or self.support_profile_gap_ids)
-                and self.support_source_ids
-            ):
-                raise ValueError("source fact statement requires fact/gap and source")
+            if not (self.support_fact_ids and self.support_source_ids):
+                raise ValueError("source fact statement requires fact and source")
         elif self.statement_kind is AnswerStatementKind.DETERMINISTIC_DERIVATION:
             if not (
                 self.support_derivation_ids
