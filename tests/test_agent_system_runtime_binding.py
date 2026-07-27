@@ -779,6 +779,7 @@ def test_missing_ground_stop_extension_is_insufficient_and_unpublished(tmp_path)
     assert state["assembly_graph_patch"] is None
     assert state["validation"] is None
     assert state["materialization"] is None
+    assert state["formal_layers"]["decision"]["status"] == "insufficient"
 
 
 def test_explicit_ok_cannot_override_missing_required_slot(tmp_path, monkeypatch):
@@ -1061,7 +1062,7 @@ def test_blocked_authority_registry_is_absorbing_at_the_join(tmp_path):
     assert authority_registry.records == ()
 
 
-def test_required_insufficient_domain_stops_kg_and_resolution_factories(tmp_path):
+def test_required_insufficient_domain_stops_assembly_and_resolution_factories(tmp_path):
     catalog = _catalog(tmp_path)
     incomplete_terms = replace(catalog.terminology, definitions=())
     authority_catalog = replace(catalog, terminology=incomplete_terms)
@@ -1098,7 +1099,7 @@ def test_required_insufficient_domain_stops_kg_and_resolution_factories(tmp_path
     assert state["formal_layers"]["decision"]["status"] == "insufficient"
 
 
-def test_event_class_hint_mismatch_blocks_before_kg_factory(tmp_path, monkeypatch):
+def test_event_class_hint_mismatch_blocks_before_assembly_factory(tmp_path, monkeypatch):
     calls = []
     guide = load_schema_guide(str(SCHEMA_PATH))
     advisory = SourceRecord(

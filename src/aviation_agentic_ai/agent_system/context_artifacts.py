@@ -659,9 +659,18 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
     if validation is None:
         preflight_status = state.get("resolution_preflight_status")
         assembly_result = state.get("case_assembly_result")
-        if getattr(getattr(assembly_result, "proposal", None), "assembly_status", None) is AssemblyStatus.BLOCKED:
+        assembly_status = getattr(
+            getattr(assembly_result, "proposal", None), "assembly_status", None
+        )
+        if assembly_status is AssemblyStatus.BLOCKED:
             common_status = "blocked"
             common_reason = state.get("assembly_failure_reason") or "decision case assembly was blocked"
+        elif assembly_status is AssemblyStatus.INSUFFICIENT:
+            common_status = "insufficient"
+            common_reason = (
+                state.get("assembly_failure_reason")
+                or "decision case assembly has insufficient required evidence"
+            )
         elif preflight_status in {"blocked", "insufficient"}:
             common_status = preflight_status
             common_reason = state.get(

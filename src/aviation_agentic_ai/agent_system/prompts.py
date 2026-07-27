@@ -41,12 +41,6 @@ ROLE_KEYS: tuple[str, ...] = (
     "query",
 )
 
-# Backwards-compatible alias kept for legacy callers/tests that imported the
-# module-level version string. The authoritative version is the catalog's
-# prompt_set_id.
-PROMPT_VERSION = "agent-system-v1"
-
-
 @dataclass(frozen=True)
 class RolePrompt:
     """One loaded role prompt from the frozen catalog (design §16)."""
