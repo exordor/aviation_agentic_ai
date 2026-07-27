@@ -383,17 +383,27 @@ def run_semantic_resolution_agent(
                 f"{type(exc).__name__}: {exc}"
             ),
         )
+    provider_started = time.perf_counter()
     try:
         first = model.invoke(messages, phase="select_tool")
     except Exception as exc:
+        provider_error = sanitize_text(f"{type(exc).__name__}: {exc}")
+        model_calls.append(
+            ModelCallRecord(
+                agent="semantic_resolution",
+                raw_response="",
+                latency_ms=(time.perf_counter() - provider_started) * 1000.0,
+                attempt=1,
+                error=provider_error,
+            )
+        )
         return _blocked(
             task=task,
             binding=binding,
             model_calls=model_calls,
             traces=traces,
             reason=sanitize_text(
-                f"Semantic Resolution Agent provider failed: "
-                f"{type(exc).__name__}: {exc}"
+                f"Semantic Resolution Agent provider failed: {provider_error}"
             ),
         )
     model_calls.append(first.record)
@@ -568,17 +578,27 @@ def run_semantic_resolution_agent(
             traces=traces,
             reason="Semantic Resolution Agent rendered input budget exceeded",
         )
+    provider_started = time.perf_counter()
     try:
         second = model.invoke(final_messages, phase="final_answer")
     except Exception as exc:
+        provider_error = sanitize_text(f"{type(exc).__name__}: {exc}")
+        model_calls.append(
+            ModelCallRecord(
+                agent="semantic_resolution",
+                raw_response="",
+                latency_ms=(time.perf_counter() - provider_started) * 1000.0,
+                attempt=2,
+                error=provider_error,
+            )
+        )
         return _blocked(
             task=task,
             binding=binding,
             model_calls=model_calls,
             traces=traces,
             reason=sanitize_text(
-                f"Semantic Resolution Agent provider failed: "
-                f"{type(exc).__name__}: {exc}"
+                f"Semantic Resolution Agent provider failed: {provider_error}"
             ),
         )
     model_calls.append(second.record)

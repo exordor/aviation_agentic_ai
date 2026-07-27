@@ -580,6 +580,50 @@ def test_semantic_resolution_records_provider_failure_as_a_consumed_single_attem
     assert model.invocations == ["select_tool"]
 
 
+@pytest.mark.parametrize(
+    ("raise_phase", "first_turn", "expected_attempts"),
+    [
+        ("select_tool", None, [1]),
+        (
+            "final_answer",
+            _tool_turn(
+                {
+                    "call_id": "call:candidates",
+                    "name": "get_resolution_candidates",
+                    "arguments": {},
+                }
+            ),
+            [1, 2],
+        ),
+    ],
+)
+def test_semantic_resolution_records_thrown_provider_attempts(
+    raise_phase,
+    first_turn,
+    expected_attempts,
+):
+    class RaisingToolModel:
+        def __init__(self):
+            self.invocations = []
+
+        def invoke(self, messages, *, phase):
+            del messages
+            self.invocations.append(phase)
+            if phase == raise_phase:
+                raise TimeoutError("scripted upstream timeout")
+            return first_turn
+
+    task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
+    model = RaisingToolModel()
+
+    result = _run(task, model)
+
+    assert result.proposal.decision.value == "blocked"
+    assert [record.attempt for record in result.model_calls] == expected_attempts
+    assert result.model_calls[-1].error == "TimeoutError: scripted upstream timeout"
+    assert result.failure_reason and "provider failed" in result.failure_reason
+
+
 def test_semantic_resolution_enforces_three_tool_and_two_provider_turn_budgets():
     task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
     model = _ScriptedToolModel(
