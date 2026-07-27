@@ -243,6 +243,101 @@ def _safe_parameters(arguments: dict[str, Any]) -> dict[str, str]:
     }
 
 
+def _canonical_trace_value(value: Any) -> str:
+    return json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    )
+
+
+def _resolution_trace_id(
+    *,
+    task: ResolutionTask,
+    ordinal: int,
+    tool: str,
+    parameters: dict[str, str],
+    result_refs: list[str],
+    source_ids: list[str],
+    status: Literal["ok", "blocked"],
+    error: str | None,
+) -> str:
+    """Bind one runtime-owned trace identity to replay-relevant content."""
+
+    return stable_contract_id(
+        "resolution-tool-trace",
+        task.task_id,
+        task.payload_checksum,
+        str(ordinal),
+        tool,
+        _canonical_trace_value(parameters),
+        _canonical_trace_value(result_refs),
+        _canonical_trace_value(source_ids),
+        status,
+        _canonical_trace_value(error),
+    )
+
+
+def _build_resolution_trace(
+    *,
+    task: ResolutionTask,
+    ordinal: int,
+    tool: str,
+    parameters: dict[str, str],
+    result_refs: list[str] | None = None,
+    source_ids: list[str] | None = None,
+    status: Literal["ok", "blocked"] = "ok",
+    duration_ms: float = 0.0,
+    error: str | None = None,
+) -> ToolTraceEntry:
+    bound_result_refs = list(result_refs or [])
+    bound_source_ids = list(source_ids or [])
+    trace_id = _resolution_trace_id(
+        task=task,
+        ordinal=ordinal,
+        tool=tool,
+        parameters=parameters,
+        result_refs=bound_result_refs,
+        source_ids=bound_source_ids,
+        status=status,
+        error=error,
+    )
+    return ToolTraceEntry(
+        tool_call_id=trace_id,
+        tool=tool,
+        parameters=parameters,
+        result_refs=bound_result_refs,
+        source_ids=bound_source_ids,
+        status=status,
+        duration_ms=duration_ms,
+        error=error,
+    )
+
+
+def _validate_resolution_trace_identities(
+    *,
+    task: ResolutionTask,
+    traces: tuple[ToolTraceEntry, ...],
+) -> None:
+    """Reject replay traces whose identity no longer matches their safe content."""
+
+    for ordinal, trace in enumerate(traces):
+        expected = _resolution_trace_id(
+            task=task,
+            ordinal=ordinal,
+            tool=trace.tool,
+            parameters=trace.parameters,
+            result_refs=trace.result_refs,
+            source_ids=trace.source_ids,
+            status=trace.status,
+            error=trace.error,
+        )
+        if trace.tool_call_id != expected:
+            raise ValueError("resolution tool trace identity mismatch")
+
+
 def _proposal(
     *,
     task: ResolutionTask,
@@ -254,6 +349,7 @@ def _proposal(
     traces: tuple[ToolTraceEntry, ...],
     limitation: str | None,
 ) -> ResolutionProposal:
+    _validate_resolution_trace_identities(task=task, traces=traces)
     rejected = tuple(
         sorted(
             audit.candidate_id
@@ -506,19 +602,22 @@ def run_semantic_resolution_agent(
         seen_ids.add(call_id)
         seen_names.add(name)
         started = time.perf_counter()
+        safe_parameters = _safe_parameters(arguments)
         try:
             content = registry[name].invoke(arguments)
             result = ResolutionToolResult.model_validate_json(str(content))
             if result.tool != name:
                 raise ValueError(f"tool result name mismatch: expected {name}, got {result.tool}")
         except Exception as exc:
-            trace = ToolTraceEntry(
-                tool_call_id=call_id,
+            error = sanitize_text(f"{type(exc).__name__}: {exc}")
+            trace = _build_resolution_trace(
+                task=task,
+                ordinal=len(traces),
                 tool=name,
-                parameters=_safe_parameters(arguments),
+                parameters=safe_parameters,
                 status="blocked",
                 duration_ms=(time.perf_counter() - started) * 1000.0,
-                error=sanitize_text(f"{type(exc).__name__}: {exc}"),
+                error=error,
             )
             traces.append(trace)
             return _blocked(
@@ -530,10 +629,11 @@ def run_semantic_resolution_agent(
             )
         duration = (time.perf_counter() - started) * 1000.0
         traces.append(
-            ToolTraceEntry(
-                tool_call_id=call_id,
+            _build_resolution_trace(
+                task=task,
+                ordinal=len(traces),
                 tool=name,
-                parameters=_safe_parameters(arguments),
+                parameters=safe_parameters,
                 result_refs=result.result_ids,
                 source_ids=result.authority_source_ids,
                 status="ok",

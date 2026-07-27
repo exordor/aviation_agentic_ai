@@ -297,6 +297,7 @@ class ResolutionToolGateway:
             candidate_ids=[candidate.candidate_id for candidate in candidates],
             authority_evidence_ids=[claim.evidence_id for claim in evidence],
             authority_source_ids=sorted({claim.source_id for claim in evidence}),
+            items=[self._authority_observation(claim) for claim in evidence],
         )
 
 

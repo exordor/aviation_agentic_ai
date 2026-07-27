@@ -339,26 +339,28 @@ def test_constraints_and_schema_context_are_typed_task_observations():
 
 
 def test_result_serialization_is_stable_and_evidence_comparison_is_source_bound():
-    task = _task()
+    task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
     gateway = ResolutionToolGateway(task=task)
-    claim = next(
-        claim for claim in task.authority_evidence if claim.candidate_id == "facility:KJFK"
+    claims = sorted(task.authority_evidence, key=lambda row: row.evidence_id)
+
+    result = gateway.compare_candidate_evidence(
+        candidate_ids=["facility:KJFK", "facility:KBOS"]
     )
 
-    result = gateway.compare_candidate_evidence(candidate_ids=["facility:KJFK"])
-
-    assert result.authority_evidence_ids == [claim.evidence_id]
-    assert result.authority_source_ids == [claim.source_id]
+    assert result.authority_evidence_ids == [claim.evidence_id for claim in claims]
+    assert result.authority_source_ids == sorted(claim.source_id for claim in claims)
+    assert [item.model_dump() for item in result.items] == [
+        {
+            "authority_record_locator": claim.authority_record_locator,
+            "authority_record_text": claim.authority_record_text,
+            "candidate_id": claim.candidate_id,
+            "evidence_id": claim.evidence_id,
+            "evidence_kind": claim.evidence_kind,
+            "source_id": claim.source_id,
+        }
+        for claim in claims
+    ]
     assert result.model_dump_json() == result.model_dump_json()
-    assert result.model_dump_json() == (
-        '{"tool":"compare_candidate_evidence","status":"ok",'
-        '"candidate_ids":["facility:KJFK"],'
-        f'"authority_evidence_ids":["{claim.evidence_id}"],'
-        f'"authority_source_ids":["{claim.source_id}"],'
-        '"constraint_ids":[],"schema_slice_ids":[],'
-        '"schema_snapshot_sha256":null,"result_ids":[],"items":[],'
-        '"failure_reason":""}'
-    )
 
 
 class _ScriptedToolModel:
@@ -367,9 +369,11 @@ class _ScriptedToolModel:
     def __init__(self, turns: list[ToolModelTurn]) -> None:
         self.turns = list(turns)
         self.invocations: list[str] = []
+        self.message_batches: list[list] = []
 
     def invoke(self, messages, *, phase: str) -> ToolModelTurn:
         self.invocations.append(phase)
+        self.message_batches.append(list(messages))
         return self.turns.pop(0)
 
 
@@ -468,8 +472,42 @@ def test_semantic_resolution_seals_a_selected_candidate_from_observed_authority_
     assert result.proposal.selected_candidate_id == "facility:KJFK"
     assert result.proposal.supporting_evidence_claim_ids == (claim.evidence_id,)
     assert result.proposal.authority_source_ids == (claim.source_id,)
-    assert result.proposal.tool_trace_ids == ("call:authority", "call:constraints")
+    assert all(
+        trace_id.startswith("resolution-tool-trace:")
+        for trace_id in result.proposal.tool_trace_ids
+    )
     assert model.invocations == ["select_tool", "final_answer"]
+
+
+def test_semantic_resolution_compares_both_authority_records_before_acceptance():
+    task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
+    model = _ScriptedToolModel(
+        [
+            _tool_turn(
+                {
+                    "call_id": "provider:compare",
+                    "name": "compare_candidate_evidence",
+                    "arguments": {
+                        "candidate_ids": ["facility:KJFK", "facility:KBOS"]
+                    },
+                },
+            ),
+            _final_turn(
+                '{"decision":"accepted","selected_candidate_id":"facility:KJFK","rejected_candidate_ids":["facility:KBOS"],"limitation":null}'
+            ),
+        ]
+    )
+
+    result = _run(task, model)
+    final_observation = "\n".join(
+        str(message.content)
+        for message in model.message_batches[1]
+        if message.type == "tool"
+    )
+
+    assert result.proposal.decision.value == "accepted"
+    assert "facility:KJFK authority record" in final_observation
+    assert "facility:KBOS authority record" in final_observation
 
 
 def test_semantic_resolution_seals_honest_abstention_after_a_bounded_observation_batch():
@@ -820,9 +858,11 @@ def test_semantic_resolution_requires_observed_candidate_distinguishing_authorit
         [
             _tool_turn(
                 {
-                    "call_id": "call:authority",
-                    "name": "get_authority_record",
-                    "arguments": {"candidate_id": "facility:KJFK"},
+                    "call_id": "call:comparison",
+                    "name": "compare_candidate_evidence",
+                    "arguments": {
+                        "candidate_ids": ["facility:KJFK", "facility:KBOS"]
+                    },
                 },
             ),
             _final_turn(
@@ -861,10 +901,22 @@ def test_semantic_resolution_enforces_the_256_token_provider_output_cap():
 
 def test_semantic_resolution_scripted_replay_seals_byte_stable_proposals():
     task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
-    turns = [
+    first_turns = [
         _tool_turn(
             {
-                "call_id": "call:authority",
+                "call_id": "provider:first",
+                "name": "get_authority_record",
+                "arguments": {"candidate_id": "facility:KJFK"},
+            },
+        ),
+        _final_turn(
+            '{"decision":"accepted","selected_candidate_id":"facility:KJFK","rejected_candidate_ids":["facility:KBOS"],"limitation":null}'
+        ),
+    ]
+    second_turns = [
+        _tool_turn(
+            {
+                "call_id": "provider:second",
                 "name": "get_authority_record",
                 "arguments": {"candidate_id": "facility:KJFK"},
             },
@@ -874,7 +926,61 @@ def test_semantic_resolution_scripted_replay_seals_byte_stable_proposals():
         ),
     ]
 
-    first = _run(task, _ScriptedToolModel(turns))
-    second = _run(task, _ScriptedToolModel(turns))
+    first = _run(task, _ScriptedToolModel(first_turns))
+    second = _run(task, _ScriptedToolModel(second_turns))
 
+    assert first.proposal.tool_trace_ids == second.proposal.tool_trace_ids
     assert first.proposal.model_dump_json() == second.proposal.model_dump_json()
+
+
+@pytest.mark.parametrize(
+    "trace_update",
+    [
+        {"tool": "get_ontology_context"},
+        {"parameters": {"candidate_id": '"facility:KBOS"'}},
+        {"result_refs": ["foreign-result"]},
+        {"source_ids": ["foreign-source"]},
+        {"status": "blocked"},
+        {"error": "changed after execution"},
+    ],
+)
+def test_resolution_proposal_rejects_mutated_trace_content(trace_update):
+    from aviation_agentic_ai.agent_system.decision_case_contracts import (
+        ResolutionDecision,
+    )
+    from aviation_agentic_ai.agent_system.semantic_resolution import _proposal
+
+    task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
+    result = _run(
+        task,
+        _ScriptedToolModel(
+            [
+                _tool_turn(
+                    {
+                        "call_id": "provider:authority",
+                        "name": "get_authority_record",
+                        "arguments": {"candidate_id": "facility:KJFK"},
+                    },
+                ),
+                _final_turn(
+                    '{"decision":"accepted","selected_candidate_id":"facility:KJFK","rejected_candidate_ids":["facility:KBOS"],"limitation":null}'
+                ),
+            ]
+        ),
+    )
+    claim = next(
+        row for row in task.authority_evidence if row.candidate_id == "facility:KJFK"
+    )
+    mutated = result.tool_traces[0].model_copy(update=trace_update)
+
+    with pytest.raises(ValueError, match="resolution tool trace identity mismatch"):
+        _proposal(
+            task=task,
+            binding=_binding(),
+            decision=ResolutionDecision.ACCEPTED,
+            selected_candidate_id="facility:KJFK",
+            supporting_evidence_ids=(claim.evidence_id,),
+            source_ids=(claim.source_id,),
+            traces=(mutated,),
+            limitation=None,
+        )
