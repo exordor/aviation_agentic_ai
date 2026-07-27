@@ -64,12 +64,37 @@ def test_gateway_executes_only_a_declared_step_once(
     gateway = BoundQueryGateway(plan=plan, store=store)
     step_id = plan.steps[0].step_id
 
-    assert gateway.execute_bound_query_step(step_id=step_id).status == "ok"
+    assert (
+        gateway.execute_bound_query_step(step_id=step_id).status == "insufficient"
+    )
     assert gateway.execute_bound_query_step(step_id=step_id).status == "blocked"
     assert (
         gateway.execute_bound_query_step(step_id="step:not-bound").status
         == "blocked"
     )
+
+
+def test_gateway_refuses_a_no_manifest_operational_situation(
+    store: QueryGraphStore,
+) -> None:
+    """Removing the D2 context gate must not expose formal-only status=ok."""
+
+    from aviation_agentic_ai.agent_system.case_analysis_tools import (
+        BoundQueryGateway,
+    )
+
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What public operational situation is recorded?",
+        store=store,
+    )
+
+    result = BoundQueryGateway(plan=plan, store=store).execute_bound_query_step(
+        step_id=plan.steps[0].step_id
+    )
+
+    assert result.status == "insufficient"
+    assert result.limitation == "missing evidence layer: active BTS observation"
 
 
 def test_compiled_plan_has_a_stable_canonical_id_and_checksum(
@@ -211,7 +236,7 @@ def test_query_plan_rejects_duplicate_steps_and_foreign_event_scope(
 def test_gateway_observation_cites_only_current_store_sources(
     store: QueryGraphStore,
 ) -> None:
-    """A gateway result cannot cite data outside the current store view."""
+    """An insufficient result cannot cite data outside the current store view."""
 
     from aviation_agentic_ai.agent_system.case_analysis_tools import (
         BoundQueryGateway,
@@ -229,7 +254,9 @@ def test_gateway_observation_cites_only_current_store_sources(
     source_ids_in_store = {
         source_id for row in store.rows for source_id in row["source_ids"]
     }
-    assert observation.status == "ok"
+    assert observation.status == "insufficient"
+    assert observation.fact_ids == ()
+    assert observation.source_ids == ()
     assert set(observation.source_ids).issubset(source_ids_in_store)
     assert set(observation.fact_ids).issubset(store.fact_by_id)
     assert {

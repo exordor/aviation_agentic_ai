@@ -132,19 +132,6 @@ def read_operational_situation(
             graph_store=store,
         ).get_operational_situation(event_id)
     except QueryContextError:
-        if not (store.run_dir / "run_manifest.json").is_file():
-            step = BoundQueryStep(
-                step_id=step_id,
-                operation="read_operational_situation",
-                event_ids=(event_id,),
-                required=True,
-                allowed_evidence_layers=(
-                    "formal",
-                    "non_causal_weather_context",
-                    "bts_reported_public_observation",
-                ),
-            )
-            return _formal_observation(step=step, store=store, status="ok")
         return BoundQueryObservation(
             step_id=step_id,
             status="insufficient",
