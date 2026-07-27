@@ -25,6 +25,7 @@ import json
 import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 
@@ -55,6 +56,27 @@ from aviation_agentic_ai.kg.extraction import KGTriple, write_kg_jsonl, write_kg
 
 # Predicate that asserts an entity's ontology class.
 RDF_TYPE = "rdf:type"
+QUDT_NUMERIC_VALUE = "http://qudt.org/schema/qudt/numericValue"
+XSD_INTEGER = "http://www.w3.org/2001/XMLSchema#integer"
+XSD_DECIMAL = "http://www.w3.org/2001/XMLSchema#decimal"
+
+_COUNT_METRIC_KEYS = frozenset(
+    {
+        "scheduled_arrival_count",
+        "completed_arrival_count",
+        "cancelled_count",
+        "diverted_count",
+        "arrival_delay_15_count",
+    }
+)
+_MINUTE_METRIC_KEYS = frozenset(
+    {
+        "mean_arrival_delay_minutes",
+        "median_arrival_delay_minutes",
+        "carrier_reported_weather_delay_minutes",
+        "carrier_reported_nas_delay_minutes",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -662,6 +684,34 @@ def _profile_mapping_for_iri(
     return matches[0]
 
 
+def _validate_observation_numeric_fact(
+    fact: ValidatedFact,
+    trace: ObservationFactTrace,
+) -> None:
+    """Bind a published QUDT numeric literal to its owning metric trace."""
+
+    if trace.metric_key in _COUNT_METRIC_KEYS:
+        expected_datatype = XSD_INTEGER
+        expected_value = str(trace.canonical_value)
+    elif trace.metric_key in _MINUTE_METRIC_KEYS:
+        expected_datatype = XSD_DECIMAL
+        expected_value = format(Decimal(str(trace.canonical_value)), "f")
+    else:
+        raise ValueError(
+            f"unsupported deterministic observation metric: {trace.metric_key}"
+        )
+    if fact.datatype_iri != expected_datatype:
+        raise ValueError(
+            f"deterministic numeric datatype mismatch: {fact.fact_id}"
+        )
+    try:
+        numerically_equal = Decimal(fact.object_value) == Decimal(expected_value)
+    except InvalidOperation:
+        numerically_equal = False
+    if fact.object_value != expected_value or not numerically_equal:
+        raise ValueError(f"deterministic numeric value mismatch: {fact.fact_id}")
+
+
 def validate_fact_publication(
     *,
     facts: list[ValidatedFact],
@@ -780,6 +830,8 @@ def validate_fact_publication(
                 )
             if fact.evidence_texts:
                 raise ValueError("deterministic facts cannot carry source text")
+            if fact.predicate_iri == QUDT_NUMERIC_VALUE:
+                _validate_observation_numeric_fact(fact, trace)
         elif fact.evidence_mode == "profile_definition":
             expected_ref = (
                 f"{fact.validation_profile.profile_id}:"

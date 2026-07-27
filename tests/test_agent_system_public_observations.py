@@ -858,3 +858,54 @@ def test_publication_rejects_unknown_derivation_reference_and_class() -> None:
             snapshot_registry=inputs["snapshot_registry"],
             reconstruction_trace=bundle.reconstruction_trace,
         )
+
+
+@pytest.mark.parametrize(
+    ("metric_key", "updates", "message"),
+    [
+        (
+            "scheduled_arrival_count",
+            {"object_value": "999999"},
+            "deterministic numeric value mismatch",
+        ),
+        (
+            "scheduled_arrival_count",
+            {"datatype_iri": "http://www.w3.org/2001/XMLSchema#string"},
+            "deterministic numeric datatype mismatch",
+        ),
+        (
+            "mean_arrival_delay_minutes",
+            {"object_value": "999999.0"},
+            "deterministic numeric value mismatch",
+        ),
+        (
+            "mean_arrival_delay_minutes",
+            {"datatype_iri": "http://www.w3.org/2001/XMLSchema#integer"},
+            "deterministic numeric datatype mismatch",
+        ),
+    ],
+)
+def test_publication_rejects_tampered_numeric_fact_with_stale_trace(
+    metric_key: str,
+    updates: dict[str, str],
+    message: str,
+) -> None:
+    inputs = _observation_input()
+    bundle = build_bts_observation_facts(**inputs)
+    trace = next(
+        trace for trace in bundle.fact_traces if trace.metric_key == metric_key
+    )
+    numeric = next(
+        fact
+        for fact in _all_observation_facts(bundle)
+        if fact.fact_id == trace.fact_id
+    )
+
+    with pytest.raises(ValueError, match=message):
+        validate_fact_publication(
+            facts=[numeric.model_copy(update=updates)],
+            profile_registry=inputs["profile_registry"],
+            snapshot_registry=inputs["snapshot_registry"],
+            observation_fact_traces=bundle.fact_traces,
+            reconstruction_trace=bundle.reconstruction_trace,
+        )
