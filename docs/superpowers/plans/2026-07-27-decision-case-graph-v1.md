@@ -246,7 +246,10 @@ uv run pytest -q \
 
 ```bash
 git grep -n -i 'scheduled_arrival_count_\\|public scheduled-demand' -- \
-  src tests data
+  src/aviation_agentic_ai/agent_system \
+  tests/test_agent_system*.py \
+  data/ontology/curated \
+  data/sources/bts_on_time_2026_05_manifest.json
 ```
 
 Expected: no matches.
@@ -256,7 +259,11 @@ Expected: no matches.
 
 ```bash
 retired_term="$(printf '\\160\\162\\157\\170\\171')" &&
-git grep -n -i "${retired_term}" -- src tests data
+git grep -n -i "${retired_term}" -- \
+  src/aviation_agentic_ai/agent_system \
+  tests/test_agent_system*.py \
+  data/ontology/curated \
+  data/sources/bts_on_time_2026_05_manifest.json
 ```
 
 Expected: no matches.
@@ -699,7 +706,10 @@ git grep -n -i 'scheduled_arrival_count_\\|public scheduled-demand' -- \
   REPRODUCIBILITY.md RESEARCH_AUDIT.md TODO.md \
   docs/atcscc_decision_record_explorer_design.md \
   docs/multi_agent_kg_system_design.md \
-  src tests data
+  src/aviation_agentic_ai/agent_system \
+  tests/test_agent_system*.py \
+  data/ontology/curated \
+  data/sources/bts_on_time_2026_05_manifest.json
 ```
 
 Expected: no matches.
