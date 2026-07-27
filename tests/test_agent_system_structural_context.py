@@ -6,17 +6,12 @@ from dataclasses import dataclass
 from enum import Enum
 from types import SimpleNamespace
 
-from aviation_agentic_ai.agent_system.agents import (
-    FacilityCandidates,
-    TermCandidates,
-    _facility_ontology_type,
-    parse_structured_fields,
-    run_facility_agent,
-    run_terminology_agent,
+from aviation_agentic_ai.agent_system.agents import parse_structured_fields
+from aviation_agentic_ai.agent_system.authority_resolution import (
+    FacilityAuthorityResolutionInput,
+    TerminologyAuthorityResolutionInput,
 )
 from aviation_agentic_ai.agent_system.contracts import (
-    AgentResult,
-    AgentStatus,
     AgentTask,
     SourceFamily,
     SourceRecord,
@@ -24,9 +19,9 @@ from aviation_agentic_ai.agent_system.contracts import (
 from aviation_agentic_ai.agent_system.workflow import (
     IngestContext,
     _facility_candidates_for_mention,
-    _facility_node,
+    _facility_authority_node,
     _term_candidates_for_mention,
-    _terminology_node,
+    _terminology_authority_node,
 )
 
 
@@ -92,8 +87,7 @@ def _resolution_task(role: str) -> AgentTask:
 
 def test_structured_parser_preserves_controlled_element_slot_and_apt_type() -> None:
     mentions = parse_structured_fields(
-        "ATCSCC ADVZY 123 JFK 05/19/2026 CDM GROUND STOP\n"
-        "CTL ELEMENT: JFK ELEMENT TYPE: APT\n"
+        "ATCSCC ADVZY 123 JFK 05/19/2026 CDM GROUND STOP\nCTL ELEMENT: JFK ELEMENT TYPE: APT\n"
     )
 
     assert mentions.element_type_code == "APT"
@@ -105,8 +99,7 @@ def test_structured_parser_preserves_controlled_element_slot_and_apt_type() -> N
 
 def test_structured_parser_preserves_unknown_element_type_without_generic_mapping() -> None:
     mentions = parse_structured_fields(
-        "ATCSCC ADVZY 138 JFK 05/19/2026 CDM GDP\n"
-        "CTL ELEMENT: JFK ELEMENT TYPE: UNKNOWN\n"
+        "ATCSCC ADVZY 138 JFK 05/19/2026 CDM GDP\nCTL ELEMENT: JFK ELEMENT TYPE: UNKNOWN\n"
     )
 
     assert mentions.element_type_code == "UNKNOWN"
@@ -117,32 +110,32 @@ def test_structured_parser_preserves_unknown_element_type_without_generic_mappin
 def test_workflow_propagates_known_facility_slot_and_expected_type(monkeypatch) -> None:
     import aviation_agentic_ai.agent_system.workflow as workflow
 
-    observed: list[FacilityCandidates] = []
+    observed: list[FacilityAuthorityResolutionInput] = []
 
-    def capture(*, task, candidates):
+    def capture(*, task, request):
         del task
-        observed.append(candidates)
+        observed.append(request)
         return SimpleNamespace(
-            agent_result=AgentResult(status=AgentStatus.ABSTAIN),
+            evidence_card=None,
             domain_outcome=None,
             authority_source_records=(),
             resolution_task=None,
             resolution_proposal=None,
             resolution_tool_traces=(),
+            model_calls=(),
         )
 
-    monkeypatch.setattr(workflow, "_resolve_facility_compatibility", capture)
+    monkeypatch.setattr(workflow, "resolve_facility_authority", capture)
     monkeypatch.setattr(
         workflow,
         "_CTX_HOLDER",
         IngestContext(advisory=_advisory("CTL ELEMENT: JFK ELEMENT TYPE: APT")),
     )
     mentions = parse_structured_fields(
-        "ATCSCC ADVZY 123 JFK 05/19/2026 CDM GROUND STOP\n"
-        "CTL ELEMENT: JFK ELEMENT TYPE: APT\n"
+        "ATCSCC ADVZY 123 JFK 05/19/2026 CDM GROUND STOP\nCTL ELEMENT: JFK ELEMENT TYPE: APT\n"
     )
 
-    _facility_node({"mentions": mentions})
+    _facility_authority_node({"mentions": mentions})
 
     assert observed[0].structural_slot == "controlled_nas_element"
     assert observed[0].expected_entity_type == "airport"
@@ -151,32 +144,32 @@ def test_workflow_propagates_known_facility_slot_and_expected_type(monkeypatch) 
 def test_workflow_propagates_known_term_slot_and_expected_type(monkeypatch) -> None:
     import aviation_agentic_ai.agent_system.workflow as workflow
 
-    observed: list[TermCandidates] = []
+    observed: list[TerminologyAuthorityResolutionInput] = []
 
-    def capture(*, task, candidates):
+    def capture(*, task, request):
         del task
-        observed.append(candidates)
+        observed.append(request)
         return SimpleNamespace(
-            agent_result=AgentResult(status=AgentStatus.ABSTAIN),
+            evidence_card=None,
             domain_outcome=None,
             authority_source_records=(),
             resolution_task=None,
             resolution_proposal=None,
             resolution_tool_traces=(),
+            model_calls=(),
         )
 
-    monkeypatch.setattr(workflow, "_resolve_terminology_compatibility", capture)
+    monkeypatch.setattr(workflow, "resolve_terminology_authority", capture)
     monkeypatch.setattr(
         workflow,
         "_CTX_HOLDER",
         IngestContext(advisory=_advisory("GROUND STOP")),
     )
     mentions = parse_structured_fields(
-        "ATCSCC ADVZY 123 JFK 05/19/2026 CDM GROUND STOP\n"
-        "CTL ELEMENT: JFK ELEMENT TYPE: APT\n"
+        "ATCSCC ADVZY 123 JFK 05/19/2026 CDM GROUND STOP\nCTL ELEMENT: JFK ELEMENT TYPE: APT\n"
     )
 
-    _terminology_node({"mentions": mentions})
+    _terminology_authority_node({"mentions": mentions})
 
     assert observed[0].structural_slot == "traffic_management_initiative_type"
     assert observed[0].expected_entity_type == "traffic_management_initiative"
@@ -210,69 +203,7 @@ def test_facility_candidates_are_preserved_for_candidate_level_type_audit() -> N
     ]
 
 
-def test_unknown_facility_type_does_not_default_to_nas_facility() -> None:
-    entity = _Facility(
-        "urn:facility:unknown",
-        "Unknown facility",
-        _EntityType.UNKNOWN,
-        [_Code("JFK")],
-        [],
-    )
-
-    assert _facility_ontology_type(entity) is None
-    result = run_facility_agent(
-        task=_resolution_task("facility"),
-        candidates=FacilityCandidates(
-            mention="JFK",
-            candidates=[entity],
-            source_id="2026-05-19:123",
-            structural_slot="controlled_nas_element",
-            expected_entity_type="airport",
-            advisory_evidence="CTL ELEMENT: JFK",
-        ),
-    )
-    assert result.status is AgentStatus.ABSTAIN
-    assert result.evidence_card.claims == []
-
-
-def test_missing_known_structural_context_makes_zero_provider_calls() -> None:
-    candidates = [
-        _Facility(
-            f"urn:facility:{suffix}",
-            suffix,
-            entity_type,
-            [_Code("JFK")],
-            [],
-        )
-        for suffix, entity_type in (
-            ("airport", _EntityType.AIRPORT),
-            ("center", _EntityType.ARTCC),
-        )
-    ]
-    calls: list[str] = []
-
-    def provider(role, variables):
-        del variables
-        calls.append(role)
-        raise AssertionError("provider must not be constructed")
-
-    result = run_facility_agent(
-        task=_resolution_task("facility"),
-        candidates=FacilityCandidates(
-            mention="JFK",
-            candidates=candidates,
-            source_id="2026-05-19:123",
-            advisory_evidence="CTL ELEMENT: JFK",
-        ),
-        model_invoker=provider,
-    )
-
-    assert result.status is AgentStatus.ABSTAIN
-    assert result.model_calls == []
-    assert calls == []
-
-
-def test_gs_lookup_preserves_both_meanings_before_candidate_compatibility() -> None:
+def test_gs_lookup_preserves_both_meanings_before_authority_resolution() -> None:
     terms = [
         _Term("urn:term:ground-stop", "Ground Stop", "GS", _TermCategory.TMI),
         _Term("urn:term:glide-slope", "Glide Slope", "GS", _TermCategory.PROCEDURE),
@@ -284,26 +215,3 @@ def test_gs_lookup_preserves_both_meanings_before_candidate_compatibility() -> N
         "urn:term:glide-slope",
         "urn:term:ground-stop",
     ]
-    provider_calls: list[str] = []
-
-    def provider(role, variables):
-        del variables
-        provider_calls.append(role)
-        raise AssertionError("ambiguous terminology must not call the provider")
-
-    result = run_terminology_agent(
-        task=_resolution_task("terminology"),
-        candidates=TermCandidates(
-            mention="GS",
-            candidates=matches,
-            source_id="2026-05-19:123",
-            structural_slot="traffic_management_initiative_type",
-            expected_entity_type="traffic_management_initiative",
-            advisory_evidence="GROUND STOP",
-        ),
-        model_invoker=provider,
-    )
-    assert result.status is AgentStatus.ABSTAIN
-    assert result.model_calls == []
-    assert result.evidence_card.uncertainties == ["2 unresolved term candidates"]
-    assert provider_calls == []

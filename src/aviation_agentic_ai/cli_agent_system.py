@@ -131,9 +131,7 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
         weather_failure_reason=weather_failure_reason,
         bts_failure_reason=bts_failure_reason,
         guide=guide,
-        model_invoker_factory=lambda: make_live_model_invoker(
-            catalog_path=DEFAULT_PROMPT_CATALOG
-        ),
+        model_invoker_factory=lambda: make_live_model_invoker(catalog_path=DEFAULT_PROMPT_CATALOG),
         semantic_resolution_tool_model_factory=lambda tools: make_live_tool_calling_model(
             tools=tools,
             role="semantic_resolution",
@@ -157,9 +155,7 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
     state = run_ingest(ctx)
     model_calls = state.get("model_calls", [])
     if sum(1 for c in model_calls if c.error is None) > MAX_PROVIDER_CALLS:
-        raise click.ClickException(
-            f"provider calls exceeded hard maximum {MAX_PROVIDER_CALLS}"
-        )
+        raise click.ClickException(f"provider calls exceeded hard maximum {MAX_PROVIDER_CALLS}")
     materialization = state.get("materialization")
     validation = state.get("validation")
     kg_result = state.get("kg_result")
@@ -168,8 +164,8 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
         r.evidence_card
         for r in (
             state.get("advisory_result"),
-            state.get("facility_result"),
-            state.get("terminology_result"),
+            state.get("facility_authority_result"),
+            state.get("terminology_authority_result"),
             state.get("kg_result"),
         )
         if r and r.evidence_card
@@ -226,7 +222,9 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
 @click.option("--username", default=None, help="Neo4j username. Defaults to NEO4J_USERNAME.")
 @click.option("--password", default=None, help="Neo4j password. Defaults to NEO4J_PASSWORD.")
 @click.option("--database", default="neo4j", show_default=True)
-def neo4j_export(run_dir: Path, uri: str | None, username: str | None, password: str | None, database: str):
+def neo4j_export(
+    run_dir: Path, uri: str | None, username: str | None, password: str | None, database: str
+):
     """Load a run's projection into Neo4j with parameterized MERGE (plan §6.2).
 
     Connects to Neo4j and executes parameterized MERGE for the run's nodes and
@@ -247,7 +245,9 @@ def neo4j_export(run_dir: Path, uri: str | None, username: str | None, password:
     password = password or os.getenv("NEO4J_PASSWORD")
     # Plan §6.2: missing credentials -> BLOCKED (never fake success).
     if not (uri and username and password):
-        click.echo("BLOCKED: missing Neo4j credentials (set NEO4J_URI/NEO4J_USERNAME/NEO4J_PASSWORD)")
+        click.echo(
+            "BLOCKED: missing Neo4j credentials (set NEO4J_URI/NEO4J_USERNAME/NEO4J_PASSWORD)"
+        )
         _write_neo4j_load(run_dir, {"status": "blocked", "reason": "missing credentials"})
         raise click.ClickException("neo4j-export BLOCKED: missing Neo4j credentials")
     try:
@@ -300,16 +300,9 @@ def ask(run_dir: Path, question: str, allow_live_model: bool) -> None:
         raise click.ClickException(f"ask BLOCKED: {outcome.failure_reason}")
     click.echo(f"status: {outcome.status}")
     click.echo(f"answer: {outcome.answer}")
-    click.echo(
-        f"sources: {', '.join(outcome.source_ids) if outcome.source_ids else '(none)'}"
-    )
+    click.echo(f"sources: {', '.join(outcome.source_ids) if outcome.source_ids else '(none)'}")
     click.echo(f"graph_facts_seen: {len(outcome.retrieved_fact_ids)}")
-    click.echo(
-        "context_associations_seen: "
-        f"{len(outcome.retrieved_context_association_ids)}"
-    )
-    click.echo(
-        f"outcome_summaries_seen: {len(outcome.retrieved_outcome_summary_ids)}"
-    )
+    click.echo(f"context_associations_seen: {len(outcome.retrieved_context_association_ids)}")
+    click.echo(f"outcome_summaries_seen: {len(outcome.retrieved_outcome_summary_ids)}")
     click.echo(f"model_calls: {len(outcome.model_calls)}")
     click.echo(f"tool_calls: {len(outcome.tool_calls)}")

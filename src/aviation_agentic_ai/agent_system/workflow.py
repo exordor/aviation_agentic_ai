@@ -30,14 +30,16 @@ from langgraph.graph import END, START, StateGraph
 from pydantic import model_validator
 
 from aviation_agentic_ai.agent_system.agents import (
-    FacilityCandidates,
     KGConstructionInput,  # noqa: F401
-    TermCandidates,
-    _resolve_facility_compatibility,
-    _resolve_terminology_compatibility,
     parse_structured_fields,
     run_advisory_agent,
     run_kg_construction_agent,  # noqa: F401
+)
+from aviation_agentic_ai.agent_system.authority_resolution import (
+    FacilityAuthorityResolutionInput,
+    TerminologyAuthorityResolutionInput,
+    resolve_facility_authority,
+    resolve_terminology_authority,
 )
 from aviation_agentic_ai.agent_system.authority_evidence import (
     AuthorityBuildStatus,
@@ -129,9 +131,7 @@ class AuthoritySourceRecordRegistry(FrozenContractModel):
     def validate_status_shape(self) -> "AuthoritySourceRecordRegistry":
         if self.status is AuthoritySourceRegistryStatus.BLOCKED:
             if self.records or not self.reason_code or not self.error_id:
-                raise ValueError(
-                    "blocked authority registry requires an error and no records"
-                )
+                raise ValueError("blocked authority registry requires an error and no records")
         elif self.reason_code is not None or self.error_id is not None:
             raise ValueError("ok authority registry cannot carry an error")
         return self
@@ -252,8 +252,8 @@ def _event_uri(run_id: str, source_id: str, event_class: str) -> str:
 class IngestState(TypedDict):
     mentions: Any
     advisory_result: Any
-    facility_result: Any
-    terminology_result: Any
+    facility_authority_result: Any
+    terminology_authority_result: Any
     facility_resolution_outcome: Any
     terminology_resolution_outcome: Any
     facility_resolution_task: Any
@@ -300,8 +300,8 @@ def build_ingest_graph() -> Any:
 
     sg = StateGraph(IngestState)
     sg.add_node("advisory", _advisory_node)
-    sg.add_node("facility", _facility_node)
-    sg.add_node("terminology", _terminology_node)
+    sg.add_node("facility_authority", _facility_authority_node)
+    sg.add_node("terminology_authority", _terminology_authority_node)
     sg.add_node("join", _join_node)
     sg.add_node("prepare_context", _prepare_context_node)
     sg.add_node("kg_construction", _kg_construction_node)
@@ -309,11 +309,11 @@ def build_ingest_graph() -> Any:
     sg.add_node("decision_context", _decision_context_node)
     sg.add_edge(START, "advisory")
     # Parallel fan-out after the Advisory Agent.
-    sg.add_edge("advisory", "facility")
-    sg.add_edge("advisory", "terminology")
+    sg.add_edge("advisory", "facility_authority")
+    sg.add_edge("advisory", "terminology_authority")
     # Join after the two specialist Agents.
-    sg.add_edge("facility", "join")
-    sg.add_edge("terminology", "join")
+    sg.add_edge("facility_authority", "join")
+    sg.add_edge("terminology_authority", "join")
     sg.add_edge("join", "prepare_context")
     sg.add_edge("prepare_context", "kg_construction")
     sg.add_edge("kg_construction", "materialize")
@@ -381,9 +381,7 @@ def _advisory_node(state: dict) -> dict:
         else None
     )
     formal_event_uri_hint = (
-        _event_uri(ctx.run_id, ctx.advisory.source_id, event_class_hint)
-        if event_class_hint
-        else ""
+        _event_uri(ctx.run_id, ctx.advisory.source_id, event_class_hint) if event_class_hint else ""
     )
     return {
         "advisory_result": result,
@@ -452,13 +450,10 @@ def _candidate_domain_status(
     return AuthorityBuildStatus.OK, "", ""
 
 
-def _facility_node(state: dict) -> dict:
+def _facility_authority_node(state: dict) -> dict:
     ctx: IngestContext = _ctx()
     mentions = state.get("mentions")
-    mention_token = (
-        getattr(mentions, "controlled_facility", None)
-        or "MISSING_FACILITY_MENTION"
-    )
+    mention_token = getattr(mentions, "controlled_facility", None) or "MISSING_FACILITY_MENTION"
     # §11.4: pass the exact advisory evidence span (e.g. ``CTL ELEMENT: JFK``)
     # to the Facility Agent so its claim carries source-contained evidence, not
     # a synthetic string.
@@ -487,10 +482,7 @@ def _facility_node(state: dict) -> dict:
         matched = []
         built = ()
         domain_status = AuthorityBuildStatus.BLOCKED
-        domain_reason = (
-            authority_catalog.facility.reason_code
-            or "FACILITY_AUTHORITY_BLOCKED"
-        )
+        domain_reason = authority_catalog.facility.reason_code or "FACILITY_AUTHORITY_BLOCKED"
         domain_error = authority_catalog.facility.error_id or ""
     else:
         matched = _facility_candidates_for_mention(
@@ -502,8 +494,7 @@ def _facility_node(state: dict) -> dict:
             build_facility_resolution_candidate(
                 entity,
                 structural_slot=(
-                    getattr(mentions, "facility_structural_slot", None)
-                    or "controlled_nas_element"
+                    getattr(mentions, "facility_structural_slot", None) or "controlled_nas_element"
                 ),
                 expected_entity_type=(
                     getattr(mentions, "facility_expected_entity_type", None)
@@ -519,17 +510,15 @@ def _facility_node(state: dict) -> dict:
             built,
             missing_reason="FACILITY_MENTION_OR_CANDIDATES_MISSING",
         )
-    cands = FacilityCandidates(
+    cands = FacilityAuthorityResolutionInput(
         mention=mention_token,
         candidates=matched,
         source_id=ctx.advisory.source_id,
         structural_slot=(
-            getattr(mentions, "facility_structural_slot", None)
-            or "controlled_nas_element"
+            getattr(mentions, "facility_structural_slot", None) or "controlled_nas_element"
         ),
         expected_entity_type=(
-            getattr(mentions, "facility_expected_entity_type", None)
-            or "unknown_facility_type"
+            getattr(mentions, "facility_expected_entity_type", None) or "unknown_facility_type"
         ),
         advisory_evidence=advisory_evidence,
         resolution_event_id=state.get("resolution_event_id", ""),
@@ -540,30 +529,29 @@ def _facility_node(state: dict) -> dict:
         run_started_at=ctx.run_started_at,
         schema_slice_id=guide.schema_slice_id,
         schema_snapshot_sha256=guide.checksum,
-        resolution_tool_version="resolution-compatibility-v1",
+        resolution_tool_version="authority-resolution-v1",
         authority_domain_status=domain_status,
         authority_domain_reason_code=domain_reason,
         authority_domain_error_id=domain_error,
         authority_candidate_results=built,
     )
-    resolution_kwargs = {"task": task, "candidates": cands}
+    resolution_kwargs = {"task": task, "request": cands}
     if ctx.semantic_resolution_tool_model_factory is not None:
         resolution_kwargs["semantic_resolution_tool_model_factory"] = (
             ctx.semantic_resolution_tool_model_factory
         )
-    compatibility = _resolve_facility_compatibility(**resolution_kwargs)
-    result = compatibility.agent_result
+    authority_result = resolve_facility_authority(**resolution_kwargs)
     # model_calls uses an additive reducer so parallel branches can each contribute.
     return {
-        "facility_result": result,
-        "facility_resolution_outcome": compatibility.domain_outcome,
-        "facility_resolution_task": compatibility.resolution_task,
-        "facility_resolution_proposal": compatibility.resolution_proposal,
-        "facility_resolution_tool_traces": compatibility.resolution_tool_traces,
+        "facility_authority_result": authority_result,
+        "facility_resolution_outcome": authority_result.domain_outcome,
+        "facility_resolution_task": authority_result.resolution_task,
+        "facility_resolution_proposal": authority_result.resolution_proposal,
+        "facility_resolution_tool_traces": authority_result.resolution_tool_traces,
         "authority_source_records": _authority_source_registry(
-            compatibility.authority_source_records
+            authority_result.authority_source_records
         ),
-        "model_calls": list(result.model_calls),
+        "model_calls": list(authority_result.model_calls),
     }
 
 
@@ -580,21 +568,15 @@ def _term_candidates_for_mention(all_terms: list, mention: str) -> list:
         return []
     token = mention.upper()
     return sorted(
-        (
-            term
-            for term in all_terms
-            if getattr(term, "abbreviation", "").upper() == token
-        ),
+        (term for term in all_terms if getattr(term, "abbreviation", "").upper() == token),
         key=lambda term: term.term_id,
     )
 
 
-def _terminology_node(state: dict) -> dict:
+def _terminology_authority_node(state: dict) -> dict:
     ctx: IngestContext = _ctx()
     mentions = state.get("mentions")
-    mention_token = (
-        getattr(mentions, "operational_term", None) or "MISSING_EVENT_MENTION"
-    )
+    mention_token = getattr(mentions, "operational_term", None) or "MISSING_EVENT_MENTION"
     # §11.4: pass the exact advisory evidence span (the Ground Stop mention in
     # context) to the Terminology Agent so the resolved term claim carries
     # source-contained evidence the Formal Graph Kernel can bind rdf:type to.
@@ -604,7 +586,12 @@ def _terminology_node(state: dict) -> dict:
         run_id=ctx.run_id,
         source_id=ctx.advisory.source_id,
         objective="resolve operational term",
-        allowed_tools=["lookup_faa_glossary", "lookup_pcg_term", "resolve_term_registry", "resolve_schema_event_class"],
+        allowed_tools=[
+            "lookup_faa_glossary",
+            "lookup_pcg_term",
+            "resolve_term_registry",
+            "resolve_schema_event_class",
+        ],
     )
     guide = ctx.guide or load_schema_guide()
     authority_catalog = ctx.authority_catalog
@@ -623,10 +610,7 @@ def _terminology_node(state: dict) -> dict:
         matched = []
         built = ()
         domain_status = AuthorityBuildStatus.BLOCKED
-        domain_reason = (
-            authority_catalog.terminology.reason_code
-            or "TERMINOLOGY_AUTHORITY_BLOCKED"
-        )
+        domain_reason = authority_catalog.terminology.reason_code or "TERMINOLOGY_AUTHORITY_BLOCKED"
         domain_error = authority_catalog.terminology.error_id or ""
     else:
         matched = _term_candidates_for_mention(
@@ -654,18 +638,15 @@ def _terminology_node(state: dict) -> dict:
             built,
             missing_reason="EVENT_MENTION_OR_CANDIDATES_MISSING",
         )
-    cands = TermCandidates(
+    cands = TerminologyAuthorityResolutionInput(
         mention=mention_token,
         candidates=matched,
         source_id=ctx.advisory.source_id,
-        guide=guide,
         structural_slot=(
-            getattr(mentions, "term_structural_slot", None)
-            or "traffic_management_initiative_type"
+            getattr(mentions, "term_structural_slot", None) or "traffic_management_initiative_type"
         ),
         expected_entity_type=(
-            getattr(mentions, "term_expected_entity_type", None)
-            or "traffic_management_initiative"
+            getattr(mentions, "term_expected_entity_type", None) or "traffic_management_initiative"
         ),
         advisory_evidence=advisory_evidence,
         resolution_event_id=state.get("resolution_event_id", ""),
@@ -676,29 +657,28 @@ def _terminology_node(state: dict) -> dict:
         run_started_at=ctx.run_started_at,
         schema_slice_id=guide.schema_slice_id,
         schema_snapshot_sha256=guide.checksum,
-        resolution_tool_version="resolution-compatibility-v1",
+        resolution_tool_version="authority-resolution-v1",
         authority_domain_status=domain_status,
         authority_domain_reason_code=domain_reason,
         authority_domain_error_id=domain_error,
         authority_candidate_results=built,
     )
-    resolution_kwargs = {"task": task, "candidates": cands}
+    resolution_kwargs = {"task": task, "request": cands}
     if ctx.semantic_resolution_tool_model_factory is not None:
         resolution_kwargs["semantic_resolution_tool_model_factory"] = (
             ctx.semantic_resolution_tool_model_factory
         )
-    compatibility = _resolve_terminology_compatibility(**resolution_kwargs)
-    result = compatibility.agent_result
+    authority_result = resolve_terminology_authority(**resolution_kwargs)
     return {
-        "terminology_result": result,
-        "terminology_resolution_outcome": compatibility.domain_outcome,
-        "terminology_resolution_task": compatibility.resolution_task,
-        "terminology_resolution_proposal": compatibility.resolution_proposal,
-        "terminology_resolution_tool_traces": compatibility.resolution_tool_traces,
+        "terminology_authority_result": authority_result,
+        "terminology_resolution_outcome": authority_result.domain_outcome,
+        "terminology_resolution_task": authority_result.resolution_task,
+        "terminology_resolution_proposal": authority_result.resolution_proposal,
+        "terminology_resolution_tool_traces": authority_result.resolution_tool_traces,
         "authority_source_records": _authority_source_registry(
-            compatibility.authority_source_records
+            authority_result.authority_source_records
         ),
-        "model_calls": list(result.model_calls),
+        "model_calls": list(authority_result.model_calls),
     }
 
 
@@ -715,20 +695,13 @@ def _join_node(state: dict) -> dict:
         and authority_registry.status is AuthoritySourceRegistryStatus.BLOCKED
     ):
         status = "blocked"
-        reason = (
-            authority_registry.reason_code
-            or "authority source registry blocked"
-        )
+        reason = authority_registry.reason_code or "authority source registry blocked"
     elif any(
-        outcome is None or outcome.decision is ResolutionDecision.BLOCKED
-        for outcome in outcomes
+        outcome is None or outcome.decision is ResolutionDecision.BLOCKED for outcome in outcomes
     ):
         status = "blocked"
         reason = "required resolution domain blocked"
-    elif any(
-        outcome.decision is not ResolutionDecision.ACCEPTED
-        for outcome in outcomes
-    ):
+    elif any(outcome.decision is not ResolutionDecision.ACCEPTED for outcome in outcomes):
         status = "insufficient"
         reason = "required resolution domain insufficient"
     else:
@@ -802,7 +775,7 @@ def _build_case_assembly_task_from_state(
     event_class: str,
 ) -> CaseAssemblyTask:
     guide = ctx.guide or load_schema_guide()
-    facility_result: AgentResult = state["facility_result"]
+    facility_authority_result: AgentResult = state["facility_authority_result"]
 
     evidence_records = (
         CaseAssemblyEvidenceRecord(
@@ -824,21 +797,16 @@ def _build_case_assembly_task_from_state(
                     resolution_proposal_id=proposal.resolution_proposal_id,
                     decision=proposal.decision,
                     selected_candidate_id=proposal.selected_candidate_id,
-                    supporting_evidence_claim_ids=(
-                        proposal.supporting_evidence_claim_ids
-                    ),
+                    supporting_evidence_claim_ids=(proposal.supporting_evidence_claim_ids),
                     authority_source_ids=proposal.authority_source_ids,
                 )
                 for proposal in (facility_prop, term_prop)
-                if proposal is not None
-                and hasattr(proposal, "resolution_proposal_id")
+                if proposal is not None and hasattr(proposal, "resolution_proposal_id")
             ),
             key=lambda row: row.resolution_proposal_id,
         )
     )
-    res_prop_ids = tuple(
-        row.resolution_proposal_id for row in resolution_records
-    )
+    res_prop_ids = tuple(row.resolution_proposal_id for row in resolution_records)
 
     mentions = state.get("mentions") or parse_structured_fields(ctx.advisory.content)
     profile_id = (
@@ -864,11 +832,11 @@ def _build_case_assembly_task_from_state(
 
     fac_ref = ""
     if (
-        facility_result
-        and facility_result.evidence_card
-        and facility_result.evidence_card.canonical_refs
+        facility_authority_result
+        and facility_authority_result.evidence_card
+        and facility_authority_result.evidence_card.canonical_refs
     ):
-        fac_ref = facility_result.evidence_card.canonical_refs[0]
+        fac_ref = facility_authority_result.evidence_card.canonical_refs[0]
         proposed_facts.append(
             CaseFactProposal(
                 proposal_item_id=stable_contract_id(
@@ -1055,16 +1023,13 @@ def _build_case_assembly_task_from_state(
                     value=trace.canonical_value,
                     derivation_id=trace.derivation_id,
                     validation_profile_id=public_profile.ref.profile_id,
-                    validation_profile_checksum=(
-                        public_profile.ref.profile_checksum
-                    ),
+                    validation_profile_checksum=(public_profile.ref.profile_checksum),
                     source_id=trace.source_id,
                     source_snapshot_sha256=trace.source_snapshot_sha256,
                 )
                 for trace in (
                     observation_bundle.fact_traces
-                    if observation_bundle is not None
-                    and observation_bundle.status == "ok"
+                    if observation_bundle is not None and observation_bundle.status == "ok"
                     else ()
                 )
                 if trace.canonical_value is not None
@@ -1074,9 +1039,7 @@ def _build_case_assembly_task_from_state(
     )
     prepared_registry = state.get("prepared_source_snapshot")
     resolution_source_ids = {
-        source_id
-        for row in resolution_records
-        for source_id in row.authority_source_ids
+        source_id for row in resolution_records for source_id in row.authority_source_ids
     }
     authority_registry = state.get("authority_source_records")
     authority_records_by_id = {
@@ -1088,9 +1051,7 @@ def _build_case_assembly_task_from_state(
             else ()
         )
     }
-    missing_authority_source_ids = resolution_source_ids - set(
-        authority_records_by_id
-    )
+    missing_authority_source_ids = resolution_source_ids - set(authority_records_by_id)
     if missing_authority_source_ids:
         raise ValueError(
             "resolution authority sources are unavailable for snapshot binding: "
@@ -1098,10 +1059,7 @@ def _build_case_assembly_task_from_state(
         )
     authority_snapshots = (
         build_source_snapshot_registry(
-            [
-                authority_records_by_id[source_id]
-                for source_id in sorted(resolution_source_ids)
-            ]
+            [authority_records_by_id[source_id] for source_id in sorted(resolution_source_ids)]
         ).snapshots
         if resolution_source_ids
         else ()
@@ -1125,16 +1083,13 @@ def _build_case_assembly_task_from_state(
     missing_source_ids = selected_source_ids - set(selected_snapshots_by_id)
     if missing_source_ids:
         raise ValueError(
-            "case assembly source snapshots are unavailable: "
-            f"{sorted(missing_source_ids)!r}"
+            f"case assembly source snapshots are unavailable: {sorted(missing_source_ids)!r}"
         )
     source_bindings = tuple(
         SourceSnapshotBinding(
             source_id=source_id,
             source_family=selected_snapshots_by_id[source_id].family,
-            source_snapshot_sha256=selected_snapshots_by_id[
-                source_id
-            ].content_sha256,
+            source_snapshot_sha256=selected_snapshots_by_id[source_id].content_sha256,
         )
         for source_id in sorted(selected_source_ids)
     )
@@ -1170,13 +1125,9 @@ def _build_case_assembly_task_from_state(
         resolution_records=resolution_records,
         proposed_facts=sorted_proposed_facts,
         profile_gaps=sorted_profile_gaps,
-        context_association_ids=tuple(
-            row.association_id for row in context_associations
-        ),
+        context_association_ids=tuple(row.association_id for row in context_associations),
         context_associations=context_associations,
-        public_observation_ids=tuple(
-            row.observation_id for row in public_observations
-        ),
+        public_observation_ids=tuple(row.observation_id for row in public_observations),
         public_observations=public_observations,
         source_snapshot_bindings=source_bindings,
         binding=binding,
@@ -1225,25 +1176,25 @@ def _kg_construction_node(state: dict) -> dict:
                 ),
             )
         }
-    terminology_result: AgentResult = state["terminology_result"]
+    terminology_authority_result: AgentResult = state["terminology_authority_result"]
     if ctx.guide is None:
         ctx.guide = load_schema_guide()
     # The resolved event class comes ONLY from the Terminology Agent. If no
     # event type was resolved the system abstains and constructs no graph
     # (design §11.6); there is no default GDP fallback.
     event_class = next(
-        (c.ontology_target for c in terminology_result.evidence_card.claims if c.ontology_target),
+        (
+            c.ontology_target
+            for c in terminology_authority_result.evidence_card.claims
+            if c.ontology_target
+        ),
         "",
     )
     event_uri = _event_uri(ctx.run_id, ctx.advisory.source_id, event_class or "UNRESOLVED")
     event_class_hint = state.get("event_class_hint", "")
     formal_event_uri_hint = state.get("formal_event_uri_hint", "")
-    if (
-        (event_class_hint and event_class != event_class_hint)
-        or (
-            formal_event_uri_hint
-            and event_uri != formal_event_uri_hint
-        )
+    if (event_class_hint and event_class != event_class_hint) or (
+        formal_event_uri_hint and event_uri != formal_event_uri_hint
     ):
         return {
             "kg_result": AgentResult(
@@ -1333,9 +1284,7 @@ def _kg_construction_node(state: dict) -> dict:
         # Deterministic assembly compiler (0 model calls)
         proposal = compile_case_assembly_proposal(
             task=assembly_task,
-            assembly_status=(
-                AssemblyStatus.PARTIAL if optional_limitations else None
-            ),
+            assembly_status=(AssemblyStatus.PARTIAL if optional_limitations else None),
             component_layer_results=optional_layer_results,
             limitations=optional_limitations,
             binding=binding,
@@ -1351,9 +1300,7 @@ def _kg_construction_node(state: dict) -> dict:
             task=assembly_task,
             binding=binding,
             tool_model_factory=ctx.case_assembly_model_factory,
-            assembly_status=(
-                AssemblyStatus.PARTIAL if optional_limitations else None
-            ),
+            assembly_status=(AssemblyStatus.PARTIAL if optional_limitations else None),
             component_layer_results=optional_layer_results,
             limitations=optional_limitations,
         )
@@ -1440,19 +1387,19 @@ def _materialize_node(state: dict) -> dict:
     if not event_class:
         return {"materialization": None, "validation": None}
     guide = ctx.guide or load_schema_guide()
-    facility_result: AgentResult | None = state.get("facility_result")
-    terminology_result: AgentResult | None = state.get("terminology_result")
+    facility_authority_result: AgentResult | None = state.get("facility_authority_result")
+    terminology_authority_result: AgentResult | None = state.get("terminology_authority_result")
     advisory_result: AgentResult | None = state.get("advisory_result")
     known_source_ids = _accepted_event_source_ids(
         ctx.advisory.source_id,
         advisory_result,
-        facility_result,
-        terminology_result,
+        facility_authority_result,
+        terminology_authority_result,
     )
     # Canonical entities resolved by the Facility Agent.
     canonical_entities: dict[str, str] = {}
-    if facility_result and facility_result.evidence_card:
-        for claim in facility_result.evidence_card.claims:
+    if facility_authority_result and facility_authority_result.evidence_card:
+        for claim in facility_authority_result.evidence_card.claims:
             if (
                 claim.source_id in known_source_ids
                 and claim.canonical_ref
@@ -1460,10 +1407,10 @@ def _materialize_node(state: dict) -> dict:
             ):
                 canonical_entities[claim.canonical_ref] = claim.ontology_target
     evidence_cards = []
-    if facility_result and facility_result.evidence_card:
-        evidence_cards.append(facility_result.evidence_card)
-    if terminology_result and terminology_result.evidence_card:
-        evidence_cards.append(terminology_result.evidence_card)
+    if facility_authority_result and facility_authority_result.evidence_card:
+        evidence_cards.append(facility_authority_result.evidence_card)
+    if terminology_authority_result and terminology_authority_result.evidence_card:
+        evidence_cards.append(terminology_authority_result.evidence_card)
     if advisory_result and advisory_result.evidence_card:
         evidence_cards.append(advisory_result.evidence_card)
 
@@ -1476,7 +1423,9 @@ def _materialize_node(state: dict) -> dict:
     # formal graph (plan §4, §5.4). Runs the 10 authority/schema/source/
     # evidence checks and the GroundStop graph-level constraints before any
     # materialization. A non-publishable result produces no formal artifacts.
-    event_uri = state.get("event_uri", "") or _event_uri(ctx.run_id, ctx.advisory.source_id, event_class)
+    event_uri = state.get("event_uri", "") or _event_uri(
+        ctx.run_id, ctx.advisory.source_id, event_class
+    )
     validation: GraphValidationResult = validate_graph_patch(
         block=kg_result.graph_patch,
         event_iri=event_uri,

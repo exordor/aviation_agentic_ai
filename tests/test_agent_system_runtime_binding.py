@@ -3,18 +3,17 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, replace
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-import aviation_agentic_ai.agent_system.agents as agents_module
+import aviation_agentic_ai.agent_system.authority_resolution as authority_module
 from langchain_core.messages import AIMessage
-from aviation_agentic_ai.agent_system.agents import (
-    FacilityCandidates,
-    TermCandidates,
-    _resolve_facility_compatibility,
-    _resolve_terminology_compatibility,
-    run_facility_agent,
+from aviation_agentic_ai.agent_system.authority_resolution import (
+    FacilityAuthorityResolutionInput,
+    TerminologyAuthorityResolutionInput,
+    resolve_facility_authority,
+    resolve_terminology_authority,
 )
 from aviation_agentic_ai.agent_system.authority_evidence import (
     AuthorityBuildStatus,
@@ -58,7 +57,7 @@ from test_agent_system_authority_evidence import (
 
 
 STARTED = datetime(2026, 5, 19, 20, 30, 45, 123000, tzinfo=UTC)
-TOOL_VERSION = "resolution-compatibility-v1"
+TOOL_VERSION = "authority-resolution-v1"
 EVENT_MENTION = "GS"
 
 
@@ -81,7 +80,7 @@ def _task(domain: str, *, run_id: str = "run:test") -> AgentTask:
     )
 
 
-def _facility_envelope(tmp_path: Path) -> FacilityCandidates:
+def _facility_envelope(tmp_path: Path) -> FacilityAuthorityResolutionInput:
     catalog = _catalog(tmp_path)
     guide = load_schema_guide(str(SCHEMA_PATH))
     entity = _facility(catalog, "KJFK")
@@ -93,7 +92,7 @@ def _facility_envelope(tmp_path: Path) -> FacilityCandidates:
         authority_snapshots=catalog.snapshots,
         guide=guide,
     )
-    return FacilityCandidates(
+    return FacilityAuthorityResolutionInput(
         mention="JFK",
         candidates=[entity],
         source_id="2026-05-19:123",
@@ -116,7 +115,7 @@ def _facility_envelope(tmp_path: Path) -> FacilityCandidates:
     )
 
 
-def _gs_envelope(tmp_path: Path) -> TermCandidates:
+def _gs_envelope(tmp_path: Path) -> TerminologyAuthorityResolutionInput:
     catalog = _catalog(tmp_path)
     guide = load_schema_guide(str(SCHEMA_PATH))
     terms = [_term(catalog, "Ground Stop"), _term(catalog, "Glide Slope")]
@@ -131,11 +130,10 @@ def _gs_envelope(tmp_path: Path) -> TermCandidates:
         )
         for term in terms
     )
-    return TermCandidates(
+    return TerminologyAuthorityResolutionInput(
         mention="GS",
         candidates=terms,
         source_id="2026-05-19:123",
-        guide=guide,
         structural_slot="traffic_management_initiative_type",
         expected_entity_type="traffic_management_initiative",
         advisory_evidence="GROUND STOP",
@@ -155,7 +153,7 @@ def _gs_envelope(tmp_path: Path) -> TermCandidates:
     )
 
 
-def _ambiguous_facility_envelope(tmp_path: Path) -> FacilityCandidates:
+def _ambiguous_facility_envelope(tmp_path: Path) -> FacilityAuthorityResolutionInput:
     catalog = _catalog(tmp_path)
     guide = load_schema_guide(str(SCHEMA_PATH))
     entities = [_facility(catalog, "KJFK"), _facility(catalog, "KEWR")]
@@ -177,7 +175,7 @@ def _ambiguous_facility_envelope(tmp_path: Path) -> FacilityCandidates:
     )
 
 
-def _ambiguous_term_envelope(tmp_path: Path) -> TermCandidates:
+def _ambiguous_term_envelope(tmp_path: Path) -> TerminologyAuthorityResolutionInput:
     envelope = _gs_envelope(tmp_path)
     mapped = next(
         row.candidate
@@ -258,11 +256,7 @@ class _ScriptedResolutionModel:
         ]
         payload = json.dumps(
             {
-                "decision": (
-                    "accepted"
-                    if self.selected_candidate_id is not None
-                    else "abstained"
-                ),
+                "decision": ("accepted" if self.selected_candidate_id is not None else "abstained"),
                 "selected_candidate_id": self.selected_candidate_id,
                 "rejected_candidate_ids": rejected,
                 "limitation": (
@@ -319,36 +313,31 @@ def test_internal_helpers_return_typed_unique_resolution_without_authority_leak(
         factory_calls.append(tools)
         raise AssertionError("unique resolution constructed semantic model")
 
-    facility = _resolve_facility_compatibility(
+    facility = resolve_facility_authority(
         task=_task("facility"),
-        candidates=_facility_envelope(tmp_path),
+        request=_facility_envelope(tmp_path),
         semantic_resolution_tool_model_factory=forbidden_factory,
     )
-    terminology = _resolve_terminology_compatibility(
+    terminology = resolve_terminology_authority(
         task=_task("terminology"),
-        candidates=_gs_envelope(tmp_path),
+        request=_gs_envelope(tmp_path),
         semantic_resolution_tool_model_factory=forbidden_factory,
     )
 
     for result in (facility, terminology):
-        assert isinstance(result.agent_result, AgentResult)
-        assert result.agent_result.status is AgentStatus.RESOLVED
         assert result.domain_outcome.decision is ResolutionDecision.ACCEPTED
         assert result.authority_source_records
-        assert all(
-            claim.source_id == "2026-05-19:123"
-            for claim in result.agent_result.evidence_card.claims
-        )
-        decision_basis = result.agent_result.evidence_card.decision_basis
+        assert all(claim.source_id == "2026-05-19:123" for claim in result.evidence_card.claims)
+        decision_basis = result.evidence_card.decision_basis
         assert "resolution_task_id=" in decision_basis
         assert "authority-source" not in decision_basis
         assert all(
             "authority-source" not in ref
-            for trace in result.agent_result.evidence_card.tool_trace
+            for trace in result.evidence_card.tool_trace
             for ref in trace.result_refs
         )
 
-    assert terminology.agent_result.evidence_card.canonical_refs == [
+    assert terminology.evidence_card.canonical_refs == [
         _term(_catalog(tmp_path), "Ground Stop").term_id
     ]
     assert {
@@ -360,8 +349,8 @@ def test_internal_helpers_return_typed_unique_resolution_without_authority_leak(
 
 def test_resolution_contracts_share_frozen_run_started_at(tmp_path, monkeypatch):
     sealed = []
-    real_task_sealer = agents_module.seal_resolution_task
-    real_proposal_sealer = agents_module.seal_resolution_proposal
+    real_task_sealer = authority_module.seal_resolution_task
+    real_proposal_sealer = authority_module.seal_resolution_proposal
 
     def capture_task(**kwargs):
         result = real_task_sealer(**kwargs)
@@ -373,12 +362,12 @@ def test_resolution_contracts_share_frozen_run_started_at(tmp_path, monkeypatch)
         sealed.append(result)
         return result
 
-    monkeypatch.setattr(agents_module, "seal_resolution_task", capture_task)
-    monkeypatch.setattr(agents_module, "seal_resolution_proposal", capture_proposal)
+    monkeypatch.setattr(authority_module, "seal_resolution_task", capture_task)
+    monkeypatch.setattr(authority_module, "seal_resolution_proposal", capture_proposal)
 
-    _resolve_facility_compatibility(
+    resolve_facility_authority(
         task=_task("facility"),
-        candidates=_facility_envelope(tmp_path),
+        request=_facility_envelope(tmp_path),
     )
 
     assert [contract.created_at for contract in sealed] == [STARTED, STARTED]
@@ -387,15 +376,13 @@ def test_resolution_contracts_share_frozen_run_started_at(tmp_path, monkeypatch)
 def test_exact_candidate_set_mismatch_is_blocked(tmp_path):
     factory_calls = []
     envelope = _facility_envelope(tmp_path)
-    blocked = _resolve_facility_compatibility(
+    blocked = resolve_facility_authority(
         task=_task("facility"),
-        candidates=replace(envelope, authority_candidate_results=()),
-        semantic_resolution_tool_model_factory=lambda tools: factory_calls.append(
-            tools
-        ),
+        request=replace(envelope, authority_candidate_results=()),
+        semantic_resolution_tool_model_factory=lambda tools: factory_calls.append(tools),
     )
 
-    assert blocked.agent_result.status is AgentStatus.BLOCKED
+    assert blocked.evidence_card.status is AgentStatus.BLOCKED
     assert blocked.domain_outcome.decision is ResolutionDecision.BLOCKED
     assert factory_calls == []
 
@@ -404,25 +391,20 @@ def test_explicit_insufficient_authority_is_terminal_before_candidate_audit(
     tmp_path,
 ):
     factory_calls = []
-    result = _resolve_facility_compatibility(
+    result = resolve_facility_authority(
         task=_task("facility"),
-        candidates=replace(
+        request=replace(
             _facility_envelope(tmp_path),
             authority_domain_status=AuthorityBuildStatus.INSUFFICIENT,
             authority_domain_reason_code="FACILITY_AUTHORITY_INCOMPLETE",
             authority_candidate_results=(),
         ),
-        semantic_resolution_tool_model_factory=lambda tools: factory_calls.append(
-            tools
-        ),
+        semantic_resolution_tool_model_factory=lambda tools: factory_calls.append(tools),
     )
 
-    assert result.agent_result.status is AgentStatus.ABSTAIN
+    assert result.evidence_card.status is AgentStatus.ABSTAIN
     assert result.domain_outcome.decision is ResolutionDecision.INSUFFICIENT
-    assert (
-        result.domain_outcome.limitation_code
-        == "FACILITY_AUTHORITY_INCOMPLETE"
-    )
+    assert result.domain_outcome.limitation_code == "FACILITY_AUTHORITY_INCOMPLETE"
     assert result.authority_source_records == ()
     assert factory_calls == []
 
@@ -443,30 +425,25 @@ def test_zero_eligible_candidates_are_insufficient_without_model_construction(
     )
     factory_calls = []
 
-    result = _resolve_facility_compatibility(
+    result = resolve_facility_authority(
         task=_task("facility"),
-        candidates=replace(
+        request=replace(
             envelope,
             authority_candidate_results=(replace(built, candidate=ineligible),),
         ),
-        semantic_resolution_tool_model_factory=lambda tools: factory_calls.append(
-            tools
-        ),
+        semantic_resolution_tool_model_factory=lambda tools: factory_calls.append(tools),
     )
 
-    assert result.agent_result.status is AgentStatus.ABSTAIN
+    assert result.evidence_card.status is AgentStatus.ABSTAIN
     assert result.domain_outcome.decision is ResolutionDecision.INSUFFICIENT
-    assert (
-        result.domain_outcome.limitation_code
-        == "NO_ELIGIBLE_AUTHORITY_CANDIDATE"
-    )
+    assert result.domain_outcome.limitation_code == "NO_ELIGIBLE_AUTHORITY_CANDIDATE"
     assert factory_calls == []
 
 
 def test_resolution_event_binding_is_recomputed_before_sealing(tmp_path):
-    result = _resolve_facility_compatibility(
+    result = resolve_facility_authority(
         task=_task("facility"),
-        candidates=replace(
+        request=replace(
             _facility_envelope(tmp_path),
             resolution_event_id=stable_contract_id(
                 "resolution-event",
@@ -477,7 +454,7 @@ def test_resolution_event_binding_is_recomputed_before_sealing(tmp_path):
         ),
     )
 
-    assert result.agent_result.status is AgentStatus.BLOCKED
+    assert result.evidence_card.status is AgentStatus.BLOCKED
     assert result.domain_outcome.decision is ResolutionDecision.BLOCKED
 
 
@@ -493,31 +470,29 @@ def test_authority_source_records_are_checksum_and_family_bound(tmp_path):
     )
 
     for corrupt_record in corrupt_records:
-        result = _resolve_facility_compatibility(
+        result = resolve_facility_authority(
             task=_task("facility"),
-            candidates=replace(
+            request=replace(
                 envelope,
-                authority_candidate_results=(
-                    replace(built, source_record=corrupt_record),
-                ),
+                authority_candidate_results=(replace(built, source_record=corrupt_record),),
             ),
         )
 
-        assert result.agent_result.status is AgentStatus.BLOCKED
+        assert result.evidence_card.status is AgentStatus.BLOCKED
         assert result.domain_outcome.decision is ResolutionDecision.BLOCKED
         assert result.authority_source_records == ()
 
 
 def test_corrupt_schema_binding_fails_closed_as_blocked(tmp_path):
-    result = _resolve_facility_compatibility(
+    result = resolve_facility_authority(
         task=_task("facility"),
-        candidates=replace(
+        request=replace(
             _facility_envelope(tmp_path),
             schema_snapshot_sha256="b" * 64,
         ),
     )
 
-    assert result.agent_result.status is AgentStatus.BLOCKED
+    assert result.evidence_card.status is AgentStatus.BLOCKED
     assert result.domain_outcome.decision is ResolutionDecision.BLOCKED
 
 
@@ -531,30 +506,23 @@ def test_multiple_facility_candidates_use_the_shared_semantic_runtime(tmp_path):
         candidate_ids=candidate_ids,
         selected_candidate_id=selected_candidate_id,
     )
-    result = _resolve_facility_compatibility(
+    result = resolve_facility_authority(
         task=_task("facility"),
-        candidates=envelope,
+        request=envelope,
         semantic_resolution_tool_model_factory=lambda tools: model,
     )
 
-    assert result.agent_result.status is AgentStatus.RESOLVED
+    assert result.evidence_card.status is AgentStatus.RESOLVED
     assert result.domain_outcome.decision is ResolutionDecision.ACCEPTED
-    assert result.agent_result.evidence_card.canonical_refs == [
-        selected_candidate_id
-    ]
-    assert len(result.agent_result.model_calls) == 2
+    assert result.evidence_card.canonical_refs == [selected_candidate_id]
+    assert len(result.model_calls) == 2
     assert model.invocations == ["select_tool", "final_answer"]
     assert result.resolution_task.remaining_tool_budget == 3
     assert result.resolution_task.decision is None
-    assert not set(candidate_ids) & set(
-        result.resolution_task.rejected_candidate_ids
-    )
+    assert not set(candidate_ids) & set(result.resolution_task.rejected_candidate_ids)
     assert result.resolution_proposal.selected_candidate_id == selected_candidate_id
     assert result.resolution_tool_traces
-    assert all(
-        claim.source_id == envelope.source_id
-        for claim in result.agent_result.evidence_card.claims
-    )
+    assert all(claim.source_id == envelope.source_id for claim in result.evidence_card.claims)
 
 
 def test_multiple_term_candidates_can_abstain_through_the_same_runtime(tmp_path):
@@ -565,16 +533,16 @@ def test_multiple_term_candidates_can_abstain_through_the_same_runtime(tmp_path)
         selected_candidate_id=None,
     )
 
-    result = _resolve_terminology_compatibility(
+    result = resolve_terminology_authority(
         task=_task("terminology"),
-        candidates=envelope,
+        request=envelope,
         semantic_resolution_tool_model_factory=lambda tools: model,
     )
 
-    assert result.agent_result.status is AgentStatus.ABSTAIN
+    assert result.evidence_card.status is AgentStatus.ABSTAIN
     assert result.domain_outcome.decision is ResolutionDecision.ABSTAINED
     assert result.resolution_proposal.selected_candidate_id is None
-    assert len(result.agent_result.model_calls) == 2
+    assert len(result.model_calls) == 2
     assert model.invocations == ["select_tool", "final_answer"]
 
 
@@ -586,45 +554,18 @@ def test_semantic_resolution_factory_failure_is_a_sealed_blocked_result(tmp_path
         calls.append(tools)
         raise RuntimeError("scripted setup failure")
 
-    result = _resolve_facility_compatibility(
+    result = resolve_facility_authority(
         task=_task("facility"),
-        candidates=envelope,
+        request=envelope,
         semantic_resolution_tool_model_factory=failing_factory,
     )
 
     assert len(calls) == 1
-    assert result.agent_result.status is AgentStatus.BLOCKED
+    assert result.evidence_card.status is AgentStatus.BLOCKED
     assert result.domain_outcome.decision is ResolutionDecision.BLOCKED
     assert result.domain_outcome.error_id
     assert result.resolution_task.candidates
     assert result.resolution_proposal.task_id == result.resolution_task.task_id
-
-
-def test_legacy_ambiguous_facility_never_invokes_resolution_provider():
-    @dataclass
-    class Entity:
-        entity_id: str
-        preferred_label: str
-
-    provider_calls = []
-    result = run_facility_agent(
-        task=_task("facility"),
-        candidates=FacilityCandidates(
-            mention="JFK",
-            candidates=[Entity("facility:a", "A"), Entity("facility:b", "B")],
-            source_id="2026-05-19:123",
-            structural_slot="controlled_nas_element",
-            expected_entity_type="airport",
-            advisory_evidence="CTL ELEMENT: JFK",
-        ),
-        model_invoker=lambda *args: (
-            provider_calls.append(args)
-            or ModelCallRecord(agent="facility", raw_response="facility:a")
-        ),
-    )
-
-    assert result.status is AgentStatus.ABSTAIN
-    assert provider_calls == []
 
 
 def test_required_blocked_domain_stops_kg_factory_and_preserves_blocked_status(
@@ -690,6 +631,7 @@ def test_case_assembly_complexity_gate_uses_only_dedicated_factory() -> None:
     def dedicated_factory(tools):
         del tools
         return object()
+
     complete = SimpleNamespace(
         missing_slots=(),
         available_evidence_layer_ids=(
@@ -836,10 +778,7 @@ def test_missing_ground_stop_extension_is_insufficient_and_unpublished(tmp_path)
     )
 
     assert "extension_probability" in state["case_assembly_task"].missing_slots
-    assert (
-        state["case_assembly_proposal"].assembly_status
-        is AssemblyStatus.INSUFFICIENT
-    )
+    assert state["case_assembly_proposal"].assembly_status is AssemblyStatus.INSUFFICIENT
     assert state["kg_result"].graph_patch is None
     assert state["validation"] is None
     assert state["materialization"] is None
@@ -893,10 +832,7 @@ def test_explicit_ok_cannot_override_missing_required_slot(tmp_path, monkeypatch
         )
     )
 
-    assert (
-        state["case_assembly_proposal"].assembly_status
-        is AssemblyStatus.INSUFFICIENT
-    )
+    assert state["case_assembly_proposal"].assembly_status is AssemblyStatus.INSUFFICIENT
     assert state["kg_result"].graph_patch is None
     assert state["validation"] is None
     assert state["materialization"] is None
@@ -1097,18 +1033,16 @@ def test_hard_preflight_block_preserves_component_layer_audit_rows(
 def test_blocked_authority_registry_is_absorbing_at_the_join(tmp_path):
     """A cross-branch audit conflict blocks preflight without partial recovery."""
 
-    facility = _resolve_facility_compatibility(
+    facility = resolve_facility_authority(
         task=_task("facility"),
-        candidates=_facility_envelope(tmp_path),
+        request=_facility_envelope(tmp_path),
     )
-    terminology = _resolve_terminology_compatibility(
+    terminology = resolve_terminology_authority(
         task=_task("terminology"),
-        candidates=_gs_envelope(tmp_path),
+        request=_gs_envelope(tmp_path),
     )
     authority_registry = workflow_module.merge_authority_source_records(
-        workflow_module.AuthoritySourceRecordRegistry(
-            records=facility.authority_source_records
-        ),
+        workflow_module.AuthoritySourceRecordRegistry(records=facility.authority_source_records),
         workflow_module.AuthoritySourceRecordRegistry(
             records=(
                 facility.authority_source_records[0].model_copy(
@@ -1217,11 +1151,11 @@ def test_event_class_hint_mismatch_blocks_before_kg_factory(tmp_path, monkeypatc
                 status=AgentStatus.RESOLVED,
                 evidence_card=advisory_card,
             ),
-            "facility_result": AgentResult(
+            "facility_authority_result": AgentResult(
                 status=AgentStatus.RESOLVED,
                 evidence_card=facility_card,
             ),
-            "terminology_result": AgentResult(
+            "terminology_authority_result": AgentResult(
                 status=AgentStatus.RESOLVED,
                 evidence_card=terminology_card,
             ),
@@ -1362,11 +1296,11 @@ def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
                 status=AgentStatus.RESOLVED,
                 evidence_card=advisory_card,
             ),
-            "facility_result": AgentResult(
+            "facility_authority_result": AgentResult(
                 status=AgentStatus.RESOLVED,
                 evidence_card=facility_card,
             ),
-            "terminology_result": AgentResult(
+            "terminology_authority_result": AgentResult(
                 status=AgentStatus.RESOLVED,
                 evidence_card=terminology_card,
             ),
@@ -1489,11 +1423,11 @@ def test_materialization_excludes_authority_only_canonical_entities(
                 status=AgentStatus.RESOLVED,
                 evidence_card=advisory_card,
             ),
-            "facility_result": AgentResult(
+            "facility_authority_result": AgentResult(
                 status=AgentStatus.RESOLVED,
                 evidence_card=facility_card,
             ),
-            "terminology_result": AgentResult(
+            "terminology_authority_result": AgentResult(
                 status=AgentStatus.RESOLVED,
                 evidence_card=terminology_card,
             ),

@@ -54,9 +54,7 @@ from aviation_agentic_ai.agent_system.validation_profiles import (
 from aviation_agentic_ai.cross_source.contracts import CanonicalEntity
 
 
-_SIGNATURE_RE = re.compile(
-    r"(?m)^SIGNATURE:\s*\n(?P<stamp>\d{2}/\d{2}/\d{2} \d{2}:\d{2})\s*$"
-)
+_SIGNATURE_RE = re.compile(r"(?m)^SIGNATURE:\s*\n(?P<stamp>\d{2}/\d{2}/\d{2} \d{2}:\d{2})\s*$")
 _SIGNATURE_FIELD_RE = re.compile(r"(?m)^SIGNATURE:")
 _ATM_START = "https://data.nasa.gov/ontologies/atmonto/ATM#effectiveStartTime"
 _ATM_END = "https://data.nasa.gov/ontologies/atmonto/ATM#effectiveEndTime"
@@ -93,9 +91,9 @@ def _parse_accepted_datetime(facts: list[Any], predicate_iri: str) -> datetime:
 
 
 def _resolve_facility(ctx: Any, state: dict[str, Any]) -> CanonicalEntity:
-    result = state.get("facility_result")
+    result = state.get("facility_authority_result")
     card = getattr(result, "evidence_card", None)
-    status = getattr(getattr(result, "status", None), "value", None)
+    status = getattr(getattr(card, "status", None), "value", None)
     if status != "resolved" or card is None:
         raise LookupError("canonical facility was not resolved")
     refs = sorted(set(card.canonical_refs))
@@ -148,11 +146,16 @@ def _validate_outcomes(
     if len(identifiers) != len(set(identifiers)):
         raise ValueError("duplicate BTS outcome summary ID")
     phases = [summary.phase for summary in bundle.summaries]
-    if len(phases) != 3 or len(phases) != len(set(phases)) or set(phases) != {
-        "baseline",
-        "active",
-        "recovery",
-    }:
+    if (
+        len(phases) != 3
+        or len(phases) != len(set(phases))
+        or set(phases)
+        != {
+            "baseline",
+            "active",
+            "recovery",
+        }
+    ):
         raise ValueError("BTS outcome bundle requires exactly one summary per phase")
     expected_windows = {
         "baseline": (
@@ -170,10 +173,9 @@ def _validate_outcomes(
         if any(clock.tzinfo is None or clock.utcoffset() is None for clock in clocks):
             raise ValueError("BTS outcome windows must be timezone-aware")
         expected_start, expected_end = expected_windows[summary.phase]
-        if (
-            summary.window_start.astimezone(UTC) != expected_start.astimezone(UTC)
-            or summary.window_end.astimezone(UTC) != expected_end.astimezone(UTC)
-        ):
+        if summary.window_start.astimezone(UTC) != expected_start.astimezone(
+            UTC
+        ) or summary.window_end.astimezone(UTC) != expected_end.astimezone(UTC):
             raise ValueError("BTS outcome window mismatch")
         snapshot = registry.get(summary.source_id)
         if snapshot is None or snapshot.family != SourceFamily.BTS_ON_TIME:
@@ -315,9 +317,7 @@ def read_reconstruction_trace(path: str | Path) -> ReconstructionTrace:
     """Read and strictly validate the reconstruction input binding."""
 
     try:
-        return ReconstructionTrace.model_validate_json(
-            Path(path).read_text(encoding="utf-8")
-        )
+        return ReconstructionTrace.model_validate_json(Path(path).read_text(encoding="utf-8"))
     except Exception as exc:
         raise ValueError("invalid reconstruction trace JSON") from exc
 
@@ -360,9 +360,7 @@ def _formal_layer_metadata(
     formal_fact_count: int,
     failure_reason: str = "",
 ) -> dict[str, Any]:
-    profile = next(
-        profile for profile in profile_registry.profiles if profile.ref.layer == layer
-    )
+    profile = next(profile for profile in profile_registry.profiles if profile.ref.layer == layer)
     metadata: dict[str, Any] = {
         "status": status,
         "profile_id": profile.ref.profile_id,
@@ -405,12 +403,9 @@ def _public_observation_publication(
         "instant_count": "http://www.w3.org/2006/time#Instant",
         "activity_count": "http://www.w3.org/ns/prov#Activity",
         "procedure_count": "http://www.w3.org/ns/sosa/Procedure",
-        "conceptual_case_count": (
-            "urn:aviation-agentic-ai:decision-case-schema:DecisionCase"
-        ),
+        "conceptual_case_count": ("urn:aviation-agentic-ai:decision-case-schema:DecisionCase"),
         "reconstruction_count": (
-            "urn:aviation-agentic-ai:decision-case-schema:"
-            "DecisionCaseReconstruction"
+            "urn:aviation-agentic-ai:decision-case-schema:DecisionCaseReconstruction"
         ),
     }
     metadata.update(
@@ -418,16 +413,11 @@ def _public_observation_publication(
             "aggregation_procedure_id": procedure.procedure_id,
             "aggregation_procedure_checksum": procedure.checksum,
             "source_bindings": [
-                binding.model_dump(mode="json")
-                for binding in trace.source_bindings
+                binding.model_dump(mode="json") for binding in trace.source_bindings
             ],
             **{
                 field: len(
-                    {
-                        fact.subject_iri
-                        for fact in all_facts
-                        if fact.subject_class_iri == class_iri
-                    }
+                    {fact.subject_iri for fact in all_facts if fact.subject_class_iri == class_iri}
                 )
                 for field, class_iri in class_counts.items()
             },
@@ -463,11 +453,7 @@ def _build_candidate_event(
         raise LookupError("candidate operational period is missing")
     start = datetime.fromisoformat(start_value.replace("Z", "+00:00"))
     end = datetime.fromisoformat(end_value.replace("Z", "+00:00"))
-    event_uri = str(
-        state.get("formal_event_uri_hint")
-        or state.get("event_uri")
-        or ""
-    )
+    event_uri = str(state.get("formal_event_uri_hint") or state.get("event_uri") or "")
     if not event_uri:
         raise LookupError("candidate event ID is missing")
     return DecisionContextEvent(
@@ -487,14 +473,10 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
     facility: CanonicalEntity | None = None
     kg_result = state.get("kg_result")
     preflight_status = state.get("resolution_preflight_status")
-    if (
-        kg_result is not None
-        and getattr(kg_result, "status", None) is AgentStatus.BLOCKED
-    ):
+    if kg_result is not None and getattr(kg_result, "status", None) is AgentStatus.BLOCKED:
         common_status = "blocked"
         common_reason = (
-            getattr(kg_result, "failure_reason", None)
-            or "knowledge graph construction was blocked"
+            getattr(kg_result, "failure_reason", None) or "knowledge graph construction was blocked"
         )
     elif preflight_status in {"blocked", "insufficient"}:
         common_status = preflight_status
@@ -527,9 +509,7 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
             )
         else:
             try:
-                weather_records_by_id = {
-                    record.source_id: record for record in ctx.weather_sources
-                }
+                weather_records_by_id = {record.source_id: record for record in ctx.weather_sources}
                 transient_registry = build_source_snapshot_registry(
                     [ctx.advisory, *ctx.weather_sources]
                 )
@@ -613,11 +593,7 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
         outcome_bundle.status,
         outcome_bundle.failure_reason,
     )
-    if (
-        outcome_bundle.status == "ok"
-        and decision_event is not None
-        and facility is not None
-    ):
+    if outcome_bundle.status == "ok" and decision_event is not None and facility is not None:
         try:
             observation_bundle = build_bts_observation_facts(
                 decision_event,
@@ -648,10 +624,7 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
             if expected_weather_ids != published_weather_ids:
                 observation_bundle = _empty_observations(
                     "blocked",
-                    (
-                        "reconstruction trace weather members do not match "
-                        "validated weather members"
-                    ),
+                    ("reconstruction trace weather members do not match validated weather members"),
                 )
     return {
         "decision_context_prepared": True,
@@ -679,9 +652,7 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
     weather_bundle = prepared["weather_context"]
     outcome_bundle = prepared["outcome_context"]
     observation_bundle = prepared["observation_context"]
-    weather_records_by_id = {
-        record.source_id: record for record in ctx.weather_sources
-    }
+    weather_records_by_id = {record.source_id: record for record in ctx.weather_sources}
     bts_record = ctx.bts_source
 
     validation = state.get("validation")
@@ -690,10 +661,7 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
     if validation is None:
         preflight_status = state.get("resolution_preflight_status")
         kg_result = state.get("kg_result")
-        if (
-            kg_result is not None
-            and getattr(kg_result, "status", None) is AgentStatus.BLOCKED
-        ):
+        if kg_result is not None and getattr(kg_result, "status", None) is AgentStatus.BLOCKED:
             common_status = "blocked"
             common_reason = (
                 getattr(kg_result, "failure_reason", None)
@@ -721,8 +689,7 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
         if accepted_event != decision_event:
             common_status = "blocked"
             common_reason = (
-                "prepared decision context event differs from "
-                "Formal Graph Kernel accepted event"
+                "prepared decision context event differs from Formal Graph Kernel accepted event"
             )
     if common_status == "blocked":
         weather_bundle = _empty_weather("blocked", common_reason)
@@ -741,9 +708,7 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
         or ""
     )
     authority_records = (
-        list(getattr(authority_registry, "records", ()))
-        if authority_status == "ok"
-        else []
+        list(getattr(authority_registry, "records", ())) if authority_status == "ok" else []
     )
     persisted_records = [ctx.advisory, *authority_records]
     if weather_bundle.status == "ok":
@@ -767,9 +732,7 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
 
     materialization = core_materialization
 
-    associations = (
-        weather_bundle.associations if weather_bundle.status == "ok" else []
-    )
+    associations = weather_bundle.associations if weather_bundle.status == "ok" else []
     traces = weather_bundle.fact_traces if weather_bundle.status == "ok" else []
     summaries = outcome_bundle.summaries if outcome_bundle.status == "ok" else []
     association_path = _write_typed_jsonl(
@@ -794,9 +757,7 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
         observation_bundle.fact_traces if observation_bundle.status == "ok" else []
     )
     reconstruction_trace = (
-        observation_bundle.reconstruction_trace
-        if observation_bundle.status == "ok"
-        else None
+        observation_bundle.reconstruction_trace if observation_bundle.status == "ok" else None
     )
     derivation_path = write_observation_derivations(
         output_dir,
@@ -813,11 +774,7 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
 
     validation = state.get("validation")
     fact_trace_path = output_dir / "fact_trace.jsonl"
-    if (
-        validation is not None
-        and validation.publishable
-        and fact_trace_path.exists()
-    ):
+    if validation is not None and validation.publishable and fact_trace_path.exists():
         direct_traces = read_fact_traces(fact_trace_path)
         formal_facts = list(validation.accepted)
         if weather_bundle.status == "ok":
@@ -897,20 +854,14 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
             failure_reason=observation_bundle.failure_reason or "",
         ),
     }
-    decision_status = (
-        "ok"
-        if validation is not None and validation.publishable
-        else common_status
-    )
+    decision_status = "ok" if validation is not None and validation.publishable else common_status
     formal_layers = {
         "decision": _formal_layer_metadata(
             profile_registry,
             layer="decision",
             status=decision_status,
             formal_fact_count=(
-                len(validation.accepted)
-                if validation is not None and validation.publishable
-                else 0
+                len(validation.accepted) if validation is not None and validation.publishable else 0
             ),
             failure_reason=common_reason,
         ),
@@ -919,9 +870,7 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
             layer="weather",
             status=weather_bundle.status,
             formal_fact_count=(
-                len(weather_bundle.formal_facts)
-                if weather_bundle.status == "ok"
-                else 0
+                len(weather_bundle.formal_facts) if weather_bundle.status == "ok" else 0
             ),
             failure_reason=weather_bundle.failure_reason,
         ),
