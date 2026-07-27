@@ -1100,6 +1100,29 @@ def _kg_construction_node(state: dict) -> dict:
         proposal=proposal,
         binding=binding,
     )
+    if feedback is not None and not feedback.repairable:
+        proposal = compile_case_assembly_proposal(
+            task=assembly_task,
+            assembly_status=AssemblyStatus.BLOCKED,
+            proposed_facts=proposal.proposed_facts,
+            evidence_bindings=proposal.evidence_bindings,
+            resolution_proposal_ids=proposal.resolution_proposal_ids,
+            context_association_ids=proposal.context_association_ids,
+            profile_gaps=proposal.profile_gaps,
+            omitted_slots=proposal.omitted_slots,
+            limitations=(*proposal.limitations, feedback.violation_code),
+            tool_trace_ids=proposal.tool_trace_ids,
+            source_snapshot_bindings=proposal.source_snapshot_bindings,
+            revision_count=proposal.revision_count,
+            binding=binding,
+        )
+        assembly_result = CaseAssemblyResult(
+            proposal=proposal,
+            model_calls=assembly_result.model_calls,
+            tool_traces=assembly_result.tool_traces,
+            feedback=feedback,
+            failure_reason=feedback.violation_code,
+        )
 
     publishable_assembly = proposal.assembly_status in {
         AssemblyStatus.OK,

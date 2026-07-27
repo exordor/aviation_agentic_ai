@@ -356,16 +356,16 @@ def compile_case_assembly_proposal(
 ) -> CaseAssemblyProposal:
     """Compile and seal one ``CaseAssemblyProposal`` deterministically."""
 
-    if assembly_status is None:
-        missing_required_slots = set(task.required_case_slots) & set(task.missing_slots)
+    missing_required_slots = set(task.required_case_slots) & set(task.missing_slots)
+    if missing_required_slots and assembly_status in {
+        None,
+        AssemblyStatus.OK,
+        AssemblyStatus.PARTIAL,
+    }:
+        assembly_status = AssemblyStatus.INSUFFICIENT
+    elif assembly_status is None:
         assembly_status = (
-            AssemblyStatus.INSUFFICIENT
-            if missing_required_slots
-            else (
-                AssemblyStatus.PARTIAL
-                if task.missing_slots
-                else AssemblyStatus.OK
-            )
+            AssemblyStatus.PARTIAL if task.missing_slots else AssemblyStatus.OK
         )
 
     facts = tuple(task.proposed_facts if proposed_facts is None else proposed_facts)

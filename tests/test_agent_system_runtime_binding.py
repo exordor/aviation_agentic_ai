@@ -768,6 +768,119 @@ def test_missing_ground_stop_extension_is_insufficient_and_unpublished(tmp_path)
     assert state["materialization"] is None
 
 
+def test_explicit_ok_cannot_override_missing_required_slot(tmp_path, monkeypatch):
+    """A caller cannot force publication by explicitly selecting Assembly OK."""
+
+    from aviation_agentic_ai.agent_system.case_assembly import CaseAssemblyResult
+    from aviation_agentic_ai.agent_system.decision_case_contracts import AssemblyStatus
+    from aviation_agentic_ai.agent_system.sources import load_advisory_source
+
+    config, _ = _test_inputs(tmp_path)
+    catalog = _catalog(tmp_path)
+    source = load_advisory_source(config, "2026-05-19:123")
+    advisory = source.model_copy(
+        update={
+            "content": source.content.replace(
+                "PROBABILITY OF EXTENSION: MEDIUM ",
+                "",
+            )
+        }
+    )
+
+    def explicit_ok_assembly(*, task, binding, tool_model_factory):
+        del tool_model_factory
+        proposal = workflow_module.compile_case_assembly_proposal(
+            task=task,
+            assembly_status=AssemblyStatus.OK,
+            binding=binding,
+        )
+        return CaseAssemblyResult(
+            proposal=proposal,
+            model_calls=(),
+            tool_traces=(),
+        )
+
+    monkeypatch.setattr(workflow_module, "run_case_assembly_agent", explicit_ok_assembly)
+
+    state = run_ingest(
+        IngestContext(
+            advisory=advisory,
+            facility_candidates=list(catalog.facility.entities),
+            term_candidates=list(catalog.terminology.registry_terms),
+            authority_catalog=catalog,
+            guide=load_schema_guide(str(SCHEMA_PATH)),
+            run_id="run:explicit-ok-missing-required",
+            run_started_at=STARTED,
+            output_dir=str(tmp_path / "explicit-ok-missing-required"),
+            case_assembly_model_factory=lambda tools: object(),
+        )
+    )
+
+    assert (
+        state["case_assembly_proposal"].assembly_status
+        is AssemblyStatus.INSUFFICIENT
+    )
+    assert state["kg_result"].graph_patch is None
+    assert state["validation"] is None
+    assert state["materialization"] is None
+
+
+def test_hard_preflight_feedback_blocks_publication(tmp_path, monkeypatch):
+    """A hard preflight violation blocks before the Formal Graph Kernel."""
+
+    from aviation_agentic_ai.agent_system.case_assembly import CaseAssemblyResult
+    from aviation_agentic_ai.agent_system.decision_case_contracts import AssemblyStatus
+    from aviation_agentic_ai.agent_system.sources import load_advisory_source
+
+    config, _ = _test_inputs(tmp_path)
+    catalog = _catalog(tmp_path)
+    advisory = load_advisory_source(config, "2026-05-19:123")
+
+    def hard_violation_assembly(*, task, binding, tool_model_factory):
+        del tool_model_factory
+        forbidden_fact = task.proposed_facts[0].model_copy(
+            update={
+                "proposal_item_id": "proposal-fact:forbidden-causal",
+                "predicate_iri": "atm:causedByWeather",
+                "object_value": "atm:Thunderstorm",
+            }
+        )
+        proposal = workflow_module.compile_case_assembly_proposal(
+            task=task,
+            assembly_status=AssemblyStatus.OK,
+            proposed_facts=(*task.proposed_facts, forbidden_fact),
+            binding=binding,
+        )
+        return CaseAssemblyResult(
+            proposal=proposal,
+            model_calls=(),
+            tool_traces=(),
+        )
+
+    monkeypatch.setattr(workflow_module, "run_case_assembly_agent", hard_violation_assembly)
+
+    state = run_ingest(
+        IngestContext(
+            advisory=advisory,
+            facility_candidates=list(catalog.facility.entities),
+            term_candidates=list(catalog.terminology.registry_terms),
+            authority_catalog=catalog,
+            guide=load_schema_guide(str(SCHEMA_PATH)),
+            run_id="run:hard-preflight-violation",
+            run_started_at=STARTED,
+            output_dir=str(tmp_path / "hard-preflight-violation"),
+            case_assembly_model_factory=lambda tools: object(),
+        )
+    )
+
+    assert state["case_assembly_feedback"] is not None
+    assert state["case_assembly_feedback"].repairable is False
+    assert state["case_assembly_proposal"].assembly_status is AssemblyStatus.BLOCKED
+    assert state["kg_result"].graph_patch is None
+    assert state["validation"] is None
+    assert state["materialization"] is None
+
+
 def test_blocked_authority_registry_is_absorbing_at_the_join(tmp_path):
     """A cross-branch audit conflict blocks preflight without partial recovery."""
 
