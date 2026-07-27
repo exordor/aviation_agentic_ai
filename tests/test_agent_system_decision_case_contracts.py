@@ -992,6 +992,28 @@ def test_assembly_task_binds_context_associations_to_one_task_event() -> None:
         with pytest.raises(ValueError, match="task event ownership"):
             seal_case_assembly_task(fields=invalid, binding=_binding())
 
+    compact_event_id = "evt:canonical-event"
+    absolute_event_id = "urn:aviation-agentic-ai:event:canonical-event"
+    canonicalized = fields.model_copy(
+        update={
+            "proposed_facts": tuple(
+                fact.model_copy(update={"subject_id": compact_event_id})
+                for fact in fields.proposed_facts
+            ),
+            "profile_gaps": tuple(
+                row.model_copy(update={"event_id": compact_event_id})
+                for row in fields.profile_gaps
+            ),
+            "context_associations": (
+                association.model_copy(update={"event_id": absolute_event_id}),
+            ),
+        }
+    )
+
+    sealed = seal_case_assembly_task(fields=canonicalized, binding=_binding())
+
+    assert sealed.context_associations[0].event_id == absolute_event_id
+
 
 def test_fact_support_profile_gap_support_and_disposition_are_strict() -> None:
     with pytest.raises(ValidationError):

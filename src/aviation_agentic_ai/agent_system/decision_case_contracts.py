@@ -33,6 +33,13 @@ from aviation_agentic_ai.agent_system.contracts import (
 
 DECISION_CASE_CONTRACT_VERSION = "decision-case-agent-contracts-v1"
 Sha256Hex = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
+_EVENT_IRI_PREFIX = "urn:aviation-agentic-ai:event:"
+
+
+def _canonical_case_event_id(event_id: str) -> str:
+    if event_id.startswith("evt:"):
+        return f"{_EVENT_IRI_PREFIX}{event_id.removeprefix('evt:')}"
+    return event_id
 
 
 def _duplicates(values: Sequence[str]) -> set[str]:
@@ -1086,8 +1093,14 @@ class CaseAssemblyTaskFields(FrozenContractModel):
         if set(fact_item_ids) & set(gap_item_ids):
             raise ValueError("proposal item IDs must be unique across facts and gaps")
         task_event_ids = {
-            *(row.subject_id for row in self.proposed_facts),
-            *(row.event_id for row in self.profile_gaps),
+            *(
+                _canonical_case_event_id(row.subject_id)
+                for row in self.proposed_facts
+            ),
+            *(
+                _canonical_case_event_id(row.event_id)
+                for row in self.profile_gaps
+            ),
         }
         if len(task_event_ids) != 1:
             raise ValueError(
@@ -1132,7 +1145,10 @@ class CaseAssemblyTaskFields(FrozenContractModel):
             if not set(row.authority_source_ids).issubset(binding_by_source):
                 raise ValueError("resolution authority source is not snapshot-bound")
         for row in self.context_associations:
-            if row.run_id != self.run_id or row.event_id != task_event_id:
+            if (
+                row.run_id != self.run_id
+                or _canonical_case_event_id(row.event_id) != task_event_id
+            ):
                 raise ValueError("context association task event ownership mismatch")
             binding = binding_by_source.get(row.source_id)
             if (
