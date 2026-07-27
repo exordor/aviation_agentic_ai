@@ -16,6 +16,7 @@ EXPECTED_ROLES = {
     "knowledge_graph_construction",
     "query",
     "semantic_resolution",
+    "decision_case_assembly",
 }
 
 EXPECTED_PLACEHOLDERS = {
@@ -61,6 +62,14 @@ EXPECTED_PLACEHOLDERS = {
         "authority_source_ids",
         "schema_slice_id",
     },
+    "decision_case_assembly": {
+        "case_id",
+        "required_case_slots",
+        "optional_case_slots",
+        "missing_slots",
+        "schema_profile_id",
+        "available_evidence_layer_ids",
+    },
 }
 
 
@@ -87,6 +96,7 @@ def test_every_role_has_version_policy_and_bounded_output() -> None:
         "knowledge_graph_construction": "knowledge-graph-construction-agent-v4",
         "query": "query-agent-v4",
         "semantic_resolution": "semantic-resolution-agent-v1",
+        "decision_case_assembly": "decision-case-assembly-v1",
     }
     for role, prompt in _catalog()["roles"].items():
         assert prompt["prompt_version"] == expected_versions[role]
@@ -105,6 +115,7 @@ def test_every_role_has_two_fictional_contrastive_few_shot_pairs() -> None:
         "knowledge_graph_construction": {"GRAPH_PATCH"},
         "query": {"ANSWER", "Insufficient graph evidence."},
         "semantic_resolution": {"{"},
+        "decision_case_assembly": {"GRAPH_PATCH"},
     }
     forbidden_real_tokens = re.compile(r"\b(?:DCA|SFO|MIA|CLT|GDP|GS)\b")
     for role, prompt in _catalog()["roles"].items():

@@ -43,6 +43,7 @@ ROLE_KEYS: tuple[str, ...] = (
     "knowledge_graph_construction",
     "query",
     "semantic_resolution",
+    "decision_case_assembly",
 )
 
 # Backwards-compatible alias kept for legacy callers/tests that imported the

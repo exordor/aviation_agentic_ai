@@ -320,3 +320,229 @@ def test_repeated_compilation_produces_identical_ids() -> None:
     assert p1.case_assembly_proposal_id == p2.case_assembly_proposal_id
     assert p1.payload_checksum == p2.payload_checksum
 
+
+class _ScriptedAssemblyModel:
+    def __init__(self, turns: list) -> None:
+        self.turns = list(turns)
+
+    def invoke(self, messages: list, *, phase: str):
+        return self.turns.pop(0)
+
+
+def _assembly_tool_turn():
+    from aviation_agentic_ai.agent_system.contracts import ModelCallRecord, ModelToolCall
+    from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
+    from langchain_core.messages import AIMessage
+
+    calls = [
+        {
+            "id": "call:ev-1",
+            "name": "get_source_evidence",
+            "args": {"evidence_ids": ["evidence:event:type"]},
+            "type": "tool_call",
+        }
+    ]
+    return ToolModelTurn(
+        message=AIMessage(content="", tool_calls=calls),
+        record=ModelCallRecord(
+            agent="decision_case_assembly",
+            raw_response="",
+            prompt_version="decision-case-assembly-v1",
+            tool_calls=[
+                ModelToolCall(
+                    call_id="call:ev-1",
+                    name="get_source_evidence",
+                    arguments={"evidence_ids": ["evidence:event:type"]},
+                )
+            ],
+        ),
+    )
+
+
+def _valid_proposal_text() -> str:
+    return (
+        'GRAPH_PATCH\n'
+        '{"proposal_item_id":"proposal-fact-1","subject_id":"event-1","predicate_iri":"rdf:type","object_kind":"iri","object_value":"atm:GroundStopTMI","evidence_claim_ids":["evidence:event:type"],"derivation_ids":[],"validation_profile_id":"profile-1"}\n\n'
+        'PROFILE_GAPS\n'
+        '{"proposal_item_id":"proposal-gap-1","event_id":"event-1","field":"impacting_condition","normalized_value":"weather","evidence_claim_ids":["evidence:event:weather"],"schema_mapping_reason_code":"not_in_profile","validation_profile_id":"profile-1"}\n'
+    )
+
+
+def test_case_assembly_agent_evidence_schema_choice_success() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
+    from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
+    from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
+    from langchain_core.messages import AIMessage
+
+    task = _assembly_task()
+    turn_1 = _assembly_tool_turn()
+    turn_2 = ToolModelTurn(
+        message=AIMessage(content=_valid_proposal_text()),
+        record=ModelCallRecord(
+            agent="decision_case_assembly",
+            raw_response=_valid_proposal_text(),
+            prompt_version="decision-case-assembly-v1",
+        ),
+    )
+    scripted_model = _ScriptedAssemblyModel([turn_1, turn_2])
+
+    result = run_case_assembly_agent(
+        task=task,
+        binding=_binding(),
+        tool_model_factory=lambda tools: scripted_model,
+    )
+
+    assert result.proposal.assembly_status.value == "ok"
+    assert len(result.model_calls) == 2
+    assert len(result.tool_traces) == 1
+    assert result.feedback is None
+    assert result.failure_reason is None
+
+
+def test_case_assembly_agent_one_allowed_revision_success() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
+    from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
+    from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
+    from langchain_core.messages import AIMessage
+
+    task = _assembly_task()
+    turn_1 = _assembly_tool_turn()
+
+    # Repairable formatting defect: lowercase 'kjfk' for facility
+    repairable_text = (
+        'GRAPH_PATCH\n'
+        '{"proposal_item_id":"proposal-fact-1","subject_id":"event-1","predicate_iri":"atm:controlledFacility","object_kind":"iri","object_value":"kjfk","evidence_claim_ids":["evidence:event:type"],"derivation_ids":[],"validation_profile_id":"profile-1"}\n\n'
+        'PROFILE_GAPS\nNONE\n'
+    )
+    turn_2 = ToolModelTurn(
+        message=AIMessage(content=repairable_text),
+        record=ModelCallRecord(
+            agent="decision_case_assembly",
+            raw_response=repairable_text,
+            prompt_version="decision-case-assembly-v1",
+        ),
+    )
+
+    # Turn 3 applies allowed correction 'KJFK'
+    corrected_text = (
+        'GRAPH_PATCH\n'
+        '{"proposal_item_id":"proposal-fact-1","subject_id":"event-1","predicate_iri":"atm:controlledFacility","object_kind":"iri","object_value":"KJFK","evidence_claim_ids":["evidence:event:type"],"derivation_ids":[],"validation_profile_id":"profile-1"}\n\n'
+        'PROFILE_GAPS\nNONE\n'
+    )
+    turn_3 = ToolModelTurn(
+        message=AIMessage(content=corrected_text),
+        record=ModelCallRecord(
+            agent="decision_case_assembly",
+            raw_response=corrected_text,
+            prompt_version="decision-case-assembly-v1",
+        ),
+    )
+
+    scripted_model = _ScriptedAssemblyModel([turn_1, turn_2, turn_3])
+
+    result = run_case_assembly_agent(
+        task=task,
+        binding=_binding(),
+        tool_model_factory=lambda tools: scripted_model,
+    )
+
+    assert result.proposal.assembly_status.value == "ok"
+    assert result.proposal.revision_count == 1
+    assert len(result.model_calls) == 3
+    assert result.feedback is None
+
+
+def test_case_assembly_agent_hard_semantic_violation_blocks() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
+    from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
+    from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
+    from langchain_core.messages import AIMessage
+
+    task = _assembly_task()
+    turn_1 = _assembly_tool_turn()
+
+    # Forbidden causal claim
+    forbidden_text = (
+        'GRAPH_PATCH\n'
+        '{"proposal_item_id":"proposal-fact-1","subject_id":"event-1","predicate_iri":"atm:causedByWeather","object_kind":"iri","object_value":"atm:Thunderstorm","evidence_claim_ids":["evidence:event:type"],"derivation_ids":[],"validation_profile_id":"profile-1"}\n\n'
+        'PROFILE_GAPS\nNONE\n'
+    )
+    turn_2 = ToolModelTurn(
+        message=AIMessage(content=forbidden_text),
+        record=ModelCallRecord(
+            agent="decision_case_assembly",
+            raw_response=forbidden_text,
+            prompt_version="decision-case-assembly-v1",
+        ),
+    )
+
+    scripted_model = _ScriptedAssemblyModel([turn_1, turn_2])
+
+    result = run_case_assembly_agent(
+        task=task,
+        binding=_binding(),
+        tool_model_factory=lambda tools: scripted_model,
+    )
+
+    assert result.proposal.assembly_status.value == "blocked"
+    assert len(result.model_calls) == 2  # No turn 3 attempted!
+    assert result.feedback is not None
+    assert result.feedback.repairable is False
+
+
+def test_case_assembly_agent_malformed_output_blocks_without_repair() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
+    from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
+    from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
+    from langchain_core.messages import AIMessage
+
+    task = _assembly_task()
+    turn_1 = _assembly_tool_turn()
+    turn_2 = ToolModelTurn(
+        message=AIMessage(content="GRAPH_PATCH\nnot a json line\n"),
+        record=ModelCallRecord(
+            agent="decision_case_assembly",
+            raw_response="GRAPH_PATCH\nnot a json line\n",
+            prompt_version="decision-case-assembly-v1",
+        ),
+    )
+
+    scripted_model = _ScriptedAssemblyModel([turn_1, turn_2])
+
+    result = run_case_assembly_agent(
+        task=task,
+        binding=_binding(),
+        tool_model_factory=lambda tools: scripted_model,
+    )
+
+    assert result.proposal.assembly_status.value == "blocked"
+    assert len(result.model_calls) == 2
+
+
+def test_case_assembly_agent_replay_stability() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
+    from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
+    from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
+    from langchain_core.messages import AIMessage
+
+    task = _assembly_task()
+
+    def _make_model():
+        turn_1 = _assembly_tool_turn()
+        turn_2 = ToolModelTurn(
+            message=AIMessage(content=_valid_proposal_text()),
+            record=ModelCallRecord(
+                agent="decision_case_assembly",
+                raw_response=_valid_proposal_text(),
+                prompt_version="decision-case-assembly-v1",
+            ),
+        )
+        return _ScriptedAssemblyModel([turn_1, turn_2])
+
+    res1 = run_case_assembly_agent(task=task, binding=_binding(), tool_model_factory=lambda tools: _make_model())
+    res2 = run_case_assembly_agent(task=task, binding=_binding(), tool_model_factory=lambda tools: _make_model())
+
+    assert res1.proposal.case_assembly_proposal_id == res2.proposal.case_assembly_proposal_id
+    assert res1.proposal.payload_checksum == res2.proposal.payload_checksum
+
+
