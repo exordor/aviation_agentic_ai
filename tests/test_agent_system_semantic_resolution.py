@@ -641,6 +641,158 @@ def test_semantic_resolution_blocks_oversize_rendered_input_before_constructing_
     assert factory_calls == 0
 
 
+def test_semantic_resolution_counts_bound_tool_schemas_in_first_provider_input_budget(
+    monkeypatch,
+):
+    from aviation_agentic_ai.agent_system import semantic_resolution
+
+    task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
+    model = _ScriptedToolModel(
+        [
+            _tool_turn(
+                {
+                    "call_id": "call:authority",
+                    "name": "get_authority_record",
+                    "arguments": {"candidate_id": "facility:KJFK"},
+                },
+            ),
+            _final_turn(
+                '{"decision":"accepted","selected_candidate_id":"facility:KJFK","rejected_candidate_ids":["facility:KBOS"],"limitation":null}'
+            ),
+        ]
+    )
+    monkeypatch.setattr(semantic_resolution, "MAX_RENDERED_INPUT_TOKENS", 700)
+
+    result = _run(task, model)
+
+    assert result.proposal.decision.value == "blocked"
+    assert "input budget" in str(result.failure_reason)
+    assert model.invocations == []
+
+
+def test_semantic_resolution_counts_tool_observations_in_final_provider_input_budget(
+    monkeypatch,
+):
+    from aviation_agentic_ai.agent_system import semantic_resolution
+
+    task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
+    claim = next(row for row in task.authority_evidence if row.candidate_id == "facility:KJFK")
+    enlarged_claim = claim.model_copy(
+        update={"authority_record_text": "facility:KJFK " + "X" * 20000}
+    )
+    oversized_observation_task = task.model_copy(
+        update={
+            "authority_evidence": tuple(
+                enlarged_claim if row.evidence_id == claim.evidence_id else row
+                for row in task.authority_evidence
+            )
+        }
+    )
+    model = _ScriptedToolModel(
+        [
+            _tool_turn(
+                {
+                    "call_id": "call:authority",
+                    "name": "get_authority_record",
+                    "arguments": {"candidate_id": "facility:KJFK"},
+                },
+            ),
+            _final_turn(
+                '{"decision":"accepted","selected_candidate_id":"facility:KJFK","rejected_candidate_ids":["facility:KBOS"],"limitation":null}'
+            ),
+        ]
+    )
+    monkeypatch.setattr(semantic_resolution, "MAX_RENDERED_INPUT_TOKENS", 4096)
+
+    result = _run(oversized_observation_task, model)
+
+    assert result.proposal.decision.value == "blocked"
+    assert "input budget" in str(result.failure_reason)
+    assert model.invocations == ["select_tool"]
+
+
+def test_semantic_resolution_final_budget_excludes_unbound_tool_schemas(
+    monkeypatch,
+):
+    from aviation_agentic_ai.agent_system import semantic_resolution
+    from aviation_agentic_ai.agent_system.resolution_tools import (
+        ResolutionToolGateway,
+        build_resolution_tools,
+    )
+
+    task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
+    first_budget = semantic_resolution._estimated_input_tokens(
+        semantic_resolution._base_messages(
+            task, catalog_path="configs/prompts/agent_system_v1.yaml"
+        ),
+        bound_tools=build_resolution_tools(ResolutionToolGateway(task=task)),
+    )
+    model = _ScriptedToolModel(
+        [
+            _tool_turn(
+                {
+                    "call_id": "call:authority",
+                    "name": "get_authority_record",
+                    "arguments": {"candidate_id": "facility:KJFK"},
+                },
+                {
+                    "call_id": "call:constraints",
+                    "name": "check_candidate_constraints",
+                    "arguments": {"candidate_ids": ["facility:KJFK"]},
+                },
+            ),
+            _final_turn(
+                '{"decision":"accepted","selected_candidate_id":"facility:KJFK","rejected_candidate_ids":["facility:KBOS"],"limitation":null}'
+            ),
+        ]
+    )
+    monkeypatch.setattr(semantic_resolution, "MAX_RENDERED_INPUT_TOKENS", first_budget)
+
+    result = _run(task, model)
+
+    assert result.proposal.decision.value == "accepted"
+    assert result.failure_reason is None
+    assert model.invocations == ["select_tool", "final_answer"]
+
+
+def test_semantic_resolution_requires_observed_candidate_distinguishing_authority_content():
+    task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
+    claim = next(row for row in task.authority_evidence if row.candidate_id == "facility:KJFK")
+    generic_claim = claim.model_copy(
+        update={
+            "authority_record_text": "generic airport authority record",
+            "authority_record_locator": "APT.txt:generic",
+        }
+    )
+    non_distinguishing_task = task.model_copy(
+        update={
+            "authority_evidence": tuple(
+                generic_claim if row.evidence_id == claim.evidence_id else row
+                for row in task.authority_evidence
+            )
+        }
+    )
+    model = _ScriptedToolModel(
+        [
+            _tool_turn(
+                {
+                    "call_id": "call:authority",
+                    "name": "get_authority_record",
+                    "arguments": {"candidate_id": "facility:KJFK"},
+                },
+            ),
+            _final_turn(
+                '{"decision":"accepted","selected_candidate_id":"facility:KJFK","rejected_candidate_ids":["facility:KBOS"],"limitation":null}'
+            ),
+        ]
+    )
+
+    result = _run(non_distinguishing_task, model)
+
+    assert result.proposal.decision.value == "blocked"
+    assert "distinguishing authority content" in str(result.failure_reason)
+
+
 def test_semantic_resolution_enforces_the_256_token_provider_output_cap():
     task = _task(eligible_ids=("facility:KJFK", "facility:KBOS"))
     model = _ScriptedToolModel(

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import math
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -26,6 +25,7 @@ from aviation_agentic_ai.agent_system.decision_case_contracts import (
 )
 from aviation_agentic_ai.agent_system.prompts import DEFAULT_PROMPT_CATALOG, assemble_prompt
 from aviation_agentic_ai.agent_system.resolution_tools import (
+    AuthorityRecordObservation,
     ResolutionToolGateway,
     ResolutionToolResult,
     build_resolution_tools,
@@ -85,11 +85,119 @@ def _base_messages(task: ResolutionTask, *, catalog_path: str) -> list[BaseMessa
     return messages
 
 
-def _estimated_input_tokens(messages: list[BaseMessage]) -> int:
-    """Use a deterministic local byte estimate when no provider tokenizer exists."""
+def _final_messages(
+    messages: list[BaseMessage],
+    tool_selection: AIMessage,
+    tool_messages: list[ToolMessage],
+) -> list[BaseMessage]:
+    """Keep only the final provider-visible instruction, task, and observations."""
 
-    rendered = "\n".join(str(message.content) for message in messages)
-    return math.ceil(len(rendered.encode("utf-8")) / 4)
+    return [messages[0], messages[-1], tool_selection, *tool_messages]
+
+
+def _tool_definition(tool: BaseTool) -> dict[str, Any]:
+    """Project one bound tool into the provider-facing JSON-schema shape."""
+
+    schema = tool.args_schema
+    if hasattr(schema, "model_json_schema"):
+        parameters = schema.model_json_schema()
+    elif isinstance(schema, dict):
+        parameters = schema
+    else:
+        parameters = {}
+    return {
+        "name": tool.name,
+        "description": tool.description,
+        "parameters": parameters,
+    }
+
+
+def _message_payload(message: BaseMessage) -> dict[str, Any]:
+    """Preserve every provider-visible message field used by this loop."""
+
+    payload: dict[str, Any] = {
+        "type": message.type,
+        "content": sanitize_json_value(message.content),
+    }
+    if isinstance(message, AIMessage):
+        payload["tool_calls"] = sanitize_json_value(message.tool_calls)
+    if isinstance(message, ToolMessage):
+        payload["tool_call_id"] = message.tool_call_id
+    return payload
+
+
+def _estimated_input_tokens(
+    messages: list[BaseMessage],
+    *,
+    bound_tools: list[BaseTool] | None = None,
+) -> int:
+    """Use UTF-8 payload bytes as a conservative local token upper bound."""
+
+    payload = {
+        "messages": [_message_payload(message) for message in messages],
+        "tools": [_tool_definition(tool) for tool in bound_tools or []],
+    }
+    rendered = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        default=str,
+    )
+    return len(rendered.encode("utf-8"))
+
+
+def _observed_distinguishing_authority_content(
+    *,
+    task: ResolutionTask,
+    candidate_id: str,
+    observed_content: list[str],
+) -> bool:
+    """Require a selected candidate's own observed authority text to distinguish it."""
+
+    candidate = next(row for row in task.candidates if row.candidate_id == candidate_id)
+    markers = {
+        candidate.surface_form.strip().casefold(),
+        candidate.preferred_label.strip().casefold(),
+        candidate.candidate_id.rsplit(":", maxsplit=1)[-1].strip().casefold(),
+    }
+    other_markers = {
+        marker
+        for row in task.candidates
+        if row.candidate_id != candidate_id and row.eligible
+        for marker in {
+            row.surface_form.strip().casefold(),
+            row.preferred_label.strip().casefold(),
+            row.candidate_id.rsplit(":", maxsplit=1)[-1].strip().casefold(),
+        }
+    }
+    distinctive = {marker for marker in markers if marker and marker not in other_markers}
+    content = "\n".join(observed_content).casefold()
+    return any(marker in content for marker in distinctive)
+
+
+def _model_tool_observation(result: ResolutionToolResult) -> str:
+    """Project a tool result to fields needed for the final bounded decision."""
+
+    item_fields = (
+        "candidate_id",
+        "candidate_kind",
+        "candidate_type",
+        "ontology_class_prefixed",
+        "ontology_class_iri",
+        "authority_record_text",
+        "check_kind",
+        "status",
+    )
+    payload = {
+        "tool": result.tool,
+        "status": result.status,
+        "items": [
+            {key: value for key, value in item.model_dump().items() if key in item_fields}
+            for item in result.items
+        ],
+    }
+    return json.dumps(payload, sort_keys=True, separators=(",", ":"))
 
 
 def _message_text(message: AIMessage) -> str:
@@ -243,14 +351,6 @@ def run_semantic_resolution_agent(
     model_calls: list[ModelCallRecord] = []
     traces: list[ToolTraceEntry] = []
     messages = _base_messages(task, catalog_path=catalog_path)
-    if _estimated_input_tokens(messages) > MAX_RENDERED_INPUT_TOKENS:
-        return _blocked(
-            task=task,
-            binding=binding,
-            model_calls=model_calls,
-            traces=traces,
-            reason="Semantic Resolution Agent rendered input budget exceeded",
-        )
     if tool_model_factory is None:
         return _blocked(
             task=task,
@@ -261,6 +361,14 @@ def run_semantic_resolution_agent(
         )
 
     tools = build_resolution_tools(ResolutionToolGateway(task=task))
+    if _estimated_input_tokens(messages, bound_tools=tools) > MAX_RENDERED_INPUT_TOKENS:
+        return _blocked(
+            task=task,
+            binding=binding,
+            model_calls=model_calls,
+            traces=traces,
+            reason="Semantic Resolution Agent rendered input budget exceeded",
+        )
     registry = {tool.name: tool for tool in tools}
     model = tool_model_factory(tools)
     first = model.invoke(messages, phase="select_tool")
@@ -323,6 +431,7 @@ def run_semantic_resolution_agent(
     seen_names: set[str] = set()
     observed_evidence_by_candidate: dict[str, set[str]] = {}
     observed_sources_by_evidence: dict[str, str] = {}
+    observed_authority_content_by_candidate: dict[str, list[str]] = {}
     tool_messages: list[ToolMessage] = []
     for call in calls:
         call_id = str(call.get("id") or "").strip()
@@ -414,9 +523,28 @@ def run_semantic_resolution_agent(
                     if claim.evidence_id == evidence_id
                 )
                 observed_sources_by_evidence[evidence_id] = source
-        tool_messages.append(ToolMessage(content=str(content), tool_call_id=call_id))
+        for item in result.items:
+            if isinstance(item, AuthorityRecordObservation):
+                observed_authority_content_by_candidate.setdefault(item.candidate_id, []).append(
+                    item.authority_record_text
+                )
+        tool_messages.append(
+            ToolMessage(
+                content=_model_tool_observation(result),
+                tool_call_id=call_id,
+            )
+        )
 
-    second = model.invoke(messages + [first.message, *tool_messages], phase="final_answer")
+    final_messages = _final_messages(messages, first.message, tool_messages)
+    if _estimated_input_tokens(final_messages) > MAX_RENDERED_INPUT_TOKENS:
+        return _blocked(
+            task=task,
+            binding=binding,
+            model_calls=model_calls,
+            traces=traces,
+            reason="Semantic Resolution Agent rendered input budget exceeded",
+        )
+    second = model.invoke(final_messages, phase="final_answer")
     model_calls.append(second.record)
     if second.record.error:
         return _blocked(
@@ -488,6 +616,20 @@ def run_semantic_resolution_agent(
                 model_calls=model_calls,
                 traces=traces,
                 reason="selected candidate did not observe authority support",
+            )
+        if not _observed_distinguishing_authority_content(
+            task=task,
+            candidate_id=final.selected_candidate_id,
+            observed_content=observed_authority_content_by_candidate.get(
+                final.selected_candidate_id, []
+            ),
+        ):
+            return _blocked(
+                task=task,
+                binding=binding,
+                model_calls=model_calls,
+                traces=traces,
+                reason="selected candidate did not observe distinguishing authority content",
             )
         if set(final.rejected_candidate_ids) != expected_rejected - {final.selected_candidate_id}:
             return _blocked(
