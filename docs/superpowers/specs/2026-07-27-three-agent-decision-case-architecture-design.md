@@ -982,7 +982,9 @@ failed `ModelCallRecord`, consumes the provider-call budget, and returns
 
 ### Batch C: Decision Case Assembly Agent
 
-Implementation status: inactive.
+Implementation status: implemented and locally verified on
+`codex/decision-case-assembly-agent`; the three canonical cases use the
+zero-call deterministic compiler. Decision Case Analysis remains inactive.
 
 - evolve the current graph-construction tool loop into case-slot-aware
   assembly;

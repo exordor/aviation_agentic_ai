@@ -3,21 +3,23 @@
 Aviation Agentic AI is a system and framework for building source-bounded
 aviation event knowledge from retrospective FAA ATCSCC advisories.
 
-It coordinates four construction Agents, applies a deterministic publication
-gate, materializes a validated event graph, and answers a registered set of
-decision-record questions with explicit source evidence. The active feature
-branch also reconstructs time-bounded weather context and BTS-reported public
-operational observations through deterministic adapters.
+It coordinates bounded interpretation, semantic-resolution, and case-assembly
+roles, applies a deterministic publication gate, materializes a validated event
+graph, and answers a registered set of decision-record questions with explicit
+source evidence. Deterministic adapters reconstruct time-bounded weather
+context and BTS-reported public operational observations before assembly.
 
 ```text
 ATCSCC advisory
   -> Advisory Agent
-  -> Facility Agent + Terminology Agent
-  -> Knowledge Graph Construction Agent
+  -> Facility + terminology authority resolution
+  -> deterministic Weather + BTS context preparation
+  -> sealed Decision Case Assembly task
+  -> deterministic compiler or bounded Decision Case Assembly Agent
+  -> strict preflight
   -> Formal Graph Kernel
-  -> deterministic Weather + BTS context adapters
-  -> JSONL + RDF/Turtle + Neo4j projection
-  -> Query Agent
+  -> publication/materialization
+  -> Query Agent with bounded read-only tools
 ```
 
 ## What The System Does
@@ -25,7 +27,9 @@ ATCSCC advisory
 - Ingests one selected ATCSCC advisory per run.
 - Uses FAA facility and terminology records as bounded authority sources.
 - Resolves canonical facilities and operational terms.
-- Produces a Graph Patch through a bounded tool-using construction Agent.
+- Produces a task-bounded Graph Patch through deterministic assembly for the
+  three canonical records or a bounded tool-using Assembly Agent when a genuine
+  evidence/schema choice exists.
 - Publishes only facts accepted by the deterministic Formal Graph Kernel.
 - Preserves source IDs, evidence spans, fact traces, and profile gaps.
 - Selects eligible TAF/METAR records as time-bounded, non-causal decision
@@ -101,9 +105,9 @@ the loader never clears unrelated graph data.
 | Component | Responsibility |
 | --- | --- |
 | Advisory Agent | Parses one advisory and identifies source-supported mentions. |
-| Facility Agent | Resolves facility mentions against bounded authority records. |
-| Terminology Agent | Normalizes operational terms against the admitted registry. |
-| Knowledge Graph Construction Agent | Uses bounded schema and evidence tools to propose a Graph Patch. |
+| Facility and Terminology compatibility branches | Generate bounded authority candidates and resolve deterministic outcomes. |
+| Semantic Resolution Agent | Resolves only genuine multi-candidate ambiguity through source-bounded tools. |
+| Decision Case Assembly Agent | Selects among admitted evidence/schema choices and proposes an exact projection of a sealed task. |
 | Formal Graph Kernel | Validates schema, identity, evidence, provenance, datatype, and graph constraints. |
 | Query Agent | Selects bounded read-only tools and composes source-grounded answers. |
 
@@ -123,8 +127,8 @@ The decision-record critical fixes are also on `main`:
 - Cancellation `020` returns an honest missing-reason result without a model
   call.
 
-The active `codex/decision-case-graph-v1` branch extends those records with
-deterministic Weather and BTS context:
+The active `codex/decision-case-assembly-agent` branch extends those records
+with deterministic Weather/BTS context and Batch C Decision Case Assembly:
 
 - TAF selection is limited to forecasts issued no later than the advisory and
   valid during the TMI operational period.
@@ -133,7 +137,15 @@ deterministic Weather and BTS context:
   and enter the formal graph only through the source-qualified public
   observation profile.
 - Optional context failures do not erase a validated core advisory event.
-- The extension introduces no new Agent role and no additional model calls.
+- A sealed task binds formal facts, profile gaps, context associations, public
+  observations, source snapshots, and component states before assembly.
+- The three canonical records use the deterministic compiler and make zero
+  Decision Case Assembly provider calls.
+- A bounded Assembly Agent is available only for genuine non-canonical
+  evidence/schema choices; strict preflight prevents it from changing task
+  identity, schema, evidence, profile gaps, or source ownership.
+- The Formal Graph Kernel remains the sole final publication authority.
+- Decision Case Analysis remains inactive.
 
 The read-only browser visualization is implemented separately on
 `codex/kg-visualization-research`. That branch is paused and has not been merged

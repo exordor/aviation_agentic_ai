@@ -1,7 +1,7 @@
 # Multi-Agent Aviation Event Knowledge System
 
 Status: normative implementation design
-Version: 1.3
+Version: 1.4
 Date: 2026-07-27
 
 ## 1. Purpose
@@ -17,7 +17,10 @@ extension established the bounded Weather/BTS adapters. Decision Case Graph v1
 adds source-qualified BTS-reported public operational observations without
 adding Agent roles or causal claims. Batch B adds one shared Semantic
 Resolution Agent behind the existing facility and terminology compatibility
-branches. It activates only for genuine multi-candidate ambiguity.
+branches. It activates only for genuine multi-candidate ambiguity. Batch C
+replaces the legacy graph-construction runtime with a sealed Decision Case
+Assembly task, a zero-call compiler for the three canonical cases, and a
+bounded Assembly Agent for genuine non-canonical evidence/schema choice.
 
 The project objective is to build a useful and extensible system. It is not
 currently a Single-Agent versus Multi-Agent comparison experiment, a Gold-set
@@ -31,13 +34,14 @@ ATCSCC advisory
     -> Facility Agent and Terminology Agent compatibility branches
        -> deterministic blocked / insufficient / unique outcomes
        -> shared Semantic Resolution Agent for multiple eligible candidates
-    -> Knowledge Graph Construction Agent
-    -> ontology-constrained Graph Patch
-    -> core formal validation and materialization
-    -> deterministic decision_context node
-       -> Weather context and BTS outcome adapters
-       -> profile-owned public-observation facts and derivation traces
-       -> final RDF and Neo4j artifacts
+    -> deterministic Weather/BTS context preparation and validation
+    -> sealed Decision Case Assembly task
+       -> deterministic compiler for Ground Stop 123, GDP 138, and GDP 020
+       -> bounded Decision Case Assembly Agent only for genuine
+          evidence/schema choice
+    -> strict task-signature preflight
+    -> Formal Graph Kernel
+    -> profile-owned publication, materialization, and audit artifacts
     -> Query Agent
     -> graph-grounded answer with source IDs
 ```
@@ -55,14 +59,15 @@ ATCSCC advisory
 - The existing NASA ATMONTO-derived ATCSCC schema profile.
 - The curated NASA ATMONTO weather profile slice.
 - The curated SOSA/PROV/TIME/QUDT public-observation profile.
-- Five existing compatibility role surfaces:
+- Existing interpretation, compatibility, and query role surfaces:
   - Advisory Agent
   - Facility Agent
   - Terminology Agent
-  - Knowledge Graph Construction Agent
   - Query Agent
 - One shared Semantic Resolution Agent that is conditionally activated behind
   the facility and terminology branches.
+- One Decision Case Assembly Agent conditionally activated behind a sealed
+  Assembly task; the three canonical cases use its deterministic compiler.
 - LangGraph for the fixed collaboration topology.
 - LangChain for model invocation.
 - Pydantic for internal Python contracts.
@@ -117,19 +122,21 @@ flowchart LR
     F -. "multiple eligible candidates" .-> X
     I["ATCSCC Schema Guide"] --> B
     I --> F
-    I --> J["Knowledge Graph Construction Agent"]
-    B --> J
-    E --> J
-    F --> J
-    X -->|"sealed proposal through compatibility branch"| J
-    J --> K["Graph Patch Parser"]
-    K --> L["Schema Validator"]
-    L --> M["Core RDF / Neo4j Materializer"]
-    M --> S["Deterministic decision_context"]
+    B --> S["Deterministic Context Preparation"]
+    E --> S
+    F --> S
+    X -->|"sealed proposal through compatibility branch"| S
     T["METAR / TAF Snapshots"] --> S
     U["BTS On-Time Snapshot"] --> S
-    S --> V["Multi-profile Formal Validation"]
-    V --> N["Final Formal Knowledge Graph"]
+    S --> J["Sealed Decision Case Assembly Task"]
+    I --> J
+    J --> C1["Deterministic Compiler for 123 / 138 / 020"]
+    J -. "genuine evidence/schema choice" .-> C2["Decision Case Assembly Agent"]
+    C1 --> K["Strict Preflight"]
+    C2 --> K
+    K --> L["Formal Graph Kernel"]
+    L --> M["Publication / Materialization"]
+    M --> N["Final Formal Knowledge Graph"]
     S --> W["Audit-only Context / Derivation Artifacts"]
     O["User Question"] --> P["Query Agent"]
     P --> Q["Graph Search Tools"]
@@ -147,12 +154,14 @@ call an LLM and is not counted as an Agent role.
 
 ### 4.1 Decision Case Graph v1 extension
 
-After the core event and canonical facility pass formal validation, the
-`decision_context` node invokes two deterministic adapters. Weather is
-validated against a transient advisory-plus-Weather registry; BTS is validated
-against a separate BTS-only registry. The node then persists one combined
-registry containing the advisory and only the selected, validated context
-sources:
+After advisory and authority resolution, the `prepare_context` node invokes two
+deterministic adapters in memory. Weather is validated against a transient
+advisory-plus-Weather registry; BTS is validated against a separate BTS-only
+registry. Their validated records and explicit missing/blocked states are
+sealed into the Decision Case Assembly task. No context artifact is published
+before Assembly preflight and the Formal Graph Kernel. The later
+`decision_context` node publishes only context whose event identity still
+matches the Kernel-accepted event:
 
 ```text
 validated event + canonical airport + METAR/TAF snapshots
@@ -231,8 +240,8 @@ demand, AAR, causal relations, or semantic-equivalence properties.
 - operational-term to event-class mapping;
 - compact context selection for the current event class.
 
-The Knowledge Graph Construction Agent receives only a compact relevant slice,
-not the complete OWL ontology.
+The active Decision Case Assembly Agent receives only compact task-bound schema
+context, not the complete OWL ontology.
 
 ### 5.4 Initial ontology mappings
 
@@ -536,9 +545,18 @@ proposal with a limitation but no provider-attempt record. A provider invocation
 failure adds a failed `ModelCallRecord`, consumes that provider-call budget, and
 returns `blocked`. Automated Batch B acceptance uses scripted tool-model stubs
 or replay only. The separate bounded live semantic smoke remains pending.
-Decision Case Assembly and Decision Case Analysis are not active.
+Decision Case Assembly is active in Batch C. Decision Case Analysis remains
+inactive.
 
-## 11. Knowledge Graph Construction Agent
+## 11. Decision Case Assembly and Legacy Construction Compatibility
+
+The public workflow node retains the internal name `kg_construction` for
+compatibility, but it no longer invokes the legacy Knowledge Graph Construction
+Agent. It now seals and executes Decision Case Assembly as defined in
+Section 14.2. The legacy design below records the predecessor contract and
+should not be read as the active publication path.
+
+### 11.0 Legacy Knowledge Graph Construction Agent
 
 ### 11.1 Goal
 
@@ -731,15 +749,14 @@ START
          -> the same shared Semantic Resolution Agent only for multiple
             eligible terminology candidates
   -> evidence-card join
-  -> Knowledge Graph Construction Agent
-  -> Graph Patch parser
-  -> schema validator
-  -> RDF/Neo4j materializer
-  -> decision_context
-       -> deterministic Weather/BTS adapters
-       -> independent profile validation
-       -> observation derivation validation
-       -> final materialization and audit artifacts
+  -> deterministic Weather/BTS preparation and independent profile validation
+  -> sealed Decision Case Assembly task
+  -> deterministic compiler for 123 / 138 / 020
+       or bounded Decision Case Assembly Agent for genuine choice
+  -> strict task-signature preflight
+  -> Formal Graph Kernel
+  -> publication/materialization
+  -> decision_context publication of the already validated optional context
   -> END
 ```
 
@@ -756,17 +773,20 @@ START
   -> END
 ```
 
-Decision Case Graph v1 is a post-validation deterministic branch:
+Decision Case Graph v1 is split between pre-Assembly preparation and
+post-Kernel publication:
 
 ```text
-validated event + canonical facility
+resolved event + canonical facility
   -> Weather adapter
   -> BTS adapter
   -> Weather-profile validation
   -> public-observation construction and profile validation
-  -> append formal Weather facts
-  -> append formal BTS-reported observation facts
-  -> write audit-only associations, summaries, derivations, and fact traces
+  -> seal selected records and explicit layer states into Assembly task
+  -> Assembly preflight and Formal Graph Kernel
+  -> recheck accepted event identity
+  -> append validated Weather/public-observation facts
+  -> write audit-only associations, summaries, derivations, and traces
   -> bounded deterministic query tools
 ```
 
@@ -787,42 +807,51 @@ existing `AgentResult`, resolution-domain outcome, authority-source registry,
 and model-call ledger. The sealed task, proposal, and safe tool trace remain in
 workflow state for replay and testing.
 
-### 11.8 Decision Case Assembly Agent (Batch C)
+### 14.2 Decision Case Assembly Agent (Batch C)
 
-In Batch C (`batch-c-decision-case-assembly-v1`), the Knowledge Graph
-Construction node is evolved to run the offline Decision Case Assembly Agent
-pipeline:
+In Batch C (`batch-c-decision-case-assembly-v1`), the compatibility
+`kg_construction` node runs the Decision Case Assembly pipeline after
+deterministic Weather/BTS preparation:
 
 1. **CaseAssemblyTask:** The workflow constructs an immutable, sealed
    `CaseAssemblyTask` carrying core event facts, resolution proposal IDs,
    schema slice bindings, and multi-source evidence references.
-2. **Deterministic Compiler Fallback:** When no provider model factory is
-   supplied, `compile_case_assembly_proposal` operates offline (0 provider calls)
-   to assemble a valid proposal deterministically. The three approved decision
-   cases (Ground Stop 123, GDP 138, GDP 020) compile deterministically using this path.
-3. **Bounded Agent Loop:** When an assembly model factory is supplied,
-   `run_case_assembly_agent` executes in up to 3 turns:
+2. **Deterministic Compiler:** Ground Stop 123, GDP 138, and GDP 020 always use
+   `compile_case_assembly_proposal` with zero Assembly provider construction or
+   calls. Other cases also remain deterministic unless a dedicated Assembly
+   factory and a genuine evidence/schema choice are both present.
+3. **Bounded Agent Loop:** Only an activated dedicated Assembly factory runs
+   `run_case_assembly_agent`, in up to 3 turns:
    - Turn 1: Batch read-only tool selection (`get_case_requirements`,
      `get_schema_context`, `get_source_evidence`, `get_resolution_result`,
      `get_context_associations`, `get_public_observations` — max 6 tool calls across
      activation).
-   - Turn 2: Proposal generation (`GRAPH_PATCH` and `PROFILE_GAPS`).
-     Evaluated by `preflight_validate_case_assembly_proposal`.
+   - Turn 2: Proposal generation (`GRAPH_PATCH` and `PROFILE_GAPS`), evaluated
+     against the exact sealed task signature.
    - Turn 3 (Revision): At most 1 validation-guided revision turn if a repairable
-     defect occurs (`ALLOWED_VALUE_FORMAT_DEFECT`). Hard causal violations
-     (`FORBIDDEN_CAUSAL_CLAIM`) block immediately without Turn 3.
+     lowercase-to-authorized-uppercase value defect occurs. Only the named
+     fact's `object_value` may change to an explicitly allowed correction.
+     Hard causal, out-of-task, out-of-schema, source-binding, profile, or
+     evidence violations block.
 4. **Contract Execution Binding:** Every task, proposal, and validation feedback is
    sealed with `ContractExecutionBinding` (`run_id`, `created_at`, `tool_version`).
-5. **Kernel Authority:** The deterministic Formal Graph Kernel (`validate_graph_patch`)
-   remains the sole final publication authority.
+5. **Strict Preflight:** Every `ok` or `partial` proposal must retain the exact
+   task-owned fact IDs, profile gaps, evidence, resolution results, context
+   associations, component artifacts, and source bindings. A declared reason
+   must be supported only by ATCSCC advisory evidence and cannot use a
+   Weather/BTS derivation.
+6. **Kernel Authority:** The deterministic Formal Graph Kernel
+   (`validate_graph_patch`) remains the sole final publication authority.
 
-### 14.2 Batch C Decision Case Assembly status
+### 14.3 Batch C Decision Case Assembly status
 
 Batch C activates Decision Case Assembly behind contract execution bindings and
 preflight validation while preserving all existing ATCSCC, Weather, BTS,
 provenance, and query contracts. Decision Case Analysis remains inactive.
 Automated regression tests verify deterministic assembly (0 provider calls)
-and replay stability across all three canonical decision cases.
+and replay stability across all three canonical decision cases. Optional
+context preparation occurs before task sealing; publication occurs only after
+the Assembly proposal passes strict preflight and the Formal Graph Kernel.
 
 ## 15. Memory Model
 
@@ -979,6 +1008,8 @@ src/aviation_agentic_ai/agent_system/
   __init__.py
   contracts.py
   decision_case_contracts.py
+  case_assembly_tools.py
+  case_assembly.py
   prompts.py
   resolution_tools.py
   semantic_resolution.py
@@ -1033,11 +1064,15 @@ the raw advisory.
 ### 20.1 Component tests
 
 - Every Agent can call only its declared tools.
-- The Knowledge Graph Construction Agent receives context references first,
-  selects its read-only tools with native tool calls, and receives matching
-  `ToolMessage` observations before generating a Graph Patch.
-- The KG prompt does not preload the full Schema Guide or EvidenceCards.
-- The KG tool loop makes at most two model calls and three tool calls.
+- The three canonical cases use the deterministic Assembly compiler and do not
+  construct or call an Assembly provider.
+- An activated Decision Case Assembly Agent receives only sealed record IDs,
+  selects one batch of task-bounded read-only tools, and receives matching
+  `ToolMessage` observations before emitting a proposal.
+- The Assembly prompt does not preload full evidence records or raw source
+  documents.
+- The Assembly loop makes at most three model calls and six tool calls,
+  including no more than one value-only revision.
 - The Advisory Agent does not canonicalize facilities or terms.
 - Unique authority facility and terminology paths make no model call.
 - Pre-activation blocked, insufficient, zero-candidate, and unique-candidate
@@ -1067,8 +1102,11 @@ the raw advisory.
 - The Query Agent sees graph-tool results, not raw source documents.
 - Missing graph evidence produces `Insufficient graph evidence.`.
 - No trace stores chain-of-thought or credentials.
-- The run manifest records the KG Construction Agent EvidenceCard and safe tool
-  trace.
+- Every publishable Assembly proposal exactly matches its sealed task-owned
+  formal facts, profile gaps, evidence, resolution, context, component, and
+  source-binding sets before entering the Formal Graph Kernel.
+- The run manifest records the sealed Assembly task/proposal and safe tool
+  traces when the Agent path is activated.
 - Every new run records `source_snapshots.jsonl`,
   `context_associations.jsonl`, `outcome_summaries.jsonl`, and
   `weather_fact_trace.jsonl`, plus `observation_derivations.jsonl`,

@@ -14,12 +14,14 @@ The active pipeline is:
 ```text
 ATCSCC advisory + bounded FAA authority records
   -> Advisory Agent
-  -> Facility Agent and Terminology Agent
-  -> Knowledge Graph Construction Agent
+  -> facility and terminology authority resolution
+  -> deterministic Weather and BTS context preparation and validation
+  -> sealed Decision Case Assembly task
+  -> deterministic compiler for the three canonical cases or bounded
+     Decision Case Assembly Agent for genuine evidence/schema choice
+  -> strict preflight
   -> deterministic Formal Graph Kernel
-  -> deterministic Weather and BTS context adapters
-  -> profile-owned decision, Weather, and public-observation facts
-  -> JSONL + RDF + Neo4j projection
+  -> profile-owned publication and JSONL + RDF + Neo4j materialization
   -> Query Agent with bounded read-only graph tools
 ```
 
@@ -37,11 +39,14 @@ names, not internal alphanumeric labels.
   projection, and bounded Query Agent path.
 - The three Decision Record Explorer cases have deterministic query support on
   `main`, including a profile-gap reason and an honest missing-reason outcome.
-- `codex/decision-case-graph-v1` adds time-bounded, non-causal METAR/TAF
-  context and BTS-reported public operational observations for the same three
-  records. Dedicated validation profiles admit source-qualified facts to the
-  formal graph; deterministic derivation and query paths add no Agent role or
-  model call.
+- `codex/decision-case-assembly-agent` prepares time-bounded, non-causal
+  METAR/TAF context and BTS-reported public operational observations before
+  sealing one Decision Case Assembly task. The three canonical records use the
+  zero-call deterministic compiler; only a genuine non-canonical
+  evidence/schema choice may activate the bounded Assembly Agent. Strict
+  preflight precedes the Formal Graph Kernel, which remains the sole final
+  publication authority.
+- Decision Case Analysis is inactive.
 - The read-only visualization prototype is isolated on
   `codex/kg-visualization-research`. Visualization is paused and is not the
   active `main` implementation track.

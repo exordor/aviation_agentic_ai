@@ -6,12 +6,12 @@ This file contains only the active execution queue and immediate deferred
 decisions. Historical experiment backlogs are discoverable through
 `ARTIFACT_INDEX.md` and Git history.
 
-## Current Stage - Decision Case Graph v1
+## Current Stage - Batch C Decision Case Assembly
 
-Objective: reconstruct three auditable historical decision cases by connecting
-validated ATCSCC records to time-bounded Weather context and BTS-reported public
-operational observations without causal, prescriptive, or model-generated
-expansion.
+Objective: reconstruct three auditable historical decision cases by preparing
+validated Weather/BTS context, sealing one task-bounded Assembly input, and
+publishing only proposals accepted by strict preflight and the Formal Graph
+Kernel.
 
 - [x] Add a canonical multi-source snapshot registry and per-source checksum
   validation.
@@ -33,10 +33,22 @@ expansion.
   checks.
 - [x] Complete documentation review and the full repository verification gate.
 - [x] Keep the reviewed branch unpushed and unmerged for user review.
+- [x] Move deterministic Weather/BTS preparation before Decision Case
+  Assembly.
+- [x] Seal task-owned formal facts, profile gaps, evidence, resolution results,
+  context associations, public observations, and source bindings.
+- [x] Keep Ground Stop `123`, GDP `138`, and cancellation `020` on the
+  deterministic zero-call Assembly path.
+- [x] Add a bounded Decision Case Assembly Agent only for genuine
+  non-canonical evidence/schema choice.
+- [x] Enforce exact task-signature preflight, advisory-only declared reasons,
+  explicit causal denial, and one value-only repair turn.
+- [x] Keep the Formal Graph Kernel as the sole final publication authority.
+- [x] Keep Decision Case Analysis inactive.
 
 Success: all three cases expose validated Weather context and BTS-reported
 observations with source provenance, exact reason-state preservation, and zero
-additional provider calls.
+Decision Case Assembly provider calls.
 
 ## Completed System Foundation
 
@@ -65,11 +77,12 @@ The read-only query evidence explorer is implemented and reviewed on
   interaction, and narrow layouts.
 - [ ] Merge the visualization branch only when the user wants it in `main`.
 
-## Next Decision After v1
+## Next Decision After Batch C
 
-Do not start another semantic expansion until the three-case v1 verification
-and review are complete. The next approved task must choose only one bounded
-increment, such as ASPM validation, regional Weather context, decision-episode
+Do not activate Decision Case Analysis or another semantic expansion until the
+three-case Batch C verification and review are complete. The next approved task
+must choose only one bounded increment, such as a first read-only analysis
+question family, ASPM validation, regional Weather context, decision-episode
 grouping, or historical-case retrieval.
 
 ## Explicitly Deferred

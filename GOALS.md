@@ -10,8 +10,8 @@ historical comparison hypotheses belong in the optional experiment documents.
 Build a useful, extensible multi-Agent aviation event knowledge system that:
 
 1. reads a retrospective FAA ATCSCC advisory and bounded authority records;
-2. coordinates specialized Agents for source interpretation, facility
-   resolution, terminology normalization, and graph construction;
+2. coordinates bounded Agents for source interpretation, ambiguous semantic
+   resolution, decision-case assembly, and graph-grounded query;
 3. publishes only evidence-bound facts accepted by a deterministic schema and
    provenance gate;
 4. materializes one canonical event graph as JSONL, RDF/Turtle, and a Neo4j
@@ -62,8 +62,8 @@ missing-reason cancellation `020` - exercise those capabilities.
 
 ## Current Approved Extension
 
-Decision Case Graph v1 adds deterministic Weather and BTS adapters for the same
-three records:
+Batch C combines Decision Case Graph v1 context with task-bounded Decision Case
+Assembly for the same three records:
 
 - eligible TAF and METAR reports become source-bound weather report facts;
 - event-to-weather links remain audit-only associations with
@@ -77,9 +77,17 @@ three records:
   bindings, and profile checksums remain independently auditable;
 - missing or invalid optional layers remain `insufficient` or `blocked` without
   invalidating an otherwise verified ATCSCC event.
+- Weather/BTS preparation occurs before one immutable Assembly task is sealed.
+- Ground Stop `123`, GDP `138`, and cancellation `020` use a deterministic
+  compiler and make zero Decision Case Assembly provider calls.
+- A bounded Decision Case Assembly Agent may activate only for a genuine
+  non-canonical evidence/schema choice.
+- Strict preflight requires an exact projection of the sealed task before the
+  Formal Graph Kernel applies the final publication decision.
 
-The extension adds no Agent role and no model call. It reconstructs auditable
-historical context; it does not evaluate operational optimality.
+The new Assembly role does not turn adapters into Agents and does not add model
+calls to the three canonical cases. It reconstructs auditable historical
+context; it does not evaluate operational optimality.
 
 ## Success Criteria
 
@@ -102,9 +110,9 @@ The read-only visualization batch has reached a stable stopping point on
 `codex/kg-visualization-research`. It is an optional presentation layer and is
 not merged into `main`.
 
-The active semantic increment is Decision Case Graph v1 on
-`codex/decision-case-graph-v1`. It is under local review and is not merged into
-`main`.
+The active semantic increment is Batch C Decision Case Assembly on
+`codex/decision-case-assembly-agent`. It is under local review and is not
+merged into `main`.
 
 Later increments still require an explicit user task and source boundary.
 Possible directions include decision-episode identity, regional weather,
@@ -121,6 +129,8 @@ ASPM-based demand/capacity evidence, and historical case retrieval.
 - Automatic ontology expansion.
 - Production deployment and access control.
 - New Agent roles without a demonstrated system need.
+- Decision Case Analysis until a separately approved bounded question family
+  is implemented.
 - Paired comparison experiments as a prerequisite for feature delivery.
 
 ## Historical And Optional Tracks

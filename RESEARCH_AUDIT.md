@@ -12,19 +12,22 @@ Aviation Agentic AI is a runnable, source-bounded multi-Agent system for
 converting one retrospective FAA ATCSCC advisory into a validated event
 knowledge graph, RDF/Turtle, and a Neo4j projection, then answering a small
 registered set of decision-record questions with explicit source evidence. The
-active Decision Case Graph v1 extension also attaches time-bounded weather
-context and BTS-reported public operational observations without treating
-either as a cause or recommendation.
+active Batch C branch prepares time-bounded weather context and BTS-reported
+public operational observations, seals them into one task-bounded decision
+case, and preserves their non-causal/source-qualified meaning.
 
 The active path is:
 
 ```text
 one advisory + FAA facility and terminology records
-  -> four bounded construction Agents
+  -> advisory interpretation and authority resolution
+  -> deterministic Weather/BTS context preparation and validation
+  -> sealed Decision Case Assembly task
+  -> deterministic compiler for the three canonical cases or bounded
+     Decision Case Assembly Agent for genuine evidence/schema choice
+  -> strict preflight
   -> deterministic Formal Graph Kernel
-  -> validated event KG
-  -> deterministic Weather and BTS context adapters
-  -> RDF and Neo4j projection
+  -> publication and RDF/Neo4j materialization
   -> Query Agent with read-only graph tools
 ```
 
@@ -48,7 +51,7 @@ The browser visualization exists only on
 
 ## Active Feature Branch
 
-`codex/decision-case-graph-v1` extends the three approved records with:
+`codex/decision-case-assembly-agent` extends the three approved records with:
 
 - the latest eligible TAF known at advisory issue time;
 - the latest eligible pre-issue METAR and operational-period observations;
@@ -56,10 +59,16 @@ The browser visualization exists only on
   observations;
 - separate source snapshots, context associations, formal observation facts,
   derivations, fact traces, and reconstruction membership.
+- a sealed task containing task-owned formal facts, profile gaps, resolution
+  results, context associations, public observations, and source bindings;
+- exact task-signature preflight before the Formal Graph Kernel.
 
 Weather associations are explicitly non-causal. BTS-reported observations are
 not FAA demand, AAR, capacity, EDCT, or evidence that a particular TMI caused
-an outcome. This extension adds no Agent role and no model calls.
+an outcome. Ground Stop `123`, GDP `138`, and cancellation `020` use the
+deterministic Assembly compiler and make zero Assembly provider calls. The
+bounded Assembly Agent is reserved for genuine evidence/schema choice, and
+Decision Case Analysis remains inactive.
 
 ## Context Routing
 
@@ -90,10 +99,10 @@ The project does not currently provide:
 - a complete aviation ontology;
 - external expert certification.
 
-The approved current increment is Decision Case Graph v1 on
-`codex/decision-case-graph-v1`. Broader source expansion, lifecycle grouping,
-historical ranking, and recommendation do not become active merely because a
-historical document mentions them.
+The approved current increment is Batch C Decision Case Assembly on
+`codex/decision-case-assembly-agent`. Broader source expansion, Decision Case
+Analysis, lifecycle grouping, historical ranking, and recommendation do not
+become active merely because a historical document mentions them.
 
 ## File Audit Rubric
 
