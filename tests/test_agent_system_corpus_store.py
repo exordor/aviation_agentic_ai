@@ -16,6 +16,7 @@ from aviation_agentic_ai.agent_system.contracts import (
 )
 from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusObservation,
+    CorpusQueryStore,
     build_corpus,
     load_case_catalog,
     load_corpus_facts,
@@ -617,7 +618,7 @@ def test_ask_corpus_lists_bounded_cases_without_a_model(tmp_path: Path) -> None:
     result = CliRunner().invoke(
         agent_system,
         [
-            "ask-corpus",
+            "ask",
             "--corpus-dir",
             str(corpus_dir),
             "--question",
@@ -632,3 +633,86 @@ def test_ask_corpus_lists_bounded_cases_without_a_model(tmp_path: Path) -> None:
     assert "matching_cases: 2" in result.output
     assert "cases_returned: urn:event:a" in result.output
     assert "model_calls: 0" in result.output
+
+
+def test_corpus_query_answers_forecast_context_without_a_run_directory(
+    tmp_path: Path,
+) -> None:
+    """Routing corpus weather questions through a run directory would break this."""
+
+    from aviation_agentic_ai.agent_system.corpus_query import answer_corpus_question
+    from aviation_agentic_ai.agent_system.query_tool_graph import FORECAST_CONTEXT_QUESTION
+
+    run_dir = tmp_path / "run"
+    _fixture_module._write_context_layer(run_dir)
+    corpus_dir = tmp_path / "corpus"
+    build_corpus([run_dir], corpus_dir)
+
+    outcome = answer_corpus_question(
+        corpus_dir=corpus_dir,
+        question=FORECAST_CONTEXT_QUESTION,
+        event_id=_fixture_module.EVENT_ID,
+    )
+
+    assert outcome.status == "ok"
+    assert "non-causal context" in outcome.answer
+    assert outcome.model_calls == []
+
+
+def test_corpus_query_store_returns_context_observations_and_gap_evidence(
+    tmp_path: Path,
+) -> None:
+    """Removing corpus-only context records would make this read insufficient."""
+
+    run_dir = tmp_path / "run"
+    _fixture_module._write_context_layer(run_dir)
+    _write_reason_profile_gap(run_dir, event_id=_fixture_module.EVENT_ID)
+    corpus_dir = tmp_path / "corpus"
+    build_corpus([run_dir], corpus_dir)
+
+    store = CorpusQueryStore(corpus_dir)
+
+    context = store.get_decision_context(_fixture_module.EVENT_ID)
+    gaps = store.get_case_evidence(_fixture_module.EVENT_ID)
+    assert {item.relation_type for item in context} == {
+        "latest_forecast_known_at_issue",
+    }
+    assert any(
+        item.evidence_text == "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
+        for item in gaps
+    )
+
+
+def test_export_case_contains_only_selected_case_artifacts(tmp_path: Path) -> None:
+    """Writing a replayable run artifact into a case export is a contract bug."""
+
+    run_a = tmp_path / "run-a"
+    run_b = tmp_path / "run-b"
+    _write_run(run_a, event_id="urn:event:a", suffix="a")
+    _write_run(run_b, event_id="urn:event:b", suffix="b")
+    corpus_dir = tmp_path / "corpus"
+    build_corpus([run_a, run_b], corpus_dir)
+
+    export_dir = tmp_path / "case-export"
+    from aviation_agentic_ai.agent_system import corpus_store
+
+    export_case = getattr(corpus_store, "export_case", None)
+    assert callable(export_case)
+    export_case(corpus_dir=corpus_dir, event_id="urn:event:a", output_dir=export_dir)
+
+    assert {
+        path.name for path in export_dir.iterdir()
+    } == {
+        "case_export_manifest.json",
+        "case.json",
+        "facts.jsonl",
+        "evidence_links.jsonl",
+        "profile_gaps.jsonl",
+        "context_associations.jsonl",
+        "observations.jsonl",
+        "source_bindings.jsonl",
+        "source_objects",
+        "kg.ttl",
+    }
+    assert "urn:event:a" in (export_dir / "case.json").read_text(encoding="utf-8")
+    assert "urn:event:b" not in (export_dir / "facts.jsonl").read_text(encoding="utf-8")

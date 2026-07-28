@@ -4,14 +4,14 @@ Five commands:
 
     aviation-ai agent-system ingest   --source-id <id> --config <cfg> [--allow-live-model]
     aviation-ai agent-system build-corpus --runs-root <dir> --output-dir <dir>
-    aviation-ai agent-system ask-corpus --corpus-dir <dir> --question "<q>"
-    aviation-ai agent-system neo4j-export --run-dir <dir>
-    aviation-ai agent-system ask      --run-dir <dir> --question "<q>" [--allow-live-model]
+    aviation-ai agent-system ask      --corpus-dir <dir> --question "<q>"
+    aviation-ai agent-system neo4j-export --corpus-dir <dir>
+    aviation-ai agent-system export-case --corpus-dir <dir> --event-id <id> --output-dir <dir>
 
 ``ingest`` runs the fixed multi-Agent topology and materializes a source-bounded
-event KG (JSONL + Turtle) in a versioned run directory. ``neo4j-export`` loads
-the run's validated projection into Neo4j. ``ask`` runs the bounded native
-tool-using Query Agent and lists the supporting source IDs.
+event KG (JSONL + Turtle) in a versioned run directory. Corpus materialization
+is the only persisted read backend: ``ask`` and ``neo4j-export`` read its
+stable artifacts, while ``export-case`` writes a bounded non-replayable case.
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ from aviation_agentic_ai.agent_system.materialize import (
     Neo4jLoadBlocked,
     load_validated_facts_neo4j,
 )
-from aviation_agentic_ai.agent_system.corpus_store import build_corpus
+from aviation_agentic_ai.agent_system.corpus_store import build_corpus, export_case
 from aviation_agentic_ai.agent_system.corpus_query import (
     answer_corpus_question,
 )
@@ -34,11 +34,6 @@ from aviation_agentic_ai.agent_system.authority_evidence import (
     load_authority_catalog,
 )
 from aviation_agentic_ai.agent_system.prompts import DEFAULT_PROMPT_CATALOG, get_prompt_catalog
-from aviation_agentic_ai.agent_system.query_tool_graph import (
-    answer_question_with_tools,
-    classify_registered_question,
-)
-from aviation_agentic_ai.agent_system.query_plan import AnalysisIntent
 from aviation_agentic_ai.agent_system.runtime import (
     MAX_PROVIDER_CALLS,
     create_run_binding,
@@ -53,9 +48,7 @@ from aviation_agentic_ai.agent_system.sources import (
     load_bts_context_source,
     load_weather_sources,
 )
-from aviation_agentic_ai.agent_system.tool_model import (
-    make_live_tool_calling_model,
-)
+from aviation_agentic_ai.agent_system.tool_model import make_live_tool_calling_model
 from aviation_agentic_ai.agent_system.workflow import IngestContext, run_ingest
 from aviation_agentic_ai.config import load_yaml, resolve_project_path
 
@@ -244,7 +237,7 @@ def build_corpus_command(runs_root: Path, output_dir: Path) -> None:
     click.echo(f"corpus_manifest: {output_dir / 'corpus_manifest.json'}")
 
 
-@agent_system.command("ask-corpus")
+@agent_system.command("ask")
 @click.option(
     "--corpus-dir",
     type=click.Path(path_type=Path, exists=True, file_okay=False),
@@ -253,6 +246,11 @@ def build_corpus_command(runs_root: Path, output_dir: Path) -> None:
 )
 @click.option("--question", required=True, help="Registered corpus question.")
 @click.option("--event-id", default=None, help="Exact event for record questions.")
+@click.option(
+    "--allow-live-model",
+    is_flag=True,
+    help="Authorize a registered Decision Case Analysis model call when available.",
+)
 @click.option("--event-type-iri", default=None, help="Exact event-type IRI filter.")
 @click.option("--facility-id", default=None, help="Exact canonical facility filter.")
 @click.option(
@@ -269,10 +267,11 @@ def build_corpus_command(runs_root: Path, output_dir: Path) -> None:
     default=20,
     show_default=True,
 )
-def ask_corpus(
+def ask(
     corpus_dir: Path,
     question: str,
     event_id: str | None,
+    allow_live_model: bool,
     event_type_iri: str | None,
     facility_id: str | None,
     reason_status: str | None,
@@ -282,6 +281,7 @@ def ask_corpus(
 ) -> None:
     """Run one deterministic read over the normalized case corpus."""
 
+    del allow_live_model
     outcome = answer_corpus_question(
         corpus_dir=corpus_dir,
         question=question,
@@ -295,7 +295,7 @@ def ask_corpus(
     )
     if outcome.status == "blocked":
         raise click.ClickException(
-            f"ask-corpus BLOCKED: {outcome.failure_reason}"
+            f"ask BLOCKED: {outcome.failure_reason}"
         )
     click.echo(f"status: {outcome.status}")
     click.echo(f"answer: {outcome.answer}")
@@ -317,15 +317,15 @@ def ask_corpus(
 
 
 @agent_system.command("neo4j-export")
-@click.option("--run-dir", "run_dir", type=click.Path(path_type=Path), required=True)
+@click.option("--corpus-dir", "corpus_dir", type=click.Path(path_type=Path), required=True)
 @click.option("--uri", default=None, help="Neo4j bolt URI. Defaults to NEO4J_URI.")
 @click.option("--username", default=None, help="Neo4j username. Defaults to NEO4J_USERNAME.")
 @click.option("--password", default=None, help="Neo4j password. Defaults to NEO4J_PASSWORD.")
 @click.option("--database", default="neo4j", show_default=True)
 def neo4j_export(
-    run_dir: Path, uri: str | None, username: str | None, password: str | None, database: str
+    corpus_dir: Path, uri: str | None, username: str | None, password: str | None, database: str
 ):
-    """Load a run's projection into Neo4j with parameterized MERGE (plan §6.2).
+    """Load a corpus projection into Neo4j with parameterized MERGE.
 
     Connects to Neo4j and executes parameterized MERGE for the run's nodes and
     relationships. Missing credentials, failed connectivity, or a load error
@@ -336,10 +336,10 @@ def neo4j_export(
 
     import os
 
-    nodes_path = run_dir / "neo4j_nodes.jsonl"
-    rels_path = run_dir / "neo4j_relationships.jsonl"
+    nodes_path = corpus_dir / "neo4j_nodes.jsonl"
+    rels_path = corpus_dir / "neo4j_relationships.jsonl"
     if not nodes_path.exists():
-        raise click.ClickException(f"no neo4j projection at {nodes_path}; run ingest first")
+        raise click.ClickException(f"no corpus Neo4j projection at {nodes_path}")
     uri = uri or os.getenv("NEO4J_URI")
     username = username or os.getenv("NEO4J_USERNAME")
     password = password or os.getenv("NEO4J_PASSWORD")
@@ -348,7 +348,7 @@ def neo4j_export(
         click.echo(
             "BLOCKED: missing Neo4j credentials (set NEO4J_URI/NEO4J_USERNAME/NEO4J_PASSWORD)"
         )
-        _write_neo4j_load(run_dir, {"status": "blocked", "reason": "missing credentials"})
+        _write_neo4j_load(corpus_dir, {"status": "blocked", "reason": "missing credentials"})
         raise click.ClickException("neo4j-export BLOCKED: missing Neo4j credentials")
     try:
         summary = load_validated_facts_neo4j(
@@ -361,14 +361,14 @@ def neo4j_export(
         )
     except Neo4jLoadBlocked as exc:
         click.echo(f"BLOCKED: {exc}")
-        _write_neo4j_load(run_dir, {"status": "blocked", "reason": str(exc)})
+        _write_neo4j_load(corpus_dir, {"status": "blocked", "reason": str(exc)})
         raise click.ClickException(f"neo4j-export BLOCKED: {exc}") from exc
     summary["status"] = "loaded"
-    _write_neo4j_load(run_dir, summary)
+    _write_neo4j_load(corpus_dir, summary)
     click.echo(f"loaded nodes: {summary['nodes']} | relationships: {summary['relationships']}")
     click.echo(f"node_labels: {', '.join(summary['node_labels'])}")
     click.echo(f"relationship_types: {', '.join(summary['relationship_types'])}")
-    click.echo(f"neo4j_load: {run_dir / 'neo4j_load.json'}")
+    click.echo(f"neo4j_load: {corpus_dir / 'neo4j_load.json'}")
 
 
 def _write_neo4j_load(run_dir: Path, summary: dict) -> None:
@@ -377,48 +377,19 @@ def _write_neo4j_load(run_dir: Path, summary: dict) -> None:
     )
 
 
-@agent_system.command("ask")
-@click.option("--run-dir", "run_dir", type=click.Path(path_type=Path), required=True)
-@click.option("--question", required=True, help="Question to answer from the graph.")
-@click.option(
-    "--allow-live-model",
-    is_flag=True,
-    help="Authorize a bounded Decision Case Analysis model call.",
-)
-def ask(run_dir: Path, question: str, allow_live_model: bool) -> None:
-    """Answer through the bounded native tool-using Query Agent."""
+@agent_system.command("export-case")
+@click.option("--corpus-dir", type=click.Path(path_type=Path), required=True)
+@click.option("--event-id", required=True, help="Exact event to export.")
+@click.option("--output-dir", type=click.Path(path_type=Path), required=True)
+def export_case_command(corpus_dir: Path, event_id: str, output_dir: Path) -> None:
+    """Export one bounded decision case without fabricating a replayable run."""
 
-    if not (run_dir / "kg.jsonl").exists():
-        raise click.ClickException(f"no materialized KG at {run_dir / 'kg.jsonl'}")
-    intent = classify_registered_question(question)
-    if (
-        isinstance(intent, AnalysisIntent)
-        and intent is not AnalysisIntent.HISTORICAL_SIMILARITY
-        and not allow_live_model
-    ):
-        raise click.ClickException(
-            "registered Decision Case Analysis requires --allow-live-model"
+    try:
+        result = export_case(
+            corpus_dir=corpus_dir,
+            event_id=event_id,
+            output_dir=output_dir,
         )
-    outcome = answer_question_with_tools(
-        run_dir=run_dir,
-        question=question,
-        # The unsupported path exits before invoking this factory. This preserves
-        # the zero-provider-call contract without requiring credentials.
-        model_factory=lambda tools: make_live_tool_calling_model(
-            tools=tools,
-            role="decision_case_analysis",
-        ),
-    )
-    if outcome.analysis_artifact_dir:
-        click.echo(f"analysis_artifact_dir: {outcome.analysis_artifact_dir}")
-    if outcome.status == "blocked":
-        click.echo(f"BLOCKED: {outcome.failure_reason}")
-        raise click.ClickException(f"ask BLOCKED: {outcome.failure_reason}")
-    click.echo(f"status: {outcome.status}")
-    click.echo(f"answer: {outcome.answer}")
-    click.echo(f"sources: {', '.join(outcome.source_ids) if outcome.source_ids else '(none)'}")
-    click.echo(f"graph_facts_seen: {len(outcome.retrieved_fact_ids)}")
-    click.echo(f"context_associations_seen: {len(outcome.retrieved_context_association_ids)}")
-    click.echo(f"outcome_summaries_seen: {len(outcome.retrieved_outcome_summary_ids)}")
-    click.echo(f"model_calls: {len(outcome.model_calls)}")
-    click.echo(f"tool_calls: {len(outcome.tool_calls)}")
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+    click.echo(f"case_export: {result}")

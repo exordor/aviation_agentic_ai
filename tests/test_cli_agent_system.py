@@ -274,6 +274,7 @@ def _write_supported_analysis_context(run_dir: Path) -> None:
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
 
 
+@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
 def test_unsupported_cli_question_needs_no_live_authorization(tmp_path, monkeypatch):
     _write_graph(tmp_path)
 
@@ -301,6 +302,7 @@ def test_unsupported_cli_question_needs_no_live_authorization(tmp_path, monkeypa
     assert "tool_calls: 0" in result.output
 
 
+@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
 def test_combined_record_cli_question_is_zero_call_without_authorization(
     tmp_path,
     monkeypatch,
@@ -330,6 +332,7 @@ def test_combined_record_cli_question_is_zero_call_without_authorization(
     assert "model_calls: 0" in result.output
 
 
+@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
 def test_missing_reason_question_needs_no_live_authorization(
     tmp_path,
     monkeypatch,
@@ -368,6 +371,7 @@ def test_missing_reason_question_needs_no_live_authorization(
         RECONSTRUCTED_CASE_QUESTION,
     ],
 )
+@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
 def test_context_questions_need_no_live_authorization(
     tmp_path,
     monkeypatch,
@@ -399,6 +403,7 @@ def test_context_questions_need_no_live_authorization(
     assert "model_calls: 0" in result.output
 
 
+@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
 def test_combined_record_remains_zero_call_when_live_flag_is_present(
     tmp_path,
     monkeypatch,
@@ -433,6 +438,7 @@ def test_combined_record_remains_zero_call_when_live_flag_is_present(
     assert "analysis_artifact_dir:" not in result.output
 
 
+@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
 def test_analysis_cli_requires_explicit_live_authorization(tmp_path, monkeypatch):
     """An exact model-bound analysis question must not construct a provider by default."""
 
@@ -462,6 +468,7 @@ def test_analysis_cli_requires_explicit_live_authorization(tmp_path, monkeypatch
     assert not (tmp_path / "analysis").exists()
 
 
+@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
 def test_similarity_cli_is_zero_call_without_authorization(tmp_path, monkeypatch):
     """The deterministic corpus gate must remain usable without credentials."""
 
@@ -492,6 +499,7 @@ def test_similarity_cli_is_zero_call_without_authorization(tmp_path, monkeypatch
     assert "analysis_artifact_dir:" not in result.output
 
 
+@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
 def test_required_evidence_cli_preflights_before_live_provider(
     tmp_path,
     monkeypatch,
@@ -531,6 +539,7 @@ def test_required_evidence_cli_preflights_before_live_provider(
     assert Path(artifact_line.removeprefix("analysis_artifact_dir: ")).is_dir()
 
 
+@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
 def test_blocked_analysis_cli_reports_artifact_directory_before_exit(
     tmp_path,
     monkeypatch,

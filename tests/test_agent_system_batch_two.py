@@ -1017,6 +1017,7 @@ def test_sec13_regression5_provider_error_is_blocked(tmp_path):
     assert "ProviderError" in record["failure_reason"]
 
 
+@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
 def test_sec13_regression5_cli_ask_exits_nonzero_on_blocked(tmp_path):
     """§13 regression 5: the ``ask`` CLI reports BLOCKED and exits non-zero
     on a provider error."""

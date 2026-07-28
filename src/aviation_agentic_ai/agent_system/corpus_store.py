@@ -13,6 +13,9 @@ from pydantic import Field
 from aviation_agentic_ai.agent_system.contracts import (
     ObservationFactTrace,
     PersistedProfileGap,
+    SourceFamily,
+    SourceSnapshot,
+    SourceSnapshotRegistry,
     StrictModel,
     ValidatedFact,
 )
@@ -21,6 +24,15 @@ from aviation_agentic_ai.agent_system.context_artifacts import (
     read_observation_fact_traces,
 )
 from aviation_agentic_ai.agent_system.query_tools import QueryGraphStore
+from aviation_agentic_ai.agent_system.materialize import (
+    build_validated_facts_neo4j_projection,
+    write_validated_facts_jsonl,
+    write_validated_facts_rdf,
+)
+from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    load_validation_profile_registry,
+)
 from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 
@@ -195,6 +207,12 @@ class CorpusQueryStore:
         "case_facts",
         "source_bindings",
     )
+    _OPTIONAL_ARTIFACTS = (
+        "evidence_links",
+        "profile_gaps",
+        "context_associations",
+        "observations",
+    )
 
     def __init__(self, corpus_dir: str | Path) -> None:
         root = Path(corpus_dir).resolve()
@@ -207,10 +225,13 @@ class CorpusQueryStore:
             raise ValueError("invalid corpus manifest") from exc
 
         artifact_rows: dict[str, list[dict[str, object]]] = {}
-        for name in self._REQUIRED_ARTIFACTS:
+        for name in (*self._REQUIRED_ARTIFACTS, *self._OPTIONAL_ARTIFACTS):
             metadata = manifest.artifacts.get(name)
-            if metadata is None:
+            if metadata is None and name in self._REQUIRED_ARTIFACTS:
                 raise ValueError(f"corpus manifest is missing artifact: {name}")
+            if metadata is None:
+                artifact_rows[name] = []
+                continue
             path = (root / metadata.path).resolve()
             if not path.is_relative_to(root) or not path.is_file():
                 raise ValueError(f"corpus artifact is missing: {name}")
@@ -234,6 +255,22 @@ class CorpusQueryStore:
             CorpusCaseFact.model_validate(row)
             for row in artifact_rows["case_facts"]
         )
+        self.evidence_links = tuple(
+            EvidenceLink.model_validate(row)
+            for row in artifact_rows["evidence_links"]
+        )
+        self.profile_gaps = tuple(
+            CorpusProfileGap.model_validate(row)
+            for row in artifact_rows["profile_gaps"]
+        )
+        self.context_associations = tuple(
+            CorpusContextAssociation.model_validate(row)
+            for row in artifact_rows["context_associations"]
+        )
+        self.observations = tuple(
+            CorpusObservation.model_validate(row)
+            for row in artifact_rows["observations"]
+        )
         self.root = root
         self.manifest = manifest
         self.cases = tuple(sorted(cases, key=lambda row: row.case_id))
@@ -256,8 +293,25 @@ class CorpusQueryStore:
 
         return tuple(case.event_id for case in self.cases)
 
-    def find_cases(self, query: CorpusCaseQuery) -> CorpusCasePage:
+    def find_cases(
+        self,
+        filters: CorpusCaseQuery | dict[str, object] | None = None,
+        offset: int | None = None,
+        limit: int | None = None,
+    ) -> CorpusCasePage:
         """Return one page of exact catalog matches."""
+
+        query = (
+            filters
+            if isinstance(filters, CorpusCaseQuery)
+            else CorpusCaseQuery.model_validate(
+                {
+                    **(filters or {}),
+                    **({"offset": offset} if offset is not None else {}),
+                    **({"limit": limit} if limit is not None else {}),
+                }
+            )
+        )
 
         matches = [
             case
@@ -302,6 +356,69 @@ class CorpusQueryStore:
             self._fact_by_id[fact_id]
             for fact_id in self._fact_ids_by_case.get(case.case_id, ())
             if fact_id in self._fact_by_id
+        )
+
+    def get_event_facts(self, event_id: str) -> tuple[CorpusFact, ...]:
+        """Return all formal facts for one selected corpus event."""
+
+        return self.get_case_facts(event_id)
+
+    def get_decision_context(
+        self, event_id: str
+    ) -> tuple[CorpusContextAssociation, ...]:
+        """Return non-causal weather associations for one selected event."""
+
+        return tuple(
+            sorted(
+                (
+                    row
+                    for row in self.context_associations
+                    if row.event_id == event_id
+                ),
+                key=lambda row: row.association_id,
+            )
+        )
+
+    def get_outcome_observations(
+        self,
+        event_id: str,
+        phases: tuple[str, ...] | list[str] | None = None,
+    ) -> tuple[CorpusObservation, ...]:
+        """Return selected BTS public observations without creating a model."""
+
+        selected_phases = set(phases) if phases is not None else None
+        return tuple(
+            sorted(
+                (
+                    row
+                    for row in self.observations
+                    if row.event_id == event_id
+                    and (
+                        selected_phases is None
+                        or row.phase in selected_phases
+                    )
+                ),
+                key=lambda row: row.observation_id,
+            )
+        )
+
+    def get_case_evidence(self, event_id: str) -> tuple[EvidenceLink, ...]:
+        """Return evidence links owned by the selected event's retained rows."""
+
+        case = self.get_case(event_id)
+        if case is None:
+            return ()
+        owner_ids = {
+            *self._fact_ids_by_case.get(case.case_id, ()),
+            *(row.profile_gap_id for row in self.profile_gaps if row.event_id == event_id),
+            *(row.association_id for row in self.context_associations if row.event_id == event_id),
+            *(row.observation_id for row in self.observations if row.event_id == event_id),
+        }
+        return tuple(
+            sorted(
+                (row for row in self.evidence_links if row.owner_id in owner_ids),
+                key=lambda row: row.evidence_link_id,
+            )
         )
 
 
@@ -687,10 +804,13 @@ def build_corpus(
             for row in sorted(observations_by_id.values(), key=lambda row: row.observation_id)
         ],
     )
-    _write_jsonl(kg_path, [])
-    ttl_path.write_text("", encoding="utf-8")
-    _write_jsonl(neo4j_nodes_path, [])
-    _write_jsonl(neo4j_relationships_path, [])
+    _write_corpus_projection(
+        output_dir=output,
+        facts=list(facts_by_id.values()),
+        evidence_links=list(evidence_links_by_id.values()),
+        bindings=list(bindings_by_id.values()),
+        source_objects=source_objects,
+    )
     for name, path, count in (
         ("build_results", build_results_path, len(result_rows)),
         ("artifacts", artifact_refs_path, len(source_objects)),
@@ -702,10 +822,10 @@ def build_corpus(
         ("profile_gaps", profile_gaps_path, len(gaps_by_id)),
         ("context_associations", associations_path, len(associations_by_id)),
         ("observations", observations_path, len(observations_by_id)),
-        ("kg", kg_path, 0),
-        ("kg_ttl", ttl_path, 0),
-        ("neo4j_nodes", neo4j_nodes_path, 0),
-        ("neo4j_relationships", neo4j_relationships_path, 0),
+        ("kg", kg_path, _jsonl_count(kg_path)),
+        ("kg_ttl", ttl_path, _jsonl_count(ttl_path)),
+        ("neo4j_nodes", neo4j_nodes_path, _jsonl_count(neo4j_nodes_path)),
+        ("neo4j_relationships", neo4j_relationships_path, _jsonl_count(neo4j_relationships_path)),
     ):
         artifacts[name] = _artifact_metadata(output, path, count=count)
     artifacts["source_objects"] = _source_objects_metadata(
@@ -786,6 +906,205 @@ def load_corpus_facts(
         for fact_id in sorted(selected_ids)
         if fact_id in facts
     )
+
+
+def export_case(
+    *,
+    corpus_dir: str | Path,
+    event_id: str,
+    output_dir: str | Path,
+) -> Path:
+    """Write a bounded, non-replayable artifact bundle for one corpus case."""
+
+    store = CorpusQueryStore(corpus_dir)
+    case = store.get_case(event_id)
+    if case is None:
+        raise ValueError("requested event is not present in this corpus")
+    output = Path(output_dir)
+    output.mkdir(parents=True, exist_ok=True)
+    facts = list(store.get_event_facts(event_id))
+    gaps = [row for row in store.profile_gaps if row.event_id == event_id]
+    associations = list(store.get_decision_context(event_id))
+    observations = list(store.get_outcome_observations(event_id))
+    evidence = list(store.get_case_evidence(event_id))
+    bindings = [
+        CorpusSourceBinding.model_validate(row)
+        for row in _read_jsonl(store.root / "source_bindings.jsonl")
+        if str(row.get("case_id") or "") == case.case_id
+    ]
+    _write_jsonl(output / "facts.jsonl", [row.model_dump(mode="json") for row in facts])
+    _write_jsonl(
+        output / "evidence_links.jsonl",
+        [row.model_dump(mode="json") for row in evidence],
+    )
+    _write_jsonl(
+        output / "profile_gaps.jsonl", [row.model_dump(mode="json") for row in gaps]
+    )
+    _write_jsonl(
+        output / "context_associations.jsonl",
+        [row.model_dump(mode="json") for row in associations],
+    )
+    _write_jsonl(
+        output / "observations.jsonl", [row.model_dump(mode="json") for row in observations]
+    )
+    _write_jsonl(
+        output / "source_bindings.jsonl",
+        [row.model_dump(mode="json") for row in bindings],
+    )
+    (output / "case.json").write_text(
+        json.dumps(case.model_dump(mode="json"), sort_keys=True, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    source_objects = {
+        binding.object_key: (store.root / "source_objects" / f"{binding.object_key}.txt")
+        for binding in bindings
+    }
+    object_dir = output / "source_objects"
+    object_dir.mkdir(exist_ok=True)
+    for object_key, source_path in sorted(source_objects.items()):
+        (object_dir / f"{object_key}.txt").write_bytes(source_path.read_bytes())
+    _write_corpus_projection(
+        output_dir=output,
+        facts=facts,
+        evidence_links=evidence,
+        bindings=bindings,
+        source_objects={
+            object_key: source_path.read_text(encoding="utf-8")
+            for object_key, source_path in source_objects.items()
+        },
+        include_jsonl=False,
+        include_neo4j=False,
+    )
+    (output / "case_export_manifest.json").write_text(
+        json.dumps(
+            {
+                "manifest_version": "decision-case-export-v1",
+                "corpus_id": store.manifest.corpus_id,
+                "event_id": event_id,
+                "case_id": case.case_id,
+            },
+            sort_keys=True,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    return output
+
+
+def _projection_inputs(
+    *,
+    facts: list[CorpusFact],
+    evidence_links: list[EvidenceLink],
+    bindings: list[CorpusSourceBinding],
+    source_objects: dict[str, str],
+) -> tuple[list[ValidatedFact], SourceSnapshotRegistry]:
+    """Bind projection provenance to content-addressed source artifacts."""
+
+    binding_by_artifact = {
+        row.object_key: row
+        for row in sorted(bindings, key=lambda row: (row.object_key, row.source_id))
+    }
+    links_by_fact: dict[str, list[EvidenceLink]] = {}
+    for link in evidence_links:
+        if link.owner_kind == "fact":
+            links_by_fact.setdefault(link.owner_id, []).append(link)
+    artifact_ids = sorted(
+        {
+            link.artifact_id
+            for rows in links_by_fact.values()
+            for link in rows
+        }
+    )
+    snapshots = []
+    for artifact_id in artifact_ids:
+        binding = binding_by_artifact.get(artifact_id)
+        content = source_objects.get(artifact_id)
+        if binding is None or content is None:
+            raise ValueError("corpus projection source artifact is missing")
+        snapshots.append(
+            SourceSnapshot(
+                source_id=f"artifact:{artifact_id}",
+                family=SourceFamily(binding.source_family),
+                source_url=binding.source_url,
+                content=content,
+                content_sha256=artifact_id,
+                snapshot_timestamp=min(binding.snapshot_timestamps),
+            )
+        )
+    projected_facts = []
+    for fact in sorted(facts, key=lambda row: row.fact_id):
+        links = links_by_fact.get(fact.fact_id, [])
+        projected_facts.append(
+            fact.model_copy(
+                update={
+                    "source_ids": sorted(
+                        {f"artifact:{link.artifact_id}" for link in links}
+                    )
+                }
+            )
+        )
+    if not snapshots and projected_facts:
+        raise ValueError("corpus projection facts have no evidence links")
+    return projected_facts, SourceSnapshotRegistry(snapshots=tuple(snapshots))
+
+
+def _write_corpus_projection(
+    *,
+    output_dir: Path,
+    facts: list[CorpusFact],
+    evidence_links: list[EvidenceLink],
+    bindings: list[CorpusSourceBinding],
+    source_objects: dict[str, str],
+    include_jsonl: bool = True,
+    include_neo4j: bool = True,
+) -> None:
+    """Materialize only formal corpus facts; context remains audit-only."""
+
+    projected_facts, snapshots = _projection_inputs(
+        facts=facts,
+        evidence_links=evidence_links,
+        bindings=bindings,
+        source_objects=source_objects,
+    )
+    profiles = load_validation_profile_registry(decision_guide=load_schema_guide())
+    if include_jsonl:
+        write_validated_facts_jsonl(
+            facts=projected_facts,
+            output_dir=output_dir,
+            profile_registry=profiles,
+            source_snapshot=snapshots,
+        )
+    write_validated_facts_rdf(
+        facts=projected_facts,
+        output_dir=output_dir,
+        profile_registry=profiles,
+        source_snapshot=snapshots,
+    )
+    _canonicalize_turtle(output_dir / "kg.ttl")
+    if include_neo4j:
+        build_validated_facts_neo4j_projection(
+            facts=projected_facts,
+            output_dir=output_dir,
+            profile_registry=profiles,
+            source_snapshot=snapshots,
+        )
+
+
+def _jsonl_count(path: Path) -> int:
+    return sum(1 for line in path.read_text(encoding="utf-8").splitlines() if line)
+
+
+def _canonicalize_turtle(path: Path) -> None:
+    """Stabilize RDF blank-node identifiers for reproducible corpus artifacts."""
+
+    from rdflib import Graph
+    from rdflib.compare import to_canonical_graph
+
+    graph = Graph().parse(path, format="turtle")
+    canonical = to_canonical_graph(graph)
+    rows = sorted(canonical.serialize(format="nt").splitlines())
+    path.write_text("\n".join(rows) + ("\n" if rows else ""), encoding="utf-8")
 
 
 def _canonical_fact_payload(
