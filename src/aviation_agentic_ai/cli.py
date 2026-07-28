@@ -98,11 +98,13 @@ TOP_LEVEL_COMMANDS: tuple[dict[str, Any], ...] = (
         "name": "agent-system",
         "help": (
             "Multi-Agent aviation event knowledge system "
-            "(build-corpus / ask / neo4j-export / export-case)."
+            "(build-corpus / index-cases / ask / neo4j-export / "
+            "export-case)."
         ),
         "subcommands": (
             "build-corpus",
             "ask",
+            "index-cases",
             "neo4j-export",
             "export-case",
         ),

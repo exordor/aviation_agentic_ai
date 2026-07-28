@@ -1,9 +1,10 @@
 """CLI for the multi-Agent aviation event knowledge system (design §19).
 
-Four commands:
+Five commands:
 
     aviation-ai agent-system build-corpus --config <cfg> --output-dir <dir> [--allow-live-model] [--resume]
     aviation-ai agent-system ask      --corpus-dir <dir> --question "<q>"
+    aviation-ai agent-system index-cases --corpus-dir <dir>
     aviation-ai agent-system neo4j-export --corpus-dir <dir>
     aviation-ai agent-system export-case --corpus-dir <dir> --event-id <id> --output-dir <dir>
 
@@ -23,6 +24,13 @@ import click
 from aviation_agentic_ai.agent_system.materialize import (
     Neo4jLoadBlocked,
     load_validated_facts_neo4j,
+)
+from aviation_agentic_ai.agent_system.case_retrieval_contracts import (
+    DEFAULT_CASE_EMBEDDING_MODEL,
+)
+from aviation_agentic_ai.agent_system.case_retrieval_index import (
+    SentenceTransformerCaseEncoder,
+    build_case_retrieval_index,
 )
 from aviation_agentic_ai.agent_system.corpus_batch import build_corpus_batch
 from aviation_agentic_ai.agent_system.corpus_store import (
@@ -93,6 +101,70 @@ def build_corpus_command(
     if summary.manifest is not None:
         click.echo(f"corpus_id: {summary.manifest.corpus_id}")
         click.echo(f"corpus_manifest: {output_dir / 'corpus_manifest.json'}")
+
+
+@agent_system.command("index-cases")
+@click.option(
+    "--corpus-dir",
+    type=click.Path(path_type=Path, exists=True, file_okay=False),
+    required=True,
+    help="Normalized decision-case corpus directory.",
+)
+@click.option(
+    "--model-name",
+    default=DEFAULT_CASE_EMBEDDING_MODEL,
+    show_default=True,
+)
+@click.option("--allow-model-download", is_flag=True)
+def index_cases_command(
+    corpus_dir: Path,
+    model_name: str,
+    allow_model_download: bool,
+) -> None:
+    """Build the persistent case-level Chroma index."""
+
+    try:
+        encoder = SentenceTransformerCaseEncoder(
+            model_name,
+            allow_download=allow_model_download,
+        )
+    except ImportError as exc:
+        raise click.ClickException(
+            "Install case retrieval dependencies with "
+            "uv sync --extra case-retrieval."
+        ) from exc
+    except Exception as exc:
+        if not allow_model_download:
+            raise click.ClickException(
+                "The embedding model is not cached. Rerun with "
+                "--allow-model-download."
+            ) from exc
+        raise click.ClickException(
+            f"index-cases BLOCKED: {exc}"
+        ) from exc
+    try:
+        manifest = build_case_retrieval_index(
+            corpus_dir,
+            encoder=encoder,
+        )
+    except ImportError as exc:
+        raise click.ClickException(
+            "Install case retrieval dependencies with "
+            "uv sync --extra case-retrieval."
+        ) from exc
+    except Exception as exc:
+        raise click.ClickException(
+            f"index-cases BLOCKED: {exc}"
+        ) from exc
+    click.echo(f"indexed_cases: {manifest.document_count}")
+    click.echo(f"vector_backend: {manifest.vector_backend}")
+    click.echo(f"collection_name: {manifest.collection_name}")
+    click.echo(f"embedding_model: {manifest.embedding_model_id}")
+    click.echo(f"embedding_dimension: {manifest.embedding_dimension}")
+    click.echo(
+        "case_index_manifest: "
+        f"{corpus_dir / 'case_index' / 'case_index_manifest.json'}"
+    )
 
 
 @agent_system.command("ask")

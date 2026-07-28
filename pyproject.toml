@@ -31,8 +31,12 @@ ontology-generation = [
   "langgraph>=0.2",
 ]
 graphrag = [
-  "chromadb>=0.5",
+  "chromadb>=1.5,<2",
   "networkx>=3.2",
+  "sentence-transformers>=3.0",
+]
+case-retrieval = [
+  "chromadb>=1.5,<2",
   "sentence-transformers>=3.0",
 ]
 web = [

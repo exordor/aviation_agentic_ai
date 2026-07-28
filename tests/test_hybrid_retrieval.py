@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 
+import aviation_agentic_ai.retrieval.indexing as indexing_module
 from aviation_agentic_ai.chunking.chunks import SourceChunk, write_chunks_jsonl
 from aviation_agentic_ai.kg.extraction import KGTriple, write_kg_jsonl
 from aviation_agentic_ai.retrieval.hybrid import (
@@ -539,6 +540,55 @@ def test_chroma_index_builder_can_use_mock_client(tmp_path: Path, monkeypatch) -
     report = build_chroma_index(chunks_path, tmp_path / "chroma", collection_name="test")
 
     assert report["chunks_indexed"] == 1
+    assert calls["collection"] == "test"
+    assert calls["ids"] == ["doc-p00-c00"]
+
+
+def test_chunk_index_uses_shared_chroma_lifecycle(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    calls: dict[str, object] = {}
+
+    class FakeCollection:
+        def add(self, ids, documents, metadatas):
+            calls["ids"] = ids
+
+    fake_client = object()
+    fake_collection = FakeCollection()
+    def fake_open(path: Path) -> object:
+        calls["path"] = path
+        return fake_client
+
+    monkeypatch.setattr(indexing_module, "open_persistent_client", fake_open)
+    monkeypatch.setattr(
+        indexing_module,
+        "recreate_collection",
+        lambda client, name: (
+            calls.update(client=client, collection=name)
+            or fake_collection
+        ),
+    )
+    chunk = SourceChunk(
+        chunk_id="doc-p00-c00",
+        source_document="doc",
+        source_path="data/raw/doc.pdf",
+        page=0,
+        chunk_index=0,
+        char_start=0,
+        char_end=10,
+        text="Air lift.",
+    )
+    chunks_path = write_chunks_jsonl([chunk], tmp_path / "chunks.jsonl")
+
+    report = build_chroma_index(
+        chunks_path,
+        tmp_path / "chroma",
+        collection_name="test",
+    )
+
+    assert report["chunks_indexed"] == 1
+    assert calls["client"] is fake_client
     assert calls["collection"] == "test"
     assert calls["ids"] == ["doc-p00-c00"]
 

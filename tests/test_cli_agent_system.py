@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import importlib.util
+import importlib
+import builtins
 import hashlib
 import json
 from datetime import UTC, datetime
@@ -152,6 +154,7 @@ def test_public_agent_system_surface_is_exactly_corpus_first() -> None:
     assert set(cli_module.agent_system.commands) == {
         "build-corpus",
         "ask",
+        "index-cases",
         "neo4j-export",
         "export-case",
     }
@@ -161,9 +164,152 @@ def test_public_agent_system_surface_is_exactly_corpus_first() -> None:
     assert spec["subcommands"] == (
         "build-corpus",
         "ask",
+        "index-cases",
         "neo4j-export",
         "export-case",
     )
+
+
+def test_index_cases_cli_reports_persistent_index(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    corpus_dir = tmp_path / "corpus"
+    corpus_dir.mkdir()
+    captured: dict[str, object] = {}
+
+    class FakeEncoder:
+        model_id = "test/model"
+
+        def __init__(self, model_name: str, *, allow_download: bool) -> None:
+            captured["model_name"] = model_name
+            captured["allow_download"] = allow_download
+
+    def fake_build(corpus_dir, *, encoder):  # type: ignore[no-untyped-def]
+        captured["corpus_dir"] = corpus_dir
+        captured["encoder"] = encoder
+        return SimpleNamespace(
+            document_count=2,
+            vector_backend="chromadb",
+            collection_name="decision_cases",
+            embedding_model_id=encoder.model_id,
+            embedding_dimension=4,
+        )
+
+    monkeypatch.setattr(
+        cli_module,
+        "SentenceTransformerCaseEncoder",
+        FakeEncoder,
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "build_case_retrieval_index",
+        fake_build,
+    )
+
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "index-cases",
+            "--corpus-dir",
+            str(corpus_dir),
+            "--model-name",
+            "test/model",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "indexed_cases: 2" in result.output
+    assert "vector_backend: chromadb" in result.output
+    assert "collection_name: decision_cases" in result.output
+    assert "embedding_model: test/model" in result.output
+    assert "embedding_dimension: 4" in result.output
+    assert captured["allow_download"] is False
+
+
+def test_index_cases_cli_explains_missing_optional_dependencies(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    corpus_dir = tmp_path / "corpus"
+    corpus_dir.mkdir()
+
+    def fail_encoder(*_args, **_kwargs):  # type: ignore[no-untyped-def]
+        raise ImportError("sentence_transformers")
+
+    monkeypatch.setattr(
+        cli_module,
+        "SentenceTransformerCaseEncoder",
+        fail_encoder,
+    )
+
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        ["index-cases", "--corpus-dir", str(corpus_dir)],
+    )
+
+    assert result.exit_code != 0
+    assert (
+        "Install case retrieval dependencies with "
+        "uv sync --extra case-retrieval."
+    ) in result.output
+
+
+def test_index_cases_cli_reports_index_build_failure(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    corpus_dir = tmp_path / "corpus"
+    corpus_dir.mkdir()
+
+    class FakeEncoder:
+        model_id = "test/model"
+
+        def __init__(self, *_args, **_kwargs) -> None:  # type: ignore[no-untyped-def]
+            pass
+
+    def fail_build(*_args, **_kwargs):  # type: ignore[no-untyped-def]
+        raise ValueError("corpus has no accepted cases to index")
+
+    monkeypatch.setattr(
+        cli_module,
+        "SentenceTransformerCaseEncoder",
+        FakeEncoder,
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "build_case_retrieval_index",
+        fail_build,
+    )
+
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        ["index-cases", "--corpus-dir", str(corpus_dir)],
+    )
+
+    assert result.exit_code != 0
+    assert (
+        "index-cases BLOCKED: corpus has no accepted cases to index"
+        in result.output
+    )
+    assert "embedding model is not cached" not in result.output
+
+
+def test_existing_cli_import_does_not_load_case_retrieval_dependencies(
+    monkeypatch,
+) -> None:
+    real_import = builtins.__import__
+
+    def guarded_import(name, *args, **kwargs):  # type: ignore[no-untyped-def]
+        if name in {"chromadb", "sentence_transformers"}:
+            raise AssertionError(f"unexpected eager import: {name}")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", guarded_import)
+
+    reloaded = importlib.reload(cli_module)
+
+    assert "build-corpus" in reloaded.agent_system.commands
 
 
 def test_build_corpus_cli_wires_the_resumable_batch_contract(

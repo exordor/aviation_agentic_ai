@@ -5,6 +5,11 @@ from typing import Any
 
 from aviation_agentic_ai.chunking.chunks import SourceChunk, read_chunks_jsonl
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.retrieval.chroma_store import (
+    get_collection,
+    open_persistent_client,
+    recreate_collection,
+)
 
 
 DEFAULT_COLLECTION_NAME = "phak_ch4_chunks"
@@ -40,26 +45,21 @@ def build_chroma_index(
     reset: bool = True,
 ) -> dict[str, Any]:
     """Build a persistent Chroma collection from chunk JSONL."""
+    chunks = read_chunks_jsonl(chunks_path)
+    path = Path(index_dir)
+    path.mkdir(parents=True, exist_ok=True)
     try:
-        import chromadb
+        client = open_persistent_client(path)
     except ImportError as exc:
         raise RuntimeError(
             "ChromaDB indexing requires optional GraphRAG dependencies. "
             "Install with: uv sync --extra graphrag"
         ) from exc
-
-    chunks = read_chunks_jsonl(chunks_path)
-    path = Path(index_dir)
-    path.mkdir(parents=True, exist_ok=True)
-    client = chromadb.PersistentClient(path=str(path))
-    if reset:
-        try:
-            client.delete_collection(collection_name)
-        except Exception as exc:
-            message = str(exc).lower()
-            if not any(phrase in message for phrase in ("not found", "does not exist", "no collection", "nonexistent")):
-                raise
-    collection = client.get_or_create_collection(collection_name)
+    collection = (
+        recreate_collection(client, collection_name)
+        if reset
+        else client.get_or_create_collection(collection_name)
+    )
     if chunks:
         collection.add(
             ids=[chunk.chunk_id for chunk in chunks],
@@ -81,16 +81,14 @@ def query_chroma_index(
     top_k: int = 5,
 ) -> list[dict[str, Any]]:
     try:
-        import chromadb
+        client = open_persistent_client(index_dir)
     except ImportError as exc:
         raise RuntimeError(
             "ChromaDB querying requires optional GraphRAG dependencies. "
             "Install with: uv sync --extra graphrag"
         ) from exc
-
-    client = chromadb.PersistentClient(path=str(index_dir))
     try:
-        collection = client.get_collection(collection_name)
+        collection = get_collection(client, collection_name)
     except Exception as exc:
         message = str(exc).lower()
         if any(phrase in message for phrase in ("not found", "does not exist", "no collection", "nonexistent")):
