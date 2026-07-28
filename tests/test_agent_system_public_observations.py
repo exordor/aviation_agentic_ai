@@ -359,7 +359,7 @@ def test_weather_builder_stamps_weather_profile_and_exact_trace_ref(
     }
 
 
-def _observation_input() -> dict[str, object]:
+def _observation_input(*, nasr_airport_codes: bool = False) -> dict[str, object]:
     event = DecisionContextEvent(
         run_id="run:observation-test",
         event_id="urn:aviation-agentic-ai:event:observation-test",
@@ -372,10 +372,17 @@ def _observation_input() -> dict[str, object]:
         entity_id="urn:aviation-agentic-ai:facility:airport:KJFK",
         entity_type=EntityType.AIRPORT,
         preferred_label="John F Kennedy International Airport",
-        codes=[
-            CodeValue(scheme="IATA", value="JFK"),
-            CodeValue(scheme="ICAO", value="KJFK"),
-        ],
+        codes=(
+            [
+                CodeValue(scheme="FAA", value="JFK"),
+                CodeValue(scheme="ICAO", value="KJFK"),
+            ]
+            if nasr_airport_codes
+            else [
+                CodeValue(scheme="IATA", value="JFK"),
+                CodeValue(scheme="ICAO", value="KJFK"),
+            ]
+        ),
     )
     arrivals = (
         datetime(2026, 5, 19, 20, tzinfo=UTC),
@@ -535,6 +542,20 @@ def test_observation_builder_emits_typed_noncausal_graph_with_null_omission() ->
         and Decimal(fact.object_value) == Decimal("0")
         for fact in numeric_facts
     )
+
+
+def test_observation_builder_materializes_a_nasr_faa_icao_airport() -> None:
+    """The formal observation layer must reuse the NASR airport identity."""
+
+    inputs = _observation_input(nasr_airport_codes=True)
+    bundle = build_bts_observation_facts(**inputs)
+
+    assert bundle.status == "ok", bundle.failure_reason
+    assert {
+        fact.object_value
+        for fact in _all_observation_facts(bundle)
+        if fact.predicate_iri == "http://www.w3.org/ns/sosa/hasFeatureOfInterest"
+    } == {"urn:aviation-agentic-ai:facility:airport:KJFK"}
 
 
 def test_observation_ids_are_stable_and_reconstruction_tracks_exact_inputs() -> None:

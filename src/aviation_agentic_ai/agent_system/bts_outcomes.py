@@ -305,16 +305,25 @@ def normalize_bts_archive(
     return BTSNormalizationResult("ok", output_path=output, manifest_path=manifest, rows=rows)
 
 
-def _facility_iata(canonical_facility: CanonicalEntity) -> str:
+def resolve_bts_destination(canonical_facility: CanonicalEntity) -> str:
+    """Resolve the three-letter airport code used by BTS destination rows."""
+
     if canonical_facility.entity_type != EntityType.AIRPORT:
         raise ValueError("canonical facility is not an airport")
     iata = [code.value for code in canonical_facility.codes if code.scheme.upper() == "IATA"]
     icao = [code.value for code in canonical_facility.codes if code.scheme.upper() == "ICAO"]
-    if len(iata) != 1:
-        raise ValueError("canonical facility must have exactly one IATA airport code")
-    if len(icao) != 1 or icao[0] != f"K{iata[0]}":
+    if iata:
+        if len(iata) != 1:
+            raise ValueError("canonical facility must have exactly one IATA airport code")
+        destination = iata[0]
+    else:
+        faa = [code.value for code in canonical_facility.codes if code.scheme.upper() == "FAA"]
+        if len(faa) != 1:
+            raise ValueError("canonical facility must have exactly one FAA airport code")
+        destination = faa[0]
+    if len(icao) != 1 or icao[0] != f"K{destination}":
         raise ValueError("canonical facility must have one matching ICAO airport identity")
-    return iata[0]
+    return destination
 
 
 def _summary_and_seed(
@@ -428,7 +437,7 @@ def build_bts_outcome_summaries(
         reconstructed_sha256 = hashlib.sha256(_canonical_rows_bytes(all_rows)).hexdigest()
         if reconstructed_sha256 != source_snapshot_sha256:
             raise ValueError("BTS outcome rows do not match the supplied normalized snapshot checksum")
-        destination = _facility_iata(canonical_facility)
+        destination = resolve_bts_destination(canonical_facility)
         if any(clock.tzinfo is None or clock.utcoffset() is None for clock in (event.operational_start, event.operational_end)):
             raise ValueError("decision context clocks must be timezone-aware")
         if event.operational_end <= event.operational_start:

@@ -318,6 +318,37 @@ def test_frozen_cases_have_the_exact_active_bts_reported_counts(normalized, even
     ) == expected
 
 
+def test_summary_selects_bts_rows_for_a_nasr_faa_icao_airport(normalized):
+    """A NASR airport without IATA metadata must still select BTS JFK rows."""
+
+    facility = CanonicalEntity(
+        entity_id="urn:test:facility:airport:KJFK",
+        entity_type=EntityType.AIRPORT,
+        preferred_label="John F Kennedy International Airport",
+        codes=[
+            CodeValue(scheme="FAA", value="JFK"),
+            CodeValue(scheme="ICAO", value="KJFK"),
+        ],
+    )
+    bundle = build_bts_outcome_summaries(
+        _event(
+            "urn:test:nasr-faa-icao",
+            datetime(2026, 5, 19, 21, tzinfo=UTC),
+            datetime(2026, 5, 19, 22, 45, tzinfo=UTC),
+        ),
+        facility,
+        normalized.rows,
+        source_id=NORMALIZED_SOURCE_ID,
+        source_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
+        **_seed_inputs(),
+    )
+
+    assert bundle.status == "ok", bundle.failure_reason
+    assert next(
+        summary for summary in bundle.summaries if summary.phase == "active"
+    ).scheduled_arrival_count == 20
+
+
 def test_blocks_ambiguous_facility_binding(normalized):
     facility = CanonicalEntity(
         entity_id="urn:test:facility:ambiguous",
@@ -335,6 +366,33 @@ def test_blocks_ambiguous_facility_binding(normalized):
     )
     assert bundle.status == "blocked"
     assert "exactly one IATA" in bundle.failure_reason
+
+
+def test_blocks_a_nasr_faa_code_when_icao_does_not_match(normalized):
+    facility = CanonicalEntity(
+        entity_id="urn:test:facility:mismatched",
+        entity_type=EntityType.AIRPORT,
+        preferred_label="mismatched",
+        codes=[
+            CodeValue(scheme="FAA", value="JFK"),
+            CodeValue(scheme="ICAO", value="KEWR"),
+        ],
+    )
+    bundle = build_bts_outcome_summaries(
+        _event(
+            "urn:test:mismatched",
+            datetime(2026, 5, 19, 21, tzinfo=UTC),
+            datetime(2026, 5, 19, 22, tzinfo=UTC),
+        ),
+        facility,
+        normalized.rows,
+        source_id=NORMALIZED_SOURCE_ID,
+        source_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
+        **_seed_inputs(),
+    )
+
+    assert bundle.status == "blocked"
+    assert "matching ICAO" in bundle.failure_reason
 
 
 @pytest.mark.parametrize("field,value", [("Cancelled", 2), ("Diverted", -1), ("ArrDel15", 3)])

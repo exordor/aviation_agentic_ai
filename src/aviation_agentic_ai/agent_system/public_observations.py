@@ -25,6 +25,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceSnapshotRegistry,
     ValidatedFact,
 )
+from aviation_agentic_ai.agent_system.bts_outcomes import resolve_bts_destination
 from aviation_agentic_ai.agent_system.validation_profiles import (
     LoadedValidationProfile,
     ValidationProfileRegistry,
@@ -230,19 +231,6 @@ def _parse_snapshot_rows(snapshot: SourceSnapshot) -> dict[str, BTSOnTimeRow]:
     return rows
 
 
-def _facility_iata(facility: CanonicalEntity) -> str:
-    values = sorted(
-        {
-            code.value
-            for code in facility.codes
-            if code.scheme.upper() == "IATA" and code.value
-        }
-    )
-    if len(values) != 1:
-        raise ValueError("canonical airport requires exactly one IATA code")
-    return values[0]
-
-
 def _validate_bundle(
     event: DecisionContextEvent,
     facility: CanonicalEntity,
@@ -341,7 +329,7 @@ def _validate_bundle(
         pairs.append((summary, seed))
     assert bts_snapshot is not None
     row_index = _parse_snapshot_rows(bts_snapshot)
-    destination = _facility_iata(facility)
+    destination = resolve_bts_destination(facility)
     for summary, seed in pairs:
         missing = [row_id for row_id in seed.selected_row_ids if row_id not in row_index]
         if missing:
