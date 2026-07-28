@@ -38,11 +38,25 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceRecord,
     ValidatedFact,
 )
+from aviation_agentic_ai.agent_system.corpus_query import (
+    answer_corpus_question,
+)
+from aviation_agentic_ai.agent_system.corpus_store import (
+    CorpusQueryStore,
+    build_corpus,
+)
+from aviation_agentic_ai.agent_system.decision_case_graph import (
+    CASE_DECISION_CASE_IRI,
+    CASE_RECONSTRUCTION_IRI,
+    PROV_HAD_MEMBER_IRI,
+    PROV_SPECIALIZATION_OF_IRI,
+)
 from aviation_agentic_ai.agent_system.decision_case_contracts import stable_contract_id
 from aviation_agentic_ai.agent_system.materialize import materialize_validated_facts
 from aviation_agentic_ai.agent_system.runtime import write_run_manifest
 from aviation_agentic_ai.agent_system.query_tool_graph import (
     DECLARED_REASON_QUESTION,
+    RECONSTRUCTION_EVIDENCE_PATH_QUESTION,
     answer_question_with_tools,
 )
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
@@ -931,6 +945,14 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         .read_text(encoding="utf-8")
         .splitlines()
     ]
+    formal_projection_text = json.dumps(
+        [*kg_rows, *nodes, *relationships],
+        sort_keys=True,
+    ) + ttl
+    assert not any(
+        predicate in formal_projection_text
+        for predicate in ("causedBy", "motivatedBy", "affectedBy")
+    )
     assert "authority:" not in ttl
     assert not any("authority:" in json.dumps(row) for row in [*nodes, *relationships])
     assert "@prefix data:" in ttl
@@ -1127,6 +1149,27 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
     assert state["model_calls"] == []
     assert semantic_factory.calls == 0
     assert assembly_factory.calls == 0
+    case_graph = state["decision_case_graph"]
+    assert case_graph.status == "ok", case_graph.failure_reason
+    assert case_graph.case_iri
+    assert case_graph.reconstruction_iri
+    assert {
+        fact.object_value
+        for fact in case_graph.formal_facts
+        if fact.predicate_iri == RDF_TYPE
+    } >= {CASE_DECISION_CASE_IRI, CASE_RECONSTRUCTION_IRI}
+    assert any(
+        fact.subject_iri == case_graph.reconstruction_iri
+        and fact.predicate_iri == PROV_SPECIALIZATION_OF_IRI
+        and fact.object_value == case_graph.case_iri
+        for fact in case_graph.formal_facts
+    )
+    assert any(
+        fact.subject_iri == case_graph.reconstruction_iri
+        and fact.predicate_iri == PROV_HAD_MEMBER_IRI
+        and fact.object_value == state["decision_context_event"].event_id
+        for fact in case_graph.formal_facts
+    )
 
     event_facts = [
         fact
@@ -1209,6 +1252,54 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
     )
     assert outcome.model_calls == []
     assert query_factory.calls == 0
+
+    corpus_dir = tmp_path / "corpus"
+    build_corpus([tmp_path], corpus_dir)
+    corpus_store = CorpusQueryStore(corpus_dir)
+    corpus_case = corpus_store.get_case(state["decision_context_event"].event_id)
+    assert corpus_case is not None
+    assert corpus_case.case_iri == case_graph.case_iri
+    assert corpus_case.reconstruction_iri == case_graph.reconstruction_iri
+
+    graph_outcome = answer_corpus_question(
+        corpus_dir=corpus_dir,
+        question=RECONSTRUCTION_EVIDENCE_PATH_QUESTION,
+        event_id=state["decision_context_event"].event_id,
+    )
+    assert {
+        path.path_kind for path in graph_outcome.retrieved_graph_paths
+    } >= {"event_member", "weather_member"}
+    assert graph_outcome.status == "ok"
+    assert any(
+        path.path_kind == "active_public_observation"
+        for path in graph_outcome.retrieved_graph_paths
+    )
+    case_fact_ids = {
+        fact.fact_id
+        for fact in corpus_store.get_case_facts(
+            state["decision_context_event"].event_id
+        )
+    }
+    assert set(graph_outcome.retrieved_fact_ids) <= case_fact_ids
+    assert set(graph_outcome.source_ids) <= set(corpus_case.source_ids)
+    assert not set(graph_outcome.retrieved_fact_ids).intersection(
+        association.association_id
+        for association in corpus_store.context_associations
+    )
+    assert graph_outcome.model_calls == []
+
+    corpus_reason = answer_corpus_question(
+        corpus_dir=corpus_dir,
+        question=DECLARED_REASON_QUESTION,
+        event_id=state["decision_context_event"].event_id,
+    )
+    assert corpus_reason.status == (
+        "ok" if reason_state == "formal_weather" else "insufficient"
+    )
+    if reason_state == "missing":
+        assert corpus_reason.answer == (
+            "No declared reason is recorded for this corpus case."
+        )
 
 
 def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_artifacts(
