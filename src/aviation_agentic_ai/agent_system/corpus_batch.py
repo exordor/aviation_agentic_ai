@@ -137,6 +137,9 @@ def build_corpus_batch(
     ):
         return _summary(results, manifest=_read_manifest(manifest_path))
 
+    if pending:
+        manifest_path.unlink(missing_ok=True)
+
     loader = resource_loader or load_batch_resources
     runner = case_runner or run_batch_case
     resources = loader(config) if pending else None

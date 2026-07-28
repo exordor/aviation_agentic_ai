@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from aviation_agentic_ai.agent_system.corpus_store import CorpusBuildResult
 from aviation_agentic_ai.agent_system.corpus_batch import (
     BatchCaseExecution,
@@ -158,6 +160,54 @@ def test_blocked_case_does_not_stop_the_batch_or_publish_manifest(tmp_path: Path
 
     assert calls == ["ok:one", "blocked:two", "ok:three"]
     assert summary.blocked_count == 1
+    assert not (output / "corpus_manifest.json").exists()
+
+
+def test_resume_withholds_old_manifest_when_new_block_is_persisted(
+    tmp_path: Path,
+) -> None:
+    advisories = [
+        _advisory("ok:existing"),
+        _advisory("blocked:new"),
+        _advisory("interrupted:new"),
+    ]
+    output = tmp_path / "corpus"
+    output.mkdir()
+    (output / "corpus_manifest.json").write_text("{}\n", encoding="utf-8")
+    (output / "build_results.jsonl").write_text(
+        CorpusBuildResult(source_id="ok:existing", status="ok").model_dump_json()
+        + "\n",
+        encoding="utf-8",
+    )
+
+    def run_case(advisory, resources, staging_dir, allow_live_model):  # type: ignore[no-untyped-def]
+        _ = resources, staging_dir, allow_live_model
+        if advisory.source_id == "interrupted:new":
+            raise KeyboardInterrupt
+        return BatchCaseExecution(
+            result=CorpusBuildResult(source_id=advisory.source_id, status="blocked")
+        )
+
+    with pytest.raises(KeyboardInterrupt):
+        build_corpus_batch(
+            _config(advisories, tmp_path / "advisories.jsonl"),
+            output,
+            resume=True,
+            resource_loader=lambda config: _resources(),
+            case_runner=run_case,
+            corpus_normalizer=_normalizer,
+        )
+
+    persisted = [
+        json.loads(line)
+        for line in (output / "build_results.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    assert any(
+        row["source_id"] == "blocked:new" and row["status"] == "blocked"
+        for row in persisted
+    )
     assert not (output / "corpus_manifest.json").exists()
 
 
