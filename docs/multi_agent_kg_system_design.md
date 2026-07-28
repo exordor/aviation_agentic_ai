@@ -1,6 +1,7 @@
 # Multi-Agent Aviation Event Knowledge System
 
-Status: normative current architecture with bounded Decision Case Analysis
+Status: normative current architecture with bounded Decision Case Analysis and
+historical decision-record retrieval
 
 Date: 2026-07-28
 
@@ -33,6 +34,7 @@ that a reported observation caused a measure or that a measure was optimal.
   -> task-bound formal validation
   -> deterministic Formal Graph Kernel
   -> corpus v2 normalization and full-corpus projections
+  -> rebuildable case-level Chroma index
   -> deterministic corpus query routing with bounded read-only graph tools
      -> Decision Case Analysis Agent only for exact registered analysis questions
 ```
@@ -61,7 +63,7 @@ Agent is active.
 | Evidence | Source IDs, exact evidence text, snapshot checksums, sealed contracts, preflight records, fact traces, and deterministic tests. |
 | Success | Accepted facts materialize consistently; profile gaps and missing evidence remain distinct; registered queries return `ok`, `insufficient`, or `blocked`. |
 | Failure | A component invents a candidate, source, fact, cause, ontology term, or graph write; a provider is built on a deterministic path; or a result bypasses the Kernel. |
-| Deferred | Causal explanation, recommendation, lifecycle episode grouping, historical ranking, general aviation QA, and analysis outside the exact registered families. |
+| Deferred | Causal explanation, recommendation, lifecycle episode grouping, operational-situation or outcome-aware similarity, general aviation QA, and analysis outside the exact registered families. |
 
 ## 4. Source and Evidence Boundaries
 
@@ -257,9 +259,15 @@ Operational-situation analysis is the supported complete fixture. Episode
 analysis reports only the current record and cannot group a lifecycle.
 Applicability analysis can report formal facility/time applicability but
 cannot infer observed individual-flight impact from aggregate BTS records.
-Historical similarity returns deterministic `insufficient` until an approved
-comparison corpus and ranking profile exist; it invokes no provider and writes
-no analysis artifact.
+
+Historical similarity is a separate deterministic retrieval route. One compact
+document per accepted case encodes TMI type, canonical facility,
+declared-reason state/value, UTC time of day, and duration bucket. Exact corpus
+filters run before normalized cosine recall from a persistent local Chroma
+sidecar, and the reference case is always excluded. The index is derived from
+and bound to `corpus_id`; changing the corpus requires rebuilding it. Results
+are retrieval records only and do not enter corpus facts, RDF, Neo4j, or the
+Formal Graph Kernel. The route invokes no chat provider.
 
 ## 12. Canonical Acceptance Cases
 
@@ -281,6 +289,7 @@ The current commands are:
 
 ```text
 aviation-ai agent-system build-corpus --config <config> --output-dir <corpus-dir> [--selection cohort|all] [--source-id <id> ...] --allow-live-model [--resume]
+aviation-ai agent-system index-cases --corpus-dir <corpus-dir> [--model-name <model>] [--allow-model-download]
 aviation-ai agent-system ask --corpus-dir <corpus-dir> --question "<question>" [--event-id <event-id>] [--allow-live-model]
 aviation-ai agent-system neo4j-export --corpus-dir <corpus-dir>
 aviation-ai agent-system export-case --corpus-dir <corpus-dir> --event-id <event-id> --output-dir <export-dir>
@@ -294,8 +303,9 @@ exports all use the checksum-verified v2 tables.
 
 `--allow-live-model` authorizes the existing bounded workflow for eligible
 build records and a model-bound Decision Case Analysis route. Preflight,
-existing deterministic questions, and the historical-similarity gate do not
-construct a provider.
+existing deterministic questions, and historical similarity do not construct
+a chat provider. Historical similarity accepts exact event-type, facility, and
+declared-reason filters plus `archive` or `prior` candidate scope.
 
 ## 14. Verification Requirements
 
@@ -314,10 +324,16 @@ Weather boundary, active BTS-reported counts, and absence of unnecessary
 provider use. A passing offline contract check does not claim external expert
 certification or live semantic accuracy.
 
+The tracked six-query retrieval smoke set over 38 accepted cases checks four
+reviewed analogue pairs and two expected-insufficient filters. Its observed
+Hit@1, Hit@3, and MRR are all `1.0`, with two of two expected-insufficient
+queries passing. This is a bounded relevance smoke test, not expert Gold,
+decision-quality evidence, or an operational recommendation benchmark.
+
 ## 15. Non-Capabilities
 
 The current system does not provide general aviation chat, causal explanation,
 operational optimization, TMI recommendation, lifecycle decision-episode
-grouping, observed individual-flight impact, historical similarity ranking,
-automatic ontology expansion, public deployment, or external expert
-certification.
+grouping, observed individual-flight impact, operational-situation or
+outcome-aware similarity, learned reranking, automatic ontology expansion,
+public deployment, or external expert certification.

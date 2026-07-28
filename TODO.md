@@ -6,7 +6,7 @@ This file contains only the active execution queue and immediate deferred
 decisions. Historical experiment backlogs are discoverable through
 `ARTIFACT_INDEX.md` and Git history.
 
-## Current Stage - Corpus-First Storage
+## Current Stage - Corpus-First Retrieval
 
 Batch C.1 and Batch D are complete on `main`. The system now reconstructs the
 three canonical decision cases with Weather and BTS context, assembles them
@@ -23,8 +23,13 @@ The frozen cohort design is 718 discovered, 68 selected, 42 Agent-eligible, 23
 unsupported-TMI, and 3 incomplete-core-field records. The 26 preflight
 failures are deterministic `insufficient` with zero model calls. `--resume`
 retries only `blocked` results and final publication waits for blocked count
-zero. This storage increment adds no Agent, vector database, historical
-ranking, or recommendation.
+zero.
+
+Storage Batch S3 is complete. `index-cases` builds a persistent local Chroma
+sidecar with one compact decision-record vector per accepted case. Exact
+event-type, facility, and declared-reason filters are applied before vector
+recall; archive and prior scopes exclude the reference case. Historical
+retrieval remains deterministic and uses zero chat-model calls.
 
 ## Recently Completed Mainline
 
@@ -35,8 +40,12 @@ ranking, or recommendation.
 - [x] Keep the three canonical cases on deterministic zero-call Assembly.
 - [x] Add bounded Decision Case Analysis for exact episode,
   operational-situation, and applicability questions.
-- [x] Keep historical similarity deterministic `insufficient` until an
-  approved comparison corpus exists.
+- [x] Build a corpus-bound, rebuildable Chroma case index without changing
+  corpus v2 identity or formal facts.
+- [x] Retrieve published decision-record analogues through exact filtering
+  followed by normalized cosine ranking.
+- [x] Verify four reviewed analogue queries and two expected-insufficient
+  queries on a small tracked smoke set.
 - [x] Query the normalized corpus by exact case metadata and canonical event
   ID without constructing a provider.
 - [x] Build selected advisories directly into corpus v2 with one result per
@@ -78,7 +87,7 @@ The read-only query evidence explorer is implemented and reviewed on
 Do not expand analysis beyond the exact registered families without a new
 approved task and evidence boundary. The next approved task must choose only
 one bounded increment, such as ASPM validation, regional Weather context,
-decision-episode grouping, or a reviewed historical comparison corpus.
+decision-episode grouping, or operational-situation similarity.
 
 ## Explicitly Deferred
 
@@ -87,7 +96,8 @@ decision-episode grouping, or a reviewed historical comparison corpus.
   impact.
 - TCF, CWA, SIGMET, NOTAM, ADS-B, and single-flight trajectories.
 - Advisory lifecycle or decision-episode grouping.
-- Historical-case ranking and TMI recommendation.
+- Operational-situation and outcome-aware similarity, learned reranking, and
+  TMI recommendation.
 - General-purpose planner and long-term Agent memory.
 - General RAG and general aviation chat.
 - New Agent roles without an observed need.

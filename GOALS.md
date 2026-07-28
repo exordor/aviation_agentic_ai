@@ -10,7 +10,7 @@ historical comparison hypotheses belong in the optional experiment documents.
 Build a useful, extensible multi-Agent aviation event knowledge system that:
 
 1. reads retrospective FAA ATCSCC advisories and bounded authority records
-   through repeatable per-event runs;
+   into a repeatable corpus-first build;
 2. coordinates deterministic parsing and authority services, conditionally
    activated semantic resolution and decision-case assembly Agents, and a
    graph-grounded read surface with bounded Decision Case Analysis for exact
@@ -18,8 +18,8 @@ Build a useful, extensible multi-Agent aviation event knowledge system that:
 3. publishes only evidence-bound facts accepted by a deterministic schema and
    provenance gate;
 4. materializes canonical event graphs as JSONL, RDF/Turtle, and Neo4j
-   projections, then normalizes validated runs into a shared cross-case
-   corpus;
+   projections, then derives a corpus-bound vector index for published
+   decision-record retrieval;
 5. answers bounded user questions through read-only graph tools while exposing
    evidence, uncertainty, and missing information.
 
@@ -68,6 +68,8 @@ The current system provides:
 - bounded Decision Case Analysis for exact registered episode,
   operational-situation, and applicability questions, with immutable analysis
   artifacts;
+- deterministic historical decision-record retrieval through exact corpus
+  filters followed by a rebuildable local Chroma vector index;
 - explicit profile-gap, insufficient, and blocked outcomes.
 
 Ground Stop `123`, Ground Delay Program `138`, and missing-reason cancellation
@@ -104,12 +106,17 @@ The new Assembly role does not turn adapters into Agents and does not add model
 calls to the three canonical cases. It reconstructs auditable historical
 context; it does not evaluate operational optimality.
 
-Batch D exposes that validated case through a closed
-analysis surface. Operational-situation analysis is the supported complete
-fixture. Episode analysis is current-record-only, applicability analysis has
-no observed individual-flight evidence, and historical similarity remains a
-deterministic insufficient gate without an approved comparison cohort and
-ranking contract.
+Batch D exposes that validated case through a closed analysis surface.
+Operational-situation analysis is the supported complete fixture. Episode
+analysis is current-record-only, and applicability analysis has no observed
+individual-flight evidence.
+
+Storage Batch S3 adds published decision-record similarity. It embeds only
+TMI type, canonical facility, declared-reason state/value, UTC time of day, and
+duration category. Exact filters run before normalized cosine retrieval; the
+anchor case is excluded, and the route makes zero chat-model calls. It does
+not compare Weather, BTS outcomes, operational effectiveness, or recommended
+actions.
 
 ## Success Criteria
 
@@ -140,14 +147,15 @@ guarantee.
 
 Later increments still require an explicit user task and source boundary.
 Possible directions include decision-episode identity, regional weather,
-ASPM-based demand/capacity evidence, and historical case retrieval.
+ASPM-based demand/capacity evidence, and operational-situation similarity.
 
 ## Deferred Work
 
 - Weather-based causal explanation.
 - ASPM outcomes and flight-level impact.
 - Initial/revision/extension/cancellation episode grouping.
-- Historical similarity ranking and TMI recommendation.
+- Operational-situation and outcome-aware similarity, learned reranking, and
+  TMI recommendation.
 - General-purpose aviation QA.
 - Full-corpus live-model execution.
 - Automatic ontology expansion.

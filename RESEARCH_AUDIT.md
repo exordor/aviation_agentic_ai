@@ -22,14 +22,15 @@ and selected-case exports from that corpus.
   -> sequential workflow for the remaining 42 eligible records
   -> Formal Graph Kernel
   -> corpus v2 normalization and full-corpus projections
-  -> bounded corpus query / Neo4j export / case export
+  -> rebuildable case-level Chroma index
+  -> bounded corpus query / similarity retrieval / Neo4j export / case export
 ```
 
 The Coordinator and Formal Graph Kernel are deterministic components, not
 Agents. LLM output cannot bypass the publication gate. The persisted public
-path is corpus-first: `build-corpus`, `ask`, `neo4j-export`, and `export-case`.
-There is no persistent single-case ingest interface, run-directory query, or
-corpus v1 compatibility layer.
+path is corpus-first: `build-corpus`, `index-cases`, `ask`, `neo4j-export`, and
+`export-case`. There is no persistent single-case ingest interface,
+run-directory query, or corpus v1 compatibility layer.
 
 ## Verified Main-Branch Capabilities
 
@@ -39,9 +40,14 @@ corpus v1 compatibility layer.
 - Corpus v2 content-addresses source objects and stores cases, semantic facts,
   membership, evidence links, profile gaps, Weather associations, BTS
   observations, full-corpus RDF/Turtle, and Neo4j projections.
+- `agent-system index-cases` builds an ignored, corpus-bound Chroma sidecar with
+  one explicit vector per accepted decision record.
 - `agent-system ask` filters the corpus and answers exact registered record,
   context, observation, and reconstructed-case questions with bounded read-only
   tools.
+- The historical-similarity route applies exact metadata filters before cosine
+  recall, excludes the anchor, supports archive and prior scopes, and makes zero
+  chat-model calls.
 - `agent-system export-case` writes a selected bounded, non-replayable case.
 - `agent-system neo4j-export` loads the full corpus projection with
   parameterized `MERGE` when Neo4j is available.
@@ -52,8 +58,7 @@ corpus v1 compatibility layer.
 - Weather associations remain non-causal. BTS observations are not FAA demand,
   AAR, capacity, EDCT, or proof that a TMI caused an outcome.
 - Exact registered Decision Case Analysis questions use closed plans and
-  bounded read-only tools only with `--allow-live-model`. Historical similarity
-  remains deterministic `insufficient` without an approved ranking contract.
+  bounded read-only tools only with `--allow-live-model`.
 
 ## Current Intake And Publication Rules
 
@@ -90,9 +95,10 @@ archives. They do not define the current system.
 ## Current Boundaries
 
 The project does not provide general aviation QA, live ATC support,
-weather-based causal explanation, historical ranking, TMI recommendation, a
-complete aviation ontology, or external expert certification. Building a
-storage corpus does not create a comparison cohort or authorize ranking.
+weather-based causal explanation, operational-situation or outcome-aware
+similarity, TMI recommendation, a complete aviation ontology, or external
+expert certification. The tracked six-query relevance smoke set is not expert
+Gold or decision-quality evidence.
 
 Comparison experiments, Gold adjudication, alignment MVE work, broader Weather
 expansion, causal explanation, and recommendation require an explicit approved

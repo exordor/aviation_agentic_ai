@@ -13,21 +13,23 @@ Kernel.
   -> 26 insufficient results with zero model calls
   -> sequential workflow for the 42 eligible records
   -> corpus v2 tables and full-corpus projections
+  -> rebuildable case-level Chroma index
   -> bounded corpus query, case export, and Neo4j load
 ```
 
 The public persisted interface is corpus-first. `build-corpus` is the only
-writer; `ask`, `neo4j-export`, and `export-case` read the validated corpus.
-There is no persistent single-case ingest path, run-directory query path, or
-v1 migration layer. Use `build-corpus --source-id` for a bounded single-case
-debug build.
+evidence writer; `index-cases` creates a rebuildable vector-index sidecar, while
+`ask`, `neo4j-export`, and `export-case` read the validated corpus. There is no
+persistent single-case ingest path, run-directory query path, or v1 migration
+layer. Use `build-corpus --source-id` for a bounded single-case debug build.
 
 ## Quick Start
 
 Install the active system and development dependencies:
 
 ```bash
-uv sync --extra dev --extra ontology-generation --extra neo4j
+uv sync --extra dev --extra ontology-generation --extra neo4j \
+  --extra case-retrieval
 uv run aviation-ai agent-system --help
 ```
 
@@ -102,6 +104,25 @@ formal graph. Weather associations are non-causal, and BTS observations remain
 source-qualified public observations rather than FAA demand, capacity, AAR,
 EDCT, or decision rationale.
 
+## Historical Case Retrieval
+
+Build one decision-record vector per accepted case in a persistent local Chroma
+sidecar:
+
+```bash
+uv run --extra case-retrieval aviation-ai agent-system index-cases \
+  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v2 \
+  --model-name sentence-transformers/all-MiniLM-L6-v2 \
+  --allow-model-download
+```
+
+The compact representation includes the TMI type, canonical facility,
+declared-reason state and value, UTC time of day, and duration bucket. It
+excludes source IDs, raw text, dates, Weather context, BTS observations, and
+outcomes. Exact metadata filters are applied before cosine vector recall, and
+the reference case is excluded. The index is bound to the corpus ID and must be
+rebuilt after the corpus changes.
+
 ## Read And Export
 
 Ask a deterministic corpus question:
@@ -114,11 +135,27 @@ uv run aviation-ai agent-system ask \
 ```
 
 `ask` supports exact event-type, facility, declared-reason, pagination, formal
-record, Weather-context, BTS-observation, and reconstructed-case questions.
-Registered deterministic questions use zero model calls. Exact registered
-Decision Case Analysis questions require `--allow-live-model`; historical
-similarity remains deterministic `insufficient` until an approved comparison
-corpus and ranking contract exist.
+record, Weather-context, BTS-observation, reconstructed-case, and historical
+decision-record similarity questions. Registered deterministic questions,
+including similarity retrieval, use zero chat-model calls. Exact registered
+Decision Case Analysis questions require `--allow-live-model`.
+
+```bash
+uv run --extra case-retrieval aviation-ai agent-system ask \
+  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v2 \
+  --event-id <reference-event-id> \
+  --question "Which historical case is most similar?" \
+  --event-type-iri <exact-tmi-iri> \
+  --facility-id <canonical-facility-id> \
+  --reason-status formal \
+  --reason-value weather \
+  --candidate-scope archive
+```
+
+The tracked six-query smoke set over the 38 accepted cases returned all four
+reviewed analogues at rank one and both unique-filter queries as
+`insufficient`. This is a small relevance smoke test, not expert-certified
+Gold, decision-quality evidence, or a recommendation benchmark.
 
 Export one bounded, non-replayable case:
 
@@ -147,9 +184,10 @@ returns `BLOCKED` when credentials or connectivity are unavailable.
 - GDP cancellation `2026-05-20:020` retains a missing declared reason and a
   deterministic `insufficient` declared-reason answer.
 
-The system does not provide live ATC support, causal explanation, historical
-ranking, TMI recommendation, general aviation QA, or a complete aviation
-ontology. See [REPRODUCIBILITY.md](REPRODUCIBILITY.md) for source checks,
-verification, and corpus commands; see
+The system does not provide live ATC support, causal explanation,
+operational-situation or outcome-aware similarity, TMI recommendation, general
+aviation QA, or a complete aviation ontology. See
+[REPRODUCIBILITY.md](REPRODUCIBILITY.md) for source checks, verification, and
+corpus commands; see
 [docs/multi_agent_kg_system_design.md](docs/multi_agent_kg_system_design.md)
 for the normative architecture.

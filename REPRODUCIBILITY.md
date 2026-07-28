@@ -12,12 +12,15 @@ available through `EXPERIMENTS.md`, but they are not the default path.
 - Supported development platforms: macOS and Linux.
 
 ```bash
-uv sync --extra dev --extra ontology-generation --extra neo4j
+uv sync --extra dev --extra ontology-generation --extra neo4j \
+  --extra case-retrieval
 uv run aviation-ai agent-system --help
 ```
 
 The `ontology-generation` extra supplies the LangChain and LangGraph runtime.
-The `neo4j` extra is required only for database loading.
+The `neo4j` extra is required only for database loading. The `case-retrieval`
+extra supplies the local Chroma vector database and Sentence Transformers
+encoder.
 
 ## Source Snapshot Preflight
 
@@ -52,10 +55,11 @@ data/sources/bts_on_time_2026_05_nyc.jsonl
 
 ## Build A Corpus
 
-The only persistent writer is `build-corpus`. It selects advisory records,
-performs deterministic preflight, runs eligible cases sequentially, normalizes
-their validated packages into corpus v2, and removes temporary case bundles
-only after finalization.
+The only persistent evidence writer is `build-corpus`. It selects advisory
+records, performs deterministic preflight, runs eligible cases sequentially,
+normalizes their validated packages into corpus v2, and removes temporary case
+bundles only after finalization. `index-cases` writes only a rebuildable
+derived sidecar.
 
 The frozen cohort has 718 discovered advisories and this required ledger:
 
@@ -133,6 +137,47 @@ Exact catalog filters are `--event-type-iri`, `--facility-id`,
 `--reason-status`, `--reason-value`, `--offset`, and `--limit`. Decision Case
 Analysis requires `--allow-live-model` for its exact registered questions.
 
+Build the rebuildable case-level vector index:
+
+```bash
+uv run --extra case-retrieval aviation-ai agent-system index-cases \
+  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v2 \
+  --model-name sentence-transformers/all-MiniLM-L6-v2 \
+  --allow-model-download
+```
+
+The first permitted run may download the pinned embedding model. Later runs can
+omit `--allow-model-download` when the model is already local. The resulting
+`case_index/` directory is a derived, ignored sidecar bound to the corpus ID.
+
+Run one exact-filtered archive or prior-case query:
+
+```bash
+uv run --extra case-retrieval aviation-ai agent-system ask \
+  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v2 \
+  --event-id <reference-event-id> \
+  --question "Which historical case is most similar?" \
+  --event-type-iri <exact-tmi-iri> \
+  --facility-id <canonical-facility-id> \
+  --reason-status formal \
+  --reason-value weather \
+  --candidate-scope prior
+```
+
+Evaluate the tracked six-query relevance smoke set:
+
+```bash
+uv run --extra case-retrieval python -m \
+  aviation_agentic_ai.agent_system.case_retrieval_evaluation \
+  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v2 \
+  --gold data/evaluation/agent_system/case_retrieval_smoke_v1.yaml
+```
+
+The reviewed 38-case run produced four rank-one analogue hits, Hit@1 and
+Hit@3 of `1.0`, MRR of `1.0`, and two of two expected `insufficient` results.
+These values describe only the small tracked relevance smoke set; they are not
+expert Gold, operational effectiveness, or decision-quality results.
+
 Export one bounded case:
 
 ```bash
@@ -166,13 +211,17 @@ decision rationale.
 
 ## Verification
 
-Run after the storage batches:
+Run after the storage and retrieval batches:
 
 ```bash
-uv run pytest -q \
+uv run --extra case-retrieval pytest -q \
   tests/test_agent_system_corpus_store.py \
   tests/test_agent_system_corpus_batch.py \
   tests/test_agent_system_corpus_projection.py \
+  tests/test_agent_system_case_retrieval_documents.py \
+  tests/test_agent_system_case_retrieval_index.py \
+  tests/test_agent_system_case_retrieval_search.py \
+  tests/test_agent_system_case_retrieval_evaluation.py \
   tests/test_agent_system_query_tool_graph.py \
   tests/test_cli_agent_system.py
 

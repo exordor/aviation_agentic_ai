@@ -25,6 +25,7 @@ The active pipeline is:
   -> task-bound validation
   -> deterministic Formal Graph Kernel
   -> corpus v2 normalization and JSONL + RDF + Neo4j materialization
+  -> rebuildable case-level Chroma index for filtered decision-record retrieval
   -> deterministic corpus query routing with bounded read-only graph tools
      -> Decision Case Analysis Agent only for exact registered analysis questions
 ```
@@ -49,10 +50,12 @@ names, not internal alphanumeric labels.
   sole final publication authority.
 - Decision Case Analysis is active only for exact registered episode,
   operational-situation, and applicability questions. It uses closed plans and
-  bounded read-only tools. Historical similarity remains a deterministic
-  insufficient corpus gate; existing record questions remain zero-call.
-- Storage Batch S2 is the completed breaking storage cutover. The public
-  commands are `build-corpus`, `ask`, `neo4j-export`, and `export-case`.
+  bounded read-only tools. Historical decision-record similarity uses exact
+  filters before a corpus-bound Chroma index and remains zero-chat-model.
+- Storage Batch S2 is the completed breaking storage cutover. Storage Batch S3
+  adds the rebuildable `index-cases` sidecar and deterministic filtered
+  similarity route. The public commands are `build-corpus`, `index-cases`,
+  `ask`, `neo4j-export`, and `export-case`.
   There is no persistent single-case `ingest`, `ask-corpus`, `--runs-root`,
   `--run-dir`, or corpus-v1 compatibility path. Use `build-corpus --source-id`
   for a bounded debug build.
