@@ -6,8 +6,8 @@ detailed designs and historical protocols live under `docs/`.
 ## Project Posture
 
 This is a **system and framework construction project**. The primary deliverable
-is a runnable multi-Agent aviation event knowledge system over retrospective FAA
-ATCSCC advisories.
+is a runnable bounded-Agent aviation decision-case knowledge system over
+retrospective FAA ATCSCC advisories.
 
 The active pipeline is:
 
@@ -24,7 +24,10 @@ The active pipeline is:
      Decision Case Assembly Agent for genuine evidence/schema choice
   -> task-bound validation
   -> deterministic Formal Graph Kernel
-  -> corpus v2 normalization and JSONL + RDF + Neo4j materialization
+  -> source-independent DecisionCase core and formal reconstruction membership
+  -> canonical corpus v2 normalization
+  -> case-scoped formal graph view for one exact evidence-path question
+  -> rebuildable JSONL + RDF + Neo4j materialization
   -> rebuildable case-level Chroma index for filtered decision-record retrieval
   -> deterministic corpus query routing with bounded read-only graph tools
      -> Decision Case Analysis Agent only for exact registered analysis questions
@@ -42,7 +45,11 @@ names, not internal alphanumeric labels.
 
 - `main` contains the corpus-first builder, validation, corpus v2
   materialization, full-corpus Neo4j projection, bounded query path,
-  Decision Case Assembly, and Decision Case Analysis.
+  DecisionCase semantic core, Decision Case Assembly, and Decision Case
+  Analysis.
+- The formal case graph supports one closed Weather and active-BTS
+  evidence-path question with zero model calls; it is not a general graph-query
+  interface.
 - The three Decision Record Explorer cases have deterministic query support on
   `main`, including a profile-gap reason and an honest missing-reason outcome.
 - Batch C.1 and Batch D are merged into `main`. The three canonical records use

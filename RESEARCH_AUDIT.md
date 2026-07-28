@@ -10,9 +10,10 @@ thesis-first navigation model.
 
 Aviation Agentic AI is a runnable, source-bounded corpus builder for
 retrospective FAA ATCSCC advisories. It deterministically selects and preflights
-advisories, processes eligible cases through the bounded multi-Agent workflow,
-normalizes validated evidence into corpus v2, then serves queries, RDF, Neo4j,
-and selected-case exports from that corpus.
+advisories, processes eligible cases through the bounded-Agent workflow, and
+normalizes validated evidence into canonical corpus v2. Queries and
+selected-case exports read that corpus; RDF, Neo4j, and Chroma are rebuildable
+derived views.
 
 ```text
 718 advisory rows
@@ -21,9 +22,10 @@ and selected-case exports from that corpus.
   -> insufficient without model for 23 unsupported + 3 incomplete records
   -> sequential workflow for the remaining 42 eligible records
   -> Formal Graph Kernel
-  -> corpus v2 normalization and full-corpus projections
-  -> rebuildable case-level Chroma index
-  -> bounded corpus query / similarity retrieval / Neo4j export / case export
+  -> DecisionCase semantic core and canonical corpus v2
+  -> case-scoped formal graph view
+  -> rebuildable RDF/Neo4j projections and case-level Chroma index
+  -> bounded corpus query / similarity retrieval / case export
 ```
 
 The Coordinator and Formal Graph Kernel are deterministic components, not
@@ -39,7 +41,11 @@ run-directory query, or corpus v1 compatibility layer.
   `--resume` retries blocked records only.
 - Corpus v2 content-addresses source objects and stores cases, semantic facts,
   membership, evidence links, profile gaps, Weather associations, BTS
-  observations, full-corpus RDF/Turtle, and Neo4j projections.
+  observations, and stable conceptual-case/reconstruction identities.
+- Each accepted case has formal DecisionCase reconstruction membership. The
+  exact registered Weather and active-window BTS evidence-path question
+  traverses only that case's admitted facts, makes zero model calls, and does
+  not expose arbitrary graph traversal.
 - `agent-system index-cases` builds an ignored, corpus-bound Chroma sidecar with
   one explicit vector per accepted decision record.
 - `agent-system ask` filters the corpus and answers exact registered record,
@@ -51,6 +57,8 @@ run-directory query, or corpus v1 compatibility layer.
 - `agent-system export-case` writes a selected bounded, non-replayable case.
 - `agent-system neo4j-export` loads the full corpus projection with
   parameterized `MERGE` when Neo4j is available.
+- RDF/Turtle and Neo4j are rebuildable formal-graph projections; Chroma is a
+  rebuildable retrieval index. None replaces corpus v2 as the authority.
 - Missing or unsupported fields return explicit `insufficient`; provider or
   workflow failures return `blocked`; profile gaps never become formal KG facts.
 - GS 123 remains a profile gap, GDP 138 retains formal `weather`, and GDP 020

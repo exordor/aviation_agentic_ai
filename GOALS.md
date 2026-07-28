@@ -7,7 +7,8 @@ historical comparison hypotheses belong in the optional experiment documents.
 
 ## Primary Goal
 
-Build a useful, extensible multi-Agent aviation event knowledge system that:
+Build a useful, extensible bounded-Agent aviation decision-case knowledge
+system that:
 
 1. reads retrospective FAA ATCSCC advisories and bounded authority records
    into a repeatable corpus-first build;
@@ -17,9 +18,9 @@ Build a useful, extensible multi-Agent aviation event knowledge system that:
    registered questions;
 3. publishes only evidence-bound facts accepted by a deterministic schema and
    provenance gate;
-4. materializes canonical event graphs as JSONL, RDF/Turtle, and Neo4j
-   projections, then derives a corpus-bound vector index for published
-   decision-record retrieval;
+4. keeps corpus v2 as the canonical persisted knowledge layer and derives
+   rebuildable RDF/Turtle, Neo4j, and Chroma views for graph and similarity
+   retrieval;
 5. answers bounded user questions through read-only graph tools while exposing
    evidence, uncertainty, and missing information.
 
@@ -60,8 +61,12 @@ The current system provides:
 - JSONL, RDF/Turtle, and Neo4j projection artifacts;
 - content-addressed cross-run source storage, a case catalog, canonical facts,
   and explicit case-to-fact membership;
+- a source-independent DecisionCase core with stable conceptual-case and
+  reconstruction identities plus formal reconstruction membership;
 - deterministic cross-case catalog filtering and selected-event formal fact
   retrieval with zero model calls;
+- a closed case-scoped graph traversal for the exact registered Weather and
+  active-window BTS evidence-path question, with zero model calls;
 - a bounded read-only Query Agent;
 - deterministic support for measure, facility, operational period, declared
   reason, provenance, and combined decision-record questions;
@@ -110,6 +115,11 @@ Batch D exposes that validated case through a closed analysis surface.
 Operational-situation analysis is the supported complete fixture. Episode
 analysis is current-record-only, and applicability analysis has no observed
 individual-flight evidence.
+
+The DecisionCase semantic core owns reconstruction identity and membership
+independently of the Weather and BTS profiles. Corpus queries use that formal
+structure for one exact, closed evidence-path question; this is not a general
+graph-query interface.
 
 Storage Batch S3 adds published decision-record similarity. It embeds only
 TMI type, canonical facility, declared-reason state/value, UTC time of day, and

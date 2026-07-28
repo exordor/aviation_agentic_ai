@@ -1,7 +1,8 @@
-# Multi-Agent Aviation Event Knowledge System
+# Bounded-Agent Aviation Decision-Case Knowledge System
 
 Status: normative current architecture with bounded Decision Case Analysis and
-historical decision-record retrieval
+historical decision-record retrieval, a DecisionCase semantic core, and one
+registered case-scoped graph query
 
 Date: 2026-07-28
 
@@ -19,6 +20,11 @@ that a reported observation caused a measure or that a measure was optimal.
 
 ## 2. Current Architecture
 
+![Current bounded-agent decision-case architecture](figures/current_project_architecture.png)
+
+Editable source:
+[current_project_architecture.drawio](figures/current_project_architecture.drawio).
+
 ```text
 718 advisory rows + bounded FAA authority records
   -> cohort/all selection or explicit source-ID subset
@@ -33,8 +39,11 @@ that a reported observation caused a measure or that a measure was optimal.
      -> bounded Decision Case Assembly Agent only for genuine evidence/schema choice
   -> task-bound formal validation
   -> deterministic Formal Graph Kernel
-  -> corpus v2 normalization and full-corpus projections
-  -> rebuildable case-level Chroma index
+  -> source-independent DecisionCase core
+     -> conceptual case + reconstruction + formal membership
+  -> canonical corpus v2 normalization
+  -> case-scoped formal graph view
+  -> rebuildable RDF/Neo4j projections and case-level Chroma index
   -> deterministic corpus query routing with bounded read-only graph tools
      -> Decision Case Analysis Agent only for exact registered analysis questions
 ```
@@ -57,9 +66,9 @@ Agent is active.
 
 | Item | Current decision |
 | --- | --- |
-| Capability | Build, inspect, and narrowly analyze a source-bounded corpus of ATCSCC decision cases with audited context. |
-| Smallest end-to-end result | Build a selected source-ID subset into corpus v2, publish only accepted facts, and answer registered questions from corpus artifacts. |
-| Minimum components | AdvisoryParser, authority services, optional semantic/assembly Agents, Weather/BTS adapters, Formal Graph Kernel, profiles, materializers, deterministic query tools, and bounded Decision Case Analysis. |
+| Capability | Build, inspect, and narrowly analyze a source-bounded corpus of ATCSCC decision cases with audited context and one closed graph evidence-path query. |
+| Smallest end-to-end result | Build a selected source-ID subset into corpus v2, publish only accepted facts, and retrieve its event, Weather, and active BTS membership paths. |
+| Minimum components | AdvisoryParser, authority services, optional semantic/assembly Agents, Weather/BTS adapters, DecisionCase core, Formal Graph Kernel, corpus store, closed graph view, materializers, and bounded query tools. |
 | Evidence | Source IDs, exact evidence text, snapshot checksums, sealed contracts, preflight records, fact traces, and deterministic tests. |
 | Success | Accepted facts materialize consistently; profile gaps and missing evidence remain distinct; registered queries return `ok`, `insufficient`, or `blocked`. |
 | Failure | A component invents a candidate, source, fact, cause, ontology term, or graph write; a provider is built on a deterministic path; or a result bypasses the Kernel. |
@@ -186,7 +195,15 @@ constraints. It accepts only the formal layers owned by their profiles:
 
 1. ATCSCC decision facts under the NASA ATMONTO decision profile;
 2. METAR/TAF report facts under the curated Weather profile;
-3. BTS-reported observations under the public-observation profile.
+3. BTS-reported observations under the public-observation profile;
+4. `DecisionCase`, `DecisionCaseReconstruction`,
+   `prov:specializationOf`, and `prov:hadMember` facts under the DecisionCase
+   core profile.
+
+The DecisionCase core records source-independent system structure. Its
+membership relations say that an admitted record belongs to one
+reconstruction; they do not state that Weather caused the TMI or that the TMI
+caused a BTS observation.
 
 Every accepted fact carries the owning profile identifier and checksum. No
 model writes directly to RDF, Turtle, Neo4j, or a final graph artifact.
@@ -231,12 +248,17 @@ formal graph. Weather associations retain `causal_claim=false`. Observations
 retain phase, metric, null or numeric value, unit, admitted fact IDs, profile,
 and source artifact.
 
-RDF and Neo4j are full-corpus projections of accepted formal facts. Context
+Corpus v2 is the canonical persisted knowledge layer. Every `cases.jsonl`
+record requires a conceptual `case_iri` and a `reconstruction_iri` extracted
+from accepted DecisionCase core facts. RDF and Neo4j are rebuildable
+full-corpus projections, and Chroma is a rebuildable retrieval index. Context
 associations are excluded from formal RDF and Neo4j; already admitted BTS
-public-observation facts remain formal. A blocked provider or workflow result
-does not stop the batch. It prevents final-manifest publication and is the only
-state retried by `build-corpus --resume`. Successful finalization deletes
-temporary case bundles; those staging packages are never a public read backend.
+public-observation facts remain formal.
+
+A blocked provider or workflow result does not stop the batch. It prevents
+final-manifest publication and is the only state retried by
+`build-corpus --resume`. Successful finalization deletes temporary case
+bundles; those staging packages are never a public read backend.
 
 ## 11. Query Tools and Decision Case Analysis
 
@@ -247,6 +269,20 @@ context, public observations, and reconstruction record. Missing or
 unsupported registered evidence returns `insufficient` before model
 construction. These existing routes, including the combined record question,
 remain deterministic and make zero model calls.
+
+One registered multi-hop question uses the case-scoped formal graph view:
+
+```text
+Which weather reports and active-window BTS public observations belong to this reconstructed decision case?
+```
+
+The closed traversal follows the selected reconstruction through
+`prov:specializationOf` and `prov:hadMember`, then reads admitted Weather and
+active-window BTS observation facts. It returns formal fact and source paths
+from only the selected case, makes zero model calls, and returns
+`insufficient` unless both required evidence families are complete. It does
+not expose arbitrary predicates, hop counts, SPARQL, Cypher, or general graph
+QA.
 
 Exact registered analysis questions compile to closed typed plans. Episode,
 operational-situation, and applicability analysis may activate the Decision

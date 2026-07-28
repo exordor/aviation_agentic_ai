@@ -12,9 +12,10 @@ Kernel.
   -> deterministic preflight
   -> 26 insufficient results with zero model calls
   -> sequential workflow for the 42 eligible records
-  -> corpus v2 tables and full-corpus projections
-  -> rebuildable case-level Chroma index
-  -> bounded corpus query, case export, and Neo4j load
+  -> canonical corpus v2 with case and reconstruction identities
+  -> case-scoped formal graph view for one registered evidence-path question
+  -> rebuildable RDF/Neo4j projections and case-level Chroma index
+  -> bounded corpus query and case export
 ```
 
 The public persisted interface is corpus-first. `build-corpus` is the only
@@ -104,6 +105,11 @@ formal graph. Weather associations are non-causal, and BTS observations remain
 source-qualified public observations rather than FAA demand, capacity, AAR,
 EDCT, or decision rationale.
 
+Corpus v2 is the canonical persisted knowledge layer. Each accepted case has a
+stable conceptual case IRI and a reconstruction IRI. Formal membership facts
+bind the ATCSCC event and admitted Weather/BTS members to that reconstruction.
+RDF, Neo4j, and Chroma are rebuildable views derived from the corpus.
+
 ## Historical Case Retrieval
 
 Build one decision-record vector per accepted case in a persistent local Chroma
@@ -140,6 +146,17 @@ decision-record similarity questions. Registered deterministic questions,
 including similarity retrieval, use zero chat-model calls. Exact registered
 Decision Case Analysis questions require `--allow-live-model`.
 
+The registered question below uses a closed, case-scoped formal graph
+traversal and returns the supporting fact and source paths with zero model
+calls:
+
+```text
+Which weather reports and active-window BTS public observations belong to this reconstructed decision case?
+```
+
+This is a bounded evidence-path capability, not arbitrary graph QA, SPARQL, or
+Cypher access.
+
 ```bash
 uv run --extra case-retrieval aviation-ai agent-system ask \
   --corpus-dir data/corpus/agent_system/cross-source-2026-05-v2 \
@@ -173,7 +190,8 @@ uv run aviation-ai agent-system neo4j-export \
   --corpus-dir data/corpus/agent_system/smoke-v2
 ```
 
-The Neo4j loader uses parameterized `MERGE`, preserves unrelated data, and
+Neo4j is a rebuildable full-corpus projection rather than the authoritative
+store. Its loader uses parameterized `MERGE`, preserves unrelated data, and
 returns `BLOCKED` when credentials or connectivity are unavailable.
 
 ## Acceptance Semantics

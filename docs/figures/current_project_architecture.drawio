@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="Electron" modified="2026-07-28T15:30:57.147Z" version="30.3.6">
+  <diagram id="page-1" name="Current Architecture">
+    <mxGraphModel dx="1422" dy="762" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3000" pageHeight="1400" math="0" shadow="0" background="#F7F9FC">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="__figure_title__" value="" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fontSize=22;fontStyle=1;fontColor=#111827;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="2920" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="title" value="Bounded-Agent Decision-Case Knowledge System" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fontColor=#17324D;fontSize=38;fontStyle=1;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="80" y="35" width="2840" height="58" as="geometry" />
+        </mxCell>
+        <mxCell id="boundary" value="Retrospective FAA cases  •  Corpus-first  •  No causal or recommendation claims" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF2F6;strokeColor=#C7D0D9;fontColor=#4B5D6B;fontSize=26;strokeWidth=1;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;arcSize=18;" vertex="1" parent="1">
+          <mxGeometry x="80" y="105" width="2840" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="sources" value="&lt;b&gt;Evidence sources&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#9AA9B5;fontColor=#17324D;fontSize=28;strokeWidth=2;html=1;align=center;verticalAlign=top;spacingTop=22;whiteSpace=wrap;arcSize=14;" vertex="1" parent="1">
+          <mxGeometry x="80" y="210" width="350" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="src_atcscc" value="&lt;b&gt;ATCSCC Advisories&lt;/b&gt;&lt;br&gt;Decision artifact" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E7F0FF;strokeColor=#4F78B8;fontColor=#17324D;fontSize=26;strokeWidth=2;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;arcSize=14;" vertex="1" parent="1">
+          <mxGeometry x="115" y="310" width="280" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="src_reference" value="&lt;b&gt;NASR · ARTCC&lt;/b&gt;&lt;br&gt;Reference data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0EBFA;strokeColor=#7B64A5;fontColor=#3E315C;fontSize=26;strokeWidth=2;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;arcSize=14;" vertex="1" parent="1">
+          <mxGeometry x="115" y="445" width="280" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="src_weather" value="&lt;b&gt;METAR · TAF&lt;/b&gt;&lt;br&gt;Weather context" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E4F4F7;strokeColor=#3B8793;fontColor=#195663;fontSize=26;strokeWidth=2;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;arcSize=14;" vertex="1" parent="1">
+          <mxGeometry x="115" y="580" width="280" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="src_bts" value="&lt;b&gt;BTS On-Time&lt;/b&gt;&lt;br&gt;Public observations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF0E2;strokeColor=#D88735;fontColor=#6B451C;fontSize=26;strokeWidth=2;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;arcSize=14;" vertex="1" parent="1">
+          <mxGeometry x="115" y="715" width="280" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="semantic_control" value="&lt;b&gt;Semantic control&lt;/b&gt;&lt;br&gt;ATMONTO profiles  ·  FAA authority  ·  validation rules" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2EEFA;strokeColor=#8B75B2;fontColor=#3E315C;fontSize=26;strokeWidth=2;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;arcSize=14;" vertex="1" parent="1">
+          <mxGeometry x="520" y="210" width="820" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="pipeline" value="&lt;b&gt;Deterministic case pipeline&lt;/b&gt;&lt;br&gt;parse  ·  align&lt;br&gt;prepare  ·  compile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E7F0FF;strokeColor=#4F78B8;fontColor=#17324D;fontSize=27;strokeWidth=3;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;arcSize=14;" vertex="1" parent="1">
+          <mxGeometry x="520" y="390" width="380" height="185" as="geometry" />
+        </mxCell>
+        <mxCell id="bounded_agents" value="&lt;b&gt;Bounded agents&lt;/b&gt;&lt;br&gt;ambiguity  ·  schema choice&lt;br&gt;&lt;i&gt;only when needed&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF0E2;strokeColor=#D88735;fontColor=#6B451C;fontSize=26;strokeWidth=2;dashed=1;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;arcSize=14;dashPattern=8 6;" vertex="1" parent="1">
+          <mxGeometry x="520" y="670" width="380" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="kernel" value="&lt;b&gt;Formal Graph Kernel&lt;/b&gt;&lt;br&gt;validate  ·  publish" style="shape=hexagon;perimeter=hexagonPerimeter2;fixedSize=1;whiteSpace=wrap;html=1;fillColor=#E6F5ED;strokeColor=#3C8D68;fontColor=#24533E;fontSize=27;strokeWidth=3;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="390" width="340" height="185" as="geometry" />
+        </mxCell>
+        <mxCell id="case_core" value="&lt;b&gt;DecisionCase core&lt;/b&gt;&lt;br&gt;conceptual case&lt;br&gt;reconstruction&lt;br&gt;formal membership" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F4F4;strokeColor=#2E7F82;fontColor=#20585A;fontSize=27;strokeWidth=3;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;arcSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1460" y="365" width="360" height="235" as="geometry" />
+        </mxCell>
+        <mxCell id="corpus" value="&lt;b&gt;Canonical Decision-Case Corpus&lt;/b&gt;&lt;br&gt;&lt;br&gt;sources  ·  evidence  ·  context&lt;br&gt;decision  ·  scope&lt;br&gt;public observations  ·  provenance" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;whiteSpace=wrap;html=1;fillColor=#DCEFE8;strokeColor=#246B55;fontColor=#174B3A;fontSize=28;strokeWidth=3;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;boundedLbl=1;" vertex="1" parent="1">
+          <mxGeometry x="1930" y="330" width="570" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="graph_view" value="&lt;b&gt;Case graph view&lt;/b&gt;&lt;br&gt;exact facts  ·  closed paths" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F4F4;strokeColor=#2E7F82;fontColor=#20585A;fontSize=26;strokeWidth=2;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;arcSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1450" y="760" width="390" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="chroma" value="&lt;b&gt;Chroma index&lt;/b&gt;&lt;br&gt;similar cases" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEE9FB;strokeColor=#7659A8;fontColor=#4A3A70;fontSize=26;strokeWidth=2;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;arcSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1900" y="760" width="320" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="projections" value="&lt;b&gt;Rebuildable projection&lt;/b&gt;&lt;br&gt;RDF  ·  Neo4j" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0F2F5;strokeColor=#7B8794;fontColor=#4B5D6B;fontSize=26;strokeWidth=2;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;arcSize=14;" vertex="1" parent="1">
+          <mxGeometry x="2280" y="760" width="380" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="user" value="&lt;b&gt;User question&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4F78B8;fontColor=#17324D;fontSize=28;strokeWidth=2;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;arcSize=18;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="1070" width="320" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="router" value="&lt;b&gt;Query router&lt;/b&gt;&lt;br&gt;facts  ·  graph paths&lt;br&gt;similar cases" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E7F0FF;strokeColor=#4F78B8;fontColor=#17324D;fontSize=28;strokeWidth=3;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;arcSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="1040" width="490" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="analysis_agent" value="&lt;b&gt;Analysis Agent&lt;/b&gt;  ·  registered questions only" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF0E2;strokeColor=#D88735;fontColor=#6B451C;fontSize=26;strokeWidth=2;dashed=1;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;arcSize=14;dashPattern=8 6;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="1260" width="490" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="answer" value="&lt;b&gt;Evidence-grounded answer&lt;/b&gt;&lt;br&gt;facts  ·  paths  ·  sources  ·  limitations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6F5ED;strokeColor=#3C8D68;fontColor=#174B3A;fontSize=28;strokeWidth=3;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;arcSize=14;" vertex="1" parent="1">
+          <mxGeometry x="2180" y="1040" width="650" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="e_sources_pipeline" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#4F78B8;strokeWidth=3;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="sources" target="pipeline">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_semantic_pipeline" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=1;strokeColor=#8B75B2;strokeWidth=2;dashed=1;exitX=0.25;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="semantic_control" target="pipeline">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_semantic_kernel" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=1;strokeColor=#8B75B2;strokeWidth=2;dashed=1;exitX=0.82;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="semantic_control" target="kernel">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_pipeline_agents" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=1;strokeColor=#D88735;strokeWidth=2;dashed=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="pipeline" target="bounded_agents">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_pipeline_kernel" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#3C6E9F;strokeWidth=3;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="pipeline" target="kernel">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_agents_kernel" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=1;strokeColor=#D88735;strokeWidth=2;dashed=1;exitX=1;exitY=0.5;entryX=0.5;entryY=1;" edge="1" parent="1" source="bounded_agents" target="kernel">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="960" y="742" />
+              <mxPoint x="1180" y="742" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_kernel_core" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#2E7F82;strokeWidth=3;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="kernel" target="case_core">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_core_corpus" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#246B55;strokeWidth=3;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="case_core" target="corpus">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_corpus_graph" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#2E7F82;strokeWidth=3;exitX=0.18;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="corpus" target="graph_view">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2030" y="700" />
+              <mxPoint x="1645" y="700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_corpus_chroma" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#7659A8;strokeWidth=3;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="corpus" target="chroma">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_corpus_projection" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#7B8794;strokeWidth=3;exitX=0.82;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="corpus" target="projections">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2395" y="700" />
+              <mxPoint x="2470" y="700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_user_router" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#4F78B8;strokeWidth=3;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="user" target="router">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_graph_router" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#2E7F82;strokeWidth=3;exitX=0.5;exitY=1;entryX=0.25;entryY=0;" edge="1" parent="1" source="graph_view" target="router">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_chroma_router" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#7659A8;strokeWidth=3;exitX=0.5;exitY=1;entryX=0.75;entryY=0;" edge="1" parent="1" source="chroma" target="router">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2060" y="980" />
+              <mxPoint x="1897" y="980" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_router_answer" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#3C8D68;strokeWidth=3;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="router" target="answer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_router_analysis" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=1;strokeColor=#D88735;strokeWidth=2;dashed=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="router" target="analysis_agent">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

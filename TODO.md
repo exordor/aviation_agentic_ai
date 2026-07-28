@@ -31,8 +31,18 @@ event-type, facility, and declared-reason filters are applied before vector
 recall; archive and prior scopes exclude the reference case. Historical
 retrieval remains deterministic and uses zero chat-model calls.
 
+The DecisionCase semantic core is complete. Every accepted corpus case carries
+stable conceptual-case and reconstruction identities, and the reconstruction
+formally owns its admitted event, Weather, and BTS members. One exact
+case-scoped evidence-path question traverses this graph with zero model calls.
+
 ## Recently Completed Mainline
 
+- [x] Add conceptual-case and reconstruction identities with formal
+  `prov:specializationOf` and `prov:hadMember` relations under the
+  DecisionCase core profile.
+- [x] Answer the exact reconstructed-case Weather and active-window BTS
+  evidence-path question through closed graph traversal with zero model calls.
 - [x] Preserve the Ground Stop `123`, GDP `138`, and cancellation `020` reason
   states across multi-source reconstruction.
 - [x] Publish source-qualified Weather and BTS observations without causal,
