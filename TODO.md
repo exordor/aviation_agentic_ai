@@ -6,14 +6,16 @@ This file contains only the active execution queue and immediate deferred
 decisions. Historical experiment backlogs are discoverable through
 `ARTIFACT_INDEX.md` and Git history.
 
-## Current Stage - Awaiting The Next Approved Increment
+## Current Stage - Scalable Corpus Storage
 
 Batch C.1 and Batch D are complete on `main`. The system now reconstructs the
 three canonical decision cases with Weather and BTS context, assembles them
 through bounded roles, and answers exact registered analysis questions.
 
-No next implementation stage is active by default. Choose one bounded
-capability and evidence boundary before adding code or another Agent role.
+The approved storage increment normalizes any number of validated runs into a
+content-addressed source store, cross-case catalog, canonical fact table, and
+case-to-fact membership table. It does not add an Agent, model call, vector
+database, historical ranking, or recommendation.
 
 ## Recently Completed Mainline
 

@@ -1,8 +1,9 @@
 """CLI for the multi-Agent aviation event knowledge system (design §19).
 
-Three commands:
+Four commands:
 
     aviation-ai agent-system ingest   --source-id <id> --config <cfg> [--allow-live-model]
+    aviation-ai agent-system build-corpus --runs-root <dir> --output-dir <dir>
     aviation-ai agent-system neo4j-export --run-dir <dir>
     aviation-ai agent-system ask      --run-dir <dir> --question "<q>" [--allow-live-model]
 
@@ -23,6 +24,7 @@ from aviation_agentic_ai.agent_system.materialize import (
     Neo4jLoadBlocked,
     load_validated_facts_neo4j,
 )
+from aviation_agentic_ai.agent_system.corpus_store import build_corpus
 from aviation_agentic_ai.agent_system.authority_evidence import (
     AuthorityBuildStatus,
     load_authority_catalog,
@@ -56,7 +58,7 @@ from aviation_agentic_ai.config import load_yaml, resolve_project_path
 
 @click.group("agent-system")
 def agent_system() -> None:
-    """Multi-Agent aviation event knowledge system (ingest / neo4j-export / ask)."""
+    """Multi-Agent aviation event knowledge system."""
 
 
 def _load_config(config_path: Path) -> dict:
@@ -199,6 +201,43 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
         click.echo(f"kg_jsonl: {materialization.jsonl_path}")
     else:
         click.echo("materialized: 0 (abstained — no resolved event type or non-publishable)")
+
+
+@agent_system.command("build-corpus")
+@click.option(
+    "--runs-root",
+    type=click.Path(path_type=Path, exists=True, file_okay=False),
+    required=True,
+    help="Directory containing validated Agent-system runs.",
+)
+@click.option(
+    "--output-dir",
+    type=click.Path(path_type=Path, file_okay=False),
+    required=True,
+    help="Destination for the normalized cross-run corpus.",
+)
+def build_corpus_command(runs_root: Path, output_dir: Path) -> None:
+    """Build a deduplicated corpus from current validated run bundles."""
+
+    run_dirs = sorted(
+        {
+            manifest.parent
+            for manifest in runs_root.rglob("run_manifest.json")
+        }
+    )
+    if not run_dirs:
+        raise click.ClickException(
+            f"no validated run manifests found under {runs_root}"
+        )
+    manifest = build_corpus(
+        run_dirs=run_dirs,
+        output_dir=output_dir,
+    )
+    click.echo(f"corpus_id: {manifest.corpus_id}")
+    click.echo(f"cases: {manifest.case_count}")
+    click.echo(f"facts: {manifest.fact_count}")
+    click.echo(f"source_objects: {manifest.source_object_count}")
+    click.echo(f"corpus_manifest: {output_dir / 'corpus_manifest.json'}")
 
 
 @agent_system.command("neo4j-export")

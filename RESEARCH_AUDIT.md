@@ -8,18 +8,20 @@ thesis-first navigation model.
 
 ## Current Project Snapshot
 
-Aviation Agentic AI is a runnable, source-bounded system for
-converting one retrospective FAA ATCSCC advisory into a validated event
-knowledge graph, RDF/Turtle, and a Neo4j projection, then answering a small
-registered set of decision-record questions with explicit source evidence. The
-completed Batch C.1 cutover prepares time-bounded weather context and BTS-reported
-public operational observations, seals them into one task-bounded decision
-case, and preserves their non-causal/source-qualified meaning.
+Aviation Agentic AI is a runnable, source-bounded system for converting
+retrospective FAA ATCSCC advisories through repeatable per-event runs into
+validated knowledge graphs, RDF/Turtle, and Neo4j projections, then answering
+a small registered set of decision-record questions with explicit source
+evidence. Validated runs can be normalized into a content-addressed cross-case
+corpus without rerunning an Agent. The completed Batch C.1 cutover prepares
+time-bounded weather context and BTS-reported public operational observations,
+seals them into one task-bounded decision case, and preserves their
+non-causal/source-qualified meaning.
 
 The active path is:
 
 ```text
-one advisory + FAA facility and terminology records
+advisory + FAA facility and terminology records
   -> deterministic AdvisoryParser and authority services
   -> shared Semantic Resolution Agent only for genuine ambiguity
   -> deterministic Weather/BTS context preparation and validation
@@ -29,6 +31,7 @@ one advisory + FAA facility and terminology records
   -> task-bound validation
   -> deterministic Formal Graph Kernel
   -> publication and RDF/Neo4j materialization
+  -> optional deterministic cross-run corpus normalization
   -> deterministic query routing with read-only graph tools
      -> Decision Case Analysis Agent for exact registered analysis questions
 ```
@@ -39,6 +42,8 @@ Agents. LLM output cannot bypass the publication gate.
 ## Verified Main-Branch Capabilities
 
 - `agent-system ingest` builds one source-bounded run.
+- `agent-system build-corpus` normalizes any number of validated runs into
+  shared source objects, cases, canonical facts, and case-fact membership.
 - `agent-system neo4j-export` loads a validated projection with parameterized
   `MERGE` when Neo4j is available.
 - `agent-system ask` answers registered measure, facility, operational-period,
@@ -50,10 +55,12 @@ Agents. LLM output cannot bypass the publication gate.
 - Time-bounded TAF/METAR context and BTS-reported public operational
   observations retain their non-causal and source-qualified roles.
 - The three canonical records use deterministic Decision Case Assembly with
-  zero Assembly provider calls.
+  zero Assembly provider calls; they are acceptance fixtures rather than a
+  corpus-size limit.
 - Exact registered episode, operational-situation, and applicability questions
   use sealed plans and bounded read-only tools. Historical similarity remains
-  deterministic `insufficient` without an approved corpus.
+  deterministic `insufficient` without an approved comparison cohort and
+  ranking contract.
 
 The browser visualization exists only on
 `codex/kg-visualization-research`. It is paused and not part of `main`.
@@ -83,8 +90,9 @@ applicability questions through a sealed plan and bounded Decision Case
 Analysis Agent. Operational situation is the supported complete fixture.
 Episode output is current-record-only; applicability cannot claim observed
 individual-flight impact. Historical similarity remains deterministic
-`insufficient` without a corpus, provider call, artifact, ranking, or
-recommendation. Existing record questions remain deterministic and zero-call.
+`insufficient` without an approved comparison cohort and ranking contract;
+building the storage corpus alone does not create a ranking, recommendation,
+or provider call. Existing record questions remain deterministic and zero-call.
 
 Batch C.1 deliberately breaks old-run compatibility: regenerate old runs.
 `ingest`, `neo4j-export`, and `ask` are retained as current command names, not
@@ -119,10 +127,11 @@ The project does not currently provide:
 - a complete aviation ontology;
 - external expert certification.
 
-Batch C.1 and Batch D are complete on `main`. No next implementation stage is
-active by default. Broader source expansion, lifecycle grouping, historical
-ranking, recommendation, and analysis outside the exact registered families
-require a new approved task.
+Batch C.1 and Batch D are complete on `main`. The current storage increment
+adds deterministic cross-run normalization without changing Agent roles.
+Broader source expansion, lifecycle grouping, historical ranking,
+recommendation, and analysis outside the exact registered families require a
+new approved task.
 
 Production deployment security and defenses against hostile local artifact
 tampering are not current research acceptance conditions.

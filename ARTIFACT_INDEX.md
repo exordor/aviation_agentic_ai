@@ -18,7 +18,7 @@ is current.
 | `src/aviation_agentic_ai/agent_system/` | Active Agent-system implementation. |
 | `tests/test_agent_system*.py`, `tests/test_cli_agent_system.py` | Focused Agent-system acceptance surface. |
 | `configs/cross_source_v1.yaml` | Admitted ATCSCC, facility, terminology, Weather-context, and BTS On-Time source configuration. |
-| `configs/prompts/agent_system_v1.yaml` | Versioned Agent-system prompt configuration. |
+| `configs/prompts/decision_case_agents_v1.yaml` | Versioned Agent-system prompt configuration. |
 | `data/ontology/curated/nasa_atmonto_decision_context_weather_slice.json` | Curated formal vocabulary for Weather report nodes only. |
 | `data/ontology/curated/decision_case_public_observation_slice.json` | Source-qualified formal profile for BTS-reported public operational observations. |
 | `data/sources/bts_on_time_2026_05_manifest.json` | Pinned BTS archive/member checksums, normalization contract, and source identity. |
@@ -37,7 +37,6 @@ is current.
 Validated Agent-system runs are written under ignored local run directories and
 may contain:
 
-- `source_snapshot.json`;
 - `source_snapshots.jsonl`;
 - `run_manifest.json`;
 - `fact_trace.jsonl`;
@@ -54,13 +53,14 @@ may contain:
 - `neo4j_relationships.jsonl`;
 - optional `neo4j_load.json`;
 - latest `query_run.json`.
+- immutable `analysis/<analysis_run_id>/` task, evidence bundle, and run
+  record.
 
 These directories are reproducible, environment-specific, and may contain raw
 provider material. Do not commit them. Summarize a selected run in a small
 tracked report only when it supports a durable system claim.
 
-`source_snapshot.json` is the compatibility snapshot for older single-source
-runs. New runs use `source_snapshots.jsonl` as the canonical registry.
+Current runs use `source_snapshots.jsonl` as their portable source registry.
 `context_associations.jsonl` and `outcome_summaries.jsonl` are audit-only.
 Weather associations remain non-causal. Outcome summaries are deterministic
 aggregation intermediates and are not query authority by themselves. Formal
@@ -74,6 +74,20 @@ The run manifest owns the optional-layer publication state:
 - `insufficient`: no eligible evidence exists and the artifact is empty;
 - `blocked`: checksum, schema, source binding, or validation failed and no
   rows are publishable.
+
+Normalized cross-run corpora are written under ignored
+`data/corpus/agent_system/` directories and contain:
+
+- content-addressed `source_objects/`;
+- `source_bindings.jsonl`;
+- `cases.jsonl`;
+- canonical `facts.jsonl`;
+- `case_facts.jsonl`;
+- `corpus_manifest.json`.
+
+The corpus removes cross-run source and fact duplication. It is a storage and
+retrieval foundation, not an approved similarity benchmark or recommendation
+artifact.
 
 ## Optional Evaluation Tracks
 

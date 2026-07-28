@@ -102,6 +102,24 @@ public operational observations. Each manifest entry is `ok`, `insufficient`,
 or `blocked`. A failed optional layer does not invalidate already validated
 core ATCSCC facts, but that layer is not exposed.
 
+## Build A Cross-Run Corpus
+
+After producing two or more validated runs, normalize them into one
+content-addressed corpus:
+
+```bash
+uv run aviation-ai agent-system build-corpus \
+  --runs-root data/runs/agent_system \
+  --output-dir data/corpus/agent_system/cross-source-2026-05-v1
+```
+
+The command performs no model call. It consumes current validated run bundles,
+deduplicates identical source payloads by SHA-256, and writes deterministic
+case, fact, membership, and source-binding JSONL files plus
+`corpus_manifest.json`. Repeating the command over the same runs produces the
+same logical corpus. This storage corpus does not by itself authorize the
+historical-similarity question or TMI recommendation.
+
 ## Query A Validated Run
 
 Deterministic registered field query:

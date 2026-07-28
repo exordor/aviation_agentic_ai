@@ -9,15 +9,17 @@ historical comparison hypotheses belong in the optional experiment documents.
 
 Build a useful, extensible multi-Agent aviation event knowledge system that:
 
-1. reads a retrospective FAA ATCSCC advisory and bounded authority records;
+1. reads retrospective FAA ATCSCC advisories and bounded authority records
+   through repeatable per-event runs;
 2. coordinates deterministic parsing and authority services, conditionally
    activated semantic resolution and decision-case assembly Agents, and a
    graph-grounded read surface with bounded Decision Case Analysis for exact
    registered questions;
 3. publishes only evidence-bound facts accepted by a deterministic schema and
    provenance gate;
-4. materializes one canonical event graph as JSONL, RDF/Turtle, and a Neo4j
-   projection;
+4. materializes canonical event graphs as JSONL, RDF/Turtle, and Neo4j
+   projections, then normalizes validated runs into a shared cross-case
+   corpus;
 5. answers bounded user questions through read-only graph tools while exposing
    evidence, uncertainty, and missing information.
 
@@ -56,6 +58,8 @@ The current system provides:
 - fact-level evidence binding and source provenance;
 - canonical facility reuse and idempotent Neo4j merge behavior;
 - JSONL, RDF/Turtle, and Neo4j projection artifacts;
+- content-addressed cross-run source storage, a case catalog, canonical facts,
+  and explicit case-to-fact membership;
 - a bounded read-only Query Agent;
 - deterministic support for measure, facility, operational period, declared
   reason, provenance, and combined decision-record questions;
@@ -64,8 +68,9 @@ The current system provides:
   artifacts;
 - explicit profile-gap, insufficient, and blocked outcomes.
 
-The three approved records - Ground Stop `123`, Ground Delay Program `138`, and
-missing-reason cancellation `020` - exercise those capabilities.
+Ground Stop `123`, Ground Delay Program `138`, and missing-reason cancellation
+`020` are compact acceptance fixtures for those capabilities, not the system's
+storage or processing boundary.
 
 ## Current Mainline Scope
 
@@ -101,7 +106,8 @@ Batch D exposes that validated case through a closed
 analysis surface. Operational-situation analysis is the supported complete
 fixture. Episode analysis is current-record-only, applicability analysis has
 no observed individual-flight evidence, and historical similarity remains a
-deterministic insufficient gate without a comparison corpus.
+deterministic insufficient gate without an approved comparison cohort and
+ranking contract.
 
 ## Success Criteria
 

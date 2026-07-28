@@ -89,6 +89,20 @@ assembly path genuinely activates. Set `DEEPSEEK_API_KEY` and optionally
 provider. The flag does not authorize full-corpus processing, and the three
 canonical cases do not need a provider.
 
+Build a normalized corpus from any number of validated runs:
+
+```bash
+uv run aviation-ai agent-system build-corpus \
+  --runs-root data/runs/agent_system \
+  --output-dir data/corpus/agent_system/cross-source-2026-05-v1
+```
+
+The builder validates each existing run, stores identical source payloads once
+by checksum, and writes a stable case catalog, canonical fact table, and
+case-to-fact membership table. Per-run directories remain portable debugging
+and evidence bundles; the corpus is the scalable cross-case storage layer.
+Building it does not run an Agent or enable historical ranking.
+
 Ask a registered question from a validated run:
 
 ```bash
@@ -137,6 +151,13 @@ auditable record. Profile gaps carry the exact current decision-profile
 ownership and field-specific advisory evidence binding, and their artifact is
 registered with path, count, SHA-256, and status. A query reads these validated
 run artifacts only.
+
+Cross-run storage is normalized separately. A corpus contains
+`cases.jsonl`, `facts.jsonl`, `case_facts.jsonl`,
+`source_bindings.jsonl`, content-addressed `source_objects/`, and
+`corpus_manifest.json`. RDF and Neo4j remain rebuildable projections rather
+than independent sources of truth. Corpus-aware Query Agent retrieval is a
+later increment.
 
 ## Current Status
 

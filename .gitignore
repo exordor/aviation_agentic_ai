@@ -74,6 +74,7 @@ models/
 # Versioned local runs from the multi-Agent KG system. These can contain raw
 # provider responses and are regenerated from tracked config/source snapshots.
 /data/runs/agent_system/
+/data/corpus/agent_system/
 
 # Exploratory gpt-5.5 evidence-handling pilot runs (10/100 records, prompt
 # variants not recorded); not formal thesis artifacts. Summarized inline if

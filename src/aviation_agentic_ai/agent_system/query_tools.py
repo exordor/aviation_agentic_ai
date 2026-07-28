@@ -258,6 +258,7 @@ class QueryGraphStore:
         self.source_snapshots = snapshots
         self.graph_path = resolved_graph
         self.rows = rows
+        self._validated_facts = tuple(facts)
         self.fact_by_id = {row["fact_id"]: row for row in rows}
         self.event_ids = sorted(
             {
@@ -278,6 +279,12 @@ class QueryGraphStore:
         self.profile_gap_by_id = {
             gap.profile_gap_id: gap for gap in self.profile_gaps
         }
+
+    @property
+    def validated_facts(self) -> tuple[ValidatedFact, ...]:
+        """Return the validated canonical facts frozen for this run."""
+
+        return self._validated_facts
 
     @staticmethod
     def _load_current_run(

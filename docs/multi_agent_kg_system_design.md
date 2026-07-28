@@ -224,6 +224,27 @@ analysis/<analysis_run_id>/
 
 These artifacts do not modify the run manifest or overwrite `query_run.json`.
 
+## 10.1 Cross-Run Corpus Storage
+
+Validated run directories are portable evidence and debugging bundles. For
+multi-event processing, `agent-system build-corpus` compacts them into a
+normalized corpus:
+
+```text
+source_objects/<sha256>.txt
+source_bindings.jsonl
+cases.jsonl
+facts.jsonl
+case_facts.jsonl
+corpus_manifest.json
+```
+
+Source payloads are stored once by content checksum. `facts.jsonl` retains the
+canonical `ValidatedFact` representation with full IRIs, while
+`case_facts.jsonl` records membership without duplicating fact content. This
+layer adds no Agent role, model call, causal claim, vector index, or historical
+ranking. RDF and Neo4j remain rebuildable projections.
+
 ## 11. Query Tools and Decision Case Analysis
 
 The query surface reads only validated run artifacts through bounded read-only

@@ -935,3 +935,55 @@ def test_ingest_treats_missing_legacy_weather_config_as_an_optional_layer_failur
         captured["ctx"].weather_failure_reason
         == "optional weather source paths are not configured: metar, taf"
     )
+
+
+def test_build_corpus_routes_run_directories_to_the_corpus_builder(
+    tmp_path,
+    monkeypatch,
+):
+    runs_root = tmp_path / "runs"
+    output_dir = tmp_path / "corpus"
+    first = runs_root / "run-a"
+    second = runs_root / "run-b"
+    first.mkdir(parents=True)
+    second.mkdir(parents=True)
+    (first / "run_manifest.json").write_text("{}\n", encoding="utf-8")
+    (second / "run_manifest.json").write_text("{}\n", encoding="utf-8")
+    captured = {}
+
+    def fake_build_corpus(*, run_dirs, output_dir):
+        captured["run_dirs"] = tuple(run_dirs)
+        captured["output_dir"] = output_dir
+        return SimpleNamespace(
+            corpus_id="corpus:test",
+            case_count=2,
+            fact_count=7,
+            source_object_count=3,
+            manifest_path=str(output_dir / "corpus_manifest.json"),
+        )
+
+    monkeypatch.setattr(
+        cli_module,
+        "build_corpus",
+        fake_build_corpus,
+        raising=False,
+    )
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "build-corpus",
+            "--runs-root",
+            str(runs_root),
+            "--output-dir",
+            str(output_dir),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert captured == {
+        "run_dirs": (first, second),
+        "output_dir": output_dir,
+    }
+    assert "cases: 2" in result.output
+    assert "facts: 7" in result.output
+    assert "source_objects: 3" in result.output

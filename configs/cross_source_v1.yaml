@@ -32,7 +32,7 @@ source_metadata:
     effective_start: 2026-05-01
     source_id: bts_on_time:2026-05:nyc
     timezone: America/New_York
-    role: public_operational_proxy
+    role: public_operational_observation
   decision_context_weather:
     role: time_bounded_non_causal_context
 
@@ -71,6 +71,8 @@ answering:
   require_evidence_layers: true
 
 paths:
+  agent_system_runs_root: data/runs/agent_system
+  agent_system_corpus_root: data/corpus/agent_system
   processed_root: data/processed/cross_source/cross-source-2026-05-v1
   kg_root: data/kg/cross_source/cross-source-2026-05-v1
   evaluation_root: data/evaluation/cross_source/v1
