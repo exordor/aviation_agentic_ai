@@ -5,15 +5,23 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+from decimal import Decimal
 from typing import Literal
 
 from pydantic import Field
 
 from aviation_agentic_ai.agent_system.contracts import (
+    ObservationFactTrace,
+    PersistedProfileGap,
     StrictModel,
     ValidatedFact,
 )
+from aviation_agentic_ai.agent_system.context_artifacts import (
+    read_context_associations,
+    read_observation_fact_traces,
+)
 from aviation_agentic_ai.agent_system.query_tools import QueryGraphStore
+from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 
 _RDF_TYPE_IRI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
@@ -30,8 +38,8 @@ class CorpusArtifactMetadata(StrictModel):
 class CorpusBuildManifest(StrictModel):
     """Stable summary of one materialized cross-run corpus."""
 
-    manifest_version: Literal["decision-case-corpus-v1"] = (
-        "decision-case-corpus-v1"
+    manifest_version: Literal["decision-case-corpus-v2"] = (
+        "decision-case-corpus-v2"
     )
     corpus_id: str = Field(min_length=1)
     run_count: int = Field(ge=0)
@@ -39,7 +47,85 @@ class CorpusBuildManifest(StrictModel):
     fact_count: int = Field(ge=0)
     source_binding_count: int = Field(ge=0)
     source_object_count: int = Field(ge=0)
+    evidence_link_count: int = Field(default=0, ge=0)
+    profile_gap_count: int = Field(default=0, ge=0)
+    context_association_count: int = Field(default=0, ge=0)
+    observation_count: int = Field(default=0, ge=0)
     artifacts: dict[str, CorpusArtifactMetadata]
+
+
+class ArtifactRef(StrictModel):
+    """One globally deduplicated content-addressed source object."""
+
+    artifact_id: str = Field(min_length=64, max_length=64)
+    content_sha256: str = Field(min_length=64, max_length=64)
+    object_key: str = Field(min_length=64, max_length=64)
+
+
+class CorpusFact(ValidatedFact):
+    """A verified fact with a semantic, provenance-independent identity."""
+
+
+class EvidenceLink(StrictModel):
+    """One source-artifact link for a fact or non-formal corpus record."""
+
+    evidence_link_id: str = Field(min_length=1)
+    owner_kind: Literal["fact", "profile_gap", "context_association", "observation"]
+    owner_id: str = Field(min_length=1)
+    source_id: str = Field(min_length=1)
+    artifact_id: str = Field(min_length=64, max_length=64)
+    evidence_text: str | None = None
+    evidence_ref: str | None = None
+
+
+class CorpusProfileGap(PersistedProfileGap):
+    """Source-bound profile gap retained outside the formal fact table."""
+
+
+class CorpusContextAssociation(StrictModel):
+    """Stable non-causal event-to-weather association."""
+
+    association_id: str = Field(min_length=1)
+    event_id: str = Field(min_length=1)
+    report_id: str = Field(min_length=1)
+    facility_id: str = Field(min_length=1)
+    relation_type: Literal[
+        "latest_forecast_known_at_issue",
+        "latest_observation_at_or_before_issue",
+        "observation_during_operation",
+    ]
+    selection_method: str = Field(min_length=1)
+    relevant_times: dict[str, str] = Field(default_factory=dict)
+    source_id: str = Field(min_length=1)
+    source_artifact_id: str = Field(min_length=64, max_length=64)
+    causal_claim: Literal[False] = False
+
+
+class CorpusObservation(StrictModel):
+    """Query-ready BTS public observation derived from admitted formal facts."""
+
+    observation_id: str = Field(min_length=1)
+    event_id: str = Field(min_length=1)
+    phase: Literal["baseline", "active", "recovery"]
+    metric_key: str = Field(min_length=1)
+    value: int | Decimal | None
+    unit_iri: str | None = None
+    fact_ids: tuple[str, ...]
+    profile_id: str = Field(min_length=1)
+    profile_checksum: str = Field(min_length=64, max_length=64)
+    source_id: str = Field(min_length=1)
+    source_artifact_id: str = Field(min_length=64, max_length=64)
+
+
+class CorpusBuildResult(StrictModel):
+    """One selected advisory's corpus-normalization result."""
+
+    source_id: str = Field(min_length=1)
+    status: Literal["ok", "insufficient", "blocked"]
+    event_id: str | None = None
+    case_id: str | None = None
+    reason: str = ""
+    provider_call_count: int = Field(default=0, ge=0)
 
 
 class CorpusCase(StrictModel):
@@ -141,7 +227,7 @@ class CorpusQueryStore:
             for row in artifact_rows["cases"]
         )
         facts = tuple(
-            ValidatedFact.model_validate(row)
+            CorpusFact.model_validate(row)
             for row in artifact_rows["facts"]
         )
         memberships = tuple(
@@ -206,7 +292,7 @@ class CorpusQueryStore:
 
         return self._case_by_event.get(event_id)
 
-    def get_case_facts(self, event_id: str) -> tuple[ValidatedFact, ...]:
+    def get_case_facts(self, event_id: str) -> tuple[CorpusFact, ...]:
         """Return the canonical facts assigned to one case."""
 
         case = self.get_case(event_id)
@@ -223,17 +309,27 @@ def build_corpus(
     run_dirs: list[str | Path] | tuple[str | Path, ...],
     output_dir: str | Path,
 ) -> CorpusBuildManifest:
-    """Validate runs and merge their sources, cases, and canonical facts."""
+    """Normalize validated runs into a provenance-aware v2 corpus.
+
+    Facts are merged by semantic content.  Their source IDs, verbatim evidence,
+    and source-object versions are retained as ``EvidenceLink`` rows rather
+    than participating in fact identity.
+    """
 
     stores = [
         QueryGraphStore(run_dir)
         for run_dir in sorted(run_dirs, key=lambda value: str(Path(value).resolve()))
     ]
-    fact_payloads: dict[str, dict[str, object]] = {}
+    facts_by_id: dict[str, CorpusFact] = {}
     cases_by_id: dict[str, CorpusCase] = {}
     bindings_by_id: dict[tuple[str, str], CorpusSourceBinding] = {}
     case_facts_by_id: dict[tuple[str, str], CorpusCaseFact] = {}
     source_objects: dict[str, str] = {}
+    evidence_links_by_id: dict[str, EvidenceLink] = {}
+    gaps_by_id: dict[str, CorpusProfileGap] = {}
+    associations_by_id: dict[str, CorpusContextAssociation] = {}
+    observations_by_id: dict[str, CorpusObservation] = {}
+    build_results_by_event: dict[str, CorpusBuildResult] = {}
 
     for store in stores:
         if len(store.event_ids) != 1:
@@ -241,21 +337,27 @@ def build_corpus(
         event_id = store.event_ids[0]
         case_id = event_id
         facts = sorted(store.validated_facts, key=lambda fact: fact.fact_id)
+        semantic_ids_by_run_fact_id: dict[str, str] = {}
 
         for fact in facts:
-            payload = _canonical_fact_payload(fact)
-            previous = fact_payloads.get(fact.fact_id)
-            if previous is not None and previous != payload:
-                raise ValueError(
-                    f"conflicting fact content for fact ID: {fact.fact_id}"
+            semantic_id = _semantic_fact_id(fact)
+            semantic_ids_by_run_fact_id[fact.fact_id] = semantic_id
+            payload = _canonical_fact_payload(fact, fact_id=semantic_id)
+            corpus_fact = CorpusFact.model_validate(payload)
+            previous = facts_by_id.get(semantic_id)
+            if previous is None:
+                facts_by_id[semantic_id] = corpus_fact
+            else:
+                facts_by_id[semantic_id] = _merge_fact_provenance(
+                    previous,
+                    corpus_fact,
                 )
-            fact_payloads[fact.fact_id] = payload
             membership = CorpusCaseFact(
                 case_id=case_id,
                 event_id=event_id,
-                fact_id=fact.fact_id,
+                fact_id=semantic_id,
             )
-            case_facts_by_id[(case_id, fact.fact_id)] = membership
+            case_facts_by_id[(case_id, semantic_id)] = membership
 
         event_facts = [
             fact for fact in facts if fact.subject_iri == event_id
@@ -325,6 +427,84 @@ def build_corpus(
                 )
             bindings_by_id[binding_key] = binding
 
+        for fact in facts:
+            semantic_id = semantic_ids_by_run_fact_id[fact.fact_id]
+            for source_id in fact.source_ids:
+                artifact_id = _source_artifact_id(store, source_id)
+                for evidence_text in fact.evidence_texts or [None]:
+                    link = _evidence_link(
+                        owner_kind="fact",
+                        owner_id=semantic_id,
+                        source_id=source_id,
+                        artifact_id=artifact_id,
+                        evidence_text=evidence_text,
+                        evidence_ref=fact.evidence_ref,
+                    )
+                    evidence_links_by_id[link.evidence_link_id] = link
+
+        for gap in store.profile_gaps:
+            corpus_gap = CorpusProfileGap.model_validate(gap.model_dump(mode="json"))
+            gaps_by_id[corpus_gap.profile_gap_id] = corpus_gap
+            artifact_id = _source_artifact_id(store, corpus_gap.source_id)
+            link = _evidence_link(
+                owner_kind="profile_gap",
+                owner_id=corpus_gap.profile_gap_id,
+                source_id=corpus_gap.source_id,
+                artifact_id=artifact_id,
+                evidence_text=corpus_gap.evidence_text,
+                evidence_ref=corpus_gap.evidence_ref,
+            )
+            evidence_links_by_id[link.evidence_link_id] = link
+
+        for association in _optional_context_associations(store):
+            artifact_id = _source_artifact_id(store, association.source_id)
+            corpus_association = CorpusContextAssociation(
+                association_id=stable_id(
+                    "corpus-weather-association",
+                    association.event_id,
+                    association.report_id,
+                    association.facility_id,
+                    association.relation_type,
+                    association.selection_method,
+                    _canonical_json(association.relevant_times),
+                    association.source_id,
+                    artifact_id,
+                ),
+                event_id=association.event_id,
+                report_id=association.report_id,
+                facility_id=association.facility_id,
+                relation_type=association.relation_type,
+                selection_method=association.selection_method,
+                relevant_times=association.relevant_times,
+                source_id=association.source_id,
+                source_artifact_id=artifact_id,
+                causal_claim=False,
+            )
+            associations_by_id[corpus_association.association_id] = corpus_association
+            link = _evidence_link(
+                owner_kind="context_association",
+                owner_id=corpus_association.association_id,
+                source_id=association.source_id,
+                artifact_id=artifact_id,
+            )
+            evidence_links_by_id[link.evidence_link_id] = link
+
+        for trace in _optional_observation_traces(store):
+            observation = _corpus_observation(
+                event_id=event_id,
+                trace=trace,
+                run_facts=facts,
+                semantic_ids_by_run_fact_id=semantic_ids_by_run_fact_id,
+            )
+            observations_by_id[observation.observation_id] = observation
+            link = _evidence_link(
+                owner_kind="observation",
+                owner_id=observation.observation_id,
+                source_id=observation.source_id,
+                artifact_id=observation.source_artifact_id,
+            )
+            evidence_links_by_id[link.evidence_link_id] = link
+
         case = CorpusCase(
             case_id=case_id,
             event_id=event_id,
@@ -355,7 +535,7 @@ def build_corpus(
             ),
             reason_status=reason_status,
             reason_value=reason_value,
-            fact_ids=[fact.fact_id for fact in facts],
+            fact_ids=sorted(set(semantic_ids_by_run_fact_id.values())),
             source_ids=[snapshot.source_id for snapshot in snapshots],
         )
         previous_case = cases_by_id.get(case_id)
@@ -376,6 +556,18 @@ def build_corpus(
                 }
             )
 
+        result = CorpusBuildResult(
+            source_id=str(store.manifest["source_id"]),
+            status="ok",
+            event_id=event_id,
+            case_id=case_id,
+            reason="validated run normalized",
+            provider_call_count=len(store.manifest.get("model_calls") or []),
+        )
+        previous_result = build_results_by_event.get(event_id)
+        if previous_result is None or result.source_id < previous_result.source_id:
+            build_results_by_event[event_id] = result
+
     output = Path(output_dir)
     output.mkdir(parents=True, exist_ok=True)
     object_dir = output / "source_objects"
@@ -385,16 +577,38 @@ def build_corpus(
     for object_key, content in sorted(source_objects.items()):
         object_path = object_dir / f"{object_key}.txt"
         object_path.write_text(content, encoding="utf-8")
-        artifacts[f"source_object:{object_key}"] = _artifact_metadata(
-            output,
-            object_path,
-            count=1,
-        )
-
+    artifact_refs_path = output / "artifacts.jsonl"
+    build_results_path = output / "build_results.jsonl"
     bindings_path = output / "source_bindings.jsonl"
     cases_path = output / "cases.jsonl"
     facts_path = output / "facts.jsonl"
     case_facts_path = output / "case_facts.jsonl"
+    evidence_links_path = output / "evidence_links.jsonl"
+    profile_gaps_path = output / "profile_gaps.jsonl"
+    associations_path = output / "context_associations.jsonl"
+    observations_path = output / "observations.jsonl"
+    kg_path = output / "kg.jsonl"
+    ttl_path = output / "kg.ttl"
+    neo4j_nodes_path = output / "neo4j_nodes.jsonl"
+    neo4j_relationships_path = output / "neo4j_relationships.jsonl"
+    _write_jsonl(
+        build_results_path,
+        [
+            row.model_dump(mode="json")
+            for row in sorted(build_results_by_event.values(), key=lambda row: row.event_id or "")
+        ],
+    )
+    _write_jsonl(
+        artifact_refs_path,
+        [
+            ArtifactRef(
+                artifact_id=object_key,
+                content_sha256=object_key,
+                object_key=object_key,
+            ).model_dump(mode="json")
+            for object_key in sorted(source_objects)
+        ],
+    )
     _write_jsonl(
         bindings_path,
         [
@@ -415,8 +629,8 @@ def build_corpus(
     _write_jsonl(
         facts_path,
         [
-            fact_payloads[fact_id]
-            for fact_id in sorted(fact_payloads)
+            facts_by_id[fact_id].model_dump(mode="json")
+            for fact_id in sorted(facts_by_id)
         ],
     )
     _write_jsonl(
@@ -429,13 +643,59 @@ def build_corpus(
             )
         ],
     )
+    _write_jsonl(
+        evidence_links_path,
+        [
+            row.model_dump(mode="json")
+            for row in sorted(evidence_links_by_id.values(), key=lambda row: row.evidence_link_id)
+        ],
+    )
+    _write_jsonl(
+        profile_gaps_path,
+        [
+            row.model_dump(mode="json")
+            for row in sorted(gaps_by_id.values(), key=lambda row: row.profile_gap_id)
+        ],
+    )
+    _write_jsonl(
+        associations_path,
+        [
+            row.model_dump(mode="json")
+            for row in sorted(associations_by_id.values(), key=lambda row: row.association_id)
+        ],
+    )
+    _write_jsonl(
+        observations_path,
+        [
+            row.model_dump(mode="json")
+            for row in sorted(observations_by_id.values(), key=lambda row: row.observation_id)
+        ],
+    )
+    _write_jsonl(kg_path, [])
+    ttl_path.write_text("", encoding="utf-8")
+    _write_jsonl(neo4j_nodes_path, [])
+    _write_jsonl(neo4j_relationships_path, [])
     for name, path, count in (
+        ("build_results", build_results_path, len(build_results_by_event)),
+        ("artifacts", artifact_refs_path, len(source_objects)),
         ("source_bindings", bindings_path, len(bindings_by_id)),
         ("cases", cases_path, len(cases_by_id)),
-        ("facts", facts_path, len(fact_payloads)),
+        ("facts", facts_path, len(facts_by_id)),
         ("case_facts", case_facts_path, len(case_facts_by_id)),
+        ("evidence_links", evidence_links_path, len(evidence_links_by_id)),
+        ("profile_gaps", profile_gaps_path, len(gaps_by_id)),
+        ("context_associations", associations_path, len(associations_by_id)),
+        ("observations", observations_path, len(observations_by_id)),
+        ("kg", kg_path, 0),
+        ("kg_ttl", ttl_path, 0),
+        ("neo4j_nodes", neo4j_nodes_path, 0),
+        ("neo4j_relationships", neo4j_relationships_path, 0),
     ):
         artifacts[name] = _artifact_metadata(output, path, count=count)
+    artifacts["source_objects"] = _source_objects_metadata(
+        output,
+        source_objects,
+    )
 
     corpus_seed = {
         name: artifact.sha256
@@ -448,9 +708,13 @@ def build_corpus(
         corpus_id=corpus_id,
         run_count=len(stores),
         case_count=len(cases_by_id),
-        fact_count=len(fact_payloads),
+        fact_count=len(facts_by_id),
         source_binding_count=len(bindings_by_id),
         source_object_count=len(source_objects),
+        evidence_link_count=len(evidence_links_by_id),
+        profile_gap_count=len(gaps_by_id),
+        context_association_count=len(associations_by_id),
+        observation_count=len(observations_by_id),
         artifacts=artifacts,
     )
     (output / "corpus_manifest.json").write_text(
@@ -477,14 +741,14 @@ def load_case_catalog(corpus_dir: str | Path) -> tuple[CorpusCase, ...]:
 def load_corpus_facts(
     corpus_dir: str | Path,
     event_id: str | None = None,
-) -> tuple[ValidatedFact, ...]:
+) -> tuple[CorpusFact, ...]:
     """Load canonical facts, optionally restricted to one event's case."""
 
     root = Path(corpus_dir)
     facts = {
         fact.fact_id: fact
         for fact in (
-            ValidatedFact.model_validate(row)
+            CorpusFact.model_validate(row)
             for row in _read_jsonl(root / "facts.jsonl")
         )
     }
@@ -508,15 +772,206 @@ def load_corpus_facts(
     )
 
 
-def _canonical_fact_payload(fact: ValidatedFact) -> dict[str, object]:
+def _canonical_fact_payload(
+    fact: ValidatedFact,
+    *,
+    fact_id: str | None = None,
+) -> dict[str, object]:
     payload = fact.model_dump(mode="json")
+    if fact_id is not None:
+        payload["fact_id"] = fact_id
     payload["source_ids"] = sorted(payload["source_ids"])
     payload["evidence_texts"] = sorted(payload["evidence_texts"])
     return payload
 
 
+def _semantic_fact_id(fact: ValidatedFact) -> str:
+    """Return the stable ID for exactly the non-provenance fact content."""
+
+    payload = fact.model_dump(mode="json")
+    for key in ("fact_id", "source_ids", "evidence_texts", "evidence_ref"):
+        payload.pop(key, None)
+    return stable_id("corpus-fact", _canonical_json(payload))
+
+
+def _merge_fact_provenance(
+    first: CorpusFact,
+    second: CorpusFact,
+) -> CorpusFact:
+    """Merge audit fields after the semantic identity has already matched."""
+
+    first_payload = first.model_dump(mode="json")
+    second_payload = second.model_dump(mode="json")
+    for key in ("source_ids", "evidence_texts", "evidence_ref"):
+        first_payload.pop(key, None)
+        second_payload.pop(key, None)
+    if first_payload != second_payload:
+        raise ValueError("conflicting semantic fact content")
+    return first.model_copy(
+        update={
+            "source_ids": sorted(set(first.source_ids) | set(second.source_ids)),
+            "evidence_texts": sorted(
+                set(first.evidence_texts) | set(second.evidence_texts)
+            ),
+            "evidence_ref": min(first.evidence_ref, second.evidence_ref),
+        }
+    )
+
+
+def _source_artifact_id(store: QueryGraphStore, source_id: str) -> str:
+    snapshot = store.source_snapshots.get(source_id)
+    if snapshot is None:
+        raise ValueError(f"source artifact is missing for source ID: {source_id}")
+    return snapshot.content_sha256
+
+
+def _evidence_link(
+    *,
+    owner_kind: Literal["fact", "profile_gap", "context_association", "observation"],
+    owner_id: str,
+    source_id: str,
+    artifact_id: str,
+    evidence_text: str | None = None,
+    evidence_ref: str | None = None,
+) -> EvidenceLink:
+    return EvidenceLink(
+        evidence_link_id=stable_id(
+            "corpus-evidence",
+            owner_kind,
+            owner_id,
+            source_id,
+            artifact_id,
+            evidence_text or "",
+            evidence_ref or "",
+        ),
+        owner_kind=owner_kind,
+        owner_id=owner_id,
+        source_id=source_id,
+        artifact_id=artifact_id,
+        evidence_text=evidence_text,
+        evidence_ref=evidence_ref,
+    )
+
+
+def _optional_context_associations(store: QueryGraphStore) -> list[object]:
+    entry = (store.manifest.get("context_artifacts") or {}).get(
+        "context_associations"
+    )
+    if not isinstance(entry, dict) or entry.get("status") != "ok":
+        return []
+    path = store.run_dir / str(entry.get("path") or "")
+    return read_context_associations(path)
+
+
+def _optional_observation_traces(
+    store: QueryGraphStore,
+) -> list[ObservationFactTrace]:
+    entry = (store.manifest.get("context_artifacts") or {}).get(
+        "observation_fact_trace"
+    )
+    if not isinstance(entry, dict) or entry.get("status") != "ok":
+        return []
+    path = store.run_dir / str(entry.get("path") or "")
+    return read_observation_fact_traces(path)
+
+
+def _corpus_observation(
+    *,
+    event_id: str,
+    trace: ObservationFactTrace,
+    run_facts: list[ValidatedFact],
+    semantic_ids_by_run_fact_id: dict[str, str],
+) -> CorpusObservation:
+    observation_rows = [
+        fact
+        for fact in run_facts
+        if fact.subject_iri == trace.observation_id
+    ]
+    numeric_fact = next(
+        (fact for fact in run_facts if fact.fact_id == trace.fact_id),
+        None,
+    )
+    if numeric_fact is None:
+        raise ValueError("observation trace references a missing formal fact")
+    result_id = next(
+        (
+            fact.object_value
+            for fact in observation_rows
+            if _local_name(fact.predicate_iri) == "hasResult"
+        ),
+        None,
+    )
+    interval_id = next(
+        (
+            fact.object_value
+            for fact in observation_rows
+            if _local_name(fact.predicate_iri) == "phenomenonTime"
+        ),
+        None,
+    )
+    rows = [
+        fact
+        for fact in run_facts
+        if fact.subject_iri in {trace.observation_id, result_id, interval_id}
+    ]
+    fact_ids = tuple(
+        sorted(
+            semantic_ids_by_run_fact_id[fact.fact_id]
+            for fact in rows
+            if fact.fact_id in semantic_ids_by_run_fact_id
+        )
+    )
+    phase_fact = next(
+        (
+            fact
+            for fact in rows
+            if fact.subject_iri == interval_id
+            and fact.object_value.rsplit(":", 1)[-1]
+            in {"baseline", "active", "recovery"}
+        ),
+        None,
+    )
+    if phase_fact is None:
+        raise ValueError("formal observation has no phase")
+    phase = phase_fact.object_value.rsplit(":", 1)[-1]
+    if phase not in {"baseline", "active", "recovery"}:
+        raise ValueError("formal observation phase is invalid")
+    unit_fact = next(
+        (
+            fact
+            for fact in rows
+            if fact.subject_iri == result_id
+            and _local_name(fact.predicate_iri) == "unit"
+        ),
+        None,
+    )
+    artifact_id = trace.source_snapshot_sha256
+    observation_id = stable_id(
+        "corpus-observation",
+        event_id,
+        trace.observation_id,
+        trace.metric_key,
+        _canonical_json(list(fact_ids)),
+        trace.source_id,
+        artifact_id,
+    )
+    return CorpusObservation(
+        observation_id=observation_id,
+        event_id=event_id,
+        phase=phase,
+        metric_key=trace.metric_key,
+        value=trace.canonical_value,
+        unit_iri=unit_fact.object_value if unit_fact is not None else None,
+        fact_ids=fact_ids,
+        profile_id=numeric_fact.validation_profile.profile_id,
+        profile_checksum=numeric_fact.validation_profile.profile_checksum,
+        source_id=trace.source_id,
+        source_artifact_id=artifact_id,
+    )
+
+
 def _local_name(iri: str) -> str:
-    return iri.rsplit("#", 1)[-1]
+    return iri.rsplit("#", 1)[-1].rsplit("/", 1)[-1]
 
 
 def _first_object(
@@ -566,4 +1021,25 @@ def _artifact_metadata(
         path=path.relative_to(root).as_posix(),
         count=count,
         sha256=hashlib.sha256(data).hexdigest(),
+    )
+
+
+def _source_objects_metadata(
+    root: Path,
+    source_objects: dict[str, str],
+) -> CorpusArtifactMetadata:
+    """Register the content-addressed object directory deterministically."""
+
+    object_dir = root / "source_objects"
+    digest_rows = [
+        {
+            "path": f"source_objects/{object_key}.txt",
+            "sha256": hashlib.sha256(content.encode("utf-8")).hexdigest(),
+        }
+        for object_key, content in sorted(source_objects.items())
+    ]
+    return CorpusArtifactMetadata(
+        path=object_dir.relative_to(root).as_posix(),
+        count=len(source_objects),
+        sha256=hashlib.sha256(_canonical_json(digest_rows).encode("utf-8")).hexdigest(),
     )

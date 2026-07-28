@@ -7,7 +7,6 @@ import importlib.util
 import json
 from pathlib import Path
 
-import pytest
 from click.testing import CliRunner
 
 from aviation_agentic_ai.agent_system.contracts import (
@@ -16,6 +15,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     stable_id,
 )
 from aviation_agentic_ai.agent_system.corpus_store import (
+    CorpusObservation,
     build_corpus,
     load_case_catalog,
     load_corpus_facts,
@@ -43,6 +43,7 @@ def _write_run(
     event_type: str = "atm:GroundStopTMI",
     facility_id: str = _fixture_module.FACILITY_ID,
     formal_reason: str | None = None,
+    evidence_text: str | None = None,
 ) -> None:
     rows = []
     for row in _base_rows():
@@ -59,6 +60,8 @@ def _write_run(
             if row["predicate"] == "rdf:type" and type_fact_id is not None
             else f"{row['triple_id']}:{suffix}"
         )
+        if evidence_text is not None:
+            updated["evidence_text"] = evidence_text
         rows.append(updated)
     if formal_reason is not None:
         rows.append(
@@ -193,7 +196,141 @@ def test_build_corpus_merges_cases_and_full_iri_facts(tmp_path: Path) -> None:
     assert all(fact.predicate_iri.startswith("http") for fact in facts)
 
 
-def test_build_corpus_rejects_conflicting_fact_content(tmp_path: Path) -> None:
+def test_build_corpus_v2_merges_semantic_facts_and_keeps_evidence_links(
+    tmp_path: Path,
+) -> None:
+    run_a = tmp_path / "run-a"
+    run_b = tmp_path / "run-b"
+    _write_run(
+        run_a,
+        event_id="urn:event:duplicate",
+        suffix="a",
+        evidence_text="SIGNATURE:",
+    )
+    _write_run(
+        run_b,
+        event_id="urn:event:duplicate",
+        suffix="b",
+        evidence_text="SIGNATURE:\n26/05/19 20:30",
+    )
+
+    corpus_dir = tmp_path / "corpus"
+    manifest = build_corpus([run_b, run_a], corpus_dir)
+
+    facts = [
+        json.loads(line)
+        for line in (corpus_dir / "facts.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    links = [
+        json.loads(line)
+        for line in (corpus_dir / "evidence_links.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    assert manifest.manifest_version == "decision-case-corpus-v2"
+    assert len(facts) == 4
+    assert len(links) == 8
+    assert {link["owner_kind"] for link in links} == {"fact"}
+    assert len({link["owner_id"] for link in links}) == 4
+
+
+def test_build_corpus_v2_preserves_context_and_observation_boundaries(
+    tmp_path: Path,
+) -> None:
+    context_run = tmp_path / "context"
+    _fixture_module._write_context_layer(context_run)
+    _write_reason_profile_gap(context_run, event_id=_fixture_module.EVENT_ID)
+    observation_run = tmp_path / "observations"
+    _fixture_module._write_formal_observation_layer(observation_run)
+
+    corpus_dir = tmp_path / "corpus"
+    manifest = build_corpus([context_run], corpus_dir)
+    observation_corpus_dir = tmp_path / "observation-corpus"
+    build_corpus([observation_run], observation_corpus_dir)
+
+    associations = [
+        json.loads(line)
+        for line in (corpus_dir / "context_associations.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    gaps = [
+        json.loads(line)
+        for line in (corpus_dir / "profile_gaps.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    observations = [
+        json.loads(line)
+        for line in (observation_corpus_dir / "observations.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    formal_fact_ids = {
+        row["fact_id"]
+        for row in (
+            json.loads(line)
+            for line in (corpus_dir / "facts.jsonl")
+            .read_text(encoding="utf-8")
+            .splitlines()
+        )
+    }
+    assert manifest.artifacts["context_associations"].count == len(associations)
+    assert associations and all(row["causal_claim"] is False for row in associations)
+    assert not formal_fact_ids.intersection(
+        row["association_id"] for row in associations
+    )
+    assert gaps[0]["evidence_text"] == "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
+    assert any(row["value"] == 0 for row in observations)
+    nullable = CorpusObservation.model_validate(
+        {**observations[0], "value": None}
+    )
+    assert nullable.value is None
+
+
+def test_build_corpus_v2_registers_the_complete_layout_stably(
+    tmp_path: Path,
+) -> None:
+    run_dir = tmp_path / "run"
+    _write_run(run_dir, event_id="urn:event:stable", suffix="stable")
+    first = tmp_path / "first"
+    second = tmp_path / "second"
+
+    first_manifest = build_corpus([run_dir], first)
+    second_manifest = build_corpus([run_dir], second)
+
+    expected = {
+        "build_results",
+        "artifacts",
+        "source_objects",
+        "source_bindings",
+        "cases",
+        "facts",
+        "case_facts",
+        "evidence_links",
+        "profile_gaps",
+        "context_associations",
+        "observations",
+        "kg",
+        "kg_ttl",
+        "neo4j_nodes",
+        "neo4j_relationships",
+    }
+    assert set(first_manifest.artifacts) == expected
+    assert first_manifest == second_manifest
+    for metadata in first_manifest.artifacts.values():
+        first_path = first / metadata.path
+        second_path = second / metadata.path
+        assert first_path.exists()
+        if first_path.is_dir():
+            assert sorted(path.name for path in first_path.iterdir()) == sorted(
+                path.name for path in second_path.iterdir()
+            )
+        else:
+            assert first_path.read_bytes() == second_path.read_bytes()
+
+
+def test_build_corpus_uses_semantic_not_legacy_fact_identity(tmp_path: Path) -> None:
     run_a = tmp_path / "run-a"
     run_b = tmp_path / "run-b"
     _write_run(
@@ -209,8 +346,9 @@ def test_build_corpus_rejects_conflicting_fact_content(tmp_path: Path) -> None:
         type_fact_id="fact:conflict",
     )
 
-    with pytest.raises(ValueError, match="conflicting fact content"):
-        build_corpus([run_a, run_b], tmp_path / "corpus")
+    manifest = build_corpus([run_a, run_b], tmp_path / "corpus")
+
+    assert manifest.fact_count == 8
 
 
 def test_build_corpus_collapses_repeated_runs_of_the_same_case(
@@ -353,7 +491,8 @@ def test_corpus_query_preserves_formal_gap_and_missing_reason_states(
     assert "profile-gap metadata" in gap.answer
     assert formal.status == "ok"
     assert formal.retrieved_case_ids == ["urn:event:gdp"]
-    assert formal.retrieved_fact_ids == ["fact:reason:gdp"]
+    assert len(formal.retrieved_fact_ids) == 1
+    assert formal.retrieved_fact_ids[0].startswith("corpus-fact:")
     assert "weather" in formal.answer
     assert "IMPACTING CONDITION: WEATHER / THUNDERSTORMS" in formal.answer
     assert missing.status == "insufficient"
