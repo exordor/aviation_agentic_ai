@@ -136,6 +136,57 @@ def test_cohort_batch_preflights_26_records_without_running_models(tmp_path: Pat
     assert sum(row["provider_call_count"] for row in results if row["status"] == "insufficient") == 0
 
 
+def test_all_insufficient_batch_publishes_valid_empty_corpus(tmp_path: Path) -> None:
+    advisories = [
+        _advisory("unsupported:one", event="unsupported"),
+        _advisory("unsupported:two", event="unsupported"),
+    ]
+    output = tmp_path / "corpus"
+
+    summary = build_corpus_batch(
+        _config(advisories, tmp_path / "advisories.jsonl"),
+        output,
+    )
+
+    assert summary.selected_count == 2
+    assert summary.insufficient_count == 2
+    assert summary.blocked_count == 0
+    manifest = json.loads(
+        (output / "corpus_manifest.json").read_text(encoding="utf-8")
+    )
+    assert manifest["manifest_version"] == "decision-case-corpus-v2"
+    assert manifest["run_count"] == 0
+    assert manifest["case_count"] == 0
+    assert manifest["fact_count"] == 0
+    results = [
+        json.loads(line)
+        for line in (output / "build_results.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    assert [row["status"] for row in results] == [
+        "insufficient",
+        "insufficient",
+    ]
+    for name in (
+        "artifacts.jsonl",
+        "source_bindings.jsonl",
+        "cases.jsonl",
+        "facts.jsonl",
+        "case_facts.jsonl",
+        "evidence_links.jsonl",
+        "profile_gaps.jsonl",
+        "context_associations.jsonl",
+        "observations.jsonl",
+        "kg.jsonl",
+        "kg.ttl",
+        "neo4j_nodes.jsonl",
+        "neo4j_relationships.jsonl",
+    ):
+        assert (output / name).read_text(encoding="utf-8") == ""
+    assert list((output / "source_objects").iterdir()) == []
+
+
 def test_blocked_case_does_not_stop_the_batch_or_publish_manifest(tmp_path: Path) -> None:
     advisories = [_advisory("ok:one"), _advisory("blocked:two"), _advisory("ok:three")]
     calls: list[str] = []

@@ -1065,6 +1065,15 @@ def _write_corpus_projection(
 ) -> None:
     """Materialize only formal corpus facts; context remains audit-only."""
 
+    if not facts:
+        if include_jsonl:
+            _write_jsonl(output_dir / "kg.jsonl", [])
+        (output_dir / "kg.ttl").write_text("", encoding="utf-8")
+        if include_neo4j:
+            _write_jsonl(output_dir / "neo4j_nodes.jsonl", [])
+            _write_jsonl(output_dir / "neo4j_relationships.jsonl", [])
+        return
+
     projected_facts, snapshots = _projection_inputs(
         facts=facts,
         evidence_links=evidence_links,
