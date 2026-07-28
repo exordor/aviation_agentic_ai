@@ -31,6 +31,9 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceSnapshotRegistry,
     ValidatedFact,
 )
+from aviation_agentic_ai.agent_system.corpus_graph import (
+    get_reconstructed_case_evidence_paths,
+)
 from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusCase,
     CorpusCaseQuery,
@@ -45,6 +48,7 @@ from aviation_agentic_ai.agent_system.query_tool_graph import (
     OPERATIONAL_PERIOD_QUESTION,
     PUBLIC_OUTCOME_QUESTION,
     PROVENANCE_QUESTION,
+    RECONSTRUCTION_EVIDENCE_PATH_QUESTION,
     RECONSTRUCTED_CASE_QUESTION,
     REGISTERED_COMPETENCY_QUESTION,
     classify_registered_question,
@@ -86,6 +90,7 @@ _EVENT_QUESTIONS = {
         OBSERVED_WEATHER_CONTEXT_QUESTION,
         PUBLIC_OUTCOME_QUESTION,
         RECONSTRUCTED_CASE_QUESTION,
+        RECONSTRUCTION_EVIDENCE_PATH_QUESTION,
     )
 }
 
@@ -587,6 +592,85 @@ def _context_outcome(
     )
 
 
+def _graph_path_outcome(
+    *,
+    store: CorpusQueryStore,
+    event_id: str | None,
+) -> QueryToolOutcome:
+    """Answer the one closed multi-hop reconstruction question."""
+
+    if not event_id:
+        return QueryToolOutcome(
+            status="insufficient",
+            answer="An event_id is required for a corpus graph question.",
+        )
+    case = store.get_case(event_id)
+    if case is None:
+        return QueryToolOutcome(
+            status="insufficient",
+            answer="The requested event is not present in this corpus.",
+        )
+    paths = get_reconstructed_case_evidence_paths(
+        store.graph_for_event(event_id),
+        case.case_iri,
+        case.reconstruction_iri,
+    )
+    weather_count = sum(
+        path.path_kind == "weather_member" for path in paths
+    )
+    observation_count = sum(
+        path.path_kind == "active_public_observation" for path in paths
+    )
+    fact_ids = sorted(
+        {
+            edge.fact_id
+            for path in paths
+            for edge in path.edges
+        }
+    )
+    source_ids = sorted(
+        {
+            source_id
+            for path in paths
+            for source_id in path.source_ids
+        }
+    )
+    status: Literal["ok", "insufficient"] = (
+        "ok" if weather_count and observation_count else "insufficient"
+    )
+    facility = (
+        case.facility_ids[0].rsplit(":", 1)[-1]
+        if case.facility_ids
+        else "the facility"
+    )
+    answer = (
+        f"The validated reconstruction contains {weather_count} Weather "
+        f"reports and {observation_count} active-window BTS public "
+        f"observations for {facility}. These records are co-members of the "
+        "same retrospective decision-case reconstruction; the graph does not "
+        "assert that Weather caused the traffic-management decision."
+    )
+    return QueryToolOutcome(
+        status=status,
+        answer=answer,
+        match_count=1,
+        retrieved_case_ids=[case.case_id],
+        retrieved_fact_ids=fact_ids,
+        retrieved_graph_paths=list(paths),
+        source_ids=source_ids,
+        tool_calls=[
+            _trace(
+                tool="get_reconstructed_case_evidence_paths",
+                arguments={"event_id": event_id},
+                case_ids=[case.case_id],
+                fact_ids=fact_ids,
+                source_ids=source_ids,
+                status=status,
+            )
+        ],
+    )
+
+
 def _analysis_outcome(
     *,
     store: CorpusQueryStore,
@@ -876,6 +960,10 @@ def answer_corpus_question(
                 limit=limit,
             ),
         )
+    if normalized == _normalize_question(
+        RECONSTRUCTION_EVIDENCE_PATH_QUESTION
+    ):
+        return _graph_path_outcome(store=store, event_id=event_id)
     if normalized not in _EVENT_QUESTIONS:
         return QueryToolOutcome(
             status="insufficient",

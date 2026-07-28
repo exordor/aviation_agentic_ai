@@ -47,6 +47,7 @@ from aviation_agentic_ai.agent_system.query_tool_graph import (
     OPERATIONAL_PERIOD_QUESTION,
     PUBLIC_OUTCOME_QUESTION,
     PROVENANCE_QUESTION,
+    RECONSTRUCTION_EVIDENCE_PATH_QUESTION,
     RECONSTRUCTED_CASE_QUESTION,
     REGISTERED_COMPETENCY_QUESTION,
     answer_question_with_tools,
@@ -2962,6 +2963,242 @@ def test_corpus_similarity_with_stale_index_is_blocked(
     assert "another corpus" in outcome.failure_reason
     assert outcome.model_calls == []
     assert len(outcome.tool_calls) == 1
+
+
+def _path_fact(
+    fact_id: str,
+    subject: str,
+    predicate: str,
+    value: str,
+    *,
+    kind: str = "iri",
+    sources: tuple[str, ...] = (),
+) -> SimpleNamespace:
+    return SimpleNamespace(
+        fact_id=fact_id,
+        subject_iri=subject,
+        predicate_iri=predicate,
+        object_kind=kind,
+        object_value=value,
+        datatype_iri=None,
+        source_ids=list(sources),
+    )
+
+
+def test_corpus_reconstruction_path_question_is_graph_grounded_and_zero_call(
+    tmp_path,
+    monkeypatch,
+):
+    """Replacing traversal with context-summary reads would lose formal paths."""
+
+    from aviation_agentic_ai.agent_system.corpus_graph import CorpusGraphView
+
+    case = SimpleNamespace(
+        case_id="event:gdp-138",
+        case_iri="case:gdp-138",
+        reconstruction_iri="reconstruction:gdp-138",
+        facility_ids=(FACILITY_ID,),
+    )
+    facts = (
+        _path_fact(
+            "core:specialization",
+            case.reconstruction_iri,
+            "http://www.w3.org/ns/prov#specializationOf",
+            case.case_iri,
+        ),
+        _path_fact(
+            "core:event",
+            case.reconstruction_iri,
+            "http://www.w3.org/ns/prov#hadMember",
+            case.case_id,
+            sources=("advisory:138",),
+        ),
+        _path_fact(
+            "core:weather",
+            case.reconstruction_iri,
+            "http://www.w3.org/ns/prov#hadMember",
+            "weather:taf:138",
+            sources=("taf:138",),
+        ),
+        _path_fact(
+            "weather:airport",
+            "weather:taf:138",
+            FORECASTING_AIRPORT,
+            FACILITY_ID,
+            sources=("taf:138",),
+        ),
+        _path_fact(
+            "core:observation",
+            case.reconstruction_iri,
+            "http://www.w3.org/ns/prov#hadMember",
+            "observation:active:138",
+            sources=("bts:138",),
+        ),
+        _path_fact(
+            "observation:feature",
+            "observation:active:138",
+            "http://www.w3.org/ns/sosa/hasFeatureOfInterest",
+            FACILITY_ID,
+            sources=("bts:138",),
+        ),
+        _path_fact(
+            "observation:time",
+            "observation:active:138",
+            "http://www.w3.org/ns/sosa/phenomenonTime",
+            "interval:active:138",
+            sources=("bts:138",),
+        ),
+        _path_fact(
+            "interval:phase",
+            "interval:active:138",
+            "http://purl.org/dc/terms/type",
+            "urn:aviation-agentic-ai:observation-phase:active",
+            sources=("bts:138",),
+        ),
+        _path_fact(
+            "observation:metric",
+            "observation:active:138",
+            "http://www.w3.org/ns/sosa/observedProperty",
+            "metric:scheduled-arrivals",
+            sources=("bts:138",),
+        ),
+        _path_fact(
+            "observation:result",
+            "observation:active:138",
+            "http://www.w3.org/ns/sosa/hasResult",
+            "result:active:138",
+            sources=("bts:138",),
+        ),
+        _path_fact(
+            "result:value",
+            "result:active:138",
+            "http://qudt.org/schema/qudt/numericValue",
+            "77",
+            kind="literal",
+            sources=("bts:138",),
+        ),
+    )
+    graph = CorpusGraphView(facts)
+    store = SimpleNamespace(
+        get_case=lambda event_id: case if event_id == case.case_id else None,
+        graph_for_event=lambda event_id: graph,
+    )
+    monkeypatch.setattr(
+        corpus_query_module,
+        "CorpusQueryStore",
+        lambda _corpus_dir: store,
+    )
+
+    def forbidden_factory(_tools):
+        raise AssertionError("graph retrieval constructed a model")
+
+    outcome = answer_corpus_question(
+        corpus_dir=tmp_path,
+        question=RECONSTRUCTION_EVIDENCE_PATH_QUESTION,
+        event_id=case.case_id,
+        allow_live_model=True,
+        model_factory=forbidden_factory,
+    )
+
+    assert outcome.status == "ok"
+    assert outcome.retrieved_case_ids == [case.case_id]
+    assert {
+        path.path_kind for path in outcome.retrieved_graph_paths
+    } == {"event_member", "weather_member", "active_public_observation"}
+    assert set(outcome.retrieved_fact_ids) == {
+        edge.fact_id
+        for path in outcome.retrieved_graph_paths
+        for edge in path.edges
+    }
+    assert outcome.source_ids == ["advisory:138", "bts:138", "taf:138"]
+    assert "1 Weather reports and 1 active-window BTS public observations" in outcome.answer
+    assert "KJFK" in outcome.answer
+    assert "does not assert that Weather caused" in outcome.answer
+    assert outcome.model_calls == []
+    assert outcome.tool_calls[0].tool == "get_reconstructed_case_evidence_paths"
+
+
+def test_reconstruction_path_question_preserves_core_when_optional_layer_is_absent(
+    tmp_path,
+    monkeypatch,
+):
+    """Missing BTS must be insufficient without discarding the core event path."""
+
+    from aviation_agentic_ai.agent_system.corpus_graph import CorpusGraphView
+
+    case = SimpleNamespace(
+        case_id="event:cancellation-020",
+        case_iri="case:cancellation-020",
+        reconstruction_iri="reconstruction:cancellation-020",
+        facility_ids=("urn:aviation-agentic-ai:facility:airport:KEWR",),
+    )
+    graph = CorpusGraphView(
+        (
+            _path_fact(
+                "core:specialization",
+                case.reconstruction_iri,
+                "http://www.w3.org/ns/prov#specializationOf",
+                case.case_iri,
+            ),
+            _path_fact(
+                "core:event",
+                case.reconstruction_iri,
+                "http://www.w3.org/ns/prov#hadMember",
+                case.case_id,
+                sources=("advisory:020",),
+            ),
+        )
+    )
+    store = SimpleNamespace(
+        get_case=lambda event_id: case if event_id == case.case_id else None,
+        graph_for_event=lambda event_id: graph,
+    )
+    monkeypatch.setattr(
+        corpus_query_module,
+        "CorpusQueryStore",
+        lambda _corpus_dir: store,
+    )
+
+    outcome = answer_corpus_question(
+        corpus_dir=tmp_path,
+        question=RECONSTRUCTION_EVIDENCE_PATH_QUESTION,
+        event_id=case.case_id,
+    )
+
+    assert outcome.status == "insufficient"
+    assert [path.path_kind for path in outcome.retrieved_graph_paths] == [
+        "event_member"
+    ]
+    assert outcome.retrieved_fact_ids == [
+        "core:event",
+        "core:specialization",
+    ]
+    assert outcome.model_calls == []
+
+
+def test_run_directory_refuses_corpus_only_graph_question_without_model(
+    tmp_path,
+):
+    """The removed single-run route must not construct a model for this intent."""
+
+    class Factory:
+        calls = 0
+
+        def __call__(self, _tools):
+            self.calls += 1
+            raise AssertionError("corpus-only question constructed a model")
+
+    factory = Factory()
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=RECONSTRUCTION_EVIDENCE_PATH_QUESTION,
+        model_factory=factory,
+    )
+
+    assert outcome.status == "insufficient"
+    assert "normalized decision-case corpus" in outcome.answer
+    assert outcome.model_calls == []
+    assert factory.calls == 0
 
 
 @pytest.mark.parametrize(

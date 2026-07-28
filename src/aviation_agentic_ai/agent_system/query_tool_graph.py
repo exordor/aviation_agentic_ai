@@ -74,6 +74,10 @@ APPLICABILITY_ANALYSIS_QUESTION = (
 HISTORICAL_SIMILARITY_ANALYSIS_QUESTION = (
     "Which historical case is most similar?"
 )
+RECONSTRUCTION_EVIDENCE_PATH_QUESTION = (
+    "Which weather reports and active-window BTS public observations "
+    "belong to this reconstructed decision case?"
+)
 
 
 class QueryIntent(str, Enum):
@@ -87,6 +91,7 @@ class QueryIntent(str, Enum):
     OBSERVED_WEATHER_CONTEXT = "observed_weather_context"
     PUBLIC_OUTCOME = "public_outcome"
     RECONSTRUCTED_CASE = "reconstructed_case"
+    RECONSTRUCTION_EVIDENCE_PATHS = "reconstruction_evidence_paths"
 
 
 ToolModelFactory = Callable[[list[BaseTool]], ToolCallingModel]
@@ -149,6 +154,9 @@ def classify_registered_question(
         ): QueryIntent.OBSERVED_WEATHER_CONTEXT,
         _normalize_question(PUBLIC_OUTCOME_QUESTION): QueryIntent.PUBLIC_OUTCOME,
         _normalize_question(RECONSTRUCTED_CASE_QUESTION): QueryIntent.RECONSTRUCTED_CASE,
+        _normalize_question(
+            RECONSTRUCTION_EVIDENCE_PATH_QUESTION
+        ): QueryIntent.RECONSTRUCTION_EVIDENCE_PATHS,
         _normalize_question(EPISODE_ANALYSIS_QUESTION): AnalysisIntent.EPISODE,
         _normalize_question(
             OPERATIONAL_SITUATION_ANALYSIS_QUESTION
@@ -1265,6 +1273,16 @@ def answer_question_with_tools(
             status="insufficient",
             answer="Insufficient graph evidence.",
             reason="question is outside the registered Query Agent capability",
+        )
+    if intent is QueryIntent.RECONSTRUCTION_EVIDENCE_PATHS:
+        return _terminal_outcome(
+            run_dir=path,
+            question=question,
+            status="insufficient",
+            answer=(
+                "This graph-path question requires a normalized decision-case corpus."
+            ),
+            reason="case-scoped graph traversal is corpus-only",
         )
 
     try:
