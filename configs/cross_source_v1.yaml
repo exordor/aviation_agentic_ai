@@ -71,8 +71,6 @@ answering:
   require_evidence_layers: true
 
 paths:
-  agent_system_runs_root: data/runs/agent_system
-  agent_system_corpus_root: data/corpus/agent_system
   processed_root: data/processed/cross_source/cross-source-2026-05-v1
   kg_root: data/kg/cross_source/cross-source-2026-05-v1
   evaluation_root: data/evaluation/cross_source/v1

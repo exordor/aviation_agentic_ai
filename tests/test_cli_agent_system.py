@@ -12,6 +12,7 @@ from typing import Any
 
 from click.testing import CliRunner
 from langchain_core.messages import AIMessage
+import pytest
 
 import aviation_agentic_ai.cli as top_cli
 import aviation_agentic_ai.cli_agent_system as cli_module
@@ -259,6 +260,68 @@ def test_removed_run_options_are_rejected_by_the_public_cli(tmp_path: Path) -> N
 
     assert "No such option '--runs-root'" in build.output
     assert "No such option '--run-dir'" in ask.output
+
+
+@pytest.mark.parametrize(
+    ("corruption", "expected_error"),
+    [
+        ("missing_manifest", "published decision-case-corpus-v2 manifest"),
+        ("registered_path", "missing Neo4j projection artifact"),
+        ("registered_count", "row-count mismatch"),
+        ("registered_checksum", "checksum mismatch"),
+    ],
+)
+def test_neo4j_export_validates_published_projection_before_loading(
+    tmp_path: Path,
+    monkeypatch,
+    corruption: str,
+    expected_error: str,
+) -> None:
+    corpus_dir = _minimal_corpus(tmp_path)
+    manifest_path = corpus_dir / "corpus_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    if corruption == "missing_manifest":
+        manifest_path.unlink()
+    elif corruption == "registered_path":
+        manifest["artifacts"]["neo4j_nodes"]["path"] = "missing-nodes.jsonl"
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    elif corruption == "registered_count":
+        manifest["artifacts"]["neo4j_relationships"]["count"] += 1
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    else:
+        nodes_path = corpus_dir / "neo4j_nodes.jsonl"
+        nodes_path.write_text(
+            nodes_path.read_text(encoding="utf-8").rstrip("\n") + " \n",
+            encoding="utf-8",
+        )
+
+    def forbidden_loader(**kwargs):
+        raise AssertionError(f"Neo4j loader was called with {kwargs}")
+
+    monkeypatch.setattr(
+        cli_module,
+        "load_validated_facts_neo4j",
+        forbidden_loader,
+    )
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "neo4j-export",
+            "--corpus-dir",
+            str(corpus_dir),
+            "--uri",
+            "bolt://example.invalid",
+            "--username",
+            "neo4j",
+            "--password",
+            "password",
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert expected_error in result.output
+    assert not (corpus_dir / "neo4j_load.json").exists()
 
 
 def test_registered_analysis_requires_explicit_live_authorization(

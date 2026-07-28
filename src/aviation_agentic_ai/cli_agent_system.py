@@ -14,6 +14,7 @@ stable artifacts, and ``export-case`` writes a bounded non-replayable case.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -24,7 +25,10 @@ from aviation_agentic_ai.agent_system.materialize import (
     load_validated_facts_neo4j,
 )
 from aviation_agentic_ai.agent_system.corpus_batch import build_corpus_batch
-from aviation_agentic_ai.agent_system.corpus_store import export_case
+from aviation_agentic_ai.agent_system.corpus_store import (
+    CorpusBuildManifest,
+    export_case,
+)
 from aviation_agentic_ai.agent_system.corpus_query import (
     answer_corpus_question,
 )
@@ -196,10 +200,10 @@ def neo4j_export(
 
     import os
 
-    nodes_path = corpus_dir / "neo4j_nodes.jsonl"
-    rels_path = corpus_dir / "neo4j_relationships.jsonl"
-    if not nodes_path.exists():
-        raise click.ClickException(f"no corpus Neo4j projection at {nodes_path}")
+    try:
+        nodes_path, rels_path = _validated_neo4j_projection(corpus_dir)
+    except ValueError as exc:
+        raise click.ClickException(f"neo4j-export BLOCKED: {exc}") from exc
     uri = uri or os.getenv("NEO4J_URI")
     username = username or os.getenv("NEO4J_USERNAME")
     password = password or os.getenv("NEO4J_PASSWORD")
@@ -229,6 +233,43 @@ def neo4j_export(
     click.echo(f"node_labels: {', '.join(summary['node_labels'])}")
     click.echo(f"relationship_types: {', '.join(summary['relationship_types'])}")
     click.echo(f"neo4j_load: {corpus_dir / 'neo4j_load.json'}")
+
+
+def _validated_neo4j_projection(corpus_dir: Path) -> tuple[Path, Path]:
+    manifest_path = corpus_dir / "corpus_manifest.json"
+    try:
+        manifest = CorpusBuildManifest.model_validate_json(
+            manifest_path.read_text(encoding="utf-8")
+        )
+    except (OSError, ValueError) as exc:
+        raise ValueError(
+            "a published decision-case-corpus-v2 manifest is required"
+        ) from exc
+
+    paths: list[Path] = []
+    for artifact_name in ("neo4j_nodes", "neo4j_relationships"):
+        metadata = manifest.artifacts.get(artifact_name)
+        if metadata is None:
+            raise ValueError(
+                f"manifest does not register {artifact_name}"
+            )
+        artifact_path = corpus_dir / metadata.path
+        if not artifact_path.is_file():
+            raise ValueError(
+                f"missing Neo4j projection artifact: {metadata.path}"
+            )
+        data = artifact_path.read_bytes()
+        count = sum(1 for line in data.splitlines() if line.strip())
+        if count != metadata.count:
+            raise ValueError(
+                f"Neo4j projection row-count mismatch: {metadata.path}"
+            )
+        if hashlib.sha256(data).hexdigest() != metadata.sha256:
+            raise ValueError(
+                f"Neo4j projection checksum mismatch: {metadata.path}"
+            )
+        paths.append(artifact_path)
+    return paths[0], paths[1]
 
 
 def _write_neo4j_load(run_dir: Path, summary: dict) -> None:

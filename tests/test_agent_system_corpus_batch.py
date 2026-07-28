@@ -8,7 +8,10 @@ from typing import Any
 
 import pytest
 
-from aviation_agentic_ai.agent_system.corpus_store import CorpusBuildResult
+from aviation_agentic_ai.agent_system.corpus_store import (
+    CorpusBuildManifest,
+    CorpusBuildResult,
+)
 from aviation_agentic_ai.agent_system.corpus_batch import (
     BatchCaseExecution,
     BatchResources,
@@ -312,3 +315,64 @@ def test_resume_retries_only_blocked_cases_and_is_idempotent(tmp_path: Path) -> 
     assert (output / "corpus_manifest.json").exists()
     results = (output / "build_results.jsonl").read_text(encoding="utf-8").splitlines()
     assert len(results) == 3
+
+
+def test_resume_rejects_expanding_a_finalized_source_subset(tmp_path: Path) -> None:
+    advisories = [_advisory("ok:one"), _advisory("ok:two")]
+    attempts: list[str] = []
+
+    def run_case(advisory, resources, staging_dir, allow_live_model):  # type: ignore[no-untyped-def]
+        _ = resources, allow_live_model
+        attempts.append(advisory.source_id)
+        return BatchCaseExecution(
+            result=CorpusBuildResult(source_id=advisory.source_id, status="ok"),
+            run_dir=staging_dir,
+        )
+
+    def finalize_subset(run_dirs, output_dir, *, build_results):  # type: ignore[no-untyped-def]
+        _ = run_dirs, build_results
+        manifest = CorpusBuildManifest(
+            corpus_id="finalized-subset",
+            run_count=1,
+            case_count=1,
+            fact_count=0,
+            source_binding_count=0,
+            source_object_count=0,
+            artifacts={},
+        )
+        Path(output_dir, "corpus_manifest.json").write_text(
+            manifest.model_dump_json() + "\n",
+            encoding="utf-8",
+        )
+        return manifest
+
+    output = tmp_path / "corpus"
+    config = _config(advisories, tmp_path / "advisories.jsonl")
+    build_corpus_batch(
+        config,
+        output,
+        source_ids=("ok:one",),
+        resource_loader=lambda config: _resources(),
+        case_runner=run_case,
+        corpus_normalizer=finalize_subset,
+    )
+    published_manifest = (output / "corpus_manifest.json").read_bytes()
+    published_results = (output / "build_results.jsonl").read_bytes()
+
+    with pytest.raises(
+        ValueError,
+        match="cannot expand a finalized corpus with --resume",
+    ):
+        build_corpus_batch(
+            config,
+            output,
+            source_ids=("ok:one", "ok:two"),
+            resume=True,
+            resource_loader=lambda config: _resources(),
+            case_runner=run_case,
+            corpus_normalizer=finalize_subset,
+        )
+
+    assert attempts == ["ok:one"]
+    assert (output / "corpus_manifest.json").read_bytes() == published_manifest
+    assert (output / "build_results.jsonl").read_bytes() == published_results

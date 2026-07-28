@@ -116,6 +116,16 @@ def build_corpus_batch(
     staging.mkdir(parents=True, exist_ok=True)
 
     previous = _load_previous_results(staging, output) if resume else {}
+    selected_source_ids = {str(row["source_id"]) for row in selected}
+    if (
+        resume
+        and _read_manifest(manifest_path) is not None
+        and selected_source_ids - previous.keys()
+    ):
+        raise ValueError(
+            "cannot expand a finalized corpus with --resume; "
+            "rebuild without --resume"
+        )
     run_paths = _load_run_paths(staging) if resume else {}
     results: dict[str, CorpusBuildResult] = {}
     pending: list[Any] = []
