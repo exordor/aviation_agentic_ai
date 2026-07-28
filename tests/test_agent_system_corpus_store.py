@@ -974,6 +974,62 @@ def test_corpus_query_store_builds_a_case_scoped_graph_view(tmp_path: Path) -> N
     )
 
 
+def test_case_graph_filters_globally_merged_sources_to_selected_case(
+    tmp_path: Path,
+) -> None:
+    """A shared semantic fact must not expose another case's source binding."""
+
+    run_dir = tmp_path / "run"
+    _write_run(run_dir, event_id="urn:event:a", suffix="a")
+    corpus_dir = tmp_path / "corpus"
+    build_corpus([run_dir], corpus_dir)
+
+    facts_path = corpus_dir / "facts.jsonl"
+    rows = [
+        json.loads(line)
+        for line in facts_path.read_text(encoding="utf-8").splitlines()
+    ]
+    membership = next(
+        row
+        for row in rows
+        if row["predicate_iri"] == "http://www.w3.org/ns/prov#hadMember"
+    )
+    membership["source_ids"] = sorted(
+        {*membership["source_ids"], "urn:source:other-case"}
+    )
+    facts_path.write_text(
+        "".join(
+            json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n"
+            for row in rows
+        ),
+        encoding="utf-8",
+    )
+    manifest_path = corpus_dir / "corpus_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["artifacts"]["facts"]["sha256"] = hashlib.sha256(
+        facts_path.read_bytes()
+    ).hexdigest()
+    manifest_path.write_text(
+        json.dumps(manifest, sort_keys=True, separators=(",", ":")) + "\n",
+        encoding="utf-8",
+    )
+
+    store = CorpusQueryStore(corpus_dir)
+    case = store.get_case("urn:event:a")
+    assert case is not None
+    graph = store.graph_for_event("urn:event:a")
+    membership_edges = graph.neighbors(
+        case.reconstruction_iri,
+        direction="out",
+        predicate_iris=("http://www.w3.org/ns/prov#hadMember",),
+    )
+
+    assert membership_edges
+    assert {edge.source_ids for edge in membership_edges} == {
+        (_fixture_module.SOURCE_ID,)
+    }
+
+
 def test_export_case_contains_only_selected_case_artifacts(tmp_path: Path) -> None:
     """Writing a replayable run artifact into a case export is a contract bug."""
 

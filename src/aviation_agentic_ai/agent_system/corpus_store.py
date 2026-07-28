@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import defaultdict
 import hashlib
 import json
 from pathlib import Path
@@ -289,6 +290,25 @@ class CorpusQueryStore:
         self.facts = tuple(sorted(facts, key=lambda row: row.fact_id))
         self._case_by_event = {case.event_id: case for case in self.cases}
         self._fact_by_id = {fact.fact_id: fact for fact in self.facts}
+        source_artifacts_by_case: dict[str, set[tuple[str, str]]] = defaultdict(set)
+        for binding in self.source_bindings:
+            source_artifacts_by_case[binding.case_id].add(
+                (binding.source_id, binding.content_sha256)
+            )
+        self._source_artifacts_by_case = {
+            case_id: frozenset(source_artifacts)
+            for case_id, source_artifacts in source_artifacts_by_case.items()
+        }
+        source_artifacts_by_fact: dict[str, set[tuple[str, str]]] = defaultdict(set)
+        for link in self.evidence_links:
+            if link.owner_kind == "fact":
+                source_artifacts_by_fact[link.owner_id].add(
+                    (link.source_id, link.artifact_id)
+                )
+        self._source_artifacts_by_fact = {
+            fact_id: frozenset(source_artifacts)
+            for fact_id, source_artifacts in source_artifacts_by_fact.items()
+        }
         self._fact_ids_by_case: dict[str, tuple[str, ...]] = {}
         for case in self.cases:
             self._fact_ids_by_case[case.case_id] = tuple(
@@ -364,8 +384,28 @@ class CorpusQueryStore:
         case = self.get_case(event_id)
         if case is None:
             return ()
+        case_source_artifacts = self._source_artifacts_by_case.get(
+            case.case_id,
+            frozenset(),
+        )
         return tuple(
-            self._fact_by_id[fact_id]
+            self._fact_by_id[fact_id].model_copy(
+                update={
+                    "source_ids": sorted(
+                        set(self._fact_by_id[fact_id].source_ids)
+                        & {
+                            source_id
+                            for source_id, artifact_id in (
+                                self._source_artifacts_by_fact.get(
+                                    fact_id,
+                                    frozenset(),
+                                )
+                            )
+                            if (source_id, artifact_id) in case_source_artifacts
+                        }
+                    )
+                }
+            )
             for fact_id in self._fact_ids_by_case.get(case.case_id, ())
             if fact_id in self._fact_by_id
         )
