@@ -1017,48 +1017,6 @@ def test_sec13_regression5_provider_error_is_blocked(tmp_path):
     assert "ProviderError" in record["failure_reason"]
 
 
-@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
-def test_sec13_regression5_cli_ask_exits_nonzero_on_blocked(tmp_path):
-    """§13 regression 5: the ``ask`` CLI reports BLOCKED and exits non-zero
-    on a provider error."""
-
-    from click.testing import CliRunner
-
-    _write_query_kg(tmp_path)
-
-    from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
-
-    class FailingToolModel:
-        def invoke(self, messages, *, phase):
-            return ToolModelTurn(
-                message=None,
-                record=ModelCallRecord(
-                    agent="query",
-                    raw_response="",
-                    error="ProviderError: timeout",
-                ),
-            )
-
-    # Patch the CLI's invoker factory to return the failing invoker.
-    import aviation_agentic_ai.cli_agent_system as cli_mod
-
-    original = cli_mod.make_live_tool_calling_model
-    cli_mod.make_live_tool_calling_model = lambda *a, **kw: FailingToolModel()
-    try:
-        runner = CliRunner()
-        result = runner.invoke(
-            cli_mod.agent_system,  # type: ignore[arg-type]
-            [
-                "ask", "--run-dir", str(tmp_path),
-                "--question", REGISTERED_QUESTION, "--allow-live-model",
-            ],
-        )
-    finally:
-        cli_mod.make_live_tool_calling_model = original
-    assert result.exit_code != 0
-    assert "BLOCKED" in result.output
-
-
 def test_sec13_regression7_no_chinese_interface_text_in_active_paths():
     """§13 regression 7: scan tracked and untracked active interface files."""
 

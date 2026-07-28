@@ -1070,19 +1070,28 @@ def _validate_analysis_artifact_binding(
     task: CaseAnalysisTask,
     bundle: QueryEvidenceBundle,
     outcome: QueryToolOutcome,
+    query_store: Any | None = None,
 ) -> None:
     """Fail closed unless the destination and all three artifact layers agree."""
 
-    try:
-        store = QueryGraphStore(root)
-    except (OSError, RuntimeError, ValueError) as exc:
-        raise RuntimeError(
-            "analysis destination is not a validated current run"
-        ) from exc
+    if query_store is None:
+        try:
+            store = QueryGraphStore(root)
+        except (OSError, RuntimeError, ValueError) as exc:
+            raise RuntimeError(
+                "analysis destination is not a validated current run"
+            ) from exc
+    else:
+        store = query_store
+        if Path(store.run_dir).resolve() != root:
+            raise RuntimeError(
+                "analysis destination differs from the supplied query store"
+            )
     destination_run_id = str(store.manifest["run_id"])
-    if root.name != destination_run_id or not (
-        destination_run_id == task.run_id == bundle.run_id
-    ):
+    if (
+        query_store is None
+        and root.name != destination_run_id
+    ) or not (destination_run_id == task.run_id == bundle.run_id):
         raise RuntimeError(
             "analysis destination run_id differs from artifact run"
         )
@@ -1258,6 +1267,7 @@ def write_case_analysis_artifacts(
     task: CaseAnalysisTask,
     bundle: QueryEvidenceBundle,
     outcome: QueryToolOutcome,
+    query_store: Any | None = None,
 ) -> Path:
     """Write one immutable, idempotent per-analysis artifact directory."""
 
@@ -1272,6 +1282,7 @@ def write_case_analysis_artifacts(
         task=task,
         bundle=bundle,
         outcome=outcome,
+        query_store=query_store,
     )
     sanitized_outcome = _sanitized_outcome_payload(
         task=task,

@@ -1,266 +1,91 @@
-"""CLI contracts for deterministic reads and bounded Agent execution."""
+"""Corpus-first public CLI and bounded analysis contracts."""
 
 from __future__ import annotations
 
-import hashlib
 import importlib.util
+import hashlib
 import json
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
 
-import pytest
 from click.testing import CliRunner
 from langchain_core.messages import AIMessage
 
+import aviation_agentic_ai.cli as top_cli
 import aviation_agentic_ai.cli_agent_system as cli_module
-from aviation_agentic_ai.agent_system.authority_evidence import AuthorityBuildStatus
 from aviation_agentic_ai.agent_system.contracts import (
-    BTSManifestBinding,
     ModelCallRecord,
-    ModelToolCall,
     SourceFamily,
-    SourceRecord,
-    SourceSnapshot,
-    SourceSnapshotRegistry,
 )
-from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
+from aviation_agentic_ai.agent_system.corpus_query import (
+    CorpusAnalysisStoreAdapter,
+)
+from aviation_agentic_ai.agent_system.corpus_store import (
+    CorpusQueryStore,
+    build_corpus,
+)
 from aviation_agentic_ai.agent_system.query_tool_graph import (
+    APPLICABILITY_ANALYSIS_QUESTION,
     DECLARED_REASON_QUESTION,
+    EPISODE_ANALYSIS_QUESTION,
     FORECAST_CONTEXT_QUESTION,
     HISTORICAL_SIMILARITY_ANALYSIS_QUESTION,
     OBSERVED_WEATHER_CONTEXT_QUESTION,
     OPERATIONAL_SITUATION_ANALYSIS_QUESTION,
     PUBLIC_OUTCOME_QUESTION,
     RECONSTRUCTED_CASE_QUESTION,
-    REGISTERED_COMPETENCY_QUESTION,
 )
-from aviation_agentic_ai.agent_system.runtime import RunBinding
-from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
-from aviation_agentic_ai.agent_system.validation_profiles import (
-    load_validation_profile_registry,
-)
-
-EVENT_ID = "urn:aviation-agentic-ai:event:cli-test"
-SOURCE_ID = "2026-05-19:123"
-RUN_STARTED_AT = datetime(2026, 5, 19, 20, 30, tzinfo=UTC)
-ADVISORY_CONTENT = "SIGNATURE:\n26/05/19 20:30\nGROUND STOP\n"
+from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
 
 
-def _run_binding(run_dir: Path) -> RunBinding:
-    return RunBinding(
-        run_id=run_dir.name,
-        run_dir=run_dir,
-        run_started_at=RUN_STARTED_AT,
-    )
-
-
-def _authority_catalog(
-    *,
-    facility_status: AuthorityBuildStatus = AuthorityBuildStatus.OK,
-    facility_entities: tuple[object, ...] = (),
-    terminology_status: AuthorityBuildStatus = AuthorityBuildStatus.OK,
-    registry_terms: tuple[object, ...] = (),
-):
-    return SimpleNamespace(
-        facility=SimpleNamespace(
-            status=facility_status,
-            entities=facility_entities,
-        ),
-        terminology=SimpleNamespace(
-            status=terminology_status,
-            registry_terms=registry_terms,
-        ),
-    )
-
-
-def _write_graph(run_dir: Path) -> None:
-    values = [
-        ("fact:type", "rdf:type", "atm:GroundStopTMI", "atm:GroundStopTMI"),
-        (
-            "fact:facility",
-            "atm:controlledNASelement",
-            "urn:aviation-agentic-ai:facility:airport:KJFK",
-            "nas:Airport",
-        ),
-        (
-            "fact:start",
-            "atm:effectiveStartTime",
-            "2026-05-19T21:00:00Z",
-            "",
-        ),
-        (
-            "fact:end",
-            "atm:effectiveEndTime",
-            "2026-05-19T22:45:00Z",
-            "",
-        ),
-    ]
-    rows = [
-        {
-            "triple_id": fact_id,
-            "subject": EVENT_ID,
-            "predicate": predicate,
-            "object": value,
-            "subject_class": "atm:GroundStopTMI",
-            "object_class": object_class,
-            "object_kind": "iri" if object_class else "literal",
-            "source_document": SOURCE_ID,
-            "evidence_text": "GROUND STOP",
-            "datatype_iri": (
-                "http://www.w3.org/2001/XMLSchema#dateTime"
-                if predicate
-                in {
-                    "atm:effectiveStartTime",
-                    "atm:effectiveEndTime",
-                }
-                else ""
-            ),
-        }
-        for fact_id, predicate, value, object_class in values
-    ]
-    profile_registry = load_validation_profile_registry(
-        decision_guide=load_schema_guide()
-    )
-    profiles = {
-        profile.ref.layer: profile.ref
-        for profile in profile_registry.profiles
-    }
-    decision_profile = profiles["decision"]
-    snapshot = SourceSnapshot(
-        source_id=SOURCE_ID,
-        family=SourceFamily.ATCSCC_ADVISORY,
-        content=ADVISORY_CONTENT,
-        content_sha256=hashlib.sha256(
-            ADVISORY_CONTENT.encode()
-        ).hexdigest(),
-        snapshot_timestamp=RUN_STARTED_AT.isoformat(),
-    )
-    registry_path = SourceSnapshotRegistry(
-        snapshots=(snapshot,)
-    ).write_jsonl(run_dir)
-    for row in rows:
-        row.update(
-            {
-                "profile_id": decision_profile.profile_id,
-                "profile_checksum": decision_profile.profile_checksum,
-                "validation_layer": "decision",
-                "evidence_mode": "source_text",
-                "evidence_ref": row["triple_id"],
-                "source_ids": [SOURCE_ID],
-                "source_snapshot_checksums": {
-                    SOURCE_ID: snapshot.content_sha256,
-                },
-            }
-        )
-    (run_dir / "kg.jsonl").write_text(
-        "\n".join(json.dumps(row) for row in rows) + "\n",
-        encoding="utf-8",
-    )
-    context_artifacts: dict[str, dict[str, object]] = {}
-    registry_data = registry_path.read_bytes()
-    context_artifacts["source_snapshots"] = {
-        "path": "source_snapshots.jsonl",
-        "count": 1,
-        "sha256": hashlib.sha256(registry_data).hexdigest(),
-        "status": "ok",
-    }
-    trace_rows = [
-        json.dumps(
-            {
-                "fact_id": row["triple_id"],
-                "graph_patch_line": "",
-                "source_id": SOURCE_ID,
-                "evidence_text": row["evidence_text"],
-                "evidence_agent_role": "advisory",
-                "source_snapshot_sha256": snapshot.content_sha256,
-            }
-        )
-        for row in rows
-    ]
-    trace_path = run_dir / "fact_trace.jsonl"
-    trace_data = "".join(row + "\n" for row in trace_rows).encode("utf-8")
-    trace_path.write_bytes(trace_data)
-    context_artifacts["fact_trace"] = {
-        "path": trace_path.name,
-        "count": len(trace_rows),
-        "sha256": hashlib.sha256(trace_data).hexdigest(),
-        "status": "ok",
-    }
-    for key, filename in (
-        ("context_associations", "context_associations.jsonl"),
-        ("outcome_summaries", "outcome_summaries.jsonl"),
-        ("weather_fact_trace", "weather_fact_trace.jsonl"),
-        ("observation_derivations", "observation_derivations.jsonl"),
-        ("observation_fact_trace", "observation_fact_trace.jsonl"),
-        ("reconstruction_trace", "reconstruction_trace.json"),
-    ):
-        path = run_dir / filename
-        path.write_text("", encoding="utf-8")
-        context_artifacts[key] = {
-            "path": filename,
-            "count": 0,
-            "sha256": hashlib.sha256(b"").hexdigest(),
-            "status": "insufficient",
-        }
-    profile_gap_path = run_dir / "profile_gaps.jsonl"
-    profile_gap_path.write_text("", encoding="utf-8")
-    (run_dir / "run_manifest.json").write_text(
-        json.dumps(
-            {
-                "manifest_version": "decision-case-run-v1",
-                "run_id": run_dir.name,
-                "source_id": SOURCE_ID,
-                "materialization": {
-                    "materialized": True,
-                    "fact_count": len(rows),
-                    "profile_refs": [
-                        decision_profile.model_dump(mode="json")
-                    ],
-                    "layer_fact_counts": {"decision": len(rows)},
-                    "artifacts": {
-                        "kg_jsonl": str(run_dir / "kg.jsonl"),
-                    },
-                },
-                "formal_layers": {
-                    layer: {
-                        "status": (
-                            "ok" if layer == "decision" else "insufficient"
-                        ),
-                        "profile_id": profile.profile_id,
-                        "profile_checksum": profile.profile_checksum,
-                        "formal_fact_count": (
-                            len(rows) if layer == "decision" else 0
-                        ),
-                    }
-                    for layer, profile in profiles.items()
-                },
-                "context_artifacts": context_artifacts,
-                "profile_gaps": {
-                    "path": profile_gap_path.name,
-                    "count": 0,
-                    "sha256": hashlib.sha256(b"").hexdigest(),
-                    "status": "ok",
-                },
-            }
-        ),
-        encoding="utf-8",
-    )
-
-
-def _write_supported_analysis_context(run_dir: Path) -> None:
-    """Load the full current-run context fixture needed for model synthesis."""
-
-    fixture_path = Path(__file__).with_name("test_agent_system_query_tools.py")
+def _load_fixture(name: str, filename: str) -> Any:
     spec = importlib.util.spec_from_file_location(
-        "cli_analysis_query_tools_fixture",
-        fixture_path,
+        name,
+        Path(__file__).with_name(filename),
     )
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    return module
+
+
+_corpus_fixture = _load_fixture(
+    "corpus_cli_store_fixture",
+    "test_agent_system_corpus_store.py",
+)
+_query_fixture = _load_fixture(
+    "corpus_cli_query_fixture",
+    "test_agent_system_query_tool_graph.py",
+)
+ANALYSIS_EVENT_ID = _corpus_fixture._fixture_module.EVENT_ID
+
+
+def _minimal_corpus(tmp_path: Path) -> Path:
+    run_dir = tmp_path / "run"
+    _corpus_fixture._write_run(
+        run_dir,
+        event_id="urn:event:cli-corpus",
+        suffix="cli-corpus",
+    )
+    corpus_dir = tmp_path / "corpus"
+    build_corpus([run_dir], corpus_dir)
+    return corpus_dir
+
+
+def _analysis_corpus(tmp_path: Path) -> Path:
+    run_dir = tmp_path / "analysis-run"
+    module = _corpus_fixture._fixture_module
     module._write_graph(run_dir)
     module._write_formal_observation_layer(run_dir)
+    _query_fixture.EVENT_ID = ANALYSIS_EVENT_ID
+    _query_fixture._append_qualifying_weather_relation(
+        run_dir,
+        family=SourceFamily.METAR,
+        logical_time=datetime(2026, 5, 19, 20, 15, tzinfo=UTC),
+        raw="METAR KJFK TEST",
+    )
     context_path = run_dir / "context_associations.jsonl"
     context_data = context_path.read_bytes()
     manifest_path = run_dir / "run_manifest.json"
@@ -272,192 +97,184 @@ def _write_supported_analysis_context(run_dir: Path) -> None:
         "status": "ok",
     }
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    corpus_dir = tmp_path / "analysis-corpus"
+    build_corpus([run_dir], corpus_dir)
+    return corpus_dir
 
 
-@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
-def test_unsupported_cli_question_needs_no_live_authorization(tmp_path, monkeypatch):
-    _write_graph(tmp_path)
+class _EvidenceBoundAnalysisModel:
+    """Return one statement supported by the actual preflight observation."""
 
-    def forbidden_factory(*args, **kwargs):
-        raise AssertionError("unsupported question constructed a live model")
+    def invoke(self, messages: list[Any], *, phase: str) -> ToolModelTurn:
+        assert phase == "final_answer"
+        content = str(messages[-1].content)
+        serialized = content.split(
+            "PREFLIGHT_REQUIRED_OBSERVATIONS:", 1
+        )[1].split("\nSEALED_CASE_ANALYSIS_TASK:", 1)[0]
+        observations = json.loads(serialized)
+        item = next(
+            item
+            for observation in observations
+            for item in observation["items"]
+            if item.get("fact_id") and item.get("source_ids")
+        )
+        payload = {
+            "statements": [
+                {
+                    "kind": "source_fact",
+                    "text": (
+                        "The corpus contains a source-qualified operational "
+                        "situation."
+                    ),
+                    "support_fact_ids": [item["fact_id"]],
+                    "support_source_ids": [item["source_ids"][0]],
+                }
+            ],
+            "limitations": [],
+        }
+        raw = json.dumps(payload)
+        return ToolModelTurn(
+            message=AIMessage(content=raw),
+            record=ModelCallRecord(
+                agent="decision_case_analysis",
+                raw_response=raw,
+                prompt_version="decision-case-analysis-v1",
+                provider="scripted",
+                model="scripted",
+            ),
+        )
 
-    monkeypatch.setattr(
-        cli_module,
-        "make_live_tool_calling_model",
-        forbidden_factory,
+
+def test_public_agent_system_surface_is_exactly_corpus_first() -> None:
+    """Reintroducing a persistent single-case command would reopen dual-track IO."""
+
+    assert set(cli_module.agent_system.commands) == {
+        "build-corpus",
+        "ask",
+        "neo4j-export",
+        "export-case",
+    }
+    spec = next(
+        row for row in top_cli.TOP_LEVEL_COMMANDS if row["name"] == "agent-system"
     )
-    result = CliRunner().invoke(
-        cli_module.agent_system,
-        [
-            "ask",
-            "--run-dir",
-            str(tmp_path),
-            "--question",
-            "What is the runway surface at LAX?",
-        ],
+    assert spec["subcommands"] == (
+        "build-corpus",
+        "ask",
+        "neo4j-export",
+        "export-case",
     )
-    assert result.exit_code == 0
-    assert "status: insufficient" in result.output
-    assert "model_calls: 0" in result.output
-    assert "tool_calls: 0" in result.output
 
 
-@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
-def test_combined_record_cli_question_is_zero_call_without_authorization(
-    tmp_path,
+def test_build_corpus_cli_wires_the_resumable_batch_contract(
+    tmp_path: Path,
     monkeypatch,
-):
-    _write_graph(tmp_path)
+) -> None:
+    """Routing via runs-root would bypass cohort preflight and recovery."""
 
-    def forbidden_live_model(*args, **kwargs):
-        raise AssertionError("combined-record query constructed a live model")
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text("{}\n", encoding="utf-8")
+    output_dir = tmp_path / "corpus"
+    config = {"sources": {"atcscc_advisories": "fixture.jsonl"}}
+    captured: dict[str, object] = {}
 
+    def fake_batch(config_value, *, output_dir, **kwargs):  # type: ignore[no-untyped-def]
+        captured.update(
+            config=config_value,
+            output_dir=output_dir,
+            **kwargs,
+        )
+        return SimpleNamespace(
+            selected_count=2,
+            ok_count=1,
+            insufficient_count=1,
+            blocked_count=0,
+            manifest=SimpleNamespace(corpus_id="corpus:test"),
+        )
+
+    monkeypatch.setattr(cli_module, "_load_config", lambda path: config)
     monkeypatch.setattr(
         cli_module,
-        "make_live_tool_calling_model",
-        forbidden_live_model,
+        "build_corpus_batch",
+        fake_batch,
+        raising=False,
     )
     result = CliRunner().invoke(
         cli_module.agent_system,
         [
-            "ask",
-            "--run-dir",
-            str(tmp_path),
-            "--question",
-            REGISTERED_COMPETENCY_QUESTION,
-        ],
-    )
-    assert result.exit_code == 0
-    assert "status: ok" in result.output
-    assert "model_calls: 0" in result.output
-
-
-@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
-def test_missing_reason_question_needs_no_live_authorization(
-    tmp_path,
-    monkeypatch,
-):
-    _write_graph(tmp_path)
-
-    def forbidden_factory(*args, **kwargs):
-        raise AssertionError("missing reason constructed a live model")
-
-    monkeypatch.setattr(
-        cli_module,
-        "make_live_tool_calling_model",
-        forbidden_factory,
-    )
-    result = CliRunner().invoke(
-        cli_module.agent_system,
-        [
-            "ask",
-            "--run-dir",
-            str(tmp_path),
-            "--question",
-            DECLARED_REASON_QUESTION,
-        ],
-    )
-    assert result.exit_code == 0
-    assert "status: insufficient" in result.output
-    assert "model_calls: 0" in result.output
-
-
-@pytest.mark.parametrize(
-    "question",
-    [
-        FORECAST_CONTEXT_QUESTION,
-        OBSERVED_WEATHER_CONTEXT_QUESTION,
-        PUBLIC_OUTCOME_QUESTION,
-        RECONSTRUCTED_CASE_QUESTION,
-    ],
-)
-@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
-def test_context_questions_need_no_live_authorization(
-    tmp_path,
-    monkeypatch,
-    question,
-):
-    _write_graph(tmp_path)
-
-    def forbidden_factory(*args, **kwargs):
-        raise AssertionError("deterministic context question constructed a live model")
-
-    monkeypatch.setattr(
-        cli_module,
-        "make_live_tool_calling_model",
-        forbidden_factory,
-    )
-    result = CliRunner().invoke(
-        cli_module.agent_system,
-        [
-            "ask",
-            "--run-dir",
-            str(tmp_path),
-            "--question",
-            question,
-        ],
-    )
-
-    assert result.exit_code == 0
-    assert "status: insufficient" in result.output
-    assert "model_calls: 0" in result.output
-
-
-@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
-def test_combined_record_remains_zero_call_when_live_flag_is_present(
-    tmp_path,
-    monkeypatch,
-):
-    _write_graph(tmp_path)
-
-    def forbidden_live_model(*args, **kwargs):
-        raise AssertionError("combined-record query constructed a live model")
-
-    monkeypatch.setattr(
-        cli_module,
-        "make_live_tool_calling_model",
-        forbidden_live_model,
-    )
-    result = CliRunner().invoke(
-        cli_module.agent_system,
-        [
-            "ask",
-            "--run-dir",
-            str(tmp_path),
-            "--question",
-            REGISTERED_COMPETENCY_QUESTION,
+            "build-corpus",
+            "--config",
+            str(config_path),
+            "--output-dir",
+            str(output_dir),
+            "--selection",
+            "all",
+            "--source-id",
+            "2026-05-19:123",
+            "--source-id",
+            "2026-05-19:138",
             "--allow-live-model",
+            "--resume",
         ],
     )
-    assert result.exit_code == 0
-    assert "status: ok" in result.output
-    assert f"sources: {SOURCE_ID}" in result.output
-    assert "graph_facts_seen: 4" in result.output
-    assert "model_calls: 0" in result.output
-    assert "tool_calls: 1" in result.output
-    assert "analysis_artifact_dir:" not in result.output
+
+    assert result.exit_code == 0, result.output
+    assert captured == {
+        "config": config,
+        "output_dir": output_dir,
+        "selection": "all",
+        "source_ids": ("2026-05-19:123", "2026-05-19:138"),
+        "allow_live_model": True,
+        "resume": True,
+    }
+    assert "selected: 2" in result.output
+    assert "blocked: 0" in result.output
+    assert "corpus_id: corpus:test" in result.output
 
 
-@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
-def test_analysis_cli_requires_explicit_live_authorization(tmp_path, monkeypatch):
-    """An exact model-bound analysis question must not construct a provider by default."""
+def test_removed_run_options_are_rejected_by_the_public_cli(tmp_path: Path) -> None:
+    """Accepting either old option would preserve a second persisted backend."""
 
-    _write_graph(tmp_path)
-
-    def forbidden_live_model(*args, **kwargs):
-        raise AssertionError("unauthorized analysis constructed a live model")
-
-    monkeypatch.setattr(
-        cli_module,
-        "make_live_tool_calling_model",
-        forbidden_live_model,
+    runs_root = tmp_path / "runs"
+    runs_root.mkdir()
+    build = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "build-corpus",
+            "--runs-root",
+            str(runs_root),
+            "--output-dir",
+            str(tmp_path / "corpus"),
+        ],
     )
-    result = CliRunner().invoke(
+    ask = CliRunner().invoke(
         cli_module.agent_system,
         [
             "ask",
             "--run-dir",
-            str(tmp_path),
+            str(runs_root),
+            "--question",
+            "What traffic management measure was published?",
+        ],
+    )
+
+    assert "No such option '--runs-root'" in build.output
+    assert "No such option '--run-dir'" in ask.output
+
+
+def test_registered_analysis_requires_explicit_live_authorization(
+    tmp_path: Path,
+) -> None:
+    """A registered model-bound analysis may not run on an implicit grant."""
+
+    corpus_dir = _analysis_corpus(tmp_path)
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "ask",
+            "--corpus-dir",
+            str(corpus_dir),
+            "--event-id",
+            ANALYSIS_EVENT_ID,
             "--question",
             OPERATIONAL_SITUATION_ANALYSIS_QUESTION,
         ],
@@ -465,534 +282,265 @@ def test_analysis_cli_requires_explicit_live_authorization(tmp_path, monkeypatch
 
     assert result.exit_code != 0
     assert "requires --allow-live-model" in result.output
-    assert not (tmp_path / "analysis").exists()
+    assert not (corpus_dir / "analysis").exists()
 
 
-@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
-def test_similarity_cli_is_zero_call_without_authorization(tmp_path, monkeypatch):
-    """The deterministic corpus gate must remain usable without credentials."""
+def test_analysis_adapter_is_scoped_to_the_selected_case_source_version(
+    tmp_path: Path,
+) -> None:
+    """A shared logical source ID must not leak another case's artifact."""
 
-    _write_graph(tmp_path)
-
-    def forbidden_live_model(*args, **kwargs):
-        raise AssertionError("similarity corpus gate constructed a live model")
-
-    monkeypatch.setattr(
-        cli_module,
-        "make_live_tool_calling_model",
-        forbidden_live_model,
+    event_a = "urn:event:analysis-a"
+    event_b = "urn:event:analysis-b"
+    run_a = tmp_path / "run-a"
+    run_b = tmp_path / "run-b"
+    _corpus_fixture._write_run(run_a, event_id=event_a, suffix="a")
+    _corpus_fixture._write_run(run_b, event_id=event_b, suffix="b")
+    revised_content = (
+        _corpus_fixture._fixture_module.ADVISORY_CONTENT
+        + "REVISION: CASE B\n"
     )
-    result = CliRunner().invoke(
-        cli_module.agent_system,
-        [
-            "ask",
-            "--run-dir",
-            str(tmp_path),
-            "--question",
-            HISTORICAL_SIMILARITY_ANALYSIS_QUESTION,
-        ],
+    revised_sha256 = _corpus_fixture._set_snapshot_content(
+        run_b,
+        revised_content,
+    )
+    corpus_dir = tmp_path / "versioned-corpus"
+    build_corpus([run_a, run_b], corpus_dir)
+    store = CorpusQueryStore(corpus_dir)
+
+    adapter_a = CorpusAnalysisStoreAdapter(store, event_id=event_a)
+    adapter_b = CorpusAnalysisStoreAdapter(store, event_id=event_b)
+    source_id = _corpus_fixture._fixture_module.SOURCE_ID
+
+    assert adapter_a.event_ids == [event_a]
+    assert adapter_b.event_ids == [event_b]
+    assert adapter_a.source_snapshots.get(source_id).content_sha256 != (
+        revised_sha256
+    )
+    assert adapter_b.source_snapshots.get(source_id).content_sha256 == (
+        revised_sha256
     )
 
-    assert result.exit_code == 0
-    assert "status: insufficient" in result.output
-    assert "model_calls: 0" in result.output
-    assert "analysis_artifact_dir:" not in result.output
 
-
-@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
-def test_required_evidence_cli_preflights_before_live_provider(
-    tmp_path,
+def test_authorized_analysis_uses_corpus_evidence_and_bounded_agent(
+    tmp_path: Path,
     monkeypatch,
-):
-    """Missing required evidence must stay available without constructing a provider."""
+) -> None:
+    """Discarding the live flag or reopening a run bundle breaks this route."""
 
-    _write_graph(tmp_path)
+    corpus_dir = _analysis_corpus(tmp_path)
 
-    def forbidden_model_factory(*args, **kwargs):
-        raise AssertionError("required-evidence preflight constructed a provider")
-
-    monkeypatch.setattr(
-        cli_module,
-        "make_live_tool_calling_model",
-        forbidden_model_factory,
-    )
-    result = CliRunner().invoke(
-        cli_module.agent_system,
-        [
-            "ask",
-            "--run-dir",
-            str(tmp_path),
-            "--question",
-            OPERATIONAL_SITUATION_ANALYSIS_QUESTION,
-            "--allow-live-model",
-        ],
-    )
-
-    assert result.exit_code == 0
-    assert "status: insufficient" in result.output
-    assert "model_calls: 0" in result.output
-    artifact_line = next(
-        line
-        for line in result.output.splitlines()
-        if line.startswith("analysis_artifact_dir: ")
-    )
-    assert Path(artifact_line.removeprefix("analysis_artifact_dir: ")).is_dir()
-
-
-@pytest.mark.skip(reason="run-backed ask was removed by the corpus cutover")
-def test_blocked_analysis_cli_reports_artifact_directory_before_exit(
-    tmp_path,
-    monkeypatch,
-):
-    """A blocked sealed analysis must remain discoverable after the CLI exits."""
-
-    _write_supported_analysis_context(tmp_path)
-    call = {
-        "id": "call:analysis:blocked",
-        "name": "execute_bound_query_step",
-        "args": {"step_id": "step:not-in-plan"},
-        "type": "tool_call",
-    }
-
-    class BlockedAnalysisModel:
-        def invoke(self, messages, *, phase):
-            del messages
-            assert phase == "final_answer"
-            return ToolModelTurn(
-                message=AIMessage(content="", tool_calls=[call]),
-                record=ModelCallRecord(
-                    agent="decision_case_analysis",
-                    raw_response="",
-                    prompt_version="decision-case-analysis-v1",
-                    provider="scripted",
-                    model="scripted",
-                    tool_calls=[
-                        ModelToolCall(
-                            call_id=call["id"],
-                            name=call["name"],
-                            arguments=call["args"],
-                        )
-                    ],
-                ),
-            )
-
-    def scripted_model_factory(*, tools, role):
+    def model_factory(*, tools, role):  # type: ignore[no-untyped-def]
         assert [tool.name for tool in tools] == ["execute_bound_query_step"]
         assert role == "decision_case_analysis"
-        return BlockedAnalysisModel()
+        return _EvidenceBoundAnalysisModel()
 
     monkeypatch.setattr(
         cli_module,
         "make_live_tool_calling_model",
-        scripted_model_factory,
+        model_factory,
     )
     result = CliRunner().invoke(
         cli_module.agent_system,
         [
             "ask",
-            "--run-dir",
-            str(tmp_path),
+            "--corpus-dir",
+            str(corpus_dir),
+            "--event-id",
+            ANALYSIS_EVENT_ID,
             "--question",
             OPERATIONAL_SITUATION_ANALYSIS_QUESTION,
             "--allow-live-model",
         ],
     )
 
-    assert result.exit_code != 0
+    assert result.exit_code == 0, result.output
+    assert "status: ok" in result.output
+    assert "model_calls: 1" in result.output
     artifact_line = next(
         line
         for line in result.output.splitlines()
         if line.startswith("analysis_artifact_dir: ")
     )
-    assert Path(artifact_line.removeprefix("analysis_artifact_dir: ")).is_dir()
-    assert result.output.index("analysis_artifact_dir: ") < result.output.index(
-        "BLOCKED:"
+    assert Path(artifact_line.removeprefix("analysis_artifact_dir: ")).parent == (
+        corpus_dir / "analysis"
     )
 
 
-def test_cli_preserves_domain_isolation_when_one_authority_file_is_missing(
-    tmp_path,
+def test_zero_model_registered_analyses_still_use_corpus_bound_plans(
+    tmp_path: Path,
     monkeypatch,
-):
-    captured = {}
-    tool_factory_calls = []
-    authority_load_calls = []
-    advisory = SourceRecord(
-        source_id=SOURCE_ID,
-        family=SourceFamily.ATCSCC_ADVISORY,
-        content="SIGNATURE:\n26/05/19 21:38\n",
-    )
-    weather = SourceRecord(
-        source_id="weather-source:metar:KJFK:test",
-        family=SourceFamily.METAR,
-        content='{"icaoId":"KJFK","rawOb":"METAR KJFK","reportTime":"2026-05-19T21:30:00Z"}',
-    )
-    bts = SourceRecord(
-        source_id="bts_on_time:2026-05:nyc",
-        family=SourceFamily.BTS_ON_TIME,
-        content="{}\n",
-    )
-    term_candidate = object()
-    authority_catalog = _authority_catalog(
-        facility_status=AuthorityBuildStatus.BLOCKED,
-        registry_terms=(term_candidate,),
-    )
-    monkeypatch.setattr(cli_module, "load_advisory_source", lambda config, source_id: advisory)
-    monkeypatch.setattr(
-        cli_module,
-        "facility_candidates",
-        lambda config: (_ for _ in ()).throw(
-            AssertionError("legacy facility loader must not run")
-        ),
-        raising=False,
-    )
-    monkeypatch.setattr(
-        cli_module,
-        "term_candidates",
-        lambda config: (_ for _ in ()).throw(
-            AssertionError("legacy terminology loader must not run")
-        ),
-        raising=False,
-    )
-    monkeypatch.setattr(cli_module, "load_weather_sources", lambda config: [weather])
-    monkeypatch.setattr(
-        cli_module,
-        "load_bts_context_source",
-        lambda config: (
-            bts,
-            [],
-            BTSManifestBinding(
-                source_id=bts.source_id,
-                archive_sha256="a" * 64,
-                normalized_snapshot_sha256="b" * 64,
-            ),
-        ),
-    )
-    monkeypatch.setattr(
-        cli_module,
-        "create_run_binding",
-        lambda root, source_id: _run_binding(tmp_path),
-    )
-    monkeypatch.setattr(
-        cli_module,
-        "load_authority_catalog",
-        lambda *args, **kwargs: authority_load_calls.append((args, kwargs))
-        or authority_catalog,
-        raising=False,
-    )
+) -> None:
+    """Episode and applicability gates must not fall through as unregistered."""
+
+    corpus_dir = _analysis_corpus(tmp_path)
+
+    def forbidden_factory(*args, **kwargs):
+        raise AssertionError("preflight-only analysis constructed a model")
+
     monkeypatch.setattr(
         cli_module,
         "make_live_tool_calling_model",
-        lambda **kwargs: tool_factory_calls.append(kwargs) or object(),
+        forbidden_factory,
     )
-
-    def fake_run(ctx):
-        captured["ctx"] = ctx
-        return {
-            "model_calls": [],
-            "materialization": None,
-            "validation": None,
-            "assembly_graph_patch": None,
-            "context_artifacts": {},
-            "formal_layers": {
-                "decision": {
-                    "status": "ok",
-                    "profile_id": "decision-profile",
-                    "profile_checksum": "d" * 64,
-                    "formal_fact_count": 4,
-                }
-            },
-            "public_observation_publication": {
-                "status": "insufficient",
-            },
-        }
-
-    monkeypatch.setattr(cli_module, "run_ingest", fake_run)
-    result = CliRunner().invoke(
-        cli_module.agent_system,
-        [
-            "ingest",
-            "--source-id",
-            SOURCE_ID,
-            "--config",
-            "configs/cross_source_v1.yaml",
-            "--allow-live-model",
-        ],
+    expected = (
+        (EPISODE_ANALYSIS_QUESTION, "status: ok", "tool_calls: 1"),
+        (
+            APPLICABILITY_ANALYSIS_QUESTION,
+            "status: insufficient",
+            "tool_calls: 2",
+        ),
     )
-
-    assert result.exit_code == 0, result.output
-    assert captured["ctx"].weather_sources == [weather]
-    assert captured["ctx"].bts_source == bts
-    assert captured["ctx"].bts_manifest_binding is not None
-    assert captured["ctx"].weather_failure_reason == ""
-    assert captured["ctx"].bts_failure_reason == ""
-    assert captured["ctx"].authority_catalog is authority_catalog
-    assert captured["ctx"].facility_candidates == []
-    assert captured["ctx"].term_candidates == [term_candidate]
-    assert captured["ctx"].authority_catalog.facility.status is AuthorityBuildStatus.BLOCKED
-    assert captured["ctx"].authority_catalog.terminology.status is AuthorityBuildStatus.OK
-    assert callable(captured["ctx"].semantic_resolution_tool_model_factory)
-    assert callable(captured["ctx"].case_assembly_model_factory)
-    assert tool_factory_calls == []
-    captured["ctx"].semantic_resolution_tool_model_factory([])
-    captured["ctx"].case_assembly_model_factory([])
-    assert [call["role"] for call in tool_factory_calls] == [
-        "semantic_resolution",
-        "decision_case_assembly",
-    ]
-    assert len(authority_load_calls) == 1
-    assert authority_load_calls[0][1]["created_at"] == RUN_STARTED_AT
-    assert captured["ctx"].run_started_at == RUN_STARTED_AT
-    manifest = json.loads((tmp_path / "run_manifest.json").read_text())
-    assert manifest["created_at"] == RUN_STARTED_AT.isoformat()
-    assert manifest["formal_layers"]["decision"]["formal_fact_count"] == 4
-    assert manifest["public_observation_publication"] == {
-        "status": "insufficient"
-    }
-
-
-def test_ingest_records_optional_loader_failures_for_the_context_layer(
-    tmp_path,
-    monkeypatch,
-):
-    captured = {}
-    advisory = SourceRecord(
-        source_id=SOURCE_ID,
-        family=SourceFamily.ATCSCC_ADVISORY,
-        content="SIGNATURE:\n26/05/19 21:38\n",
-    )
-    monkeypatch.setattr(cli_module, "load_advisory_source", lambda config, source_id: advisory)
-    monkeypatch.setattr(
-        cli_module,
-        "load_weather_sources",
-        lambda config: (_ for _ in ()).throw(ValueError("weather checksum mismatch")),
-    )
-    monkeypatch.setattr(
-        cli_module,
-        "load_bts_context_source",
-        lambda config: (_ for _ in ()).throw(ValueError("BTS checksum mismatch")),
-    )
-    monkeypatch.setattr(
-        cli_module,
-        "create_run_binding",
-        lambda root, source_id: _run_binding(tmp_path),
-    )
-    monkeypatch.setattr(
-        cli_module,
-        "make_live_tool_calling_model",
-        lambda **kwargs: object(),
-    )
-
-    def fake_run(ctx):
-        captured["ctx"] = ctx
-        return {
-            "model_calls": [],
-            "materialization": None,
-            "validation": None,
-            "assembly_graph_patch": None,
-            "context_artifacts": {},
-        }
-
-    monkeypatch.setattr(cli_module, "run_ingest", fake_run)
-    result = CliRunner().invoke(
-        cli_module.agent_system,
-        [
-            "ingest",
-            "--source-id",
-            SOURCE_ID,
-            "--config",
-            "configs/cross_source_v1.yaml",
-            "--allow-live-model",
-        ],
-    )
-
-    assert result.exit_code == 0, result.output
-    assert captured["ctx"].weather_sources == []
-    assert captured["ctx"].bts_source is None
-    assert captured["ctx"].weather_failure_reason == "weather checksum mismatch"
-    assert captured["ctx"].bts_failure_reason == "BTS checksum mismatch"
-
-
-def test_ingest_provider_limit_counts_failed_attempts(tmp_path, monkeypatch):
-    advisory = SourceRecord(
-        source_id=SOURCE_ID,
-        family=SourceFamily.ATCSCC_ADVISORY,
-        content="SIGNATURE:\n26/05/19 21:38\n",
-    )
-    failed_attempts = [
-        ModelCallRecord(
-            agent="semantic_resolution",
-            raw_response="",
-            attempt=attempt,
-            error="TimeoutError: upstream unavailable",
-        )
-        for attempt in (1, 2)
-    ]
-    monkeypatch.setattr(cli_module, "MAX_PROVIDER_CALLS", 1)
-    monkeypatch.setattr(
-        cli_module,
-        "load_advisory_source",
-        lambda config, source_id: advisory,
-    )
-    monkeypatch.setattr(cli_module, "load_weather_sources", lambda config: [])
-    monkeypatch.setattr(
-        cli_module,
-        "load_bts_context_source",
-        lambda config: (None, [], None),
-    )
-    monkeypatch.setattr(
-        cli_module,
-        "create_run_binding",
-        lambda root, source_id: _run_binding(tmp_path),
-    )
-    monkeypatch.setattr(
-        cli_module,
-        "load_authority_catalog",
-        lambda *args, **kwargs: _authority_catalog(),
-    )
-    monkeypatch.setattr(
-        cli_module,
-        "run_ingest",
-        lambda ctx: {
-            "model_calls": failed_attempts,
-            "materialization": None,
-            "validation": None,
-            "assembly_graph_patch": None,
-            "context_artifacts": {},
-        },
-    )
-
-    result = CliRunner().invoke(
-        cli_module.agent_system,
-        [
-            "ingest",
-            "--source-id",
-            SOURCE_ID,
-            "--config",
-            "configs/cross_source_v1.yaml",
-            "--allow-live-model",
-        ],
-    )
-
-    assert result.exit_code != 0
-    assert "provider calls exceeded hard maximum 1" in result.output
-    assert not (tmp_path / "run_manifest.json").exists()
-
-
-def test_ingest_treats_missing_legacy_weather_config_as_an_optional_layer_failure(
-    tmp_path,
-    monkeypatch,
-):
-    captured = {}
-    advisory = SourceRecord(
-        source_id=SOURCE_ID,
-        family=SourceFamily.ATCSCC_ADVISORY,
-        content="SIGNATURE:\n26/05/19 21:38\n",
-    )
-    legacy_config = {
-        "sources": {
-            "atcscc_advisories": "data/sources/atcscc_advisories.jsonl",
-        },
-        "paths": {"agent_system_runs_root": str(tmp_path)},
-    }
-    config_path = tmp_path / "legacy.yaml"
-    config_path.write_text("{}\n", encoding="utf-8")
-    monkeypatch.setattr(cli_module, "load_yaml", lambda path: legacy_config)
-    monkeypatch.setattr(cli_module, "load_advisory_source", lambda config, source_id: advisory)
-    monkeypatch.setattr(
-        cli_module,
-        "load_bts_context_source",
-        lambda config: (_ for _ in ()).throw(ValueError("BTS unavailable")),
-    )
-    monkeypatch.setattr(
-        cli_module,
-        "create_run_binding",
-        lambda root, source_id: _run_binding(tmp_path),
-    )
-    monkeypatch.setattr(
-        cli_module,
-        "make_live_tool_calling_model",
-        lambda **kwargs: object(),
-    )
-
-    def fake_run(ctx):
-        captured["ctx"] = ctx
-        return {
-            "model_calls": [],
-            "materialization": None,
-            "validation": None,
-            "assembly_graph_patch": None,
-            "context_artifacts": {},
-        }
-
-    monkeypatch.setattr(cli_module, "run_ingest", fake_run)
-    result = CliRunner().invoke(
-        cli_module.agent_system,
-        [
-            "ingest",
-            "--source-id",
-            SOURCE_ID,
-            "--config",
-            str(config_path),
-            "--allow-live-model",
-        ],
-    )
-
-    assert result.exit_code == 0, result.output
-    assert captured["ctx"].weather_sources == []
-    assert (
-        captured["ctx"].weather_failure_reason
-        == "optional weather source paths are not configured: metar, taf"
-    )
-
-
-def test_build_corpus_routes_run_directories_to_the_corpus_builder(
-    tmp_path,
-    monkeypatch,
-):
-    runs_root = tmp_path / "runs"
-    output_dir = tmp_path / "corpus"
-    first = runs_root / "run-a"
-    second = runs_root / "run-b"
-    first.mkdir(parents=True)
-    second.mkdir(parents=True)
-    (first / "run_manifest.json").write_text("{}\n", encoding="utf-8")
-    (second / "run_manifest.json").write_text("{}\n", encoding="utf-8")
-    captured = {}
-
-    def fake_build_corpus(*, run_dirs, output_dir):
-        captured["run_dirs"] = tuple(run_dirs)
-        captured["output_dir"] = output_dir
-        return SimpleNamespace(
-            corpus_id="corpus:test",
-            case_count=2,
-            fact_count=7,
-            source_object_count=3,
-            manifest_path=str(output_dir / "corpus_manifest.json"),
+    for question, status, tool_calls in expected:
+        result = CliRunner().invoke(
+            cli_module.agent_system,
+            [
+                "ask",
+                "--corpus-dir",
+                str(corpus_dir),
+                "--event-id",
+                ANALYSIS_EVENT_ID,
+                "--question",
+                question,
+                "--allow-live-model",
+            ],
         )
 
+        assert result.exit_code == 0, result.output
+        assert status in result.output
+        assert tool_calls in result.output
+        assert "model_calls: 0" in result.output
+        assert "analysis_artifact_dir: " in result.output
+
+
+def test_similarity_remains_an_explicit_zero_model_s3_gate(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """Storage alone must not activate ranking or a provider."""
+
+    corpus_dir = _minimal_corpus(tmp_path)
+
+    def forbidden_factory(*args, **kwargs):
+        raise AssertionError("similarity gate constructed a model")
+
     monkeypatch.setattr(
         cli_module,
-        "build_corpus",
-        fake_build_corpus,
-        raising=False,
+        "make_live_tool_calling_model",
+        forbidden_factory,
     )
     result = CliRunner().invoke(
         cli_module.agent_system,
         [
-            "build-corpus",
-            "--runs-root",
-            str(runs_root),
-            "--output-dir",
-            str(output_dir),
+            "ask",
+            "--corpus-dir",
+            str(corpus_dir),
+            "--question",
+            HISTORICAL_SIMILARITY_ANALYSIS_QUESTION,
+            "--allow-live-model",
         ],
     )
 
     assert result.exit_code == 0, result.output
-    assert captured == {
-        "run_dirs": (first, second),
-        "output_dir": output_dir,
-    }
-    assert "cases: 2" in result.output
-    assert "facts: 7" in result.output
-    assert "source_objects: 3" in result.output
+    assert "status: insufficient" in result.output
+    assert "S3" in result.output
+    assert "comparison cohort and ranking contract" in result.output
+    assert "model_calls: 0" in result.output
+
+
+def test_corpus_cli_preserves_all_three_declared_reason_states(
+    tmp_path: Path,
+) -> None:
+    """Weather and BTS context must never fill a missing advisory reason."""
+
+    ground_stop = tmp_path / "ground-stop"
+    gdp = tmp_path / "gdp"
+    cancellation = tmp_path / "cancellation"
+    _corpus_fixture._write_run(
+        ground_stop,
+        event_id="urn:event:ground-stop",
+        suffix="ground-stop",
+    )
+    _corpus_fixture._write_reason_profile_gap(
+        ground_stop,
+        event_id="urn:event:ground-stop",
+    )
+    _corpus_fixture._write_run(
+        gdp,
+        event_id="urn:event:gdp",
+        suffix="gdp",
+        event_type="atm:GroundDelayProgramTMI",
+        formal_reason="weather",
+    )
+    _corpus_fixture._write_run(
+        cancellation,
+        event_id="urn:event:cancellation",
+        suffix="cancellation",
+        event_type="atm:GroundDelayProgramTMI",
+    )
+    corpus_dir = tmp_path / "reason-corpus"
+    build_corpus([ground_stop, gdp, cancellation], corpus_dir)
+
+    outputs = {}
+    for name in ("ground-stop", "gdp", "cancellation"):
+        result = CliRunner().invoke(
+            cli_module.agent_system,
+            [
+                "ask",
+                "--corpus-dir",
+                str(corpus_dir),
+                "--event-id",
+                f"urn:event:{name}",
+                "--question",
+                DECLARED_REASON_QUESTION,
+            ],
+        )
+        assert result.exit_code == 0, result.output
+        outputs[name] = result.output
+
+    assert "profile-gap metadata" in outputs["ground-stop"]
+    assert "IMPACTING CONDITION: WEATHER / THUNDERSTORMS" in outputs["ground-stop"]
+    assert "status: ok" in outputs["gdp"]
+    assert "records weather" in outputs["gdp"]
+    assert "status: insufficient" in outputs["cancellation"]
+    assert "No declared reason" in outputs["cancellation"]
+    assert all("model_calls: 0" in output for output in outputs.values())
+
+
+def test_four_corpus_question_families_need_no_run_directory_or_model(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """All deterministic case families must read only the normalized corpus."""
+
+    corpus_dir = _analysis_corpus(tmp_path)
+
+    def forbidden_factory(*args, **kwargs):
+        raise AssertionError("deterministic corpus question constructed a model")
+
+    monkeypatch.setattr(
+        cli_module,
+        "make_live_tool_calling_model",
+        forbidden_factory,
+    )
+    for question in (
+        FORECAST_CONTEXT_QUESTION,
+        OBSERVED_WEATHER_CONTEXT_QUESTION,
+        PUBLIC_OUTCOME_QUESTION,
+        RECONSTRUCTED_CASE_QUESTION,
+    ):
+        result = CliRunner().invoke(
+            cli_module.agent_system,
+            [
+                "ask",
+                "--corpus-dir",
+                str(corpus_dir),
+                "--event-id",
+                ANALYSIS_EVENT_ID,
+                "--question",
+                question,
+            ],
+        )
+        assert result.exit_code == 0, result.output
+        assert "status: ok" in result.output, question
+        assert "model_calls: 0" in result.output

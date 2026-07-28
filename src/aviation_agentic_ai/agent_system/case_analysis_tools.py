@@ -107,6 +107,22 @@ def read_episode_timeline(
 ) -> BoundQueryObservation:
     """Return the record-level timeline without inferring a lifecycle episode."""
 
+    if hasattr(store, "corpus_store"):
+        return _formal_observation(
+            step=BoundQueryStep(
+                step_id=step_id,
+                operation="read_episode_timeline",
+                event_ids=(event_id,),
+                required=True,
+                allowed_evidence_layers=("formal",),
+            ),
+            store=store,
+            status="partial",
+            limitation=(
+                "the corpus records the selected decision record only; no "
+                "cross-record lifecycle episode is asserted"
+            ),
+        )
     read = QueryContextStore(
         store.run_dir,
         graph_store=store,
@@ -129,6 +145,87 @@ def read_operational_situation(
 ) -> BoundQueryObservation:
     """Return source-qualified current-run evidence without operational causation."""
 
+    corpus = getattr(store, "corpus_store", None)
+    if corpus is not None:
+        formal_rows = tuple(
+            row for row in store.rows if row["subject"] == event_id
+        )
+        associations = corpus.get_decision_context(event_id)
+        report_ids = {row.report_id for row in associations}
+        report_tokens = {
+            report_id.rsplit(":", 1)[-1] for report_id in report_ids
+        }
+        weather_rows = tuple(
+            row
+            for row in store.rows
+            if row["subject"] in report_ids
+            or row["subject"].rsplit(":", 1)[-1] in report_tokens
+        )
+        observations = corpus.get_outcome_observations(
+            event_id,
+            phases=("active",),
+        )
+        if (
+            not formal_rows
+            or not associations
+            or not weather_rows
+            or not observations
+        ):
+            return BoundQueryObservation(
+                step_id=step_id,
+                status="insufficient",
+                limitation=(
+                    "missing evidence layer: complete corpus operational "
+                    "situation"
+                ),
+            )
+        fact_ids = tuple(
+            dict.fromkeys(
+                [
+                    *(str(row["fact_id"]) for row in formal_rows),
+                    *(str(row["fact_id"]) for row in weather_rows),
+                    *(
+                        fact_id
+                        for observation in observations
+                        for fact_id in observation.fact_ids
+                    ),
+                ]
+            )
+        )
+        source_ids = tuple(
+            sorted(
+                {
+                    *(source for row in formal_rows for source in row["source_ids"]),
+                    *(source for row in weather_rows for source in row["source_ids"]),
+                    *(row.source_id for row in associations),
+                    *(row.source_id for row in observations),
+                }
+            )
+        )
+        return BoundQueryObservation(
+            step_id=step_id,
+            status="ok",
+            fact_ids=fact_ids,
+            source_ids=source_ids,
+            items=tuple(_formal_item(row) for row in formal_rows)
+            + tuple(
+                {
+                    "evidence_role": "non_causal_weather_context",
+                    "causal_claim": False,
+                    **_item_for_fact(row),
+                }
+                for row in weather_rows
+            )
+            + tuple(
+                {
+                    "evidence_role": "bts_reported_public_observation",
+                    "causal_claim": False,
+                    **observation.model_dump(mode="json"),
+                    "source_ids": (observation.source_id,),
+                }
+                for observation in observations
+            ),
+        )
     try:
         read = QueryContextStore(
             store.run_dir,

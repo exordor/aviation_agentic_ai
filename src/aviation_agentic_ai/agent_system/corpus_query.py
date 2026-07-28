@@ -3,12 +3,22 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
+from aviation_agentic_ai.agent_system.case_analysis import (
+    run_case_analysis_agent,
+    write_case_analysis_artifacts,
+)
+from aviation_agentic_ai.agent_system.case_analysis_tools import BoundQueryGateway
 from aviation_agentic_ai.agent_system.contracts import (
     QueryToolOutcome,
     QueryToolTrace,
+    SourceFamily,
+    SourceSnapshot,
+    SourceSnapshotRegistry,
     ValidatedFact,
 )
 from aviation_agentic_ai.agent_system.corpus_store import (
@@ -27,6 +37,18 @@ from aviation_agentic_ai.agent_system.query_tool_graph import (
     PROVENANCE_QUESTION,
     RECONSTRUCTED_CASE_QUESTION,
     REGISTERED_COMPETENCY_QUESTION,
+    classify_registered_question,
+)
+from aviation_agentic_ai.agent_system.query_plan import (
+    AnalysisIntent,
+    compile_query_plan,
+)
+from aviation_agentic_ai.agent_system.decision_case_contracts import (
+    ContractExecutionBinding,
+)
+from aviation_agentic_ai.agent_system.prompts import (
+    DEFAULT_PROMPT_CATALOG,
+    get_prompt_catalog,
 )
 
 
@@ -34,6 +56,7 @@ CORPUS_CATALOG_QUESTION = "Which decision cases are recorded in this corpus?"
 
 _RDF_TYPE_IRI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 _ReasonStatus = Literal["formal", "profile_gap", "missing"]
+_ModelFactory = Callable[[list[Any]], Any]
 
 
 def _normalize_question(question: str) -> str:
@@ -73,6 +96,73 @@ def _facts_by_predicate(
         )
         rows.setdefault(key, []).append(fact)
     return rows
+
+
+def _query_iri(iri: str) -> str:
+    namespaces = {
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#": "rdf:",
+        "https://data.nasa.gov/ontologies/atmonto/ATM#": "atm:",
+        "https://data.nasa.gov/ontologies/atmonto/NAS#": "nas:",
+        "https://data.nasa.gov/ontologies/atmonto/data#": "data:",
+    }
+    for namespace, prefix in namespaces.items():
+        if iri.startswith(namespace):
+            return f"{prefix}{iri[len(namespace):]}"
+    return iri
+
+
+class CorpusAnalysisStoreAdapter:
+    """In-memory QueryGraphStore view backed only by verified corpus artifacts."""
+
+    def __init__(self, store: CorpusQueryStore, *, event_id: str) -> None:
+        case = store.get_case(event_id)
+        if case is None:
+            raise ValueError("event is outside the current corpus")
+        self.corpus_store = store
+        self.run_dir = store.root
+        self.manifest = {"run_id": store.manifest.corpus_id}
+        self.event_ids = [event_id]
+        self.rows = [
+            {
+                "fact_id": fact.fact_id,
+                "subject": fact.subject_iri,
+                "predicate": _query_iri(fact.predicate_iri),
+                "object": fact.object_value,
+                "source_ids": list(fact.source_ids),
+            }
+            for fact in store.get_event_facts(event_id)
+        ]
+        bindings_by_source: dict[str, Any] = {}
+        for binding in sorted(
+            (
+                row
+                for row in store.source_bindings
+                if row.case_id == case.case_id
+            ),
+            key=lambda row: (row.source_id, row.object_key),
+        ):
+            if binding.source_id in bindings_by_source:
+                raise ValueError(
+                    "corpus case has multiple source artifact versions for "
+                    f"logical source: {binding.source_id}"
+                )
+            bindings_by_source[binding.source_id] = binding
+        snapshots = []
+        for source_id, binding in sorted(bindings_by_source.items()):
+            object_path = store.root / "source_objects" / f"{binding.object_key}.txt"
+            snapshots.append(
+                SourceSnapshot(
+                    source_id=source_id,
+                    family=SourceFamily(binding.source_family),
+                    source_url=binding.source_url,
+                    content=object_path.read_text(encoding="utf-8"),
+                    content_sha256=binding.content_sha256,
+                    snapshot_timestamp=min(binding.snapshot_timestamps),
+                )
+            )
+        self.source_snapshots = SourceSnapshotRegistry(
+            snapshots=tuple(snapshots)
+        )
 
 
 def _trace(
@@ -487,6 +577,103 @@ def _context_outcome(
     )
 
 
+def _analysis_outcome(
+    *,
+    store: CorpusQueryStore,
+    question: str,
+    event_id: str | None,
+    intent: AnalysisIntent,
+    allow_live_model: bool,
+    model_factory: _ModelFactory | None,
+) -> QueryToolOutcome:
+    """Run retained analysis over a corpus-backed in-memory graph view."""
+
+    if intent is AnalysisIntent.HISTORICAL_SIMILARITY:
+        return QueryToolOutcome(
+            status="insufficient",
+            answer=(
+                "S3 limitation: historical similarity requires an approved "
+                "comparison cohort and ranking contract."
+            ),
+        )
+    if not allow_live_model:
+        return QueryToolOutcome(
+            status="blocked",
+            failure_reason=(
+                "registered Decision Case Analysis requires --allow-live-model"
+            ),
+        )
+    if model_factory is None:
+        return QueryToolOutcome(
+            status="blocked",
+            failure_reason="authorized analysis has no model factory",
+        )
+    selected_event_id = event_id
+    if selected_event_id is None:
+        if len(store.event_ids) != 1:
+            return QueryToolOutcome(
+                status="insufficient",
+                answer="Insufficient graph evidence.",
+                failure_reason=(
+                    "non-similarity analysis requires an explicit event_id "
+                    "for a multi-event corpus"
+                ),
+            )
+        selected_event_id = store.event_ids[0]
+    try:
+        adapter = CorpusAnalysisStoreAdapter(
+            store,
+            event_id=selected_event_id,
+        )
+    except ValueError as exc:
+        return QueryToolOutcome(
+            status="insufficient",
+            answer="Insufficient graph evidence.",
+            failure_reason=str(exc),
+        )
+    try:
+        plan = compile_query_plan(
+            run_dir=adapter.run_dir,
+            question=question,
+            event_id=selected_event_id,
+            store=adapter,  # type: ignore[arg-type]
+        )
+    except ValueError as exc:
+        return QueryToolOutcome(
+            status="insufficient",
+            answer="Insufficient graph evidence.",
+            failure_reason=str(exc),
+        )
+    role = get_prompt_catalog(DEFAULT_PROMPT_CATALOG).role(
+        "decision_case_analysis"
+    )
+    binding = ContractExecutionBinding(
+        run_id=str(adapter.manifest["run_id"]),
+        created_at=datetime.now(UTC),
+        prompt_version=role.prompt_version,
+    )
+    gateway = BoundQueryGateway(
+        plan=plan,
+        store=adapter,  # type: ignore[arg-type]
+    )
+    task, bundle, outcome = run_case_analysis_agent(
+        plan=plan,
+        gateway=gateway,
+        model_factory=model_factory,
+        binding=binding,
+    )
+    artifact_dir = write_case_analysis_artifacts(
+        run_dir=adapter.run_dir,
+        task=task,
+        bundle=bundle,
+        outcome=outcome,
+        query_store=adapter,
+    )
+    return outcome.model_copy(
+        update={"analysis_artifact_dir": str(artifact_dir)}
+    )
+
+
 def answer_corpus_question(
     *,
     corpus_dir: str | Path,
@@ -498,6 +685,8 @@ def answer_corpus_question(
     reason_value: str | None = None,
     offset: int = 0,
     limit: int = 20,
+    allow_live_model: bool = False,
+    model_factory: _ModelFactory | None = None,
 ) -> QueryToolOutcome:
     """Answer one registered corpus question without constructing a model."""
 
@@ -510,6 +699,16 @@ def answer_corpus_question(
             failure_reason=str(exc),
         )
     normalized = _normalize_question(question)
+    intent = classify_registered_question(question)
+    if isinstance(intent, AnalysisIntent):
+        return _analysis_outcome(
+            store=store,
+            question=question,
+            event_id=event_id,
+            intent=intent,
+            allow_live_model=allow_live_model,
+            model_factory=model_factory,
+        )
     if normalized == _normalize_question(CORPUS_CATALOG_QUESTION):
         return _catalog_outcome(
             store=store,

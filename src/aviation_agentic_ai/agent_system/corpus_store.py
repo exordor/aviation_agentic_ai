@@ -255,6 +255,10 @@ class CorpusQueryStore:
             CorpusCaseFact.model_validate(row)
             for row in artifact_rows["case_facts"]
         )
+        self.source_bindings = tuple(
+            CorpusSourceBinding.model_validate(row)
+            for row in artifact_rows["source_bindings"]
+        )
         self.evidence_links = tuple(
             EvidenceLink.model_validate(row)
             for row in artifact_rows["evidence_links"]
