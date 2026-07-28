@@ -297,6 +297,33 @@ def test_rdf_provenance_exists(guide, snapshot, tmp_path):
     assert set(g.objects(None, PROV.wasDerivedFrom)) == {stable_source}
 
 
+def test_rdf_reifies_each_fact_at_its_deterministic_statement_iri(
+    guide,
+    snapshot,
+    tmp_path,
+):
+    """A random reification node would break reproducible corpus RDF."""
+
+    mat = _materialize_current(
+        facts=_fixed_facts(), output_dir=tmp_path,
+    )
+    g = rdflib.Graph()
+    g.parse(mat.ttl_path, format="turtle")
+
+    statement = rdflib.URIRef("urn:aviation-agentic-ai:fact:f3")
+    event = rdflib.URIRef("urn:aviation-agentic-ai:event:abc123")
+    advisory_number = rdflib.Literal("123", datatype=rdflib.URIRef(XSD_INT))
+    source = rdflib.URIRef("urn:aviation-agentic-ai:source:2026-05-19:123")
+
+    assert not any(isinstance(node, rdflib.BNode) for node in g.all_nodes())
+    assert (statement, RDF.type, RDF.Statement) in g
+    assert (statement, RDF.subject, event) in g
+    assert (statement, RDF.predicate, rdflib.URIRef(ADVNUM_IRI)) in g
+    assert (statement, RDF.object, advisory_number) in g
+    assert (statement, PROV.wasDerivedFrom, source) in g
+    assert (statement, rdflib.RDFS.comment, rdflib.Literal("ATCSCC ADVZY 123")) in g
+
+
 def test_rdf_has_zero_example_namespace_atmonto_terms(guide, snapshot, tmp_path):
     mat = _materialize_current(
         facts=_fixed_facts(), output_dir=tmp_path,

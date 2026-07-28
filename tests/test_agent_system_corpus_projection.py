@@ -6,6 +6,8 @@ import importlib.util
 import json
 from pathlib import Path
 
+import rdflib
+
 from aviation_agentic_ai.agent_system.corpus_store import build_corpus
 
 
@@ -45,3 +47,39 @@ def test_corpus_projection_contains_formal_facts_but_not_context_associations(
     assert not projected_facts.intersection(association_ids)
     assert manifest.artifacts["neo4j_nodes"].count > 0
     assert manifest.artifacts["neo4j_relationships"].count > 0
+
+
+def test_corpus_rdf_projection_is_byte_stable_across_repeated_builds(
+    tmp_path: Path,
+) -> None:
+    """A corpus rebuild must not assign fresh RDF identifiers to the same facts."""
+
+    run_dir = tmp_path / "run"
+    _fixture._fixture_module._write_context_layer(run_dir)
+    first = tmp_path / "first"
+    second = tmp_path / "second"
+
+    build_corpus([run_dir], first)
+    build_corpus([run_dir], second)
+
+    first_ttl = (first / "kg.ttl").read_bytes()
+    assert first_ttl == (second / "kg.ttl").read_bytes()
+    graph = rdflib.Graph().parse(data=first_ttl, format="turtle")
+    assert len(graph) > 0
+
+
+def test_corpus_rdf_projection_never_uses_blank_node_canonicalization(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """Corpus projection remains usable when rdflib's quadratic canonicalizer is unavailable."""
+
+    def fail_if_called(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("blank-node canonicalization must not be used")
+
+    monkeypatch.setattr("rdflib.compare.to_canonical_graph", fail_if_called)
+    run_dir = tmp_path / "run"
+    _fixture._fixture_module._write_context_layer(run_dir)
+
+    build_corpus([run_dir], tmp_path / "corpus")

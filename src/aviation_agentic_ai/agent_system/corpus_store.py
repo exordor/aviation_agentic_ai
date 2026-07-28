@@ -1109,14 +1109,12 @@ def _jsonl_count(path: Path) -> int:
 
 
 def _canonicalize_turtle(path: Path) -> None:
-    """Stabilize RDF blank-node identifiers for reproducible corpus artifacts."""
+    """Write a byte-stable N-Triples corpus projection at the RDF artifact path."""
 
     from rdflib import Graph
-    from rdflib.compare import to_canonical_graph
 
     graph = Graph().parse(path, format="turtle")
-    canonical = to_canonical_graph(graph)
-    rows = sorted(canonical.serialize(format="nt").splitlines())
+    rows = sorted(graph.serialize(format="nt").splitlines())
     path.write_text("\n".join(rows) + ("\n" if rows else ""), encoding="utf-8")
 
 

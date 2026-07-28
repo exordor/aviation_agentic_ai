@@ -514,7 +514,7 @@ def write_validated_facts_rdf(
     ttl_path = out / "kg.ttl"
 
     g = _build_rdflib_graph()
-    from rdflib import BNode, Literal, URIRef
+    from rdflib import Literal, URIRef
     from rdflib.namespace import RDF, RDFS, XSD
 
     del XSD  # datatype IRIs are taken from the ValidatedFact directly
@@ -550,7 +550,7 @@ def write_validated_facts_rdf(
         if fact.object_kind == "iri" and fact.object_class_iri:
             g.add((obj, RDF.type, URIRef(fact.object_class_iri)))
         # Reified statement connected to its source(s) (plan §6.1).
-        stmt = BNode()
+        stmt = URIRef(f"{_FACT_NAMESPACE}{fact.fact_id}")
         g.add((stmt, RDF.type, RDF.Statement))
         g.add((stmt, RDF.subject, subj))
         g.add((stmt, RDF.predicate, pred))
@@ -586,7 +586,7 @@ def write_validated_facts_rdf(
                     evidence_entity,
                 )
             )
-    del RDF, RDFS, BNode, Literal, URIRef
+    del RDF, RDFS, Literal, URIRef
 
     g.serialize(destination=str(ttl_path), format="turtle")
     return str(ttl_path)
