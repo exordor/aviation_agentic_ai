@@ -264,6 +264,8 @@ class IngestState(TypedDict):
     source_snapshot: Any
     decision_context_event: Any
     decision_context_prepared: bool
+    decision_case_reconstruction_seed: Any
+    decision_case_graph: Any
     prepared_source_snapshot: Any
     weather_context: Any
     outcome_context: Any

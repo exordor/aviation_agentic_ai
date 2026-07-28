@@ -14,12 +14,11 @@ from aviation_agentic_ai.agent_system.contracts import (
     BTSOnTimeRow,
     BTSOutcomeBundle,
     BTSOutcomeSummary,
+    DecisionCaseReconstructionSeed,
     DecisionContextEvent,
     ObservationDerivation,
     ObservationDerivationSeed,
     ObservationFactTrace,
-    ReconstructionTrace,
-    SourceBinding,
     SourceFamily,
     SourceSnapshot,
     SourceSnapshotRegistry,
@@ -30,7 +29,6 @@ from aviation_agentic_ai.agent_system.validation_profiles import (
     LoadedValidationProfile,
     ValidationProfileRegistry,
 )
-from aviation_agentic_ai.agent_system.weather_context import build_weather_context
 from aviation_agentic_ai.cross_source.contracts import CanonicalEntity, EntityType
 
 RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
@@ -452,6 +450,7 @@ def build_bts_observation_facts(
     outcome_bundle: BTSOutcomeBundle,
     snapshot_registry: SourceSnapshotRegistry,
     profile_registry: ValidationProfileRegistry,
+    reconstruction_seed: DecisionCaseReconstructionSeed,
 ) -> BTSObservationBundle:
     """Project an already aggregated, source-bound BTS bundle into formal facts."""
 
@@ -469,106 +468,39 @@ def build_bts_observation_facts(
             snapshot_registry,
             profile,
         )
-        advisory_snapshot = snapshot_registry.get(event.advisory_source_id)
-        if advisory_snapshot is None:
-            raise ValueError("event advisory source is not registered")
-        weather_member_ids: tuple[str, ...] = ()
-        weather_source_ids: tuple[str, ...] = ()
-        if any(
-            snapshot.family in {SourceFamily.METAR, SourceFamily.TAF}
-            for snapshot in snapshot_registry.snapshots
-        ):
-            weather = build_weather_context(
-                event,
-                canonical_facility,
-                snapshot_registry,
-            )
-            if weather.status == "blocked":
-                raise ValueError(weather.failure_reason or "weather selection blocked")
-            if weather.status == "ok":
-                weather_member_ids = tuple(
-                    sorted(
-                        f"urn:aviation-agentic-ai:{report_id}"
-                        for report_id in weather.selected_report_ids
-                    )
-                )
-                weather_source_ids = tuple(
-                    sorted({association.source_id for association in weather.associations})
-                )
-        selected_source_ids = {
-            event.advisory_source_id,
-            bts_snapshot.source_id,
-            *weather_source_ids,
-        }
-        source_bindings = tuple(
-            sorted(
-                (
-                    SourceBinding(
-                        source_id=source_id,
-                        source_family=snapshot_registry.get(source_id).family,
-                        snapshot_sha256=snapshot_registry.get(source_id).content_sha256,
-                    )
-                    for source_id in selected_source_ids
-                    if snapshot_registry.get(source_id) is not None
-                ),
-                key=lambda binding: binding.source_id,
-            )
-        )
-        profile_refs = tuple(
-            sorted(
-                profile_registry.refs,
-                key=lambda ref: (ref.layer, ref.profile_id, ref.profile_checksum),
-            )
-        )
         procedure = profile.aggregation_procedure
         assert procedure is not None
-        reconstruction_input = {
-            "aggregation_procedure_checksum": procedure.checksum,
-            "aggregation_procedure_id": procedure.procedure_id,
-            "event_id": event.event_id,
-            "facility_id": canonical_facility.entity_id,
-            "profile_refs": [ref.model_dump(mode="json") for ref in profile_refs],
-            "source_bindings": [
-                binding.model_dump(mode="json") for binding in source_bindings
-            ],
-            "outcome_bundle_sha256": _digest(
-                {
-                    "derivation_seeds": [
-                        seed.model_dump(mode="json")
-                        for seed in sorted(
-                            outcome_bundle.derivation_seeds,
-                            key=lambda item: item.derivation_id,
-                        )
-                    ],
-                    "summaries": [
-                        summary.model_dump(mode="json")
-                        for summary in sorted(
-                            outcome_bundle.summaries,
-                            key=lambda item: item.summary_id,
-                        )
-                    ],
-                }
+        if (
+            reconstruction_seed.aggregation_procedure_id
+            != procedure.procedure_id
+            or reconstruction_seed.aggregation_procedure_checksum
+            != procedure.checksum
+        ):
+            raise ValueError(
+                "reconstruction aggregation procedure does not match "
+                "public-observation profile"
+            )
+        if reconstruction_seed.conceptual_case_iri != _stable_iri(
+            "urn:aviation-agentic-ai:decision-case:",
+            event.event_id,
+        ):
+            raise ValueError("reconstruction seed does not belong to event")
+        binding = next(
+            (
+                item
+                for item in reconstruction_seed.source_bindings
+                if item.source_id == bts_snapshot.source_id
             ),
-            "summaries": [
-                {
-                    "summary_id": summary.summary_id,
-                    "summary_sha256": seed.summary_sha256,
-                }
-                for summary, seed in pairs
-            ],
-            "weather_report_ids": weather_member_ids,
-        }
-        reconstruction_input_sha = _digest(reconstruction_input)
-        conceptual_case = _stable_iri(
-            "urn:aviation-agentic-ai:decision-case:", event.event_id
+            None,
         )
-        reconstruction = (
-            "urn:aviation-agentic-ai:decision-case-reconstruction:"
-            + reconstruction_input_sha
-        )
-        reconstruction_trace_id = (
-            "reconstruction-trace:" + reconstruction_input_sha
-        )
+        if (
+            binding is None
+            or binding.source_family != SourceFamily.BTS_ON_TIME
+            or binding.snapshot_sha256 != bts_snapshot.content_sha256
+        ):
+            raise ValueError("BTS source is absent from reconstruction seed")
+        reconstruction = reconstruction_seed.reconstruction_iri
+        reconstruction_trace_id = reconstruction_seed.reconstruction_trace_id
 
         derivations: list[ObservationDerivation] = []
         activity_facts: list[ValidatedFact] = []
@@ -576,7 +508,7 @@ def build_bts_observation_facts(
         fact_traces: list[ObservationFactTrace] = []
         observation_ids: list[str] = []
         interval_ids: dict[str, str] = {}
-        case_facts = _profile_definition_facts(profile, metrics)
+        structural_facts = _profile_definition_facts(profile, metrics)
 
         for summary, seed in pairs:
             phase = summary.phase
@@ -599,7 +531,7 @@ def build_bts_observation_facts(
                 _canonical_datetime(summary.window_end),
             )
             membership_ref = reconstruction_trace_id
-            case_facts.extend(
+            structural_facts.extend(
                 [
                     _typed_fact(
                         interval,
@@ -924,124 +856,16 @@ def build_bts_observation_facts(
                 ]
             )
 
-        membership_ref = reconstruction_trace_id
-        case_facts.extend(
-            [
-                _typed_fact(
-                    conceptual_case,
-                    CASE + "DecisionCase",
-                    profile=profile,
-                    evidence_mode="system_membership",
-                    evidence_ref=membership_ref,
-                ),
-                _typed_fact(
-                    conceptual_case,
-                    PROV + "Entity",
-                    profile=profile,
-                    evidence_mode="system_membership",
-                    evidence_ref=membership_ref,
-                ),
-                _typed_fact(
-                    reconstruction,
-                    CASE + "DecisionCaseReconstruction",
-                    profile=profile,
-                    evidence_mode="system_membership",
-                    evidence_ref=membership_ref,
-                ),
-                _typed_fact(
-                    reconstruction,
-                    PROV + "Collection",
-                    profile=profile,
-                    evidence_mode="system_membership",
-                    evidence_ref=membership_ref,
-                ),
-                _fact(
-                    subject=reconstruction,
-                    subject_class=CASE + "DecisionCaseReconstruction",
-                    predicate=PROV + "specializationOf",
-                    object_kind="iri",
-                    object_value=conceptual_case,
-                    object_class=CASE + "DecisionCase",
-                    profile=profile,
-                    evidence_mode="system_membership",
-                    evidence_ref=membership_ref,
-                ),
-                _typed_fact(
-                    event.event_id,
-                    PROV + "Entity",
-                    profile=profile,
-                    evidence_mode="system_membership",
-                    evidence_ref=membership_ref,
-                    source_ids=(event.advisory_source_id,),
-                ),
-                _typed_fact(
-                    canonical_facility.entity_id,
-                    SOSA + "FeatureOfInterest",
-                    profile=profile,
-                    evidence_mode="system_membership",
-                    evidence_ref=membership_ref,
-                ),
-            ]
-        )
-        for weather_member in weather_member_ids:
-            case_facts.append(
-                _typed_fact(
-                    weather_member,
-                    PROV + "Entity",
-                    profile=profile,
-                    evidence_mode="system_membership",
-                    evidence_ref=membership_ref,
-                )
-            )
-        for binding in source_bindings:
-            case_facts.append(
-                _typed_fact(
-                    _source_iri(binding.source_id),
-                    PROV + "Entity",
-                    profile=profile,
-                    evidence_mode="system_membership",
-                    evidence_ref=membership_ref,
-                    source_ids=(binding.source_id,),
-                )
-            )
-        member_iris = tuple(
-            sorted({event.event_id, *weather_member_ids, *observation_ids})
-        )
-        for member in member_iris:
-            case_facts.append(
-                _fact(
-                    subject=reconstruction,
-                    subject_class=CASE + "DecisionCaseReconstruction",
-                    predicate=PROV + "hadMember",
-                    object_kind="iri",
-                    object_value=member,
-                    object_class=PROV + "Entity",
-                    profile=profile,
-                    evidence_mode="system_membership",
-                    evidence_ref=membership_ref,
-                )
-            )
-        reconstruction_trace = ReconstructionTrace(
-            reconstruction_trace_id=reconstruction_trace_id,
-            conceptual_case_iri=conceptual_case,
-            reconstruction_iri=reconstruction,
-            reconstruction_input_sha256=reconstruction_input_sha,
-            member_iris=member_iris,
-            profile_refs=profile_refs,
-            source_bindings=source_bindings,
-            aggregation_procedure_id=procedure.procedure_id,
-            aggregation_procedure_checksum=procedure.checksum,
-        )
         return BTSObservationBundle(
             status="ok",
-            case_facts=_dedupe_facts(case_facts),
-            activity_facts=_dedupe_facts(activity_facts),
-            observation_facts=_dedupe_facts(observation_facts),
+            formal_facts=_dedupe_facts(
+                [*structural_facts, *activity_facts, *observation_facts]
+            ),
+            observation_ids=tuple(sorted(set(observation_ids))),
             fact_traces=sorted(fact_traces, key=lambda trace: trace.fact_id),
             derivations=sorted(
                 derivations, key=lambda derivation: derivation.derivation_id
             ),
-            reconstruction_trace=reconstruction_trace,
         )
     except (AttributeError, KeyError, TypeError, ValueError) as exc:
         return BTSObservationBundle(status="blocked", failure_reason=str(exc))

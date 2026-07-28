@@ -113,7 +113,12 @@ class ValidationProfileRef(StrictModel):
 
     profile_id: str = Field(min_length=1)
     profile_checksum: str = Field(min_length=64, max_length=64)
-    layer: Literal["decision", "weather", "public_operational_observation"]
+    layer: Literal[
+        "decision",
+        "decision_case_core",
+        "weather",
+        "public_operational_observation",
+    ]
 
 
 # ---------------------------------------------------------------------------
@@ -643,32 +648,58 @@ class OutcomeSummaryRead(StrictModel):
     failure_reason: str | None = None
 
 
-class ReconstructionTrace(StrictModel):
-    """Exact immutable input binding for one decision-case reconstruction."""
+class DecisionCaseReconstructionSeed(StrictModel):
+    """Stable source and profile binding prepared before case membership."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    reconstruction_trace_id: str = Field(min_length=1)
     conceptual_case_iri: str = Field(min_length=1)
     reconstruction_iri: str = Field(min_length=1)
+    reconstruction_trace_id: str = Field(min_length=1)
     reconstruction_input_sha256: str = Field(min_length=64, max_length=64)
-    member_iris: tuple[str, ...]
     profile_refs: tuple[ValidationProfileRef, ...]
     source_bindings: tuple[SourceBinding, ...]
-    aggregation_procedure_id: str = Field(min_length=1)
-    aggregation_procedure_checksum: str = Field(min_length=1)
+    builder_id: str = Field(min_length=1)
+    builder_checksum: str = Field(min_length=64, max_length=64)
+    aggregation_procedure_id: str | None = None
+    aggregation_procedure_checksum: str | None = None
+
+
+class ReconstructionTrace(DecisionCaseReconstructionSeed):
+    """Exact immutable input and member binding for one reconstruction."""
+
+    member_iris: tuple[str, ...]
+
+
+class DecisionCaseMemberBinding(StrictModel):
+    """One accepted formal member and the sources that establish it."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    member_iri: str = Field(min_length=1)
+    member_kind: Literal["event", "weather_report", "public_observation"]
+    source_ids: tuple[str, ...]
+
+
+class DecisionCaseGraphBundle(StrictModel):
+    """Formal source-independent DecisionCase core graph."""
+
+    status: Literal["ok", "blocked"]
+    case_iri: str | None = None
+    reconstruction_iri: str | None = None
+    formal_facts: list[ValidatedFact] = Field(default_factory=list)
+    reconstruction_trace: ReconstructionTrace | None = None
+    failure_reason: str = ""
 
 
 class BTSObservationBundle(StrictModel):
     """Validated formal public-observation layer and its audit artifacts."""
 
     status: Literal["ok", "insufficient", "blocked"]
-    case_facts: list[ValidatedFact] = Field(default_factory=list)
-    activity_facts: list[ValidatedFact] = Field(default_factory=list)
-    observation_facts: list[ValidatedFact] = Field(default_factory=list)
+    formal_facts: list[ValidatedFact] = Field(default_factory=list)
+    observation_ids: tuple[str, ...] = ()
     fact_traces: list[ObservationFactTrace] = Field(default_factory=list)
     derivations: list[ObservationDerivation] = Field(default_factory=list)
-    reconstruction_trace: ReconstructionTrace | None = None
     failure_reason: str | None = None
 
 

@@ -381,6 +381,7 @@ class QueryGraphStore:
         raw_layers = manifest.get("formal_layers")
         required_layers = {
             "decision",
+            "decision_case_core",
             "weather",
             "public_operational_observation",
         }
@@ -531,9 +532,7 @@ class QueryGraphStore:
             manifest=manifest,
             key="reconstruction_trace",
             filename="reconstruction_trace.json",
-            expected_status=formal_layers[
-                "public_operational_observation"
-            ]["status"],
+            expected_status=formal_layers["decision_case_core"]["status"],
         )
         try:
             direct = read_fact_traces(decision_trace_path)
@@ -543,8 +542,7 @@ class QueryGraphStore:
             )
             reconstruction = (
                 read_reconstruction_trace(reconstruction_path)
-                if formal_layers["public_operational_observation"]["status"]
-                == "ok"
+                if formal_layers["decision_case_core"]["status"] == "ok"
                 else None
             )
         except ValueError as exc:

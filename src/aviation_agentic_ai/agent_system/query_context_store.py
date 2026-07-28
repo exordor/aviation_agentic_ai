@@ -1319,6 +1319,9 @@ class QueryContextStore:
             )
         if layer_status != "ok":
             raise QueryContextError("public observation layer status is invalid")
+        core_layer = layers.get("decision_case_core")
+        if not isinstance(core_layer, dict) or core_layer.get("status") != "ok":
+            raise QueryContextError("current run DecisionCase core layer is not ok")
 
         snapshots = self._snapshots()
         facility_id, _issued_at, start, end = self._event_bindings(
@@ -1373,11 +1376,31 @@ class QueryContextStore:
             "public_operational_observation",
         )
         profile_ref = profile.ref
+        core_profile_candidates = [
+            candidate
+            for candidate in registry.profiles
+            if candidate.ref.layer == "decision_case_core"
+        ]
+        if len(core_profile_candidates) != 1:
+            raise QueryContextError(
+                "exactly one DecisionCase core profile is required"
+            )
+        core_profile = registry.require_layer(
+            core_profile_candidates[0].ref,
+            "decision_case_core",
+        )
+        core_profile_ref = core_profile.ref
         if (
             layer.get("profile_id") != profile_ref.profile_id
             or layer.get("profile_checksum") != profile_ref.profile_checksum
         ):
             raise QueryContextError("public observation profile binding mismatch")
+        if (
+            core_layer.get("profile_id") != core_profile_ref.profile_id
+            or core_layer.get("profile_checksum")
+            != core_profile_ref.profile_checksum
+        ):
+            raise QueryContextError("DecisionCase core profile binding mismatch")
         publication = manifest.get("public_observation_publication")
         if not isinstance(publication, dict) or publication.get("status") != "ok":
             raise QueryContextError("public observation publication is not ok")
@@ -1398,6 +1421,10 @@ class QueryContextStore:
         if profile_ref not in reconstruction.profile_refs:
             raise QueryContextError(
                 "reconstruction omits the public observation profile"
+            )
+        if core_profile_ref not in reconstruction.profile_refs:
+            raise QueryContextError(
+                "reconstruction omits the DecisionCase core profile"
             )
 
         bts_snapshots = [
@@ -1426,13 +1453,6 @@ class QueryContextStore:
             or bts_binding.snapshot_sha256 != bts_snapshot.content_sha256
         ):
             raise QueryContextError("reconstruction BTS source binding mismatch")
-        if publication.get("source_bindings") != [
-            binding.model_dump(mode="json")
-            for binding in reconstruction.source_bindings
-        ]:
-            raise QueryContextError(
-                "publication and reconstruction source bindings differ"
-            )
 
         summary_by_id = self._validated_audit_summaries(
             summaries=summaries,
@@ -1472,9 +1492,27 @@ class QueryContextStore:
             for row in formal_rows
         ):
             raise QueryContextError("formal observation profile ownership mismatch")
+        core_rows = [
+            row
+            for row in self.graph_store.rows
+            if row.get("validation_layer") == "decision_case_core"
+        ]
+        expected_core_count = core_layer.get("formal_fact_count")
+        if (
+            not isinstance(expected_core_count, int)
+            or isinstance(expected_core_count, bool)
+            or expected_core_count != len(core_rows)
+        ):
+            raise QueryContextError("DecisionCase core formal fact count mismatch")
+        if any(
+            row.get("profile_id") != core_profile_ref.profile_id
+            or row.get("profile_checksum") != core_profile_ref.profile_checksum
+            for row in core_rows
+        ):
+            raise QueryContextError("DecisionCase core profile ownership mismatch")
         formal_members = {
             str(row["object"])
-            for row in formal_rows
+            for row in core_rows
             if row.get("subject") == reconstruction.reconstruction_iri
             and row.get("predicate") == "prov:hadMember"
         }
@@ -1586,7 +1624,6 @@ class QueryContextStore:
         for key, filename in (
             ("observation_derivations", "observation_derivations.jsonl"),
             ("observation_fact_trace", "observation_fact_trace.jsonl"),
-            ("reconstruction_trace", "reconstruction_trace.json"),
         ):
             artifact = self._artifact(key, filename)
             if artifact is None:

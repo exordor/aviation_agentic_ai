@@ -14,11 +14,13 @@ from aviation_agentic_ai.agent_system.contracts import (
     BTSManifestBinding,
     BTSOnTimeRow,
     BTSOutcomeSummary,
+    DecisionCaseMemberBinding,
     DecisionContextEvent,
     SourceFamily,
     SourceSnapshot,
     SourceSnapshotRegistry,
     WeatherContextAssociation,
+    WeatherContextBundle,
 )
 from aviation_agentic_ai.agent_system.bts_outcomes import (
     build_bts_outcome_summaries,
@@ -28,6 +30,10 @@ from aviation_agentic_ai.agent_system.materialize import (
 )
 from aviation_agentic_ai.agent_system.public_observations import (
     build_bts_observation_facts,
+)
+from aviation_agentic_ai.agent_system.decision_case_graph import (
+    build_decision_case_graph,
+    prepare_decision_case_reconstruction,
 )
 from aviation_agentic_ai.agent_system.query_context_store import QueryContextStore
 from aviation_agentic_ai.agent_system.query_tools import (
@@ -774,20 +780,48 @@ def _write_formal_observation_layer(run_dir: Path) -> tuple[list[str], list[str]
         aggregation_procedure=public_profile.aggregation_procedure,
     )
     assert outcome.status == "ok", outcome.failure_reason
+    reconstruction_seed = prepare_decision_case_reconstruction(
+        event,
+        facility,
+        WeatherContextBundle(
+            status="insufficient",
+            failure_reason="no Weather source was provided",
+        ),
+        outcome,
+        registry,
+        profile_registry,
+    )
     observations = build_bts_observation_facts(
         event,
         facility,
         outcome,
         registry,
         profile_registry,
+        reconstruction_seed,
     )
     assert observations.status == "ok"
-    assert observations.reconstruction_trace is not None
-    formal_facts = [
-        *observations.case_facts,
-        *observations.activity_facts,
-        *observations.observation_facts,
-    ]
+    core = build_decision_case_graph(
+        seed=reconstruction_seed,
+        members=(
+            DecisionCaseMemberBinding(
+                member_iri=event.event_id,
+                member_kind="event",
+                source_ids=(event.advisory_source_id,),
+            ),
+            *(
+                DecisionCaseMemberBinding(
+                    member_iri=observation_id,
+                    member_kind="public_observation",
+                    source_ids=(bts_snapshot.source_id,),
+                )
+                for observation_id in observations.observation_ids
+            ),
+        ),
+        profile_registry=profile_registry,
+    )
+    assert core.status == "ok", core.failure_reason
+    assert core.reconstruction_trace is not None
+    formal_facts = [*observations.formal_facts, *core.formal_facts]
     formal_dir = run_dir / "formal-observation-fixture"
     formal_path = write_validated_facts_jsonl(
         facts=formal_facts,
@@ -829,7 +863,7 @@ def _write_formal_observation_layer(run_dir: Path) -> tuple[list[str], list[str]
     reconstruction_metadata = _write_artifact(
         run_dir,
         "reconstruction_trace.json",
-        [observations.reconstruction_trace.model_dump_json()],
+        [core.reconstruction_trace.model_dump_json()],
     )
     manifest_path = run_dir / "run_manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -842,12 +876,22 @@ def _write_formal_observation_layer(run_dir: Path) -> tuple[list[str], list[str]
             "reconstruction_trace": reconstruction_metadata,
         }
     )
-    trace = observations.reconstruction_trace
+    core_profile = next(
+        profile
+        for profile in profile_registry.profiles
+        if profile.ref.layer == "decision_case_core"
+    )
+    manifest["formal_layers"]["decision_case_core"] = {
+        "status": "ok",
+        "profile_id": core_profile.ref.profile_id,
+        "profile_checksum": core_profile.ref.profile_checksum,
+        "formal_fact_count": len(core.formal_facts),
+    }
     manifest["formal_layers"]["public_operational_observation"] = {
             "status": "ok",
             "profile_id": public_profile.ref.profile_id,
             "profile_checksum": public_profile.ref.profile_checksum,
-            "formal_fact_count": len(formal_facts),
+            "formal_fact_count": len(observations.formal_facts),
     }
     manifest["public_observation_publication"] = {
         "status": "ok",
@@ -859,10 +903,6 @@ def _write_formal_observation_layer(run_dir: Path) -> tuple[list[str], list[str]
         ),
         "bts_source_id": bts_snapshot.source_id,
         "bts_source_snapshot_sha256": bts_snapshot.content_sha256,
-        "source_bindings": [
-            binding.model_dump(mode="json")
-            for binding in trace.source_bindings
-        ],
     }
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
     return (

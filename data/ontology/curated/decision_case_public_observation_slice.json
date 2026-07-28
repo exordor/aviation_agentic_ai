@@ -15,8 +15,6 @@
     "proc": "urn:aviation-agentic-ai:observation-procedure:"
   },
   "class_mappings": {
-    "case:DecisionCase": {"iri": "urn:aviation-agentic-ai:decision-case-schema:DecisionCase", "label": "Decision case"},
-    "case:DecisionCaseReconstruction": {"iri": "urn:aviation-agentic-ai:decision-case-schema:DecisionCaseReconstruction", "label": "Decision case reconstruction"},
     "case:ObservationPhase": {"iri": "urn:aviation-agentic-ai:decision-case-schema:ObservationPhase", "label": "Observation phase"},
     "sosa:Observation": {"iri": "http://www.w3.org/ns/sosa/Observation", "label": "Observation"},
     "sosa:Result": {"iri": "http://www.w3.org/ns/sosa/Result", "label": "Result"},
@@ -26,7 +24,6 @@
     "time:Interval": {"iri": "http://www.w3.org/2006/time#Interval", "label": "Time interval"},
     "time:Instant": {"iri": "http://www.w3.org/2006/time#Instant", "label": "Time instant"},
     "prov:Entity": {"iri": "http://www.w3.org/ns/prov#Entity", "label": "Entity"},
-    "prov:Collection": {"iri": "http://www.w3.org/ns/prov#Collection", "label": "Collection"},
     "prov:Activity": {"iri": "http://www.w3.org/ns/prov#Activity", "label": "Activity"},
     "prov:Plan": {"iri": "http://www.w3.org/ns/prov#Plan", "label": "Plan"},
     "qudt:QuantityValue": {"iri": "http://qudt.org/schema/qudt/QuantityValue", "label": "Quantity value"},
@@ -39,8 +36,6 @@
     "sosa:phenomenonTime": {"iri": "http://www.w3.org/ns/sosa/phenomenonTime", "kind": "object"},
     "sosa:hasResult": {"iri": "http://www.w3.org/ns/sosa/hasResult", "kind": "object"},
     "sosa:usedProcedure": {"iri": "http://www.w3.org/ns/sosa/usedProcedure", "kind": "object"},
-    "prov:specializationOf": {"iri": "http://www.w3.org/ns/prov#specializationOf", "kind": "object"},
-    "prov:hadMember": {"iri": "http://www.w3.org/ns/prov#hadMember", "kind": "object"},
     "prov:wasGeneratedBy": {"iri": "http://www.w3.org/ns/prov#wasGeneratedBy", "kind": "object"},
     "prov:wasDerivedFrom": {"iri": "http://www.w3.org/ns/prov#wasDerivedFrom", "kind": "object"},
     "prov:used": {"iri": "http://www.w3.org/ns/prov#used", "kind": "object"},

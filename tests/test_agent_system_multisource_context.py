@@ -839,6 +839,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
             layer: metadata["status"] for layer, metadata in result["formal_layers"].items()
         } == {
             "decision": "ok",
+            "decision_case_core": "ok",
             "weather": "ok",
             "public_operational_observation": "ok",
         }
@@ -847,7 +848,9 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         assert publication["bts_source_id"] == bts_source.source_id
         assert (
             publication["aggregation_procedure_checksum"]
-            == result["observation_context"].reconstruction_trace.aggregation_procedure_checksum
+            == result[
+                "decision_case_graph"
+            ].reconstruction_trace.aggregation_procedure_checksum
         )
     active = next(
         summary for summary in result["outcome_context"].summaries if summary.phase == "active"
@@ -983,16 +986,20 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         )
         blocked = integrate_decision_context(ctx, state)
         assert blocked["observation_context"].status == "blocked"
+        assert blocked["decision_case_graph"].status == "ok"
         assert blocked["materialization"].layer_fact_counts == {
             "decision": len(facts),
+            "decision_case_core": len(
+                blocked["decision_case_graph"].formal_facts
+            ),
             "weather": len(blocked["weather_context"].formal_facts),
         }
         for artifact_name in (
             "observation_derivations.jsonl",
             "observation_fact_trace.jsonl",
-            "reconstruction_trace.json",
         ):
             assert (tmp_path / artifact_name).read_bytes() == b""
+        assert (tmp_path / "reconstruction_trace.json").read_bytes()
 
         insufficient = integrate_decision_context(
             replace(
@@ -1004,8 +1011,12 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
             state,
         )
         assert insufficient["observation_context"].status == "insufficient"
+        assert insufficient["decision_case_graph"].status == "ok"
         assert insufficient["materialization"].layer_fact_counts == {
             "decision": len(facts),
+            "decision_case_core": len(
+                insufficient["decision_case_graph"].formal_facts
+            ),
             "weather": len(insufficient["weather_context"].formal_facts),
         }
 
@@ -1223,7 +1234,6 @@ def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_a
         source_snapshot=registry,
         output_dir=tmp_path,
     )
-    before = Path(core.jsonl_path).read_bytes()
     ctx = IngestContext(
         advisory=advisory,
         facility_candidates=[facility],
@@ -1252,7 +1262,13 @@ def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_a
 
     assert result["weather_context"].status == "blocked"
     assert result["outcome_context"].status == "blocked"
-    assert Path(core.jsonl_path).read_bytes() == before
+    assert result["decision_case_graph"].status == "ok"
+    assert result["materialization"].layer_fact_counts == {
+        "decision": len(facts),
+        "decision_case_core": len(
+            result["decision_case_graph"].formal_facts
+        ),
+    }
     for name in (
         "context_associations.jsonl",
         "outcome_summaries.jsonl",
@@ -1263,89 +1279,6 @@ def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_a
     assert result["context_artifacts"]["outcome_summaries"]["status"] == "blocked"
     assert result["context_artifacts"]["source_snapshots"]["status"] == "blocked"
     assert {snapshot.source_id for snapshot in result["source_snapshot"].snapshots} == {source_id}
-
-
-def test_reconstruction_rejects_an_extra_unvalidated_weather_member(
-    tmp_path,
-    config,
-    weather_sources,
-    bts_context,
-    monkeypatch,
-):
-    source_id = "2026-05-19:138"
-    advisory = load_advisory_source(config, source_id)
-    facility = FACILITIES["KJFK"]
-    event_id = "evt:extra-weather-member"
-    facts = _core_facts(
-        event_id=event_id,
-        event_class="GroundDelayProgramTMI",
-        facility=facility,
-        start="2026-05-19T22:05:00Z",
-        end="2026-05-20T02:59:00Z",
-        source_id=source_id,
-        reason="weather",
-    )
-    registry = build_source_snapshot_registry([advisory])
-    core = _materialize_core_current(
-        facts=facts,
-        source_snapshot=registry,
-        output_dir=tmp_path,
-    )
-    _write_core_fact_trace(tmp_path, facts, registry)
-    bts_source, bts_rows, bts_binding = bts_context
-    ctx = IngestContext(
-        advisory=advisory,
-        facility_candidates=[facility],
-        weather_sources=weather_sources,
-        bts_rows=bts_rows,
-        bts_source=bts_source,
-        bts_manifest_binding=bts_binding,
-        run_id="run:extra-weather-member",
-        output_dir=str(tmp_path),
-    )
-    original_builder = context_artifacts_module.build_bts_observation_facts
-
-    def build_with_extra_weather_member(*args, **kwargs):
-        bundle = original_builder(*args, **kwargs)
-        assert bundle.reconstruction_trace is not None
-        trace = bundle.reconstruction_trace.model_copy(
-            update={
-                "member_iris": tuple(
-                    sorted(
-                        {
-                            *bundle.reconstruction_trace.member_iris,
-                            ("urn:aviation-agentic-ai:weather-report:unvalidated-extra"),
-                        }
-                    )
-                )
-            }
-        )
-        return bundle.model_copy(update={"reconstruction_trace": trace})
-
-    monkeypatch.setattr(
-        context_artifacts_module,
-        "build_bts_observation_facts",
-        build_with_extra_weather_member,
-    )
-
-    result = integrate_decision_context(
-        ctx,
-        {
-            "event_uri": event_id,
-            "event_class": "atm:GroundDelayProgramTMI",
-            "facility_authority_result": _facility_authority_result(facility, source_id),
-            "validation": GraphValidationResult(accepted=facts, publishable=True),
-            "materialization": core,
-            "source_snapshot": registry,
-        },
-    )
-
-    assert result["observation_context"].status == "blocked"
-    assert "validated weather members" in (result["observation_context"].failure_reason or "")
-    assert result["materialization"].layer_fact_counts == {
-        "decision": len(facts),
-        "weather": len(result["weather_context"].formal_facts),
-    }
 
 
 def test_duplicate_weather_fact_fails_closed_at_the_optional_layer(

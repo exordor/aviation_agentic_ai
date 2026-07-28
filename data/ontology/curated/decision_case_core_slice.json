@@ -1,0 +1,44 @@
+{
+  "profile_id": "decision_case_core_slice_v1",
+  "source_catalog": "decision_case_graph_v1",
+  "namespace_prefixes": {
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "case": "urn:aviation-agentic-ai:decision-case-schema:"
+  },
+  "class_mappings": {
+    "case:DecisionCase": {
+      "iri": "urn:aviation-agentic-ai:decision-case-schema:DecisionCase",
+      "label": "Decision case"
+    },
+    "case:DecisionCaseReconstruction": {
+      "iri": "urn:aviation-agentic-ai:decision-case-schema:DecisionCaseReconstruction",
+      "label": "Decision case reconstruction"
+    },
+    "prov:Entity": {
+      "iri": "http://www.w3.org/ns/prov#Entity",
+      "label": "Entity"
+    },
+    "prov:Collection": {
+      "iri": "http://www.w3.org/ns/prov#Collection",
+      "label": "Collection"
+    }
+  },
+  "property_mappings": {
+    "prov:specializationOf": {
+      "iri": "http://www.w3.org/ns/prov#specializationOf",
+      "kind": "object"
+    },
+    "prov:hadMember": {
+      "iri": "http://www.w3.org/ns/prov#hadMember",
+      "kind": "object"
+    }
+  },
+  "forbidden_predicates": [
+    "https://data.nasa.gov/ontologies/atmonto/data#arrivalDemand",
+    "https://data.nasa.gov/ontologies/atmonto/data#airportArrivalRate",
+    "urn:aviation-agentic-ai:causedBy",
+    "urn:aviation-agentic-ai:motivatedBy",
+    "urn:aviation-agentic-ai:affectedBy"
+  ]
+}
