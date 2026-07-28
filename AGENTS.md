@@ -12,7 +12,9 @@ ATCSCC advisories.
 The active pipeline is:
 
 ```text
-ATCSCC advisory + bounded FAA authority records
+718 ATCSCC advisories + bounded FAA authority records
+  -> cohort/all selection or explicit source-ID subset
+  -> deterministic preflight (unsupported/incomplete -> zero-call insufficient)
   -> deterministic AdvisoryParser
   -> facility and terminology authority services
      -> shared Semantic Resolution Agent only for genuine ambiguity
@@ -22,8 +24,8 @@ ATCSCC advisory + bounded FAA authority records
      Decision Case Assembly Agent for genuine evidence/schema choice
   -> task-bound validation
   -> deterministic Formal Graph Kernel
-  -> profile-owned publication and JSONL + RDF + Neo4j materialization
-  -> deterministic query routing with bounded read-only graph tools
+  -> corpus v2 normalization and JSONL + RDF + Neo4j materialization
+  -> deterministic corpus query routing with bounded read-only graph tools
      -> Decision Case Analysis Agent only for exact registered analysis questions
 ```
 
@@ -37,9 +39,9 @@ names, not internal alphanumeric labels.
 
 ## Current Status
 
-- `main` contains the working ingest, validation, materialization, Neo4j
-  projection, bounded query path, Decision Case Assembly, and Decision Case
-  Analysis.
+- `main` contains the corpus-first builder, validation, corpus v2
+  materialization, full-corpus Neo4j projection, bounded query path,
+  Decision Case Assembly, and Decision Case Analysis.
 - The three Decision Record Explorer cases have deterministic query support on
   `main`, including a profile-gap reason and an honest missing-reason outcome.
 - Batch C.1 and Batch D are merged into `main`. The three canonical records use
@@ -49,9 +51,15 @@ names, not internal alphanumeric labels.
   operational-situation, and applicability questions. It uses closed plans and
   bounded read-only tools. Historical similarity remains a deterministic
   insufficient corpus gate; existing record questions remain zero-call.
-- Batch C.1 is the completed breaking cutover. Runs made by an earlier
-  architecture must be regenerated; `ingest`, `neo4j-export`, and `ask` are
-  retained as current user-facing commands, not compatibility guarantees.
+- Storage Batch S2 is the completed breaking storage cutover. The public
+  commands are `build-corpus`, `ask`, `neo4j-export`, and `export-case`.
+  There is no persistent single-case `ingest`, `ask-corpus`, `--runs-root`,
+  `--run-dir`, or corpus-v1 compatibility path. Use `build-corpus --source-id`
+  for a bounded debug build.
+- The frozen cohort is 718 discovered and 68 selected: 42 Agent-eligible, 23
+  unsupported TMI, and 3 incomplete core-field records. The 26 preflight
+  failures are `insufficient` with zero model calls. A corpus manifest is
+  published only when blocked is zero; `--resume` retries only blocked entries.
 - The read-only visualization prototype is isolated on
   `codex/kg-visualization-research`. Visualization is paused and is not the
   active `main` implementation track.
@@ -69,7 +77,7 @@ For a new task:
    that layer.
 
 Do not preload `RESEARCH_QUESTIONS.md`, `HYPOTHESES.md`, `EXPERIMENTS.md`,
-`RESULTS.md`, stage-report directories, ignored run directories, or archived
+`RESULTS.md`, stage-report directories, ignored corpus outputs, or archived
 PHAK/web-demo material. They describe optional evaluation or historical work,
 not the default system scope.
 
@@ -132,7 +140,7 @@ comparison experiment without an explicit scope decision.
 - Use `rg` and `rg --files` for repository search.
 - Use `git grep` for tracked-file context-hygiene scans.
 - Preserve unrelated user changes and generated research artifacts.
-- Do not load ignored archives, `outputs/`, local run directories, or figure
+- Do not load ignored archives, `outputs/`, local corpus outputs, or figure
   galleries unless the task explicitly requires them.
 - Use subagents primarily for read-only review or non-overlapping work.
 

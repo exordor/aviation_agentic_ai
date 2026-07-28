@@ -8,97 +8,67 @@ thesis-first navigation model.
 
 ## Current Project Snapshot
 
-Aviation Agentic AI is a runnable, source-bounded system for converting
-retrospective FAA ATCSCC advisories through repeatable per-event runs into
-validated knowledge graphs, RDF/Turtle, and Neo4j projections, then answering
-a small registered set of decision-record questions with explicit source
-evidence. Validated runs can be normalized into a content-addressed cross-case
-corpus without rerunning an Agent. The completed Batch C.1 cutover prepares
-time-bounded weather context and BTS-reported public operational observations,
-seals them into one task-bounded decision case, and preserves their
-non-causal/source-qualified meaning.
-
-The active path is:
+Aviation Agentic AI is a runnable, source-bounded corpus builder for
+retrospective FAA ATCSCC advisories. It deterministically selects and preflights
+advisories, processes eligible cases through the bounded multi-Agent workflow,
+normalizes validated evidence into corpus v2, then serves queries, RDF, Neo4j,
+and selected-case exports from that corpus.
 
 ```text
-advisory + FAA facility and terminology records
-  -> deterministic AdvisoryParser and authority services
-  -> shared Semantic Resolution Agent only for genuine ambiguity
-  -> deterministic Weather/BTS context preparation and validation
-  -> sealed Decision Case Assembly task
-  -> deterministic compiler for the three canonical cases or bounded
-     Decision Case Assembly Agent for genuine evidence/schema choice
-  -> task-bound validation
-  -> deterministic Formal Graph Kernel
-  -> publication and RDF/Neo4j materialization
-  -> optional deterministic cross-run corpus normalization
-  -> deterministic query routing with read-only graph tools
-     -> Decision Case Analysis Agent for exact registered analysis questions
+718 advisory rows
+  -> cohort/all selection or explicit source-ID subset
+  -> deterministic preflight
+  -> insufficient without model for 23 unsupported + 3 incomplete records
+  -> sequential workflow for the remaining 42 eligible records
+  -> Formal Graph Kernel
+  -> corpus v2 normalization and full-corpus projections
+  -> bounded corpus query / Neo4j export / case export
 ```
 
 The Coordinator and Formal Graph Kernel are deterministic components, not
-Agents. LLM output cannot bypass the publication gate.
+Agents. LLM output cannot bypass the publication gate. The persisted public
+path is corpus-first: `build-corpus`, `ask`, `neo4j-export`, and `export-case`.
+There is no persistent single-case ingest interface, run-directory query, or
+corpus v1 compatibility layer.
 
 ## Verified Main-Branch Capabilities
 
-- `agent-system ingest` builds one source-bounded run.
-- `agent-system build-corpus` normalizes any number of validated runs into
-  shared source objects, cases, canonical facts, and case-fact membership.
-- `agent-system ask-corpus` filters that catalog and reads selected-event formal
-  facts without constructing a model.
-- `agent-system neo4j-export` loads a validated projection with parameterized
-  `MERGE` when Neo4j is available.
-- `agent-system ask` answers registered measure, facility, operational-period,
-  declared-reason, provenance, and combined-record questions from local
-  validated run artifacts.
-- Missing or unsupported fields return an explicit insufficient state.
-- Profile gaps remain audit records and never become formal KG facts.
-- Canonical facility identity is reused across records.
-- Time-bounded TAF/METAR context and BTS-reported public operational
-  observations retain their non-causal and source-qualified roles.
-- The three canonical records use deterministic Decision Case Assembly with
-  zero Assembly provider calls; they are acceptance fixtures rather than a
-  corpus-size limit.
-- Exact registered episode, operational-situation, and applicability questions
-  use sealed plans and bounded read-only tools. Historical similarity remains
-  deterministic `insufficient` without an approved comparison cohort and
-  ranking contract.
+- `agent-system build-corpus` builds a selected corpus directly from configured
+  advisory sources. `--source-id` provides a bounded single-case debug path;
+  `--resume` retries blocked records only.
+- Corpus v2 content-addresses source objects and stores cases, semantic facts,
+  membership, evidence links, profile gaps, Weather associations, BTS
+  observations, full-corpus RDF/Turtle, and Neo4j projections.
+- `agent-system ask` filters the corpus and answers exact registered record,
+  context, observation, and reconstructed-case questions with bounded read-only
+  tools.
+- `agent-system export-case` writes a selected bounded, non-replayable case.
+- `agent-system neo4j-export` loads the full corpus projection with
+  parameterized `MERGE` when Neo4j is available.
+- Missing or unsupported fields return explicit `insufficient`; provider or
+  workflow failures return `blocked`; profile gaps never become formal KG facts.
+- GS 123 remains a profile gap, GDP 138 retains formal `weather`, and GDP 020
+  retains an honest missing declared-reason result.
+- Weather associations remain non-causal. BTS observations are not FAA demand,
+  AAR, capacity, EDCT, or proof that a TMI caused an outcome.
+- Exact registered Decision Case Analysis questions use closed plans and
+  bounded read-only tools only with `--allow-live-model`. Historical similarity
+  remains deterministic `insufficient` without an approved ranking contract.
 
-The browser visualization exists only on
-`codex/kg-visualization-research`. It is paused and not part of `main`.
+## Current Intake And Publication Rules
 
-## Verified Mainline Context And Analysis
+The frozen cohort starts with 718 discovered advisories. It selects 68 records:
+42 are Agent-eligible, 23 are unsupported TMIs, and 3 have incomplete core
+fields. Each selected advisory receives one `CorpusBuildResult`. Preflight
+returns the 26 unsupported/incomplete records as `insufficient` with zero model
+calls. A final `decision-case-corpus-v2` manifest is published only when no
+entry is `blocked`; `--resume` retries only blocked entries.
 
-The `main` implementation for the three approved records includes:
-
-- the latest eligible TAF known at advisory issue time;
-- the latest eligible pre-issue METAR and operational-period observations;
-- BTS-reported baseline, active, and recovery-window public operational
-  observations;
-- separate source snapshots, context associations, formal observation facts,
-  derivations, fact traces, and reconstruction membership.
-- a sealed task containing task-owned formal facts, profile gaps, resolution
-  results, context associations, public observations, and source bindings;
-- task-bound validation before the Formal Graph Kernel.
-
-Weather associations are explicitly non-causal. BTS-reported observations are
-not FAA demand, AAR, capacity, EDCT, or evidence that a particular TMI caused
-an outcome. Ground Stop `123`, GDP `138`, and cancellation `020` use the
-deterministic Assembly compiler and make zero Assembly provider calls. The
-bounded Assembly Agent is reserved for genuine evidence/schema choice.
-
-The system also routes exact registered episode, operational-situation, and
-applicability questions through a sealed plan and bounded Decision Case
-Analysis Agent. Operational situation is the supported complete fixture.
-Episode output is current-record-only; applicability cannot claim observed
-individual-flight impact. Historical similarity remains deterministic
-`insufficient` without an approved comparison cohort and ranking contract;
-building the storage corpus alone does not create a ranking, recommendation,
-or provider call. Existing record questions remain deterministic and zero-call.
-
-Batch C.1 deliberately breaks old-run compatibility: regenerate old runs.
-`ingest`, `neo4j-export`, and `ask` are retained as current command names, not
-as a guarantee that earlier artifacts remain readable.
+Corpus facts use semantic identity independent of provenance. Source content is
+deduplicated globally by SHA-256, while `evidence_links.jsonl` preserves all
+supporting source bindings. The manifest registers every table and projection
+with count and checksum. Temporary staging packages are not the public backend
+and are removed after successful normalization.
 
 ## Context Routing
 
@@ -114,48 +84,27 @@ as a guarantee that earlier artifacts remain readable.
 | Why a structural decision was made | `DECISION_LOG.md` |
 | Optional historical experiments | `RESEARCH_QUESTIONS.md`, `HYPOTHESES.md`, `EXPERIMENTS.md`, `RESULTS.md` |
 
-Do not preload optional experiments, stage reports, ignored run directories, or
+Do not preload optional experiments, stage reports, ignored corpus outputs, or
 archives. They do not define the current system.
 
 ## Current Boundaries
 
-The project does not currently provide:
+The project does not provide general aviation QA, live ATC support,
+weather-based causal explanation, historical ranking, TMI recommendation, a
+complete aviation ontology, or external expert certification. Building a
+storage corpus does not create a comparison cohort or authorize ranking.
 
-- general aviation question answering;
-- live ATC or flight decision support;
-- weather-based causal explanation;
-- historical-case ranking or TMI recommendation;
-- full-corpus autonomous model execution;
-- a complete aviation ontology;
-- external expert certification.
-
-Batch C.1 and Batch D are complete on `main`. The current storage increment
-adds deterministic cross-run normalization without changing Agent roles.
-Broader source expansion, lifecycle grouping, historical ranking,
-recommendation, and analysis outside the exact registered families require a
-new approved task.
-
-Production deployment security and defenses against hostile local artifact
-tampering are not current research acceptance conditions.
-
-## File Audit Rubric
-
-Before treating a file as current context, ask:
-
-1. Which current system capability does it define?
-2. Is it normative design, implementation, evidence, or history?
-3. What are its inputs and outputs?
-4. Does it describe `main` or another branch?
-5. Does it make a claim stronger than the available evidence?
-6. Should it remain default context?
-
-Unknown artifacts are preserved and classified in `ARTIFACT_INDEX.md`; they
-are not silently deleted.
+Comparison experiments, Gold adjudication, alignment MVE work, broader Weather
+expansion, causal explanation, and recommendation require an explicit approved
+task. Production security against hostile local artifact tampering is also
+deferred unless explicitly activated.
 
 ## Verification Defaults
 
 - Documentation-only changes: `git diff --check` and `uv run ruff check .`.
 - Code changes: focused tests during development, then one final
   `uv run ruff check .` and `uv run pytest -q`.
-- Result claims require inspection of the implementation and the named
-  artifacts, not a historical test count.
+- Storage-batch verification: run the commands in `REPRODUCIBILITY.md`, inspect
+  corpus output and manifest, and keep real output ignored and uncommitted.
+- Result claims require inspection of the implementation and named artifacts,
+  not a historical test count.

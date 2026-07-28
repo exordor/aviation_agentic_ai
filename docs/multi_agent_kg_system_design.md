@@ -6,10 +6,11 @@ Date: 2026-07-28
 
 ## 1. Purpose and Scope
 
-This document defines the runnable system for converting one retrospective FAA
-ATCSCC advisory and bounded authority records into an evidence-bound decision
-case, validated graph artifacts, and bounded graph-grounded answers. It is the
-normative description of the current implementation.
+This document defines the runnable system for converting a selected corpus of
+retrospective FAA ATCSCC advisories and bounded authority records into
+evidence-bound decision cases, validated corpus artifacts, and bounded
+graph-grounded answers. It is the normative description of the current
+implementation.
 
 The system is not live ATC decision support, a complete aviation ontology, a
 causal explanation engine, or a TMI recommendation system. It does not claim
@@ -18,7 +19,10 @@ that a reported observation caused a measure or that a measure was optimal.
 ## 2. Current Architecture
 
 ```text
-ATCSCC advisory + bounded FAA authority records
+718 advisory rows + bounded FAA authority records
+  -> cohort/all selection or explicit source-ID subset
+  -> deterministic preflight
+  -> zero-call insufficient result for unsupported/incomplete records
   -> deterministic AdvisoryParser
   -> deterministic facility and terminology authority services
      -> shared Semantic Resolution Agent only for genuine ambiguity
@@ -26,10 +30,10 @@ ATCSCC advisory + bounded FAA authority records
   -> sealed Decision Case Assembly task
      -> canonical zero-call compiler for the three approved cases
      -> bounded Decision Case Assembly Agent only for genuine evidence/schema choice
-  -> exact preflight
+  -> task-bound formal validation
   -> deterministic Formal Graph Kernel
-  -> profile-owned current-run artifacts
-  -> deterministic query routing with bounded read-only graph tools
+  -> corpus v2 normalization and full-corpus projections
+  -> deterministic corpus query routing with bounded read-only graph tools
      -> Decision Case Analysis Agent only for exact registered analysis questions
 ```
 
@@ -51,13 +55,13 @@ Agent is active.
 
 | Item | Current decision |
 | --- | --- |
-| Capability | Build, inspect, and narrowly analyze one source-bounded ATCSCC decision case with audited context. |
-| Smallest end-to-end result | Ingest one approved advisory, publish only accepted facts, and answer registered questions from the run artifacts. |
+| Capability | Build, inspect, and narrowly analyze a source-bounded corpus of ATCSCC decision cases with audited context. |
+| Smallest end-to-end result | Build a selected source-ID subset into corpus v2, publish only accepted facts, and answer registered questions from corpus artifacts. |
 | Minimum components | AdvisoryParser, authority services, optional semantic/assembly Agents, Weather/BTS adapters, Formal Graph Kernel, profiles, materializers, deterministic query tools, and bounded Decision Case Analysis. |
 | Evidence | Source IDs, exact evidence text, snapshot checksums, sealed contracts, preflight records, fact traces, and deterministic tests. |
 | Success | Accepted facts materialize consistently; profile gaps and missing evidence remain distinct; registered queries return `ok`, `insufficient`, or `blocked`. |
 | Failure | A component invents a candidate, source, fact, cause, ontology term, or graph write; a provider is built on a deterministic path; or a result bypasses the Kernel. |
-| Deferred | Causal explanation, recommendation, lifecycle episode grouping, historical ranking, full-corpus live execution, general aviation QA, and analysis outside the exact registered families. |
+| Deferred | Causal explanation, recommendation, lifecycle episode grouping, historical ranking, general aviation QA, and analysis outside the exact registered families. |
 
 ## 4. Source and Evidence Boundaries
 
@@ -185,77 +189,57 @@ constraints. It accepts only the formal layers owned by their profiles:
 Every accepted fact carries the owning profile identifier and checksum. No
 model writes directly to RDF, Turtle, Neo4j, or a final graph artifact.
 
-## 10. Current Run Artifacts
+## 10. Corpus v2 Artifacts and Batch Recovery
 
-A current validated run contains the profile-owned projections:
+`agent-system build-corpus` is the only persistent writer. It selects the
+frozen cohort (or an explicit source-ID subset), preflights each advisory, and
+runs eligible records sequentially through the existing workflow. It writes
+one `CorpusBuildResult` for every selected source. The frozen intake is 718
+discovered, 68 selected, 42 Agent-eligible, 23 unsupported-TMI, and 3
+incomplete-core-field records. The 26 preflight outcomes are `insufficient`
+with zero model calls.
+
+The corpus manifest has version `decision-case-corpus-v2` and registers every
+table and projection by path, count, and SHA-256:
 
 ```text
+corpus_manifest.json
+build_results.jsonl
+artifacts.jsonl
+source_objects/<sha256>.txt
+source_bindings.jsonl
+cases.jsonl
+facts.jsonl
+case_facts.jsonl
+evidence_links.jsonl
+profile_gaps.jsonl
+context_associations.jsonl
+observations.jsonl
 kg.jsonl
 kg.ttl
 neo4j_nodes.jsonl
 neo4j_relationships.jsonl
 ```
 
-It also contains the audit record appropriate to the run, including
-`run_manifest.json`, `source_snapshots.jsonl`, `profile_gaps.jsonl`,
-`context_associations.jsonl`, `outcome_summaries.jsonl`,
-`weather_fact_trace.jsonl`, `observation_derivations.jsonl`,
-`observation_fact_trace.jsonl`, and `reconstruction_trace.json`. The manifest
-records paths, counts, checksums, and `ok | insufficient | blocked` layer
-states.
+Source payloads are globally deduplicated by content checksum. `facts.jsonl`
+uses semantic identity independent of provenance; `evidence_links.jsonl`
+retains one-to-many support for facts, profile gaps, context associations, and
+observations. Profile gaps preserve exact original evidence text outside the
+formal graph. Weather associations retain `causal_claim=false`. Observations
+retain phase, metric, null or numeric value, unit, admitted fact IDs, profile,
+and source artifact.
 
-RDF and Neo4j are projections of accepted formal facts. The audit artifacts do
-not become an independent semantic authority. Each persisted profile gap is
-owned by the exact current decision profile and checksum, carries a stable
-event/source/snapshot identity plus a deterministic evidence reference, and
-must reproduce the advisory parser's exact field value and evidence span.
-`profile_gaps.jsonl` is registered independently in the manifest with its
-path, row count, SHA-256, and status; a generic substring from the source
-cannot authorize a profile-gap answer.
-
-Model-bound analysis writes a separate immutable directory:
-
-```text
-analysis/<analysis_run_id>/
-  case_analysis_task.json
-  query_evidence_bundle.json
-  case_analysis_run.json
-```
-
-These artifacts do not modify the run manifest or overwrite `query_run.json`.
-
-## 10.1 Cross-Run Corpus Storage
-
-Validated run directories are portable evidence and debugging bundles. For
-multi-event processing, `agent-system build-corpus` compacts them into a
-normalized corpus:
-
-```text
-source_objects/<sha256>.txt
-source_bindings.jsonl
-cases.jsonl
-facts.jsonl
-case_facts.jsonl
-corpus_manifest.json
-```
-
-Source payloads are stored once by content checksum. `facts.jsonl` retains the
-canonical `ValidatedFact` representation with full IRIs, while
-`case_facts.jsonl` records membership without duplicating fact content. This
-layer adds no Agent role, model call, causal claim, vector index, or historical
-ranking. RDF and Neo4j remain rebuildable projections.
-
-`agent-system ask-corpus` opens a checksum-verified read view over the case,
-fact, membership, and source-binding tables. It supports exact filters with
-bounded pagination and can answer the existing formal record questions for an
-explicit event ID. It does not emulate a complete run directory: profile-gap
-evidence text, non-causal context associations, outcome summaries, and
-analysis artifacts remain owned by the original run bundle.
+RDF and Neo4j are full-corpus projections of accepted formal facts. Context
+associations are excluded from formal RDF and Neo4j; already admitted BTS
+public-observation facts remain formal. A blocked provider or workflow result
+does not stop the batch. It prevents final-manifest publication and is the only
+state retried by `build-corpus --resume`. Successful finalization deletes
+temporary case bundles; those staging packages are never a public read backend.
 
 ## 11. Query Tools and Decision Case Analysis
 
-The query surface reads only validated run artifacts through bounded read-only
-tools. Registered deterministic question families cover the
+The query surface reads only checksum-verified corpus tables through bounded
+read-only tools. Registered deterministic question families cover the
 measure, facility, operational period, declared reason, provenance, decision
 context, public observations, and reconstruction record. Missing or
 unsupported registered evidence returns `insufficient` before model
@@ -274,8 +258,8 @@ analysis reports only the current record and cannot group a lifecycle.
 Applicability analysis can report formal facility/time applicability but
 cannot infer observed individual-flight impact from aggregate BTS records.
 Historical similarity returns deterministic `insufficient` until an approved
-comparison corpus and profile exist; it invokes no provider and writes no
-analysis artifact.
+comparison corpus and ranking profile exist; it invokes no provider and writes
+no analysis artifact.
 
 ## 12. Canonical Acceptance Cases
 
@@ -296,19 +280,22 @@ states.
 The current commands are:
 
 ```text
-aviation-ai agent-system ingest --source-id <source-id> --config configs/cross_source_v1.yaml [--allow-live-model]
-aviation-ai agent-system neo4j-export --run-dir <run-directory>
-aviation-ai agent-system ask --run-dir <run-directory> --question "<question>" [--allow-live-model]
+aviation-ai agent-system build-corpus --config <config> --output-dir <corpus-dir> [--selection cohort|all] [--source-id <id> ...] --allow-live-model [--resume]
+aviation-ai agent-system ask --corpus-dir <corpus-dir> --question "<question>" [--event-id <event-id>] [--allow-live-model]
+aviation-ai agent-system neo4j-export --corpus-dir <corpus-dir>
+aviation-ai agent-system export-case --corpus-dir <corpus-dir> --event-id <event-id> --output-dir <export-dir>
 ```
 
-Batch C.1 completed a deliberate breaking cutover. Earlier run directories
-must be regenerated; the runtime has no old-run reader, writer, alias, or
-artifact bridge. The familiar command names are retained as current user
-experience, not as a backward-compatibility guarantee.
+This is a deliberate storage cutover. There is no public `ingest` command,
+`ask-corpus` alias, `--runs-root` importer, `--run-dir` query/export path, or
+v1 corpus migration layer. `build-corpus --source-id` is the bounded
+single-case debug route. Corpus queries, projections, Neo4j loads, and case
+exports all use the checksum-verified v2 tables.
 
-`--allow-live-model` authorizes only a model-bound Decision Case Analysis
-route. Existing deterministic questions and the historical-similarity gate do
-not construct a provider.
+`--allow-live-model` authorizes the existing bounded workflow for eligible
+build records and a model-bound Decision Case Analysis route. Preflight,
+existing deterministic questions, and the historical-similarity gate do not
+construct a provider.
 
 ## 14. Verification Requirements
 
@@ -332,5 +319,5 @@ certification or live semantic accuracy.
 The current system does not provide general aviation chat, causal explanation,
 operational optimization, TMI recommendation, lifecycle decision-episode
 grouping, observed individual-flight impact, historical similarity ranking,
-full-corpus provider execution, automatic ontology expansion, public
-deployment, or external expert certification.
+automatic ontology expansion, public deployment, or external expert
+certification.

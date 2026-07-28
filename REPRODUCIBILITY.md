@@ -2,12 +2,8 @@
 
 Last updated: 2026-07-28
 
-This file describes the current Agent-system path. Historical formal experiments
-remain reproducible through `EXPERIMENTS.md` but are not the default workflow.
-
-Batch C.1 is a breaking cutover. Regenerate an old run rather than attempting
-to read or extend it with the current runtime. `ingest`, `neo4j-export`, and
-`ask` retain useful current names only; they are not compatibility guarantees.
+This is the corpus-first Agent-system workflow. Historical experiments remain
+available through `EXPERIMENTS.md`, but they are not the default path.
 
 ## Environment
 
@@ -15,21 +11,19 @@ to read or extend it with the current runtime. `ingest`, `neo4j-export`, and
 - Package manager: `uv`.
 - Supported development platforms: macOS and Linux.
 
-Install the active system:
-
 ```bash
 uv sync --extra dev --extra ontology-generation --extra neo4j
 uv run aviation-ai agent-system --help
 ```
 
-The `ontology-generation` extra supplies the current LangChain and LangGraph
-runtime dependencies. The `neo4j` extra is required only for database loading.
+The `ontology-generation` extra supplies the LangChain and LangGraph runtime.
+The `neo4j` extra is required only for database loading.
 
 ## Source Snapshot Preflight
 
 The advisory JSONL and terminology seed are tracked. The pinned FAA NASR ZIP is
-238 MB and intentionally ignored by Git. A clean checkout must obtain it before
-ingest:
+238 MB and intentionally ignored by Git. Obtain and verify it before an
+eligible corpus build:
 
 ```bash
 NASR_DIR=data/raw/nasa_atmonto/2026-05-14/faa_nasr
@@ -43,11 +37,11 @@ uv run python -c \
   "$NASR_ZIP"
 ```
 
-The URL and checksum come from the local source manifest for the selected FAA
-cycle. Do not replace the snapshot implicitly during an ordinary run.
+The local source manifest pins the FAA cycle. Do not replace the snapshot
+implicitly during an ordinary build.
 
-Decision Case Graph v1 also uses tracked normalized Weather inputs and the
-tracked 1,978-row BTS snapshot:
+The build also consumes tracked normalized Weather inputs and the tracked
+1,978-row BTS snapshot:
 
 ```text
 data/processed/nasa_atmonto/aligned/2026-05-14/aviationweather_metar.jsonl
@@ -56,259 +50,139 @@ data/sources/bts_on_time_2026_05_manifest.json
 data/sources/bts_on_time_2026_05_nyc.jsonl
 ```
 
-The full BTS ZIP is an ignored audit source. To verify it independently:
+## Build A Corpus
 
-```bash
-BTS_DIR=data/raw/bts
-BTS_ZIP="$BTS_DIR/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2026_5.zip"
-mkdir -p "$BTS_DIR"
-curl -L --fail \
-  "https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2026_5.zip" \
-  -o "$BTS_ZIP"
-uv run python -c \
-  'import hashlib,pathlib,sys; expected="4e7b96999440afec8c92dd23bfbc68a5852e14d9a56c3d0d366f884542ea80b3"; actual=hashlib.sha256(pathlib.Path(sys.argv[1]).read_bytes()).hexdigest(); print(actual); raise SystemExit(actual != expected)' \
-  "$BTS_ZIP"
-```
+The only persistent writer is `build-corpus`. It selects advisory records,
+performs deterministic preflight, runs eligible cases sequentially, normalizes
+their validated packages into corpus v2, and removes temporary case bundles
+only after finalization.
 
-The tracked BTS manifest pins the archive member, normalized checksum, source
-fields, 1,978-row filter, natural key, and `America/New_York` timezone. Null
-values remain null. Derived observations are always labelled as BTS-reported
-and are not FAA demand, AAR, capacity, EDCT, or ASPM records.
+The frozen cohort has 718 discovered advisories and this required ledger:
 
-## Build One Validated Run
+| State | Count |
+| --- | ---: |
+| Selected | 68 |
+| Agent-eligible | 42 |
+| Unsupported TMI | 23 |
+| Incomplete core fields | 3 |
+| Deterministic preflight `insufficient` | 26 |
 
-```bash
-uv run aviation-ai agent-system ingest \
-  --source-id 2026-05-19:123 \
-  --config configs/cross_source_v1.yaml \
-  --allow-live-model
-```
-
-The command processes one selected advisory. It does not execute a full-corpus
-model run. A live run requires `DEEPSEEK_API_KEY`; `DEEPSEEK_BASE_URL` is
-optional. The active Agent system does not silently substitute `LLM_PROVIDER`.
-Credentials must remain in ignored local environment files.
-
-A publishable run contains the validated graph and audit artifacts described in
-`ARTIFACT_INDEX.md`. Non-publishable runs may preserve audit records but must
-not publish formal KG files.
-
-For every current multi-source run, `source_snapshots.jsonl` is the canonical
-registry. The deterministic post-validation branch writes
-`context_associations.jsonl`, `outcome_summaries.jsonl`, and
-`weather_fact_trace.jsonl`. It also writes `observation_derivations.jsonl`,
-`observation_fact_trace.jsonl`, and `reconstruction_trace.json` for formal
-public operational observations. Each manifest entry is `ok`, `insufficient`,
-or `blocked`. A failed optional layer does not invalidate already validated
-core ATCSCC facts, but that layer is not exposed.
-
-## Build A Cross-Run Corpus
-
-After producing two or more validated runs, normalize them into one
-content-addressed corpus:
+Build the three tracked acceptance sources into an ignored smoke directory:
 
 ```bash
 uv run aviation-ai agent-system build-corpus \
-  --runs-root data/runs/agent_system \
-  --output-dir data/corpus/agent_system/cross-source-2026-05-v1
-```
-
-The command performs no model call. It consumes current validated run bundles,
-deduplicates identical source payloads by SHA-256, and writes deterministic
-case, fact, membership, and source-binding JSONL files plus
-`corpus_manifest.json`. Repeating the command over the same runs produces the
-same logical corpus. This storage corpus does not by itself authorize the
-historical-similarity question or TMI recommendation.
-
-Query the corpus catalog:
-
-```bash
-uv run aviation-ai agent-system ask-corpus \
-  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v1 \
-  --question "Which decision cases are recorded in this corpus?" \
-  --offset 0 \
-  --limit 20
-```
-
-Use `--event-type-iri`, `--facility-id`, `--reason-status`, or
-`--reason-value` for exact catalog filtering. For an existing formal
-decision-record question, add `--event-id <canonical-event-id>`. The command is
-deterministic and performs zero provider calls. Profile-gap source wording,
-Weather associations, and public-outcome summaries remain available only from
-their original run bundles in this batch.
-
-## Query A Validated Run
-
-Deterministic registered field query:
-
-```bash
-uv run aviation-ai agent-system ask \
-  --run-dir <validated-run-directory> \
-  --question "What reason did the advisory state?"
-```
-
-Supported deterministic fields include measure, facility, operational period,
-declared reason, and provenance. Missing or unsupported evidence returns an
-insufficient state without a provider call.
-
-Decision Case Graph v1 adds four deterministic question families:
-
-```bash
-uv run aviation-ai agent-system ask \
-  --run-dir <validated-run-directory> \
-  --question "What forecast was known at decision time?"
-
-uv run aviation-ai agent-system ask \
-  --run-dir <validated-run-directory> \
-  --question "What observed weather context is recorded?"
-
-uv run aviation-ai agent-system ask \
-  --run-dir <validated-run-directory> \
-  --question "What BTS-reported public operational observations are recorded?"
-
-uv run aviation-ai agent-system ask \
-  --run-dir <validated-run-directory> \
-  --question "Reconstruct the decision case."
-```
-
-These registered questions are resolved through validated read-only tools and
-make no provider call. They never infer a stated reason from Weather context.
-
-The combined decision-record question is also deterministic and zero-call:
-
-```bash
-uv run aviation-ai agent-system ask \
-  --run-dir <validated-run-directory> \
-  --question "What traffic management measure, controlled airport, and effective time are recorded in this advisory?"
-```
-
-Decision Case Analysis accepts only its exact registered English questions.
-Episode, operational-situation, and applicability analysis require explicit
-model authorization:
-
-```bash
-uv run aviation-ai agent-system ask \
-  --run-dir <validated-run-directory> \
-  --question "What public operational situation is recorded?" \
+  --config configs/cross_source_v1.yaml \
+  --output-dir data/corpus/agent_system/smoke-v2 \
+  --source-id 2026-05-19:123 \
+  --source-id 2026-05-19:138 \
+  --source-id 2026-05-20:020 \
   --allow-live-model
 ```
 
-The CLI prints `analysis_artifact_dir` for every sealed analysis, including a
-blocked result before the command exits. The directory is immutable and
-contains the sealed task, evidence bundle, and analysis run record.
+Build or resume the approved cohort:
 
-The exact historical-similarity question remains a deterministic corpus gate:
+```bash
+uv run aviation-ai agent-system build-corpus \
+  --config configs/cross_source_v1.yaml \
+  --output-dir data/corpus/agent_system/cross-source-2026-05-v2 \
+  --selection cohort \
+  --allow-live-model \
+  --resume
+```
+
+Eligible cases require `--allow-live-model`. Put `DEEPSEEK_API_KEY` and any
+optional `DEEPSEEK_BASE_URL` in ignored local environment files. The 26
+preflight failures are `insufficient` with zero model calls. Provider or
+workflow failures become `blocked`, do not stop the batch, and are the only
+results retried by the same `--resume` command. A final manifest is published
+only when the blocked count is zero.
+
+## Corpus Layout And Read Commands
+
+`corpus_manifest.json` has manifest version `decision-case-corpus-v2` and
+registers path, count, and SHA-256 for every corpus table and projection:
+
+```text
+build_results.jsonl
+artifacts.jsonl
+source_objects/<sha256>.txt
+source_bindings.jsonl
+cases.jsonl
+facts.jsonl
+case_facts.jsonl
+evidence_links.jsonl
+profile_gaps.jsonl
+context_associations.jsonl
+observations.jsonl
+kg.jsonl
+kg.ttl
+neo4j_nodes.jsonl
+neo4j_relationships.jsonl
+```
+
+Ask a deterministic registered question:
 
 ```bash
 uv run aviation-ai agent-system ask \
-  --run-dir <validated-run-directory> \
-  --question "Which historical case is most similar?"
+  --corpus-dir data/corpus/agent_system/smoke-v2 \
+  --event-id event:2026-05-19:138 \
+  --question "What forecast was known at decision time?"
 ```
 
-It returns `insufficient` without provider construction or an analysis
-artifact. Unregistered, mixed-language, live/current, causal, recommendation,
-or flight-control wording is rejected before intent routing and provider
-construction.
+Exact catalog filters are `--event-type-iri`, `--facility-id`,
+`--reason-status`, `--reason-value`, `--offset`, and `--limit`. Decision Case
+Analysis requires `--allow-live-model` for its exact registered questions.
 
-## Load The Neo4j Projection
+Export one bounded case:
+
+```bash
+uv run aviation-ai agent-system export-case \
+  --corpus-dir data/corpus/agent_system/smoke-v2 \
+  --event-id event:2026-05-19:138 \
+  --output-dir data/corpus/agent_system/export-gdp-138
+```
+
+Load the full projection:
 
 ```bash
 uv run aviation-ai agent-system neo4j-export \
-  --run-dir <validated-run-directory>
+  --corpus-dir data/corpus/agent_system/smoke-v2
 ```
 
-Connection values can be provided through command options or:
+The loader uses parameterized `MERGE`, preserves unrelated data, and returns
+`BLOCKED` for missing credentials or failed connectivity.
 
-```text
-NEO4J_URI
-NEO4J_USERNAME
-NEO4J_PASSWORD
-```
+## Acceptance States
 
-The loader uses parameterized `MERGE`, preserves unrelated graph data, and
-returns `BLOCKED` when credentials, connectivity, or loading fail.
+| Source ID | Required result |
+| --- | --- |
+| `2026-05-19:123` | Profile-gap declared reason; no formal `atm:impactingCondition`. |
+| `2026-05-19:138` | Formal `weather`; evidence ends at `THUNDERSTORMS`. |
+| `2026-05-20:020` | Missing declared reason; deterministic `insufficient`. |
 
-## Decision-Record Acceptance Cases
-
-The tracked case contract is
-`docs/atcscc_decision_record_explorer_cases.md`:
-
-- Ground Stop `2026-05-19:123`;
-- Ground Delay Program `2026-05-19:138`;
-- missing-reason cancellation `2026-05-20:020`.
-
-Routine verification uses deterministic tests and does not require provider
-calls. Temporary run directories belong outside Git.
-
-The active-window BTS-reported acceptance values are:
-
-| Case | Scheduled arrivals | Completed arrivals | Cancellations | Diversions |
-| --- | ---: | ---: | ---: | ---: |
-| Ground Stop 123 / KJFK | 20 | 18 | 2 | 0 |
-| GDP 138 / KJFK | 77 | 68 | 4 | 5 |
-| GDP cancellation 020 / KEWR | 50 | 49 | 1 | 0 |
-
-Ground Stop 123 retains a source-bound profile-gap reason and no formal
-`atm:impactingCondition`; GDP 138 retains formal `weather` with source evidence
-ending at `THUNDERSTORMS`; and cancellation 020 remains missing-reason and is
-`insufficient` before model construction. Weather context never changes these
-reason states.
+Weather associations remain non-causal. BTS observations are source-qualified
+public observations and are never FAA demand, AAR, capacity, EDCT, or a
+decision rationale.
 
 ## Verification
 
-Focused Agent-system checks:
+Run after the storage batches:
 
 ```bash
 uv run pytest -q \
-  tests/test_agent_system_multisource_context.py \
-  tests/test_agent_system_weather_context.py \
-  tests/test_agent_system_bts_outcomes.py \
-  tests/test_agent_system_case_analysis.py \
-  tests/test_agent_system_case_analysis_tools.py \
-  tests/test_agent_system_case_analysis_readers.py \
-  tests/test_agent_system_case_analysis_limits.py \
-  tests/test_agent_system_query_tools.py \
+  tests/test_agent_system_corpus_store.py \
+  tests/test_agent_system_corpus_batch.py \
+  tests/test_agent_system_corpus_projection.py \
   tests/test_agent_system_query_tool_graph.py \
-  tests/test_agent_system.py \
   tests/test_cli_agent_system.py
-```
 
-Repository checks:
-
-```bash
 uv run ruff check .
 uv run pytest -q
 uv build
 git diff --check
 ```
 
-Do not record a changing test count as a durable project claim. Record the
-command, commit, environment, and date when a specific verification result is
-needed.
-
-## Optional Historical Evaluation
-
-The earlier extraction, alignment, cross-source weather, retrieval, and answer
-experiments remain documented in:
-
-- `EXPERIMENTS.md`;
-- `RESEARCH_QUESTIONS.md`;
-- `HYPOTHESES.md`;
-- `RESULTS.md`;
-- the corresponding `reports/stages/` and `data/evaluation/` families.
-
-Run those paths only for an explicitly reactivated evaluation task. Their
-outputs do not change the current system scope automatically.
-
-## Known Boundaries
-
-- Live construction and model-bound Decision Case Analysis require provider
-  access. Existing deterministic queries, including the combined record
-  question, do not.
-- Neo4j loading requires a reachable local or remote Neo4j instance.
-- The browser explorer is not present on `main`; it remains on
-  `codex/kg-visualization-research`.
-- Weather-based causal explanation, lifecycle episode grouping, case ranking,
-  and recommendation are not current reproduction targets.
-- `WeatherDelay` and `NASDelay` remain carrier-reported attributions, not causal
-  labels.
+Real corpora, `.staging` directories, provider output, and case exports are
+ignored and must remain uncommitted. Do not treat a changing test count as a
+durable project claim; record the command, commit, environment, and date for a
+specific result.

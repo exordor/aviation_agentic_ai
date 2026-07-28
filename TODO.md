@@ -6,18 +6,25 @@ This file contains only the active execution queue and immediate deferred
 decisions. Historical experiment backlogs are discoverable through
 `ARTIFACT_INDEX.md` and Git history.
 
-## Current Stage - Scalable Corpus Query
+## Current Stage - Corpus-First Storage
 
 Batch C.1 and Batch D are complete on `main`. The system now reconstructs the
 three canonical decision cases with Weather and BTS context, assembles them
 through bounded roles, and answers exact registered analysis questions.
 
-Storage Batch S1 normalizes any number of validated runs into a
-content-addressed source store, cross-case catalog, canonical fact table, and
-case-to-fact membership table. Storage Batch S2 adds deterministic catalog
-filtering, pagination, and formal record reads through `ask-corpus`.
-Neither batch adds an Agent, model call, vector database, historical ranking,
-or recommendation.
+Storage Batch S2 is complete. The public persisted path is `build-corpus`,
+`ask`, `neo4j-export`, and `export-case`; no persistent single-case ingest,
+run-directory query, `ask-corpus`, `--runs-root`, or corpus v1 migration path
+remains. Corpus v2 stores content-addressed sources, cases, semantic facts,
+fact membership, evidence links, profile gaps, non-causal Weather associations,
+BTS observations, and full-corpus projections.
+
+The frozen cohort design is 718 discovered, 68 selected, 42 Agent-eligible, 23
+unsupported-TMI, and 3 incomplete-core-field records. The 26 preflight
+failures are deterministic `insufficient` with zero model calls. `--resume`
+retries only `blocked` results and final publication waits for blocked count
+zero. This storage increment adds no Agent, vector database, historical
+ranking, or recommendation.
 
 ## Recently Completed Mainline
 
@@ -32,6 +39,9 @@ or recommendation.
   approved comparison corpus exists.
 - [x] Query the normalized corpus by exact case metadata and canonical event
   ID without constructing a provider.
+- [x] Build selected advisories directly into corpus v2 with one result per
+  selected source and blocked-only resume.
+- [x] Move query, RDF, Neo4j, and selected-case export to the corpus tables.
 - [x] Merge Batch C.1 and Batch D into `main`.
 
 ## Completed System Foundation
@@ -79,7 +89,6 @@ decision-episode grouping, or a reviewed historical comparison corpus.
 - Advisory lifecycle or decision-episode grouping.
 - Historical-case ranking and TMI recommendation.
 - General-purpose planner and long-term Agent memory.
-- Full-corpus live-model runs.
 - General RAG and general aviation chat.
 - New Agent roles without an observed need.
 - Production hardening and public deployment.
@@ -93,7 +102,7 @@ decision-episode grouping, or a reviewed historical comparison corpus.
 - Keep this file short and current.
 - Use descriptive task names rather than internal letter or number codes.
 - Do not store changing test counts as durable project claims.
-- Keep generated run artifacts and credentials out of Git.
+- Keep generated corpus artifacts and credentials out of Git.
 - Preserve historical material through the artifact index and Git history
   instead of leaving it in the active queue.
 - Apply the research-prototype effort boundary in `AGENTS.md`; do not duplicate
