@@ -947,6 +947,33 @@ def test_corpus_query_store_returns_context_observations_and_gap_evidence(
     )
 
 
+def test_corpus_query_store_builds_a_case_scoped_graph_view(tmp_path: Path) -> None:
+    """Building adjacency from all corpus facts would leak another event."""
+
+    run_a = tmp_path / "run-a"
+    run_b = tmp_path / "run-b"
+    _write_run(run_a, event_id="urn:event:a", suffix="a")
+    _write_run(run_b, event_id="urn:event:b", suffix="b")
+    corpus_dir = tmp_path / "corpus"
+    build_corpus([run_a, run_b], corpus_dir)
+    store = CorpusQueryStore(corpus_dir)
+    case = store.get_case("urn:event:a")
+    assert case is not None
+
+    graph = store.graph_for_event("urn:event:a")
+    membership = graph.neighbors(
+        case.reconstruction_iri,
+        direction="out",
+        predicate_iris=("http://www.w3.org/ns/prov#hadMember",),
+    )
+
+    assert [edge.object_value for edge in membership] == ["urn:event:a"]
+    assert not graph.neighbors(
+        "urn:event:b",
+        direction="in",
+    )
+
+
 def test_export_case_contains_only_selected_case_artifacts(tmp_path: Path) -> None:
     """Writing a replayable run artifact into a case export is a contract bug."""
 

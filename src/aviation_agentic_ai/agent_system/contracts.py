@@ -258,6 +258,31 @@ class CaseSimilarityMatch(StrictModel):
     reason_value: str | None
 
 
+class QueryGraphEdge(StrictModel):
+    """One formal fact carried by a bounded corpus graph path."""
+
+    fact_id: str = Field(min_length=1)
+    subject_iri: str = Field(min_length=1)
+    predicate_iri: str = Field(min_length=1)
+    object_kind: Literal["iri", "literal"]
+    object_value: str = Field(min_length=1)
+    datatype_iri: str | None = None
+    source_ids: tuple[str, ...] = ()
+
+
+class QueryGraphPath(StrictModel):
+    """One closed evidence path through a reconstructed decision case."""
+
+    path_id: str = Field(min_length=1)
+    path_kind: Literal[
+        "event_member",
+        "weather_member",
+        "active_public_observation",
+    ]
+    edges: tuple[QueryGraphEdge, ...]
+    source_ids: tuple[str, ...] = ()
+
+
 class QueryToolOutcome(StrictModel):
     """Final outcome of one bounded Query Agent tool loop."""
 
@@ -273,6 +298,7 @@ class QueryToolOutcome(StrictModel):
     retrieved_outcome_summary_ids: list[str] = Field(default_factory=list)
     retrieved_observation_ids: list[str] = Field(default_factory=list)
     retrieved_derivation_ids: list[str] = Field(default_factory=list)
+    retrieved_graph_paths: list[QueryGraphPath] = Field(default_factory=list)
     similarity_matches: list[CaseSimilarityMatch] = Field(
         default_factory=list
     )

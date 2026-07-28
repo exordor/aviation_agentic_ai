@@ -23,6 +23,7 @@ from aviation_agentic_ai.agent_system.context_artifacts import (
     read_context_associations,
     read_observation_fact_traces,
 )
+from aviation_agentic_ai.agent_system.corpus_graph import CorpusGraphView
 from aviation_agentic_ai.agent_system.decision_case_graph import (
     CASE_DECISION_CASE_IRI,
     PROV_HAD_MEMBER_IRI,
@@ -373,6 +374,11 @@ class CorpusQueryStore:
         """Return all formal facts for one selected corpus event."""
 
         return self.get_case_facts(event_id)
+
+    def graph_for_event(self, event_id: str) -> CorpusGraphView:
+        """Build one read-only graph view over only the selected case."""
+
+        return CorpusGraphView(self.get_case_facts(event_id))
 
     def get_decision_context(
         self, event_id: str
