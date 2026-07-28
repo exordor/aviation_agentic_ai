@@ -35,7 +35,7 @@ TERM_SEED = ROOT / "data/sources/faa_atcscc_terms_v1.yaml"
 DEFINITION_SEED = ROOT / "data/sources/faa_atcscc_authority_definitions_v1.yaml"
 NOW = datetime(2026, 5, 19, 20, 0, tzinfo=UTC)
 
-CONFIG_SHA256 = "be4b9cfa56af4d97cc5948762a1e9e500e1d4cd72ebee1d28a5ecf412c9607fa"
+CONFIG_SHA256 = "307124bf7b33c9b4603f60b24f21cbf2fa7c2a68fefe4f8b3f6df0db5b296410"
 TERM_SEED_SHA256 = "8e8941775f2e086429fb1af9751e1a191c650e737e9de5f9b10b5a4812f3bf77"
 
 
