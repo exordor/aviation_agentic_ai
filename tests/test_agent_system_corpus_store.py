@@ -158,6 +158,58 @@ def _set_snapshot_timestamp(run_dir: Path, timestamp: str) -> None:
     )
 
 
+def _set_snapshot_content(run_dir: Path, content: str) -> str:
+    content_sha256 = hashlib.sha256(content.encode("utf-8")).hexdigest()
+    snapshot_path = run_dir / "source_snapshots.jsonl"
+    snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+    snapshot["content"] = content
+    snapshot["content_sha256"] = content_sha256
+    snapshot_path.write_text(
+        json.dumps(snapshot, separators=(",", ":")) + "\n",
+        encoding="utf-8",
+    )
+
+    graph_path = run_dir / "kg.jsonl"
+    graph_rows = [
+        json.loads(line)
+        for line in graph_path.read_text(encoding="utf-8").splitlines()
+    ]
+    for row in graph_rows:
+        row["source_snapshot_checksums"][_fixture_module.SOURCE_ID] = (
+            content_sha256
+        )
+    graph_path.write_text(
+        "".join(json.dumps(row) + "\n" for row in graph_rows),
+        encoding="utf-8",
+    )
+
+    trace_path = run_dir / "fact_trace.jsonl"
+    trace_rows = [
+        json.loads(line)
+        for line in trace_path.read_text(encoding="utf-8").splitlines()
+    ]
+    for row in trace_rows:
+        row["source_snapshot_sha256"] = content_sha256
+    trace_path.write_text(
+        "".join(json.dumps(row) + "\n" for row in trace_rows),
+        encoding="utf-8",
+    )
+
+    manifest_path = run_dir / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["context_artifacts"]["source_snapshots"]["sha256"] = (
+        hashlib.sha256(snapshot_path.read_bytes()).hexdigest()
+    )
+    manifest["context_artifacts"]["fact_trace"]["sha256"] = hashlib.sha256(
+        trace_path.read_bytes()
+    ).hexdigest()
+    manifest_path.write_text(
+        json.dumps(manifest, separators=(",", ":")) + "\n",
+        encoding="utf-8",
+    )
+    return content_sha256
+
+
 def test_build_corpus_deduplicates_shared_source_objects(tmp_path: Path) -> None:
     run_a = tmp_path / "run-a"
     run_b = tmp_path / "run-b"
@@ -171,6 +223,54 @@ def test_build_corpus_deduplicates_shared_source_objects(tmp_path: Path) -> None
     assert manifest.source_object_count == 1
     assert len(objects) == 1
     assert objects[0].read_text(encoding="utf-8") == _fixture_module.ADVISORY_CONTENT
+
+
+def test_build_corpus_retains_revised_versions_of_one_logical_source(
+    tmp_path: Path,
+) -> None:
+    run_a = tmp_path / "run-a"
+    run_b = tmp_path / "run-b"
+    event_id = "urn:event:revised-source"
+    _write_run(run_a, event_id=event_id, suffix="stable")
+    _write_run(run_b, event_id=event_id, suffix="stable")
+    revised_content = (
+        _fixture_module.ADVISORY_CONTENT + "REVISION: UPDATED SOURCE TEXT\n"
+    )
+    revised_sha256 = _set_snapshot_content(run_b, revised_content)
+
+    corpus_dir = tmp_path / "corpus"
+    manifest = build_corpus([run_a, run_b], corpus_dir)
+
+    original_sha256 = hashlib.sha256(
+        _fixture_module.ADVISORY_CONTENT.encode("utf-8")
+    ).hexdigest()
+    bindings = [
+        json.loads(line)
+        for line in (corpus_dir / "source_bindings.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    evidence_links = [
+        json.loads(line)
+        for line in (corpus_dir / "evidence_links.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    assert manifest.source_object_count == 2
+    assert manifest.source_binding_count == 2
+    assert len(bindings) == 2
+    assert {
+        (row["case_id"], row["source_id"], row["object_key"])
+        for row in bindings
+    } == {
+        (event_id, _fixture_module.SOURCE_ID, original_sha256),
+        (event_id, _fixture_module.SOURCE_ID, revised_sha256),
+    }
+    assert {
+        row["artifact_id"]
+        for row in evidence_links
+        if row["owner_kind"] == "fact"
+    } == {original_sha256, revised_sha256}
 
 
 def test_build_corpus_merges_cases_and_full_iri_facts(tmp_path: Path) -> None:

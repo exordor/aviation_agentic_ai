@@ -322,7 +322,7 @@ def build_corpus(
     ]
     facts_by_id: dict[str, CorpusFact] = {}
     cases_by_id: dict[str, CorpusCase] = {}
-    bindings_by_id: dict[tuple[str, str], CorpusSourceBinding] = {}
+    bindings_by_id: dict[tuple[str, str, str], CorpusSourceBinding] = {}
     case_facts_by_id: dict[tuple[str, str], CorpusCaseFact] = {}
     source_objects: dict[str, str] = {}
     evidence_links_by_id: dict[str, EvidenceLink] = {}
@@ -406,7 +406,11 @@ def build_corpus(
                 content_sha256=snapshot.content_sha256,
                 object_key=snapshot.content_sha256,
             )
-            binding_key = (case_id, snapshot.source_id)
+            binding_key = (
+                case_id,
+                snapshot.source_id,
+                snapshot.content_sha256,
+            )
             previous_binding = bindings_by_id.get(binding_key)
             if previous_binding is not None:
                 previous_payload = previous_binding.model_dump(mode="json")
@@ -615,7 +619,7 @@ def build_corpus(
             binding.model_dump(mode="json")
             for binding in sorted(
                 bindings_by_id.values(),
-                key=lambda row: (row.case_id, row.source_id),
+                key=lambda row: (row.case_id, row.source_id, row.object_key),
             )
         ],
     )
