@@ -308,6 +308,8 @@ class CorpusQueryStore:
 def build_corpus(
     run_dirs: list[str | Path] | tuple[str | Path, ...],
     output_dir: str | Path,
+    *,
+    build_results: list[CorpusBuildResult] | tuple[CorpusBuildResult, ...] | None = None,
 ) -> CorpusBuildManifest:
     """Normalize validated runs into a provenance-aware v2 corpus.
 
@@ -595,11 +597,21 @@ def build_corpus(
     ttl_path = output / "kg.ttl"
     neo4j_nodes_path = output / "neo4j_nodes.jsonl"
     neo4j_relationships_path = output / "neo4j_relationships.jsonl"
+    result_rows = (
+        sorted(build_results, key=lambda row: row.source_id)
+        if build_results is not None
+        else sorted(
+            build_results_by_event.values(),
+            key=lambda row: (row.event_id or "", row.source_id),
+        )
+    )
+    if build_results is not None and len({row.source_id for row in result_rows}) != len(result_rows):
+        raise ValueError("corpus build results must have one row per source ID")
     _write_jsonl(
         build_results_path,
         [
             row.model_dump(mode="json")
-            for row in sorted(build_results_by_event.values(), key=lambda row: row.event_id or "")
+            for row in result_rows
         ],
     )
     _write_jsonl(
@@ -680,7 +692,7 @@ def build_corpus(
     _write_jsonl(neo4j_nodes_path, [])
     _write_jsonl(neo4j_relationships_path, [])
     for name, path, count in (
-        ("build_results", build_results_path, len(build_results_by_event)),
+        ("build_results", build_results_path, len(result_rows)),
         ("artifacts", artifact_refs_path, len(source_objects)),
         ("source_bindings", bindings_path, len(bindings_by_id)),
         ("cases", cases_path, len(cases_by_id)),
