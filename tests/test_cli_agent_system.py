@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-import json
 import hashlib
+import importlib.util
+import json
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
@@ -247,6 +248,32 @@ def _write_graph(run_dir: Path) -> None:
     )
 
 
+def _write_supported_analysis_context(run_dir: Path) -> None:
+    """Load the full current-run context fixture needed for model synthesis."""
+
+    fixture_path = Path(__file__).with_name("test_agent_system_query_tools.py")
+    spec = importlib.util.spec_from_file_location(
+        "cli_analysis_query_tools_fixture",
+        fixture_path,
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module._write_graph(run_dir)
+    module._write_formal_observation_layer(run_dir)
+    context_path = run_dir / "context_associations.jsonl"
+    context_data = context_path.read_bytes()
+    manifest_path = run_dir / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["context_artifacts"]["context_associations"] = {
+        "path": context_path.name,
+        "count": len(context_data.splitlines()),
+        "sha256": hashlib.sha256(context_data).hexdigest(),
+        "status": "ok",
+    }
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+
 def test_unsupported_cli_question_needs_no_live_authorization(tmp_path, monkeypatch):
     _write_graph(tmp_path)
 
@@ -465,51 +492,21 @@ def test_similarity_cli_is_zero_call_without_authorization(tmp_path, monkeypatch
     assert "analysis_artifact_dir:" not in result.output
 
 
-def test_authorized_analysis_cli_reports_only_its_artifact_directory(
+def test_required_evidence_cli_preflights_before_live_provider(
     tmp_path,
     monkeypatch,
 ):
-    """Omitting the analysis path would make the sealed result undiscoverable."""
+    """Missing required evidence must stay available without constructing a provider."""
 
     _write_graph(tmp_path)
-    call = {
-        "id": "call:analysis:cli",
-        "name": "execute_bound_query_step",
-        "args": {"step_id": "step:operational_situation:1"},
-        "type": "tool_call",
-    }
 
-    class OneTurnAnalysisModel:
-        def invoke(self, messages, *, phase):
-            del messages
-            assert phase == "select_tool"
-            return ToolModelTurn(
-                message=AIMessage(content="", tool_calls=[call]),
-                record=ModelCallRecord(
-                    agent="decision_case_analysis",
-                    raw_response="",
-                    prompt_version="decision-case-analysis-v1",
-                    provider="scripted",
-                    model="scripted",
-                    tool_calls=[
-                        ModelToolCall(
-                            call_id=call["id"],
-                            name=call["name"],
-                            arguments=call["args"],
-                        )
-                    ],
-                ),
-            )
-
-    def scripted_model_factory(*, tools, role):
-        assert [tool.name for tool in tools] == ["execute_bound_query_step"]
-        assert role == "decision_case_analysis"
-        return OneTurnAnalysisModel()
+    def forbidden_model_factory(*args, **kwargs):
+        raise AssertionError("required-evidence preflight constructed a provider")
 
     monkeypatch.setattr(
         cli_module,
         "make_live_tool_calling_model",
-        scripted_model_factory,
+        forbidden_model_factory,
     )
     result = CliRunner().invoke(
         cli_module.agent_system,
@@ -525,7 +522,7 @@ def test_authorized_analysis_cli_reports_only_its_artifact_directory(
 
     assert result.exit_code == 0
     assert "status: insufficient" in result.output
-    assert "model_calls: 1" in result.output
+    assert "model_calls: 0" in result.output
     artifact_line = next(
         line
         for line in result.output.splitlines()
@@ -540,7 +537,7 @@ def test_blocked_analysis_cli_reports_artifact_directory_before_exit(
 ):
     """A blocked sealed analysis must remain discoverable after the CLI exits."""
 
-    _write_graph(tmp_path)
+    _write_supported_analysis_context(tmp_path)
     call = {
         "id": "call:analysis:blocked",
         "name": "execute_bound_query_step",
@@ -551,7 +548,7 @@ def test_blocked_analysis_cli_reports_artifact_directory_before_exit(
     class BlockedAnalysisModel:
         def invoke(self, messages, *, phase):
             del messages
-            assert phase == "select_tool"
+            assert phase == "final_answer"
             return ToolModelTurn(
                 message=AIMessage(content="", tool_calls=[call]),
                 record=ModelCallRecord(

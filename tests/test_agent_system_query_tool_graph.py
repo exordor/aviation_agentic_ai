@@ -16,7 +16,6 @@ import aviation_agentic_ai.agent_system.query_tool_graph as query_tool_graph_mod
 from aviation_agentic_ai.agent_system.contracts import (
     BTSOutcomeSummary,
     ModelCallRecord,
-    ModelToolCall,
     OutcomeObservationRead,
     OutcomeSummaryRead,
     PersistedProfileGap,
@@ -1234,32 +1233,6 @@ class _ScriptedAnalysisFactory:
         self.calls += 1
         self.tool_names = [tool.name for tool in tools]
         return self.model
-
-
-def _analysis_tool_turn(step_id: str) -> ToolModelTurn:
-    call = {
-        "id": "call:analysis:1",
-        "name": "execute_bound_query_step",
-        "args": {"step_id": step_id},
-        "type": "tool_call",
-    }
-    return ToolModelTurn(
-        message=AIMessage(content="", tool_calls=[call]),
-        record=ModelCallRecord(
-            agent="decision_case_analysis",
-            raw_response="",
-            prompt_version="decision-case-analysis-v1",
-            provider="scripted",
-            model="scripted",
-            tool_calls=[
-                ModelToolCall(
-                    call_id=call["id"],
-                    name=call["name"],
-                    arguments=call["args"],
-                )
-            ],
-        ),
-    )
 
 
 def _analysis_answer_turn() -> ToolModelTurn:
@@ -2757,12 +2730,7 @@ def test_operational_analysis_writes_immutable_artifacts(tmp_path):
     """Routing analysis through the legacy query writer would lose sealed evidence."""
 
     _write_supported_analysis_context(tmp_path)
-    factory = _ScriptedAnalysisFactory(
-        [
-            _analysis_tool_turn("step:operational_situation:1"),
-            _analysis_answer_turn(),
-        ]
-    )
+    factory = _ScriptedAnalysisFactory([_analysis_answer_turn()])
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
@@ -2773,7 +2741,7 @@ def test_operational_analysis_writes_immutable_artifacts(tmp_path):
     assert outcome.status == "ok"
     assert factory.calls == 1
     assert factory.tool_names == ["execute_bound_query_step"]
-    assert len(outcome.model_calls) == 2
+    assert len(outcome.model_calls) == 1
     assert outcome.analysis_artifact_dir is not None
     artifact_dir = Path(outcome.analysis_artifact_dir)
     assert artifact_dir.parent == tmp_path / "analysis"

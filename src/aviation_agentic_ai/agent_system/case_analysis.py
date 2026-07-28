@@ -51,7 +51,8 @@ from aviation_agentic_ai.agent_system.prompts import (
     DEFAULT_PROMPT_CATALOG,
     assemble_prompt,
 )
-from aviation_agentic_ai.agent_system.query_plan import QueryPlan
+from aviation_agentic_ai.agent_system.query_plan import AnalysisIntent, QueryPlan
+from aviation_agentic_ai.agent_system.query_tools import QueryGraphStore
 from aviation_agentic_ai.agent_system.tool_model import ToolCallingModel
 
 MAX_CASE_ANALYSIS_MODEL_CALLS = 2
@@ -113,6 +114,7 @@ def _base_messages(
     plan: QueryPlan,
     *,
     catalog_path: str,
+    selectable_step_ids: frozenset[str],
 ) -> list[BaseMessage]:
     assembled = assemble_prompt(
         "decision_case_analysis",
@@ -120,8 +122,11 @@ def _base_messages(
             "question": plan.question,
             "query_plan_id": plan.query_plan_id,
             "available_bound_steps": "\n".join(
-                f"- {step.step_id}: {step.operation}" for step in plan.steps
-            ),
+                f"- {step.step_id}: {step.operation}"
+                for step in plan.steps
+                if step.step_id in selectable_step_ids
+            )
+            or "(none; required steps were preflighted)",
         },
         catalog_path=catalog_path,
     )
@@ -149,9 +154,10 @@ def _sanitized_record(record: ModelCallRecord) -> ModelCallRecord:
 
 def _selection_error(
     *,
-    plan: QueryPlan,
     turn_message: AIMessage | None,
     record: ModelCallRecord,
+    selectable_step_ids: frozenset[str],
+    remaining_step_budget: int,
 ) -> tuple[str | None, tuple[tuple[str, str], ...]]:
     if record.error:
         return "analysis model call failed", ()
@@ -161,9 +167,9 @@ def _selection_error(
         return "analysis model returned an invalid native tool call", ()
     calls = tuple(record.tool_calls)
     if not calls:
-        return "analysis model must select at least one bound step", ()
-    if len(calls) > MAX_CASE_ANALYSIS_BOUND_STEPS:
-        return "analysis model exceeded the three-step budget", ()
+        return None, ()
+    if len(calls) > remaining_step_budget:
+        return "analysis model exceeded the remaining step budget", ()
 
     message_calls = tuple(
         (
@@ -180,7 +186,6 @@ def _selection_error(
     if message_calls != record_calls:
         return "analysis model tool-call record differs from native message", ()
 
-    available = {step.step_id for step in plan.steps}
     selected: list[tuple[str, str]] = []
     seen_call_ids: set[str] = set()
     seen_step_ids: set[str] = set()
@@ -195,8 +200,8 @@ def _selection_error(
         step_id = call.arguments.get("step_id")
         if not isinstance(step_id, str) or not step_id:
             return "execute_bound_query_step requires a nonempty step_id", ()
-        if step_id not in available:
-            return "analysis model requested a step outside the sealed plan", ()
+        if step_id not in selectable_step_ids:
+            return "analysis model requested a non-optional bound step", ()
         if step_id in seen_step_ids:
             return "analysis model repeated a bound step", ()
         seen_step_ids.add(step_id)
@@ -813,40 +818,34 @@ def run_case_analysis_agent(
     if gateway._plan != plan:
         raise ValueError("analysis gateway is not bound to the supplied query plan")
 
-    tools = _model_tools(gateway)
-    if [registered.name for registered in tools] != ["execute_bound_query_step"]:
-        raise AssertionError("Decision Case Analysis exposed an unexpected tool")
-    model = model_factory(tools)
-    base_messages = _base_messages(plan, catalog_path=catalog_path)
-    selection_turn = model.invoke(base_messages, phase="select_tool")
-    records = [_sanitized_record(selection_turn.record)]
-    selection_error, selected = _selection_error(
-        plan=plan,
-        turn_message=selection_turn.message,
-        record=selection_turn.record,
-    )
-
     observations: dict[str, BoundQueryObservation] = {}
-    if selection_error is None:
-        for _call_id, step_id in selected:
-            observation = gateway.execute_bound_query_step(step_id=step_id)
-            observations[step_id] = observation
-            if observation.status == "blocked":
-                selection_error = observation.limitation or "bound step blocked"
-                break
+    selected: list[tuple[str, str]] = []
+    for ordinal, step in enumerate(plan.steps, start=1):
+        if not step.required:
+            continue
+        try:
+            observation = gateway.execute_bound_query_step(step_id=step.step_id)
+        except (RuntimeError, ValueError):
+            observation = BoundQueryObservation(
+                step_id=step.step_id,
+                status="blocked",
+                limitation="required bound step failed integrity validation",
+            )
+        observations[step.step_id] = observation
+        selected.append((f"preflight:{ordinal}", step.step_id))
 
     task = _seal_analysis_task(
         plan=plan,
         gateway=gateway,
         observations=observations,
         binding=binding,
-        runtime_failure=selection_error,
+        runtime_failure=None,
     )
     outcome_traces = _outcome_traces(
-        selected=selected,
+        selected=tuple(selected),
         observations=observations,
     )
-    if selection_error is not None or task.answer_status is not QueryStatus.OK:
+    if task.answer_status is not QueryStatus.OK:
         status = task.answer_status or QueryStatus.BLOCKED
         bundle = _seal_bundle(
             task=task,
@@ -857,13 +856,103 @@ def run_case_analysis_agent(
         )
         return task, bundle, _outcome(
             bundle=bundle,
-            records=records,
+            records=[],
             traces=outcome_traces,
-            failure_reason=selection_error or "",
+            failure_reason=(
+                "required analysis evidence failed validation"
+                if status is QueryStatus.BLOCKED
+                else ""
+            ),
         )
 
-    assert selection_turn.message is not None
-    tool_messages = [
+    if plan.intent_family is AnalysisIntent.EPISODE:
+        bundle = _seal_bundle(
+            task=task,
+            plan=plan,
+            gateway=gateway,
+            binding=binding,
+            status=QueryStatus.OK,
+        )
+        return task, bundle, _outcome(
+            bundle=bundle,
+            records=[],
+            traces=outcome_traces,
+        )
+
+    optional_step_ids = frozenset(
+        step.step_id for step in plan.steps if not step.required
+    )
+    remaining_step_budget = MAX_CASE_ANALYSIS_BOUND_STEPS - len(observations)
+    tools = _model_tools(gateway)
+    if [registered.name for registered in tools] != ["execute_bound_query_step"]:
+        raise AssertionError("Decision Case Analysis exposed an unexpected tool")
+    model = model_factory(tools)
+    base_messages = _base_messages(
+        plan,
+        catalog_path=catalog_path,
+        selectable_step_ids=optional_step_ids,
+    )
+    records: list[ModelCallRecord] = []
+    selection_message: AIMessage | None = None
+    optional_selected: tuple[tuple[str, str], ...] = ()
+    selection_error: str | None = None
+    if optional_step_ids:
+        selection_turn = model.invoke(base_messages, phase="select_tool")
+        records.append(_sanitized_record(selection_turn.record))
+        selection_message = selection_turn.message
+        selection_error, optional_selected = _selection_error(
+            turn_message=selection_turn.message,
+            record=selection_turn.record,
+            selectable_step_ids=optional_step_ids,
+            remaining_step_budget=remaining_step_budget,
+        )
+        if selection_error is None:
+            for _call_id, step_id in optional_selected:
+                try:
+                    observation = gateway.execute_bound_query_step(
+                        step_id=step_id
+                    )
+                except (RuntimeError, ValueError):
+                    observation = BoundQueryObservation(
+                        step_id=step_id,
+                        status="blocked",
+                        limitation=(
+                            "optional bound step failed integrity validation"
+                        ),
+                    )
+                observations[step_id] = observation
+                if observation.status == "blocked":
+                    selection_error = observation.limitation or "bound step blocked"
+                    break
+        selected.extend(optional_selected)
+        task = _seal_analysis_task(
+            plan=plan,
+            gateway=gateway,
+            observations=observations,
+            binding=binding,
+            runtime_failure=selection_error,
+        )
+        outcome_traces = _outcome_traces(
+            selected=tuple(selected),
+            observations=observations,
+        )
+        if selection_error is not None or task.answer_status is not QueryStatus.OK:
+            status = task.answer_status or QueryStatus.BLOCKED
+            bundle = _seal_bundle(
+                task=task,
+                plan=plan,
+                gateway=gateway,
+                binding=binding,
+                status=status,
+            )
+            return task, bundle, _outcome(
+                bundle=bundle,
+                records=records,
+                traces=outcome_traces,
+                failure_reason=selection_error or "",
+            )
+
+    optional_tool_messages = [
         ToolMessage(
             content=json.dumps(
                 observations[step_id].model_dump(mode="json"),
@@ -874,21 +963,37 @@ def run_case_analysis_agent(
             tool_call_id=call_id,
             name="execute_bound_query_step",
         )
-        for call_id, step_id in selected
+        for call_id, step_id in optional_selected
+    ]
+    required_observations = [
+        observations[step.step_id].model_dump(mode="json")
+        for step in plan.steps
+        if step.required
     ]
     final_messages = [
         base_messages[0],
         base_messages[-1],
-        selection_turn.message,
-        *tool_messages,
         HumanMessage(
             content=(
+                "PREFLIGHT_REQUIRED_OBSERVATIONS:"
+                + json.dumps(
+                    required_observations,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    ensure_ascii=False,
+                )
+                + "\n"
                 f"SEALED_CASE_ANALYSIS_TASK:{task.task_id}\n"
                 f"TASK_CHECKSUM:{task.payload_checksum}\n"
                 "Return the strict answer JSON now."
             )
         ),
     ]
+    if selection_message is not None:
+        final_messages[2:2] = [
+            selection_message,
+            *optional_tool_messages,
+        ]
     final_turn = model.invoke(final_messages, phase="final_answer")
     records.append(_sanitized_record(final_turn.record))
     failure_reason = _synthesis_error(
@@ -939,7 +1044,151 @@ def _stable_json_bytes(payload: Any) -> bytes:
     ).encode("utf-8")
 
 
-def _sanitized_outcome_payload(outcome: QueryToolOutcome) -> dict[str, Any]:
+def _expected_outcome_status(bundle: QueryEvidenceBundle) -> str:
+    return {
+        QueryStatus.OK: "ok",
+        QueryStatus.INSUFFICIENT: "insufficient",
+        QueryStatus.BLOCKED: "blocked",
+        QueryStatus.UNSUPPORTED: "insufficient",
+    }[bundle.answer_status]
+
+
+def _expected_outcome_answer(bundle: QueryEvidenceBundle) -> str:
+    answer_parts = [statement.text for statement in bundle.answer_statements]
+    answer_parts.extend(bundle.limitations)
+    if not answer_parts and bundle.answer_status in {
+        QueryStatus.INSUFFICIENT,
+        QueryStatus.UNSUPPORTED,
+    }:
+        answer_parts.append("Insufficient graph evidence.")
+    return " ".join(answer_parts)
+
+
+def _validate_analysis_artifact_binding(
+    *,
+    root: Path,
+    task: CaseAnalysisTask,
+    bundle: QueryEvidenceBundle,
+    outcome: QueryToolOutcome,
+) -> None:
+    """Fail closed unless the destination and all three artifact layers agree."""
+
+    try:
+        store = QueryGraphStore(root)
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise RuntimeError(
+            "analysis destination is not a validated current run"
+        ) from exc
+    destination_run_id = str(store.manifest["run_id"])
+    if root.name != destination_run_id or not (
+        destination_run_id == task.run_id == bundle.run_id
+    ):
+        raise RuntimeError(
+            "analysis destination run_id differs from artifact run"
+        )
+
+    try:
+        validated_task = CaseAnalysisTask.model_validate(
+            task.model_dump(mode="python")
+        )
+        validated_bundle = QueryEvidenceBundle.model_validate(
+            bundle.model_dump(mode="python")
+        )
+        validated_outcome = QueryToolOutcome.model_validate(
+            outcome.model_dump(mode="python")
+        )
+    except Exception as exc:
+        raise RuntimeError("analysis artifact binding is invalid") from exc
+    if (
+        validated_task != task
+        or validated_bundle != bundle
+        or validated_outcome != outcome
+    ):
+        raise RuntimeError("analysis artifact binding is invalid")
+
+    if any(
+        (
+            bundle.task_id != task.task_id,
+            bundle.task_payload_checksum != task.payload_checksum,
+            bundle.answer_contract_id != task.answer_contract_id,
+            bundle.executed_step_ids != task.executed_bound_step_ids,
+            bool(bundle.unexecuted_required_step_ids),
+            bundle.component_layer_results != task.component_layer_results,
+            bundle.retrieved_fact_ids != task.retrieved_fact_ids,
+            bundle.retrieved_derivation_ids != task.retrieved_derivation_ids,
+            bundle.retrieved_profile_gap_ids != task.retrieved_profile_gap_ids,
+            bundle.retrieved_assessment_ids != task.retrieved_assessment_ids,
+            bundle.retrieved_source_ids != task.retrieved_source_ids,
+            bundle.source_snapshot_bindings != task.source_snapshot_bindings,
+        )
+    ):
+        raise RuntimeError("analysis artifact binding is incoherent")
+
+    if any(
+        (
+            outcome.analysis_artifact_dir is not None,
+            outcome.status != _expected_outcome_status(bundle),
+            outcome.answer != _expected_outcome_answer(bundle),
+            tuple(outcome.source_ids) != bundle.retrieved_source_ids,
+            tuple(outcome.retrieved_fact_ids) != bundle.retrieved_fact_ids,
+            tuple(outcome.retrieved_profile_gap_ids)
+            != bundle.retrieved_profile_gap_ids,
+            tuple(outcome.retrieved_derivation_ids)
+            != bundle.retrieved_derivation_ids,
+            bool(outcome.retrieved_context_association_ids),
+            bool(outcome.retrieved_outcome_summary_ids),
+            bool(outcome.retrieved_observation_ids),
+            len(outcome.model_calls) > MAX_CASE_ANALYSIS_MODEL_CALLS,
+            len(outcome.tool_calls) > MAX_CASE_ANALYSIS_BOUND_STEPS,
+        )
+    ):
+        raise RuntimeError("analysis artifact binding is incoherent")
+
+    traced_step_ids: list[str] = []
+    traced_fact_ids: set[str] = set()
+    traced_derivation_ids: set[str] = set()
+    traced_source_ids: set[str] = set()
+    for trace in outcome.tool_calls:
+        step_id = trace.arguments.get("step_id")
+        if any(
+            (
+                trace.tool != "execute_bound_query_step",
+                set(trace.arguments) != {"step_id"},
+                not isinstance(step_id, str),
+                step_id not in bundle.executed_step_ids,
+                bool(trace.context_association_ids),
+                bool(trace.outcome_summary_ids),
+                bool(trace.observation_ids),
+                not set(trace.result_refs).issubset(bundle.retrieved_fact_ids),
+                not set(trace.derivation_ids).issubset(
+                    bundle.retrieved_derivation_ids
+                ),
+                not set(trace.source_ids).issubset(bundle.retrieved_source_ids),
+                trace.status == "ok" and trace.error is not None,
+                trace.status != "ok" and not trace.error,
+            )
+        ):
+            raise RuntimeError("analysis artifact binding is incoherent")
+        traced_step_ids.append(step_id)
+        traced_fact_ids.update(trace.result_refs)
+        traced_derivation_ids.update(trace.derivation_ids)
+        traced_source_ids.update(trace.source_ids)
+    if any(
+        (
+            tuple(traced_step_ids) != bundle.executed_step_ids,
+            traced_fact_ids != set(bundle.retrieved_fact_ids),
+            traced_derivation_ids != set(bundle.retrieved_derivation_ids),
+            traced_source_ids != set(bundle.retrieved_source_ids),
+        )
+    ):
+        raise RuntimeError("analysis artifact binding is incoherent")
+
+
+def _sanitized_outcome_payload(
+    *,
+    task: CaseAnalysisTask,
+    outcome: QueryToolOutcome,
+) -> dict[str, Any]:
     """Persist stable audit metadata without provider prose or hidden reasoning."""
 
     return {
@@ -949,24 +1198,56 @@ def _sanitized_outcome_payload(outcome: QueryToolOutcome) -> dict[str, Any]:
         "retrieved_fact_ids": outcome.retrieved_fact_ids,
         "retrieved_profile_gap_ids": outcome.retrieved_profile_gap_ids,
         "retrieved_derivation_ids": outcome.retrieved_derivation_ids,
-        "failure_reason": outcome.failure_reason,
+        "failure_reason": "analysis_failed" if outcome.failure_reason else "",
         "model_calls": [
             {
-                "agent": record.agent,
-                "prompt_set_id": record.prompt_set_id,
-                "prompt_version": record.prompt_version,
-                "provider": record.provider,
-                "model": record.model,
-                "attempt": record.attempt,
+                "agent": "decision_case_analysis",
+                "call_index": record_index,
                 "status": "error" if record.error else "ok",
                 "tool_calls": [
-                    call.model_dump(mode="json") for call in record.tool_calls
+                    {
+                        "call_id": f"redacted:{call_index}",
+                        "name": (
+                            "execute_bound_query_step"
+                            if call.name == "execute_bound_query_step"
+                            else "unrecognized_tool"
+                        ),
+                        **(
+                            {"step_id": call.arguments["step_id"]}
+                            if call.name == "execute_bound_query_step"
+                            and set(call.arguments) == {"step_id"}
+                            and isinstance(call.arguments.get("step_id"), str)
+                            and call.arguments["step_id"]
+                            in task.available_bound_step_ids
+                            else {}
+                        ),
+                    }
+                    for call_index, call in enumerate(
+                        record.tool_calls[:MAX_CASE_ANALYSIS_BOUND_STEPS],
+                        start=1,
+                    )
                 ],
             }
-            for record in outcome.model_calls
+            for record_index, record in enumerate(
+                outcome.model_calls,
+                start=1,
+            )
         ],
         "tool_calls": [
-            trace.model_dump(mode="json") for trace in outcome.tool_calls
+            {
+                "tool_call_id": f"trace:{trace_index}",
+                "tool": "execute_bound_query_step",
+                "step_id": trace.arguments["step_id"],
+                "result_refs": trace.result_refs,
+                "derivation_ids": trace.derivation_ids,
+                "source_ids": trace.source_ids,
+                "status": trace.status,
+                "error": "bound_step_failed" if trace.error else None,
+            }
+            for trace_index, trace in enumerate(
+                outcome.tool_calls,
+                start=1,
+            )
         ],
     }
 
@@ -980,8 +1261,22 @@ def write_case_analysis_artifacts(
 ) -> Path:
     """Write one immutable, idempotent per-analysis artifact directory."""
 
-    root = Path(run_dir).resolve(strict=True)
-    sanitized_outcome = _sanitized_outcome_payload(outcome)
+    try:
+        root = Path(run_dir).resolve(strict=True)
+    except OSError as exc:
+        raise RuntimeError(
+            "analysis destination is not a validated current run"
+        ) from exc
+    _validate_analysis_artifact_binding(
+        root=root,
+        task=task,
+        bundle=bundle,
+        outcome=outcome,
+    )
+    sanitized_outcome = _sanitized_outcome_payload(
+        task=task,
+        outcome=outcome,
+    )
     outcome_checksum = hashlib.sha256(
         _stable_json_bytes(sanitized_outcome)
     ).hexdigest()
@@ -1029,17 +1324,24 @@ def write_case_analysis_artifacts(
         "case_analysis_run.json": _stable_json_bytes(run_payload),
     }
     if target.exists():
-        current_names = {
-            path.name for path in target.iterdir() if path.is_file()
-        }
+        current_names = {path.name for path in target.iterdir()}
         if current_names != set(expected):
             raise RuntimeError("immutable analysis artifact conflict")
         for name, content in expected.items():
-            if (target / name).read_bytes() != content:
+            current_path = target / name
+            if (
+                current_path.is_symlink()
+                or not current_path.is_file()
+                or not current_path.resolve().is_relative_to(target)
+                or current_path.read_bytes() != content
+            ):
                 raise RuntimeError("immutable analysis artifact conflict")
         return target
 
     target.mkdir()
     for name, content in expected.items():
-        (target / name).write_bytes(content)
+        artifact_path = target / name
+        if artifact_path.exists() or artifact_path.is_symlink():
+            raise RuntimeError("immutable analysis artifact conflict")
+        artifact_path.write_bytes(content)
     return target

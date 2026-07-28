@@ -167,9 +167,11 @@ class _ScriptedAnalysisModel:
 class _ModelFactory:
     def __init__(self, model: _ScriptedAnalysisModel) -> None:
         self.model = model
+        self.calls = 0
         self.tool_names: list[str] = []
 
     def __call__(self, tools: list[Any]) -> _ScriptedAnalysisModel:
+        self.calls += 1
         self.tool_names = [tool.name for tool in tools]
         return self.model
 
@@ -229,15 +231,14 @@ def test_analysis_agent_seals_supported_operational_situation(
         question="What public operational situation is recorded?",
         store=store,
     )
-    model = _ScriptedAnalysisModel(
-        [_tool_turn(plan.steps[0].step_id), _final_turn(_supported_payload(store))]
-    )
+    model = _ScriptedAnalysisModel([_final_turn(_supported_payload(store))])
 
     _plan, factory, (task, bundle, outcome) = _run_operational(store, model)
 
+    assert factory.calls == 1
     assert factory.tool_names == ["execute_bound_query_step"]
     assert outcome.status == "ok"
-    assert len(outcome.model_calls) == 2
+    assert len(outcome.model_calls) == 1
     assert all(record.raw_response == "" for record in outcome.model_calls)
     assert bundle.task_id == task.task_id
     assert bundle.task_payload_checksum == task.payload_checksum
@@ -245,11 +246,12 @@ def test_analysis_agent_seals_supported_operational_situation(
     assert set(bundle.retrieved_fact_ids).issubset(task.retrieved_fact_ids)
     assert set(bundle.retrieved_source_ids).issubset(task.retrieved_source_ids)
     assert len(bundle.executed_step_ids) <= 3
-    final_messages = model.invocations[1][1]
+    assert [phase for phase, _messages in model.invocations] == ["final_answer"]
+    final_messages = model.invocations[0][1]
     assert any(task.payload_checksum in str(message.content) for message in final_messages)
 
 
-def test_insufficient_bound_observation_uses_one_model_turn(
+def test_insufficient_bound_observation_uses_zero_model_turns(
     store: QueryGraphStore,
 ) -> None:
     """Calling synthesis without evidence would invite completion from memory."""
@@ -262,17 +264,19 @@ def test_insufficient_bound_observation_uses_one_model_turn(
         question="Which historical case is most similar?",
         store=store,
     )
-    model = _ScriptedAnalysisModel([_tool_turn(plan.steps[0].step_id)])
+    model = _ScriptedAnalysisModel([])
+    factory = _ModelFactory(model)
     task, bundle, outcome = run_case_analysis_agent(
         plan=plan,
         gateway=BoundQueryGateway(plan=plan, store=store),
-        model_factory=_ModelFactory(model),
+        model_factory=factory,
         binding=_binding(store),
     )
 
     assert outcome.status == "insufficient"
-    assert len(outcome.model_calls) == 1
-    assert [phase for phase, _messages in model.invocations] == ["select_tool"]
+    assert factory.calls == 0
+    assert outcome.model_calls == []
+    assert model.invocations == []
     assert bundle.task_id == task.task_id
     assert bundle.answer_statements == ()
     assert bundle.limitations == (
@@ -280,10 +284,153 @@ def test_insufficient_bound_observation_uses_one_model_turn(
     )
 
 
+def test_required_insufficient_steps_finish_before_provider_construction(
+    store: QueryGraphStore,
+) -> None:
+    """Required applicability evidence must fail closed before any provider exists."""
+
+    from aviation_agentic_ai.agent_system.case_analysis import run_case_analysis_agent
+    from aviation_agentic_ai.agent_system.case_analysis_tools import BoundQueryGateway
+
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What applicability and observed flight impact are recorded?",
+        store=store,
+    )
+    model = _ScriptedAnalysisModel(
+        [_tool_turn(*(step.step_id for step in plan.steps))]
+    )
+    factory = _ModelFactory(model)
+
+    task, bundle, outcome = run_case_analysis_agent(
+        plan=plan,
+        gateway=BoundQueryGateway(plan=plan, store=store),
+        model_factory=factory,
+        binding=_binding(store),
+    )
+
+    assert factory.calls == 0
+    assert model.invocations == []
+    assert outcome.status == "insufficient"
+    assert outcome.model_calls == []
+    assert task.executed_bound_step_ids == tuple(
+        step.step_id for step in plan.steps
+    )
+    assert bundle.executed_step_ids == task.executed_bound_step_ids
+
+
+def test_missing_required_operational_evidence_constructs_no_provider(
+    tmp_path: Path,
+) -> None:
+    """A missing required context layer must remain a deterministic result."""
+
+    from aviation_agentic_ai.agent_system.case_analysis import run_case_analysis_agent
+    from aviation_agentic_ai.agent_system.case_analysis_tools import BoundQueryGateway
+
+    _write_graph(tmp_path)
+    sparse_store = QueryGraphStore(tmp_path)
+    plan = compile_query_plan(
+        run_dir=sparse_store.run_dir,
+        question="What public operational situation is recorded?",
+        store=sparse_store,
+    )
+    model = _ScriptedAnalysisModel([_tool_turn(plan.steps[0].step_id)])
+    factory = _ModelFactory(model)
+
+    _task, bundle, outcome = run_case_analysis_agent(
+        plan=plan,
+        gateway=BoundQueryGateway(plan=plan, store=sparse_store),
+        model_factory=factory,
+        binding=_binding(sparse_store),
+    )
+
+    assert factory.calls == 0
+    assert model.invocations == []
+    assert outcome.status == "insufficient"
+    assert outcome.model_calls == []
+    assert bundle.answer_statements == ()
+    assert bundle.executed_step_ids == (plan.steps[0].step_id,)
+
+
+def test_blocked_required_step_constructs_no_provider(
+    store: QueryGraphStore,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Required-step integrity failures must become a generic blocked result."""
+
+    from aviation_agentic_ai.agent_system.case_analysis import run_case_analysis_agent
+    from aviation_agentic_ai.agent_system.case_analysis_tools import BoundQueryGateway
+
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What public operational situation is recorded?",
+        store=store,
+    )
+    gateway = BoundQueryGateway(plan=plan, store=store)
+
+    def fail_integrity(*, step_id: str) -> None:
+        del step_id
+        raise ValueError("private integrity detail")
+
+    monkeypatch.setattr(gateway, "execute_bound_query_step", fail_integrity)
+    model = _ScriptedAnalysisModel([_final_turn(_supported_payload(store))])
+    factory = _ModelFactory(model)
+
+    _task, bundle, outcome = run_case_analysis_agent(
+        plan=plan,
+        gateway=gateway,
+        model_factory=factory,
+        binding=_binding(store),
+    )
+
+    assert factory.calls == 0
+    assert model.invocations == []
+    assert outcome.status == "blocked"
+    assert outcome.failure_reason == "required analysis evidence failed validation"
+    assert bundle.answer_statements == ()
+    assert outcome.tool_calls[0].error == (
+        "required bound step failed integrity validation"
+    )
+
+
 def test_episode_partial_preserves_its_explicit_limit(
     store: QueryGraphStore,
 ) -> None:
     """A one-record timeline must not silently become a grouped episode."""
+
+    from aviation_agentic_ai.agent_system.case_analysis import run_case_analysis_agent
+    from aviation_agentic_ai.agent_system.case_analysis_tools import (
+        BoundQueryGateway,
+    )
+
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What decision episode is recorded?",
+        store=store,
+    )
+    model = _ScriptedAnalysisModel([])
+    factory = _ModelFactory(model)
+
+    _task, bundle, outcome = run_case_analysis_agent(
+        plan=plan,
+        gateway=BoundQueryGateway(plan=plan, store=store),
+        model_factory=factory,
+        binding=_binding(store),
+    )
+
+    assert outcome.status == "ok"
+    assert factory.calls == 0
+    assert model.invocations == []
+    assert bundle.limitations == (
+        "single-record timeline; no advisory lifecycle grouping evidence",
+    )
+    assert outcome.model_calls == []
+
+
+def test_episode_partial_is_zero_call_and_cannot_accept_a_lifecycle_claim(
+    store: QueryGraphStore,
+) -> None:
+    """Single-record evidence must never reach a provider that can group a lifecycle."""
 
     from aviation_agentic_ai.agent_system.case_analysis import run_case_analysis_agent
     from aviation_agentic_ai.agent_system.case_analysis_tools import (
@@ -297,11 +444,11 @@ def test_episode_partial_preserves_its_explicit_limit(
         store=store,
     )
     observation = read_episode_timeline(store, event_id=EVENT_ID)
-    payload = {
+    malicious_payload = {
         "statements": [
             {
                 "kind": "source_fact",
-                "text": "The record has a bounded single-record timeline.",
+                "text": "These records form one advisory lifecycle group.",
                 "support_fact_ids": [observation.fact_ids[0]],
                 "support_source_ids": [observation.source_ids[0]],
             }
@@ -309,21 +456,28 @@ def test_episode_partial_preserves_its_explicit_limit(
         "limitations": [observation.limitation],
     }
     model = _ScriptedAnalysisModel(
-        [_tool_turn(plan.steps[0].step_id), _final_turn(payload)]
+        [
+            _tool_turn(plan.steps[0].step_id),
+            _final_turn(malicious_payload),
+        ]
     )
+    factory = _ModelFactory(model)
 
     _task, bundle, outcome = run_case_analysis_agent(
         plan=plan,
         gateway=BoundQueryGateway(plan=plan, store=store),
-        model_factory=_ModelFactory(model),
+        model_factory=factory,
         binding=_binding(store),
     )
 
-    assert outcome.status == "ok"
+    assert factory.calls == 0
+    assert model.invocations == []
+    assert outcome.model_calls == []
+    assert bundle.answer_statements == ()
     assert bundle.limitations == (
         "single-record timeline; no advisory lifecycle grouping evidence",
     )
-    assert len(outcome.model_calls) == 2
+    assert "form one advisory lifecycle group" not in outcome.answer
 
 
 def test_applicability_and_observed_flight_insufficiency_stops_before_synthesis(
@@ -339,19 +493,19 @@ def test_applicability_and_observed_flight_insufficiency_stops_before_synthesis(
         question="What applicability and observed flight impact are recorded?",
         store=store,
     )
-    model = _ScriptedAnalysisModel(
-        [_tool_turn(*(step.step_id for step in plan.steps))]
-    )
+    model = _ScriptedAnalysisModel([])
+    factory = _ModelFactory(model)
 
     _task, bundle, outcome = run_case_analysis_agent(
         plan=plan,
         gateway=BoundQueryGateway(plan=plan, store=store),
-        model_factory=_ModelFactory(model),
+        model_factory=factory,
         binding=_binding(store),
     )
 
     assert outcome.status == "insufficient"
-    assert len(outcome.model_calls) == 1
+    assert factory.calls == 0
+    assert outcome.model_calls == []
     assert len(bundle.executed_step_ids) == 2
     assert any(
         "do not establish an individual-flight outcome" in limitation
@@ -360,69 +514,63 @@ def test_applicability_and_observed_flight_insufficiency_stops_before_synthesis(
 
 
 @pytest.mark.parametrize(
-    "selection",
+    "selection_kind",
     (
-        ("step:not-bound",),
-        ("REPEAT",),
-        ("MALFORMED",),
+        "not_optional",
+        "repeat",
+        "malformed",
     ),
 )
-def test_invalid_step_selection_blocks_before_synthesis(
-    store: QueryGraphStore,
-    selection: tuple[str, ...],
+def test_optional_step_selection_rejects_unbound_or_malformed_calls(
+    selection_kind: str,
 ) -> None:
-    """Foreign, repeated, or malformed calls must not become retrieval input."""
+    """Only remaining optional IDs with the exact schema may be selected."""
 
-    plan = compile_query_plan(
-        run_dir=store.run_dir,
-        question="What public operational situation is recorded?",
-        store=store,
-    )
-    if selection == ("REPEAT",):
-        turn = _tool_turn(plan.steps[0].step_id, plan.steps[0].step_id)
-    elif selection == ("MALFORMED",):
+    from aviation_agentic_ai.agent_system.case_analysis import _selection_error
+
+    optional_step_id = "step:optional:1"
+    if selection_kind == "repeat":
+        turn = _tool_turn(optional_step_id, optional_step_id)
+    elif selection_kind == "malformed":
         turn = _tool_turn(
-            plan.steps[0].step_id,
-            malformed={"step_id": plan.steps[0].step_id, "path": "/tmp/escape"},
+            optional_step_id,
+            malformed={"step_id": optional_step_id, "path": "/tmp/escape"},
         )
     else:
-        turn = _tool_turn(*selection)
-    model = _ScriptedAnalysisModel([turn])
-
-    _plan, _factory, (_task, bundle, outcome) = _run_operational(store, model)
-
-    assert outcome.status == "blocked"
-    assert len(outcome.model_calls) == 1
-    assert bundle.answer_statements == ()
-    assert model.invocations[0][0] == "select_tool"
-
-
-def test_more_than_three_selected_steps_blocks_without_execution(
-    store: QueryGraphStore,
-) -> None:
-    """Removing the batch budget would let one turn execute unbounded reads."""
-
-    plan = compile_query_plan(
-        run_dir=store.run_dir,
-        question="What public operational situation is recorded?",
-        store=store,
-    )
-    model = _ScriptedAnalysisModel(
-        [
-            _tool_turn(
-                plan.steps[0].step_id,
-                plan.steps[0].step_id,
-                plan.steps[0].step_id,
-                plan.steps[0].step_id,
-            )
-        ]
+        turn = _tool_turn("step:not-optional")
+    error, selected = _selection_error(
+        turn_message=turn.message,
+        record=turn.record,
+        selectable_step_ids=frozenset({optional_step_id}),
+        remaining_step_budget=2,
     )
 
-    _plan, _factory, (_task, bundle, outcome) = _run_operational(store, model)
+    assert error
+    assert selected == ()
 
-    assert outcome.status == "blocked"
-    assert len(bundle.executed_step_ids) == 0
-    assert len(outcome.model_calls) == 1
+
+def test_optional_step_selection_respects_the_remaining_budget() -> None:
+    """Required preflight reads reduce the model-selectable step budget."""
+
+    from aviation_agentic_ai.agent_system.case_analysis import _selection_error
+
+    optional_step_ids = frozenset(
+        {
+            "step:optional:1",
+            "step:optional:2",
+            "step:optional:3",
+        }
+    )
+    turn = _tool_turn(*sorted(optional_step_ids))
+    error, selected = _selection_error(
+        turn_message=turn.message,
+        record=turn.record,
+        selectable_step_ids=optional_step_ids,
+        remaining_step_budget=2,
+    )
+
+    assert error == "analysis model exceeded the remaining step budget"
+    assert selected == ()
 
 
 def test_foreign_statement_support_blocks_the_answer(
@@ -430,11 +578,6 @@ def test_foreign_statement_support_blocks_the_answer(
 ) -> None:
     """A model citation outside the sealed task must never enter the bundle."""
 
-    plan = compile_query_plan(
-        run_dir=store.run_dir,
-        question="What public operational situation is recorded?",
-        store=store,
-    )
     payload = {
         "statements": [
             {
@@ -446,9 +589,7 @@ def test_foreign_statement_support_blocks_the_answer(
         ],
         "limitations": [],
     }
-    model = _ScriptedAnalysisModel(
-        [_tool_turn(plan.steps[0].step_id), _final_turn(payload)]
-    )
+    model = _ScriptedAnalysisModel([_final_turn(payload)])
 
     _plan, _factory, (task, bundle, outcome) = _run_operational(store, model)
 
@@ -467,11 +608,6 @@ def test_same_task_source_must_support_the_cited_fact(
         read_operational_situation,
     )
 
-    plan = compile_query_plan(
-        run_dir=store.run_dir,
-        question="What public operational situation is recorded?",
-        store=store,
-    )
     observation = read_operational_situation(store, event_id=EVENT_ID)
     formal_item = next(
         item for item in observation.items if item["evidence_role"] == "formal_event_fact"
@@ -492,9 +628,7 @@ def test_same_task_source_must_support_the_cited_fact(
         ],
         "limitations": [],
     }
-    model = _ScriptedAnalysisModel(
-        [_tool_turn(plan.steps[0].step_id), _final_turn(payload)]
-    )
+    model = _ScriptedAnalysisModel([_final_turn(payload)])
 
     _plan, _factory, (_task, bundle, outcome) = _run_operational(store, model)
 
@@ -513,22 +647,14 @@ def test_synthesis_turn_tool_request_blocks_without_a_third_model_call(
         question="What public operational situation is recorded?",
         store=store,
     )
-    model = _ScriptedAnalysisModel(
-        [
-            _tool_turn(plan.steps[0].step_id),
-            _tool_turn(plan.steps[0].step_id),
-        ]
-    )
+    model = _ScriptedAnalysisModel([_tool_turn(plan.steps[0].step_id)])
 
     _plan, _factory, (_task, bundle, outcome) = _run_operational(store, model)
 
     assert outcome.status == "blocked"
     assert bundle.answer_statements == ()
-    assert len(outcome.model_calls) == 2
-    assert [phase for phase, _messages in model.invocations] == [
-        "select_tool",
-        "final_answer",
-    ]
+    assert len(outcome.model_calls) == 1
+    assert [phase for phase, _messages in model.invocations] == ["final_answer"]
 
 
 def test_synthesis_record_only_tool_request_is_rejected_before_json_parsing(
@@ -543,11 +669,10 @@ def test_synthesis_record_only_tool_request_is_rejected_before_json_parsing(
     )
     model = _ScriptedAnalysisModel(
         [
-            _tool_turn(plan.steps[0].step_id),
             _final_turn_with_record_only_tool_call(
                 _supported_payload(store),
                 step_id=plan.steps[0].step_id,
-            ),
+            )
         ]
     )
 
@@ -558,8 +683,8 @@ def test_synthesis_record_only_tool_request_is_rejected_before_json_parsing(
     assert outcome.failure_reason == (
         "analysis model tool-call record differs from native message"
     )
-    assert len(outcome.model_calls) == 2
-    assert len(model.invocations) == 2
+    assert len(outcome.model_calls) == 1
+    assert len(model.invocations) == 1
 
 
 def test_analysis_artifacts_are_round_trip_immutable_and_isolated(
@@ -571,14 +696,7 @@ def test_analysis_artifacts_are_round_trip_immutable_and_isolated(
         write_case_analysis_artifacts,
     )
 
-    plan = compile_query_plan(
-        run_dir=store.run_dir,
-        question="What public operational situation is recorded?",
-        store=store,
-    )
-    model = _ScriptedAnalysisModel(
-        [_tool_turn(plan.steps[0].step_id), _final_turn(_supported_payload(store))]
-    )
+    model = _ScriptedAnalysisModel([_final_turn(_supported_payload(store))])
     _plan, _factory, (task, bundle, outcome) = _run_operational(store, model)
 
     analysis_dir = write_case_analysis_artifacts(
@@ -633,14 +751,7 @@ def test_analysis_artifacts_reject_a_symlinked_analysis_root(
         write_case_analysis_artifacts,
     )
 
-    plan = compile_query_plan(
-        run_dir=store.run_dir,
-        question="What public operational situation is recorded?",
-        store=store,
-    )
-    model = _ScriptedAnalysisModel(
-        [_tool_turn(plan.steps[0].step_id), _final_turn(_supported_payload(store))]
-    )
+    model = _ScriptedAnalysisModel([_final_turn(_supported_payload(store))])
     _plan, _factory, (task, bundle, outcome) = _run_operational(store, model)
     outside = store.run_dir.parent / f"{store.run_dir.name}-outside-analysis"
     outside.mkdir()
@@ -655,6 +766,125 @@ def test_analysis_artifacts_reject_a_symlinked_analysis_root(
         )
 
     assert list(outside.iterdir()) == []
+
+
+def test_analysis_artifacts_reject_unvalidated_and_cross_run_destinations(
+    store: QueryGraphStore,
+) -> None:
+    """Neither an unrelated directory nor another valid run may receive artifacts."""
+
+    from aviation_agentic_ai.agent_system.case_analysis import (
+        write_case_analysis_artifacts,
+    )
+
+    model = _ScriptedAnalysisModel([_final_turn(_supported_payload(store))])
+    _plan, _factory, (task, bundle, outcome) = _run_operational(store, model)
+    unrelated = store.run_dir.parent / f"{store.run_dir.name}-unrelated"
+    unrelated.mkdir()
+    nonexistent = store.run_dir.parent / f"{store.run_dir.name}-nonexistent"
+    other_run = store.run_dir.parent / f"{store.run_dir.name}-other-run"
+    _write_graph(other_run)
+
+    for destination in (unrelated, nonexistent, other_run):
+        with pytest.raises(RuntimeError, match="analysis destination"):
+            write_case_analysis_artifacts(
+                run_dir=destination,
+                task=task,
+                bundle=bundle,
+                outcome=outcome,
+            )
+        assert not (destination / "analysis").exists()
+
+
+def test_analysis_artifacts_reject_incoherent_bundle_and_outcome(
+    store: QueryGraphStore,
+) -> None:
+    """Checksummed objects from unrelated bindings must not be co-persisted."""
+
+    from aviation_agentic_ai.agent_system.case_analysis import (
+        write_case_analysis_artifacts,
+    )
+
+    model = _ScriptedAnalysisModel([_final_turn(_supported_payload(store))])
+    _plan, _factory, (task, bundle, outcome) = _run_operational(store, model)
+    foreign_bundle = bundle.model_copy(update={"task_id": "task:foreign"})
+    incomplete_outcome = outcome.model_copy(update={"retrieved_fact_ids": []})
+
+    with pytest.raises(RuntimeError, match="analysis artifact binding"):
+        write_case_analysis_artifacts(
+            run_dir=store.run_dir,
+            task=task,
+            bundle=foreign_bundle,
+            outcome=outcome,
+        )
+    with pytest.raises(RuntimeError, match="analysis artifact binding"):
+        write_case_analysis_artifacts(
+            run_dir=store.run_dir,
+            task=task,
+            bundle=bundle,
+            outcome=incomplete_outcome,
+        )
+    assert not (store.run_dir / "analysis").exists()
+
+
+def test_persisted_model_tool_metadata_drops_unvalidated_arguments(
+    store: QueryGraphStore,
+) -> None:
+    """Provider arguments, paths, secrets, and reasoning must not enter JSON."""
+
+    from aviation_agentic_ai.agent_system.case_analysis import (
+        write_case_analysis_artifacts,
+    )
+
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What public operational situation is recorded?",
+        store=store,
+    )
+    model = _ScriptedAnalysisModel([_final_turn(_supported_payload(store))])
+    _plan, _factory, (task, bundle, outcome) = _run_operational(store, model)
+    secret = "provider-secret-7f31"
+    malicious_record = ModelCallRecord(
+        agent="decision_case_analysis",
+        raw_response=f"<think>{secret}</think>",
+        prompt_version=f"private-prompt-{secret}",
+        provider=f"/tmp/{secret}",
+        model=f"private-model-{secret}",
+        tool_calls=[
+            ModelToolCall(
+                call_id=f"call:{secret}",
+                name="execute_bound_query_step",
+                arguments={
+                    "step_id": plan.steps[0].step_id,
+                    "path": f"/tmp/{secret}",
+                    "reasoning": f"hidden {secret}",
+                },
+            )
+        ],
+    )
+    unsafe_outcome = outcome.model_copy(update={"model_calls": [malicious_record]})
+
+    analysis_dir = write_case_analysis_artifacts(
+        run_dir=store.run_dir,
+        task=task,
+        bundle=bundle,
+        outcome=unsafe_outcome,
+    )
+    persisted = (analysis_dir / "case_analysis_run.json").read_text(
+        encoding="utf-8"
+    )
+    model_call = json.loads(persisted)["outcome"]["model_calls"][0]
+
+    assert secret not in persisted
+    assert "/tmp/" not in persisted
+    assert "reasoning" not in persisted
+    assert "raw_response" not in persisted
+    assert model_call["tool_calls"] == [
+        {
+            "call_id": "redacted:1",
+            "name": "execute_bound_query_step",
+        }
+    ]
 
 
 def test_persisted_provider_error_uses_only_a_generic_status_marker(
