@@ -87,7 +87,8 @@ Normalized cross-run corpora are written under ignored
 
 The corpus removes cross-run source and fact duplication. It is a storage and
 retrieval foundation, not an approved similarity benchmark or recommendation
-artifact.
+artifact. `agent-system ask-corpus` reads the registered JSONL tables without
+writing query results into the corpus.
 
 ## Optional Evaluation Tracks
 

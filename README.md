@@ -103,6 +103,30 @@ case-to-fact membership table. Per-run directories remain portable debugging
 and evidence bundles; the corpus is the scalable cross-case storage layer.
 Building it does not run an Agent or enable historical ranking.
 
+Query the normalized case catalog without a model call:
+
+```bash
+uv run aviation-ai agent-system ask-corpus \
+  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v1 \
+  --question "Which decision cases are recorded in this corpus?" \
+  --facility-id urn:aviation-agentic-ai:facility:airport:KJFK \
+  --limit 20
+```
+
+Read the formal record for one selected event:
+
+```bash
+uv run aviation-ai agent-system ask-corpus \
+  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v1 \
+  --event-id <canonical-event-id> \
+  --question "What traffic management measure was published?"
+```
+
+Corpus queries support exact case filters, bounded pagination, and the existing
+formal measure, facility, period, reason, provenance, and combined-record
+questions. They do not perform similarity ranking or reconstruct run-local
+Weather associations and outcome summaries.
+
 Ask a registered question from a validated run:
 
 ```bash
@@ -156,8 +180,10 @@ Cross-run storage is normalized separately. A corpus contains
 `cases.jsonl`, `facts.jsonl`, `case_facts.jsonl`,
 `source_bindings.jsonl`, content-addressed `source_objects/`, and
 `corpus_manifest.json`. RDF and Neo4j remain rebuildable projections rather
-than independent sources of truth. Corpus-aware Query Agent retrieval is a
-later increment.
+than independent sources of truth. The read-only corpus query path searches
+the catalog and retrieves canonical formal facts. Run-local evidence bundles
+remain the source for profile-gap wording, Weather associations, outcome
+summaries, and Decision Case Analysis artifacts.
 
 ## Current Status
 

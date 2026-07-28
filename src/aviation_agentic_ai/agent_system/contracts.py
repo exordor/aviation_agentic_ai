@@ -245,6 +245,8 @@ class QueryToolOutcome(StrictModel):
     status: Literal["ok", "insufficient", "blocked"]
     answer: str = ""
     analysis_artifact_dir: str | None = None
+    match_count: int = Field(default=0, ge=0)
+    retrieved_case_ids: list[str] = Field(default_factory=list)
     source_ids: list[str] = Field(default_factory=list)
     retrieved_fact_ids: list[str] = Field(default_factory=list)
     retrieved_profile_gap_ids: list[str] = Field(default_factory=list)

@@ -6,16 +6,18 @@ This file contains only the active execution queue and immediate deferred
 decisions. Historical experiment backlogs are discoverable through
 `ARTIFACT_INDEX.md` and Git history.
 
-## Current Stage - Scalable Corpus Storage
+## Current Stage - Scalable Corpus Query
 
 Batch C.1 and Batch D are complete on `main`. The system now reconstructs the
 three canonical decision cases with Weather and BTS context, assembles them
 through bounded roles, and answers exact registered analysis questions.
 
-The approved storage increment normalizes any number of validated runs into a
+Storage Batch S1 normalizes any number of validated runs into a
 content-addressed source store, cross-case catalog, canonical fact table, and
-case-to-fact membership table. It does not add an Agent, model call, vector
-database, historical ranking, or recommendation.
+case-to-fact membership table. Storage Batch S2 adds deterministic catalog
+filtering, pagination, and formal record reads through `ask-corpus`.
+Neither batch adds an Agent, model call, vector database, historical ranking,
+or recommendation.
 
 ## Recently Completed Mainline
 
@@ -28,6 +30,8 @@ database, historical ranking, or recommendation.
   operational-situation, and applicability questions.
 - [x] Keep historical similarity deterministic `insufficient` until an
   approved comparison corpus exists.
+- [x] Query the normalized corpus by exact case metadata and canonical event
+  ID without constructing a provider.
 - [x] Merge Batch C.1 and Batch D into `main`.
 
 ## Completed System Foundation

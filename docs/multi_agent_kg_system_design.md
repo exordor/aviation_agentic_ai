@@ -245,6 +245,13 @@ canonical `ValidatedFact` representation with full IRIs, while
 layer adds no Agent role, model call, causal claim, vector index, or historical
 ranking. RDF and Neo4j remain rebuildable projections.
 
+`agent-system ask-corpus` opens a checksum-verified read view over the case,
+fact, membership, and source-binding tables. It supports exact filters with
+bounded pagination and can answer the existing formal record questions for an
+explicit event ID. It does not emulate a complete run directory: profile-gap
+evidence text, non-causal context associations, outcome summaries, and
+analysis artifacts remain owned by the original run bundle.
+
 ## 11. Query Tools and Decision Case Analysis
 
 The query surface reads only validated run artifacts through bounded read-only

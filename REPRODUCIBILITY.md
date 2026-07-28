@@ -120,6 +120,23 @@ case, fact, membership, and source-binding JSONL files plus
 same logical corpus. This storage corpus does not by itself authorize the
 historical-similarity question or TMI recommendation.
 
+Query the corpus catalog:
+
+```bash
+uv run aviation-ai agent-system ask-corpus \
+  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v1 \
+  --question "Which decision cases are recorded in this corpus?" \
+  --offset 0 \
+  --limit 20
+```
+
+Use `--event-type-iri`, `--facility-id`, `--reason-status`, or
+`--reason-value` for exact catalog filtering. For an existing formal
+decision-record question, add `--event-id <canonical-event-id>`. The command is
+deterministic and performs zero provider calls. Profile-gap source wording,
+Weather associations, and public-outcome summaries remain available only from
+their original run bundles in this batch.
+
 ## Query A Validated Run
 
 Deterministic registered field query:

@@ -1,9 +1,10 @@
 """CLI for the multi-Agent aviation event knowledge system (design §19).
 
-Four commands:
+Five commands:
 
     aviation-ai agent-system ingest   --source-id <id> --config <cfg> [--allow-live-model]
     aviation-ai agent-system build-corpus --runs-root <dir> --output-dir <dir>
+    aviation-ai agent-system ask-corpus --corpus-dir <dir> --question "<q>"
     aviation-ai agent-system neo4j-export --run-dir <dir>
     aviation-ai agent-system ask      --run-dir <dir> --question "<q>" [--allow-live-model]
 
@@ -25,6 +26,9 @@ from aviation_agentic_ai.agent_system.materialize import (
     load_validated_facts_neo4j,
 )
 from aviation_agentic_ai.agent_system.corpus_store import build_corpus
+from aviation_agentic_ai.agent_system.corpus_query import (
+    answer_corpus_question,
+)
 from aviation_agentic_ai.agent_system.authority_evidence import (
     AuthorityBuildStatus,
     load_authority_catalog,
@@ -238,6 +242,78 @@ def build_corpus_command(runs_root: Path, output_dir: Path) -> None:
     click.echo(f"facts: {manifest.fact_count}")
     click.echo(f"source_objects: {manifest.source_object_count}")
     click.echo(f"corpus_manifest: {output_dir / 'corpus_manifest.json'}")
+
+
+@agent_system.command("ask-corpus")
+@click.option(
+    "--corpus-dir",
+    type=click.Path(path_type=Path, exists=True, file_okay=False),
+    required=True,
+    help="Normalized decision-case corpus directory.",
+)
+@click.option("--question", required=True, help="Registered corpus question.")
+@click.option("--event-id", default=None, help="Exact event for record questions.")
+@click.option("--event-type-iri", default=None, help="Exact event-type IRI filter.")
+@click.option("--facility-id", default=None, help="Exact canonical facility filter.")
+@click.option(
+    "--reason-status",
+    type=click.Choice(["formal", "profile_gap", "missing"]),
+    default=None,
+    help="Exact declared-reason state filter.",
+)
+@click.option("--reason-value", default=None, help="Exact reason-value filter.")
+@click.option("--offset", type=click.IntRange(min=0), default=0, show_default=True)
+@click.option(
+    "--limit",
+    type=click.IntRange(min=1, max=100),
+    default=20,
+    show_default=True,
+)
+def ask_corpus(
+    corpus_dir: Path,
+    question: str,
+    event_id: str | None,
+    event_type_iri: str | None,
+    facility_id: str | None,
+    reason_status: str | None,
+    reason_value: str | None,
+    offset: int,
+    limit: int,
+) -> None:
+    """Run one deterministic read over the normalized case corpus."""
+
+    outcome = answer_corpus_question(
+        corpus_dir=corpus_dir,
+        question=question,
+        event_id=event_id,
+        event_type_iri=event_type_iri,
+        facility_id=facility_id,
+        reason_status=reason_status,
+        reason_value=reason_value,
+        offset=offset,
+        limit=limit,
+    )
+    if outcome.status == "blocked":
+        raise click.ClickException(
+            f"ask-corpus BLOCKED: {outcome.failure_reason}"
+        )
+    click.echo(f"status: {outcome.status}")
+    click.echo(f"answer: {outcome.answer}")
+    click.echo(f"matching_cases: {outcome.match_count}")
+    click.echo(
+        "cases_returned: "
+        + (
+            ", ".join(outcome.retrieved_case_ids)
+            if outcome.retrieved_case_ids
+            else "(none)"
+        )
+    )
+    click.echo(
+        f"sources: {', '.join(outcome.source_ids) if outcome.source_ids else '(none)'}"
+    )
+    click.echo(f"graph_facts_seen: {len(outcome.retrieved_fact_ids)}")
+    click.echo(f"model_calls: {len(outcome.model_calls)}")
+    click.echo(f"tool_calls: {len(outcome.tool_calls)}")
 
 
 @agent_system.command("neo4j-export")

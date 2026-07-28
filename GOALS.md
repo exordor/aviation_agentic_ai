@@ -60,6 +60,8 @@ The current system provides:
 - JSONL, RDF/Turtle, and Neo4j projection artifacts;
 - content-addressed cross-run source storage, a case catalog, canonical facts,
   and explicit case-to-fact membership;
+- deterministic cross-case catalog filtering and selected-event formal fact
+  retrieval with zero model calls;
 - a bounded read-only Query Agent;
 - deterministic support for measure, facility, operational period, declared
   reason, provenance, and combined decision-record questions;

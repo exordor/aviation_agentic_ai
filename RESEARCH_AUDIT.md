@@ -44,6 +44,8 @@ Agents. LLM output cannot bypass the publication gate.
 - `agent-system ingest` builds one source-bounded run.
 - `agent-system build-corpus` normalizes any number of validated runs into
   shared source objects, cases, canonical facts, and case-fact membership.
+- `agent-system ask-corpus` filters that catalog and reads selected-event formal
+  facts without constructing a model.
 - `agent-system neo4j-export` loads a validated projection with parameterized
   `MERGE` when Neo4j is available.
 - `agent-system ask` answers registered measure, facility, operational-period,

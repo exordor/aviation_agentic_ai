@@ -79,6 +79,146 @@ class CorpusCaseFact(StrictModel):
     fact_id: str = Field(min_length=1)
 
 
+class CorpusCaseQuery(StrictModel):
+    """Exact, bounded filters over the normalized case catalog."""
+
+    event_type_iri: str | None = Field(default=None, min_length=1)
+    facility_id: str | None = Field(default=None, min_length=1)
+    reason_status: Literal["formal", "profile_gap", "missing"] | None = None
+    reason_value: str | None = Field(default=None, min_length=1)
+    offset: int = Field(default=0, ge=0)
+    limit: int = Field(default=20, ge=1, le=100)
+
+
+class CorpusCasePage(StrictModel):
+    """One deterministic page of exact case-catalog matches."""
+
+    corpus_id: str = Field(min_length=1)
+    total_matches: int = Field(ge=0)
+    offset: int = Field(ge=0)
+    limit: int = Field(ge=1, le=100)
+    cases: tuple[CorpusCase, ...] = ()
+
+
+class CorpusQueryStore:
+    """Read-only indexed view of one normalized decision-case corpus."""
+
+    _REQUIRED_ARTIFACTS = (
+        "cases",
+        "facts",
+        "case_facts",
+        "source_bindings",
+    )
+
+    def __init__(self, corpus_dir: str | Path) -> None:
+        root = Path(corpus_dir).resolve()
+        manifest_path = root / "corpus_manifest.json"
+        try:
+            manifest = CorpusBuildManifest.model_validate_json(
+                manifest_path.read_text(encoding="utf-8")
+            )
+        except (OSError, ValueError) as exc:
+            raise ValueError("invalid corpus manifest") from exc
+
+        artifact_rows: dict[str, list[dict[str, object]]] = {}
+        for name in self._REQUIRED_ARTIFACTS:
+            metadata = manifest.artifacts.get(name)
+            if metadata is None:
+                raise ValueError(f"corpus manifest is missing artifact: {name}")
+            path = (root / metadata.path).resolve()
+            if not path.is_relative_to(root) or not path.is_file():
+                raise ValueError(f"corpus artifact is missing: {name}")
+            data = path.read_bytes()
+            if hashlib.sha256(data).hexdigest() != metadata.sha256:
+                raise ValueError(f"corpus artifact checksum mismatch: {name}")
+            rows = _read_jsonl(path)
+            if len(rows) != metadata.count:
+                raise ValueError(f"corpus artifact count mismatch: {name}")
+            artifact_rows[name] = rows
+
+        cases = tuple(
+            CorpusCase.model_validate(row)
+            for row in artifact_rows["cases"]
+        )
+        facts = tuple(
+            ValidatedFact.model_validate(row)
+            for row in artifact_rows["facts"]
+        )
+        memberships = tuple(
+            CorpusCaseFact.model_validate(row)
+            for row in artifact_rows["case_facts"]
+        )
+        self.root = root
+        self.manifest = manifest
+        self.cases = tuple(sorted(cases, key=lambda row: row.case_id))
+        self.facts = tuple(sorted(facts, key=lambda row: row.fact_id))
+        self._case_by_event = {case.event_id: case for case in self.cases}
+        self._fact_by_id = {fact.fact_id: fact for fact in self.facts}
+        self._fact_ids_by_case: dict[str, tuple[str, ...]] = {}
+        for case in self.cases:
+            self._fact_ids_by_case[case.case_id] = tuple(
+                sorted(
+                    row.fact_id
+                    for row in memberships
+                    if row.case_id == case.case_id
+                )
+            )
+
+    @property
+    def event_ids(self) -> tuple[str, ...]:
+        """Return all corpus events in deterministic order."""
+
+        return tuple(case.event_id for case in self.cases)
+
+    def find_cases(self, query: CorpusCaseQuery) -> CorpusCasePage:
+        """Return one page of exact catalog matches."""
+
+        matches = [
+            case
+            for case in self.cases
+            if (
+                query.event_type_iri is None
+                or query.event_type_iri in case.event_type_iris
+            )
+            and (
+                query.facility_id is None
+                or query.facility_id in case.facility_ids
+            )
+            and (
+                query.reason_status is None
+                or query.reason_status == case.reason_status
+            )
+            and (
+                query.reason_value is None
+                or query.reason_value == case.reason_value
+            )
+        ]
+        return CorpusCasePage(
+            corpus_id=self.manifest.corpus_id,
+            total_matches=len(matches),
+            offset=query.offset,
+            limit=query.limit,
+            cases=tuple(matches[query.offset : query.offset + query.limit]),
+        )
+
+    def get_case(self, event_id: str) -> CorpusCase | None:
+        """Return one case by its canonical event ID."""
+
+        return self._case_by_event.get(event_id)
+
+    def get_case_facts(self, event_id: str) -> tuple[ValidatedFact, ...]:
+        """Return the canonical facts assigned to one case."""
+
+        case = self.get_case(event_id)
+        if case is None:
+            return ()
+        return tuple(
+            self._fact_by_id[fact_id]
+            for fact_id in self._fact_ids_by_case.get(case.case_id, ())
+            if fact_id in self._fact_by_id
+        )
+
+
 def build_corpus(
     run_dirs: list[str | Path] | tuple[str | Path, ...],
     output_dir: str | Path,
