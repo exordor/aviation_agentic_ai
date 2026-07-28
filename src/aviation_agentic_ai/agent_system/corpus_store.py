@@ -23,6 +23,11 @@ from aviation_agentic_ai.agent_system.context_artifacts import (
     read_context_associations,
     read_observation_fact_traces,
 )
+from aviation_agentic_ai.agent_system.decision_case_graph import (
+    CASE_DECISION_CASE_IRI,
+    PROV_HAD_MEMBER_IRI,
+    PROV_SPECIALIZATION_OF_IRI,
+)
 from aviation_agentic_ai.agent_system.query_tools import QueryGraphStore
 from aviation_agentic_ai.agent_system.materialize import (
     build_validated_facts_neo4j_projection,
@@ -144,6 +149,8 @@ class CorpusCase(StrictModel):
     """Catalog row for one validated event run."""
 
     case_id: str = Field(min_length=1)
+    case_iri: str = Field(min_length=1)
+    reconstruction_iri: str = Field(min_length=1)
     event_id: str = Field(min_length=1)
     run_ids: list[str] = Field(min_length=1)
     advisory_source_id: str = Field(min_length=1)
@@ -426,6 +433,52 @@ class CorpusQueryStore:
         )
 
 
+def _formal_case_identity(
+    facts: list[ValidatedFact],
+    *,
+    event_id: str,
+) -> tuple[str, str]:
+    """Extract the one accepted conceptual case and reconstruction for an event."""
+
+    core_facts = [
+        fact
+        for fact in facts
+        if fact.validation_profile.layer == "decision_case_core"
+    ]
+    case_iris = {
+        fact.subject_iri
+        for fact in core_facts
+        if fact.predicate_iri == _RDF_TYPE_IRI
+        and fact.object_value == CASE_DECISION_CASE_IRI
+    }
+    if len(case_iris) != 1:
+        raise ValueError(
+            "corpus event requires exactly one formal DecisionCase identity"
+        )
+    case_iri = next(iter(case_iris))
+    specialization_facts = [
+        fact
+        for fact in core_facts
+        if fact.predicate_iri == PROV_SPECIALIZATION_OF_IRI
+        and fact.object_value == case_iri
+    ]
+    if len(specialization_facts) != 1:
+        raise ValueError(
+            "corpus event requires exactly one formal reconstruction identity"
+        )
+    reconstruction_iri = specialization_facts[0].subject_iri
+    if not any(
+        fact.subject_iri == reconstruction_iri
+        and fact.predicate_iri == PROV_HAD_MEMBER_IRI
+        and fact.object_value == event_id
+        for fact in core_facts
+    ):
+        raise ValueError(
+            "formal DecisionCase reconstruction does not contain its event"
+        )
+    return case_iri, reconstruction_iri
+
+
 def build_corpus(
     run_dirs: list[str | Path] | tuple[str | Path, ...],
     output_dir: str | Path,
@@ -460,6 +513,10 @@ def build_corpus(
         event_id = store.event_ids[0]
         case_id = event_id
         facts = sorted(store.validated_facts, key=lambda fact: fact.fact_id)
+        case_iri, reconstruction_iri = _formal_case_identity(
+            facts,
+            event_id=event_id,
+        )
         semantic_ids_by_run_fact_id: dict[str, str] = {}
 
         for fact in facts:
@@ -634,6 +691,8 @@ def build_corpus(
 
         case = CorpusCase(
             case_id=case_id,
+            case_iri=case_iri,
+            reconstruction_iri=reconstruction_iri,
             event_id=event_id,
             run_ids=[str(store.manifest["run_id"])],
             advisory_source_id=str(store.manifest["source_id"]),

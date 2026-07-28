@@ -26,7 +26,7 @@ def test_corpus_projection_contains_formal_facts_but_not_context_associations(
     """A projection that drops facts or promotes context associations is invalid."""
 
     run_dir = tmp_path / "run"
-    _fixture._fixture_module._write_context_layer(run_dir)
+    _fixture._write_context_run(run_dir)
     corpus_dir = tmp_path / "corpus"
     manifest = build_corpus([run_dir], corpus_dir)
 
@@ -55,7 +55,7 @@ def test_corpus_rdf_projection_is_byte_stable_across_repeated_builds(
     """A corpus rebuild must not assign fresh RDF identifiers to the same facts."""
 
     run_dir = tmp_path / "run"
-    _fixture._fixture_module._write_context_layer(run_dir)
+    _fixture._write_context_run(run_dir)
     first = tmp_path / "first"
     second = tmp_path / "second"
 
@@ -80,6 +80,6 @@ def test_corpus_rdf_projection_never_uses_blank_node_canonicalization(
 
     monkeypatch.setattr("rdflib.compare.to_canonical_graph", fail_if_called)
     run_dir = tmp_path / "run"
-    _fixture._fixture_module._write_context_layer(run_dir)
+    _fixture._write_context_run(run_dir)
 
     build_corpus([run_dir], tmp_path / "corpus")

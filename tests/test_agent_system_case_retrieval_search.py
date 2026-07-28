@@ -38,6 +38,8 @@ def _case(
 ) -> CorpusCase:
     return CorpusCase(
         case_id=f"case:{name}",
+        case_iri=f"urn:decision-case:{name}",
+        reconstruction_iri=f"urn:decision-case-reconstruction:{name}",
         event_id=f"event:{name}",
         run_ids=[f"run:{name}"],
         advisory_source_id=f"2026-05-19:{name}",

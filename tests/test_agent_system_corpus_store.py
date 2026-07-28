@@ -8,9 +8,13 @@ import json
 from pathlib import Path
 
 from click.testing import CliRunner
+import pytest
 
 from aviation_agentic_ai.agent_system.contracts import (
+    DecisionCaseMemberBinding,
+    DecisionCaseReconstructionSeed,
     PersistedProfileGap,
+    SourceBinding,
     SourceSnapshotRegistry,
     stable_id,
 )
@@ -20,6 +24,19 @@ from aviation_agentic_ai.agent_system.corpus_store import (
     build_corpus,
     load_case_catalog,
     load_corpus_facts,
+)
+from aviation_agentic_ai.agent_system.decision_case_graph import (
+    BUILDER_CHECKSUM,
+    BUILDER_ID,
+    CASE_DECISION_CASE_IRI,
+    build_decision_case_graph,
+)
+from aviation_agentic_ai.agent_system.materialize import (
+    write_validated_facts_jsonl,
+)
+from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    load_validation_profile_registry,
 )
 from aviation_agentic_ai.cli_agent_system import agent_system
 
@@ -33,6 +50,103 @@ _fixture_module = importlib.util.module_from_spec(_FIXTURE_SPEC)
 _FIXTURE_SPEC.loader.exec_module(_fixture_module)
 _base_rows = _fixture_module._rows
 _write_graph = _fixture_module._write_graph
+
+
+def _attach_decision_case_core(
+    run_dir: Path,
+    *,
+    event_id: str,
+) -> tuple[str, str]:
+    registry = SourceSnapshotRegistry.read_jsonl(
+        run_dir / "source_snapshots.jsonl"
+    )
+    snapshot = registry.get(_fixture_module.SOURCE_ID)
+    assert snapshot is not None
+    profile_registry = load_validation_profile_registry(
+        decision_guide=load_schema_guide()
+    )
+    identity_digest = hashlib.sha256(event_id.encode("utf-8")).hexdigest()
+    reconstruction_digest = hashlib.sha256(
+        f"{event_id}:reconstruction".encode("utf-8")
+    ).hexdigest()
+    case_iri = f"urn:aviation-agentic-ai:decision-case:{identity_digest}"
+    reconstruction_iri = (
+        "urn:aviation-agentic-ai:decision-case-reconstruction:"
+        f"{reconstruction_digest}"
+    )
+    seed = DecisionCaseReconstructionSeed(
+        conceptual_case_iri=case_iri,
+        reconstruction_iri=reconstruction_iri,
+        reconstruction_trace_id=f"reconstruction-trace:{reconstruction_digest}",
+        reconstruction_input_sha256=reconstruction_digest,
+        profile_refs=profile_registry.refs,
+        source_bindings=(
+            SourceBinding(
+                source_id=snapshot.source_id,
+                source_family=snapshot.family,
+                snapshot_sha256=snapshot.content_sha256,
+            ),
+        ),
+        builder_id=BUILDER_ID,
+        builder_checksum=BUILDER_CHECKSUM,
+    )
+    core = build_decision_case_graph(
+        seed=seed,
+        members=(
+            DecisionCaseMemberBinding(
+                member_iri=event_id,
+                member_kind="event",
+                source_ids=(snapshot.source_id,),
+            ),
+        ),
+        profile_registry=profile_registry,
+    )
+    assert core.status == "ok", core.failure_reason
+    assert core.reconstruction_trace is not None
+    formal_path = write_validated_facts_jsonl(
+        facts=core.formal_facts,
+        output_dir=run_dir / "decision-case-core-fixture",
+        profile_registry=profile_registry,
+        source_snapshot=registry,
+    )
+    graph_path = run_dir / "kg.jsonl"
+    graph_path.write_text(
+        graph_path.read_text(encoding="utf-8")
+        + Path(formal_path).read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    reconstruction_metadata = _fixture_module._write_artifact(
+        run_dir,
+        "reconstruction_trace.json",
+        [core.reconstruction_trace.model_dump_json()],
+    )
+    core_profile = profile_registry.require_layer(
+        core.formal_facts[0].validation_profile,
+        "decision_case_core",
+    )
+    manifest_path = run_dir / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["materialization"]["fact_count"] += len(core.formal_facts)
+    manifest["materialization"]["layer_fact_counts"][
+        "decision_case_core"
+    ] = len(core.formal_facts)
+    manifest["materialization"]["profile_refs"].append(
+        core_profile.ref.model_dump(mode="json")
+    )
+    manifest["formal_layers"]["decision_case_core"] = {
+        "status": "ok",
+        "profile_id": core_profile.ref.profile_id,
+        "profile_checksum": core_profile.ref.profile_checksum,
+        "formal_fact_count": len(core.formal_facts),
+    }
+    manifest["context_artifacts"][
+        "reconstruction_trace"
+    ] = reconstruction_metadata
+    manifest_path.write_text(
+        json.dumps(manifest, sort_keys=True),
+        encoding="utf-8",
+    )
+    return case_iri, reconstruction_iri
 
 
 def _write_run(
@@ -81,6 +195,7 @@ def _write_run(
             }
         )
     _write_graph(run_dir, rows)
+    _attach_decision_case_core(run_dir, event_id=event_id)
 
 
 def _write_reason_profile_gap(run_dir: Path, *, event_id: str) -> None:
@@ -139,6 +254,73 @@ def _write_reason_profile_gap(run_dir: Path, *, event_id: str) -> None:
     )
 
 
+def _write_context_run(run_dir: Path) -> None:
+    _fixture_module._write_context_layer(run_dir)
+    _attach_decision_case_core(
+        run_dir,
+        event_id=_fixture_module.EVENT_ID,
+    )
+
+
+def _rewrite_core_fixture(
+    run_dir: Path,
+    *,
+    rows: list[dict[str, object]],
+    member_iris: list[str] | None = None,
+) -> None:
+    graph_path = run_dir / "kg.jsonl"
+    graph_rows = [
+        json.loads(line)
+        for line in graph_path.read_text(encoding="utf-8").splitlines()
+    ]
+    non_core_rows = [
+        row
+        for row in graph_rows
+        if row["validation_layer"] != "decision_case_core"
+    ]
+    graph_path.write_text(
+        "".join(
+            json.dumps(row, sort_keys=True) + "\n"
+            for row in [*non_core_rows, *rows]
+        ),
+        encoding="utf-8",
+    )
+    reconstruction_path = run_dir / "reconstruction_trace.json"
+    if member_iris is not None:
+        reconstruction = json.loads(
+            reconstruction_path.read_text(encoding="utf-8")
+        )
+        reconstruction["member_iris"] = member_iris
+        reconstruction_path.write_text(
+            json.dumps(reconstruction, sort_keys=True),
+            encoding="utf-8",
+        )
+    manifest_path = run_dir / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["materialization"]["fact_count"] = len(non_core_rows) + len(rows)
+    manifest["materialization"]["layer_fact_counts"][
+        "decision_case_core"
+    ] = len(rows)
+    manifest["formal_layers"]["decision_case_core"][
+        "formal_fact_count"
+    ] = len(rows)
+    manifest["context_artifacts"]["reconstruction_trace"]["sha256"] = (
+        hashlib.sha256(reconstruction_path.read_bytes()).hexdigest()
+    )
+    manifest_path.write_text(
+        json.dumps(manifest, sort_keys=True),
+        encoding="utf-8",
+    )
+
+
+def _core_fixture_rows(run_dir: Path) -> list[dict[str, object]]:
+    return [
+        json.loads(line)
+        for line in (run_dir / "kg.jsonl").read_text(encoding="utf-8").splitlines()
+        if json.loads(line)["validation_layer"] == "decision_case_core"
+    ]
+
+
 def _set_snapshot_timestamp(run_dir: Path, timestamp: str) -> None:
     snapshot_path = run_dir / "source_snapshots.jsonl"
     snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
@@ -176,9 +358,10 @@ def _set_snapshot_content(run_dir: Path, content: str) -> str:
         for line in graph_path.read_text(encoding="utf-8").splitlines()
     ]
     for row in graph_rows:
-        row["source_snapshot_checksums"][_fixture_module.SOURCE_ID] = (
-            content_sha256
-        )
+        if _fixture_module.SOURCE_ID in row["source_ids"]:
+            row["source_snapshot_checksums"][_fixture_module.SOURCE_ID] = (
+                content_sha256
+            )
     graph_path.write_text(
         "".join(json.dumps(row) + "\n" for row in graph_rows),
         encoding="utf-8",
@@ -195,6 +378,17 @@ def _set_snapshot_content(run_dir: Path, content: str) -> str:
         "".join(json.dumps(row) + "\n" for row in trace_rows),
         encoding="utf-8",
     )
+    reconstruction_path = run_dir / "reconstruction_trace.json"
+    reconstruction = json.loads(
+        reconstruction_path.read_text(encoding="utf-8")
+    )
+    for binding in reconstruction["source_bindings"]:
+        if binding["source_id"] == _fixture_module.SOURCE_ID:
+            binding["snapshot_sha256"] = content_sha256
+    reconstruction_path.write_text(
+        json.dumps(reconstruction),
+        encoding="utf-8",
+    )
 
     manifest_path = run_dir / "run_manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -204,6 +398,9 @@ def _set_snapshot_content(run_dir: Path, content: str) -> str:
     manifest["context_artifacts"]["fact_trace"]["sha256"] = hashlib.sha256(
         trace_path.read_bytes()
     ).hexdigest()
+    manifest["context_artifacts"]["reconstruction_trace"]["sha256"] = (
+        hashlib.sha256(reconstruction_path.read_bytes()).hexdigest()
+    )
     manifest_path.write_text(
         json.dumps(manifest, separators=(",", ":")) + "\n",
         encoding="utf-8",
@@ -291,10 +488,77 @@ def test_build_corpus_merges_cases_and_full_iri_facts(tmp_path: Path) -> None:
         event_id=event_a,
     )
     assert [case.event_id for case in cases] == [event_a, event_b]
-    assert len(facts) == 8
-    assert len(event_a_facts) == 4
+    assert len(facts) == 22
+    assert len(event_a_facts) == 11
     assert {fact.fact_id for fact in event_a_facts} == set(cases[0].fact_ids)
     assert all(fact.predicate_iri.startswith("http") for fact in facts)
+    assert all(
+        case.case_iri.startswith("urn:aviation-agentic-ai:decision-case:")
+        for case in cases
+    )
+    assert all(
+        case.reconstruction_iri.startswith(
+            "urn:aviation-agentic-ai:decision-case-reconstruction:"
+        )
+        for case in cases
+    )
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    [
+        ("missing_case", "exactly one formal DecisionCase identity"),
+        ("duplicate_case", "exactly one formal DecisionCase identity"),
+        ("missing_event_member", "does not contain its event"),
+    ],
+)
+def test_build_corpus_requires_one_formal_case_identity(
+    tmp_path: Path,
+    mutation: str,
+    message: str,
+) -> None:
+    run_dir = tmp_path / mutation
+    event_id = f"urn:event:{mutation}"
+    _write_run(run_dir, event_id=event_id, suffix=mutation)
+    rows = _core_fixture_rows(run_dir)
+    if mutation == "missing_case":
+        rows = [
+            row
+            for row in rows
+            if not (
+                row["predicate"] == "rdf:type"
+                and row["object"] == CASE_DECISION_CASE_IRI
+            )
+        ]
+        _rewrite_core_fixture(run_dir, rows=rows)
+    elif mutation == "duplicate_case":
+        case_row = next(
+            row
+            for row in rows
+            if row["predicate"] == "rdf:type"
+            and row["object"] == CASE_DECISION_CASE_IRI
+        )
+        rows.append(
+            {
+                **case_row,
+                "triple_id": "decision-case-core-fact:duplicate-case",
+                "subject": "urn:decision-case:duplicate",
+            }
+        )
+        _rewrite_core_fixture(run_dir, rows=rows)
+    else:
+        rows = [
+            row
+            for row in rows
+            if not (
+                row["predicate"] == "prov:hadMember"
+                and row["object"] == event_id
+            )
+        ]
+        _rewrite_core_fixture(run_dir, rows=rows, member_iris=[])
+
+    with pytest.raises(ValueError, match=message):
+        build_corpus([run_dir], tmp_path / "corpus")
 
 
 def test_build_corpus_v2_merges_semantic_facts_and_keeps_evidence_links(
@@ -329,17 +593,17 @@ def test_build_corpus_v2_merges_semantic_facts_and_keeps_evidence_links(
         .splitlines()
     ]
     assert manifest.manifest_version == "decision-case-corpus-v2"
-    assert len(facts) == 4
-    assert len(links) == 8
+    assert len(facts) == 11
+    assert len(links) == 10
     assert {link["owner_kind"] for link in links} == {"fact"}
-    assert len({link["owner_id"] for link in links}) == 4
+    assert len({link["owner_id"] for link in links}) == 6
 
 
 def test_build_corpus_v2_preserves_context_and_observation_boundaries(
     tmp_path: Path,
 ) -> None:
     context_run = tmp_path / "context"
-    _fixture_module._write_context_layer(context_run)
+    _write_context_run(context_run)
     _write_reason_profile_gap(context_run, event_id=_fixture_module.EVENT_ID)
     observation_run = tmp_path / "observations"
     _fixture_module._write_formal_observation_layer(observation_run)
@@ -449,7 +713,7 @@ def test_build_corpus_uses_semantic_not_legacy_fact_identity(tmp_path: Path) -> 
 
     manifest = build_corpus([run_a, run_b], tmp_path / "corpus")
 
-    assert manifest.fact_count == 8
+    assert manifest.fact_count == 22
 
 
 def test_build_corpus_collapses_repeated_runs_of_the_same_case(
@@ -481,7 +745,7 @@ def test_build_corpus_collapses_repeated_runs_of_the_same_case(
         "2026-05-19T20:30:00+00:00",
         "2026-05-20T20:30:00+00:00",
     ]
-    assert len(memberships) == 4
+    assert len(memberships) == 11
 
 
 def test_corpus_query_store_filters_and_pages_cases(tmp_path: Path) -> None:
@@ -529,7 +793,7 @@ def test_corpus_query_store_filters_and_pages_cases(tmp_path: Path) -> None:
     assert [case.case_id for case in gdp_page.cases] == ["urn:event:c"]
     assert {
         fact.subject_iri for fact in store.get_case_facts("urn:event:c")
-    } == {"urn:event:c"}
+    } >= {"urn:event:c", store.get_case("urn:event:c").case_iri}
 
 
 def test_corpus_query_preserves_formal_gap_and_missing_reason_states(
@@ -644,7 +908,7 @@ def test_corpus_query_answers_forecast_context_without_a_run_directory(
     from aviation_agentic_ai.agent_system.query_tool_graph import FORECAST_CONTEXT_QUESTION
 
     run_dir = tmp_path / "run"
-    _fixture_module._write_context_layer(run_dir)
+    _write_context_run(run_dir)
     corpus_dir = tmp_path / "corpus"
     build_corpus([run_dir], corpus_dir)
 
@@ -665,7 +929,7 @@ def test_corpus_query_store_returns_context_observations_and_gap_evidence(
     """Removing corpus-only context records would make this read insufficient."""
 
     run_dir = tmp_path / "run"
-    _fixture_module._write_context_layer(run_dir)
+    _write_context_run(run_dir)
     _write_reason_profile_gap(run_dir, event_id=_fixture_module.EVENT_ID)
     corpus_dir = tmp_path / "corpus"
     build_corpus([run_dir], corpus_dir)

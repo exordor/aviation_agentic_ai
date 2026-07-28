@@ -46,6 +46,8 @@ def corpus_store(tmp_path: Path) -> CorpusQueryStore:
     cases = [
         CorpusCase(
             case_id="case:formal",
+            case_iri="urn:decision-case:formal",
+            reconstruction_iri="urn:decision-case-reconstruction:formal",
             event_id="urn:event:formal",
             run_ids=["run:formal"],
             advisory_source_id="2026-05-19:138",
@@ -61,6 +63,10 @@ def corpus_store(tmp_path: Path) -> CorpusQueryStore:
         ),
         CorpusCase(
             case_id="case:profile-gap",
+            case_iri="urn:decision-case:profile-gap",
+            reconstruction_iri=(
+                "urn:decision-case-reconstruction:profile-gap"
+            ),
             event_id="urn:event:profile-gap",
             run_ids=["run:profile-gap"],
             advisory_source_id="2026-05-19:123",
@@ -76,6 +82,8 @@ def corpus_store(tmp_path: Path) -> CorpusQueryStore:
         ),
         CorpusCase(
             case_id="case:missing",
+            case_iri="urn:decision-case:missing",
+            reconstruction_iri="urn:decision-case-reconstruction:missing",
             event_id="urn:event:missing",
             run_ids=["run:missing"],
             advisory_source_id="2026-05-20:020",

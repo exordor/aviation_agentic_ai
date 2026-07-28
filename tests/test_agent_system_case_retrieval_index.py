@@ -62,6 +62,8 @@ def corpus_dir(tmp_path: Path) -> Path:
     cases = [
         CorpusCase(
             case_id="case:a",
+            case_iri="urn:decision-case:a",
+            reconstruction_iri="urn:decision-case-reconstruction:a",
             event_id="urn:event:a",
             run_ids=["run:a"],
             advisory_source_id="2026-05-19:123",
@@ -74,6 +76,8 @@ def corpus_dir(tmp_path: Path) -> Path:
         ),
         CorpusCase(
             case_id="case:b",
+            case_iri="urn:decision-case:b",
+            reconstruction_iri="urn:decision-case-reconstruction:b",
             event_id="urn:event:b",
             run_ids=["run:b"],
             advisory_source_id="2026-05-19:138",
