@@ -7,14 +7,21 @@ import importlib.util
 import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
 from langchain_core.messages import AIMessage
 
+import aviation_agentic_ai.agent_system.corpus_query as corpus_query_module
 import aviation_agentic_ai.agent_system.query_tool_graph as query_tool_graph_module
+from aviation_agentic_ai.agent_system.case_retrieval_contracts import (
+    CaseSimilarityQuery,
+    CaseSimilarityResult,
+)
 from aviation_agentic_ai.agent_system.contracts import (
     BTSOutcomeSummary,
+    CaseSimilarityMatch,
     ModelCallRecord,
     OutcomeObservationRead,
     OutcomeSummaryRead,
@@ -23,6 +30,9 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceSnapshot,
     SourceSnapshotRegistry,
     WeatherContextAssociation,
+)
+from aviation_agentic_ai.agent_system.corpus_query import (
+    answer_corpus_question,
 )
 from aviation_agentic_ai.agent_system.query_tool_graph import (
     APPLICABILITY_ANALYSIS_QUESTION,
@@ -2774,6 +2784,184 @@ def test_historical_similarity_is_a_zero_call_corpus_gate(tmp_path):
     assert outcome.analysis_artifact_dir is None
     assert factory.calls == 0
     assert not (tmp_path / "analysis").exists()
+
+
+def test_corpus_similarity_returns_ranked_matches_without_model(
+    tmp_path,
+    monkeypatch,
+):
+    """The corpus route is deterministic and does not reuse the analysis model."""
+
+    anchor = SimpleNamespace(case_id="case:anchor")
+    store = SimpleNamespace(
+        root=tmp_path,
+        manifest=SimpleNamespace(corpus_id="corpus:test"),
+        get_case=lambda event_id: (
+            anchor if event_id == "event:anchor" else None
+        ),
+    )
+    (tmp_path / "case_index").mkdir()
+    (tmp_path / "case_index" / "case_index_manifest.json").write_text(
+        "{}",
+        encoding="utf-8",
+    )
+    expected_query = CaseSimilarityQuery(
+        reference_event_id="event:anchor",
+        candidate_scope="archive",
+        facility_id=FACILITY_ID,
+        limit=2,
+    )
+    result = CaseSimilarityResult(
+        status="ok",
+        query=expected_query,
+        candidate_count=2,
+        representation_version="decision-record-v1",
+        embedding_model_id="test/model",
+        matches=(
+            CaseSimilarityMatch(
+                rank=1,
+                case_id="case:nearest",
+                event_id="event:nearest",
+                advisory_source_id="2026-05-19:128",
+                score=0.941207,
+                tmi_type_iri=(
+                    "https://data.nasa.gov/ontologies/atmonto/ATM#"
+                    "GroundDelayProgramTMI"
+                ),
+                facility_ids=(FACILITY_ID,),
+                reason_status="formal",
+                reason_value="weather",
+            ),
+        ),
+    )
+    captured: dict[str, object] = {}
+
+    monkeypatch.setattr(
+        corpus_query_module,
+        "CorpusQueryStore",
+        lambda _corpus_dir: store,
+    )
+    monkeypatch.setattr(
+        corpus_query_module,
+        "ChromaCaseRetrievalIndex",
+        lambda received_store, index_dir: captured.update(
+            store=received_store,
+            index_dir=index_dir,
+        )
+        or object(),
+    )
+    monkeypatch.setattr(
+        corpus_query_module,
+        "find_similar_cases",
+        lambda received_store, received_index, query: (
+            captured.update(
+                search_store=received_store,
+                search_index=received_index,
+                query=query,
+            )
+            or result
+        ),
+    )
+
+    def forbidden_factory(_tools):
+        raise AssertionError("similarity retrieval constructed a model")
+
+    outcome = answer_corpus_question(
+        corpus_dir=tmp_path,
+        question=HISTORICAL_SIMILARITY_ANALYSIS_QUESTION,
+        event_id="event:anchor",
+        facility_id=FACILITY_ID,
+        limit=2,
+        allow_live_model=True,
+        model_factory=forbidden_factory,
+    )
+
+    assert outcome.status == "ok"
+    assert outcome.model_calls == []
+    assert outcome.analysis_artifact_dir is None
+    assert outcome.retrieved_case_ids == ["case:nearest"]
+    assert outcome.similarity_matches == list(result.matches)
+    assert len(outcome.tool_calls) == 1
+    assert outcome.tool_calls[0].tool == "find_similar_cases"
+    assert captured["query"] == expected_query
+    assert "not a recommendation" in outcome.answer
+    assert "causal explanation" in outcome.answer
+
+
+def test_corpus_similarity_without_index_is_insufficient(
+    tmp_path,
+    monkeypatch,
+):
+    store = SimpleNamespace(
+        root=tmp_path,
+        manifest=SimpleNamespace(corpus_id="corpus:test"),
+        get_case=lambda event_id: (
+            SimpleNamespace(case_id="case:anchor")
+            if event_id == "event:anchor"
+            else None
+        ),
+    )
+    monkeypatch.setattr(
+        corpus_query_module,
+        "CorpusQueryStore",
+        lambda _corpus_dir: store,
+    )
+
+    outcome = answer_corpus_question(
+        corpus_dir=tmp_path,
+        question=HISTORICAL_SIMILARITY_ANALYSIS_QUESTION,
+        event_id="event:anchor",
+    )
+
+    assert outcome.status == "insufficient"
+    assert "case index" in outcome.answer.lower()
+    assert outcome.model_calls == []
+    assert len(outcome.tool_calls) == 1
+
+
+def test_corpus_similarity_with_stale_index_is_blocked(
+    tmp_path,
+    monkeypatch,
+):
+    store = SimpleNamespace(
+        root=tmp_path,
+        manifest=SimpleNamespace(corpus_id="corpus:test"),
+        get_case=lambda event_id: (
+            SimpleNamespace(case_id="case:anchor")
+            if event_id == "event:anchor"
+            else None
+        ),
+    )
+    (tmp_path / "case_index").mkdir()
+    (tmp_path / "case_index" / "case_index_manifest.json").write_text(
+        "{}",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        corpus_query_module,
+        "CorpusQueryStore",
+        lambda _corpus_dir: store,
+    )
+
+    def stale_index(*_args, **_kwargs):
+        raise ValueError("case index belongs to another corpus")
+
+    monkeypatch.setattr(
+        corpus_query_module,
+        "ChromaCaseRetrievalIndex",
+        stale_index,
+    )
+
+    outcome = answer_corpus_question(
+        corpus_dir=tmp_path,
+        question=HISTORICAL_SIMILARITY_ANALYSIS_QUESTION,
+        event_id="event:anchor",
+    )
+
+    assert outcome.status == "blocked"
+    assert "another corpus" in outcome.failure_reason
+    assert outcome.model_calls == []
+    assert len(outcome.tool_calls) == 1
 
 
 @pytest.mark.parametrize(

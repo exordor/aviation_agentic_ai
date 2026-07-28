@@ -19,7 +19,9 @@ import pytest
 import aviation_agentic_ai.cli as top_cli
 import aviation_agentic_ai.cli_agent_system as cli_module
 from aviation_agentic_ai.agent_system.contracts import (
+    CaseSimilarityMatch,
     ModelCallRecord,
+    QueryToolOutcome,
     SourceFamily,
 )
 from aviation_agentic_ai.agent_system.corpus_query import (
@@ -622,11 +624,11 @@ def test_zero_model_registered_analyses_still_use_corpus_bound_plans(
         assert "analysis_artifact_dir: " in result.output
 
 
-def test_similarity_remains_an_explicit_zero_model_s3_gate(
+def test_similarity_without_index_is_an_explicit_zero_model_gate(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    """Storage alone must not activate ranking or a provider."""
+    """A corpus without its derived index remains an honest insufficient read."""
 
     corpus_dir = _minimal_corpus(tmp_path)
 
@@ -644,6 +646,8 @@ def test_similarity_remains_an_explicit_zero_model_s3_gate(
             "ask",
             "--corpus-dir",
             str(corpus_dir),
+            "--event-id",
+            "urn:event:cli-corpus",
             "--question",
             HISTORICAL_SIMILARITY_ANALYSIS_QUESTION,
             "--allow-live-model",
@@ -652,9 +656,101 @@ def test_similarity_remains_an_explicit_zero_model_s3_gate(
 
     assert result.exit_code == 0, result.output
     assert "status: insufficient" in result.output
-    assert "S3" in result.output
-    assert "comparison cohort and ranking contract" in result.output
+    assert "case index" in result.output.lower()
     assert "model_calls: 0" in result.output
+
+
+def test_similarity_cli_prints_ranked_source_and_candidate_scope(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    corpus_dir = tmp_path / "corpus"
+    corpus_dir.mkdir()
+    captured: dict[str, object] = {}
+
+    def fake_answer(**kwargs):  # type: ignore[no-untyped-def]
+        captured.update(kwargs)
+        return QueryToolOutcome(
+            status="ok",
+            answer=(
+                "Similarity describes record structure only; it is not a "
+                "recommendation."
+            ),
+            match_count=2,
+            retrieved_case_ids=["case:one", "case:two"],
+            similarity_matches=[
+                CaseSimilarityMatch(
+                    rank=1,
+                    case_id="case:one",
+                    event_id="event:one",
+                    advisory_source_id="2026-05-19:128",
+                    score=0.941207,
+                    tmi_type_iri=(
+                        "https://data.nasa.gov/ontologies/atmonto/ATM#"
+                        "GroundDelayProgramTMI"
+                    ),
+                    facility_ids=(
+                        "urn:aviation-agentic-ai:facility:airport:KJFK",
+                    ),
+                    reason_status="formal",
+                    reason_value="weather",
+                ),
+                CaseSimilarityMatch(
+                    rank=2,
+                    case_id="case:two",
+                    event_id="event:two",
+                    advisory_source_id="2026-05-19:129",
+                    score=0.901234,
+                    tmi_type_iri=(
+                        "https://data.nasa.gov/ontologies/atmonto/ATM#"
+                        "GroundStopTMI"
+                    ),
+                    facility_ids=(
+                        "urn:aviation-agentic-ai:facility:airport:KJFK",
+                    ),
+                    reason_status="profile_gap",
+                    reason_value="weather",
+                ),
+            ],
+        )
+
+    monkeypatch.setattr(
+        cli_module,
+        "answer_corpus_question",
+        fake_answer,
+    )
+
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "ask",
+            "--corpus-dir",
+            str(corpus_dir),
+            "--event-id",
+            "event:anchor",
+            "--question",
+            HISTORICAL_SIMILARITY_ANALYSIS_QUESTION,
+            "--candidate-scope",
+            "prior",
+            "--offset",
+            "1",
+            "--limit",
+            "2",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert (
+        "similar_case: rank=1 source_id=2026-05-19:128 "
+        "score=0.941207"
+    ) in result.output
+    assert (
+        "similar_case: rank=2 source_id=2026-05-19:129 "
+        "score=0.901234"
+    ) in result.output
+    assert captured["candidate_scope"] == "prior"
+    assert captured["offset"] == 1
+    assert captured["limit"] == 2
 
 
 def test_corpus_cli_preserves_all_three_declared_reason_states(

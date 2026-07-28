@@ -190,6 +190,13 @@ def index_cases_command(
     help="Exact declared-reason state filter.",
 )
 @click.option("--reason-value", default=None, help="Exact reason-value filter.")
+@click.option(
+    "--candidate-scope",
+    type=click.Choice(["archive", "prior"]),
+    default="archive",
+    show_default=True,
+    help="Historical candidate set for exact similarity questions.",
+)
 @click.option("--offset", type=click.IntRange(min=0), default=0, show_default=True)
 @click.option(
     "--limit",
@@ -206,6 +213,7 @@ def ask(
     facility_id: str | None,
     reason_status: str | None,
     reason_value: str | None,
+    candidate_scope: str,
     offset: int,
     limit: int,
 ) -> None:
@@ -219,6 +227,7 @@ def ask(
         facility_id=facility_id,
         reason_status=reason_status,
         reason_value=reason_value,
+        candidate_scope=candidate_scope,
         offset=offset,
         limit=limit,
         allow_live_model=allow_live_model,
@@ -244,6 +253,13 @@ def ask(
             else "(none)"
         )
     )
+    for match in outcome.similarity_matches:
+        click.echo(
+            "similar_case: "
+            f"rank={match.rank} "
+            f"source_id={match.advisory_source_id} "
+            f"score={match.score:.6f}"
+        )
     click.echo(
         f"sources: {', '.join(outcome.source_ids) if outcome.source_ids else '(none)'}"
     )

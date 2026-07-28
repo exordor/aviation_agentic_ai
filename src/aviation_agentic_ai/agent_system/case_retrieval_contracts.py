@@ -6,7 +6,10 @@ from typing import Literal, Protocol, Sequence
 
 from pydantic import Field
 
-from aviation_agentic_ai.agent_system.contracts import StrictModel
+from aviation_agentic_ai.agent_system.contracts import (
+    CaseSimilarityMatch,
+    StrictModel,
+)
 
 
 REPRESENTATION_VERSION = "decision-record-v1"
@@ -90,3 +93,28 @@ class CaseVectorHit(StrictModel):
     advisory_source_id: str = Field(min_length=1)
     distance: float
     similarity: float
+
+
+class CaseSimilarityQuery(StrictModel):
+    """Exact candidate scope and ranked-page request for one anchor event."""
+
+    reference_event_id: str = Field(min_length=1)
+    candidate_scope: Literal["archive", "prior"] = "archive"
+    event_type_iri: str | None = Field(default=None, min_length=1)
+    facility_id: str | None = Field(default=None, min_length=1)
+    reason_status: Literal["formal", "profile_gap", "missing"] | None = None
+    reason_value: str | None = Field(default=None, min_length=1)
+    offset: int = Field(default=0, ge=0)
+    limit: int = Field(default=20, ge=1, le=100)
+
+
+class CaseSimilarityResult(StrictModel):
+    """Ranked derived retrieval records or one bounded limitation."""
+
+    status: Literal["ok", "insufficient", "blocked"]
+    query: CaseSimilarityQuery
+    candidate_count: int = Field(ge=0)
+    representation_version: str = Field(min_length=1)
+    embedding_model_id: str = Field(min_length=1)
+    matches: tuple[CaseSimilarityMatch, ...] = ()
+    limitation: str = ""

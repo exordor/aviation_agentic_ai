@@ -13,6 +13,16 @@ from aviation_agentic_ai.agent_system.case_analysis import (
     write_case_analysis_artifacts,
 )
 from aviation_agentic_ai.agent_system.case_analysis_tools import BoundQueryGateway
+from aviation_agentic_ai.agent_system.case_retrieval_contracts import (
+    CaseSimilarityQuery,
+)
+from aviation_agentic_ai.agent_system.case_retrieval_index import (
+    CASE_INDEX_MANIFEST,
+    ChromaCaseRetrievalIndex,
+)
+from aviation_agentic_ai.agent_system.case_retrieval_search import (
+    find_similar_cases,
+)
 from aviation_agentic_ai.agent_system.contracts import (
     QueryToolOutcome,
     QueryToolTrace,
@@ -588,14 +598,6 @@ def _analysis_outcome(
 ) -> QueryToolOutcome:
     """Run retained analysis over a corpus-backed in-memory graph view."""
 
-    if intent is AnalysisIntent.HISTORICAL_SIMILARITY:
-        return QueryToolOutcome(
-            status="insufficient",
-            answer=(
-                "S3 limitation: historical similarity requires an approved "
-                "comparison cohort and ranking contract."
-            ),
-        )
     if not allow_live_model:
         return QueryToolOutcome(
             status="blocked",
@@ -674,6 +676,146 @@ def _analysis_outcome(
     )
 
 
+def _similarity_outcome(
+    *,
+    store: CorpusQueryStore,
+    event_id: str | None,
+    candidate_scope: Literal["archive", "prior"],
+    event_type_iri: str | None,
+    facility_id: str | None,
+    reason_status: _ReasonStatus | None,
+    reason_value: str | None,
+    offset: int,
+    limit: int,
+) -> QueryToolOutcome:
+    arguments: dict[str, object] = {
+        "reference_event_id": event_id or "",
+        "candidate_scope": candidate_scope,
+        "event_type_iri": event_type_iri,
+        "facility_id": facility_id,
+        "reason_status": reason_status,
+        "reason_value": reason_value,
+        "offset": offset,
+        "limit": limit,
+    }
+    if not event_id:
+        return QueryToolOutcome(
+            status="insufficient",
+            answer=(
+                "An event_id is required for historical case retrieval."
+            ),
+            tool_calls=[
+                _trace(
+                    tool="find_similar_cases",
+                    arguments=arguments,
+                    case_ids=[],
+                    fact_ids=[],
+                    source_ids=[],
+                    status="insufficient",
+                )
+            ],
+        )
+    if store.get_case(event_id) is None:
+        return QueryToolOutcome(
+            status="insufficient",
+            answer="The reference event is not present in this corpus.",
+            tool_calls=[
+                _trace(
+                    tool="find_similar_cases",
+                    arguments=arguments,
+                    case_ids=[],
+                    fact_ids=[],
+                    source_ids=[],
+                    status="insufficient",
+                )
+            ],
+        )
+
+    query = CaseSimilarityQuery(
+        reference_event_id=event_id,
+        candidate_scope=candidate_scope,
+        event_type_iri=event_type_iri,
+        facility_id=facility_id,
+        reason_status=reason_status,
+        reason_value=reason_value,
+        offset=offset,
+        limit=limit,
+    )
+    index_dir = store.root / "case_index"
+    if not (index_dir / CASE_INDEX_MANIFEST).is_file():
+        return QueryToolOutcome(
+            status="insufficient",
+            answer=(
+                "The corpus has no case index. Build it with index-cases."
+            ),
+            retrieved_case_ids=[],
+            tool_calls=[
+                _trace(
+                    tool="find_similar_cases",
+                    arguments=query.model_dump(mode="json"),
+                    case_ids=[],
+                    fact_ids=[],
+                    source_ids=[],
+                    status="insufficient",
+                )
+            ],
+        )
+    try:
+        index = ChromaCaseRetrievalIndex(store, index_dir)
+    except ValueError as exc:
+        return QueryToolOutcome(
+            status="blocked",
+            failure_reason=str(exc),
+            tool_calls=[
+                _trace(
+                    tool="find_similar_cases",
+                    arguments=query.model_dump(mode="json"),
+                    case_ids=[],
+                    fact_ids=[],
+                    source_ids=[],
+                    status="blocked",
+                )
+            ],
+        )
+    result = find_similar_cases(store, index, query)
+    matches = list(result.matches)
+    case_ids = [match.case_id for match in matches]
+    source_ids = [match.advisory_source_id for match in matches]
+    if result.status == "ok":
+        first = matches[0]
+        answer = (
+            "The closest published decision record in the "
+            f"{query.candidate_scope} candidate set is "
+            f"{first.advisory_source_id} with cosine similarity "
+            f"{first.score:.6f}. Similarity describes record structure "
+            "only; it is not a recommendation, causal explanation, or "
+            "assessment that the historical decision was effective."
+        )
+    else:
+        answer = result.limitation if result.status == "insufficient" else ""
+    return QueryToolOutcome(
+        status=result.status,
+        answer=answer,
+        match_count=result.candidate_count,
+        retrieved_case_ids=case_ids,
+        source_ids=source_ids,
+        similarity_matches=matches,
+        tool_calls=[
+            _trace(
+                tool="find_similar_cases",
+                arguments=query.model_dump(mode="json"),
+                case_ids=case_ids,
+                fact_ids=[],
+                source_ids=source_ids,
+                status=result.status,
+            )
+        ],
+        failure_reason=(
+            result.limitation if result.status == "blocked" else ""
+        ),
+    )
+
+
 def answer_corpus_question(
     *,
     corpus_dir: str | Path,
@@ -683,6 +825,7 @@ def answer_corpus_question(
     facility_id: str | None = None,
     reason_status: _ReasonStatus | None = None,
     reason_value: str | None = None,
+    candidate_scope: Literal["archive", "prior"] = "archive",
     offset: int = 0,
     limit: int = 20,
     allow_live_model: bool = False,
@@ -700,6 +843,18 @@ def answer_corpus_question(
         )
     normalized = _normalize_question(question)
     intent = classify_registered_question(question)
+    if intent is AnalysisIntent.HISTORICAL_SIMILARITY:
+        return _similarity_outcome(
+            store=store,
+            event_id=event_id,
+            candidate_scope=candidate_scope,
+            event_type_iri=event_type_iri,
+            facility_id=facility_id,
+            reason_status=reason_status,
+            reason_value=reason_value,
+            offset=offset,
+            limit=limit,
+        )
     if isinstance(intent, AnalysisIntent):
         return _analysis_outcome(
             store=store,

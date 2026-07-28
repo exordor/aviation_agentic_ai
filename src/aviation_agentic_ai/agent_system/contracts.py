@@ -239,6 +239,20 @@ class QueryToolTrace(StrictModel):
     error: str | None = None
 
 
+class CaseSimilarityMatch(StrictModel):
+    """One ranked historical decision-record retrieval match."""
+
+    rank: int = Field(ge=1)
+    case_id: str = Field(min_length=1)
+    event_id: str = Field(min_length=1)
+    advisory_source_id: str = Field(min_length=1)
+    score: float
+    tmi_type_iri: str = Field(min_length=1)
+    facility_ids: tuple[str, ...]
+    reason_status: Literal["formal", "profile_gap", "missing"]
+    reason_value: str | None
+
+
 class QueryToolOutcome(StrictModel):
     """Final outcome of one bounded Query Agent tool loop."""
 
@@ -254,6 +268,9 @@ class QueryToolOutcome(StrictModel):
     retrieved_outcome_summary_ids: list[str] = Field(default_factory=list)
     retrieved_observation_ids: list[str] = Field(default_factory=list)
     retrieved_derivation_ids: list[str] = Field(default_factory=list)
+    similarity_matches: list[CaseSimilarityMatch] = Field(
+        default_factory=list
+    )
     model_calls: list[ModelCallRecord] = Field(default_factory=list)
     tool_calls: list[QueryToolTrace] = Field(default_factory=list)
     failure_reason: str = ""
