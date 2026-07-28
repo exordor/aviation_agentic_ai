@@ -20,7 +20,7 @@ ATCSCC advisory + bounded FAA authority records
   -> sealed Decision Case Assembly task
   -> deterministic compiler for the three canonical cases or bounded
      Decision Case Assembly Agent for genuine evidence/schema choice
-  -> strict preflight
+  -> task-bound validation
   -> deterministic Formal Graph Kernel
   -> profile-owned publication and JSONL + RDF + Neo4j materialization
   -> deterministic query routing with bounded read-only graph tools
@@ -38,13 +38,13 @@ names, not internal alphanumeric labels.
 ## Current Status
 
 - `main` contains the working ingest, validation, materialization, Neo4j
-  projection, and bounded Query Agent path.
+  projection, bounded query path, Decision Case Assembly, and Decision Case
+  Analysis.
 - The three Decision Record Explorer cases have deterministic query support on
   `main`, including a profile-gap reason and an honest missing-reason outcome.
-- `codex/decision-case-analysis-agent` builds on the completed Batch C.1
-  assembly path. The three canonical records still use the zero-call
-  deterministic compiler, and the Formal Graph Kernel remains the sole final
-  publication authority.
+- Batch C.1 and Batch D are merged into `main`. The three canonical records use
+  the zero-call deterministic compiler, and the Formal Graph Kernel remains the
+  sole final publication authority.
 - Decision Case Analysis is active only for exact registered episode,
   operational-situation, and applicability questions. It uses closed plans and
   bounded read-only tools. Historical similarity remains a deterministic
@@ -93,6 +93,26 @@ guardrail, framework, schema layer, or benchmark unless an observed failure or
 the approved task requires it. Do not turn an implementation task into a paired
 comparison experiment without an explicit scope decision.
 
+## Research Prototype Effort Boundary
+
+- Optimize for the end-to-end architecture, runnable pipeline, and approved
+  research semantics rather than production-grade hardening.
+- Add a guard or adversarial test only when an approved acceptance scenario
+  requires it or a failure is reproduced through a supported user workflow.
+- Preserve the canonical reason states, time boundaries, source-role
+  separation, zero-call insufficient behavior, bounded read-only access, and
+  the prohibition on causal or recommendation claims.
+- Validate external inputs and final publication/query boundaries. Do not add
+  redundant checks for manually forged internal objects that the supported
+  pipeline does not construct.
+- Symlink attacks, path traversal, concurrent mutation, secret injection,
+  contradictory hand-built audit records, and hostile cross-run tampering are
+  deferred unless a deployment or security task explicitly activates them.
+- Use one bounded review pass. After fixes, run focused tests and one final
+  repository verification; do not start recursive reviewer-fix-review cycles.
+- Once the approved acceptance scenarios pass, record production-only residual
+  risks as deferred and stop the batch.
+
 ## Research And Evidence Boundaries
 
 - Keep ATCSCC advisories, FAA/NASA references, NASR facilities, terminology,
@@ -118,7 +138,8 @@ comparison experiment without an explicit scope decision.
 
 ## Verification
 
-- Code changes: `uv run ruff check .` and `uv run pytest -q`.
+- During implementation, run the focused tests for the changed capability.
+- At batch completion, run `uv run ruff check .` and `uv run pytest -q` once.
 - Documentation-only changes: `git diff --check` and `uv run ruff check .`.
 - Report changes: run the relevant command in `REPRODUCIBILITY.md` and inspect
   the generated diff.

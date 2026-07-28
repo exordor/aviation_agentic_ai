@@ -6,68 +6,27 @@ This file contains only the active execution queue and immediate deferred
 decisions. Historical experiment backlogs are discoverable through
 `ARTIFACT_INDEX.md` and Git history.
 
-## Current Stage - Batch D Decision Case Analysis
+## Current Stage - Awaiting The Next Approved Increment
 
-Objective: expose the validated decision case through exact registered,
-plan-bound analysis questions without changing graph publication or the
-existing deterministic query paths.
+Batch C.1 and Batch D are complete on `main`. The system now reconstructs the
+three canonical decision cases with Weather and BTS context, assembles them
+through bounded roles, and answers exact registered analysis questions.
 
-- [x] Compile exact registered analysis questions into closed typed plans.
-- [x] Expose only plan-step IDs through the model-visible read tool.
-- [x] Bound the Analysis Agent to two model calls and three distinct steps.
-- [x] Persist sealed evidence under immutable
-  `analysis/<analysis_run_id>/` directories.
-- [x] Route episode, operational-situation, and applicability analysis through
-  the bounded Agent only with explicit model authorization.
-- [x] Keep historical similarity as deterministic `insufficient` with no
-  provider call, artifact, ranking, score, neighbor, or recommendation.
-- [x] Keep all existing scalar, context, provenance, public-observation, and
-  combined questions deterministic and zero-call.
-- [x] Preserve the three canonical declared-reason states.
+No next implementation stage is active by default. Choose one bounded
+capability and evidence boundary before adding code or another Agent role.
 
-## Completed Batch C.1 Architecture Cutover
+## Recently Completed Mainline
 
-- [x] Add a canonical multi-source snapshot registry and per-source checksum
-  validation.
-- [x] Add deterministic TAF/METAR selection and formal Weather report facts.
-- [x] Keep event-to-Weather associations audit-only and non-causal.
-- [x] Add deterministic BTS normalization and baseline/active/recovery
-  aggregation.
-- [x] Add a source-qualified public-observation profile with explicit
-  properties, units, datatypes, reporting scope, and forbidden FAA mappings.
-- [x] Materialize validated BTS-reported observations in JSONL, RDF, and Neo4j.
-- [x] Bind every observation to its selected rows, aggregation procedure,
-  source snapshot, profile checksum, fact trace, and reconstruction trace.
-- [x] Integrate both adapters after core event/facility validation without
-  adding an Agent role or model call.
-- [x] Add bounded deterministic context and outcome query tools.
-- [x] Preserve all three reason states: Ground Stop 123 profile gap, GDP 138
-  formal `weather`, and cancellation 020 missing.
-- [x] Add fail-closed source, checksum, time, identity, and layer-disjointness
-  checks.
-- [x] Complete documentation review and the full repository verification gate.
-- [x] Keep the reviewed branch unpushed and unmerged for user review.
-- [x] Move deterministic Weather/BTS preparation before Decision Case
-  Assembly.
-- [x] Seal task-owned formal facts, profile gaps, evidence, resolution results,
-  context associations, public observations, and source bindings.
-- [x] Keep Ground Stop `123`, GDP `138`, and cancellation `020` on the
-  deterministic zero-call Assembly path.
-- [x] Add a bounded Decision Case Assembly Agent only for genuine
-  non-canonical evidence/schema choice.
-- [x] Enforce exact task-signature preflight, advisory-only declared reasons,
-  explicit causal denial, and one value-only repair turn.
-- [x] Keep the Formal Graph Kernel as the sole final publication authority.
-- [x] Keep Decision Case Analysis out of the graph-write and publication path.
-- [x] Complete the breaking cutover to deterministic parsing and authority
-  services, conditional Semantic Resolution and Decision Case Assembly Agents,
-  the Formal Graph Kernel, and current profile-owned run artifacts.
-- [x] Require regeneration for old runs while retaining `ingest`,
-  `neo4j-export`, and `ask` as current UX only.
-
-Success: all three cases expose validated Weather context and BTS-reported
-observations with source provenance, exact reason-state preservation, and zero
-Decision Case Assembly provider calls.
+- [x] Preserve the Ground Stop `123`, GDP `138`, and cancellation `020` reason
+  states across multi-source reconstruction.
+- [x] Publish source-qualified Weather and BTS observations without causal,
+  FAA demand, AAR, capacity, EDCT, or individual-flight claims.
+- [x] Keep the three canonical cases on deterministic zero-call Assembly.
+- [x] Add bounded Decision Case Analysis for exact episode,
+  operational-situation, and applicability questions.
+- [x] Keep historical similarity deterministic `insufficient` until an
+  approved comparison corpus exists.
+- [x] Merge Batch C.1 and Batch D into `main`.
 
 ## Completed System Foundation
 
@@ -98,7 +57,7 @@ The read-only query evidence explorer is implemented and reviewed on
   interaction, and narrow layouts.
 - [ ] Merge the visualization branch only when the user wants it in `main`.
 
-## Next Decision After Batch D
+## Next Decision
 
 Do not expand analysis beyond the exact registered families without a new
 approved task and evidence boundary. The next approved task must choose only
@@ -118,6 +77,8 @@ decision-episode grouping, or a reviewed historical comparison corpus.
 - General RAG and general aviation chat.
 - New Agent roles without an observed need.
 - Production hardening and public deployment.
+- Adversarial local-object, path, symlink, concurrency, and cross-run tampering
+  defenses unless a deployment or security task activates them.
 - Reopening optional alignment, Gold, Critic, Self-Refine, or paired-comparison
   experiments as the default project path.
 
@@ -129,3 +90,5 @@ decision-episode grouping, or a reviewed historical comparison corpus.
 - Keep generated run artifacts and credentials out of Git.
 - Preserve historical material through the artifact index and Git history
   instead of leaving it in the active queue.
+- Apply the research-prototype effort boundary in `AGENTS.md`; do not duplicate
+  production-hardening policy here.

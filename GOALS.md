@@ -67,7 +67,7 @@ The current system provides:
 The three approved records - Ground Stop `123`, Ground Delay Program `138`, and
 missing-reason cancellation `020` - exercise those capabilities.
 
-## Current Approved Extension
+## Current Mainline Scope
 
 Batch C combines Decision Case Graph v1 context with task-bounded Decision Case
 Assembly for the same three records:
@@ -89,14 +89,15 @@ Assembly for the same three records:
   compiler and make zero Decision Case Assembly provider calls.
 - A bounded Decision Case Assembly Agent may activate only for a genuine
   non-canonical evidence/schema choice.
-- Strict preflight requires an exact projection of the sealed task before the
-  Formal Graph Kernel applies the final publication decision.
+- Task-bound validation keeps Assembly output within the sealed evidence and
+  schema scope before the Formal Graph Kernel applies the final publication
+  decision.
 
 The new Assembly role does not turn adapters into Agents and does not add model
 calls to the three canonical cases. It reconstructs auditable historical
 context; it does not evaluate operational optimality.
 
-The active Batch D extension exposes that validated case through a closed
+Batch D exposes that validated case through a closed
 analysis surface. Operational-situation analysis is the supported complete
 fixture. Episode analysis is current-record-only, applicability analysis has
 no observed individual-flight evidence, and historical similarity remains a
@@ -123,11 +124,11 @@ The read-only visualization batch has reached a stable stopping point on
 `codex/kg-visualization-research`. It is an optional presentation layer and is
 not merged into `main`.
 
-Batch C.1 completed the breaking architecture cutover. The active
-`codex/decision-case-analysis-agent` branch adds only bounded read-side
-analysis and immutable analysis artifacts. Old runs require regeneration. The
-current command names are retained for user continuity, not as an artifact or
-runtime compatibility guarantee.
+Batch C.1 and Batch D are complete on `main`. They provide the breaking
+architecture cutover, bounded read-side analysis, and immutable analysis
+artifacts. Old runs require regeneration. The current command names are
+retained for user continuity, not as an artifact or runtime compatibility
+guarantee.
 
 Later increments still require an explicit user task and source boundary.
 Possible directions include decision-episode identity, regional weather,

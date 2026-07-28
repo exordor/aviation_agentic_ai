@@ -17,7 +17,7 @@ ATCSCC advisory
   -> deterministic Weather + BTS context preparation
   -> sealed Decision Case Assembly task
   -> deterministic compiler or bounded Decision Case Assembly Agent
-  -> strict preflight
+  -> task-bound validation
   -> Formal Graph Kernel
   -> publication/materialization
   -> deterministic query routing with bounded read-only tools
@@ -141,7 +141,8 @@ run artifacts only.
 ## Current Status
 
 `main` contains the working ingest, formal validation, materialization,
-Neo4j-load, and bounded query path.
+Neo4j-load, bounded query path, Decision Case Assembly, and Decision Case
+Analysis.
 
 The decision-record critical fixes are also on `main`:
 
@@ -151,8 +152,8 @@ The decision-record critical fixes are also on `main`:
 - Cancellation `020` returns an honest missing-reason result without a model
   call.
 
-The active `codex/decision-case-analysis-agent` branch builds on deterministic
-Weather/BTS context and Batch C Decision Case Assembly:
+The current `main` implementation builds on deterministic Weather/BTS context
+and task-bounded Decision Case Assembly:
 
 - TAF selection is limited to forecasts issued no later than the advisory and
   valid during the TMI operational period.
@@ -166,8 +167,8 @@ Weather/BTS context and Batch C Decision Case Assembly:
 - The three canonical records use the deterministic compiler and make zero
   Decision Case Assembly provider calls.
 - A bounded Assembly Agent is available only for genuine non-canonical
-  evidence/schema choices; strict preflight prevents it from changing task
-  identity, schema, evidence, profile gaps, or source ownership.
+  evidence/schema choices; task-bound validation keeps its output within the
+  approved task, schema, evidence, profile gaps, and source ownership.
 - The Formal Graph Kernel remains the sole final publication authority.
 - Exact registered analysis questions are routed through a sealed query plan
   and the bounded Decision Case Analysis Agent.
@@ -200,6 +201,10 @@ Optional formal experiments, cross-source weather work, the earlier alignment
 MVE, PHAK GraphRAG prototypes, and old web demos remain in the repository as
 historical or calibration material. They are not the default project entry
 point.
+
+This is a research prototype. Production deployment security and defenses
+against hostile local artifact tampering are outside the current acceptance
+scope unless activated by a separate security task.
 
 ## Project Map
 

@@ -26,7 +26,7 @@ one advisory + FAA facility and terminology records
   -> sealed Decision Case Assembly task
   -> deterministic compiler for the three canonical cases or bounded
      Decision Case Assembly Agent for genuine evidence/schema choice
-  -> strict preflight
+  -> task-bound validation
   -> deterministic Formal Graph Kernel
   -> publication and RDF/Neo4j materialization
   -> deterministic query routing with read-only graph tools
@@ -47,14 +47,20 @@ Agents. LLM output cannot bypass the publication gate.
 - Missing or unsupported fields return an explicit insufficient state.
 - Profile gaps remain audit records and never become formal KG facts.
 - Canonical facility identity is reused across records.
+- Time-bounded TAF/METAR context and BTS-reported public operational
+  observations retain their non-causal and source-qualified roles.
+- The three canonical records use deterministic Decision Case Assembly with
+  zero Assembly provider calls.
+- Exact registered episode, operational-situation, and applicability questions
+  use sealed plans and bounded read-only tools. Historical similarity remains
+  deterministic `insufficient` without an approved corpus.
 
 The browser visualization exists only on
 `codex/kg-visualization-research`. It is paused and not part of `main`.
 
-## Active Feature Branch
+## Verified Mainline Context And Analysis
 
-`codex/decision-case-analysis-agent` builds on the current architecture for
-the three approved records:
+The `main` implementation for the three approved records includes:
 
 - the latest eligible TAF known at advisory issue time;
 - the latest eligible pre-issue METAR and operational-period observations;
@@ -64,7 +70,7 @@ the three approved records:
   derivations, fact traces, and reconstruction membership.
 - a sealed task containing task-owned formal facts, profile gaps, resolution
   results, context associations, public observations, and source bindings;
-- exact task-signature preflight before the Formal Graph Kernel.
+- task-bound validation before the Formal Graph Kernel.
 
 Weather associations are explicitly non-causal. BTS-reported observations are
 not FAA demand, AAR, capacity, EDCT, or evidence that a particular TMI caused
@@ -72,7 +78,7 @@ an outcome. Ground Stop `123`, GDP `138`, and cancellation `020` use the
 deterministic Assembly compiler and make zero Assembly provider calls. The
 bounded Assembly Agent is reserved for genuine evidence/schema choice.
 
-The branch also routes exact registered episode, operational-situation, and
+The system also routes exact registered episode, operational-situation, and
 applicability questions through a sealed plan and bounded Decision Case
 Analysis Agent. Operational situation is the supported complete fixture.
 Episode output is current-record-only; applicability cannot claim observed
@@ -113,11 +119,13 @@ The project does not currently provide:
 - a complete aviation ontology;
 - external expert certification.
 
-The approved current increment is bounded Decision Case Analysis on
-`codex/decision-case-analysis-agent`. Broader source expansion, lifecycle
-grouping, historical ranking, recommendation, and analysis outside the exact
-registered families do not become active merely because a historical document
-mentions them.
+Batch C.1 and Batch D are complete on `main`. No next implementation stage is
+active by default. Broader source expansion, lifecycle grouping, historical
+ranking, recommendation, and analysis outside the exact registered families
+require a new approved task.
+
+Production deployment security and defenses against hostile local artifact
+tampering are not current research acceptance conditions.
 
 ## File Audit Rubric
 
@@ -136,6 +144,7 @@ are not silently deleted.
 ## Verification Defaults
 
 - Documentation-only changes: `git diff --check` and `uv run ruff check .`.
-- Code changes: `uv run ruff check .` and `uv run pytest -q`.
+- Code changes: focused tests during development, then one final
+  `uv run ruff check .` and `uv run pytest -q`.
 - Result claims require inspection of the implementation and the named
   artifacts, not a historical test count.
