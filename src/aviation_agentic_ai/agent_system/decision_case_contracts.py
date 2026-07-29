@@ -1519,7 +1519,6 @@ class CaseAnalysisTaskFields(FrozenContractModel):
         "episode",
         "operational_situation",
         "applicability_and_impact",
-        "historical_similarity",
     ]
     event_or_case_scope: tuple[str, ...]
     query_plan_id: str
@@ -1611,7 +1610,6 @@ class QueryToolTrace(FrozenContractModel):
         "read_operational_situation",
         "read_applicability",
         "read_observed_flight_outcome",
-        "read_similarity_corpus_gate",
     ]
     observation_status: Literal["ok", "partial", "insufficient", "blocked"]
     fact_ids: tuple[str, ...] = ()

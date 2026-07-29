@@ -1,129 +1,24 @@
-# Stage Report Index
+# Stage Report Routing
 
-This directory is the current report dashboard. Detailed stage artifacts are archived under `reports/archive/stages/2026-05-18`.
+This file is a routing tombstone, not the current report dashboard.
 
-> Current thesis entry points are `RESEARCH_AUDIT.md`,
-> `RESEARCH_OVERVIEW.md`, `RESEARCH_OVERVIEW.md`, and
-> `docs/documentation_maintenance.md`. This file still contains legacy
-> PHAK-stage artifacts and should be used only as an artifact inventory, not as
-> the canonical research narrative or current thesis dashboard.
+Use [`ARTIFACT_INDEX.md`](../../ARTIFACT_INDEX.md) for current artifact
+ownership, active context, optional evaluation tracks, historical material, and
+ignored runtime outputs.
 
-## Summary
+`reports/stages/index.json` is retained unchanged as the historical PHAK-era
+report-hygiene manifest because archived reports cite it. It is not current
+system truth.
 
-- Archived stage artifacts: 23
-- Review source artifacts: 2
-- Archive policy: archive_without_delete
+## Current Live-Agent Reports
 
-## Categories
+- One-shot compatibility smoke:
+  `agent_system_live_agent_smoke_v1.json` and
+  `agent_system_live_agent_smoke_v1.md`.
+- Repeated real-provider experiment:
+  `agent_system_live_agent_experiment_v1.json` and
+  `agent_system_live_agent_experiment_v1.md`.
 
-| Category | Items |
-| --- | ---: |
-| generation_runs | 3 |
-| kg_validation | 2 |
-| ontology_evaluation | 10 |
-| ontology_stats | 2 |
-| rag_experiments | 24 |
-| reviews | 4 |
-| source_scope | 4 |
-| stage_summaries | 2 |
-
-## Final Report
-
-- Draft: `reports/final/project_report.md`
-- Sources: `reports/final/project_report_sources.json`
-
-## Current Active Artifacts
-
-- Active ontology: `data/ontology/curated/06_phak_ch4_0.curated.ttl`
-- Ontology design: `docs/ontology_design.md`
-- Curated ontology evaluation: `reports/stages/curated_ontology_evaluation.md`
-- Validated KG: `data/kg/06_phak_ch4_0.kg.jsonl`
-- KG TTL export: `data/kg/06_phak_ch4_0.kg.ttl`
-- KG validation report: `reports/stages/kg_validation.md`
-- Chunking comparison: `reports/stages/chunking_comparison.md`
-- Hybrid RAG experiment: `reports/stages/hybrid_rag_experiment.md`
-- Structure-aware KG: `data/kg/06_phak_ch4_0.structure_aware.kg.jsonl`
-- Structure-aware KG TTL export: `data/kg/06_phak_ch4_0.structure_aware.kg.ttl`
-- Structure-aware KG validation report: `reports/stages/structure_aware_kg_validation.md`
-- Structure-aware Hybrid RAG experiment: `reports/stages/hybrid_rag_structure_aware.md`
-- GraphRAG review: `reports/stages/graphrag_review.md`
-- Gold labels: `data/cqs/06_phak_ch4_0.gold.json`
-- Expanded gold labels: `data/cqs/06_phak_ch4_0.expanded.gold.json`
-- Evidence-level evaluation: `reports/stages/evidence_level_evaluation.md`
-- Retrieval ablation: `reports/stages/retrieval_ablation.md`
-- KG extraction comparison: `reports/stages/kg_extraction_comparison.md`
-- Answer evaluation: `reports/stages/answer_evaluation.md`
-- Robustness evaluation: `reports/stages/robustness_evaluation.md`
-- Final evaluation review: `reports/stages/final_evaluation_review.md`
-- Web demo readiness: `reports/stages/web_demo_readiness.md`
-- Web demo final smoke: `reports/stages/web_demo_final_smoke.md`
-- Academic report: `reports/final/project_academic_report.md`
-- Project defense notes: `reports/final/project_defense_notes.md`
-- Defense deck outline: `reports/final/defense_deck_outline.md`
-- Defense deck: `reports/final/aviation_graphrag_defense_deck.pptx`
-- Historical figures with local SVG fallbacks: `reports/final/assets/visual_assets_manifest.json`
-- ATCSCC data format and processing flow: `reports/stages/atcscc_data_format_and_processing_flow.md`
-- Agent-system live one-shot smoke: `reports/stages/agent_system_live_agent_smoke_v1.md`
-- Agent-system repeated real-provider experiment: `reports/stages/agent_system_live_agent_experiment_v1.md`
-- ATCSCC ontology profile overview: `reports/stages/atcscc_ontology_profile_overview.md`
-- ATCSCC event-centric extraction framing: `reports/stages/atcscc_event_centric_extraction_framing.md`
-- SOTA comparison matrix for ATCSCC / NASA ATMONTO: `reports/stages/sota_comparison_matrix.md`
-- Current pipeline SOTA gap audit: `reports/stages/current_pipeline_sota_gap_audit.md`
-- NASA ATMONTO reviewer defense audit: `reports/stages/nasa_atmonto_reviewer_defense_audit.md`
-- NASA ATMONTO agentic extraction-validation loop: `reports/stages/nasa_atmonto_agentic_loop.md`
-- ATCSCC source brief: `reports/stages/atcscc_source_brief.md`
-- ATCSCC semantic requirements: `reports/stages/atcscc_semantic_requirements.md`
-- ATCSCC technical implementation plan: `reports/stages/atcscc_technical_implementation_plan.md`
-- ATCSCC extraction plan: `reports/stages/atcscc_extraction_plan.md`
-- ATCSCC validation findings: `reports/stages/atcscc_validation_findings.md`
-- ATCSCC evidence support findings: `reports/stages/atcscc_evidence_support_findings.md`
-- ATCSCC repair plan: `reports/stages/atcscc_repair_plan.md`
-- NASA ATMONTO S5/S6 agentic evidence loop: `reports/stages/nasa_atmonto_s5_s6_agentic_loop.md`
-- NASA ATMONTO S5/S6 independent agentic run: `reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md`
-- NASA ATMONTO S5/S6 live agentic pilot: `reports/stages/nasa_atmonto_s5_s6_live_agentic_pilot.md`
-- NASA ATMONTO S5/S6 live agentic full run: `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run.md`
-- NASA ATMONTO S5/S6 live agentic full run diagnostic: `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic.md`
-- NASA ATMONTO SOTA goal completion audit: `reports/stages/nasa_atmonto_sota_goal_audit.md`
-- NASA BGA bounded domain transfer pilot: `reports/stages/nasa_bga_domain_transfer_pilot.md`
-- ATCSCC S7 graph-use gate plan: `reports/stages/atcscc_graph_use_plan.md`
-- NASA ATMONTO S7 retrieval-only graph-use gate: `reports/stages/nasa_atmonto_s7_retrieval.md`
-- NASA ATMONTO S7 graph health by CQ group: `reports/stages/nasa_atmonto_s7_graph_health.md`
-- NASA ATMONTO S7 live-retrieval answer generation: `reports/stages/nasa_atmonto_s7_answer_generation.md`
-- NASA ATMONTO S7 fixed-budget LLM answer generation: `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`
-- NASA ATMONTO S7 human-review candidate package: `reports/stages/nasa_atmonto_s7_human_review_candidates.md`
-- NASA ATMONTO S7 broad answer-review packet: `reports/stages/nasa_atmonto_s7_broad_answer_review_packet.md`
-- NASA ATMONTO S7 answer-review worksheet: `reports/stages/nasa_atmonto_s7_answer_review_worksheet.html`
-- NASA ATMONTO S7 answer-review protocol: `reports/stages/nasa_atmonto_s7_answer_review_protocol.md`
-- NASA ATMONTO S7 review handoff: `reports/stages/nasa_atmonto_s7_review_handoff.md`
-- NASA ATMONTO S7 automated adversarial review: `reports/stages/nasa_atmonto_s7_automated_adversarial_review.md`
-- NASA ATMONTO S7 answer-review import status: `reports/stages/nasa_atmonto_s7_answer_review_import.md`
-- NASA ATMONTO S7 answer-review decision status: `reports/stages/nasa_atmonto_s7_answer_review_decisions.md`
-- NASA ATMONTO S7 candidate adjudication: `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`
-- NASA ATMONTO S7 profile-decision what-if: `reports/stages/nasa_atmonto_s7_profile_decision.md`
-
-## Current Experiment Snapshot
-
-- Chunking comparison best strategy: `structure_aware` by Recall@5/MRR@5/Context Precision@5.
-- Baseline Hybrid RAG strategy: `fixed_window`, because the first validated KG uses fixed-window chunk ids.
-- Structure-aware Hybrid RAG strategy: `structure_aware`, with independently extracted KG and collection `phak_ch4_chunks_structure_aware`.
-- Fixed-window result summary: vector Recall@5 = 1.0, graph Recall@5 = 0.8, hybrid Recall@5 = 0.9; graph and hybrid KG evidence coverage = 0.9.
-- Structure-aware result summary: vector Recall@5 = 1.0, graph Recall@5 = 0.9, hybrid Recall@5 = 1.0; graph and hybrid KG evidence coverage = 0.9.
-- Gold labels: chunk/span labels are internal project gold; they are not human-reviewed, not expert gold, and not external aviation examiner certification.
-- Evidence-level result summary: structure-aware hybrid supported 9/10 answers versus fixed-window hybrid 8/10; both hybrid runs have KG triple relevance = 0.9 and citation validity = 1.0.
-- Expanded evaluation labels: 35 total questions, including 5 insufficient-evidence/no-answer questions for abstention testing.
-- Retrieval ablation: 12 deterministic scenarios over 35 expanded questions; vector-only and explicit graph-disabled hybrid Recall@5 = 0.6857, while structure-aware hybrid RRF Recall@5 = 0.6286 in the default top-k/hops setting, showing the expanded set is harder than the original 10 CQ benchmark.
-- KG extraction comparison: structure-aware KG has 448 validated triples versus 172 fixed-window triples; key-entity coverage is 0.8571 versus 0.8286, with higher duplicate count that should be discussed as cost/noise.
-- Answer evaluation: existing 10-CQ structure-aware hybrid answers have citation completeness = 1.0, citation correctness = 0.9, answer faithfulness = 0.9, and zero advisory-boundary violations.
-- Robustness benchmark: 10 paraphrase/terminology/cross-page/unsupported cases; deterministic retrieval-only robustness has retrieval stability = 0.8, citation stability = 0.7, and abstention correctness = 0.6.
-- Final evaluation decision: `structure_aware` is the default demo and next-phase GraphRAG strategy; `fixed_window` remains the baseline.
-- Web demo default strategy: `structure_aware`; live query is disabled by default for reproducible review.
-- Web demo KG visualization: question-scoped graph renders retrieved KG triples for the selected CQ, strategy, and retrieval mode.
-- Web demo explanation layer: narrative, pipeline steps, mode comparison, and Why This Result explain the demo without reading raw reports.
-- Web demo final smoke: FastAPI TestClient static/API checks passed for the root page, status, explanation, questions, detail, KG graph, live-query lockout, and favicon.
-- Academic deliverables: deterministic paper-style report, defense Q&A notes, local SVG diagrams, and editable defense PPTX are available under `reports/final/`.
-- Visual asset policy: current diagrams are local deterministic SVGs and do not call the configured LLM or image gateway.
-
-## Project Tracking
-
-- Goals: `GOALS.md`
-- Task board: `TODO.md`
+The detailed provider responses and parsed trial artifacts remain ignored.
+Corpus v2, Agent usage, and case-index artifact ownership is documented in
+`ARTIFACT_INDEX.md`.

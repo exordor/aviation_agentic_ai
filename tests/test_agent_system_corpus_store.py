@@ -802,7 +802,7 @@ def test_corpus_query_preserves_formal_gap_and_missing_reason_states(
     from aviation_agentic_ai.agent_system.corpus_query import (
         answer_corpus_question,
     )
-    from aviation_agentic_ai.agent_system.query_tool_graph import (
+    from aviation_agentic_ai.agent_system.query_registry import (
         DECLARED_REASON_QUESTION,
     )
 
@@ -905,7 +905,7 @@ def test_corpus_query_answers_forecast_context_without_a_run_directory(
     """Routing corpus weather questions through a run directory would break this."""
 
     from aviation_agentic_ai.agent_system.corpus_query import answer_corpus_question
-    from aviation_agentic_ai.agent_system.query_tool_graph import FORECAST_CONTEXT_QUESTION
+    from aviation_agentic_ai.agent_system.query_registry import FORECAST_CONTEXT_QUESTION
 
     run_dir = tmp_path / "run"
     _write_context_run(run_dir)

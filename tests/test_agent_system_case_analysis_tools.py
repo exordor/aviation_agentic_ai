@@ -64,20 +64,24 @@ def test_gateway_executes_only_a_declared_step_once(
     gateway = BoundQueryGateway(plan=plan, store=store)
     step_id = plan.steps[0].step_id
 
-    assert (
-        gateway.execute_bound_query_step(step_id=step_id).status == "insufficient"
+    first = gateway.execute_bound_query_step(step_id=step_id)
+    assert first.status == "blocked"
+    assert first.limitation == (
+        "Decision Case Analysis requires a corpus-backed store"
     )
-    assert gateway.execute_bound_query_step(step_id=step_id).status == "blocked"
+    repeated = gateway.execute_bound_query_step(step_id=step_id)
+    assert repeated.status == "blocked"
+    assert repeated.limitation == "bound step already executed"
     assert (
         gateway.execute_bound_query_step(step_id="step:not-bound").status
         == "blocked"
     )
 
 
-def test_gateway_refuses_a_no_manifest_operational_situation(
+def test_gateway_refuses_a_non_corpus_operational_store(
     store: QueryGraphStore,
 ) -> None:
-    """Removing the D2 context gate must not expose formal-only status=ok."""
+    """A transient staging store cannot satisfy corpus-only analysis."""
 
     from aviation_agentic_ai.agent_system.case_analysis_tools import (
         BoundQueryGateway,
@@ -93,8 +97,10 @@ def test_gateway_refuses_a_no_manifest_operational_situation(
         step_id=plan.steps[0].step_id
     )
 
-    assert result.status == "insufficient"
-    assert result.limitation == "missing evidence layer: active BTS observation"
+    assert result.status == "blocked"
+    assert result.limitation == (
+        "Decision Case Analysis requires a corpus-backed store"
+    )
 
 
 def test_compiled_plan_has_a_stable_canonical_id_and_checksum(
@@ -263,7 +269,7 @@ def test_compile_query_plan_rejects_nonexact_analysis_questions(
         )
 
 
-def test_non_similarity_plan_requires_one_selected_event(
+def test_analysis_plan_requires_one_selected_event(
     store: QueryGraphStore,
 ) -> None:
     """A multi-event store must not silently select event_ids[0]."""
@@ -284,16 +290,8 @@ def test_non_similarity_plan_requires_one_selected_event(
         event_id=EVENT_ID,
         store=store,
     )
-    corpus = compile_query_plan(
-        run_dir=store.run_dir,
-        question="Which historical case is most similar?",
-        store=store,
-    )
-
     assert selected.event_or_case_scope == (EVENT_ID,)
     assert all(step.event_ids == (EVENT_ID,) for step in selected.steps)
-    assert corpus.event_or_case_scope == (EVENT_ID, second_event_id)
-    assert corpus.steps[0].event_ids == (EVENT_ID, second_event_id)
 
 
 def test_query_plan_rejects_duplicate_steps_and_foreign_event_scope(
@@ -360,7 +358,10 @@ def test_gateway_observation_cites_only_current_store_sources(
     source_ids_in_store = {
         source_id for row in store.rows for source_id in row["source_ids"]
     }
-    assert observation.status == "insufficient"
+    assert observation.status == "blocked"
+    assert observation.limitation == (
+        "Decision Case Analysis requires a corpus-backed store"
+    )
     assert observation.fact_ids == ()
     assert observation.source_ids == ()
     assert set(observation.source_ids).issubset(source_ids_in_store)

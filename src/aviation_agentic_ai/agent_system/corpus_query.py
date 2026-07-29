@@ -39,10 +39,11 @@ from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusCaseQuery,
     CorpusQueryStore,
 )
-from aviation_agentic_ai.agent_system.query_tool_graph import (
+from aviation_agentic_ai.agent_system.query_registry import (
     CONTROLLED_FACILITY_QUESTION,
     DECLARED_REASON_QUESTION,
     FORECAST_CONTEXT_QUESTION,
+    QueryIntent,
     MEASURE_QUESTION,
     OBSERVED_WEATHER_CONTEXT_QUESTION,
     OPERATIONAL_PERIOD_QUESTION,
@@ -927,7 +928,7 @@ def answer_corpus_question(
         )
     normalized = _normalize_question(question)
     intent = classify_registered_question(question)
-    if intent is AnalysisIntent.HISTORICAL_SIMILARITY:
+    if intent is QueryIntent.HISTORICAL_SIMILARITY:
         return _similarity_outcome(
             store=store,
             event_id=event_id,

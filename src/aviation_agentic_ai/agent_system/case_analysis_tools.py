@@ -13,14 +13,9 @@ from aviation_agentic_ai.agent_system.decision_case_contracts import (
     stable_contract_id,
 )
 from aviation_agentic_ai.agent_system.query_plan import (
-    AnalysisIntent,
     BoundQueryStep,
     QueryPlan,
     validate_registered_evidence_layers,
-)
-from aviation_agentic_ai.agent_system.query_context_store import (
-    QueryContextError,
-    QueryContextStore,
 )
 from aviation_agentic_ai.agent_system.query_tools import QueryGraphStore
 
@@ -107,33 +102,33 @@ def read_episode_timeline(
 ) -> BoundQueryObservation:
     """Return the record-level timeline without inferring a lifecycle episode."""
 
-    if hasattr(store, "corpus_store"):
-        return _formal_observation(
-            step=BoundQueryStep(
-                step_id=step_id,
-                operation="read_episode_timeline",
-                event_ids=(event_id,),
-                required=True,
-                allowed_evidence_layers=("formal",),
-            ),
-            store=store,
-            status="partial",
-            limitation=(
-                "the corpus records the selected decision record only; no "
-                "cross-record lifecycle episode is asserted"
-            ),
-        )
-    read = QueryContextStore(
-        store.run_dir,
-        graph_store=store,
-    ).get_episode_timeline(event_id)
-    return BoundQueryObservation(
+    blocked = _unknown_event_observation(
         step_id=step_id,
-        status=read.status,
-        fact_ids=tuple(str(row["fact_id"]) for row in read.formal_fact_rows),
-        source_ids=read.source_ids,
-        items=tuple(_formal_item(row) for row in read.formal_fact_rows),
-        limitation=read.limitation,
+        event_ids=(event_id,),
+        store=store,
+    )
+    if blocked is not None:
+        return blocked
+    if getattr(store, "corpus_store", None) is None:
+        return BoundQueryObservation(
+            step_id=step_id,
+            status="blocked",
+            limitation="Decision Case Analysis requires a corpus-backed store",
+        )
+    return _formal_observation(
+        step=BoundQueryStep(
+            step_id=step_id,
+            operation="read_episode_timeline",
+            event_ids=(event_id,),
+            required=True,
+            allowed_evidence_layers=("formal",),
+        ),
+        store=store,
+        status="partial",
+        limitation=(
+            "the corpus records the selected decision record only; no "
+            "cross-record lifecycle episode is asserted"
+        ),
     )
 
 
@@ -145,133 +140,98 @@ def read_operational_situation(
 ) -> BoundQueryObservation:
     """Return source-qualified current-run evidence without operational causation."""
 
+    blocked = _unknown_event_observation(
+        step_id=step_id,
+        event_ids=(event_id,),
+        store=store,
+    )
+    if blocked is not None:
+        return blocked
     corpus = getattr(store, "corpus_store", None)
-    if corpus is not None:
-        formal_rows = tuple(
-            row for row in store.rows if row["subject"] == event_id
-        )
-        associations = corpus.get_decision_context(event_id)
-        report_ids = {row.report_id for row in associations}
-        report_tokens = {
-            report_id.rsplit(":", 1)[-1] for report_id in report_ids
-        }
-        weather_rows = tuple(
-            row
-            for row in store.rows
-            if row["subject"] in report_ids
-            or row["subject"].rsplit(":", 1)[-1] in report_tokens
-        )
-        observations = corpus.get_outcome_observations(
-            event_id,
-            phases=("active",),
-        )
-        if (
-            not formal_rows
-            or not associations
-            or not weather_rows
-            or not observations
-        ):
-            return BoundQueryObservation(
-                step_id=step_id,
-                status="insufficient",
-                limitation=(
-                    "missing evidence layer: complete corpus operational "
-                    "situation"
-                ),
-            )
-        fact_ids = tuple(
-            dict.fromkeys(
-                [
-                    *(str(row["fact_id"]) for row in formal_rows),
-                    *(str(row["fact_id"]) for row in weather_rows),
-                    *(
-                        fact_id
-                        for observation in observations
-                        for fact_id in observation.fact_ids
-                    ),
-                ]
-            )
-        )
-        source_ids = tuple(
-            sorted(
-                {
-                    *(source for row in formal_rows for source in row["source_ids"]),
-                    *(source for row in weather_rows for source in row["source_ids"]),
-                    *(row.source_id for row in associations),
-                    *(row.source_id for row in observations),
-                }
-            )
-        )
+    if corpus is None:
         return BoundQueryObservation(
             step_id=step_id,
-            status="ok",
-            fact_ids=fact_ids,
-            source_ids=source_ids,
-            items=tuple(_formal_item(row) for row in formal_rows)
-            + tuple(
-                {
-                    "evidence_role": "non_causal_weather_context",
-                    "causal_claim": False,
-                    **_item_for_fact(row),
-                }
-                for row in weather_rows
-            )
-            + tuple(
-                {
-                    "evidence_role": "bts_reported_public_observation",
-                    "causal_claim": False,
-                    **observation.model_dump(mode="json"),
-                    "source_ids": (observation.source_id,),
-                }
-                for observation in observations
-            ),
+            status="blocked",
+            limitation="Decision Case Analysis requires a corpus-backed store",
         )
-    try:
-        read = QueryContextStore(
-            store.run_dir,
-            graph_store=store,
-        ).get_operational_situation(event_id)
-    except QueryContextError:
+    formal_rows = tuple(
+        row for row in store.rows if row["subject"] == event_id
+    )
+    associations = corpus.get_decision_context(event_id)
+    report_ids = {row.report_id for row in associations}
+    report_tokens = {
+        report_id.rsplit(":", 1)[-1] for report_id in report_ids
+    }
+    weather_rows = tuple(
+        row
+        for row in store.rows
+        if row["subject"] in report_ids
+        or row["subject"].rsplit(":", 1)[-1] in report_tokens
+    )
+    observations = corpus.get_outcome_observations(
+        event_id,
+        phases=("active",),
+    )
+    if (
+        not formal_rows
+        or not associations
+        or not weather_rows
+        or not observations
+    ):
         return BoundQueryObservation(
             step_id=step_id,
             status="insufficient",
-            limitation="missing evidence layer: active BTS observation",
+            limitation=(
+                "missing evidence layer: complete corpus operational "
+                "situation"
+            ),
         )
-    bts_fact_ids = tuple(
-        fact_id
-        for observation in read.public_observations
-        for fact_id in observation.fact_ids
+    fact_ids = tuple(
+        dict.fromkeys(
+            [
+                *(str(row["fact_id"]) for row in formal_rows),
+                *(str(row["fact_id"]) for row in weather_rows),
+                *(
+                    fact_id
+                    for observation in observations
+                    for fact_id in observation.fact_ids
+                ),
+            ]
+        )
+    )
+    source_ids = tuple(
+        sorted(
+            {
+                *(source for row in formal_rows for source in row["source_ids"]),
+                *(source for row in weather_rows for source in row["source_ids"]),
+                *(row.source_id for row in associations),
+                *(row.source_id for row in observations),
+            }
+        )
     )
     return BoundQueryObservation(
         step_id=step_id,
-        status=read.status,
-        fact_ids=tuple(
-            str(row["fact_id"]) for row in read.formal_fact_rows
-        )
-        + tuple(str(row["fact_id"]) for row in read.weather_fact_rows)
-        + bts_fact_ids,
-        derivation_ids=tuple(
-            observation.derivation_id for observation in read.public_observations
-        ),
-        source_ids=read.source_ids,
-        items=tuple(_formal_item(row) for row in read.formal_fact_rows)
+        status="ok",
+        fact_ids=fact_ids,
+        source_ids=source_ids,
+        items=tuple(_formal_item(row) for row in formal_rows)
         + tuple(
             {
                 "evidence_role": "non_causal_weather_context",
                 "causal_claim": False,
                 **_item_for_fact(row),
             }
-            for row in read.weather_fact_rows
+            for row in weather_rows
         )
         + tuple(
             {
                 "evidence_role": "bts_reported_public_observation",
                 "causal_claim": False,
                 **observation.model_dump(mode="json"),
+                "source_ids": (observation.source_id,),
             }
-            for observation in read.public_observations
+            for observation in observations
         ),
-        limitation=read.limitation,
     )
 
 
@@ -288,9 +248,6 @@ _APPLICABILITY_LIMITATION = (
 _OBSERVED_FLIGHT_LIMITATION = (
     "BTS aggregate observations do not establish an individual-flight outcome; "
     "no source-bound observed-flight fact is available in the current profile"
-)
-_SIMILARITY_LIMITATION = (
-    "historical similarity requires an approved corpus and comparison profile"
 )
 
 
@@ -374,28 +331,6 @@ def read_observed_flight_outcome(
     )
 
 
-def read_similarity_corpus_gate(
-    store: QueryGraphStore,
-    *,
-    event_ids: tuple[str, ...],
-    step_id: str = "similarity-corpus-gate",
-) -> BoundQueryObservation:
-    """Refuse similarity output until a corpus and comparison profile are approved."""
-
-    blocked = _unknown_event_observation(
-        step_id=step_id,
-        event_ids=event_ids,
-        store=store,
-    )
-    if blocked is not None:
-        return blocked
-    return BoundQueryObservation(
-        step_id=step_id,
-        status="insufficient",
-        limitation=_SIMILARITY_LIMITATION,
-    )
-
-
 def _execute_registered_step(
     *,
     step: BoundQueryStep,
@@ -427,12 +362,6 @@ def _execute_registered_step(
             event_id=step.event_ids[0],
             step_id=step.step_id,
         )
-    if step.operation == "read_similarity_corpus_gate":
-        return read_similarity_corpus_gate(
-            store,
-            event_ids=step.event_ids,
-            step_id=step.step_id,
-        )
     raise AssertionError("validated query plan contains an unknown operation")
 
 
@@ -449,10 +378,7 @@ class BoundQueryGateway:
             raise ValueError("query plan run_id does not match the current store")
         if not set(plan.event_or_case_scope).issubset(store.event_ids):
             raise ValueError("query plan scope is outside the current store")
-        if plan.intent_family is AnalysisIntent.HISTORICAL_SIMILARITY:
-            if plan.event_or_case_scope != tuple(store.event_ids):
-                raise ValueError("similarity plan must bind the complete current corpus")
-        elif len(plan.event_or_case_scope) != 1:
+        if len(plan.event_or_case_scope) != 1:
             raise ValueError("non-similarity plan must bind exactly one event")
         for step in plan.steps:
             validate_registered_evidence_layers(step)
@@ -562,13 +488,6 @@ class BoundQueryGateway:
                 step_id=step.step_id,
             )
             error = "observed flight observation does not match current store"
-        elif step.operation == "read_similarity_corpus_gate":
-            expected = read_similarity_corpus_gate(
-                self._store,
-                event_ids=step.event_ids,
-                step_id=step.step_id,
-            )
-            error = "similarity observation does not match current store"
         else:
             raise AssertionError("validated query plan contains an unknown operation")
         if observation != expected:

@@ -1,6 +1,6 @@
 # Project Goals
 
-Last updated: 2026-07-29
+Last updated: 2026-07-30
 
 This file defines durable system outcomes. Concrete work belongs in `TODO.md`;
 historical comparison hypotheses belong in the optional experiment documents.
@@ -59,21 +59,21 @@ The current system provides:
   public-observation, and DecisionCase-core layers;
 - a payload-free corpus-bound sidecar that measures selective Agent activation,
   bypass, outcome, calls, tokens, and recorded latency;
-- an explicit live-model acceptance harness that reuses the real corpus build,
-  Formal Publication Kernel, and corpus query path without replacing failures
-  with scripted responses;
+- explicit `live_smoke` and `live_experiment` harnesses that reuse the real
+  corpus build, Formal Publication Kernel, and corpus query path without
+  replacing failures with scripted responses;
 - fact-level evidence binding and source provenance;
 - canonical facility reuse and idempotent Neo4j merge behavior;
 - JSONL, RDF/Turtle, and Neo4j projection artifacts;
-- content-addressed cross-run source storage, a case catalog, canonical facts,
-  and explicit case-to-fact membership;
+- content-addressed corpus source storage, a case catalog, canonical facts, and
+  explicit case-to-fact membership;
 - a source-independent DecisionCase core with stable conceptual-case and
   reconstruction identities plus formal reconstruction membership;
 - deterministic cross-case catalog filtering and selected-event formal fact
   retrieval with zero model calls;
 - a closed case-scoped graph traversal for the exact registered Weather and
   active-window BTS evidence-path question, with zero model calls;
-- a bounded read-only Query Agent;
+- deterministic corpus query routing through bounded read-only tools;
 - deterministic support for measure, facility, operational period, declared
   reason, provenance, and combined decision-record questions;
 - bounded Decision Case Analysis for exact registered episode,
@@ -87,10 +87,9 @@ Ground Stop `123`, Ground Delay Program `138`, and missing-reason cancellation
 `020` are compact acceptance fixtures for those capabilities, not the system's
 storage or processing boundary.
 
-## Current Mainline Scope
+## Current Capability Boundary
 
-Batch C combines Decision Case Graph v1 context with task-bounded Decision Case
-Assembly for the same three records:
+The current decision-case construction path has these boundaries:
 
 - eligible TAF and METAR reports become source-bound weather report facts;
 - event-to-weather links remain audit-only associations with
@@ -114,13 +113,11 @@ Assembly for the same three records:
   multi-profile Formal Publication Kernel applies the sole final publication
   decision and any projection is written.
 
-The new Assembly role does not turn adapters into Agents and does not add model
+The Assembly role does not turn adapters into Agents and does not add model
 calls to the three canonical cases. It reconstructs auditable historical
-context; it does not evaluate operational optimality.
-
-Batch D exposes that validated case through a closed analysis surface.
-Operational-situation analysis is the supported complete fixture. Episode
-analysis is current-record-only, and applicability analysis has no observed
+context; it does not evaluate operational optimality. The closed analysis
+surface supports a complete operational-situation fixture. Episode analysis is
+current-record-only, and applicability analysis has no observed
 individual-flight evidence.
 
 The DecisionCase semantic core owns reconstruction identity and membership
@@ -128,12 +125,11 @@ independently of the Weather and BTS profiles. Corpus queries use that formal
 structure for one exact, closed evidence-path question; this is not a general
 graph-query interface.
 
-Storage Batch S3 adds published decision-record similarity. It embeds only
-TMI type, canonical facility, declared-reason state/value, UTC time of day, and
-duration category. Exact filters run before normalized cosine retrieval; the
-anchor case is excluded, and the route makes zero chat-model calls. It does
-not compare Weather, BTS outcomes, operational effectiveness, or recommended
-actions.
+Published decision-record similarity embeds only TMI type, canonical facility,
+declared-reason state/value, UTC time of day, and duration category. Exact
+filters run before normalized cosine retrieval; the anchor case is excluded,
+and the route makes zero chat-model calls. It does not compare Weather, BTS
+outcomes, operational effectiveness, or recommended actions.
 
 ## Success Criteria
 
@@ -144,44 +140,23 @@ The system mainline succeeds when:
 - every published fact carries source and exact evidence support;
 - canonical entities are reused rather than duplicated;
 - RDF and Neo4j represent the same validated fact identities;
-- the Query Agent retrieves only query-relevant facts;
+- corpus query routing exposes only query-relevant facts and evidence;
 - unsupported or missing questions do not trigger model completion;
 - a user can inspect why an answer was produced.
 
 These are system acceptance criteria, not external semantic certification.
 
-## Current Transition
+## Current Decision Boundary
 
-The read-only visualization batch has reached a stable stopping point on
+The read-only visualization has reached a stable stopping point on
 `codex/kg-visualization-research`. It is an optional presentation layer and is
 not merged into `main`.
 
-Batch C.1 and Batch D are complete on `main`. They provide the breaking
-architecture cutover, bounded read-side analysis, and immutable analysis
-artifacts. Old runs require regeneration. The current command names are
-retained for user continuity, not as an artifact or runtime compatibility
-guarantee.
-
-Batch F is complete as an evaluation capability with frozen diagnostic runs.
-The one-shot five-task DeepSeek smoke used `deepseek-v4-pro`, temperature
-`0.0`, thinking disabled, and no automatic retries. The runner completed, but
-model acceptance was `0/5`: Assembly `025`, `030`, and `072` reached the
-frozen output-token cap; Assembly `070` returned a malformed typed contract;
-and the GDP `138` Analysis answer failed its typed evidence-support contract.
-This result does not establish statistical model performance. The Semantic
-Resolution Agent remains `not_evaluated_no_natural_ambiguity` because the
-frozen cohort contains no natural activation case.
-
-The separate repeated-provider experiment is also complete. It ran 12 full
-cycles of the same five tasks and recorded 108/108 successful real-provider
-calls with zero provider failures. Task acceptance remained `0/60`: 48
-Assembly output-token-cap failures and 12 Analysis answer/support-contract
-failures. This is repeated compatibility evidence rather than an independent
-sample benchmark.
-
-Later increments still require an explicit user task and source boundary.
-Possible directions include decision-episode identity, regional weather,
-ASPM-based demand/capacity evidence, and operational-situation similarity.
+Later increments require an explicit user task and source boundary. Possible
+directions include decision-episode identity, regional Weather,
+ASPM-based demand/capacity evidence, operational-situation similarity, or a
+separately versioned response to the recorded live-model compatibility
+failures.
 
 ## Deferred Work
 
@@ -192,10 +167,12 @@ ASPM-based demand/capacity evidence, and operational-situation similarity.
   TMI recommendation.
 - General-purpose aviation QA.
 - Full-corpus live-model execution.
-- Prompt and output-token-cap compatibility fixes for the Batch F failures.
+- Prompt and output-token-cap compatibility fixes for the recorded
+  `live_smoke` and `live_experiment` failures.
 - Multi-model or statistically powered live-Agent benchmarks.
 - A natural frozen-cohort Semantic Resolution evaluation; synthetic ambiguity
-  fixtures remain software tests and must not be reported as cohort results.
+  fixtures remain `offline_software_test` evidence and must not be reported as
+  cohort results.
 - Automatic ontology expansion.
 - Production deployment and access control.
 - New Agent roles without a demonstrated system need.

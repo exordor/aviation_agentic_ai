@@ -312,7 +312,9 @@ uv run --extra case-retrieval pytest -q \
   tests/test_agent_system_case_retrieval_index.py \
   tests/test_agent_system_case_retrieval_search.py \
   tests/test_agent_system_case_retrieval_evaluation.py \
-  tests/test_agent_system_query_tool_graph.py \
+  tests/test_agent_system_query_registry.py \
+  tests/test_agent_system_case_analysis_tools.py \
+  tests/test_agent_system_case_analysis_readers.py \
   tests/test_cli_agent_system.py
 
 uv run ruff check .

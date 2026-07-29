@@ -8,16 +8,17 @@ Scope: two positive records and one missing-reason control
 
 | Required item | Decision |
 | --- | --- |
-| Current objective | Lock the smallest source-audited case set before implementation. |
+| Current objective | Preserve the smallest source-audited regression case set for the current corpus query surface. |
 | Minimum experiment | One Ground Stop, one Ground Delay Program, and one record with no declared reason. |
 | Minimum components | Existing tracked ATCSCC snapshot, active parser, schema guide, and configured facility registry. |
 | Expected evidence | Exact source spans for type, facility, operational period, declared reason, and missing reason. |
 | Success condition | Every expected value or missing state is source-observable without adding a source or ontology term. |
 | Failure condition | A required value depends on model knowledge, an untracked raw file, or an expanded facility cohort. |
-| Explicitly deferred | Episode grouping, weather evidence, outcomes, similarity, and recommendation. |
+| Outside this case-set contract | Episode grouping, context expansion, outcome interpretation, similarity evaluation, and recommendation. |
 
-The case selection is **Critical Path**. It determines whether the existing
-system can support the approved explorer without changing its data boundary.
+The case set is a regression contract. It verifies that the current corpus
+query surface preserves the approved source fields and missing-information
+boundary without changing the data scope.
 
 ## 1. Selection Rules
 
@@ -35,9 +36,9 @@ The tracked source of record is:
 `data/processed/nasa_atmonto/aligned/2026-05-14/atcscc_advisories.jsonl`
 
 The `raw_file` fields point to locally retained HTML snapshots, but those files
-are ignored by Git. The explorer bundle must therefore be derived from the
-tracked JSONL record and the validated run artifacts, not from an untracked HTML
-path.
+are ignored by Git. Any explorer bundle must therefore be derived from the
+tracked JSONL record and checksum-verified corpus artifacts, not from an
+untracked HTML path.
 
 ## 2. Positive Case A - Ground Stop
 
@@ -61,8 +62,9 @@ GROUND STOP PERIOD: 19/2100Z - 19/2245Z
 IMPACTING CONDITION: WEATHER / THUNDERSTORMS
 ```
 
-This is the fixed real advisory already used by the Formal Graph Kernel, Query
-Agent, and CLI test surface. It minimizes implementation risk.
+This is the fixed real advisory already used by the Formal Publication Kernel,
+deterministic corpus query route, and CLI test surface. It minimizes
+implementation risk.
 
 The active NASA schema slice does not permit `atm:impactingCondition` on
 `atm:GroundStopTMI`. The reason must therefore remain a source-bound
@@ -138,9 +140,9 @@ The active parser maps the TMI operational period to
 
 The advisory also contains a separate field literally named `EFFECTIVE TIME`.
 That field is an advisory envelope and may differ from the TMI operational
-period. The explorer must not merge or relabel the two. The first implementation
-shows the TMI operational period because that is the time represented in the
-active formal graph.
+period. The explorer must not merge or relabel the two. The current acceptance
+path shows the TMI operational period because that is the time represented in
+the active formal graph.
 
 ## 6. Implementation Status
 
@@ -149,8 +151,8 @@ active formal graph.
 1. [x] Anchor a valid next-day period end for cross-midnight records such as
    `19/2205Z - 20/0259Z`.
 2. [x] Normalize valid GDP reasons to the schema's lowercase value set and add
-   `atm:advisoryNumber` and `atm:impactingCondition` to the bounded Query Agent
-   read surface.
+   `atm:advisoryNumber` and `atm:impactingCondition` to the deterministic corpus
+   query surface.
 3. [x] Let the read-only query path retrieve source-bound `ProfileGap` entries so it
    can report the Ground Stop reason without promoting it to a KG fact.
 4. [x] Stop the impacting-condition source span before the `COMMENTS:` field.
@@ -164,10 +166,9 @@ active formal graph.
 - [x] Confirm both positive records resolve to the same canonical JFK node.
 - [x] Confirm the missing-reason control makes no provider call.
 
-### Deferred Hardening
+### Remaining Deferred Scope
 
 - materializing `atm:impactingConditionMessage`;
-- a general multi-run search index;
 - new airport cohorts;
 - advisory episode inference.
 

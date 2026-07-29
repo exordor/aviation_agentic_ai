@@ -21,6 +21,13 @@ from aviation_agentic_ai.agent_system.decision_case_contracts import (
     ContractExecutionBinding,
     QueryEvidenceBundle,
 )
+from aviation_agentic_ai.agent_system.corpus_query import (
+    CorpusAnalysisStoreAdapter,
+)
+from aviation_agentic_ai.agent_system.corpus_store import (
+    CorpusQueryStore,
+    build_corpus,
+)
 from aviation_agentic_ai.agent_system.query_plan import compile_query_plan
 from aviation_agentic_ai.agent_system.query_tools import QueryGraphStore
 from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
@@ -39,14 +46,15 @@ _write_graph = _fixture_module._write_graph
 
 
 @pytest.fixture
-def store(tmp_path: Path) -> QueryGraphStore:
-    """A validated current run with formal, Weather, and BTS evidence."""
+def store(tmp_path: Path) -> CorpusAnalysisStoreAdapter:
+    """A corpus-backed view with formal, Weather, and BTS evidence."""
 
-    _write_graph(tmp_path)
-    _write_formal_observation_layer(tmp_path)
-    context_path = tmp_path / "context_associations.jsonl"
+    run_dir = tmp_path / "run"
+    _write_graph(run_dir)
+    _write_formal_observation_layer(run_dir)
+    context_path = run_dir / "context_associations.jsonl"
     context_data = context_path.read_bytes()
-    manifest_path = tmp_path / "run_manifest.json"
+    manifest_path = run_dir / "run_manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     manifest["context_artifacts"]["context_associations"] = {
         "path": context_path.name,
@@ -55,7 +63,12 @@ def store(tmp_path: Path) -> QueryGraphStore:
         "status": "ok",
     }
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-    return QueryGraphStore(tmp_path)
+    corpus_dir = tmp_path / "corpus"
+    build_corpus([run_dir], corpus_dir)
+    return CorpusAnalysisStoreAdapter(
+        CorpusQueryStore(corpus_dir),
+        event_id=EVENT_ID,
+    )
 
 
 def _binding(store: QueryGraphStore) -> ContractExecutionBinding:
@@ -251,39 +264,6 @@ def test_analysis_agent_seals_supported_operational_situation(
     assert any(task.payload_checksum in str(message.content) for message in final_messages)
 
 
-def test_insufficient_bound_observation_uses_zero_model_turns(
-    store: QueryGraphStore,
-) -> None:
-    """Calling synthesis without evidence would invite completion from memory."""
-
-    from aviation_agentic_ai.agent_system.case_analysis import run_case_analysis_agent
-    from aviation_agentic_ai.agent_system.case_analysis_tools import BoundQueryGateway
-
-    plan = compile_query_plan(
-        run_dir=store.run_dir,
-        question="Which historical case is most similar?",
-        store=store,
-    )
-    model = _ScriptedAnalysisModel([])
-    factory = _ModelFactory(model)
-    task, bundle, outcome = run_case_analysis_agent(
-        plan=plan,
-        gateway=BoundQueryGateway(plan=plan, store=store),
-        model_factory=factory,
-        binding=_binding(store),
-    )
-
-    assert outcome.status == "insufficient"
-    assert factory.calls == 0
-    assert outcome.model_calls == []
-    assert model.invocations == []
-    assert bundle.task_id == task.task_id
-    assert bundle.answer_statements == ()
-    assert bundle.limitations == (
-        "historical similarity requires an approved corpus and comparison profile",
-    )
-
-
 def test_required_insufficient_steps_finish_before_provider_construction(
     store: QueryGraphStore,
 ) -> None:
@@ -317,39 +297,6 @@ def test_required_insufficient_steps_finish_before_provider_construction(
         step.step_id for step in plan.steps
     )
     assert bundle.executed_step_ids == task.executed_bound_step_ids
-
-
-def test_missing_required_operational_evidence_constructs_no_provider(
-    tmp_path: Path,
-) -> None:
-    """A missing required context layer must remain a deterministic result."""
-
-    from aviation_agentic_ai.agent_system.case_analysis import run_case_analysis_agent
-    from aviation_agentic_ai.agent_system.case_analysis_tools import BoundQueryGateway
-
-    _write_graph(tmp_path)
-    sparse_store = QueryGraphStore(tmp_path)
-    plan = compile_query_plan(
-        run_dir=sparse_store.run_dir,
-        question="What public operational situation is recorded?",
-        store=sparse_store,
-    )
-    model = _ScriptedAnalysisModel([_tool_turn(plan.steps[0].step_id)])
-    factory = _ModelFactory(model)
-
-    _task, bundle, outcome = run_case_analysis_agent(
-        plan=plan,
-        gateway=BoundQueryGateway(plan=plan, store=sparse_store),
-        model_factory=factory,
-        binding=_binding(sparse_store),
-    )
-
-    assert factory.calls == 0
-    assert model.invocations == []
-    assert outcome.status == "insufficient"
-    assert outcome.model_calls == []
-    assert bundle.answer_statements == ()
-    assert bundle.executed_step_ids == (plan.steps[0].step_id,)
 
 
 def test_blocked_required_step_constructs_no_provider(
@@ -422,7 +369,8 @@ def test_episode_partial_preserves_its_explicit_limit(
     assert factory.calls == 0
     assert model.invocations == []
     assert bundle.limitations == (
-        "single-record timeline; no advisory lifecycle grouping evidence",
+        "the corpus records the selected decision record only; no "
+        "cross-record lifecycle episode is asserted",
     )
     assert outcome.model_calls == []
 
@@ -475,7 +423,8 @@ def test_episode_partial_is_zero_call_and_cannot_accept_a_lifecycle_claim(
     assert outcome.model_calls == []
     assert bundle.answer_statements == ()
     assert bundle.limitations == (
-        "single-record timeline; no advisory lifecycle grouping evidence",
+        "the corpus records the selected decision record only; no "
+        "cross-record lifecycle episode is asserted",
     )
     assert "form one advisory lifecycle group" not in outcome.answer
 
@@ -704,6 +653,7 @@ def test_analysis_artifacts_are_round_trip_immutable_and_isolated(
         task=task,
         bundle=bundle,
         outcome=outcome,
+        query_store=store,
     )
 
     assert analysis_dir.parent == store.run_dir / "analysis"
@@ -725,6 +675,7 @@ def test_analysis_artifacts_are_round_trip_immutable_and_isolated(
             task=task,
             bundle=bundle,
             outcome=outcome,
+            query_store=store,
         )
         == analysis_dir
     )
@@ -739,6 +690,7 @@ def test_analysis_artifacts_are_round_trip_immutable_and_isolated(
             task=task,
             bundle=bundle,
             outcome=outcome,
+            query_store=store,
         )
 
 
@@ -763,6 +715,7 @@ def test_analysis_artifacts_reject_a_symlinked_analysis_root(
             task=task,
             bundle=bundle,
             outcome=outcome,
+            query_store=store,
         )
 
     assert list(outside.iterdir()) == []
@@ -792,6 +745,7 @@ def test_analysis_artifacts_reject_unvalidated_and_cross_run_destinations(
                 task=task,
                 bundle=bundle,
                 outcome=outcome,
+                query_store=store,
             )
         assert not (destination / "analysis").exists()
 
@@ -816,6 +770,7 @@ def test_analysis_artifacts_reject_incoherent_bundle_and_outcome(
             task=task,
             bundle=foreign_bundle,
             outcome=outcome,
+            query_store=store,
         )
     with pytest.raises(RuntimeError, match="analysis artifact binding"):
         write_case_analysis_artifacts(
@@ -823,6 +778,7 @@ def test_analysis_artifacts_reject_incoherent_bundle_and_outcome(
             task=task,
             bundle=bundle,
             outcome=incomplete_outcome,
+            query_store=store,
         )
     assert not (store.run_dir / "analysis").exists()
 
@@ -869,6 +825,7 @@ def test_persisted_model_tool_metadata_drops_unvalidated_arguments(
         task=task,
         bundle=bundle,
         outcome=unsafe_outcome,
+        query_store=store,
     )
     persisted = (analysis_dir / "case_analysis_run.json").read_text(
         encoding="utf-8"
@@ -918,6 +875,7 @@ def test_persisted_provider_error_uses_only_a_generic_status_marker(
         task=task,
         bundle=bundle,
         outcome=outcome,
+        query_store=store,
     )
     persisted = (analysis_dir / "case_analysis_run.json").read_text(
         encoding="utf-8"

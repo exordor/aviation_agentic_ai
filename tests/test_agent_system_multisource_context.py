@@ -60,10 +60,9 @@ from aviation_agentic_ai.agent_system.materialize import (
     materialize_validated_facts,
 )
 from aviation_agentic_ai.agent_system.runtime import write_run_manifest
-from aviation_agentic_ai.agent_system.query_tool_graph import (
+from aviation_agentic_ai.agent_system.query_registry import (
     DECLARED_REASON_QUESTION,
     RECONSTRUCTION_EVIDENCE_PATH_QUESTION,
-    answer_question_with_tools,
 )
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.validation_profiles import (
@@ -1143,7 +1142,6 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
     bts_source, bts_rows, bts_binding = bts_context
     semantic_factory = _NoDeterministicModelFactory()
     assembly_factory = _NoDeterministicModelFactory()
-    query_factory = _NoDeterministicModelFactory()
     ctx = IngestContext(
         advisory=advisory,
         facility_candidates=[FACILITIES[facility_code]],
@@ -1266,11 +1264,6 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
 
     manifest = json.loads((tmp_path / "run_manifest.json").read_text(encoding="utf-8"))
     profile_gap_bytes = (tmp_path / "profile_gaps.jsonl").read_bytes()
-    persisted_gaps = [
-        PersistedProfileGap.model_validate_json(line)
-        for line in profile_gap_bytes.decode("utf-8").splitlines()
-        if line.strip()
-    ]
     assert manifest["manifest_version"] == "decision-case-run-v1"
     assert manifest["profile_gaps"] == {
         "path": "profile_gaps.jsonl",
@@ -1282,22 +1275,6 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
     assert source_id in {
         snapshot.source_id for snapshot in state["source_snapshot"].snapshots
     }
-
-    outcome = answer_question_with_tools(
-        run_dir=tmp_path,
-        question=DECLARED_REASON_QUESTION,
-        model_factory=query_factory,
-    )
-    assert outcome.status == (
-        "insufficient" if reason_state == "missing" else "ok"
-    ), outcome.failure_reason
-    assert outcome.retrieved_profile_gap_ids == (
-        [persisted_gaps[0].profile_gap_id]
-        if reason_state == "profile_gap"
-        else []
-    )
-    assert outcome.model_calls == []
-    assert query_factory.calls == 0
 
     corpus_dir = tmp_path / "corpus"
     build_corpus([tmp_path], corpus_dir)

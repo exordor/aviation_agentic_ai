@@ -1,6 +1,6 @@
 # Project Audit And Context Router
 
-Audit date: 2026-07-29
+Audit date: 2026-07-30
 Canonical integration branch: `main`
 
 This is the default entry point for a new project task. It replaces the former
@@ -75,23 +75,24 @@ run-directory query, or corpus v1 compatibility layer.
 - Exact registered Decision Case Analysis questions use closed plans and
   bounded read-only tools only with `--allow-live-model`.
 
-## Current Feature-Branch Evaluation
+## Verified Main-Branch Evaluations
 
-The explicit Batch F live runner reuses the real batch builder, Formal
-Publication Kernel, and corpus query path. The frozen one-shot DeepSeek run
-completed with model acceptance `0/5`: three Assembly output-token-cap
-failures, one malformed Assembly contract, and one Analysis
+Evaluation mode: `live_smoke`. The explicit live runner reuses the real batch
+builder, Formal Publication Kernel, and corpus query path. The frozen one-shot
+DeepSeek run completed with model acceptance `0/5`: three Assembly
+output-token-cap failures, one malformed Assembly contract, and one Analysis
 answer/evidence-support contract failure.
 
-The corrected repeated real-provider experiment then ran the same five tasks
-for 12 full cycles. DeepSeek `deepseek-v4-pro` returned successfully for all
-108 provider calls with zero recorded provider failures, 431,018 input tokens,
-and 89,148 output tokens. Task acceptance was still `0/60`: all 48 Assembly
-trials exceeded the frozen output-token cap and all 12 Analysis trials failed
-the typed answer/support contract. DeepSeek reported 396,928
-prompt-cache-hit tokens and 34,090 prompt-cache-miss tokens from its automatic
-input-prefix context cache. This was not cached-response replay; every call
-returned a unique provider response ID. The earlier local
+Evaluation mode: `live_experiment`. The corrected repeated real-provider
+experiment then ran the same five tasks for 12 full cycles. DeepSeek
+`deepseek-v4-pro` returned successfully for all 108 provider calls with zero
+recorded provider failures, 431,018 input tokens, and 89,148 output tokens.
+Task acceptance was still `0/60`: all 48 Assembly trials exceeded the frozen
+output-token cap and all 12 Analysis trials failed the typed answer/support
+contract. DeepSeek reported 396,928 prompt-cache-hit tokens and 34,090
+prompt-cache-miss tokens from its automatic input-prefix context cache. This
+was not cached-response replay; every call returned a unique provider response
+ID. The earlier local
 `live-agent-experiment-v1-invalid-observer-phase` and
 `live-agent-experiment-v1-normalized-response-only` diagnostics are excluded:
 the former changed Assembly outcomes and missed provider turns, while the latter
@@ -99,13 +100,13 @@ did not retain the full native response payload required by the final contract.
 
 ## Evaluation Boundary
 
-Scripted and fake models verify software contracts, control flow, and data
-handling. They are not evidence of real-model extraction, tool selection,
-reasoning, or end-to-end Agent quality. Likewise, `--allow-live-model` is only
-authorization to construct a configured provider, and `agent_usage/` records
-only execution telemetry.
+Evaluation mode: `offline_software_test`. Scripted and fake models verify
+software contracts, control flow, and data handling. They are not evidence of
+real-model extraction, tool selection, reasoning, or end-to-end Agent quality.
+Likewise, `--allow-live-model` is only authorization to construct a configured
+provider, and `agent_usage/` records only execution telemetry.
 
-The frozen Batch F one-shot smoke used DeepSeek `deepseek-v4-pro`, temperature `0.0`,
+The frozen `live_smoke` used DeepSeek `deepseek-v4-pro`, temperature `0.0`,
 thinking disabled, no automatic retry, one repetition, four Assembly tasks,
 and one Analysis task. Temperature `0` reduces sampling variance but does not
 guarantee identical provider outputs. A single five-task smoke is a provider
@@ -118,11 +119,11 @@ offline software tests, but must not be reported as cohort performance.
 Prompt and output-token-cap compatibility fixes are deferred so the failed
 frozen result remains unchanged.
 
-The repeated experiment is likewise a compatibility and reliability
-diagnostic. Its 60 trial rows are 12 repetitions of five fixed tasks, not 60
-independent evaluation samples. The 108 successful calls establish provider
-return and trace capture under the frozen configuration; they do not establish
-Agent task success.
+The `live_experiment` is likewise a compatibility and reliability diagnostic.
+Its 60 trial rows are 12 repetitions of five fixed tasks, not 60 independent
+evaluation samples. The 108 successful calls establish provider return and
+trace capture under the frozen configuration; they do not establish Agent task
+success.
 
 ## Current Intake And Publication Rules
 

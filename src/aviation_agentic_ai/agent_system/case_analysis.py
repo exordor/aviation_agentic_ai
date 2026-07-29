@@ -52,7 +52,6 @@ from aviation_agentic_ai.agent_system.prompts import (
     assemble_prompt,
 )
 from aviation_agentic_ai.agent_system.query_plan import AnalysisIntent, QueryPlan
-from aviation_agentic_ai.agent_system.query_tools import QueryGraphStore
 from aviation_agentic_ai.agent_system.tool_model import ToolCallingModel
 
 MAX_CASE_ANALYSIS_MODEL_CALLS = 2
@@ -1070,28 +1069,17 @@ def _validate_analysis_artifact_binding(
     task: CaseAnalysisTask,
     bundle: QueryEvidenceBundle,
     outcome: QueryToolOutcome,
-    query_store: Any | None = None,
+    query_store: Any,
 ) -> None:
     """Fail closed unless the destination and all three artifact layers agree."""
 
-    if query_store is None:
-        try:
-            store = QueryGraphStore(root)
-        except (OSError, RuntimeError, ValueError) as exc:
-            raise RuntimeError(
-                "analysis destination is not a validated current run"
-            ) from exc
-    else:
-        store = query_store
-        if Path(store.run_dir).resolve() != root:
-            raise RuntimeError(
-                "analysis destination differs from the supplied query store"
-            )
+    store = query_store
+    if Path(store.run_dir).resolve() != root:
+        raise RuntimeError(
+            "analysis destination differs from the supplied query store"
+        )
     destination_run_id = str(store.manifest["run_id"])
-    if (
-        query_store is None
-        and root.name != destination_run_id
-    ) or not (destination_run_id == task.run_id == bundle.run_id):
+    if not (destination_run_id == task.run_id == bundle.run_id):
         raise RuntimeError(
             "analysis destination run_id differs from artifact run"
         )
@@ -1267,7 +1255,7 @@ def write_case_analysis_artifacts(
     task: CaseAnalysisTask,
     bundle: QueryEvidenceBundle,
     outcome: QueryToolOutcome,
-    query_store: Any | None = None,
+    query_store: Any,
 ) -> Path:
     """Write one immutable, idempotent per-analysis artifact directory."""
 

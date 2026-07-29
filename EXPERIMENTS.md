@@ -194,8 +194,8 @@ event-instance predicates such as `advisoryNumber`, `effectiveStartTime`, or
 The PDF backend policy follows the existing project reports:
 `hybrid_docling_pymupdf` is the candidate default, while
 `pymupdf_text_legacy` is a baseline only. The policy is grounded in
-`reports/stages/pdf_extraction_comparison.md` and
-`reports/stages/pdf_backend_chunking_comparison.md`.
+`reports/phak_era_archive/stages/pdf_extraction_comparison.md` and
+`reports/phak_era_archive/stages/pdf_backend_chunking_comparison.md`.
 
 ## SOTA-Informed Adaptation For The Rerun
 
@@ -1159,7 +1159,7 @@ FAA ATCSCC advisories
   `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`,
   `reports/stages/nasa_atmonto_s7_llm_failure_review.md`.
 - **Step 8 — Failure and review boundary**:
-  `reports/stages/nasa_atmonto_s7_human_review_candidates.md`,
+  `reports/phak_era_archive/stages/nasa_atmonto_s7_human_review_candidates.md`,
   `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`,
   `reports/stages/nasa_atmonto_s7_profile_decision.md`.
 - **Step 9 — Synthesize thesis claims**: `reports/stages/thesis_claims_review.md`,

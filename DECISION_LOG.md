@@ -1,6 +1,10 @@
 # Decision Log
 
-> Seeded on 2026-07-05 from the project scope lock (`docs/master_project_scope_lock.md`) and the documentation map tiering rules. Each entry records a structural decision and its consequences. Future significant choices (tool changes, abandoned experiments, model selection, refactor scope) should be appended here.
+> Seeded on 2026-07-05 from the project scope lock
+> (`docs/archive/governance_era/master_project_scope_lock.md`) and the
+> documentation map tiering rules. Each entry records a structural decision and
+> its consequences. Future significant choices (tool changes, abandoned
+> experiments, model selection, refactor scope) should be appended here.
 
 ## Current Precedence
 

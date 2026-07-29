@@ -1,4 +1,4 @@
-"""Batch Two focused tests (plan §6.4): RDF, Neo4j, and Query.
+"""Batch Two focused tests for RDF and Neo4j materialization.
 
 RDF tests parse the Turtle with rdflib and assert:
 - actual NASA GroundStopTMI IRI exists;
@@ -14,11 +14,6 @@ Neo4j tests assert:
 - parameterized MERGE is used;
 - loading twice does not increase node or relationship counts;
 - an unrelated sentinel node is preserved.
-
-Query tests assert:
-- a supported event/facility/time question sees only matching facts;
-- an unrelated LAX runway question returns "Insufficient graph evidence.";
-- the unrelated question makes zero provider calls.
 
 The Neo4j live assertions use a fake driver factory that records the executed
 queries and simulates the MERGE store, so the parameterized-MERGE code path,
@@ -40,7 +35,6 @@ from rdflib.namespace import RDF
 
 from aviation_agentic_ai.agent_system.contracts import (
     FactTraceRow,
-    ModelCallRecord,
     SourceFamily,
     SourceRecord,
     ValidatedFact,
@@ -51,7 +45,6 @@ from aviation_agentic_ai.agent_system.materialize import (
     load_validated_facts_neo4j,
     materialize_validated_facts,
 )
-from aviation_agentic_ai.agent_system.query import answer_question
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.sources import (
     build_source_snapshot,
@@ -635,262 +628,9 @@ def test_neo4j_load_blocks_duplicate_ids_before_connecting(tmp_path):
         )
 
 
-# ---------------------------------------------------------------------------
-# §6.4 Query tests
-# ---------------------------------------------------------------------------
-
-
-def _write_query_kg(tmp_path: Path) -> None:
-    """Write a small materialized KG matching the Query reader's row shape."""
-
-    rows = [
-        {
-            "triple_id": "query-fact:type",
-            "subject": "urn:aviation-agentic-ai:event:1",
-            "predicate": "rdf:type",
-            "object": "atm:GroundStopTMI",
-            "subject_class": "atm:GroundStopTMI",
-            "object_class": "atm:GroundStopTMI",
-            "source_document": SOURCE_ID,
-        },
-        {
-            "triple_id": "query-fact:facility",
-            "subject": "urn:aviation-agentic-ai:event:1",
-            "predicate": "atm:controlledNASelement",
-            "object": FACILITY_ID,
-            "subject_class": "atm:GroundStopTMI",
-            "object_class": "nas:Airport",
-            "source_document": SOURCE_ID,
-        },
-        {
-            "triple_id": "query-fact:start",
-            "subject": "urn:aviation-agentic-ai:event:1",
-            "predicate": "atm:effectiveStartTime",
-            "object": "2026-05-19T21:00:00Z",
-            "subject_class": "atm:GroundStopTMI",
-            "object_class": "",
-            "source_document": SOURCE_ID,
-        },
-        {
-            "triple_id": "query-fact:end",
-            "subject": "urn:aviation-agentic-ai:event:1",
-            "predicate": "atm:effectiveEndTime",
-            "object": "2026-05-19T22:45:00Z",
-            "subject_class": "atm:GroundStopTMI",
-            "object_class": "",
-            "source_document": SOURCE_ID,
-        },
-    ]
-    (tmp_path / "kg.jsonl").write_text(
-        "\n".join(json.dumps(r) for r in rows), encoding="utf-8"
-    )
-
-
-def test_supported_question_sees_only_matching_facts(tmp_path):
-    """§6.4: a supported event/facility/time question sees only matching facts."""
-
-    _write_query_kg(tmp_path)
-    seen_facts: list[int] = []
-
-    def invoker(agent_role, template_vars):
-        rendered = template_vars.get("graph_evidence", "")
-        seen_facts.append(rendered.count("\n") + 1 if rendered else 0)
-        return ModelCallRecord(
-            agent="query",
-            raw_response="The graph records a Ground Stop at KJFK.\nSOURCES\n- " + SOURCE_ID,
-        )
-
-    # "ground stop" matches the rdf:type + controlledNASelement rows.
-    status, answer, sources, rec, facts = answer_question(
-        run_dir=tmp_path, question="ground stop KJFK",
-        model_invoker=invoker, write_run_record=True,
-    )
-    assert facts  # the Query Agent saw matching facts only
-    assert SOURCE_ID in sources
-    # query_run.json was written.
-    record = json.loads((tmp_path / "query_run.json").read_text(encoding="utf-8"))
-    assert record["question"] == "ground stop KJFK"
-    assert record["answer"]
-
-
-def test_unrelated_lax_question_returns_insufficient(tmp_path):
-    """§6.4: an unrelated LAX runway question returns Insufficient graph evidence."""
-
-    _write_query_kg(tmp_path)
-    calls = []
-
-    def invoker(agent_role, template_vars):
-        calls.append(1)
-        return ModelCallRecord(agent="query", raw_response="x")
-
-    status, answer, sources, rec, facts = answer_question(
-        run_dir=tmp_path, question="LAX runway material",
-        model_invoker=invoker, write_run_record=True,
-    )
-    # §6.3/§13: no matching fact -> status insufficient, English fallback.
-    assert status == "insufficient"
-    assert answer == "Insufficient graph evidence."
-    assert sources == []
-    # §6.4: the unrelated question makes zero provider calls.
-    assert calls == []
-    assert rec.error  # the no-call fail-closed record carries an error reason
-    # query_run.json records the insufficient answer.
-    record = json.loads((tmp_path / "query_run.json").read_text(encoding="utf-8"))
-    assert record["status"] == "insufficient"
-    assert record["answer"] == "Insufficient graph evidence."
-    assert record["retrieved_facts"] == []
-
-
-@pytest.mark.parametrize(
-    "question",
-    [
-        "What is the runway surface at LAX airport?",
-        "What time is it?",
-        "Which airport has the longest runway?",
-    ],
-)
-def test_generic_words_do_not_trigger_registered_query_intent(tmp_path, question):
-    """Generic schema words do not make an unsupported question answerable."""
-
-    _write_query_kg(tmp_path)
-    calls: list[int] = []
-
-    def invoker(agent_role, template_vars):
-        calls.append(1)
-        return ModelCallRecord(agent="query", raw_response="unexpected")
-
-    status, answer, sources, _rec, facts = answer_question(
-        run_dir=tmp_path,
-        question=question,
-        model_invoker=invoker,
-    )
-    assert status == "insufficient"
-    assert answer == "Insufficient graph evidence."
-    assert sources == []
-    assert facts == []
-    assert calls == []
-
-
-def test_one_unsourced_retrieved_fact_blocks_the_whole_answer(tmp_path):
-    """Aggregate provenance cannot mask an unsourced retrieved fact."""
-
-    rows = [
-        {
-            "subject": "urn:aviation-agentic-ai:event:1",
-            "predicate": "rdf:type",
-            "object": "atm:GroundStopTMI",
-            "subject_class": "atm:GroundStopTMI",
-            "object_class": "atm:GroundStopTMI",
-            "source_document": SOURCE_ID,
-        },
-        {
-            "subject": "urn:aviation-agentic-ai:event:1",
-            "predicate": "atm:controlledNASelement",
-            "object": FACILITY_ID,
-            "subject_class": "atm:GroundStopTMI",
-            "object_class": "nas:Airport",
-            "source_document": "",
-        },
-    ]
-    (tmp_path / "kg.jsonl").write_text(
-        "\n".join(json.dumps(row) for row in rows) + "\n",
-        encoding="utf-8",
-    )
-    calls: list[int] = []
-
-    def invoker(agent_role, template_vars):
-        calls.append(1)
-        return ModelCallRecord(agent="query", raw_response="unexpected")
-
-    status, answer, sources, rec, facts = answer_question(
-        run_dir=tmp_path,
-        question="What traffic management measure and controlled airport are recorded?",
-        model_invoker=invoker,
-        write_run_record=True,
-    )
-    assert status == "insufficient"
-    assert answer == "Insufficient graph evidence."
-    assert sources == []
-    assert len(facts) == 2
-    assert calls == []
-    assert "missing provenance" in rec.error
-    record = json.loads((tmp_path / "query_run.json").read_text(encoding="utf-8"))
-    assert len(record["retrieved_facts"]) == 2
-    assert record["failure_reason"] == "retrieved graph fact missing provenance"
-
-
-def test_answer_source_ids_subset_of_retrieved(tmp_path):
-    """§6.3: answer source IDs must be a subset of retrieved fact source IDs."""
-
-    _write_query_kg(tmp_path)
-
-    def invoker(agent_role, template_vars):
-        return ModelCallRecord(
-            agent="query",
-            # The Agent tries to cite a forged source not in the retrieved set.
-            raw_response=(
-                f"ANSWER\nA Ground Stop is recorded.\n"
-                f"SOURCES\n- {SOURCE_ID}\n- forged:source"
-            ),
-        )
-
-    status, answer, sources, rec, facts = answer_question(
-        run_dir=tmp_path, question="ground stop", model_invoker=invoker,
-    )
-    # The forged source is dropped; only the retrieved source remains.
-    assert sources == [SOURCE_ID]
-    assert "forged:source" not in sources
-
-
-def test_answer_without_a_retrieved_source_is_blocked(tmp_path):
-    """A fluent answer without a valid graph citation is not successful."""
-
-    _write_query_kg(tmp_path)
-
-    def invoker(agent_role, template_vars):
-        return ModelCallRecord(
-            agent="query",
-            raw_response="ANSWER\nA Ground Stop at KJFK.\nSOURCES\n- forged:source",
-        )
-
-    status, answer, sources, rec, facts = answer_question(
-        run_dir=tmp_path,
-        question="ground stop KJFK",
-        model_invoker=invoker,
-    )
-    assert status == "blocked"
-    assert answer == ""
-    assert sources == []
-    assert facts
-
-
-def test_internal_answer_headers_parsed_not_displayed(tmp_path):
-    """§6.3: internal ANSWER and SOURCES headers are parsed but not displayed."""
-
-    _write_query_kg(tmp_path)
-
-    def invoker(agent_role, template_vars):
-        return ModelCallRecord(
-            agent="query",
-            raw_response="ANSWER\nA ground stop.\nSOURCES\n- " + SOURCE_ID,
-        )
-
-    status, answer, sources, rec, facts = answer_question(
-        run_dir=tmp_path, question="ground stop", model_invoker=invoker,
-    )
-    # The internal ANSWER header is stripped from the displayed answer.
-    assert not answer.startswith("ANSWER")
-    assert "ground stop" in answer.lower()
-
-
 # ===========================================================================
-# Section 13 regressions: provenance, query intent, blocked status
+# Section 13 regressions: provenance
 # ===========================================================================
-
-REGISTERED_QUESTION = (
-    "What traffic management measure, controlled airport, and effective time "
-    "are recorded in this advisory?"
-)
 
 
 def _no_prov_facts() -> list[ValidatedFact]:
@@ -962,88 +702,6 @@ def test_sec13_regression2_explicit_prov_row_does_not_increase_counts(guide, tmp
     assert der_a == der_b == 1
 
 
-def test_sec13_regression3_registered_question_retrieves_all_required_facts(tmp_path):
-    """§13 regression 3: the exact registered English question retrieves the
-    event type, KJFK controlled facility, and both effective-time facts,
-    invokes the provider exactly once, and permits only retrieved source IDs."""
-
-    _write_query_kg(tmp_path)
-    calls = []
-
-    def invoker(agent_role, template_vars):
-        calls.append(1)
-        return ModelCallRecord(
-            agent="query",
-            raw_response=(
-                f"ANSWER\nA Ground Stop at KJFK from 21:00 to 22:45.\n"
-                f"SOURCES\n- {SOURCE_ID}"
-            ),
-        )
-
-    status, answer, sources, rec, facts = answer_question(
-        run_dir=tmp_path, question=REGISTERED_QUESTION,
-        model_invoker=invoker, write_run_record=True,
-    )
-    # The four required facts are retrieved (rdf:type, controlledNASelement,
-    # effectiveStartTime, effectiveEndTime).
-    retrieved_preds = {f["predicate"] for f in facts}
-    assert "rdf:type" in retrieved_preds
-    assert "atm:controlledNASelement" in retrieved_preds
-    assert "atm:effectiveStartTime" in retrieved_preds
-    assert "atm:effectiveEndTime" in retrieved_preds
-    assert len(facts) == 4
-    # The provider is invoked exactly once.
-    assert len(calls) == 1
-    assert status == "ok"
-    # Only retrieved source IDs are permitted.
-    assert sources == [SOURCE_ID]
-    assert all(s in {SOURCE_ID} for s in sources)
-
-
-def test_sec13_regression4_lax_question_remains_insufficient_zero_calls(tmp_path):
-    """§13 regression 4: the LAX runway question remains
-    'Insufficient graph evidence.' with zero provider calls."""
-
-    _write_query_kg(tmp_path)
-    calls = []
-
-    def invoker(agent_role, template_vars):
-        calls.append(1)
-        return ModelCallRecord(agent="query", raw_response="x")
-
-    status, answer, sources, rec, facts = answer_question(
-        run_dir=tmp_path, question="LAX runway material",
-        model_invoker=invoker,
-    )
-    assert status == "insufficient"
-    assert answer == "Insufficient graph evidence."
-    assert calls == []
-    assert facts == []
-
-
-def test_sec13_regression5_provider_error_is_blocked(tmp_path):
-    """§13 regression 5: a Query Agent provider error produces BLOCKED,
-    a blocked query_run.json."""
-
-    _write_query_kg(tmp_path)
-
-    def failing_invoker(agent_role, template_vars):
-        return ModelCallRecord(
-            agent="query", raw_response="", prompt_version="query-agent-v4",
-            error="ProviderError: upstream timeout",
-        )
-
-    status, answer, sources, rec, facts = answer_question(
-        run_dir=tmp_path, question="ground stop",
-        model_invoker=failing_invoker, write_run_record=True,
-    )
-    assert status == "blocked"
-    assert answer == ""  # blocked, not an insufficient-evidence answer
-    record = json.loads((tmp_path / "query_run.json").read_text(encoding="utf-8"))
-    assert record["status"] == "blocked"
-    assert "ProviderError" in record["failure_reason"]
-
-
 def test_sec13_regression7_no_chinese_interface_text_in_active_paths():
     """§13 regression 7: scan tracked and untracked active interface files."""
 
@@ -1057,7 +715,6 @@ def test_sec13_regression7_no_chinese_interface_text_in_active_paths():
         *sorted(Path("tests").glob("test_agent_system*.py")),
         Path("tests/test_cli_agent_system.py"),
         Path("docs/multi_agent_kg_system_design.md"),
-        Path("docs/agent_tool_use_execution_plan.md"),
     ]
     pattern = re.compile(r"[\u4e00-\u9fff]")
     offenders = [

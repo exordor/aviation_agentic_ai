@@ -29,7 +29,6 @@ class AnalysisIntent(str, Enum):
     EPISODE = "episode"
     OPERATIONAL_SITUATION = "operational_situation"
     APPLICABILITY_AND_IMPACT = "applicability_and_impact"
-    HISTORICAL_SIMILARITY = "historical_similarity"
 
 
 BoundOperation = Literal[
@@ -37,7 +36,6 @@ BoundOperation = Literal[
     "read_operational_situation",
     "read_applicability",
     "read_observed_flight_outcome",
-    "read_similarity_corpus_gate",
 ]
 
 _OPERATIONS_BY_INTENT: dict[AnalysisIntent, tuple[BoundOperation, ...]] = {
@@ -47,7 +45,6 @@ _OPERATIONS_BY_INTENT: dict[AnalysisIntent, tuple[BoundOperation, ...]] = {
         "read_applicability",
         "read_observed_flight_outcome",
     ),
-    AnalysisIntent.HISTORICAL_SIMILARITY: ("read_similarity_corpus_gate",),
 }
 
 _EVIDENCE_LAYERS_BY_OPERATION: dict[BoundOperation, tuple[str, ...]] = {
@@ -59,7 +56,6 @@ _EVIDENCE_LAYERS_BY_OPERATION: dict[BoundOperation, tuple[str, ...]] = {
     ),
     "read_applicability": ("formal",),
     "read_observed_flight_outcome": ("observed_flight_outcome",),
-    "read_similarity_corpus_gate": ("approved_similarity_corpus",),
 }
 
 _REGISTERED_ANALYSIS_QUESTIONS: dict[str, AnalysisIntent] = {
@@ -70,7 +66,6 @@ _REGISTERED_ANALYSIS_QUESTIONS: dict[str, AnalysisIntent] = {
     "what applicability and observed flight impact are recorded": (
         AnalysisIntent.APPLICABILITY_AND_IMPACT
     ),
-    "which historical case is most similar": AnalysisIntent.HISTORICAL_SIMILARITY,
 }
 
 
@@ -167,10 +162,7 @@ class QueryPlan(ChecksummedContract):
                 raise ValueError("step event IDs are outside event_or_case_scope")
         if _registered_intent(self.question) is not self.intent_family:
             raise ValueError("question does not match the registered analysis intent")
-        if (
-            self.intent_family is not AnalysisIntent.HISTORICAL_SIMILARITY
-            and len(self.event_or_case_scope) != 1
-        ):
+        if len(self.event_or_case_scope) != 1:
             raise ValueError("non-similarity plan requires exactly one event")
         if self.steps != _plan_steps(
             intent=self.intent_family,
@@ -288,21 +280,16 @@ def compile_query_plan(
     intent = _registered_intent(question)
     current_event_ids = tuple(store.event_ids)
     _validate_nonempty_unique(current_event_ids, "event_or_case_scope")
-    if intent is AnalysisIntent.HISTORICAL_SIMILARITY:
-        if event_id is not None:
-            raise ValueError("similarity plan binds the current corpus, not event_id")
-        event_ids = current_event_ids
-    else:
-        if event_id is None:
-            if len(current_event_ids) != 1:
-                raise ValueError(
-                    "non-similarity plan requires an explicit event_id for a "
-                    "multi-event store"
-                )
-            event_id = current_event_ids[0]
-        if event_id not in current_event_ids:
-            raise ValueError("event_id is outside the current query store")
-        event_ids = (event_id,)
+    if event_id is None:
+        if len(current_event_ids) != 1:
+            raise ValueError(
+                "non-similarity plan requires an explicit event_id for a "
+                "multi-event store"
+            )
+        event_id = current_event_ids[0]
+    if event_id not in current_event_ids:
+        raise ValueError("event_id is outside the current query store")
+    event_ids = (event_id,)
     steps = _plan_steps(intent=intent, event_ids=event_ids)
     run_id = _run_id(store)
     return _seal_query_plan(

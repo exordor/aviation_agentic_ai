@@ -19,8 +19,6 @@ Runtime code never rewrites, extends, or replaces the prompt text.
 from __future__ import annotations
 
 import re
-import time
-from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from typing import Any
@@ -30,24 +28,10 @@ from aviation_agentic_ai.agent_system.contracts import (
     AgentTask,
     EvidenceCard,
     EvidenceClaim,
-    ModelCallRecord,
     SourceRecord,
     ToolTraceEntry,
 )
 from aviation_agentic_ai.agent_system.prompts import assemble_prompt
-
-# A model invoker takes (agent_role, template_variables) and returns a
-# ModelCallRecord. The invoker is responsible for assembling the frozen
-# 6-message prompt from the catalog (design §16) and recording the call
-# ledger (agent, prompt_set_id, prompt_version, attempt).
-ModelInvoker = Callable[[str, dict[str, Any]], ModelCallRecord]
-
-# Shared English insufficient-evidence fallback for the active Query interface
-# (plan §13 T4: English-only active interface). Defined here so both the Query
-# Agent (agents.py) and the query runtime (query.py) reference one constant
-# without a circular import.
-INSUFFICIENT_EVIDENCE_ANSWER = "Insufficient graph evidence."
-
 
 @dataclass
 class AdvisoryMentions:
@@ -334,203 +318,11 @@ def build_advisory_evidence(
         decision_basis="deterministic structured-field parse of the advisory",
     )
 
-# ---------------------------------------------------------------------------
-# Query Agent (design §12)
-# ---------------------------------------------------------------------------
-
-
-@dataclass
-class QueryGraphEvidence:
-    """Graph-tool results supplied to the Query Agent (design §12.4)."""
-
-    facts: list[dict[str, Any]] = field(default_factory=list)
-    source_ids: list[str] = field(default_factory=list)
-
-
-@dataclass
-class QueryResult:
-    """The Query Agent's bounded outcome (plan §13 T3).
-
-    ``status`` distinguishes a successful answer (``ok``), a deterministic
-    insufficient-evidence decision (``insufficient``), and a provider failure
-    (``blocked``). Only ``blocked`` carries a failure reason; provider failure
-    must not be reported as insufficient evidence (plan §6.3, §13).
-    """
-
-    status: str  # ok | insufficient | blocked
-    answer: str
-    source_ids: list[str] = field(default_factory=list)
-    model_call: ModelCallRecord | None = None
-    failure_reason: str = ""
-
-
-def run_query_agent(
-    *,
-    task: AgentTask,
-    question: str,
-    evidence: QueryGraphEvidence,
-    ontology_labels: dict[str, str],
-    model_invoker: ModelInvoker,
-    insufficient_answer: str = "Insufficient graph evidence.",
-) -> QueryResult:
-    """Answer a question using only the materialized graph + provenance.
-
-    Plan §6.3 / §13 T3/T4: a non-empty model-call error or an empty provider
-    response raises a narrow ``blocked`` result BEFORE answer parsing.
-    ``Insufficient graph evidence.`` is reserved for a successful deterministic
-    retrieval decision with no relevant graph evidence — never for provider
-    failure.
-    """
-
-    for tool in ("graph_search", "graph_neighbors", "get_provenance"):
-        _check_tool(task, tool)
-    if not evidence.facts:
-        return QueryResult(
-            status="insufficient",
-            answer=insufficient_answer,
-            model_call=_no_call_record("query"),
-            failure_reason="no matching graph evidence",
-        )
-    rec = model_invoker(
-        "query",
-        {
-            "user_question": question,
-            "ontology_labels": _ontology_labels_text(ontology_labels),
-            "graph_evidence": _graph_evidence_text(evidence.facts),
-        },
-    )
-    # §13 T3: provider failure -> BLOCKED before answer parsing.
-    if rec.error:
-        return QueryResult(
-            status="blocked",
-            answer="",
-            model_call=rec,
-            failure_reason=rec.error,
-        )
-    if not rec.raw_response.strip():
-        return QueryResult(
-            status="blocked",
-            answer="",
-            model_call=rec,
-            failure_reason="empty provider response",
-        )
-    answer, sources = parse_query_answer(rec.raw_response, evidence.source_ids)
-    if not answer:
-        return QueryResult(
-            status="blocked",
-            answer="",
-            model_call=rec,
-            failure_reason="query response contained no answer",
-        )
-    if not sources:
-        return QueryResult(
-            status="blocked",
-            answer="",
-            model_call=rec,
-            failure_reason="query response cited no retrieved source",
-        )
-    return QueryResult(status="ok", answer=answer, source_ids=sources, model_call=rec)
-
-
-def _ontology_labels_text(labels: dict[str, str]) -> str:
-    """Render ontology labels as ``prefixed_name=label`` rows (design §12.2)."""
-
-    if not labels:
-        return "(none)"
-    return "\n".join(f"{name}={label}" for name, label in sorted(labels.items()))
-
-
-def _graph_evidence_text(facts: list[dict[str, Any]]) -> str:
-    """Render graph facts as ``s p o [src1; src2]`` rows (design §12.2)."""
-
-    rows: list[str] = []
-    for fact in facts:
-        subj = fact.get("subject", "")
-        pred = fact.get("predicate", "")
-        obj = fact.get("object", "")
-        src = fact.get("source_document", "")
-        rows.append(f"{subj} {pred} {obj} [{src}]")
-    return "\n".join(rows)
-
-
-def parse_query_answer_claims(raw: str) -> tuple[str, list[str]]:
-    """Extract answer text and every source ID claimed by the response.
-
-    Plan §6.3: the internal ``ANSWER`` and ``SOURCES`` headers emitted by the
-    frozen query catalog are parsed but NOT displayed. ``ANSWER`` on its own
-    line (or as an ``ANSWER:`` prefix) marks the start of the answer text and
-    is stripped; ``SOURCES`` / ``sources:`` mark the source list.
-    """
-
-    lines = [ln.strip() for ln in raw.splitlines() if ln.strip()]
-    sources: list[str] = []
-    answer_lines: list[str] = []
-    in_sources = False
-    in_answer = False
-
-    def add_source_tokens(text: str) -> None:
-        for token in re.split(r"[,\s]+", text):
-            token = token.strip().lstrip("-").rstrip(".;")
-            if token and token.lower() not in {"and", "+"} and token not in sources:
-                sources.append(token)
-
-    for ln in lines:
-        low = ln.lower()
-        # ANSWER header: start of the displayed answer; the header itself is
-        # stripped (plan §6.3).
-        if low == "answer" or low.startswith("answer:"):
-            in_answer = True
-            if low.startswith("answer:"):
-                tail = ln.split(":", 1)[1].strip()
-                if tail:
-                    answer_lines.append(tail)
-            continue
-        if low == "sources" or low.startswith("sources:"):
-            in_sources = True
-            in_answer = False
-            if low.startswith("sources:"):
-                add_source_tokens(ln.split(":", 1)[1])
-            continue
-        if in_sources:
-            add_source_tokens(ln)
-            continue
-        answer_lines.append(ln)
-    _ = in_answer  # parsed header presence; the answer text follows regardless
-    # A non-empty provider response can still omit the answer body. Keep that
-    # distinct from deterministic insufficient evidence so the caller can mark
-    # the malformed model result BLOCKED.
-    answer = " ".join(answer_lines).strip()
-    return answer, sources
-
-
-def parse_query_answer(raw: str, available: list[str]) -> tuple[str, list[str]]:
-    """Extract the answer and retain only citations present in ``available``."""
-
-    answer, claimed = parse_query_answer_claims(raw)
-    allowed = set(available)
-    return answer, [source for source in claimed if source in allowed]
-
-
-def _no_call_record(agent: str) -> ModelCallRecord:
-    """A zero-attempt record for the fail-closed path (no provider call)."""
-
-    return ModelCallRecord(agent=agent, raw_response="", error="no graph evidence")
-
-
-def _now_ms() -> float:
-    return time.perf_counter()
-
-
 # Re-export the prompt assembler for callers that build messages directly.
 __all__ = [
     "AdvisoryMentions",
-    "ModelInvoker",
-    "QueryGraphEvidence",
     "ToolNotAllowedError",
     "assemble_prompt",
     "parse_structured_fields",
-    "parse_query_answer",
-    "parse_query_answer_claims",
     "build_advisory_evidence",
-    "run_query_agent",
 ]

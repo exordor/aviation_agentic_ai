@@ -23,8 +23,8 @@ The active pipeline is:
   -> deterministic compiler for the three canonical cases or bounded
      Decision Case Assembly Agent for genuine evidence/schema choice
   -> task-bound validation
-  -> deterministic Formal Graph Kernel
   -> source-independent DecisionCase core and formal reconstruction membership
+  -> write-free multi-profile Formal Publication Kernel
   -> canonical corpus v2 normalization
   -> case-scoped formal graph view for one exact evidence-path question
   -> rebuildable JSONL + RDF + Neo4j materialization
@@ -33,9 +33,10 @@ The active pipeline is:
      -> Decision Case Analysis Agent only for exact registered analysis questions
 ```
 
-The knowledge graph is both a system output and shared evidence memory. The
-ontology profile constrains publication; it is not a separate Agent and is not
-claimed to be a complete aviation ontology.
+Corpus v2 is the canonical persisted knowledge and evidence layer. Formal graph
+views, RDF/Turtle, and Neo4j are derived runtime views or rebuildable outputs.
+The ontology profile constrains publication; it is not a separate Agent and is
+not claimed to be a complete aviation ontology.
 
 The normative implementation design is
 `docs/multi_agent_kg_system_design.md`. Reader-facing documents use full Agent
@@ -52,17 +53,18 @@ names, not internal alphanumeric labels.
   interface.
 - The three Decision Record Explorer cases have deterministic query support on
   `main`, including a profile-gap reason and an honest missing-reason outcome.
-- Batch C.1 and Batch D are merged into `main`. The three canonical records use
-  the zero-call deterministic compiler, and the Formal Graph Kernel remains the
-  sole final publication authority.
+- The current architecture cutover and bounded analysis surface are merged into
+  `main`. The three canonical records use the zero-call deterministic compiler,
+  and the Formal Publication Kernel remains the sole final publication
+  authority.
 - Decision Case Analysis is active only for exact registered episode,
   operational-situation, and applicability questions. It uses closed plans and
   bounded read-only tools. Historical decision-record similarity uses exact
   filters before a corpus-bound Chroma index and remains zero-chat-model.
-- Storage Batch S2 is the completed breaking storage cutover. Storage Batch S3
-  adds the rebuildable `index-cases` sidecar and deterministic filtered
-  similarity route. The public commands are `build-corpus`, `index-cases`,
-  `ask`, `neo4j-export`, and `export-case`.
+- The corpus-first storage cutover is complete. The rebuildable `index-cases`
+  sidecar supports the deterministic filtered-similarity route. The public
+  commands are `build-corpus`, `index-cases`, `ask`, `neo4j-export`, and
+  `export-case`.
   There is no persistent single-case `ingest`, `ask-corpus`, `--runs-root`,
   `--run-dir`, or corpus-v1 compatibility path. Use `build-corpus --source-id`
   for a bounded debug build.
@@ -70,14 +72,15 @@ names, not internal alphanumeric labels.
   unsupported TMI, and 3 incomplete core-field records. The 26 preflight
   failures are `insufficient` with zero model calls. A corpus manifest is
   published only when blocked is zero; `--resume` retries only blocked entries.
-- The current feature branch adds a separate live-model acceptance layer. Its
-  frozen one-shot DeepSeek smoke completed, but model acceptance was `0/5`:
-  three Assembly trials reached the output-token cap, one returned a malformed
-  Assembly contract, and one Analysis answer failed its typed evidence-support
-  contract. These are recorded compatibility failures, not benchmark results.
-- A separate repeated real-provider experiment completed 12 full five-task
-  cycles with DeepSeek `deepseek-v4-pro`: 108/108 provider calls returned
-  successfully, while task acceptance remained `0/60` (48 Assembly
+- `live_smoke`: the main branch includes a separate live-model acceptance
+  layer. Its frozen one-shot DeepSeek smoke completed, but model acceptance was
+  `0/5`: three Assembly trials reached the output-token cap, one returned a
+  malformed Assembly contract, and one Analysis answer failed its typed
+  evidence-support contract. These are recorded compatibility failures, not
+  benchmark results.
+- `live_experiment`: a separate repeated real-provider experiment completed 12
+  full five-task cycles with DeepSeek `deepseek-v4-pro`: 108/108 provider calls
+  returned successfully, while task acceptance remained `0/60` (48 Assembly
   output-token-cap failures and 12 Analysis support-contract failures). This is
   repeated compatibility evidence, not 60 independent tasks or a model-quality
   benchmark.

@@ -38,61 +38,49 @@ is current.
 
 ## Generated Runtime Artifacts
 
-Validated Agent-system runs are written under ignored local run directories and
-may contain:
+`agent-system build-corpus` is the only persistent evidence writer. During a
+build, the ignored corpus directory uses `.staging/` for resumable progress and
+temporary per-case packages. The packages under `.staging/case_runs/` are
+internal compiler inputs and are removed after successful normalization; they
+are not a supported persistence or query contract. Legacy packages under
+`data/runs/agent_system/` are likewise internal historical/debug material, not
+the current public path.
 
-- `source_snapshots.jsonl`;
-- `run_manifest.json`;
-- `fact_trace.jsonl`;
-- `weather_fact_trace.jsonl`;
-- `profile_gaps.jsonl`;
-- `context_associations.jsonl`;
-- `outcome_summaries.jsonl`;
-- `observation_derivations.jsonl`;
-- `observation_fact_trace.jsonl`;
-- `reconstruction_trace.json`;
-- `kg.jsonl`;
-- `kg.ttl`;
-- `neo4j_nodes.jsonl`;
-- `neo4j_relationships.jsonl`;
-- optional `neo4j_load.json`;
-- latest `query_run.json`.
-- immutable `analysis/<analysis_run_id>/` task, evidence bundle, and run
-  record.
+A published `decision-case-corpus-v2` directory contains:
 
-These directories are reproducible, environment-specific, and may contain raw
-provider material. Do not commit them. Summarize a selected run in a small
-tracked report only when it supports a durable system claim.
-
-Current runs use `source_snapshots.jsonl` as their portable source registry.
-`context_associations.jsonl` and `outcome_summaries.jsonl` are audit-only.
-Weather associations remain non-causal. Outcome summaries are deterministic
-aggregation intermediates and are not query authority by themselves. Formal
-BTS-reported observations admitted by the dedicated profile are serialized to
-RDF and Neo4j and remain traceable through `observation_derivations.jsonl`,
-`observation_fact_trace.jsonl`, and `reconstruction_trace.json`.
-
-The run manifest owns the optional-layer publication state:
-
-- `ok`: validated rows may be read within their declared layer;
-- `insufficient`: no eligible evidence exists and the artifact is empty;
-- `blocked`: checksum, schema, source binding, or validation failed and no
-  rows are publishable.
-
-Normalized cross-run corpora are written under ignored
-`data/corpus/agent_system/` directories and contain:
-
-- content-addressed `source_objects/`;
+- `corpus_manifest.json`;
+- `build_results.jsonl`;
+- `artifacts.jsonl`;
+- content-addressed `source_objects/<sha256>.txt`;
 - `source_bindings.jsonl`;
 - `cases.jsonl`;
 - canonical `facts.jsonl`;
 - `case_facts.jsonl`;
-- `corpus_manifest.json`.
+- `evidence_links.jsonl`;
+- `profile_gaps.jsonl`;
+- non-causal `context_associations.jsonl`;
+- source-qualified `observations.jsonl`;
+- rebuildable `kg.jsonl` and `kg.ttl`;
+- rebuildable `neo4j_nodes.jsonl` and `neo4j_relationships.jsonl`.
 
-The corpus removes cross-run source and fact duplication. It is a storage and
-retrieval foundation, not an approved recommendation artifact. `agent-system
-ask --corpus-dir <corpus-dir>` reads the registered JSONL tables without
-writing query results into the corpus.
+The manifest registers counts and checksums and is published only when no build
+result is `blocked`. Corpus v2 removes cross-run source and semantic-fact
+duplication while preserving evidence bindings. It is the authoritative
+persisted knowledge and read contract, not a recommendation artifact.
+`agent-system ask --corpus-dir <corpus-dir>` reads the registered tables
+without writing query results into the corpus.
+
+Two ignored, corpus-bound sidecars remain outside canonical corpus identity:
+
+- `agent_usage/agent_usage.jsonl` and
+  `agent_usage/agent_usage_manifest.json` contain payload-free activation,
+  bypass, outcome, call, token, and latency telemetry;
+- `case_index/` contains the rebuildable Chroma decision-record index and
+  `case_index_manifest.json`, bound to the corpus ID.
+
+Neither sidecar is formal evidence or query authority. The case index can be
+rebuilt from corpus v2, and Agent usage is operational telemetry rather than
+model evaluation.
 
 The live Agent evaluator writes detailed provider output under ignored
 `data/corpus/agent_system/live-agent-smoke-v1/` storage. Only the sanitized JSON
@@ -152,11 +140,17 @@ current system goal and must not be presented as external expert certification.
 Do not batch-rewrite historical reports merely to make their dated language
 look current. Keep them out of default context instead.
 
+Superseded execution debris, including byte-identical comparison snapshots,
+old role-specific prompt reports, and completed internal handoffs, is preserved
+in Git history rather than retained as active tracked artifacts. Reactivate it
+only through an explicit historical or comparison task.
+
 ## Ignored Local Material
 
 | Path | Policy |
 | --- | --- |
-| `data/runs/agent_system/` | Reproducible local runs; never default context. |
+| `data/runs/agent_system/` | Legacy/internal per-case runs and debug packages; not the current persistence or read contract. |
+| `data/corpus/agent_system/` | Current local corpora, transient staging, provider artifacts, and corpus-bound sidecars; ignored and environment-specific. |
 | `outputs/` | Scratch and mixed-branch outputs. |
 | `reports/archive/` | Local archived reports. |
 | vector indexes and model caches | Rebuild locally; do not commit. |

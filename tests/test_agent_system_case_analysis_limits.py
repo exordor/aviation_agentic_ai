@@ -1,4 +1,4 @@
-"""Limits for applicability, flight outcome, and historical similarity reads."""
+"""Limits for applicability and observed-flight outcome reads."""
 
 from __future__ import annotations
 
@@ -125,26 +125,6 @@ def test_observed_flight_outcome_rejects_aggregate_bts_as_flight_evidence(
     )
 
 
-def test_similarity_gate_never_ranks_three_case_fixture(
-    store: QueryGraphStore,
-) -> None:
-    """A fixture-sized set must not be converted into nearest-neighbor advice."""
-
-    from aviation_agentic_ai.agent_system.case_analysis_tools import (
-        read_similarity_corpus_gate,
-    )
-
-    result = read_similarity_corpus_gate(store, event_ids=tuple(store.event_ids))
-
-    assert result.status == "insufficient"
-    assert result.fact_ids == ()
-    assert result.source_ids == ()
-    assert result.items == ()
-    assert result.limitation == (
-        "historical similarity requires an approved corpus and comparison profile"
-    )
-
-
 @pytest.mark.parametrize(
     "question",
     (
@@ -204,11 +184,6 @@ def _forged_formal_observation(*, step_id: str):
             1,
             "observed flight observation",
         ),
-        (
-            "Which historical case is most similar?",
-            0,
-            "similarity observation",
-        ),
     ),
 )
 def test_gateway_reconstructs_each_limit_operation_from_its_reader(
@@ -254,7 +229,6 @@ def test_gateway_reconstructs_each_limit_operation_from_its_reader(
     (
         ("read_applicability", {"event_id": "event:unknown"}),
         ("read_observed_flight_outcome", {"event_id": "event:unknown"}),
-        ("read_similarity_corpus_gate", {"event_ids": (EVENT_ID, "event:unknown")}),
     ),
 )
 def test_limit_readers_block_unknown_events(
@@ -280,14 +254,12 @@ def test_limit_readers_do_not_mutate_the_current_store(store: QueryGraphStore) -
     from aviation_agentic_ai.agent_system.case_analysis_tools import (
         read_applicability,
         read_observed_flight_outcome,
-        read_similarity_corpus_gate,
     )
 
     before = _store_snapshot(store)
 
     read_applicability(store, event_id=EVENT_ID)
     read_observed_flight_outcome(store, event_id=EVENT_ID)
-    read_similarity_corpus_gate(store, event_ids=tuple(store.event_ids))
 
     assert _store_snapshot(store) == before
 

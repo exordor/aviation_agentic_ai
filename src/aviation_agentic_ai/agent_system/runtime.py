@@ -1,25 +1,11 @@
-"""Runtime: model invoker, run directory, and manifest for the agent system.
-
-Builds the DeepSeek model invoker (records provider/model/usage/latency), the
-versioned run directory, and the run manifest that records schema-slice id +
-checksum, provider calls, tokens, cost, and the materialization summary.
-
-The invoker assembles the frozen 6-message prompt from the catalog for the
-requested role (design §16) and records a per-call ledger entry: agent role,
-prompt_set_id, prompt_version, provider/model/usage/latency, and the attempt
-index. Per-run state isolation: a fresh invoker holds its own attempt counter
-and provider binding; nothing is shared across runs.
-"""
+"""Transient run bindings and manifests used during corpus construction."""
 
 from __future__ import annotations
 
 import hashlib
 import json
-import time
-from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from itertools import count
 from pathlib import Path
 from typing import Any
 
@@ -27,17 +13,7 @@ from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
 from aviation_agentic_ai.agent_system.materialize import (
     FactMaterialization,
 )
-from aviation_agentic_ai.agent_system.prompts import (
-    DEFAULT_PROMPT_CATALOG,
-    assemble_prompt,
-)
-from aviation_agentic_ai.config import resolve_project_path
-
-# A model invoker takes (agent_role, template_variables) and returns a
-# ModelCallRecord. The invoker is the sole caller of the provider and the sole
-# assembler of the frozen prompt (design §16).
-ModelInvoker = Callable[[str, dict[str, Any]], ModelCallRecord]
-ModelInvokerFactory = Callable[[], ModelInvoker]
+from aviation_agentic_ai.agent_system.prompts import DEFAULT_PROMPT_CATALOG
 
 # Frozen DeepSeek config for the system mainline (design §16).
 FROZEN_PROVIDER = "deepseek"
@@ -47,8 +23,6 @@ FROZEN_MAX_OUTPUT_TOKENS = 512
 FROZEN_TIMEOUT = 120.0
 MAX_PROVIDER_CALLS = 8
 
-# Catalog metadata re-exported for the manifest's top-level prompt_version.
-PROMPT_CATALOG = DEFAULT_PROMPT_CATALOG
 RUN_MANIFEST_VERSION = "decision-case-run-v1"
 
 
@@ -90,91 +64,6 @@ def extract_model_metadata(
     return input_tokens, output_tokens, provider, model, fingerprint
 
 
-def make_live_model_invoker(
-    *,
-    catalog_path: str = DEFAULT_PROMPT_CATALOG,
-) -> ModelInvoker:
-    """Build a DeepSeek model invoker that records full audit metadata.
-
-    Per-run isolation: each invoker holds its own attempt counter and provider
-    binding. The frozen prompt is assembled from the catalog for the requested
-    role; no caller can inject or rewrite the prompt text.
-    """
-
-    from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-
-    from aviation_agentic_ai.llm.providers import get_deepseek_mve_llm
-
-    chat = get_deepseek_mve_llm(
-        model=FROZEN_MODEL,
-        temperature=FROZEN_TEMPERATURE,
-        max_tokens=FROZEN_MAX_OUTPUT_TOKENS,
-        timeout=FROZEN_TIMEOUT,
-        max_retries=0,
-    )
-
-    attempt_counter = count(1)
-    role_overrides: dict[str, int] = {}
-
-    def _invoke(agent_role: str, template_vars: dict[str, Any]) -> ModelCallRecord:
-        assembled = assemble_prompt(agent_role, template_vars, catalog_path=catalog_path)
-        # Per-attempt index: global across the run, plus a per-role counter so
-        # the ledger can disambiguate retries of the same role.
-        global_attempt = next(attempt_counter)
-        role_attempt = role_overrides.get(agent_role, 0) + 1
-        role_overrides[agent_role] = role_attempt
-        messages: list[Any] = []
-        for msg_role, content in assembled.messages:
-            if msg_role == "system":
-                messages.append(SystemMessage(content=content))
-            elif msg_role == "assistant":
-                messages.append(AIMessage(content=content))
-            else:
-                messages.append(HumanMessage(content=content))
-        started = time.perf_counter()
-        try:
-            result = chat.invoke(messages)
-        except Exception as exc:  # provider/auth/timeout — record, do not fake
-            latency = (time.perf_counter() - started) * 1000.0
-            return ModelCallRecord(
-                agent=agent_role,
-                raw_response="",
-                prompt_set_id=assembled.prompt_set_id,
-                prompt_version=assembled.prompt_version,
-                provider=FROZEN_PROVIDER,
-                model=FROZEN_MODEL,
-                temperature=FROZEN_TEMPERATURE,
-                latency_ms=latency,
-                attempt=role_attempt,
-                error=f"{type(exc).__name__}: {exc}",
-            )
-        latency = (time.perf_counter() - started) * 1000.0
-        content = getattr(result, "content", "")
-        if isinstance(content, list):
-            content = "".join(p.get("text", "") if isinstance(p, dict) else str(p) for p in content)
-        raw = str(content or "")
-        input_tokens, output_tokens, provider, model_, fingerprint = (
-            extract_model_metadata(result)
-        )
-        _ = global_attempt  # recorded for completeness; role_attempt is the ledger key
-        return ModelCallRecord(
-            agent=agent_role,
-            raw_response=raw,
-            prompt_set_id=assembled.prompt_set_id,
-            prompt_version=assembled.prompt_version,
-            provider=provider or FROZEN_PROVIDER,
-            model=model_ or FROZEN_MODEL,
-            temperature=FROZEN_TEMPERATURE,
-            input_tokens=input_tokens,
-            output_tokens=output_tokens,
-            latency_ms=latency,
-            system_fingerprint=fingerprint,
-            attempt=role_attempt,
-        )
-
-    return _invoke
-
-
 def create_run_binding(
     base_root: str | Path,
     source_id: str,
@@ -202,12 +91,6 @@ def create_run_binding(
         run_dir=run_dir,
         run_started_at=run_started_at,
     )
-
-
-def new_run_directory(base_root: str | Path, source_id: str) -> Path:
-    """Create a versioned run directory for one ingest."""
-
-    return create_run_binding(base_root, source_id).run_dir
 
 
 def write_run_manifest(
@@ -324,7 +207,3 @@ def _materialization_summary(
             "neo4j_relationships": mat.relationships_path,
         },
     }
-
-
-def resolve_run_dir(run_dir: str | Path) -> Path:
-    return resolve_project_path(run_dir) if not Path(run_dir).is_absolute() else Path(run_dir)

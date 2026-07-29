@@ -7,7 +7,6 @@ import importlib
 import builtins
 import hashlib
 import json
-from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -22,7 +21,6 @@ from aviation_agentic_ai.agent_system.contracts import (
     CaseSimilarityMatch,
     ModelCallRecord,
     QueryToolOutcome,
-    SourceFamily,
 )
 from aviation_agentic_ai.agent_system.corpus_query import (
     CorpusAnalysisStoreAdapter,
@@ -31,7 +29,7 @@ from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusQueryStore,
     build_corpus,
 )
-from aviation_agentic_ai.agent_system.query_tool_graph import (
+from aviation_agentic_ai.agent_system.query_registry import (
     APPLICABILITY_ANALYSIS_QUESTION,
     DECLARED_REASON_QUESTION,
     EPISODE_ANALYSIS_QUESTION,
@@ -60,10 +58,6 @@ _corpus_fixture = _load_fixture(
     "corpus_cli_store_fixture",
     "test_agent_system_corpus_store.py",
 )
-_query_fixture = _load_fixture(
-    "corpus_cli_query_fixture",
-    "test_agent_system_query_tool_graph.py",
-)
 ANALYSIS_EVENT_ID = _corpus_fixture._fixture_module.EVENT_ID
 
 
@@ -84,13 +78,6 @@ def _analysis_corpus(tmp_path: Path) -> Path:
     module = _corpus_fixture._fixture_module
     module._write_graph(run_dir)
     module._write_formal_observation_layer(run_dir)
-    _query_fixture.EVENT_ID = ANALYSIS_EVENT_ID
-    _query_fixture._append_qualifying_weather_relation(
-        run_dir,
-        family=SourceFamily.METAR,
-        logical_time=datetime(2026, 5, 19, 20, 15, tzinfo=UTC),
-        raw="METAR KJFK TEST",
-    )
     context_path = run_dir / "context_associations.jsonl"
     context_data = context_path.read_bytes()
     manifest_path = run_dir / "run_manifest.json"
@@ -845,12 +832,13 @@ def test_four_corpus_question_families_need_no_run_directory_or_model(
         "make_live_tool_calling_model",
         forbidden_factory,
     )
-    for question in (
-        FORECAST_CONTEXT_QUESTION,
-        OBSERVED_WEATHER_CONTEXT_QUESTION,
-        PUBLIC_OUTCOME_QUESTION,
-        RECONSTRUCTED_CASE_QUESTION,
-    ):
+    expected_statuses = {
+        FORECAST_CONTEXT_QUESTION: "ok",
+        OBSERVED_WEATHER_CONTEXT_QUESTION: "insufficient",
+        PUBLIC_OUTCOME_QUESTION: "ok",
+        RECONSTRUCTED_CASE_QUESTION: "ok",
+    }
+    for question, expected_status in expected_statuses.items():
         result = CliRunner().invoke(
             cli_module.agent_system,
             [
@@ -864,5 +852,5 @@ def test_four_corpus_question_families_need_no_run_directory_or_model(
             ],
         )
         assert result.exit_code == 0, result.output
-        assert "status: ok" in result.output, question
+        assert f"status: {expected_status}" in result.output, question
         assert "model_calls: 0" in result.output
