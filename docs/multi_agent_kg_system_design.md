@@ -283,7 +283,8 @@ outcome, provider/tool calls, tokens, and recorded latency. Preflight
 insufficiencies have no usage rows. The sidecar stores no prompt, raw model
 response, tool payload, result payload, or reasoning text. Its manifest binds
 the records to `corpus_id`, but the sidecar is excluded from the canonical
-manifest and cannot change corpus identity.
+manifest and cannot change corpus identity. These rows are execution telemetry;
+they do not measure whether model choices or outputs are semantically correct.
 
 A blocked provider or workflow result does not stop the batch. It prevents
 final-manifest publication and is the only state retried by
@@ -381,7 +382,9 @@ exports all use the checksum-verified v2 tables.
 build records and a model-bound Decision Case Analysis route. Preflight,
 existing deterministic questions, and historical similarity do not construct
 a chat provider. Historical similarity accepts exact event-type, facility, and
-declared-reason filters plus `archive` or `prior` candidate scope.
+declared-reason filters plus `archive` or `prior` candidate scope. The flag is
+authorization only: its presence does not prove that a provider was called or
+that a model result passed acceptance.
 
 ## 14. Verification Requirements
 
@@ -399,6 +402,30 @@ periods, reason states, evidence wording, source provenance, non-causal
 Weather boundary, active BTS-reported counts, and absence of unnecessary
 provider use. A passing offline contract check does not claim external expert
 certification or live semantic accuracy.
+
+Scripted and fake providers remain appropriate for these software and data-flow
+checks. Model-dependent claims require the explicit live-evaluation path,
+which reuses the real corpus builder, Formal Publication Kernel, and corpus
+query implementation and does not silently substitute a fake provider.
+
+The frozen Batch F live smoke used DeepSeek `deepseek-v4-pro`, temperature
+`0.0`, thinking disabled, no automatic retries, and one repetition for four
+Assembly tasks and the GDP `138` operational-situation Analysis task. Its runner
+completed, but model acceptance was `0/5`:
+
+- Assembly `025`, `030`, and `072` exceeded the frozen output-token cap;
+- Assembly `070` returned a malformed typed Assembly contract;
+- the GDP `138` Analysis answer failed its typed evidence-support contract.
+
+No prompt or token-cap adjustment was made during the frozen run. Those
+compatibility fixes are deferred. Temperature `0` reduces sampling variance
+but does not make provider output deterministic, and a one-shot five-task
+smoke is not a statistical benchmark.
+
+The Semantic Resolution Agent is
+`not_evaluated_no_natural_ambiguity` because the frozen cohort has no natural
+multi-candidate task. Synthetic ambiguity fixtures test offline orchestration
+and contracts only; they are not reported as frozen-cohort model performance.
 
 The tracked six-query retrieval smoke set over 38 accepted cases checks four
 reviewed analogue pairs and two expected-insufficient filters. Its observed

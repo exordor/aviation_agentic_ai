@@ -59,6 +59,9 @@ The current system provides:
   public-observation, and DecisionCase-core layers;
 - a payload-free corpus-bound sidecar that measures selective Agent activation,
   bypass, outcome, calls, tokens, and recorded latency;
+- an explicit live-model acceptance harness that reuses the real corpus build,
+  Formal Publication Kernel, and corpus query path without replacing failures
+  with scripted responses;
 - fact-level evidence binding and source provenance;
 - canonical facility reuse and idempotent Neo4j merge behavior;
 - JSONL, RDF/Turtle, and Neo4j projection artifacts;
@@ -159,6 +162,16 @@ artifacts. Old runs require regeneration. The current command names are
 retained for user continuity, not as an artifact or runtime compatibility
 guarantee.
 
+Batch F is complete as an evaluation capability and frozen diagnostic run.
+The one-shot five-task DeepSeek smoke used `deepseek-v4-pro`, temperature
+`0.0`, thinking disabled, and no automatic retries. The runner completed, but
+model acceptance was `0/5`: Assembly `025`, `030`, and `072` reached the
+frozen output-token cap; Assembly `070` returned a malformed typed contract;
+and the GDP `138` Analysis answer failed its typed evidence-support contract.
+This result does not establish statistical model performance. The Semantic
+Resolution Agent remains `not_evaluated_no_natural_ambiguity` because the
+frozen cohort contains no natural activation case.
+
 Later increments still require an explicit user task and source boundary.
 Possible directions include decision-episode identity, regional weather,
 ASPM-based demand/capacity evidence, and operational-situation similarity.
@@ -172,6 +185,10 @@ ASPM-based demand/capacity evidence, and operational-situation similarity.
   TMI recommendation.
 - General-purpose aviation QA.
 - Full-corpus live-model execution.
+- Prompt and output-token-cap compatibility fixes for the Batch F failures.
+- Repeated-run, multi-model, or statistically powered live-Agent benchmarks.
+- A natural frozen-cohort Semantic Resolution evaluation; synthetic ambiguity
+  fixtures remain software tests and must not be reported as cohort results.
 - Automatic ontology expansion.
 - Production deployment and access control.
 - New Agent roles without a demonstrated system need.

@@ -135,6 +135,39 @@ does not affect corpus identity. It contains aggregate counts, tokens, and
 latency only—not prompts, model responses, tool arguments, tool results, or
 model reasoning.
 
+## Live Agent Smoke Evaluation
+
+Offline fake and scripted model tests verify software contracts, routing, and
+data flow only; they do not measure real LLM or Agent behavior. The explicit
+live smoke layer uses DeepSeek `deepseek-v4-pro` with temperature `0.0`,
+thinking disabled, and zero automatic retries:
+
+```bash
+uv run python -m aviation_agentic_ai.agent_system.live_agent_evaluation \
+  --config configs/cross_source_v1.yaml \
+  --suite data/evaluation/agent_system/live_agent_smoke_v1.yaml \
+  --output-dir data/corpus/agent_system/live-agent-smoke-v1 \
+  --report-dir reports/stages \
+  --allow-live-model \
+  --repetitions 1
+```
+
+The frozen single-run smoke completed all five trials but passed `0/5`: three
+Decision Case Assembly trials exceeded the frozen output-token cap, one
+returned a malformed Assembly contract, and the Decision Case Analysis answer
+failed its typed answer/support contract. Semantic Resolution was
+`not_evaluated_no_natural_ambiguity` because the cohort contains no natural
+ambiguity that activates that Agent. This is a provider-compatibility and
+bounded-behavior smoke result, not a statistical benchmark; temperature zero
+reduces sampling variance but does not guarantee determinism.
+
+The tracked, sanitized reports are
+[`agent_system_live_agent_smoke_v1.json`](reports/stages/agent_system_live_agent_smoke_v1.json)
+and
+[`agent_system_live_agent_smoke_v1.md`](reports/stages/agent_system_live_agent_smoke_v1.md).
+Credentials, prompts, raw responses, tool arguments, tool results, and detailed
+local run artifacts remain ignored and untracked.
+
 ## Historical Case Retrieval
 
 Build one decision-record vector per accepted case in a persistent local Chroma

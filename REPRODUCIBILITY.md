@@ -1,6 +1,6 @@
 # Reproducibility
 
-Last updated: 2026-07-28
+Last updated: 2026-07-29
 
 This is the corpus-first Agent-system workflow. Historical experiments remain
 available through `EXPERIMENTS.md`, but they are not the default path.
@@ -209,11 +209,50 @@ Weather associations remain non-causal. BTS observations are source-qualified
 public observations and are never FAA demand, AAR, capacity, EDCT, or a
 decision rationale.
 
+## Live Agent Smoke Evaluation
+
+Fake and scripted model tests validate software behavior and data flow only.
+They must not be reported as LLM or Agent performance. Run the separately
+authorized live smoke with the frozen DeepSeek configuration:
+
+```bash
+uv run python -m aviation_agentic_ai.agent_system.live_agent_evaluation \
+  --config configs/cross_source_v1.yaml \
+  --suite data/evaluation/agent_system/live_agent_smoke_v1.yaml \
+  --output-dir data/corpus/agent_system/live-agent-smoke-v1 \
+  --report-dir reports/stages \
+  --allow-live-model \
+  --repetitions 1
+```
+
+The suite fixes provider/model to DeepSeek `deepseek-v4-pro`, temperature to
+`0.0`, thinking to disabled, automatic retries to `0`, and one repetition.
+The recorded run completed all five trials and passed `0/5`: three Assembly
+trials exceeded the frozen output-token cap, one returned a malformed Assembly
+contract, and the Analysis answer failed its typed answer/support contract.
+Semantic Resolution is `not_evaluated_no_natural_ambiguity`; synthetic
+ambiguity is not presented as cohort performance.
+
+This five-task run is a compatibility and bounded-behavior smoke test, not a
+benchmark or reliability estimate. Temperature zero reduces variance but does
+not make provider behavior deterministic. Review the sanitized reports:
+
+```text
+reports/stages/agent_system_live_agent_smoke_v1.json
+reports/stages/agent_system_live_agent_smoke_v1.md
+```
+
+Credentials, complete prompts, raw responses, tool arguments, tool results,
+model reasoning, and detailed live-run artifacts remain ignored and
+untracked.
+
 ## Verification
 
 Run after the storage and retrieval batches:
 
 ```bash
+uv run pytest -q tests/test_agent_system_live_evaluation.py
+
 uv run --extra case-retrieval pytest -q \
   tests/test_agent_system_corpus_store.py \
   tests/test_agent_system_corpus_batch.py \

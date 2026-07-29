@@ -43,7 +43,8 @@ run-directory query, or corpus v1 compatibility layer.
   `--resume` retries blocked records only.
 - A payload-free `agent_usage/` sidecar reports selective Agent activation,
   deterministic bypass, outcomes, calls, tokens, and recorded latency. It is
-  bound to, but excluded from, canonical corpus identity.
+  bound to, but excluded from, canonical corpus identity. This sidecar is
+  operational telemetry, not an evaluation of model correctness.
 - Corpus v2 content-addresses source objects and stores cases, semantic facts,
   membership, evidence links, profile gaps, Weather associations, BTS
   observations, and stable conceptual-case/reconstruction identities.
@@ -73,6 +74,35 @@ run-directory query, or corpus v1 compatibility layer.
   AAR, capacity, EDCT, or proof that a TMI caused an outcome.
 - Exact registered Decision Case Analysis questions use closed plans and
   bounded read-only tools only with `--allow-live-model`.
+
+## Current Feature-Branch Evaluation
+
+The explicit Batch F live runner reuses the real batch builder, Formal
+Publication Kernel, and corpus query path. The frozen one-shot DeepSeek run
+completed with model acceptance `0/5`: three Assembly output-token-cap
+failures, one malformed Assembly contract, and one Analysis
+answer/evidence-support contract failure.
+
+## Evaluation Boundary
+
+Scripted and fake models verify software contracts, control flow, and data
+handling. They are not evidence of real-model extraction, tool selection,
+reasoning, or end-to-end Agent quality. Likewise, `--allow-live-model` is only
+authorization to construct a configured provider, and `agent_usage/` records
+only execution telemetry.
+
+The frozen Batch F run used DeepSeek `deepseek-v4-pro`, temperature `0.0`,
+thinking disabled, no automatic retry, one repetition, four Assembly tasks,
+and one Analysis task. Temperature `0` reduces sampling variance but does not
+guarantee identical provider outputs. A single five-task smoke is a provider
+compatibility and bounded-behavior diagnostic, not a statistical benchmark.
+
+The Semantic Resolution Agent is
+`not_evaluated_no_natural_ambiguity`: the current frozen cohort supplies no
+natural multi-candidate activation. Synthetic ambiguity fixtures remain valid
+offline software tests, but must not be reported as cohort performance.
+Prompt and output-token-cap compatibility fixes are deferred so the failed
+frozen result remains unchanged.
 
 ## Current Intake And Publication Rules
 
@@ -112,7 +142,8 @@ The project does not provide general aviation QA, live ATC support,
 weather-based causal explanation, operational-situation or outcome-aware
 similarity, TMI recommendation, a complete aviation ontology, or external
 expert certification. The tracked six-query relevance smoke set is not expert
-Gold or decision-quality evidence.
+Gold or decision-quality evidence. The five-task live-Agent smoke is likewise
+not a benchmark or evidence of reliable model performance.
 
 Comparison experiments, Gold adjudication, alignment MVE work, broader Weather
 expansion, causal explanation, and recommendation require an explicit approved

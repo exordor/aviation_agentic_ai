@@ -1,6 +1,6 @@
 # Artifact Index
 
-Last updated: 2026-07-27
+Last updated: 2026-07-29
 
 This file routes project context. It does not assert that every tracked artifact
 is current.
@@ -19,6 +19,8 @@ is current.
 | `tests/test_agent_system*.py`, `tests/test_cli_agent_system.py` | Focused Agent-system acceptance surface. |
 | `configs/cross_source_v1.yaml` | Admitted ATCSCC, facility, terminology, Weather-context, and BTS On-Time source configuration. |
 | `configs/prompts/decision_case_agents_v1.yaml` | Versioned Agent-system prompt configuration. |
+| `data/evaluation/agent_system/live_agent_smoke_v1.yaml` | Frozen five-task DeepSeek live-smoke suite. |
+| `reports/stages/agent_system_live_agent_smoke_v1.{json,md}` | Sanitized single-run live-smoke result; 0/5 accepted, not a benchmark. |
 | `data/ontology/curated/nasa_atmonto_decision_context_weather_slice.json` | Curated formal vocabulary for Weather report nodes only. |
 | `data/ontology/curated/decision_case_public_observation_slice.json` | Source-qualified formal profile for BTS-reported public operational observations. |
 | `data/sources/bts_on_time_2026_05_manifest.json` | Pinned BTS archive/member checksums, normalization contract, and source identity. |
@@ -86,9 +88,18 @@ Normalized cross-run corpora are written under ignored
 - `corpus_manifest.json`.
 
 The corpus removes cross-run source and fact duplication. It is a storage and
-retrieval foundation, not an approved similarity benchmark or recommendation
-artifact. `agent-system ask-corpus` reads the registered JSONL tables without
+retrieval foundation, not an approved recommendation artifact. `agent-system
+ask --corpus-dir <corpus-dir>` reads the registered JSONL tables without
 writing query results into the corpus.
+
+The live Agent evaluator writes detailed provider output under ignored
+`data/corpus/agent_system/live-agent-smoke-v1/` storage. Only the sanitized JSON
+and Markdown reports listed above are tracked. Offline fake/scripted tests
+remain software checks; the recorded DeepSeek `deepseek-v4-pro` run used
+temperature `0.0`, thinking disabled, and zero retries. It passed `0/5` trials:
+three Assembly token-cap failures, one malformed Assembly contract, and one
+Analysis answer/support-contract failure. Semantic Resolution was not evaluated
+because no natural cohort ambiguity activated it.
 
 ## Optional Evaluation Tracks
 

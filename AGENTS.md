@@ -70,6 +70,11 @@ names, not internal alphanumeric labels.
   unsupported TMI, and 3 incomplete core-field records. The 26 preflight
   failures are `insufficient` with zero model calls. A corpus manifest is
   published only when blocked is zero; `--resume` retries only blocked entries.
+- The current feature branch adds a separate live-model acceptance layer. Its
+  frozen one-shot DeepSeek smoke completed, but model acceptance was `0/5`:
+  three Assembly trials reached the output-token cap, one returned a malformed
+  Assembly contract, and one Analysis answer failed its typed evidence-support
+  contract. These are recorded compatibility failures, not benchmark results.
 - The read-only visualization prototype is isolated on
   `codex/kg-visualization-research`. Visualization is paused and is not the
   active `main` implementation track.
@@ -159,6 +164,18 @@ comparison experiment without an explicit scope decision.
 - During implementation, run the focused tests for the changed capability.
 - At batch completion, run `uv run ruff check .` and `uv run pytest -q` once.
 - Documentation-only changes: `git diff --check` and `uv run ruff check .`.
+- Scripted and fake models verify software contracts and data flow only. They
+  do not establish model, Agent, extraction, reasoning, or end-to-end semantic
+  performance.
+- `--allow-live-model` is execution authorization, not evidence of a real call
+  or a successful result. The `agent_usage/` sidecar is operational telemetry,
+  not model evaluation.
+- A live smoke must report the configured provider result as observed.
+  Temperature `0` reduces sampling variance but does not make provider output
+  deterministic, and a single five-task run is not a statistical benchmark.
+- Do not report synthetic ambiguity fixtures as frozen-cohort Semantic
+  Resolution performance. The current cohort has no natural ambiguity that
+  activates that role.
 - Report changes: run the relevant command in `REPRODUCIBILITY.md` and inspect
   the generated diff.
 - Verify implementation and artifacts before changing project claims.

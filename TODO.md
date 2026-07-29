@@ -41,8 +41,24 @@ admitted formal layer now passes one explicit final Formal Publication Kernel
 before projection writes. A non-authoritative `agent_usage/` sidecar measures
 selective Agent activation without changing corpus identity.
 
-## Recently Completed Mainline
+Batch F is complete as a live-evaluation harness and frozen diagnostic run.
+The one-shot DeepSeek smoke completed with `0/5` accepted tasks: three
+Assembly trials reached the output-token cap, one Assembly trial returned a
+malformed contract, and the Analysis trial failed its typed answer/support
+contract. Prompt and token-cap changes are intentionally deferred to a
+separate task.
 
+## Recently Completed Work
+
+- [x] Add an explicit live-model evaluation entry point that reuses the real
+  corpus build, Formal Publication Kernel, and corpus query path.
+- [x] Record a redacted one-shot five-task DeepSeek smoke report without fake
+  fallback, provider substitution, prompt changes, or token-cap changes.
+- [x] Separate software-contract tests, Agent usage telemetry, and live-model
+  acceptance claims.
+- [x] Mark Semantic Resolution as
+  `not_evaluated_no_natural_ambiguity` rather than treating synthetic
+  ambiguity fixtures as frozen-cohort performance.
 - [x] Make the final multi-profile Formal Publication Kernel explicit and
   remove the malformed-BTS drop-and-retry publication fallback.
 - [x] Record three payload-free Agent usage rows for each eligible workflow
@@ -109,8 +125,10 @@ The read-only query evidence explorer is implemented and reviewed on
 ## Next Decision
 
 Do not expand analysis beyond the exact registered families without a new
-approved task and evidence boundary. The next approved task must choose only
-one bounded increment, such as ASPM validation, regional Weather context,
+approved task and evidence boundary. A follow-up may address the observed
+prompt/output-token compatibility failures, but it must be separate from the
+frozen Batch F result. Otherwise, the next approved task must choose one
+bounded increment, such as ASPM validation, regional Weather context,
 decision-episode grouping, or operational-situation similarity.
 
 ## Explicitly Deferred
@@ -125,6 +143,10 @@ decision-episode grouping, or operational-situation similarity.
 - General-purpose planner and long-term Agent memory.
 - General RAG and general aviation chat.
 - New Agent roles without an observed need.
+- Prompt or token-cap tuning for the recorded Batch F failures.
+- Repeated-run, multi-model, or statistically powered live-Agent benchmarks.
+- Frozen-cohort Semantic Resolution performance claims until a natural
+  ambiguous case exists.
 - Production hardening and public deployment.
 - Adversarial local-object, path, symlink, concurrency, and cross-run tampering
   defenses unless a deployment or security task activates them.
