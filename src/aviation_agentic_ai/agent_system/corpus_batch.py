@@ -31,6 +31,7 @@ from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusBuildResult,
     build_corpus,
 )
+from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
 from aviation_agentic_ai.agent_system.prompts import (
     DEFAULT_PROMPT_CATALOG,
     get_prompt_catalog,
@@ -80,6 +81,7 @@ class BatchCaseExecution:
     result: CorpusBuildResult
     run_dir: Path | None = None
     agent_usage_records: tuple[AgentUsageRecord, ...] = ()
+    model_calls: tuple[ModelCallRecord, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -366,6 +368,7 @@ def run_batch_case(
                 provider_call_count=len(model_calls),
             ),
             agent_usage_records=agent_usage_records,
+            model_calls=tuple(model_calls),
         )
     validation = state.get("validation")
     graph_patch = state.get("assembly_graph_patch")
@@ -407,6 +410,7 @@ def run_batch_case(
         ),
         run_dir=binding.run_dir,
         agent_usage_records=agent_usage_records,
+        model_calls=tuple(model_calls),
     )
 
 
