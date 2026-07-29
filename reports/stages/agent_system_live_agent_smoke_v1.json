@@ -1,0 +1,364 @@
+{
+  "summary": {
+    "manifest_version": "decision-case-live-evaluation-v1",
+    "suite_id": "decision-case-live-agent-smoke-v1",
+    "suite_checksum": "e23315ba4656e84c0b2b17d0e4991bc383232e9704f38e24028c34e1b2c56c38",
+    "results_checksum": "1b38c3af890870892d3625496ad510c6f511fc8005fc15f59687399e2ee81634",
+    "repetitions": 1,
+    "runner_status": "completed",
+    "model_acceptance_status": "failed",
+    "live_model": true,
+    "provider": "deepseek",
+    "model": "deepseek-v4-pro",
+    "temperature": 0.0,
+    "thinking": "disabled",
+    "automatic_retry_count": 0,
+    "runner_detail_codes": [],
+    "semantic_resolution_status": "not_evaluated_no_natural_ambiguity",
+    "trial_count": 5,
+    "passed_count": 0,
+    "failed_count": 5,
+    "blocked_count": 0,
+    "not_run_count": 0,
+    "provider_call_count": 9,
+    "native_tool_call_count": 8,
+    "bound_tool_execution_count": 1,
+    "input_tokens": 35857,
+    "output_tokens": 6115,
+    "provider_latency_ms": 71630.81095833331,
+    "tool_latency_ms": 4.154833033680916,
+    "claim_boundary": "Single-run provider compatibility and bounded-behavior smoke only; not a benchmark, statistical reliability result, or Semantic Resolution evaluation."
+  },
+  "results": [
+    {
+      "trial_id": "assembly-025",
+      "repetition": 1,
+      "kind": "assembly",
+      "source_id": "2026-05-20:025",
+      "event_id": "evt:45d08154fbc9b4c9",
+      "role": "decision_case_assembly",
+      "live_model": true,
+      "workflow_status": "insufficient",
+      "activation_status": "activated",
+      "model_acceptance_status": "failed",
+      "detail_status": "blocked",
+      "assertions": [
+        {
+          "check_id": "agent_activated",
+          "passed": true,
+          "detail_code": "activated_with_real_provider_calls"
+        },
+        {
+          "check_id": "bounded_execution",
+          "passed": true,
+          "detail_code": "within_existing_model_and_tool_budgets"
+        },
+        {
+          "check_id": "frozen_model_contract",
+          "passed": true,
+          "detail_code": "frozen_deepseek_configuration_observed"
+        },
+        {
+          "check_id": "publishable_partial_case",
+          "passed": false,
+          "detail_code": "partial_case_not_published"
+        },
+        {
+          "check_id": "missing_reason_not_invented",
+          "passed": true,
+          "detail_code": "forbidden_reason_predicates_absent"
+        },
+        {
+          "check_id": "context_remains_noncausal",
+          "passed": true,
+          "detail_code": "all_context_associations_noncausal"
+        },
+        {
+          "check_id": "public_observation_role_preserved",
+          "passed": true,
+          "detail_code": "all_bts_facts_use_public_observation_profile"
+        }
+      ],
+      "provider": "deepseek",
+      "model": "deepseek-v4-pro",
+      "system_fingerprints": [
+        "fp_9954b31ca7_prod0820_fp8_kvcache_20260402"
+      ],
+      "prompt_set_id": "aviation-decision-case-agents-v1",
+      "prompt_version": "decision-case-assembly-v1",
+      "temperature": 0.0,
+      "provider_call_count": 2,
+      "native_tool_call_count": 2,
+      "bound_tool_execution_count": 0,
+      "input_tokens": 5836,
+      "output_tokens": 2006,
+      "provider_latency_ms": 23640.882500447333,
+      "tool_latency_ms": 0.8801673538982868,
+      "retrieved_fact_count": 0,
+      "retrieved_source_count": 0,
+      "failure_code": "assembly_output_token_cap_exceeded"
+    },
+    {
+      "trial_id": "assembly-030",
+      "repetition": 1,
+      "kind": "assembly",
+      "source_id": "2026-05-20:030",
+      "event_id": "evt:d9fcef46ac643adb",
+      "role": "decision_case_assembly",
+      "live_model": true,
+      "workflow_status": "insufficient",
+      "activation_status": "activated",
+      "model_acceptance_status": "failed",
+      "detail_status": "blocked",
+      "assertions": [
+        {
+          "check_id": "agent_activated",
+          "passed": true,
+          "detail_code": "activated_with_real_provider_calls"
+        },
+        {
+          "check_id": "bounded_execution",
+          "passed": true,
+          "detail_code": "within_existing_model_and_tool_budgets"
+        },
+        {
+          "check_id": "frozen_model_contract",
+          "passed": true,
+          "detail_code": "frozen_deepseek_configuration_observed"
+        },
+        {
+          "check_id": "publishable_partial_case",
+          "passed": false,
+          "detail_code": "partial_case_not_published"
+        },
+        {
+          "check_id": "missing_reason_not_invented",
+          "passed": true,
+          "detail_code": "forbidden_reason_predicates_absent"
+        },
+        {
+          "check_id": "context_remains_noncausal",
+          "passed": true,
+          "detail_code": "all_context_associations_noncausal"
+        },
+        {
+          "check_id": "public_observation_role_preserved",
+          "passed": true,
+          "detail_code": "all_bts_facts_use_public_observation_profile"
+        }
+      ],
+      "provider": "deepseek",
+      "model": "deepseek-v4-pro",
+      "system_fingerprints": [
+        "fp_9954b31ca7_prod0820_fp8_kvcache_20260402"
+      ],
+      "prompt_set_id": "aviation-decision-case-agents-v1",
+      "prompt_version": "decision-case-assembly-v1",
+      "temperature": 0.0,
+      "provider_call_count": 2,
+      "native_tool_call_count": 2,
+      "bound_tool_execution_count": 0,
+      "input_tokens": 5754,
+      "output_tokens": 1981,
+      "provider_latency_ms": 21279.092458076775,
+      "tool_latency_ms": 1.468332950025797,
+      "retrieved_fact_count": 0,
+      "retrieved_source_count": 0,
+      "failure_code": "assembly_output_token_cap_exceeded"
+    },
+    {
+      "trial_id": "assembly-070",
+      "repetition": 1,
+      "kind": "assembly",
+      "source_id": "2026-05-20:070",
+      "event_id": "evt:b06da438565dd752",
+      "role": "decision_case_assembly",
+      "live_model": true,
+      "workflow_status": "insufficient",
+      "activation_status": "activated",
+      "model_acceptance_status": "failed",
+      "detail_status": "blocked",
+      "assertions": [
+        {
+          "check_id": "agent_activated",
+          "passed": true,
+          "detail_code": "activated_with_real_provider_calls"
+        },
+        {
+          "check_id": "bounded_execution",
+          "passed": true,
+          "detail_code": "within_existing_model_and_tool_budgets"
+        },
+        {
+          "check_id": "frozen_model_contract",
+          "passed": true,
+          "detail_code": "frozen_deepseek_configuration_observed"
+        },
+        {
+          "check_id": "publishable_partial_case",
+          "passed": false,
+          "detail_code": "partial_case_not_published"
+        },
+        {
+          "check_id": "missing_reason_not_invented",
+          "passed": true,
+          "detail_code": "forbidden_reason_predicates_absent"
+        },
+        {
+          "check_id": "context_remains_noncausal",
+          "passed": true,
+          "detail_code": "all_context_associations_noncausal"
+        },
+        {
+          "check_id": "public_observation_role_preserved",
+          "passed": true,
+          "detail_code": "all_bts_facts_use_public_observation_profile"
+        }
+      ],
+      "provider": "deepseek",
+      "model": "deepseek-v4-pro",
+      "system_fingerprints": [
+        "fp_9954b31ca7_prod0820_fp8_kvcache_20260402"
+      ],
+      "prompt_set_id": "aviation-decision-case-agents-v1",
+      "prompt_version": "decision-case-assembly-v1",
+      "temperature": 0.0,
+      "provider_call_count": 2,
+      "native_tool_call_count": 2,
+      "bound_tool_execution_count": 0,
+      "input_tokens": 5048,
+      "output_tokens": 195,
+      "provider_latency_ms": 3673.27779205516,
+      "tool_latency_ms": 0.45162392780184746,
+      "retrieved_fact_count": 0,
+      "retrieved_source_count": 0,
+      "failure_code": "assembly_malformed_contract_output"
+    },
+    {
+      "trial_id": "assembly-072",
+      "repetition": 1,
+      "kind": "assembly",
+      "source_id": "2026-05-20:072",
+      "event_id": "evt:85eb2408f20abf96",
+      "role": "decision_case_assembly",
+      "live_model": true,
+      "workflow_status": "insufficient",
+      "activation_status": "activated",
+      "model_acceptance_status": "failed",
+      "detail_status": "blocked",
+      "assertions": [
+        {
+          "check_id": "agent_activated",
+          "passed": true,
+          "detail_code": "activated_with_real_provider_calls"
+        },
+        {
+          "check_id": "bounded_execution",
+          "passed": true,
+          "detail_code": "within_existing_model_and_tool_budgets"
+        },
+        {
+          "check_id": "frozen_model_contract",
+          "passed": true,
+          "detail_code": "frozen_deepseek_configuration_observed"
+        },
+        {
+          "check_id": "publishable_partial_case",
+          "passed": false,
+          "detail_code": "partial_case_not_published"
+        },
+        {
+          "check_id": "missing_reason_not_invented",
+          "passed": true,
+          "detail_code": "forbidden_reason_predicates_absent"
+        },
+        {
+          "check_id": "context_remains_noncausal",
+          "passed": true,
+          "detail_code": "all_context_associations_noncausal"
+        },
+        {
+          "check_id": "public_observation_role_preserved",
+          "passed": true,
+          "detail_code": "all_bts_facts_use_public_observation_profile"
+        }
+      ],
+      "provider": "deepseek",
+      "model": "deepseek-v4-pro",
+      "system_fingerprints": [
+        "fp_9954b31ca7_prod0820_fp8_kvcache_20260402"
+      ],
+      "prompt_set_id": "aviation-decision-case-agents-v1",
+      "prompt_version": "decision-case-assembly-v1",
+      "temperature": 0.0,
+      "provider_call_count": 2,
+      "native_tool_call_count": 2,
+      "bound_tool_execution_count": 0,
+      "input_tokens": 5040,
+      "output_tokens": 1624,
+      "provider_latency_ms": 18350.53658252582,
+      "tool_latency_ms": 1.3547088019549847,
+      "retrieved_fact_count": 0,
+      "retrieved_source_count": 0,
+      "failure_code": "assembly_output_token_cap_exceeded"
+    },
+    {
+      "trial_id": "analysis-gdp-138",
+      "repetition": 1,
+      "kind": "analysis",
+      "source_id": "2026-05-19:138",
+      "event_id": "urn:aviation-agentic-ai:event:205dd8308f24ff4b",
+      "role": "decision_case_analysis",
+      "live_model": true,
+      "workflow_status": "blocked",
+      "activation_status": "activated",
+      "model_acceptance_status": "failed",
+      "detail_status": "",
+      "assertions": [
+        {
+          "check_id": "agent_activated",
+          "passed": true,
+          "detail_code": "activated_with_real_provider_calls"
+        },
+        {
+          "check_id": "bounded_execution",
+          "passed": true,
+          "detail_code": "within_existing_model_and_tool_budgets"
+        },
+        {
+          "check_id": "frozen_model_contract",
+          "passed": true,
+          "detail_code": "frozen_deepseek_configuration_observed"
+        },
+        {
+          "check_id": "read_only_registered_tools",
+          "passed": true,
+          "detail_code": "only_registered_bound_read_tool_observed"
+        },
+        {
+          "check_id": "evidence_bundle_support",
+          "passed": false,
+          "detail_code": "supported_evidence_bundle_not_observed"
+        }
+      ],
+      "provider": "deepseek",
+      "model": "deepseek-v4-pro",
+      "system_fingerprints": [
+        "fp_9954b31ca7_prod0820_fp8_kvcache_20260402"
+      ],
+      "prompt_set_id": "aviation-decision-case-agents-v1",
+      "prompt_version": "decision-case-analysis-v1",
+      "temperature": 0.0,
+      "provider_call_count": 1,
+      "native_tool_call_count": 0,
+      "bound_tool_execution_count": 1,
+      "input_tokens": 14179,
+      "output_tokens": 309,
+      "provider_latency_ms": 4687.021625228226,
+      "tool_latency_ms": 0.0,
+      "retrieved_fact_count": 174,
+      "retrieved_source_count": 8,
+      "failure_code": "analysis_answer_contract_or_support_failed"
+    }
+  ]
+}

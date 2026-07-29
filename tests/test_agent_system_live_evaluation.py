@@ -518,6 +518,41 @@ def test_assembly_scoring_records_real_contract_failure_without_passing() -> Non
     assert result.failure_code == "assembly_acceptance_failed"
 
 
+def test_assembly_scoring_classifies_output_token_cap_as_model_failure() -> None:
+    trial = LiveEvaluationTrial(
+        trial_id="assembly-025",
+        kind="assembly",
+        source_id="2026-05-20:025",
+        expected_role="decision_case_assembly",
+    )
+
+    result = score_assembly_trial(
+        trial=trial,
+        repetition=1,
+        live_model=False,
+        build_result=CorpusBuildResult(
+            source_id=trial.source_id,
+            status="insufficient",
+            reason="Decision Case Assembly Agent output-token cap exceeded",
+            provider_call_count=2,
+        ),
+        usage=_assembly_usage(
+            outcome="blocked",
+            detail_status="blocked",
+        ),
+        model_calls=(
+            _live_call(agent="decision_case_assembly"),
+            _live_call(agent="decision_case_assembly"),
+        ),
+        fact_predicate_iris=(),
+        context_causal_claims=(),
+        observation_profile_layers=(),
+    )
+
+    assert result.model_acceptance_status == "failed"
+    assert result.failure_code == "assembly_output_token_cap_exceeded"
+
+
 def test_analysis_scoring_requires_supported_read_only_outcome(
     tmp_path: Path,
 ) -> None:
@@ -567,6 +602,47 @@ def test_analysis_scoring_requires_supported_read_only_outcome(
     assert result.activation_status == "activated"
     assert result.model_acceptance_status == "passed"
     assert result.bound_tool_execution_count == 1
+
+
+def test_analysis_contract_rejection_is_failed_not_runner_blocked() -> None:
+    trial = LiveEvaluationTrial(
+        trial_id="analysis-gdp-138",
+        kind="analysis",
+        source_id="2026-05-19:138",
+        expected_role="decision_case_analysis",
+        question="What public operational situation is recorded?",
+    )
+    outcome = QueryToolOutcome(
+        status="blocked",
+        source_ids=["bts:on-time:2026-05"],
+        retrieved_fact_ids=["fact:observation"],
+        model_calls=[_live_call(agent="decision_case_analysis")],
+        tool_calls=[
+            QueryToolTrace(
+                tool_call_id="trace:1",
+                tool="execute_bound_query_step",
+                arguments={"step_id": "step:1"},
+                result_refs=["fact:observation"],
+                source_ids=["bts:on-time:2026-05"],
+                status="ok",
+            )
+        ],
+        failure_reason="model answer failed the typed answer contract",
+    )
+
+    result = score_analysis_trial(
+        trial=trial,
+        repetition=1,
+        live_model=False,
+        event_id="urn:event:gdp-138",
+        outcome=outcome,
+    )
+
+    assert result.model_acceptance_status == "failed"
+    assert (
+        result.failure_code
+        == "analysis_answer_contract_or_support_failed"
+    )
 
 
 def test_blocked_corpus_dependency_does_not_activate_analysis() -> None:

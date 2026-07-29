@@ -294,6 +294,23 @@ def _shared_model_metadata(
     }
 
 
+def _assembly_failure_code(
+    *,
+    build_result: CorpusBuildResult,
+    calls: Sequence[ModelCallRecord],
+) -> str:
+    reason = build_result.reason.lower()
+    if "output-token cap exceeded" in reason:
+        return "assembly_output_token_cap_exceeded"
+    if "malformed case assembly proposal output" in reason:
+        return "assembly_malformed_contract_output"
+    if any(call.error for call in calls):
+        return "assembly_provider_or_model_call_error"
+    if build_result.status == "blocked":
+        return "assembly_execution_blocked"
+    return "assembly_acceptance_failed"
+
+
 def score_assembly_trial(
     *,
     trial: LiveEvaluationTrial,
@@ -372,7 +389,7 @@ def score_assembly_trial(
             failed_code="bts_fact_escaped_public_observation_profile",
         ),
     )
-    blocked = build_result.status == "blocked" or usage.outcome == "blocked"
+    blocked = build_result.status == "blocked"
     if blocked:
         acceptance: Literal["passed", "failed", "blocked", "not_run"] = (
             "blocked"
@@ -408,10 +425,9 @@ def score_assembly_trial(
         failure_code=(
             ""
             if acceptance == "passed"
-            else (
-                "assembly_execution_blocked"
-                if acceptance == "blocked"
-                else "assembly_acceptance_failed"
+            else _assembly_failure_code(
+                build_result=build_result,
+                calls=calls,
             )
         ),
         **_shared_model_metadata(calls),
@@ -495,7 +511,7 @@ def score_analysis_trial(
             failed_code="supported_evidence_bundle_not_observed",
         ),
     )
-    blocked = outcome.status == "blocked"
+    blocked = any(call.error for call in calls)
     if blocked:
         acceptance: Literal["passed", "failed", "blocked", "not_run"] = (
             "blocked"
@@ -526,9 +542,13 @@ def score_analysis_trial(
             ""
             if acceptance == "passed"
             else (
-                "analysis_execution_blocked"
+                "analysis_provider_or_model_call_error"
                 if acceptance == "blocked"
-                else "analysis_acceptance_failed"
+                else (
+                    "analysis_answer_contract_or_support_failed"
+                    if outcome.status == "blocked"
+                    else "analysis_acceptance_failed"
+                )
             )
         ),
         **_shared_model_metadata(calls),
