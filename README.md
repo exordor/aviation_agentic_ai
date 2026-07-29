@@ -3,8 +3,8 @@
 Aviation Agentic AI builds an evidence-bounded corpus of retrospective FAA
 ATCSCC decision cases. It parses each selected advisory, resolves bounded FAA
 authority records, prepares non-causal Weather and BTS context, validates a
-sealed decision case, and publishes only facts accepted by the Formal Graph
-Kernel.
+sealed decision case, and publishes only facts accepted by the Formal
+Publication Kernel.
 
 ```text
 718 discovered advisories
@@ -12,10 +12,11 @@ Kernel.
   -> deterministic preflight
   -> 26 insufficient results with zero model calls
   -> sequential workflow for the 42 eligible records
+  -> event-patch admissibility check
+  -> final decision/profile/membership publication kernel
   -> canonical corpus v2 with case and reconstruction identities
-  -> case-scoped formal graph view for one registered evidence-path question
-  -> rebuildable RDF/Neo4j projections and case-level Chroma index
-  -> bounded corpus query and case export
+  -> exact corpus, case-scoped graph, and metadata-conditioned case views
+  -> bounded corpus query, offline KG export, and case export
 ```
 
 The public persisted interface is corpus-first. `build-corpus` is the only
@@ -72,7 +73,8 @@ unsupported-TMI, and 3 incomplete-core-field records. Every selected advisory
 gets one `CorpusBuildResult`. The 26 preflight outcomes are `insufficient` with
 zero model calls. Provider or workflow failures are `blocked`; `--resume`
 retries only blocked records. A final manifest is written only when blocked is
-zero.
+zero. The completion summary also reports bounded-Agent activations,
+deterministic bypasses, outcomes, calls, tokens, and recorded latency.
 
 ## Corpus v2
 
@@ -108,7 +110,30 @@ EDCT, or decision rationale.
 Corpus v2 is the canonical persisted knowledge layer. Each accepted case has a
 stable conceptual case IRI and a reconstruction IRI. Formal membership facts
 bind the ATCSCC event and admitted Weather/BTS members to that reconstruction.
-RDF, Neo4j, and Chroma are rebuildable views derived from the corpus.
+RDF/Turtle and Neo4j are offline, rebuildable KG exports. Chroma is a
+rebuildable metadata-conditioned retrieval index. None is authoritative
+runtime storage.
+
+## Agent Usage Sidecar
+
+Each eligible workflow case produces one usage record for facility semantic
+resolution, terminology semantic resolution, and decision-case assembly.
+Actual provider use is recorded as `activated`; unique-candidate resolution and
+the canonical compiler are `deterministic_bypass`; an unavailable downstream
+role is `not_reached`. Preflight insufficiencies produce no usage rows.
+
+The payload-free sidecar is written after a successful corpus publication:
+
+```text
+agent_usage/
+  agent_usage.jsonl
+  agent_usage_manifest.json
+```
+
+It is bound to `corpus_id` but is not part of the canonical corpus manifest and
+does not affect corpus identity. It contains aggregate counts, tokens, and
+latency only—not prompts, model responses, tool arguments, tool results, or
+model reasoning.
 
 ## Historical Case Retrieval
 
@@ -190,9 +215,9 @@ uv run aviation-ai agent-system neo4j-export \
   --corpus-dir data/corpus/agent_system/smoke-v2
 ```
 
-Neo4j is a rebuildable full-corpus projection rather than the authoritative
-store. Its loader uses parameterized `MERGE`, preserves unrelated data, and
-returns `BLOCKED` when credentials or connectivity are unavailable.
+Neo4j is an offline, rebuildable full-corpus export rather than an authoritative
+runtime query store. Its loader uses parameterized `MERGE`, preserves unrelated
+data, and returns `BLOCKED` when credentials or connectivity are unavailable.
 
 ## Acceptance Semantics
 

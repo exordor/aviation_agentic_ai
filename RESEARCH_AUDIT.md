@@ -1,6 +1,6 @@
 # Project Audit And Context Router
 
-Audit date: 2026-07-28
+Audit date: 2026-07-29
 Canonical integration branch: `main`
 
 This is the default entry point for a new project task. It replaces the former
@@ -12,8 +12,9 @@ Aviation Agentic AI is a runnable, source-bounded corpus builder for
 retrospective FAA ATCSCC advisories. It deterministically selects and preflights
 advisories, processes eligible cases through the bounded-Agent workflow, and
 normalizes validated evidence into canonical corpus v2. Queries and
-selected-case exports read that corpus; RDF, Neo4j, and Chroma are rebuildable
-derived views.
+selected-case exports read that corpus. RDF/Turtle and Neo4j are offline,
+rebuildable KG exports; Chroma is a rebuildable metadata-conditioned case
+index.
 
 ```text
 718 advisory rows
@@ -21,15 +22,16 @@ derived views.
   -> deterministic preflight
   -> insufficient without model for 23 unsupported + 3 incomplete records
   -> sequential workflow for the remaining 42 eligible records
-  -> Formal Graph Kernel
-  -> DecisionCase semantic core and canonical corpus v2
-  -> case-scoped formal graph view
-  -> rebuildable RDF/Neo4j projections and case-level Chroma index
+  -> event-patch admissibility check
+  -> DecisionCase assembly
+  -> final decision/profile/membership Formal Publication Kernel
+  -> canonical corpus v2
+  -> exact corpus, case-scoped graph, and metadata-conditioned case views
   -> bounded corpus query / similarity retrieval / case export
 ```
 
-The Coordinator and Formal Graph Kernel are deterministic components, not
-Agents. LLM output cannot bypass the publication gate. The persisted public
+The Coordinator and Formal Publication Kernel are deterministic components,
+not Agents. LLM output cannot bypass the publication gate. The persisted public
 path is corpus-first: `build-corpus`, `index-cases`, `ask`, `neo4j-export`, and
 `export-case`. There is no persistent single-case ingest interface,
 run-directory query, or corpus v1 compatibility layer.
@@ -39,6 +41,9 @@ run-directory query, or corpus v1 compatibility layer.
 - `agent-system build-corpus` builds a selected corpus directly from configured
   advisory sources. `--source-id` provides a bounded single-case debug path;
   `--resume` retries blocked records only.
+- A payload-free `agent_usage/` sidecar reports selective Agent activation,
+  deterministic bypass, outcomes, calls, tokens, and recorded latency. It is
+  bound to, but excluded from, canonical corpus identity.
 - Corpus v2 content-addresses source objects and stores cases, semantic facts,
   membership, evidence links, profile gaps, Weather associations, BTS
   observations, and stable conceptual-case/reconstruction identities.
@@ -57,8 +62,9 @@ run-directory query, or corpus v1 compatibility layer.
 - `agent-system export-case` writes a selected bounded, non-replayable case.
 - `agent-system neo4j-export` loads the full corpus projection with
   parameterized `MERGE` when Neo4j is available.
-- RDF/Turtle and Neo4j are rebuildable formal-graph projections; Chroma is a
-  rebuildable retrieval index. None replaces corpus v2 as the authority.
+- RDF/Turtle and Neo4j are offline rebuildable KG exports; Chroma is a
+  rebuildable metadata-conditioned retrieval index. None replaces corpus v2
+  as the authority or runtime read contract.
 - Missing or unsupported fields return explicit `insufficient`; provider or
   workflow failures return `blocked`; profile gaps never become formal KG facts.
 - GS 123 remains a profile gap, GDP 138 retains formal `weather`, and GDP 020

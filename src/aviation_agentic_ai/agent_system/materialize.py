@@ -59,7 +59,7 @@ _MINUTE_METRIC_KEYS = frozenset(
 # ValidatedFact -> RDF + Neo4j projection (plan §6)
 # ===========================================================================
 #
-# The functions below consume the Formal Graph Kernel's accepted
+# The functions below consume the Formal Publication Kernel's accepted
 # ``ValidatedFact`` objects (plan §4.1) and emit the formal artifacts:
 #
 # - ``kg.jsonl``  — one fact row in the Query Agent's triple-row shape;

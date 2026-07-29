@@ -7,16 +7,19 @@ This package implements the runnable system mainline:
     -> shared Semantic Resolution Agent only for genuine ambiguity
     -> deterministic Weather/BTS preparation
     -> canonical compiler or bounded Decision Case Assembly Agent
-    -> Formal Graph Kernel and profile-owned JSONL/RDF/Neo4j artifacts
-    -> bounded Query Agent (graph-grounded answer listing actual source IDs)
+    -> event-patch Formal Graph Kernel admissibility check
+    -> DecisionCase membership finalization
+    -> multi-profile Formal Publication Kernel
+    -> canonical corpus v2 and rebuildable retrieval/export views
+    -> bounded Query Agent and registered Decision Case Analysis
 
 LangGraph expresses the fixed topology; LangChain is used only when a
-conditional Agent path activates. The Formal Graph Kernel is the sole final
-publication authority under the NASA ATMONTO decision profile and the separate
-Weather and public-observation profiles. There is no Decision Case Analysis,
-Critic, Verification role, Self-Refine, Gold workflow, LLM judge, or
-comparison-experiment scoring in this package. Earlier runs require
-regeneration after the Batch C.1 cutover.
+conditional Agent path activates. The write-free Formal Publication Kernel is
+the sole final authority across the NASA ATMONTO decision profile, Weather,
+public-observation, and DecisionCase-core profiles. The payload-free Agent
+usage sidecar is non-authoritative and cannot change corpus identity. There is
+no Critic, separate Verifier role, Self-Refine, Gold workflow, LLM judge, or
+comparison-experiment scoring in this package.
 """
 
 from __future__ import annotations

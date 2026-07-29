@@ -1,6 +1,6 @@
 # TODO
 
-Last updated: 2026-07-28
+Last updated: 2026-07-29
 
 This file contains only the active execution queue and immediate deferred
 decisions. Historical experiment backlogs are discoverable through
@@ -17,7 +17,7 @@ Storage Batch S2 is complete. The public persisted path is `build-corpus`,
 run-directory query, `ask-corpus`, `--runs-root`, or corpus v1 migration path
 remains. Corpus v2 stores content-addressed sources, cases, semantic facts,
 fact membership, evidence links, profile gaps, non-causal Weather associations,
-BTS observations, and full-corpus projections.
+BTS observations, and rebuildable full-corpus exports.
 
 The frozen cohort design is 718 discovered, 68 selected, 42 Agent-eligible, 23
 unsupported-TMI, and 3 incomplete-core-field records. The 26 preflight
@@ -36,8 +36,21 @@ stable conceptual-case and reconstruction identities, and the reconstruction
 formally owns its admitted event, Weather, and BTS members. One exact
 case-scoped evidence-path question traverses this graph with zero model calls.
 
+Architecture Consistency and Selective Agent Evidence is complete. Every
+admitted formal layer now passes one explicit final Formal Publication Kernel
+before projection writes. A non-authoritative `agent_usage/` sidecar measures
+selective Agent activation without changing corpus identity.
+
 ## Recently Completed Mainline
 
+- [x] Make the final multi-profile Formal Publication Kernel explicit and
+  remove the malformed-BTS drop-and-retry publication fallback.
+- [x] Record three payload-free Agent usage rows for each eligible workflow
+  case and no rows for deterministic preflight insufficiencies.
+- [x] Publish usage totals in a corpus-bound sidecar outside canonical corpus
+  identity.
+- [x] Replace the crowded system diagram with separate construction and
+  retrieval architecture figures.
 - [x] Add conceptual-case and reconstruction identities with formal
   `prov:specializationOf` and `prov:hadMember` relations under the
   DecisionCase core profile.
@@ -70,7 +83,8 @@ case-scoped evidence-path question traverses this graph with zero model calls.
 - [x] Add the shared Semantic Resolution Agent for genuine ambiguity.
 - [x] Replace the predecessor construction path with the canonical compiler or bounded
   Decision Case Assembly Agent.
-- [x] Enforce the deterministic Formal Graph Kernel publication gate.
+- [x] Enforce early event-patch validation and one final deterministic
+  multi-profile Formal Publication Kernel.
 - [x] Preserve fact-level evidence, provenance, profile gaps, and explicit
   failure states.
 - [x] Materialize validated JSONL, RDF/Turtle, and Neo4j projections.

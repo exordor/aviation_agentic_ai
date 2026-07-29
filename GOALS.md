@@ -1,6 +1,6 @@
 # Project Goals
 
-Last updated: 2026-07-28
+Last updated: 2026-07-29
 
 This file defines durable system outcomes. Concrete work belongs in `TODO.md`;
 historical comparison hypotheses belong in the optional experiment documents.
@@ -16,11 +16,11 @@ system that:
    activated semantic resolution and decision-case assembly Agents, and a
    graph-grounded read surface with bounded Decision Case Analysis for exact
    registered questions;
-3. publishes only evidence-bound facts accepted by a deterministic schema and
-   provenance gate;
+3. publishes only evidence-bound facts accepted by one explicit final
+   multi-profile Formal Publication Kernel;
 4. keeps corpus v2 as the canonical persisted knowledge layer and derives
-   rebuildable RDF/Turtle, Neo4j, and Chroma views for graph and similarity
-   retrieval;
+   runtime corpus/graph views, offline RDF/Turtle and Neo4j exports, and a
+   metadata-conditioned Chroma retrieval index;
 5. answers bounded user questions through read-only graph tools while exposing
    evidence, uncertainty, and missing information.
 
@@ -55,7 +55,10 @@ The current system provides:
   authority ambiguity;
 - a deterministic canonical-case compiler and a bounded Decision Case
   Assembly Agent only for genuine evidence/schema choice;
-- deterministic formal validation as the sole publication gate;
+- a write-free final Formal Publication Kernel shared by decision, Weather,
+  public-observation, and DecisionCase-core layers;
+- a payload-free corpus-bound sidecar that measures selective Agent activation,
+  bypass, outcome, calls, tokens, and recorded latency;
 - fact-level evidence binding and source provenance;
 - canonical facility reuse and idempotent Neo4j merge behavior;
 - JSONL, RDF/Turtle, and Neo4j projection artifacts;
@@ -103,9 +106,10 @@ Assembly for the same three records:
   compiler and make zero Decision Case Assembly provider calls.
 - A bounded Decision Case Assembly Agent may activate only for a genuine
   non-canonical evidence/schema choice.
-- Task-bound validation keeps Assembly output within the sealed evidence and
-  schema scope before the Formal Graph Kernel applies the final publication
-  decision.
+- Task-bound event validation keeps Assembly output within the sealed evidence
+  and schema scope. Case membership is then finalized before the
+  multi-profile Formal Publication Kernel applies the sole final publication
+  decision and any projection is written.
 
 The new Assembly role does not turn adapters into Agents and does not add model
 calls to the three canonical cases. It reconstructs auditable historical

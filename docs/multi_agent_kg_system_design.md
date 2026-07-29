@@ -1,10 +1,10 @@
 # Bounded-Agent Aviation Decision-Case Knowledge System
 
-Status: normative current architecture with bounded Decision Case Analysis and
-historical decision-record retrieval, a DecisionCase semantic core, and one
-registered case-scoped graph query
+Status: normative current architecture with explicit final publication,
+selective Agent evidence, bounded Decision Case Analysis, metadata-conditioned
+historical retrieval, and one registered case-scoped graph query
 
-Date: 2026-07-28
+Date: 2026-07-29
 
 ## 1. Purpose and Scope
 
@@ -20,10 +20,15 @@ that a reported observation caused a measure or that a measure was optimal.
 
 ## 2. Current Architecture
 
-![Current bounded-agent decision-case architecture](figures/current_project_architecture.png)
+![Selective Agent escalation for decision-case construction](figures/decision_case_construction_architecture.png)
 
 Editable source:
-[current_project_architecture.drawio](figures/current_project_architecture.drawio).
+[decision_case_construction_architecture.drawio](figures/decision_case_construction_architecture.drawio).
+
+![Corpus-backed retrieval and evidence-grounded answering](figures/decision_case_retrieval_architecture.png)
+
+Editable source:
+[decision_case_retrieval_architecture.drawio](figures/decision_case_retrieval_architecture.drawio).
 
 ```text
 718 advisory rows + bounded FAA authority records
@@ -37,13 +42,13 @@ Editable source:
   -> sealed Decision Case Assembly task
      -> canonical zero-call compiler for the three approved cases
      -> bounded Decision Case Assembly Agent only for genuine evidence/schema choice
-  -> task-bound formal validation
-  -> deterministic Formal Graph Kernel
-  -> source-independent DecisionCase core
-     -> conceptual case + reconstruction + formal membership
+  -> task-bound event-patch admissibility validation
+  -> source-independent DecisionCase membership finalization
+  -> write-free multi-profile Formal Publication Kernel
   -> canonical corpus v2 normalization
-  -> case-scoped formal graph view
-  -> rebuildable RDF/Neo4j projections and case-level Chroma index
+  -> exact corpus and case-scoped formal graph runtime views
+  -> metadata-conditioned Chroma case index
+  -> offline rebuildable RDF/Turtle and Neo4j exports
   -> deterministic corpus query routing with bounded read-only graph tools
      -> Decision Case Analysis Agent only for exact registered analysis questions
 ```
@@ -68,7 +73,7 @@ Agent is active.
 | --- | --- |
 | Capability | Build, inspect, and narrowly analyze a source-bounded corpus of ATCSCC decision cases with audited context and one closed graph evidence-path query. |
 | Smallest end-to-end result | Build a selected source-ID subset into corpus v2, publish only accepted facts, and retrieve its event, Weather, and active BTS membership paths. |
-| Minimum components | AdvisoryParser, authority services, optional semantic/assembly Agents, Weather/BTS adapters, DecisionCase core, Formal Graph Kernel, corpus store, closed graph view, materializers, and bounded query tools. |
+| Minimum components | AdvisoryParser, authority services, optional semantic/assembly Agents, Weather/BTS adapters, DecisionCase core, Formal Publication Kernel, corpus store, closed graph view, materializers, and bounded query tools. |
 | Evidence | Source IDs, exact evidence text, snapshot checksums, sealed contracts, preflight records, fact traces, and deterministic tests. |
 | Success | Accepted facts materialize consistently; profile gaps and missing evidence remain distinct; registered queries return `ok`, `insufficient`, or `blocked`. |
 | Failure | A component invents a candidate, source, fact, cause, ontology term, or graph write; a provider is built on a deterministic path; or a result bypasses the Kernel. |
@@ -185,13 +190,16 @@ authority.
 Every proposal is checked against the exact sealed task before publication. A
 repair is allowed only for the explicitly permitted value-only correction. Any
 out-of-task, causal, source-binding, schema, profile, or evidence violation is
-blocked. The Formal Graph Kernel remains the sole final publication authority.
+blocked. This event-patch check is an early admissibility gate; it does not
+write a projection.
 
-## 9. Formal Graph Kernel and Profiles
+## 9. Formal Publication Kernel and Profiles
 
-The Formal Graph Kernel validates graph-patch facts for active profile
-membership, identity, source evidence, datatype, domain/range, and graph
-constraints. It accepts only the formal layers owned by their profiles:
+After optional-layer selection and DecisionCase membership finalization, the
+write-free Formal Publication Kernel validates the entire admitted case once.
+It checks active profile membership, identity, source evidence, datatype,
+domain/range, graph constraints, and layer-specific evidence traces. It
+accepts only the formal layers owned by their profiles:
 
 1. ATCSCC decision facts under the NASA ATMONTO decision profile;
 2. METAR/TAF report facts under the curated Weather profile;
@@ -206,7 +214,11 @@ reconstruction; they do not state that Weather caused the TMI or that the TMI
 caused a BTS observation.
 
 Every accepted fact carries the owning profile identifier and checksum. No
-model writes directly to RDF, Turtle, Neo4j, or a final graph artifact.
+model writes directly to RDF, Turtle, Neo4j, or a final graph artifact. Normal
+optional-layer `insufficient` or `blocked` outcomes are omitted before final
+publication. A malformed layer that was admitted to the final set blocks the
+whole case and produces no formal projection; the system does not silently
+drop that layer and retry a smaller publication.
 
 ## 10. Corpus v2 Artifacts and Batch Recovery
 
@@ -250,17 +262,35 @@ and source artifact.
 
 Corpus v2 is the canonical persisted knowledge layer. Every `cases.jsonl`
 record requires a conceptual `case_iri` and a `reconstruction_iri` extracted
-from accepted DecisionCase core facts. RDF and Neo4j are rebuildable
-full-corpus projections, and Chroma is a rebuildable retrieval index. Context
+from accepted DecisionCase core facts. The exact corpus and case-scoped graph
+are runtime read views. RDF/Turtle and Neo4j are offline rebuildable KG
+exports; Chroma is a rebuildable metadata-conditioned retrieval index. Context
 associations are excluded from formal RDF and Neo4j; already admitted BTS
 public-observation facts remain formal.
+
+The successful build also publishes a research-only usage sidecar:
+
+```text
+agent_usage/
+  agent_usage.jsonl
+  agent_usage_manifest.json
+```
+
+Each eligible workflow case contributes facility-resolution,
+terminology-resolution, and decision-case-assembly rows. They distinguish
+actual activation, deterministic bypass, and a role not reached, and aggregate
+outcome, provider/tool calls, tokens, and recorded latency. Preflight
+insufficiencies have no usage rows. The sidecar stores no prompt, raw model
+response, tool payload, result payload, or reasoning text. Its manifest binds
+the records to `corpus_id`, but the sidecar is excluded from the canonical
+manifest and cannot change corpus identity.
 
 A blocked provider or workflow result does not stop the batch. It prevents
 final-manifest publication and is the only state retried by
 `build-corpus --resume`. Successful finalization deletes temporary case
 bundles; those staging packages are never a public read backend.
 
-## 11. Query Tools and Decision Case Analysis
+## 11. QueryEvidenceBundle and Decision Case Analysis
 
 The query surface reads only checksum-verified corpus tables through bounded
 read-only tools. Registered deterministic question families cover the
@@ -291,6 +321,14 @@ plan-step ID, makes at most two model calls, executes at most three distinct
 steps, and has no raw advisory reader, external web access, graph-write
 capability, or model-memory fallback.
 
+Deterministic routes form their answer directly from the validated
+`QueryToolOutcome`. For an exact registered analysis route, selected runtime
+reads are sealed into a typed `QueryEvidenceBundle`; evidence-support
+validation checks the proposed analysis against that bundle before returning
+citations, limitations, and terminal status. Query-time Analysis Agent
+execution remains inside the existing query evidence result; it is not written
+back into the corpus build usage sidecar.
+
 Operational-situation analysis is the supported complete fixture. Episode
 analysis reports only the current record and cannot group a lifecycle.
 Applicability analysis can report formal facility/time applicability but
@@ -300,10 +338,12 @@ Historical similarity is a separate deterministic retrieval route. One compact
 document per accepted case encodes TMI type, canonical facility,
 declared-reason state/value, UTC time of day, and duration bucket. Exact corpus
 filters run before normalized cosine recall from a persistent local Chroma
-sidecar, and the reference case is always excluded. The index is derived from
-and bound to `corpus_id`; changing the corpus requires rebuilding it. Results
-are retrieval records only and do not enter corpus facts, RDF, Neo4j, or the
-Formal Graph Kernel. The route invokes no chat provider.
+sidecar, and the reference case is always excluded. This is a
+metadata-conditioned decision-record index, not operational-situation,
+Weather, outcome, or effectiveness similarity. The index is derived from and
+bound to `corpus_id`; changing the corpus requires rebuilding it. Results are
+retrieval records only and do not enter corpus facts, RDF, Neo4j, or the Formal
+Publication Kernel. The route invokes no chat provider.
 
 ## 12. Canonical Acceptance Cases
 

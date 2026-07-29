@@ -1389,10 +1389,10 @@ def _validate_event_patch_node(state: dict) -> dict:
     # multi-source ``source_snapshots.jsonl`` artifact for the run.
     snapshot_registry = build_source_snapshot_registry([ctx.advisory])
 
-    # Formal Graph Kernel: the deterministic gate between model output and the
-    # formal graph (plan §4, §5.4). Runs the 10 authority/schema/source/
-    # evidence checks and the GroundStop graph-level constraints before any
-    # materialization. A non-publishable result produces no formal artifacts.
+    # Event-patch Formal Graph Kernel: the deterministic admissibility gate
+    # between model output and case publication (plan §4, §5.4). It runs the
+    # authority/schema/source/evidence checks and GroundStop graph constraints
+    # before the final multi-profile publication step.
     event_uri = state.get("event_uri", "") or _event_uri(
         ctx.run_id, ctx.advisory.source_id, event_class
     )
@@ -1433,7 +1433,7 @@ def _validate_event_patch_node(state: dict) -> dict:
     # The deterministic context node owns the one canonical publication after
     # all independently validated layers have been selected. Keeping the core
     # validation and audit artifacts here prevents optional context failures
-    # from weakening the Formal Graph Kernel without writing a stale partial KG.
+    # from weakening event-patch admissibility without writing a stale KG.
     return {
         "materialization": None,
         "validation": validation,
