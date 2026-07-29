@@ -98,6 +98,25 @@ def build_corpus_command(
     click.echo(f"ok: {summary.ok_count}")
     click.echo(f"insufficient: {summary.insufficient_count}")
     click.echo(f"blocked: {summary.blocked_count}")
+    usage_manifest = getattr(summary, "agent_usage_manifest", None)
+    if usage_manifest is not None:
+        totals = usage_manifest.totals
+        click.echo(
+            "agent_usage: "
+            f"activated={totals.activated_count} "
+            f"bypass={totals.deterministic_bypass_count} "
+            f"accepted={totals.accepted_count} "
+            f"abstained={totals.abstained_count} "
+            f"blocked={totals.blocked_count}"
+        )
+        click.echo(
+            "agent_calls: "
+            f"provider={totals.provider_call_count} "
+            f"tool={totals.tool_call_count} "
+            f"tokens={totals.input_tokens}/{totals.output_tokens} "
+            "latency_ms="
+            f"{totals.provider_latency_ms:.3f}/{totals.tool_latency_ms:.3f}"
+        )
     if summary.manifest is not None:
         click.echo(f"corpus_id: {summary.manifest.corpus_id}")
         click.echo(f"corpus_manifest: {output_dir / 'corpus_manifest.json'}")

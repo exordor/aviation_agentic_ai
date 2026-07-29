@@ -17,6 +17,7 @@ from aviation_agentic_ai.agent_system.corpus_batch import (
     BatchResources,
     build_corpus_batch,
 )
+from aviation_agentic_ai.agent_system.agent_usage import AgentUsageRecord
 
 
 def _advisory(
@@ -161,6 +162,7 @@ def test_all_insufficient_batch_publishes_valid_empty_corpus(tmp_path: Path) -> 
     assert manifest["run_count"] == 0
     assert manifest["case_count"] == 0
     assert manifest["fact_count"] == 0
+    assert "agent_usage" not in manifest["artifacts"]
     results = [
         json.loads(line)
         for line in (output / "build_results.jsonl")
@@ -171,6 +173,16 @@ def test_all_insufficient_batch_publishes_valid_empty_corpus(tmp_path: Path) -> 
         "insufficient",
         "insufficient",
     ]
+    assert (
+        output / "agent_usage" / "agent_usage.jsonl"
+    ).read_text(encoding="utf-8") == ""
+    usage_manifest = json.loads(
+        (
+            output / "agent_usage" / "agent_usage_manifest.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert usage_manifest["record_count"] == 0
+    assert usage_manifest["totals"]["provider_call_count"] == 0
     for name in (
         "artifacts.jsonl",
         "source_bindings.jsonl",
@@ -315,6 +327,192 @@ def test_resume_retries_only_blocked_cases_and_is_idempotent(tmp_path: Path) -> 
     assert (output / "corpus_manifest.json").exists()
     results = (output / "build_results.jsonl").read_text(encoding="utf-8").splitlines()
     assert len(results) == 3
+
+
+def test_resume_replaces_blocked_usage_rows_without_duplicating_terminal_rows(
+    tmp_path: Path,
+) -> None:
+    advisories = [_advisory("ok:one"), _advisory("blocked:two")]
+    attempts: dict[str, int] = {}
+
+    def usage(source_id: str, *, outcome: str) -> tuple[AgentUsageRecord, ...]:
+        return tuple(
+            AgentUsageRecord(
+                source_id=source_id,
+                event_id=f"event:{source_id}",
+                task_id=f"task:{scope}:{source_id}",
+                role=("decision_case_assembly" if scope == "decision_case" else "semantic_resolution"),
+                task_scope=scope,
+                execution_mode="deterministic_bypass",
+                outcome=outcome,
+                detail_status=("blocked" if outcome == "blocked" else "accepted"),
+                activation_reason="test",
+            )
+            for scope in ("facility", "terminology", "decision_case")
+        )
+
+    def run_case(advisory, resources, staging_dir, allow_live_model):  # type: ignore[no-untyped-def]
+        _ = resources, allow_live_model
+        attempt = attempts.get(advisory.source_id, 0) + 1
+        attempts[advisory.source_id] = attempt
+        blocked = advisory.source_id == "blocked:two" and attempt == 1
+        if blocked:
+            raise RuntimeError("scripted workflow failure")
+        status = "blocked" if blocked else "ok"
+        return BatchCaseExecution(
+            result=CorpusBuildResult(source_id=advisory.source_id, status=status),
+            run_dir=staging_dir if status == "ok" else None,
+            agent_usage_records=usage(
+                advisory.source_id,
+                outcome=("blocked" if blocked else "accepted"),
+            ),
+        )
+
+    def finalizer(run_dirs, output_dir, *, build_results):  # type: ignore[no-untyped-def]
+        _ = run_dirs, build_results
+        manifest = CorpusBuildManifest(
+            corpus_id="corpus:resume",
+            run_count=2,
+            case_count=2,
+            fact_count=0,
+            source_binding_count=0,
+            source_object_count=0,
+            artifacts={},
+        )
+        Path(output_dir, "corpus_manifest.json").write_text(
+            manifest.model_dump_json() + "\n",
+            encoding="utf-8",
+        )
+        return manifest
+
+    output = tmp_path / "corpus"
+    config = _config(advisories, tmp_path / "advisories.jsonl")
+    first = build_corpus_batch(
+        config,
+        output,
+        resource_loader=lambda config: _resources(),
+        case_runner=run_case,
+        corpus_normalizer=finalizer,
+    )
+    assert first.blocked_count == 1
+    assert not (output / "agent_usage").exists()
+    staged_rows = [
+        json.loads(line)
+        for line in (
+            output / ".staging" / "agent_usage.jsonl"
+        ).read_text(encoding="utf-8").splitlines()
+    ]
+    blocked_rows = [
+        row for row in staged_rows if row["source_id"] == "blocked:two"
+    ]
+    assert len(blocked_rows) == 3
+    assert all(row["execution_mode"] == "not_reached" for row in blocked_rows)
+    assert all(row["outcome"] == "blocked" for row in blocked_rows)
+
+    resumed = build_corpus_batch(
+        config,
+        output,
+        resume=True,
+        resource_loader=lambda config: _resources(),
+        case_runner=run_case,
+        corpus_normalizer=finalizer,
+    )
+    usage_bytes = (output / "agent_usage" / "agent_usage.jsonl").read_bytes()
+    repeated = build_corpus_batch(
+        config,
+        output,
+        resume=True,
+        resource_loader=lambda config: _resources(),
+        case_runner=run_case,
+        corpus_normalizer=finalizer,
+    )
+
+    rows = [
+        json.loads(line)
+        for line in usage_bytes.decode("utf-8").splitlines()
+    ]
+    assert resumed.blocked_count == repeated.blocked_count == 0
+    assert len(rows) == 6
+    assert len(
+        {
+            (row["source_id"], row["role"], row["task_scope"])
+            for row in rows
+        }
+    ) == 6
+    assert all(row["outcome"] == "accepted" for row in rows)
+    assert (output / "agent_usage" / "agent_usage.jsonl").read_bytes() == usage_bytes
+
+
+def test_pending_ok_and_blocked_executions_get_exact_fixed_usage_rows(
+    tmp_path: Path,
+) -> None:
+    advisories = [_advisory("ok:empty"), _advisory("blocked:partial")]
+
+    def run_case(advisory, resources, staging_dir, allow_live_model):  # type: ignore[no-untyped-def]
+        _ = resources, allow_live_model
+        if advisory.source_id == "ok:empty":
+            return BatchCaseExecution(
+                result=CorpusBuildResult(
+                    source_id=advisory.source_id,
+                    status="ok",
+                ),
+                run_dir=staging_dir,
+            )
+        return BatchCaseExecution(
+            result=CorpusBuildResult(
+                source_id=advisory.source_id,
+                status="blocked",
+            ),
+            agent_usage_records=(
+                AgentUsageRecord(
+                    source_id=advisory.source_id,
+                    event_id=None,
+                    task_id="task:partial",
+                    role="semantic_resolution",
+                    task_scope="facility",
+                    execution_mode="deterministic_bypass",
+                    outcome="accepted",
+                    detail_status="accepted",
+                    activation_reason="partial_test_record",
+                ),
+            ),
+        )
+
+    output = tmp_path / "corpus"
+    summary = build_corpus_batch(
+        _config(advisories, tmp_path / "advisories.jsonl"),
+        output,
+        resource_loader=lambda config: _resources(),
+        case_runner=run_case,
+        corpus_normalizer=_normalizer,
+    )
+
+    rows = [
+        json.loads(line)
+        for line in (
+            output / ".staging" / "agent_usage.jsonl"
+        ).read_text(encoding="utf-8").splitlines()
+    ]
+    assert summary.ok_count == 1
+    assert summary.blocked_count == 1
+    assert len(rows) == 6
+    expected = {
+        ("semantic_resolution", "facility"),
+        ("semantic_resolution", "terminology"),
+        ("decision_case_assembly", "decision_case"),
+    }
+    for source_id in ("ok:empty", "blocked:partial"):
+        source_rows = [row for row in rows if row["source_id"] == source_id]
+        assert {
+            (row["role"], row["task_scope"]) for row in source_rows
+        } == expected
+        assert all(row["execution_mode"] == "not_reached" for row in source_rows)
+        assert all(row["outcome"] == "blocked" for row in source_rows)
+        assert all(
+            row["activation_reason"] == "workflow_usage_missing_or_invalid"
+            for row in source_rows
+        )
+    assert not (output / "agent_usage").exists()
 
 
 def test_resume_rejects_expanding_a_finalized_source_subset(tmp_path: Path) -> None:

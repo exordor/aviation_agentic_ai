@@ -338,6 +338,21 @@ def test_build_corpus_cli_wires_the_resumable_batch_contract(
             insufficient_count=1,
             blocked_count=0,
             manifest=SimpleNamespace(corpus_id="corpus:test"),
+            agent_usage_manifest=SimpleNamespace(
+                totals=SimpleNamespace(
+                    activated_count=2,
+                    deterministic_bypass_count=4,
+                    accepted_count=5,
+                    abstained_count=1,
+                    blocked_count=0,
+                    provider_call_count=2,
+                    tool_call_count=3,
+                    input_tokens=100,
+                    output_tokens=20,
+                    provider_latency_ms=25.0,
+                    tool_latency_ms=5.0,
+                )
+            ),
         )
 
     monkeypatch.setattr(cli_module, "_load_config", lambda path: config)
@@ -378,6 +393,8 @@ def test_build_corpus_cli_wires_the_resumable_batch_contract(
     assert "selected: 2" in result.output
     assert "blocked: 0" in result.output
     assert "corpus_id: corpus:test" in result.output
+    assert "agent_usage: activated=2 bypass=4 accepted=5 abstained=1 blocked=0" in result.output
+    assert "agent_calls: provider=2 tool=3 tokens=100/20 latency_ms=25.000/5.000" in result.output
 
 
 def test_removed_run_options_are_rejected_by_the_public_cli(tmp_path: Path) -> None:

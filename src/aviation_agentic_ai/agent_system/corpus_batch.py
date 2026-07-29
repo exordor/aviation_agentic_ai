@@ -10,6 +10,17 @@ from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.agent_system.agents import parse_structured_fields
+from aviation_agentic_ai.agent_system.agent_usage import (
+    AgentUsageManifest,
+    AgentUsageRecord,
+    agent_usage_key,
+    build_blocked_agent_usage_records,
+    build_agent_usage_records,
+    read_agent_usage_manifest,
+    read_agent_usage_records,
+    write_agent_usage_records,
+    write_agent_usage_sidecar,
+)
 from aviation_agentic_ai.agent_system.authority_evidence import (
     AuthorityBuildStatus,
     LoadedAuthorityCatalog,
@@ -68,6 +79,7 @@ class BatchCaseExecution:
 
     result: CorpusBuildResult
     run_dir: Path | None = None
+    agent_usage_records: tuple[AgentUsageRecord, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -80,6 +92,7 @@ class CorpusBatchSummary:
     blocked_count: int
     results: tuple[CorpusBuildResult, ...]
     manifest: CorpusBuildManifest | Any | None = None
+    agent_usage_manifest: AgentUsageManifest | None = None
 
 
 ResourceLoader = Callable[[dict[str, Any]], BatchResources]
@@ -113,6 +126,7 @@ def build_corpus_batch(
     if not resume:
         shutil.rmtree(staging, ignore_errors=True)
         manifest_path.unlink(missing_ok=True)
+        shutil.rmtree(output / "agent_usage", ignore_errors=True)
     staging.mkdir(parents=True, exist_ok=True)
 
     previous = _load_previous_results(staging, output) if resume else {}
@@ -127,6 +141,7 @@ def build_corpus_batch(
             "rebuild without --resume"
         )
     run_paths = _load_run_paths(staging) if resume else {}
+    usage_records = _load_agent_usage_progress(staging) if resume else {}
     results: dict[str, CorpusBuildResult] = {}
     pending: list[Any] = []
     for advisory in selected:
@@ -145,7 +160,11 @@ def build_corpus_batch(
     if not pending and resume and manifest_path.is_file() and not any(
         result.status == "blocked" for result in results.values()
     ):
-        return _summary(results, manifest=_read_manifest(manifest_path))
+        return _summary(
+            results,
+            manifest=_read_manifest(manifest_path),
+            agent_usage_manifest=read_agent_usage_manifest(output),
+        )
 
     if pending:
         manifest_path.unlink(missing_ok=True)
@@ -170,16 +189,28 @@ def build_corpus_batch(
                     source_id=source_id,
                     status="blocked",
                     reason=f"{type(exc).__name__}: {exc}",
-                )
+                ),
+                agent_usage_records=build_blocked_agent_usage_records(
+                    source_id=source_id,
+                ),
             )
         results[source_id] = execution.result
+        for key in tuple(usage_records):
+            if key[0] == source_id:
+                del usage_records[key]
+        normalized_usage = _normalize_case_usage(
+            source_id,
+            execution.agent_usage_records,
+        )
+        for usage_record in normalized_usage:
+            usage_records[agent_usage_key(usage_record)] = usage_record
         if execution.result.status == "ok" and execution.run_dir is not None:
             run_paths[source_id] = str(execution.run_dir)
         elif execution.result.status != "ok":
             run_paths.pop(source_id, None)
-        _persist_progress(staging, output, results, run_paths)
+        _persist_progress(staging, output, results, run_paths, usage_records)
 
-    _persist_progress(staging, output, results, run_paths)
+    _persist_progress(staging, output, results, run_paths, usage_records)
     if any(result.status == "blocked" for result in results.values()):
         manifest_path.unlink(missing_ok=True)
         return _summary(results)
@@ -195,9 +226,23 @@ def build_corpus_batch(
         output_dir=output,
         build_results=ordered_results,
     )
+    corpus_id = _corpus_id(manifest)
+    usage_manifest = (
+        write_agent_usage_sidecar(
+            output,
+            corpus_id=corpus_id,
+            records=tuple(usage_records.values()),
+        )
+        if corpus_id is not None
+        else None
+    )
     shutil.rmtree(staging / "case_runs", ignore_errors=True)
-    _persist_progress(staging, output, results, {})
-    return _summary(results, manifest=manifest)
+    _persist_progress(staging, output, results, {}, usage_records)
+    return _summary(
+        results,
+        manifest=manifest,
+        agent_usage_manifest=usage_manifest,
+    )
 
 
 def load_batch_resources(config: dict[str, Any]) -> BatchResources:
@@ -300,6 +345,10 @@ def run_batch_case(
         output_dir=str(binding.run_dir),
     )
     state = run_ingest(context)
+    agent_usage_records = build_agent_usage_records(
+        source_id=source_id,
+        state=state,
+    )
     model_calls = state.get("model_calls", [])
     if len(model_calls) > MAX_PROVIDER_CALLS:
         raise ValueError(f"provider calls exceeded hard maximum {MAX_PROVIDER_CALLS}")
@@ -315,7 +364,8 @@ def run_batch_case(
                     or "workflow did not publish a validated decision case"
                 ),
                 provider_call_count=len(model_calls),
-            )
+            ),
+            agent_usage_records=agent_usage_records,
         )
     validation = state.get("validation")
     graph_patch = state.get("assembly_graph_patch")
@@ -356,6 +406,7 @@ def run_batch_case(
             provider_call_count=len(model_calls),
         ),
         run_dir=binding.run_dir,
+        agent_usage_records=agent_usage_records,
     )
 
 
@@ -424,6 +475,10 @@ def _persist_progress(
     output: Path,
     results: dict[str, CorpusBuildResult],
     run_paths: dict[str, str],
+    usage_records: dict[
+        tuple[str, str, str],
+        AgentUsageRecord,
+    ],
 ) -> None:
     rows = [row.model_dump(mode="json") for row in _ordered_results(results)]
     write_jsonl(staging / "build_results.jsonl", rows)
@@ -434,6 +489,10 @@ def _persist_progress(
             {"source_id": source_id, "run_dir": run_dir}
             for source_id, run_dir in sorted(run_paths.items())
         ],
+    )
+    write_agent_usage_records(
+        staging / "agent_usage.jsonl",
+        tuple(usage_records.values()),
     )
 
 
@@ -460,6 +519,38 @@ def _load_run_paths(staging: Path) -> dict[str, str]:
     }
 
 
+def _load_agent_usage_progress(
+    staging: Path,
+) -> dict[tuple[str, str, str], AgentUsageRecord]:
+    return {
+        agent_usage_key(record): record
+        for record in read_agent_usage_records(staging / "agent_usage.jsonl")
+    }
+
+
+def _normalize_case_usage(
+    source_id: str,
+    records: tuple[AgentUsageRecord, ...],
+) -> tuple[AgentUsageRecord, ...]:
+    expected = {
+        ("semantic_resolution", "facility"),
+        ("semantic_resolution", "terminology"),
+        ("decision_case_assembly", "decision_case"),
+    }
+    keys = {(row.role, row.task_scope) for row in records}
+    if (
+        len(records) == 3
+        and len(keys) == 3
+        and keys == expected
+        and all(row.source_id == source_id for row in records)
+    ):
+        return records
+    return build_blocked_agent_usage_records(
+        source_id=source_id,
+        activation_reason="workflow_usage_missing_or_invalid",
+    )
+
+
 def _ordered_results(results: dict[str, CorpusBuildResult]) -> list[CorpusBuildResult]:
     return [results[source_id] for source_id in sorted(results)]
 
@@ -468,6 +559,7 @@ def _summary(
     results: dict[str, CorpusBuildResult],
     *,
     manifest: CorpusBuildManifest | Any | None = None,
+    agent_usage_manifest: AgentUsageManifest | None = None,
 ) -> CorpusBatchSummary:
     ordered = tuple(_ordered_results(results))
     return CorpusBatchSummary(
@@ -477,6 +569,7 @@ def _summary(
         blocked_count=sum(result.status == "blocked" for result in ordered),
         results=ordered,
         manifest=manifest,
+        agent_usage_manifest=agent_usage_manifest,
     )
 
 
@@ -485,6 +578,15 @@ def _read_manifest(path: Path) -> CorpusBuildManifest | None:
         return CorpusBuildManifest.model_validate_json(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
+
+
+def _corpus_id(manifest: CorpusBuildManifest | Any) -> str | None:
+    value = (
+        manifest.get("corpus_id")
+        if isinstance(manifest, dict)
+        else getattr(manifest, "corpus_id", None)
+    )
+    return str(value) if value else None
 
 
 def _safe_path_component(source_id: str) -> str:
