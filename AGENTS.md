@@ -165,6 +165,53 @@ comparison experiment without an explicit scope decision.
   galleries unless the task explicitly requires them.
 - Use subagents primarily for read-only review or non-overlapping work.
 
+## Evaluation Modes
+
+Every evaluation result must be labeled as exactly one of these modes:
+
+- `offline_software_test`: deterministic tests of schemas, control flow,
+  storage, validation, and tool plumbing. Fake or scripted model components are
+  allowed here, but these results are not evidence of LLM or Agent quality.
+- `live_smoke`: a small real-provider compatibility check. It may establish
+  that the configured model, prompts, tools, and contracts can execute, but it
+  is not a statistical benchmark.
+- `live_experiment`: a versioned evaluation suite in which every evaluation
+  sample invokes the configured real provider and is bound to its captured
+  provider calls. Unless an approved protocol requires more, this mode requires
+  at least 100 successful real-provider calls before it is complete.
+
+The following rules apply to `live_experiment`:
+
+- Require explicit live-model authorization. Do not use a fake model, scripted
+  model, mock provider, response fixture, replay file, cached response, or
+  deterministic substitute for any evaluation sample.
+- If credentials, inputs, network access, or provider compatibility prevent the
+  required calls, report `NOT EXECUTED` or the observed failed run. Never
+  replace the live experiment with an offline result.
+- Freeze and report provider, model identifier, prompt versions, temperature,
+  reasoning mode, retry policy, suite version, and completion threshold before
+  the first call. Temperature `0` reduces sampling variance but is not proof of
+  determinism.
+- Disable local response caching. If the provider automatically uses prompt or
+  context-prefix caching, report hit and miss tokens separately; this is not a
+  cached response, but it must not be hidden. If an approved protocol forbids
+  all cache types, treat an unavoidable provider cache as a blocked experiment.
+- Record attempted, returned, successful, failed, and provider-error calls
+  separately. Every parsed trial must reference at least one real call, and
+  every captured evaluation call must bind to exactly one parsed trial.
+- Preserve native provider responses in a gitignored raw artifact and parsed
+  trial outputs in a separate gitignored artifact. Commit only sanitized
+  summaries. Never store credentials, authorization headers, full prompts,
+  private reasoning, or sensitive tool payloads in tracked reports.
+- Before reporting task metrics, verify and name the raw and parsed artifact
+  locations and checksums, call counts, token usage, tool counts, latency, and
+  integrity status.
+- Keep provider-call success separate from task acceptance. A returned model
+  response may still fail parsing, evidence support, publication, or task
+  assertions; preserve and report that negative result.
+- Repeated cycles over the same frozen tasks are repeated measurements, not
+  independent evaluation samples. Do not present them as a larger benchmark.
+
 ## Verification
 
 - During implementation, run the focused tests for the changed capability.
