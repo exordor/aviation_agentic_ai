@@ -63,6 +63,8 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - Defense deck: `reports/final/aviation_graphrag_defense_deck.pptx`
 - Historical figures with local SVG fallbacks: `reports/final/assets/visual_assets_manifest.json`
 - ATCSCC data format and processing flow: `reports/stages/atcscc_data_format_and_processing_flow.md`
+- Agent-system live one-shot smoke: `reports/stages/agent_system_live_agent_smoke_v1.md`
+- Agent-system repeated real-provider experiment: `reports/stages/agent_system_live_agent_experiment_v1.md`
 - ATCSCC ontology profile overview: `reports/stages/atcscc_ontology_profile_overview.md`
 - ATCSCC event-centric extraction framing: `reports/stages/atcscc_event_centric_extraction_framing.md`
 - SOTA comparison matrix for ATCSCC / NASA ATMONTO: `reports/stages/sota_comparison_matrix.md`

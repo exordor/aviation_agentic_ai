@@ -41,12 +41,18 @@ admitted formal layer now passes one explicit final Formal Publication Kernel
 before projection writes. A non-authoritative `agent_usage/` sidecar measures
 selective Agent activation without changing corpus identity.
 
-Batch F is complete as a live-evaluation harness and frozen diagnostic run.
+Batch F is complete as a live-evaluation harness with frozen diagnostic runs.
 The one-shot DeepSeek smoke completed with `0/5` accepted tasks: three
 Assembly trials reached the output-token cap, one Assembly trial returned a
 malformed contract, and the Analysis trial failed its typed answer/support
 contract. Prompt and token-cap changes are intentionally deferred to a
 separate task.
+
+The repeated real-provider experiment is complete: 12 full cycles produced
+108/108 successful DeepSeek calls and `0/60` accepted tasks. The failures were
+48 Assembly output-token-cap results and 12 Analysis answer/support-contract
+results. Treat this as repeated compatibility evidence, not 60 independent
+tasks.
 
 ## Recently Completed Work
 
@@ -59,6 +65,9 @@ separate task.
 - [x] Mark Semantic Resolution as
   `not_evaluated_no_natural_ambiguity` rather than treating synthetic
   ambiguity fixtures as frozen-cohort performance.
+- [x] Record at least 100 successful real-provider calls with separate raw and
+  parsed artifacts, no fake/replay/cache fallback, and honest task-level
+  acceptance.
 - [x] Make the final multi-profile Formal Publication Kernel explicit and
   remove the malformed-BTS drop-and-retry publication fallback.
 - [x] Record three payload-free Agent usage rows for each eligible workflow

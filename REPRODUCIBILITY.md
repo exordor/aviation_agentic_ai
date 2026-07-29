@@ -246,6 +246,57 @@ Credentials, complete prompts, raw responses, tool arguments, tool results,
 model reasoning, and detailed live-run artifacts remain ignored and
 untracked.
 
+### Repeated Real-Provider Experiment
+
+Keep the one-shot smoke as a separate compatibility check. Run the frozen
+repeated experiment with:
+
+```bash
+uv run python -m aviation_agentic_ai.agent_system.live_agent_experiment \
+  --config configs/cross_source_v1.yaml \
+  --suite data/evaluation/agent_system/live_agent_experiment_v1.yaml \
+  --output-dir data/corpus/agent_system/live-agent-experiment-v1 \
+  --report-dir reports/stages \
+  --allow-live-model
+```
+
+The experiment fixes DeepSeek `deepseek-v4-pro`, temperature `0.0`, thinking
+disabled, automatic retries to `0`, and the local model cache to disabled. The
+recorded run stopped after 12 cycles when it had observed 108 attempted and 108
+successful real-provider calls, zero provider failures, 431,018 input tokens,
+and 89,148 output tokens. DeepSeek reported 396,928 prompt-cache-hit tokens and
+34,090 prompt-cache-miss tokens. Its automatic input-prefix context cache is
+distinct from a cached response or replay; all 108 calls returned unique
+provider response IDs.
+
+Task acceptance was `0/60`: all 48 Assembly measurements exceeded the frozen
+output-token cap, and all 12 Analysis measurements failed the typed
+answer/support contract. The 60 rows are repeated measurements of five fixed
+tasks, not 60 independent evaluation tasks.
+
+Tracked sanitized reports:
+
+```text
+reports/stages/agent_system_live_agent_experiment_v1.json
+reports/stages/agent_system_live_agent_experiment_v1.md
+```
+
+Ignored local evidence:
+
+```text
+data/corpus/agent_system/live-agent-experiment-v1/raw_responses.jsonl
+data/corpus/agent_system/live-agent-experiment-v1/parsed_outputs.jsonl
+data/corpus/agent_system/live-agent-experiment-v1/experiment_manifest.json
+data/corpus/agent_system/live-agent-experiment-v1/cycles/
+```
+
+The local
+`data/corpus/agent_system/live-agent-experiment-v1-invalid-observer-phase/`
+and
+`data/corpus/agent_system/live-agent-experiment-v1-normalized-response-only/`
+directories came from excluded diagnostic attempts. Neither is part of the
+108-call result, and neither may be reported as experimental evidence.
+
 ## Verification
 
 Run after the storage and retrieval batches:

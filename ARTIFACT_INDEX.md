@@ -21,6 +21,8 @@ is current.
 | `configs/prompts/decision_case_agents_v1.yaml` | Versioned Agent-system prompt configuration. |
 | `data/evaluation/agent_system/live_agent_smoke_v1.yaml` | Frozen five-task DeepSeek live-smoke suite. |
 | `reports/stages/agent_system_live_agent_smoke_v1.{json,md}` | Sanitized single-run live-smoke result; 0/5 accepted, not a benchmark. |
+| `data/evaluation/agent_system/live_agent_experiment_v1.yaml` | Frozen five-task, 12-cycle repeated real-provider suite. |
+| `reports/stages/agent_system_live_agent_experiment_v1.{json,md}` | Sanitized repeated DeepSeek result: 108/108 provider calls succeeded; task acceptance 0/60. |
 | `data/ontology/curated/nasa_atmonto_decision_context_weather_slice.json` | Curated formal vocabulary for Weather report nodes only. |
 | `data/ontology/curated/decision_case_public_observation_slice.json` | Source-qualified formal profile for BTS-reported public operational observations. |
 | `data/sources/bts_on_time_2026_05_manifest.json` | Pinned BTS archive/member checksums, normalization contract, and source identity. |
@@ -100,6 +102,24 @@ temperature `0.0`, thinking disabled, and zero retries. It passed `0/5` trials:
 three Assembly token-cap failures, one malformed Assembly contract, and one
 Analysis answer/support-contract failure. Semantic Resolution was not evaluated
 because no natural cohort ambiguity activated it.
+
+The repeated real-provider experiment uses DeepSeek `deepseek-v4-pro`,
+temperature `0.0`, thinking disabled, zero retries, and disabled local model
+cache. It completed 12 cycles with 108 attempted and successful provider calls,
+zero provider failures, 431,018 input tokens, and 89,148 output tokens.
+Task-level acceptance was `0/60`: 48 Assembly output-token-cap failures and 12
+Analysis answer/support-contract failures. These are repeated measurements of
+five tasks, not 60 independent tasks. DeepSeek reported 396,928
+prompt-cache-hit tokens and 34,090 prompt-cache-miss tokens from its automatic
+input-prefix context cache; this was not cached-response replay, and the 108
+provider response IDs were unique.
+
+Its raw responses, parsed outputs, manifests, and per-cycle artifacts remain
+ignored under
+`data/corpus/agent_system/live-agent-experiment-v1/`. The ignored
+`live-agent-experiment-v1-invalid-observer-phase/` and
+`live-agent-experiment-v1-normalized-response-only/` siblings are excluded
+local diagnostics, not part of the tracked result.
 
 ## Optional Evaluation Tracks
 

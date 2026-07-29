@@ -203,6 +203,7 @@ def get_deepseek_mve_llm(
         model=model,
         base_url=base_url,
         api_key=api_key,
+        cache=False,
         temperature=temperature,
         max_tokens=max_tokens,
         timeout=timeout,

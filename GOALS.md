@@ -162,7 +162,7 @@ artifacts. Old runs require regeneration. The current command names are
 retained for user continuity, not as an artifact or runtime compatibility
 guarantee.
 
-Batch F is complete as an evaluation capability and frozen diagnostic run.
+Batch F is complete as an evaluation capability with frozen diagnostic runs.
 The one-shot five-task DeepSeek smoke used `deepseek-v4-pro`, temperature
 `0.0`, thinking disabled, and no automatic retries. The runner completed, but
 model acceptance was `0/5`: Assembly `025`, `030`, and `072` reached the
@@ -171,6 +171,13 @@ and the GDP `138` Analysis answer failed its typed evidence-support contract.
 This result does not establish statistical model performance. The Semantic
 Resolution Agent remains `not_evaluated_no_natural_ambiguity` because the
 frozen cohort contains no natural activation case.
+
+The separate repeated-provider experiment is also complete. It ran 12 full
+cycles of the same five tasks and recorded 108/108 successful real-provider
+calls with zero provider failures. Task acceptance remained `0/60`: 48
+Assembly output-token-cap failures and 12 Analysis answer/support-contract
+failures. This is repeated compatibility evidence rather than an independent
+sample benchmark.
 
 Later increments still require an explicit user task and source boundary.
 Possible directions include decision-episode identity, regional weather,
@@ -186,7 +193,7 @@ ASPM-based demand/capacity evidence, and operational-situation similarity.
 - General-purpose aviation QA.
 - Full-corpus live-model execution.
 - Prompt and output-token-cap compatibility fixes for the Batch F failures.
-- Repeated-run, multi-model, or statistically powered live-Agent benchmarks.
+- Multi-model or statistically powered live-Agent benchmarks.
 - A natural frozen-cohort Semantic Resolution evaluation; synthetic ambiguity
   fixtures remain software tests and must not be reported as cohort results.
 - Automatic ontology expansion.

@@ -9,6 +9,9 @@ frozen prompts and session-scoped tools.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
 import json
 import time
 from dataclasses import dataclass
@@ -39,7 +42,20 @@ from aviation_agentic_ai.agent_system.runtime import (
     extract_model_metadata,
 )
 
-ToolPhase = Literal["select_tool", "final_answer"]
+ToolPhase = Literal[
+    "select_tool",
+    "final_answer",
+    "emit_proposal",
+    "revision",
+]
+NativeToolModelResponse = dict[str, Any] | None
+ToolModelCallObserver = Callable[
+    [ToolPhase, ModelCallRecord, NativeToolModelResponse],
+    None,
+]
+_TOOL_MODEL_CALL_OBSERVER: ContextVar[ToolModelCallObserver | None] = (
+    ContextVar("tool_model_call_observer", default=None)
+)
 
 
 @dataclass(frozen=True)
@@ -60,6 +76,29 @@ class ToolCallingModel(Protocol):
         phase: ToolPhase,
     ) -> ToolModelTurn:
         """Run one native tool-calling turn."""
+
+
+@contextmanager
+def capture_tool_model_calls(
+    observer: ToolModelCallObserver,
+) -> Iterator[None]:
+    """Observe real provider turns before workflow-level sanitization."""
+
+    token = _TOOL_MODEL_CALL_OBSERVER.set(observer)
+    try:
+        yield
+    finally:
+        _TOOL_MODEL_CALL_OBSERVER.reset(token)
+
+
+def _emit_tool_model_call_observation(
+    phase: ToolPhase,
+    record: ModelCallRecord,
+    native_response: NativeToolModelResponse = None,
+) -> None:
+    observer = _TOOL_MODEL_CALL_OBSERVER.get()
+    if observer is not None:
+        observer(phase, record, native_response)
 
 
 def _content_text(message: AIMessage) -> str:
@@ -139,47 +178,48 @@ class LangChainToolCallingModel:
             result = runnable.invoke(messages)
         except Exception as exc:
             latency = (time.perf_counter() - started) * 1000.0
+            record = ModelCallRecord(
+                agent=self.agent,
+                raw_response="",
+                prompt_set_id=self.prompt_set_id,
+                prompt_version=self.prompt_version,
+                provider=self.provider,
+                model=self.model,
+                temperature=self.temperature,
+                latency_ms=latency,
+                attempt=attempt,
+                error=sanitize_text(f"{type(exc).__name__}: {exc}"),
+            )
+            _emit_tool_model_call_observation(phase, record, None)
             return ToolModelTurn(
                 message=None,
-                record=ModelCallRecord(
-                    agent=self.agent,
-                    raw_response="",
-                    prompt_set_id=self.prompt_set_id,
-                    prompt_version=self.prompt_version,
-                    provider=self.provider,
-                    model=self.model,
-                    temperature=self.temperature,
-                    latency_ms=latency,
-                    attempt=attempt,
-                    error=sanitize_text(f"{type(exc).__name__}: {exc}"),
-                ),
+                record=record,
             )
         latency = (time.perf_counter() - started) * 1000.0
         if not isinstance(result, AIMessage):
+            record = ModelCallRecord(
+                agent=self.agent,
+                raw_response="",
+                prompt_set_id=self.prompt_set_id,
+                prompt_version=self.prompt_version,
+                provider=self.provider,
+                model=self.model,
+                temperature=self.temperature,
+                latency_ms=latency,
+                attempt=attempt,
+                error="provider returned a non-AI message",
+            )
+            _emit_tool_model_call_observation(phase, record, None)
             return ToolModelTurn(
                 message=None,
-                record=ModelCallRecord(
-                    agent=self.agent,
-                    raw_response="",
-                    prompt_set_id=self.prompt_set_id,
-                    prompt_version=self.prompt_version,
-                    provider=self.provider,
-                    model=self.model,
-                    temperature=self.temperature,
-                    latency_ms=latency,
-                    attempt=attempt,
-                    error="provider returned a non-AI message",
-                ),
+                record=record,
             )
         input_tokens, output_tokens, _provider, model, fingerprint = extract_model_metadata(result)
         invalid_calls = [sanitize_json_value(dict(call)) for call in result.invalid_tool_calls]
         error = "provider returned an invalid native tool call" if invalid_calls else None
-        record = ModelCallRecord(
+        observed_record = ModelCallRecord(
             agent=self.agent,
-            # A tool-selection turn is represented by its sanitized native tool
-            # calls. Any accompanying prose may contain unrequested reasoning
-            # and is intentionally not persisted.
-            raw_response="" if result.tool_calls else _content_text(result),
+            raw_response=_content_text(result),
             prompt_set_id=self.prompt_set_id,
             prompt_version=self.prompt_version,
             provider=self.provider,
@@ -193,6 +233,20 @@ class LangChainToolCallingModel:
             error=error,
             tool_calls=_tool_call_records(result),
             invalid_tool_calls=invalid_calls,
+        )
+        _emit_tool_model_call_observation(
+            phase,
+            observed_record,
+            result.model_dump(mode="json"),
+        )
+        # The normal workflow retains its prior sanitized contract. The live
+        # experiment observer above owns the ignored raw-response artifact.
+        record = observed_record.model_copy(
+            update={
+                "raw_response": (
+                    "" if result.tool_calls else observed_record.raw_response
+                )
+            }
         )
         return ToolModelTurn(message=result, record=record)
 

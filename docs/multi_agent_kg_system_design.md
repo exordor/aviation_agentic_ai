@@ -422,6 +422,19 @@ compatibility fixes are deferred. Temperature `0` reduces sampling variance
 but does not make provider output deterministic, and a one-shot five-task
 smoke is not a statistical benchmark.
 
+The separate repeated-provider experiment used the same frozen five tasks for
+12 full cycles. It recorded 108 attempted and 108 successful real-provider
+calls, zero provider failures, 431,018 input tokens, and 89,148 output tokens.
+Task acceptance remained `0/60`: 48 Assembly measurements exceeded the frozen
+output-token cap and 12 Analysis measurements failed the typed answer/support
+contract. DeepSeek reported 396,928 prompt-cache-hit tokens and 34,090
+prompt-cache-miss tokens from its automatic input-prefix context cache. This
+was not cached-response replay, and all 108 provider response IDs were unique.
+These are repeated compatibility measurements, not 60 independent tasks. The
+local `live-agent-experiment-v1-invalid-observer-phase/` and
+`live-agent-experiment-v1-normalized-response-only/` diagnostics are excluded
+from this result.
+
 The Semantic Resolution Agent is
 `not_evaluated_no_natural_ambiguity` because the frozen cohort has no natural
 multi-candidate task. Synthetic ambiguity fixtures test offline orchestration

@@ -168,6 +168,43 @@ and
 Credentials, prompts, raw responses, tool arguments, tool results, and detailed
 local run artifacts remain ignored and untracked.
 
+### Repeated Real-Provider Experiment
+
+The one-shot smoke remains the fast compatibility check. A separate repeated
+experiment runs the same five tasks for 12 cycles with the local model cache
+disabled:
+
+```bash
+uv run python -m aviation_agentic_ai.agent_system.live_agent_experiment \
+  --config configs/cross_source_v1.yaml \
+  --suite data/evaluation/agent_system/live_agent_experiment_v1.yaml \
+  --output-dir data/corpus/agent_system/live-agent-experiment-v1 \
+  --report-dir reports/stages \
+  --allow-live-model
+```
+
+The frozen configuration is DeepSeek `deepseek-v4-pro`, temperature `0.0`,
+thinking disabled, zero automatic retries, and local cache disabled. The
+recorded run completed 12 cycles with 108 attempted and 108 successful
+provider calls, zero provider failures, 431,018 input tokens, and 89,148 output
+tokens. Task-level acceptance was `0/60`: 48 Assembly trials exceeded the
+frozen output-token cap and 12 Analysis trials failed the answer/support
+contract. DeepSeek also reported 396,928 prompt-cache-hit tokens and 34,090
+prompt-cache-miss tokens. This is the provider's automatic input-prefix context
+cache, not a cached response or response replay; all 108 calls returned unique
+provider response IDs.
+
+These are repeated measurements of five fixed tasks, not 60 independent tasks.
+The tracked summaries are
+[`agent_system_live_agent_experiment_v1.json`](reports/stages/agent_system_live_agent_experiment_v1.json)
+and
+[`agent_system_live_agent_experiment_v1.md`](reports/stages/agent_system_live_agent_experiment_v1.md).
+Raw responses and parsed outputs remain ignored at
+`data/corpus/agent_system/live-agent-experiment-v1/`. The earlier
+`live-agent-experiment-v1-invalid-observer-phase/` and
+`live-agent-experiment-v1-normalized-response-only/` directories are excluded
+local diagnostics and are not part of the reported result.
+
 ## Historical Case Retrieval
 
 Build one decision-record vector per accepted case in a persistent local Chroma

@@ -75,6 +75,12 @@ names, not internal alphanumeric labels.
   three Assembly trials reached the output-token cap, one returned a malformed
   Assembly contract, and one Analysis answer failed its typed evidence-support
   contract. These are recorded compatibility failures, not benchmark results.
+- A separate repeated real-provider experiment completed 12 full five-task
+  cycles with DeepSeek `deepseek-v4-pro`: 108/108 provider calls returned
+  successfully, while task acceptance remained `0/60` (48 Assembly
+  output-token-cap failures and 12 Analysis support-contract failures). This is
+  repeated compatibility evidence, not 60 independent tasks or a model-quality
+  benchmark.
 - The read-only visualization prototype is isolated on
   `codex/kg-visualization-research`. Visualization is paused and is not the
   active `main` implementation track.
