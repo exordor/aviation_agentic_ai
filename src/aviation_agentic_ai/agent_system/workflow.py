@@ -286,8 +286,8 @@ def build_ingest_graph() -> Any:
     sg.add_node("join", _join_node)
     sg.add_node("prepare_context", _prepare_context_node)
     sg.add_node("decision_case_assembly", _decision_case_assembly_node)
-    sg.add_node("materialize", _materialize_node)
-    sg.add_node("decision_context", _decision_context_node)
+    sg.add_node("validate_event_patch", _validate_event_patch_node)
+    sg.add_node("publish_case", _publish_case_node)
     sg.add_edge(START, "advisory")
     # Parallel fan-out after deterministic advisory evidence construction.
     sg.add_edge("advisory", "facility_authority")
@@ -297,9 +297,9 @@ def build_ingest_graph() -> Any:
     sg.add_edge("terminology_authority", "join")
     sg.add_edge("join", "prepare_context")
     sg.add_edge("prepare_context", "decision_case_assembly")
-    sg.add_edge("decision_case_assembly", "materialize")
-    sg.add_edge("materialize", "decision_context")
-    sg.add_edge("decision_context", END)
+    sg.add_edge("decision_case_assembly", "validate_event_patch")
+    sg.add_edge("validate_event_patch", "publish_case")
+    sg.add_edge("publish_case", END)
     return sg.compile()
 
 
@@ -1343,7 +1343,7 @@ def _decision_case_assembly_node(state: dict) -> dict:
     }
 
 
-def _materialize_node(state: dict) -> dict:
+def _validate_event_patch_node(state: dict) -> dict:
     ctx: IngestContext = _ctx()
     assembly_graph_patch: GraphPatchBlock | None = state.get("assembly_graph_patch")
     if assembly_graph_patch is None:
@@ -1441,8 +1441,8 @@ def _materialize_node(state: dict) -> dict:
     }
 
 
-def _decision_context_node(state: dict) -> dict:
-    """Attach deterministic optional context without issuing model calls."""
+def _publish_case_node(state: dict) -> dict:
+    """Run the final multi-profile publication path without model calls."""
 
     return integrate_decision_context(_ctx(), state)
 

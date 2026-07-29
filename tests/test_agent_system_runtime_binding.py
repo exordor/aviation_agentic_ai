@@ -1173,7 +1173,7 @@ def test_event_class_hint_mismatch_blocks_before_assembly_factory(tmp_path, monk
     assert result["assembly_graph_patch"] is None
     assert calls == []
 
-    context_result = workflow_module._decision_context_node(
+    context_result = workflow_module._publish_case_node(
         {
             "resolution_preflight_status": "resolved",
             **result,
@@ -1415,7 +1415,7 @@ def test_materialization_excludes_authority_only_canonical_entities(
     )
     event_uri = "urn:aviation-agentic-ai:event:test"
 
-    workflow_module._materialize_node(
+    workflow_module._validate_event_patch_node(
         {
             "assembly_graph_patch": GraphPatchBlock(
                 patch_lines=[

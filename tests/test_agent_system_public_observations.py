@@ -38,9 +38,13 @@ from aviation_agentic_ai.agent_system.context_artifacts import (
 )
 from aviation_agentic_ai.agent_system.formal_graph import validate_graph_patch
 from aviation_agentic_ai.agent_system.materialize import (
+    FormalPublication,
+    FormalPublicationBlocked,
     Neo4jLoadBlocked,
     load_validated_facts_neo4j,
+    materialize_formal_publication,
     materialize_validated_facts,
+    run_formal_publication_kernel,
     validate_fact_publication,
 )
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
@@ -894,6 +898,83 @@ def test_multi_profile_materialization_preserves_explicit_projection_and_audit_m
             nodes_path=first.nodes_path,
             relationships_path=first.relationships_path,
         )
+
+
+def test_formal_publication_kernel_validates_without_writing_then_materializes(
+    tmp_path: Path,
+) -> None:
+    inputs = _observation_input()
+    bundle = build_bts_observation_facts(**inputs)
+    assert bundle.status == "ok"
+    core = _case_core(inputs, bundle)
+    output_dir = tmp_path / "formal-publication"
+
+    publication = run_formal_publication_kernel(
+        facts=[*bundle.formal_facts, *core.formal_facts],
+        profile_registry=inputs["profile_registry"],
+        source_snapshot=inputs["snapshot_registry"],
+        observation_fact_traces=bundle.fact_traces,
+        reconstruction_trace=core.reconstruction_trace,
+    )
+
+    assert isinstance(publication, FormalPublication)
+    assert publication.layer_fact_counts == {
+        "decision_case_core": len(core.formal_facts),
+        "public_operational_observation": len(bundle.formal_facts),
+    }
+    assert not output_dir.exists()
+
+    materialization = materialize_formal_publication(
+        publication=publication,
+        profile_registry=inputs["profile_registry"],
+        output_dir=output_dir,
+    )
+
+    assert materialization.fact_count == len(publication.accepted)
+    assert {
+        path.name
+        for path in output_dir.iterdir()
+    } == {
+        "kg.jsonl",
+        "kg.ttl",
+        "neo4j_nodes.jsonl",
+        "neo4j_relationships.jsonl",
+    }
+
+
+def test_formal_publication_kernel_blocks_before_projection_writes(
+    tmp_path: Path,
+) -> None:
+    inputs = _observation_input()
+    bundle = build_bts_observation_facts(**inputs)
+    assert bundle.status == "ok"
+    core = _case_core(inputs, bundle)
+    trace = next(
+        trace
+        for trace in bundle.fact_traces
+        if trace.metric_key == "scheduled_arrival_count"
+    )
+    corrupted = [
+        fact.model_copy(update={"object_value": "999999"})
+        if fact.fact_id == trace.fact_id
+        else fact
+        for fact in bundle.formal_facts
+    ]
+    output_dir = tmp_path / "blocked-publication"
+
+    with pytest.raises(
+        FormalPublicationBlocked,
+        match="deterministic numeric value mismatch",
+    ):
+        run_formal_publication_kernel(
+            facts=[*corrupted, *core.formal_facts],
+            profile_registry=inputs["profile_registry"],
+            source_snapshot=inputs["snapshot_registry"],
+            observation_fact_traces=bundle.fact_traces,
+            reconstruction_trace=core.reconstruction_trace,
+        )
+
+    assert not output_dir.exists()
 
 
 def test_publication_rejects_unknown_derivation_reference_and_class() -> None:

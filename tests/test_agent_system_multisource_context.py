@@ -11,6 +11,7 @@ import pytest
 
 import aviation_agentic_ai.agent_system.context_artifacts as context_artifacts_module
 import aviation_agentic_ai.agent_system.weather_context as weather_context_module
+import aviation_agentic_ai.agent_system.workflow as workflow_module
 from aviation_agentic_ai.agent_system.context_artifacts import (
     integrate_decision_context,
     parse_advisory_signature,
@@ -32,6 +33,8 @@ from aviation_agentic_ai.agent_system.contracts import (
     EvidenceCard,
     EvidenceClaim,
     FactTraceRow,
+    GraphPatchBlock,
+    GraphPatchLine,
     GraphValidationResult,
     PersistedProfileGap,
     SourceFamily,
@@ -52,7 +55,10 @@ from aviation_agentic_ai.agent_system.decision_case_graph import (
     PROV_SPECIALIZATION_OF_IRI,
 )
 from aviation_agentic_ai.agent_system.decision_case_contracts import stable_contract_id
-from aviation_agentic_ai.agent_system.materialize import materialize_validated_facts
+from aviation_agentic_ai.agent_system.materialize import (
+    FormalPublicationBlocked,
+    materialize_validated_facts,
+)
 from aviation_agentic_ai.agent_system.runtime import write_run_manifest
 from aviation_agentic_ai.agent_system.query_tool_graph import (
     DECLARED_REASON_QUESTION,
@@ -453,27 +459,41 @@ def test_missing_or_malformed_signature_fails_the_optional_context_layer(
         source_id=source_id,
         reason="weather",
     )
-    core_materialization = object()
-    result = integrate_decision_context(
-        IngestContext(
-            advisory=advisory,
-            facility_candidates=[facility],
-            run_id="run:signature-status",
-            output_dir=str(tmp_path),
-        ),
-        {
-            "event_uri": "evt:signature-status",
-            "facility_authority_result": _facility_authority_result(facility, source_id),
-            "validation": GraphValidationResult(accepted=facts, publishable=True),
-            "materialization": core_materialization,
-        },
+    ctx = IngestContext(
+        advisory=advisory,
+        facility_candidates=[facility],
+        run_id="run:signature-status",
+        output_dir=str(tmp_path),
     )
+    state = {
+        "event_uri": "evt:signature-status",
+        "facility_authority_result": _facility_authority_result(
+            facility,
+            source_id,
+        ),
+        "validation": GraphValidationResult(
+            accepted=facts,
+            publishable=True,
+        ),
+        "materialization": object(),
+    }
+    prepared = prepare_decision_context(ctx, state)
+    assert prepared["weather_context"].status == expected_status
+    assert prepared["outcome_context"].status == expected_status
 
-    assert result["weather_context"].status == expected_status
-    assert result["outcome_context"].status == expected_status
-    assert result["materialization"] is core_materialization
-    assert (tmp_path / "context_associations.jsonl").read_bytes() == b""
-    assert (tmp_path / "outcome_summaries.jsonl").read_bytes() == b""
+    with pytest.raises(
+        FormalPublicationBlocked,
+        match="source-text evidence reference is absent",
+    ):
+        integrate_decision_context(ctx, {**state, **prepared})
+
+    for name in (
+        "kg.jsonl",
+        "kg.ttl",
+        "neo4j_nodes.jsonl",
+        "neo4j_relationships.jsonl",
+    ):
+        assert not (tmp_path / name).exists()
 
 
 def test_loaders_preserve_exact_weather_rows_and_the_pinned_bts_snapshot(
@@ -811,9 +831,35 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         ),
         "model_calls": ["existing-call"],
     }
+    publication_calls = []
+    original_publication_kernel = (
+        context_artifacts_module.run_formal_publication_kernel
+    )
+
+    def capture_publication(**kwargs):
+        publication = original_publication_kernel(**kwargs)
+        publication_calls.append(publication)
+        return publication
+
+    monkeypatch.setattr(
+        context_artifacts_module,
+        "run_formal_publication_kernel",
+        capture_publication,
+    )
 
     result = integrate_decision_context(ctx, state)
 
+    assert len(publication_calls) == 1
+    assert set(publication_calls[0].layer_fact_counts) == {
+        "decision",
+        "weather",
+        "public_operational_observation",
+        "decision_case_core",
+    }
+    assert (
+        publication_calls[0].layer_fact_counts
+        == result["materialization"].layer_fact_counts
+    )
     assert result["model_calls"] == []
     fact_trace_metadata = result["context_artifacts"]["fact_trace"]
     assert fact_trace_metadata["path"] == "fact_trace.jsonl"
@@ -1446,6 +1492,90 @@ def test_duplicate_weather_fact_fails_closed_at_the_optional_layer(
     )
 
 
+def test_malformed_admitted_bts_layer_blocks_case_without_projection_fallback(
+    tmp_path,
+    config,
+    weather_sources,
+    bts_context,
+):
+    source_id = "2026-05-19:138"
+    advisory = load_advisory_source(config, source_id)
+    facility = FACILITIES["KJFK"]
+    event_id = "evt:malformed-admitted-bts"
+    facts = _core_facts(
+        event_id=event_id,
+        event_class="GroundDelayProgramTMI",
+        facility=facility,
+        start="2026-05-19T22:05:00Z",
+        end="2026-05-20T02:59:00Z",
+        source_id=source_id,
+        reason="weather",
+    )
+    registry = build_source_snapshot_registry([advisory])
+    _write_core_fact_trace(tmp_path, facts, registry)
+    bts_source, bts_rows, bts_binding = bts_context
+    ctx = IngestContext(
+        advisory=advisory,
+        facility_candidates=[facility],
+        weather_sources=weather_sources,
+        bts_rows=bts_rows,
+        bts_source=bts_source,
+        bts_manifest_binding=bts_binding,
+        run_id="run:malformed-admitted-bts",
+        output_dir=str(tmp_path),
+    )
+    state = {
+        "event_uri": event_id,
+        "event_class": "atm:GroundDelayProgramTMI",
+        "facility_authority_result": _facility_authority_result(
+            facility,
+            source_id,
+        ),
+        "validation": GraphValidationResult(
+            accepted=facts,
+            publishable=True,
+        ),
+        "source_snapshot": registry,
+    }
+    prepared = prepare_decision_context(ctx, state)
+    observation_bundle = prepared["observation_context"]
+    trace = next(
+        item
+        for item in observation_bundle.fact_traces
+        if item.metric_key == "scheduled_arrival_count"
+    )
+    corrupted_facts = [
+        fact.model_copy(update={"object_value": "999999"})
+        if fact.fact_id == trace.fact_id
+        else fact
+        for fact in observation_bundle.formal_facts
+    ]
+    corrupted_bundle = observation_bundle.model_copy(
+        update={"formal_facts": corrupted_facts}
+    )
+
+    with pytest.raises(
+        FormalPublicationBlocked,
+        match="deterministic numeric value mismatch",
+    ):
+        integrate_decision_context(
+            ctx,
+            {
+                **state,
+                **prepared,
+                "observation_context": corrupted_bundle,
+            },
+        )
+
+    for name in (
+        "kg.jsonl",
+        "kg.ttl",
+        "neo4j_nodes.jsonl",
+        "neo4j_relationships.jsonl",
+    ):
+        assert not (tmp_path / name).exists()
+
+
 def test_integration_blocks_a_self_consistent_rdf_type_retarget_from_the_builder(
     tmp_path,
     config,
@@ -1891,12 +2021,88 @@ def test_outcome_validator_rejects_event_unbound_1999_windows(
         )
 
 
-def test_ingest_graph_has_deterministic_context_node_after_materialization():
+def test_ingest_graph_names_explicit_validation_and_publication_nodes():
     graph = build_ingest_graph()
     graph_json = graph.get_graph().to_json()
     edges = {(edge["source"], edge["target"]) for edge in graph_json["edges"]}
-    assert ("materialize", "decision_context") in edges
-    assert ("decision_context", "__end__") in edges
+    assert ("decision_case_assembly", "validate_event_patch") in edges
+    assert ("validate_event_patch", "publish_case") in edges
+    assert ("publish_case", "__end__") in edges
+    assert not {"materialize", "decision_context"} & {
+        node["id"] for node in graph_json["nodes"]
+    }
+
+
+def test_event_preflight_rejection_does_not_call_final_publication_kernel(
+    tmp_path,
+    monkeypatch,
+):
+    calls: list[object] = []
+    monkeypatch.setattr(
+        context_artifacts_module,
+        "run_formal_publication_kernel",
+        lambda **kwargs: calls.append(kwargs),
+    )
+    advisory = SourceRecord(
+        source_id="fixture:rejected-event",
+        family=SourceFamily.ATCSCC_ADVISORY,
+        content="GROUND STOP",
+    )
+    monkeypatch.setattr(
+        workflow_module,
+        "_CTX_HOLDER",
+        IngestContext(
+            advisory=advisory,
+            run_id="run:rejected-event",
+            output_dir=str(tmp_path),
+        ),
+    )
+    event_id = "urn:aviation-agentic-ai:event:rejected-event"
+    state = {
+        "assembly_graph_patch": GraphPatchBlock(
+            patch_lines=[
+                GraphPatchLine(
+                    subject=event_id,
+                    predicate="rdf:type",
+                    object="atm:GroundStopTMI",
+                    source_ids=[advisory.source_id],
+                )
+            ]
+        ),
+        "event_uri": event_id,
+        "event_class": "atm:GroundStopTMI",
+        "advisory_evidence": EvidenceCard(
+            agent_role="advisory",
+            status=AgentStatus.RESOLVED,
+            source_ids=[advisory.source_id],
+            claims=[
+                EvidenceClaim(
+                    field_name="event_type",
+                    value="GS",
+                    ontology_target="atm:GroundStopTMI",
+                    evidence_text="GROUND STOP",
+                    source_id=advisory.source_id,
+                )
+            ],
+        ),
+    }
+
+    event_validation = workflow_module._validate_event_patch_node(state)
+    assert event_validation["validation"] is not None
+    assert event_validation["validation"].publishable is False
+    assert event_validation["validation"].accepted
+    assert event_validation["validation"].graph_errors
+
+    published = workflow_module._publish_case_node(
+        {
+            **state,
+            **event_validation,
+        }
+    )
+
+    assert published["materialization"] is None
+    assert published["formal_layers"]["decision"]["status"] == "blocked"
+    assert calls == []
 
 
 def test_run_manifest_registers_exact_context_artifact_metadata(tmp_path):

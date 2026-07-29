@@ -39,7 +39,8 @@ from aviation_agentic_ai.agent_system.decision_case_graph import (
 )
 from aviation_agentic_ai.agent_system.materialize import (
     _absolute_event_iri,
-    materialize_validated_facts,
+    materialize_formal_publication,
+    run_formal_publication_kernel,
 )
 from aviation_agentic_ai.agent_system.public_observations import (
     build_bts_observation_facts,
@@ -709,7 +710,6 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
 
     output_dir = Path(ctx.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    core_materialization = state.get("materialization")
     prepared = (
         state
         if state.get("decision_context_prepared")
@@ -818,7 +818,7 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
         )
     )
 
-    materialization = core_materialization
+    materialization = None
 
     associations = weather_bundle.associations if weather_bundle.status == "ok" else []
     traces = weather_bundle.fact_traces if weather_bundle.status == "ok" else []
@@ -864,8 +864,16 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
 
     validation = state.get("validation")
     fact_trace_path = output_dir / "fact_trace.jsonl"
-    if validation is not None and validation.publishable and fact_trace_path.exists():
-        direct_traces = read_fact_traces(fact_trace_path)
+    if (
+        validation is not None
+        and validation.publishable
+        and common_status == "ok"
+    ):
+        direct_traces = (
+            read_fact_traces(fact_trace_path)
+            if fact_trace_path.exists()
+            else []
+        )
         formal_facts = list(validation.accepted)
         if weather_bundle.status == "ok":
             formal_facts.extend(weather_bundle.formal_facts)
@@ -873,50 +881,20 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
             formal_facts.extend(observation_bundle.formal_facts)
         if decision_case_graph.status == "ok":
             formal_facts.extend(decision_case_graph.formal_facts)
-        try:
-            materialization = materialize_validated_facts(
-                facts=formal_facts,
-                profile_registry=profile_registry,
-                source_snapshot=persisted_registry,
-                fact_traces=direct_traces,
-                weather_fact_traces=traces,
-                observation_fact_traces=observation_fact_traces,
-                reconstruction_trace=reconstruction_trace,
-                output_dir=output_dir,
-            )
-        except ValueError as exc:
-            if observation_bundle.status != "ok":
-                raise
-            observation_bundle = _empty_observations("blocked", str(exc))
-            write_observation_derivations(output_dir, [])
-            write_observation_fact_traces(output_dir, [])
-            decision_case_graph = _build_case_core(
-                event=decision_event,
-                weather_bundle=weather_bundle,
-                observation_bundle=observation_bundle,
-                seed=reconstruction_seed,
-                profile_registry=profile_registry,
-            )
-            reconstruction_trace = (
-                decision_case_graph.reconstruction_trace
-                if decision_case_graph.status == "ok"
-                else None
-            )
-            write_reconstruction_trace(output_dir, reconstruction_trace)
-            formal_facts = list(validation.accepted)
-            if weather_bundle.status == "ok":
-                formal_facts.extend(weather_bundle.formal_facts)
-            if decision_case_graph.status == "ok":
-                formal_facts.extend(decision_case_graph.formal_facts)
-            materialization = materialize_validated_facts(
-                facts=formal_facts,
-                profile_registry=profile_registry,
-                source_snapshot=persisted_registry,
-                fact_traces=direct_traces,
-                weather_fact_traces=traces,
-                reconstruction_trace=reconstruction_trace,
-                output_dir=output_dir,
-            )
+        publication = run_formal_publication_kernel(
+            facts=formal_facts,
+            profile_registry=profile_registry,
+            source_snapshot=persisted_registry,
+            fact_traces=direct_traces,
+            weather_fact_traces=traces,
+            observation_fact_traces=observation_fact_traces,
+            reconstruction_trace=reconstruction_trace,
+        )
+        materialization = materialize_formal_publication(
+            publication=publication,
+            profile_registry=profile_registry,
+            output_dir=output_dir,
+        )
     if not fact_trace_path.exists():
         fact_trace_path.write_text("", encoding="utf-8")
 

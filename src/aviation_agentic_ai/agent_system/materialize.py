@@ -166,6 +166,20 @@ class FactMaterialization:
     layer_fact_counts: dict[str, int] = field(default_factory=dict)
 
 
+@dataclass(frozen=True)
+class FormalPublication:
+    """Validated, write-free input to the formal graph projections."""
+
+    accepted: tuple[ValidatedFact, ...]
+    snapshot_registry: SourceSnapshotRegistry
+    profile_refs: tuple[ValidationProfileRef, ...]
+    layer_fact_counts: dict[str, int] = field(default_factory=dict)
+
+
+class FormalPublicationBlocked(ValueError):
+    """Raised when the final multi-profile publication gate rejects a case."""
+
+
 def _absolute_event_iri(subject_iri: str) -> str:
     """Canonicalize an event subject to an absolute ``urn:...:event:*`` URI.
 
@@ -1025,7 +1039,7 @@ def _write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
     )
 
 
-def materialize_validated_facts(
+def run_formal_publication_kernel(
     *,
     facts: list[ValidatedFact],
     profile_registry: ValidationProfileRegistry,
@@ -1036,26 +1050,51 @@ def materialize_validated_facts(
         tuple[ObservationFactTrace, ...] | list[ObservationFactTrace]
     ) = (),
     reconstruction_trace: ReconstructionTrace | None = None,
+) -> FormalPublication:
+    """Validate every admitted formal layer without writing projections."""
+
+    try:
+        registry = _validated_snapshot_registry(source_snapshot)
+        _require_fact_snapshot_bindings(facts, registry)
+        validate_fact_publication(
+            facts=facts,
+            profile_registry=profile_registry,
+            snapshot_registry=registry,
+            fact_traces=fact_traces,
+            weather_fact_traces=weather_fact_traces,
+            observation_fact_traces=observation_fact_traces,
+            reconstruction_trace=reconstruction_trace,
+        )
+    except ValueError as exc:
+        raise FormalPublicationBlocked(str(exc)) from exc
+    profile_refs = tuple(
+        sorted(
+            {fact.validation_profile for fact in facts},
+            key=lambda ref: (ref.layer, ref.profile_id, ref.profile_checksum),
+        )
+    )
+    layer_fact_counts: dict[str, int] = {}
+    for fact in facts:
+        layer = fact.validation_profile.layer
+        layer_fact_counts[layer] = layer_fact_counts.get(layer, 0) + 1
+    return FormalPublication(
+        accepted=tuple(facts),
+        snapshot_registry=registry,
+        profile_refs=profile_refs,
+        layer_fact_counts=dict(sorted(layer_fact_counts.items())),
+    )
+
+
+def materialize_formal_publication(
+    *,
+    publication: FormalPublication,
+    profile_registry: ValidationProfileRegistry,
     output_dir: str | Path,
 ) -> FactMaterialization:
-    """Materialize accepted ValidatedFacts to RDF + JSONL + Neo4j projection.
+    """Write the projections of a previously accepted formal publication."""
 
-    Plan §6: the single batch-two entry point. Writes ``kg.jsonl`` (query
-    triple-row shape), ``kg.ttl`` (real ATMONTO/RDF/PROV/XSD Turtle), and the
-    Neo4j projection (``neo4j_nodes.jsonl`` / ``neo4j_relationships.jsonl``).
-    """
-
-    registry = _validated_snapshot_registry(source_snapshot)
-    _require_fact_snapshot_bindings(facts, registry)
-    validate_fact_publication(
-        facts=facts,
-        profile_registry=profile_registry,
-        snapshot_registry=registry,
-        fact_traces=fact_traces,
-        weather_fact_traces=weather_fact_traces,
-        observation_fact_traces=observation_fact_traces,
-        reconstruction_trace=reconstruction_trace,
-    )
+    facts = list(publication.accepted)
+    registry = publication.snapshot_registry
     jsonl_path = write_validated_facts_jsonl(
         facts=facts,
         output_dir=output_dir,
@@ -1074,16 +1113,7 @@ def materialize_validated_facts(
         profile_registry=profile_registry,
         source_snapshot=registry,
     )
-    profile_refs = tuple(
-        sorted(
-            {fact.validation_profile for fact in facts},
-            key=lambda ref: (ref.layer, ref.profile_id, ref.profile_checksum),
-        )
-    )
-    layer_fact_counts: dict[str, int] = {}
-    for fact in facts:
-        layer = fact.validation_profile.layer
-        layer_fact_counts[layer] = layer_fact_counts.get(layer, 0) + 1
+    profile_refs = publication.profile_refs
     decision_only = bool(profile_refs) and all(
         ref.layer == "decision" for ref in profile_refs
     )
@@ -1098,7 +1128,38 @@ def materialize_validated_facts(
             profile_refs[0].profile_checksum if decision_only else ""
         ),
         profile_refs=profile_refs,
-        layer_fact_counts=dict(sorted(layer_fact_counts.items())),
+        layer_fact_counts=publication.layer_fact_counts,
+    )
+
+
+def materialize_validated_facts(
+    *,
+    facts: list[ValidatedFact],
+    profile_registry: ValidationProfileRegistry,
+    source_snapshot: SourceSnapshotRegistry,
+    fact_traces: tuple[FactTraceRow, ...] | list[FactTraceRow] = (),
+    weather_fact_traces: tuple[WeatherFactTrace, ...] | list[WeatherFactTrace] = (),
+    observation_fact_traces: (
+        tuple[ObservationFactTrace, ...] | list[ObservationFactTrace]
+    ) = (),
+    reconstruction_trace: ReconstructionTrace | None = None,
+    output_dir: str | Path,
+) -> FactMaterialization:
+    """Low-level helper composing the final gate and projection writer."""
+
+    publication = run_formal_publication_kernel(
+        facts=facts,
+        profile_registry=profile_registry,
+        source_snapshot=source_snapshot,
+        fact_traces=fact_traces,
+        weather_fact_traces=weather_fact_traces,
+        observation_fact_traces=observation_fact_traces,
+        reconstruction_trace=reconstruction_trace,
+    )
+    return materialize_formal_publication(
+        publication=publication,
+        profile_registry=profile_registry,
+        output_dir=output_dir,
     )
 
 
