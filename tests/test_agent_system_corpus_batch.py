@@ -30,9 +30,15 @@ def _advisory(
         text = "ATCSCC ADVZY 001 JFK/ZNY 05/19/2026 ROUTE ADVISORY"
     elif complete:
         term = "GROUND STOP" if event == "GS" else "GROUND DELAY PROGRAM"
+        extension = (
+            " PROBABILITY OF EXTENSION: MEDIUM"
+            if event == "GS"
+            else ""
+        )
         text = (
             f"ATCSCC ADVZY 001 JFK/ZNY 05/19/2026 {term} "
             "CTL ELEMENT: JFK GROUND STOP PERIOD: 19/2100Z - 19/2245Z"
+            f"{extension} SIGNATURE: 26/05/19 20:30"
         )
     else:
         text = "ATCSCC ADVZY 001 JFK/ZNY 05/19/2026 GROUND STOP"
@@ -138,6 +144,13 @@ def test_cohort_batch_preflights_26_records_without_running_models(tmp_path: Pat
     assert len(results) == 68
     assert sum(row["status"] == "insufficient" for row in results) == 26
     assert sum(row["provider_call_count"] for row in results if row["status"] == "insufficient") == 0
+    assert sum(row["preflight_eligible"] is True for row in results) == 42
+    assert sum(row["preflight_eligible"] is False for row in results) == 26
+    assert {
+        row["tmi_family"]
+        for row in results
+        if row["source_id"].startswith("ok:")
+    } == {"GS"}
 
 
 def test_all_insufficient_batch_publishes_valid_empty_corpus(tmp_path: Path) -> None:

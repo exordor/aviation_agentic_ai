@@ -13,13 +13,14 @@ from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusCase,
     CorpusQueryStore,
 )
+from aviation_agentic_ai.agent_system.tmi_profiles import active_tmi_profiles
 from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 
-_ATM_NAMESPACE = "https://data.nasa.gov/ontologies/atmonto/ATM#"
 _TMI_LABELS = {
-    f"{_ATM_NAMESPACE}GroundDelayProgramTMI": "Ground Delay Program",
-    f"{_ATM_NAMESPACE}GroundStopTMI": "Ground Stop",
+    profile.ontology_class: profile.retrieval_label
+    for profile in active_tmi_profiles()
+    if profile.ontology_class is not None
 }
 _DURATION_LABELS: dict[DurationBucket, str] = {
     "under_1_hour": "under 1 hour",
@@ -78,11 +79,21 @@ def _document_text(
 ) -> str:
     lines = [
         f"Traffic management measure: {tmi_label}.",
-        "Controlled facility: "
-        + ", ".join(_facility_label(value) for value in facility_ids)
-        + ".",
         f"Declared reason status: {case.reason_status.replace('_', ' ')}.",
     ]
+    if facility_ids:
+        lines.insert(
+            1,
+            "Controlled facility: "
+            + ", ".join(_facility_label(value) for value in facility_ids)
+            + ".",
+        )
+    else:
+        lines.insert(
+            1,
+            "Controlled scope: not represented by a formal facility edge "
+            "in the active profile.",
+        )
     if case.reason_status == "formal":
         lines.append(
             f"Declared reason category: {case.reason_value}."
@@ -111,8 +122,6 @@ def build_case_retrieval_documents(
     for case in sorted(store.cases, key=lambda row: row.case_id):
         tmi_type_iri, tmi_label = _reviewed_tmi(case)
         facility_ids = tuple(sorted(case.facility_ids))
-        if not facility_ids:
-            raise ValueError(f"case has no controlled facility: {case.case_id}")
         if case.operational_start is None or case.operational_end is None:
             raise ValueError(
                 f"case has incomplete operational boundaries: {case.case_id}"

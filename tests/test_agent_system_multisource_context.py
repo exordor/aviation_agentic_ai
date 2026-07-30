@@ -74,6 +74,7 @@ from aviation_agentic_ai.agent_system.weather_context import (
     INTERVAL_END,
     INTERVAL_START,
     METAR_STRING,
+    METEOROLOGICAL_CONDITION_STATUS,
     TAF_STRING,
 )
 from aviation_agentic_ai.agent_system.workflow import (
@@ -131,7 +132,7 @@ class _NoDeterministicModelFactory:
 
     def __call__(self, tools):
         self.calls += 1
-        raise AssertionError("deterministic canonical cases must not construct a model")
+        raise AssertionError("complete deterministic cases must not construct a model")
 
 
 def _fact(
@@ -1820,6 +1821,7 @@ def test_outcome_bundle_rejects_duplicate_phase_with_a_distinct_id(
         "missing_required_fact",
         "arbitrary_fact_id",
         "forged_raw_report_value",
+        "forged_condition_status",
     ],
 )
 def test_weather_validator_rejects_semantically_malformed_adapter_bundles(
@@ -1905,6 +1907,24 @@ def test_weather_validator_rejects_semantically_malformed_adapter_bundles(
         facts = replace_fact(
             original,
             original.model_copy(update={"object_value": "FORGED WEATHER REPORT"}),
+        )
+    elif corruption == "forged_condition_status":
+        original = next(
+            fact
+            for fact in facts
+            if fact.predicate_iri == METEOROLOGICAL_CONDITION_STATUS
+        )
+        facts = replace_fact(
+            original,
+            original.model_copy(
+                update={
+                    "object_value": (
+                        "forecast"
+                        if original.object_value == "observed"
+                        else "observed"
+                    )
+                }
+            ),
         )
     corrupted = valid.model_copy(
         update={

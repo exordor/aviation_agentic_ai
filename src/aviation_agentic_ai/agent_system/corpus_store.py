@@ -36,7 +36,14 @@ from aviation_agentic_ai.agent_system.materialize import (
     write_validated_facts_jsonl,
     write_validated_facts_rdf,
 )
+from aviation_agentic_ai.agent_system.ontology_alignment import (
+    build_corpus_alignment_audit,
+)
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
+from aviation_agentic_ai.agent_system.tmi_profiles import (
+    active_tmi_profiles,
+    registered_tmi_profiles,
+)
 from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
 )
@@ -145,6 +152,8 @@ class CorpusBuildResult(StrictModel):
     case_id: str | None = None
     reason: str = ""
     provider_call_count: int = Field(default=0, ge=0)
+    tmi_family: str | None = None
+    preflight_eligible: bool | None = None
 
 
 class CorpusCase(StrictModel):
@@ -525,6 +534,91 @@ def _formal_case_identity(
     return case_iri, reconstruction_iri
 
 
+def _build_tmi_coverage(
+    results: list[CorpusBuildResult],
+    cases: list[CorpusCase],
+) -> dict[str, object]:
+    """Build one deterministic coverage summary from selected rows and cases."""
+
+    profiles = registered_tmi_profiles()
+    profiles_by_code = {profile.code: profile for profile in profiles}
+    exact_class_to_code = {
+        profile.ontology_class: profile.code
+        for profile in profiles
+        if profile.ontology_class is not None
+    }
+    case_family_by_source: dict[str, str] = {}
+    published_counts: dict[str, int] = defaultdict(int)
+    for case in cases:
+        matches = {
+            exact_class_to_code[event_type]
+            for event_type in case.event_type_iris
+            if event_type in exact_class_to_code
+        }
+        family = next(iter(matches)) if len(matches) == 1 else "UNCLASSIFIED"
+        case_family_by_source[case.advisory_source_id] = family
+        published_counts[family] += 1
+
+    counters: dict[str, dict[str, int]] = defaultdict(
+        lambda: {
+            "detected_count": 0,
+            "eligible_count": 0,
+            "eligibility_unknown_count": 0,
+            "ok_count": 0,
+            "insufficient_count": 0,
+            "blocked_count": 0,
+            "published_count": 0,
+        }
+    )
+    for result in results:
+        family = (
+            result.tmi_family
+            or case_family_by_source.get(result.source_id)
+            or "UNCLASSIFIED"
+        )
+        counters[family]["detected_count"] += 1
+        if result.preflight_eligible is True:
+            counters[family]["eligible_count"] += 1
+        elif result.preflight_eligible is None:
+            counters[family]["eligibility_unknown_count"] += 1
+        counters[family][f"{result.status}_count"] += 1
+    for family, count in published_counts.items():
+        counters[family]["published_count"] = count
+
+    family_order = [profile.code for profile in profiles]
+    if "UNCLASSIFIED" in counters:
+        family_order.append("UNCLASSIFIED")
+    families = []
+    for family in family_order:
+        profile = profiles_by_code.get(family)
+        families.append(
+            {
+                "family": family,
+                "publication_status": (
+                    profile.publication_status
+                    if profile is not None
+                    else "unclassified"
+                ),
+                "ontology_class": (
+                    profile.ontology_class if profile is not None else None
+                ),
+                **counters[family],
+            }
+        )
+    return {
+        "report_version": "tmi-coverage-v1",
+        "selected_count": len(results),
+        "eligible_count": sum(
+            result.preflight_eligible is True for result in results
+        ),
+        "eligibility_unknown_count": sum(
+            result.preflight_eligible is None for result in results
+        ),
+        "published_case_count": len(cases),
+        "families": families,
+    }
+
+
 def build_corpus(
     run_dirs: list[str | Path] | tuple[str | Path, ...],
     output_dir: str | Path,
@@ -588,11 +682,30 @@ def build_corpus(
         event_facts = [
             fact for fact in facts if fact.subject_iri == event_id
         ]
+        event_type_iris = {
+            fact.object_value
+            for fact in event_facts
+            if fact.predicate_iri == _RDF_TYPE_IRI
+        }
+        event_profile = next(
+            (
+                profile
+                for profile in active_tmi_profiles()
+                if profile.ontology_class in event_type_iris
+            ),
+            None,
+        )
+        formal_reason_predicates = {
+            predicate
+            for field in ("impacting_condition", "re_route_reason")
+            if event_profile is not None
+            and (predicate := event_profile.field_mappings.get(field))
+        }
         formal_reasons = sorted(
             {
                 fact.object_value
                 for fact in event_facts
-                if _local_name(fact.predicate_iri) == "impactingCondition"
+                if fact.predicate_iri in formal_reason_predicates
             }
         )
         reason_gaps = sorted(
@@ -742,13 +855,7 @@ def build_corpus(
             event_id=event_id,
             run_ids=[str(store.manifest["run_id"])],
             advisory_source_id=str(store.manifest["source_id"]),
-            event_type_iris=sorted(
-                {
-                    fact.object_value
-                    for fact in event_facts
-                    if fact.predicate_iri == _RDF_TYPE_IRI
-                }
-            ),
+            event_type_iris=sorted(event_type_iris),
             facility_ids=sorted(
                 {
                     fact.object_value
@@ -795,6 +902,8 @@ def build_corpus(
             case_id=case_id,
             reason="validated run normalized",
             provider_call_count=len(store.manifest.get("model_calls") or []),
+            tmi_family=(event_profile.code if event_profile is not None else None),
+            preflight_eligible=True,
         )
         previous_result = build_results_by_event.get(event_id)
         if previous_result is None or result.source_id < previous_result.source_id:
@@ -819,11 +928,17 @@ def build_corpus(
     profile_gaps_path = output / "profile_gaps.jsonl"
     associations_path = output / "context_associations.jsonl"
     observations_path = output / "observations.jsonl"
+    alignment_audit_path = output / "alignment_audit.json"
+    tmi_coverage_path = output / "tmi_coverage.json"
     kg_path = output / "kg.jsonl"
     ttl_path = output / "kg.ttl"
     neo4j_nodes_path = output / "neo4j_nodes.jsonl"
     neo4j_relationships_path = output / "neo4j_relationships.jsonl"
-    result_rows = (
+    inferred_results_by_source = {
+        row.source_id: row
+        for row in build_results_by_event.values()
+    }
+    raw_result_rows = (
         sorted(build_results, key=lambda row: row.source_id)
         if build_results is not None
         else sorted(
@@ -831,6 +946,30 @@ def build_corpus(
             key=lambda row: (row.event_id or "", row.source_id),
         )
     )
+    result_rows = [
+        row.model_copy(
+            update={
+                "tmi_family": (
+                    row.tmi_family
+                    or getattr(
+                        inferred_results_by_source.get(row.source_id),
+                        "tmi_family",
+                        None,
+                    )
+                ),
+                "preflight_eligible": (
+                    row.preflight_eligible
+                    if row.preflight_eligible is not None
+                    else getattr(
+                        inferred_results_by_source.get(row.source_id),
+                        "preflight_eligible",
+                        None,
+                    )
+                ),
+            }
+        )
+        for row in raw_result_rows
+    ]
     if build_results is not None and len({row.source_id for row in result_rows}) != len(result_rows):
         raise ValueError("corpus build results must have one row per source ID")
     _write_jsonl(
@@ -913,6 +1052,27 @@ def build_corpus(
             for row in sorted(observations_by_id.values(), key=lambda row: row.observation_id)
         ],
     )
+    alignment_audit_path.write_text(
+        json.dumps(
+            build_corpus_alignment_audit(facts_by_id.values()),
+            sort_keys=True,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    tmi_coverage_path.write_text(
+        json.dumps(
+            _build_tmi_coverage(
+                result_rows,
+                list(cases_by_id.values()),
+            ),
+            sort_keys=True,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     _write_corpus_projection(
         output_dir=output,
         facts=list(facts_by_id.values()),
@@ -931,6 +1091,8 @@ def build_corpus(
         ("profile_gaps", profile_gaps_path, len(gaps_by_id)),
         ("context_associations", associations_path, len(associations_by_id)),
         ("observations", observations_path, len(observations_by_id)),
+        ("alignment_audit", alignment_audit_path, 1),
+        ("tmi_coverage", tmi_coverage_path, 1),
         ("kg", kg_path, _jsonl_count(kg_path)),
         ("kg_ttl", ttl_path, _jsonl_count(ttl_path)),
         ("neo4j_nodes", neo4j_nodes_path, _jsonl_count(neo4j_nodes_path)),

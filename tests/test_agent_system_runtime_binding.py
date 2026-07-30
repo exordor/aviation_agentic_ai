@@ -627,7 +627,7 @@ def test_required_blocked_domain_stops_assembly_and_preserves_blocked_status(
 
 
 def test_case_assembly_complexity_gate_uses_only_dedicated_factory() -> None:
-    """Only the dedicated Assembly factory can activate a non-canonical case."""
+    """Only the dedicated Assembly factory can activate an unresolved task."""
 
     from types import SimpleNamespace
 
@@ -641,6 +641,7 @@ def test_case_assembly_complexity_gate_uses_only_dedicated_factory() -> None:
 
     complete = SimpleNamespace(
         missing_slots=(),
+        required_case_slots=("controlled_facility",),
         available_evidence_layer_ids=(
             "layer:advisory",
             "layer:bts",
@@ -648,7 +649,8 @@ def test_case_assembly_complexity_gate_uses_only_dedicated_factory() -> None:
         ),
     )
     unresolved = SimpleNamespace(
-        missing_slots=("impacting_condition",),
+        missing_slots=("controlled_facility",),
+        required_case_slots=("controlled_facility",),
         available_evidence_layer_ids=("layer:advisory",),
     )
 
@@ -657,7 +659,7 @@ def test_case_assembly_complexity_gate_uses_only_dedicated_factory() -> None:
         "2026-05-19:138",
         "2026-05-20:020",
     ):
-        assert not workflow_module._should_activate_case_assembly_agent(
+        assert workflow_module._should_activate_case_assembly_agent(
             source_id=source_id,
             task=unresolved,
             case_assembly_model_factory=dedicated_factory,
@@ -694,10 +696,9 @@ def test_blocked_assembly_stops_before_kernel_and_materialization(tmp_path, monk
     advisory = canonical.model_copy(
         update={
             "source_id": "fixture:blocked-assembly",
-            "content": "\n".join(
-                line
-                for line in canonical.content.splitlines()
-                if not line.startswith("IMPACTING CONDITION:")
+            "content": canonical.content.replace(
+                "PROBABILITY OF EXTENSION: MEDIUM ",
+                "",
             ),
         }
     )
@@ -811,8 +812,21 @@ def test_explicit_ok_cannot_override_missing_required_slot(tmp_path, monkeypatch
         }
     )
 
-    def explicit_ok_assembly(*, task, binding, tool_model_factory):
-        del tool_model_factory
+    def explicit_ok_assembly(
+        *,
+        task,
+        binding,
+        tool_model_factory,
+        assembly_status,
+        component_layer_results,
+        limitations,
+    ):
+        del (
+            tool_model_factory,
+            assembly_status,
+            component_layer_results,
+            limitations,
+        )
         proposal = workflow_module.compile_case_assembly_proposal(
             task=task,
             assembly_status=AssemblyStatus.OK,
@@ -859,11 +873,6 @@ def test_hard_preflight_feedback_blocks_publication(tmp_path, monkeypatch):
     advisory = canonical.model_copy(
         update={
             "source_id": "fixture:hard-preflight-violation",
-            "content": "\n".join(
-                line
-                for line in canonical.content.splitlines()
-                if not line.startswith("IMPACTING CONDITION:")
-            ),
         }
     )
 
@@ -902,6 +911,11 @@ def test_hard_preflight_feedback_blocks_publication(tmp_path, monkeypatch):
         )
 
     monkeypatch.setattr(workflow_module, "run_case_assembly_agent", hard_violation_assembly)
+    monkeypatch.setattr(
+        workflow_module,
+        "_should_activate_case_assembly_agent",
+        lambda **_: True,
+    )
 
     state = run_ingest(
         IngestContext(
@@ -945,11 +959,6 @@ def test_hard_preflight_block_preserves_component_layer_audit_rows(
     advisory = canonical.model_copy(
         update={
             "source_id": "fixture:hard-preflight-preserve-layers",
-            "content": "\n".join(
-                line
-                for line in canonical.content.splitlines()
-                if not line.startswith("IMPACTING CONDITION:")
-            ),
         }
     )
 
@@ -1003,6 +1012,11 @@ def test_hard_preflight_block_preserves_component_layer_audit_rows(
         )
 
     monkeypatch.setattr(workflow_module, "run_case_assembly_agent", hard_violation_assembly)
+    monkeypatch.setattr(
+        workflow_module,
+        "_should_activate_case_assembly_agent",
+        lambda **_: True,
+    )
 
     state = run_ingest(
         IngestContext(
@@ -1072,7 +1086,7 @@ def test_blocked_authority_registry_is_absorbing_at_the_join(tmp_path):
     assert authority_registry.records == ()
 
 
-def test_required_insufficient_domain_stops_assembly_and_resolution_factories(tmp_path):
+def test_exact_tmi_profile_does_not_depend_on_optional_term_definition(tmp_path):
     catalog = _catalog(tmp_path)
     incomplete_terms = replace(catalog.terminology, definitions=())
     authority_catalog = replace(catalog, terminology=incomplete_terms)
@@ -1104,7 +1118,8 @@ def test_required_insufficient_domain_stops_assembly_and_resolution_factories(tm
     )
 
     assert calls == []
-    assert state["resolution_preflight_status"] == "insufficient"
+    assert state["resolution_preflight_status"] == "resolved"
+    assert "extension_probability" in state["case_assembly_task"].missing_slots
     assert state["assembly_graph_patch"] is None
     assert state["formal_layers"]["decision"]["status"] == "insufficient"
 

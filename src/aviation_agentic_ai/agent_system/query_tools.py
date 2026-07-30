@@ -37,6 +37,7 @@ from aviation_agentic_ai.agent_system.materialize import (
 from aviation_agentic_ai.agent_system.schema_guide import TERM_TO_EVENT_CLASS
 from aviation_agentic_ai.agent_system.runtime import RUN_MANIFEST_VERSION
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
+from aviation_agentic_ai.agent_system.tmi_profiles import active_tmi_profiles
 from aviation_agentic_ai.agent_system.validation_profiles import (
     LoadedValidationProfile,
     ValidationProfileRegistry,
@@ -44,6 +45,11 @@ from aviation_agentic_ai.agent_system.validation_profiles import (
 )
 
 _REGISTERED_EVENT_CLASSES = frozenset(TERM_TO_EVENT_CLASS.values())
+_REGISTERED_EVENT_CLASS_IRIS = frozenset(
+    profile.ontology_class
+    for profile in active_tmi_profiles()
+    if profile.ontology_class is not None
+)
 _RDF_TYPE_IRI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 
 
@@ -58,8 +64,12 @@ class QueryPredicate(str, Enum):
     CONTROLLED_NAS_ELEMENT = "atm:controlledNASelement"
     EFFECTIVE_START = "atm:effectiveStartTime"
     EFFECTIVE_END = "atm:effectiveEndTime"
+    ISSUED_TIME = "atm:issuedTime"
     ADVISORY_NUMBER = "atm:advisoryNumber"
     IMPACTING_CONDITION = "atm:impactingCondition"
+    IMPLEMENTATION_STATUS = "atm:implementationStatus"
+    REROUTE_REASON = "atm:reRouteReason"
+    REROUTE_TYPE = "atm:reRouteType"
 
 
 def _split_source_ids(value: Any) -> list[str]:
@@ -862,18 +872,32 @@ class QueryGraphStore:
                 raise QueryToolError(
                     f"profile gap does not use the current decision profile: "
                     f"{gap.profile_gap_id}"
-                )
+            )
             guide = load_schema_guide()
             event_class = self.event_class(gap.event_id)
-            predicate = {
-                "impacting_condition": "atm:impactingCondition",
-            }.get(gap.field)
-            if (
-                predicate is None
-                or gap.reason != "not_in_profile"
-                or not guide.has_property(predicate)
-                or guide.datatype_property_ok(predicate, event_class)
-            ):
+            impacting_gap = (
+                gap.field == "impacting_condition"
+                and gap.reason == "not_in_profile"
+                and guide.has_property("atm:impactingCondition")
+                and not guide.datatype_property_ok(
+                    "atm:impactingCondition",
+                    event_class,
+                )
+            )
+            constrained_area_gap = (
+                gap.field == "constrained_area"
+                and gap.reason == "range_not_admitted"
+                and guide.has_property("atm:controlledNASelement")
+                and guide.object_property_domain_ok(
+                    "atm:controlledNASelement",
+                    event_class,
+                )
+                and not guide.object_property_range_ok(
+                    "atm:controlledNASelement",
+                    "nas:ARTCC",
+                )
+            )
+            if not (impacting_gap or constrained_area_gap):
                 raise QueryToolError(
                     f"profile gap has invalid field or schema mapping: "
                     f"{gap.profile_gap_id}"
@@ -930,8 +954,18 @@ class QueryGraphStore:
 
     def event_class(self, event_id: str) -> str:
         for row in self.rows:
-            if row["subject"] == event_id and row["predicate"] == QueryPredicate.EVENT_TYPE:
-                return str(row.get("object") or row.get("subject_class") or "")
+            if (
+                row["subject"] == event_id
+                and row["predicate"] == QueryPredicate.EVENT_TYPE
+            ):
+                candidate = str(
+                    row.get("object") or row.get("subject_class") or ""
+                )
+                if candidate in (
+                    _REGISTERED_EVENT_CLASSES
+                    | _REGISTERED_EVENT_CLASS_IRIS
+                ):
+                    return candidate
         for row in self.rows:
             if row["subject"] == event_id:
                 return str(row.get("subject_class") or "")

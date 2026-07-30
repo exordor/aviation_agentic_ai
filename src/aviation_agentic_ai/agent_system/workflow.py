@@ -96,6 +96,10 @@ from aviation_agentic_ai.agent_system.schema_guide import SchemaGuide, load_sche
 from aviation_agentic_ai.agent_system.sources import (
     build_source_snapshot_registry,
 )
+from aviation_agentic_ai.agent_system.tmi_profiles import (
+    active_tmi_profiles,
+    get_tmi_profile,
+)
 from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 ToolModelFactory = Any
@@ -332,11 +336,8 @@ def _advisory_node(state: dict) -> dict:
     mentions = parse_structured_fields(ctx.advisory.content)
     event_classes = [
         event_class
-        for event_class in (
-            guide.event_class_for_term("GDP"),
-            guide.event_class_for_term("GS"),
-        )
-        if event_class
+        for profile in active_tmi_profiles()
+        if (event_class := profile.prefixed_ontology_class) is not None
     ]
     evidence = build_advisory_evidence(
         task=task,
@@ -657,9 +658,18 @@ def _terminology_authority_node(state: dict) -> dict:
 def _join_node(state: dict) -> dict:
     """Join independently audited domains and compute the required preflight."""
 
-    outcomes = (
-        state.get("facility_authority_result"),
-        state.get("terminology_authority_result"),
+    mentions = state.get("mentions")
+    profile = get_tmi_profile(
+        getattr(mentions, "event_type", ""),
+        publishable_only=True,
+    )
+    facility_required = bool(
+        profile is not None and "controlled_facility" in profile.required_fields
+    )
+    required_outcomes = (
+        (state.get("facility_authority_result"),)
+        if facility_required
+        else ()
     )
     authority_registry = state.get("authority_source_records")
     if (
@@ -670,12 +680,13 @@ def _join_node(state: dict) -> dict:
         reason = authority_registry.reason_code or "authority source registry blocked"
     elif any(
         outcome is None or outcome.domain_outcome.decision is ResolutionDecision.BLOCKED
-        for outcome in outcomes
+        for outcome in required_outcomes
     ):
         status = "blocked"
         reason = "required resolution domain blocked"
     elif any(
-        outcome.domain_outcome.decision is not ResolutionDecision.ACCEPTED for outcome in outcomes
+        outcome.domain_outcome.decision is not ResolutionDecision.ACCEPTED
+        for outcome in required_outcomes
     ):
         status = "insufficient"
         reason = "required resolution domain insufficient"
@@ -784,12 +795,40 @@ def _build_case_assembly_task_from_state(
     res_prop_ids = tuple(row.resolution_proposal_id for row in resolution_records)
 
     mentions = state.get("mentions") or parse_structured_fields(ctx.advisory.content)
+    event_profile = get_tmi_profile(
+        getattr(mentions, "event_type", ""),
+        publishable_only=True,
+    )
+    if event_profile is None:
+        raise ValueError("active TMI event profile is unavailable")
     profile_id = (
         f"profile-{event_class.split(':')[-1].lower() if ':' in event_class else 'default'}"
     )
 
     proposed_facts: list[CaseFactProposal] = []
     profile_gaps: list[CaseProfileGapProposal] = []
+
+    def append_literal(field_name: str, value: str) -> None:
+        predicate = event_profile.prefixed_property(field_name)
+        if not value or predicate is None:
+            return
+        proposed_facts.append(
+            CaseFactProposal(
+                proposal_item_id=stable_contract_id(
+                    "proposal-fact",
+                    ctx.run_id,
+                    event_uri,
+                    predicate,
+                    value,
+                ),
+                subject_id=event_uri,
+                predicate_iri=predicate,
+                object_kind="literal",
+                object_value=value,
+                evidence_claim_ids=tuple(sorted({ctx.advisory.source_id})),
+                validation_profile_id=profile_id,
+            )
+        )
 
     proposed_facts.append(
         CaseFactProposal(
@@ -812,102 +851,98 @@ def _build_case_assembly_task_from_state(
         and facility_authority_result.evidence_card.canonical_refs
     ):
         fac_ref = facility_authority_result.evidence_card.canonical_refs[0]
-        proposed_facts.append(
-            CaseFactProposal(
+        facility_class = next(
+            (
+                claim.ontology_target
+                for claim in facility_authority_result.evidence_card.claims
+                if claim.canonical_ref == fac_ref and claim.ontology_target
+            ),
+            "",
+        )
+        controlled_predicate = event_profile.prefixed_property(
+            "controlled_facility"
+        )
+        if (
+            controlled_predicate
+            and facility_class
+            and guide.object_property_range_ok(
+                controlled_predicate,
+                facility_class,
+            )
+        ):
+            proposed_facts.append(
+                CaseFactProposal(
+                    proposal_item_id=stable_contract_id(
+                        "proposal-fact",
+                        ctx.run_id,
+                        event_uri,
+                        controlled_predicate,
+                        fac_ref,
+                    ),
+                    subject_id=event_uri,
+                    predicate_iri=controlled_predicate,
+                    object_kind="iri",
+                    object_value=fac_ref,
+                    evidence_claim_ids=tuple(sorted({ctx.advisory.source_id})),
+                    validation_profile_id=profile_id,
+                )
+            )
+        elif getattr(mentions, "constrained_area", None):
+            profile_gaps.append(
+                CaseProfileGapProposal(
+                    proposal_item_id=stable_contract_id(
+                        "proposal-gap",
+                        ctx.run_id,
+                        event_uri,
+                        "constrained_area",
+                        mentions.constrained_area,
+                    ),
+                    event_id=event_uri,
+                    field="constrained_area",
+                    normalized_value=mentions.constrained_area,
+                    evidence_claim_ids=tuple(sorted({ctx.advisory.source_id})),
+                    schema_mapping_reason_code="range_not_admitted",
+                    validation_profile_id=profile_id,
+                )
+            )
+    if (
+        getattr(mentions, "constrained_area", None)
+        and not any(gap.field == "constrained_area" for gap in profile_gaps)
+    ):
+        profile_gaps.append(
+            CaseProfileGapProposal(
                 proposal_item_id=stable_contract_id(
-                    "proposal-fact",
+                    "proposal-gap",
                     ctx.run_id,
                     event_uri,
-                    "atm:controlledNASelement",
-                    fac_ref,
+                    "constrained_area",
+                    mentions.constrained_area,
                 ),
-                subject_id=event_uri,
-                predicate_iri="atm:controlledNASelement",
-                object_kind="iri",
-                object_value=fac_ref,
+                event_id=event_uri,
+                field="constrained_area",
+                normalized_value=mentions.constrained_area,
                 evidence_claim_ids=tuple(sorted({ctx.advisory.source_id})),
+                schema_mapping_reason_code="range_not_admitted",
                 validation_profile_id=profile_id,
             )
         )
 
     adv_num = getattr(mentions, "advisory_number", "")
-    if adv_num:
-        proposed_facts.append(
-            CaseFactProposal(
-                proposal_item_id=stable_contract_id(
-                    "proposal-fact", ctx.run_id, event_uri, "atm:advisoryNumber", adv_num
-                ),
-                subject_id=event_uri,
-                predicate_iri="atm:advisoryNumber",
-                object_kind="literal",
-                object_value=adv_num,
-                evidence_claim_ids=tuple(sorted({ctx.advisory.source_id})),
-                validation_profile_id=profile_id,
-            )
-        )
+    append_literal("advisory_number", adv_num)
+    append_literal("issued_time", getattr(mentions, "issued_time", ""))
 
     extension_probability = getattr(mentions, "extension_probability", "")
-    if "GroundStop" in event_class and extension_probability:
-        proposed_facts.append(
-            CaseFactProposal(
-                proposal_item_id=stable_contract_id(
-                    "proposal-fact",
-                    ctx.run_id,
-                    event_uri,
-                    "atm:extensionProbability",
-                    extension_probability,
-                ),
-                subject_id=event_uri,
-                predicate_iri="atm:extensionProbability",
-                object_kind="literal",
-                object_value=extension_probability,
-                evidence_claim_ids=tuple(sorted({ctx.advisory.source_id})),
-                validation_profile_id=profile_id,
-            )
-        )
+    if event_profile.code in {"GS", "REROUTE"}:
+        append_literal("extension_probability", extension_probability)
 
     start_time = getattr(mentions, "effective_start", "")
     end_time = getattr(mentions, "effective_end", "")
-    if start_time:
-        proposed_facts.append(
-            CaseFactProposal(
-                proposal_item_id=stable_contract_id(
-                    "proposal-fact",
-                    ctx.run_id,
-                    event_uri,
-                    "atm:effectiveStartTime",
-                    start_time,
-                ),
-                subject_id=event_uri,
-                predicate_iri="atm:effectiveStartTime",
-                object_kind="literal",
-                object_value=start_time,
-                evidence_claim_ids=tuple(sorted({ctx.advisory.source_id})),
-                validation_profile_id=profile_id,
-            )
-        )
-    if end_time:
-        proposed_facts.append(
-            CaseFactProposal(
-                proposal_item_id=stable_contract_id(
-                    "proposal-fact",
-                    ctx.run_id,
-                    event_uri,
-                    "atm:effectiveEndTime",
-                    end_time,
-                ),
-                subject_id=event_uri,
-                predicate_iri="atm:effectiveEndTime",
-                object_kind="literal",
-                object_value=end_time,
-                evidence_claim_ids=tuple(sorted({ctx.advisory.source_id})),
-                validation_profile_id=profile_id,
-            )
-        )
+    append_literal("effective_start", start_time)
+    append_literal("effective_end", end_time)
 
     impacting = getattr(mentions, "impacting_condition", "")
     if impacting:
-        if "GroundStop" in event_class:
+        if event_profile.code == "GS":
             profile_gaps.append(
                 CaseProfileGapProposal(
                     proposal_item_id=stable_contract_id(
@@ -925,29 +960,26 @@ def _build_case_assembly_task_from_state(
                     validation_profile_id=profile_id,
                 )
             )
-        else:
-            proposed_facts.append(
-                CaseFactProposal(
-                    proposal_item_id=stable_contract_id(
-                        "proposal-fact",
-                        ctx.run_id,
-                        event_uri,
-                        "atm:impactingCondition",
-                        impacting,
-                    ),
-                    subject_id=event_uri,
-                    predicate_iri="atm:impactingCondition",
-                    object_kind="literal",
-                    object_value=impacting,
-                    evidence_claim_ids=tuple(sorted({ctx.advisory.source_id})),
-                    validation_profile_id=profile_id,
-                )
-            )
+        elif event_profile.code == "GDP":
+            append_literal("impacting_condition", impacting)
 
-    required_slots = ("controlled_facility", "event_type") + (
-        ("extension_probability",) if "GroundStop" in event_class else ()
+    append_literal(
+        "implementation_status",
+        getattr(mentions, "implementation_status", ""),
     )
-    optional_slots = ("impacting_condition",)
+    append_literal("re_route_type", getattr(mentions, "re_route_type", ""))
+    append_literal("re_route_reason", getattr(mentions, "re_route_reason", ""))
+    append_literal(
+        "re_route_time_type",
+        getattr(mentions, "re_route_time_type", ""),
+    )
+
+    required_slots = ("event_type", *event_profile.required_fields)
+    optional_slots = (
+        ("impacting_condition",)
+        if event_profile.code in {"GDP", "GS"}
+        else ()
+    )
     missing_slots = tuple(
         slot
         for slot, value in (
@@ -955,6 +987,18 @@ def _build_case_assembly_task_from_state(
             ("event_type", event_class),
             ("extension_probability", extension_probability),
             ("impacting_condition", impacting),
+            ("effective_start", start_time),
+            ("effective_end", end_time),
+            (
+                "implementation_status",
+                getattr(mentions, "implementation_status", ""),
+            ),
+            ("re_route_type", getattr(mentions, "re_route_type", "")),
+            ("re_route_reason", getattr(mentions, "re_route_reason", "")),
+            (
+                "re_route_time_type",
+                getattr(mentions, "re_route_time_type", ""),
+            ),
         )
         if slot in (*required_slots, *optional_slots) and not value
     )
@@ -1109,32 +1153,21 @@ def _build_case_assembly_task_from_state(
     )
 
 
-_FIXED_CASE_ASSEMBLY_SOURCE_IDS = frozenset(
-    {
-        "2026-05-19:123",
-        "2026-05-19:138",
-        "2026-05-20:020",
-    }
-)
-
-
 def _should_activate_case_assembly_agent(
     *,
     source_id: str,
     task: Any,
     case_assembly_model_factory: ToolModelFactory | None,
 ) -> bool:
-    """Activate only a dedicated provider for a genuine non-fixed choice."""
+    """Escalate only when a required case slot remains unresolved.
 
-    return (
-        case_assembly_model_factory is not None
-        and source_id not in _FIXED_CASE_ASSEMBLY_SOURCE_IDS
-        and (
-            bool(task.missing_slots)
-            or set(getattr(task, "available_evidence_layer_ids", ()))
-            != {"layer:advisory", "layer:weather", "layer:bts"}
-        )
-    )
+    Missing optional Weather/BTS context is evidence absence, not a schema
+    choice for an LLM to repair. Source identifiers never decide activation.
+    """
+
+    del source_id
+    missing_required = set(task.missing_slots) & set(task.required_case_slots)
+    return case_assembly_model_factory is not None and bool(missing_required)
 
 
 def _decision_case_assembly_node(state: dict) -> dict:
@@ -1155,24 +1188,28 @@ def _decision_case_assembly_node(state: dict) -> dict:
             "event_class": "",
             "model_calls": [],
         }
-    terminology_authority_result: AuthorityResolutionResult = state["terminology_authority_result"]
     if ctx.guide is None:
         ctx.guide = load_schema_guide()
-    # The resolved event class comes only from the terminology resolution service. If no
-    # event type was resolved the system abstains and constructs no graph
-    # (design §11.6); there is no default GDP fallback.
-    event_class = next(
-        (
-            c.ontology_target
-            for c in terminology_authority_result.evidence_card.claims
-            if c.ontology_target
-        ),
-        "",
+    # Exact active-family classification is bound by the versioned ATMONTO
+    # application profile. Terminology authority remains useful supporting
+    # evidence, but a missing PCG definition does not erase an unambiguous
+    # source-pattern-to-schema mapping.
+    mentions = state.get("mentions") or parse_structured_fields(
+        ctx.advisory.content
+    )
+    event_profile = get_tmi_profile(
+        getattr(mentions, "event_type", ""),
+        publishable_only=True,
+    )
+    event_class = (
+        event_profile.prefixed_ontology_class
+        if event_profile is not None
+        else ""
     )
     event_uri = _event_uri(ctx.run_id, ctx.advisory.source_id, event_class or "UNRESOLVED")
     event_class_hint = state.get("event_class_hint", "")
     formal_event_uri_hint = state.get("formal_event_uri_hint", "")
-    if (event_class_hint and event_class != event_class_hint) or (
+    if not event_class or (event_class_hint and event_class != event_class_hint) or (
         formal_event_uri_hint and event_uri != formal_event_uri_hint
     ):
         return {

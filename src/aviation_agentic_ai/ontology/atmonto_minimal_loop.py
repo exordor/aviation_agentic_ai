@@ -41,51 +41,58 @@ DEFAULT_PREFIXES = {
     "xsd": XSD_NS,
 }
 
-ATCSCC_CLASS_TARGETS = {
-    "AirspaceFlowProgramTMI",
-    "AirportSpec",
-    "FlightSpec",
-    "GroundDelayProgramTMI",
-    "GroundStopTMI",
-    "ReRouteSegment",
-    "ReRouteTMI",
-    "TFMcontrolElement",
-    "TrafficManagementInitiative",
-    "ARTCC",
-    "ARTCCtier",
-    "Airport",
-    "AirspaceInfrastructureComponent",
-    "AirspaceRoute",
-    "NASfacility",
-    "WeatherCondition",
-    "MeteorologicalCondition",
+ATM_NS = "https://data.nasa.gov/ontologies/atmonto/ATM#"
+NAS_NS = "https://data.nasa.gov/ontologies/atmonto/NAS#"
+DATA_NS = "https://data.nasa.gov/ontologies/atmonto/data#"
+ATMONTO_NAMESPACES = (ATM_NS, NAS_NS, DATA_NS)
+
+ATCSCC_CLASS_IRI_TARGETS = {
+    ATM_NS + "AirspaceFlowProgramTMI",
+    ATM_NS + "AirportSpec",
+    ATM_NS + "FlightSpec",
+    ATM_NS + "GroundDelayProgramTMI",
+    ATM_NS + "GroundStopTMI",
+    ATM_NS + "ReRouteSegment",
+    ATM_NS + "ReRouteTMI",
+    ATM_NS + "TFMcontrolElement",
+    ATM_NS + "TrafficManagementInitiative",
+    NAS_NS + "ARTCC",
+    NAS_NS + "ARTCCtier",
+    NAS_NS + "Airport",
+    NAS_NS + "AirspaceInfrastructureComponent",
+    NAS_NS + "AirspaceRoute",
+    NAS_NS + "NASfacility",
+    DATA_NS + "WeatherCondition",
+    DATA_NS + "MeteorologicalCondition",
 }
 
-ATCSCC_OBJECT_PROPERTY_TARGETS = {
-    "allowedRoute",
-    "controlledNASelement",
-    "departureScope",
-    "excludesARTCC",
-    "excludesAirport",
-    "flightExclusionSpec",
-    "flightInclusionSpec",
-    "includesARTCC",
-    "includesAirport",
-    "withinARTCC",
+ATCSCC_OBJECT_PROPERTY_IRI_TARGETS = {
+    ATM_NS + "allowedRoute",
+    ATM_NS + "controlledNASelement",
+    ATM_NS + "departureScope",
+    ATM_NS + "excludesARTCC",
+    ATM_NS + "excludesAirport",
+    ATM_NS + "flightExclusionSpec",
+    ATM_NS + "flightInclusionSpec",
+    ATM_NS + "includesAirport",
+    ATM_NS + "withinARTCC",
+    NAS_NS + "includesARTCC",
+    NAS_NS + "withinARTCC",
 }
 
-ATCSCC_DATA_PROPERTY_TARGETS = {
-    "advisoryNumber",
-    "effectiveEndTime",
-    "effectiveStartTime",
-    "extensionProbability",
-    "impactingCondition",
-    "impactingConditionMessage",
-    "implementationStatus",
-    "initiativeComments",
-    "issuedTime",
-    "reRouteReason",
-    "reRouteType",
+ATCSCC_DATA_PROPERTY_IRI_TARGETS = {
+    ATM_NS + "advisoryNumber",
+    ATM_NS + "effectiveEndTime",
+    ATM_NS + "effectiveStartTime",
+    ATM_NS + "extensionProbability",
+    ATM_NS + "impactingCondition",
+    ATM_NS + "impactingConditionMessage",
+    ATM_NS + "implementationStatus",
+    ATM_NS + "initiativeComments",
+    ATM_NS + "issuedTime",
+    ATM_NS + "reRouteReason",
+    ATM_NS + "reRouteTimeType",
+    ATM_NS + "reRouteType",
 }
 
 DATATYPE_ALIASES = {
@@ -840,35 +847,80 @@ def selected_terms_by_local(
     )
 
 
-def build_atcscc_schema_slice(catalog: dict[str, object]) -> dict[str, object]:
-    class_map = by_local_name(catalog["classes"])  # type: ignore[arg-type]
-    object_property_map = by_local_name(catalog["object_properties"])  # type: ignore[arg-type]
-    datatype_property_map = by_local_name(catalog["datatype_properties"])  # type: ignore[arg-type]
-
-    selected_classes = selected_terms_by_local(catalog["classes"], ATCSCC_CLASS_TARGETS)  # type: ignore[arg-type]
-    selected_object_properties = selected_terms_by_local(
-        catalog["object_properties"],  # type: ignore[arg-type]
-        ATCSCC_OBJECT_PROPERTY_TARGETS,
+def selected_terms_by_iri(
+    entries: Iterable[dict[str, object]],
+    iri_targets: set[str],
+) -> list[dict[str, object]]:
+    return sorted(
+        [entry for entry in entries if str(entry["iri"]) in iri_targets],
+        key=lambda entry: str(entry["prefixed_name"]),
     )
-    selected_datatype_properties = selected_terms_by_local(
+
+
+def is_atmonto_iri(iri: str) -> bool:
+    return iri.startswith(ATMONTO_NAMESPACES)
+
+
+def build_atcscc_schema_slice(catalog: dict[str, object]) -> dict[str, object]:
+    class_iris = {
+        str(entry["iri"]) for entry in catalog["classes"]  # type: ignore[index]
+    }
+    object_property_iris = {
+        str(entry["iri"]) for entry in catalog["object_properties"]  # type: ignore[index]
+    }
+    datatype_property_iris = {
+        str(entry["iri"]) for entry in catalog["datatype_properties"]  # type: ignore[index]
+    }
+
+    selected_classes = selected_terms_by_iri(
+        catalog["classes"],  # type: ignore[arg-type]
+        ATCSCC_CLASS_IRI_TARGETS,
+    )
+    selected_object_properties = selected_terms_by_iri(
+        catalog["object_properties"],  # type: ignore[arg-type]
+        ATCSCC_OBJECT_PROPERTY_IRI_TARGETS,
+    )
+    selected_datatype_properties = selected_terms_by_iri(
         catalog["datatype_properties"],  # type: ignore[arg-type]
-        ATCSCC_DATA_PROPERTY_TARGETS,
+        ATCSCC_DATA_PROPERTY_IRI_TARGETS,
     )
 
     selected_class_iris = {str(entry["iri"]) for entry in selected_classes}
     for prop in selected_object_properties + selected_datatype_properties:
         for field in ("domain_iri_set", "range_iri_set"):
             for iri in prop.get(field, []):
-                selected_class_iris.add(str(iri))
+                if is_atmonto_iri(str(iri)):
+                    selected_class_iris.add(str(iri))
     for constraint in catalog["class_property_constraints"]:  # type: ignore[index]
         if (
-            local_name(str(constraint["class_iri"])) in ATCSCC_CLASS_TARGETS
-            or local_name(str(constraint["property_iri"]))
-            in ATCSCC_OBJECT_PROPERTY_TARGETS | ATCSCC_DATA_PROPERTY_TARGETS
+            str(constraint["class_iri"]) in ATCSCC_CLASS_IRI_TARGETS
+            or str(constraint["property_iri"])
+            in ATCSCC_OBJECT_PROPERTY_IRI_TARGETS
+            | ATCSCC_DATA_PROPERTY_IRI_TARGETS
         ):
-            selected_class_iris.add(str(constraint["class_iri"]))
+            if is_atmonto_iri(str(constraint["class_iri"])):
+                selected_class_iris.add(str(constraint["class_iri"]))
             for class_iri in constraint.get("class_iri_set", []):
-                selected_class_iris.add(str(class_iri))
+                if is_atmonto_iri(str(class_iri)):
+                    selected_class_iris.add(str(class_iri))
+
+    # Close the application slice over ATMONTO ancestors only.  The vendored
+    # ICARUS distribution adds bridge superclasses under ``urn:absolute``;
+    # those are distribution-specific terms rather than ATMONTO application
+    # vocabulary and therefore remain outside this slice.
+    parent_rows: dict[str, set[str]] = defaultdict(set)
+    for relation in catalog["class_hierarchy"]:  # type: ignore[index]
+        subclass = str(relation["subclass_iri"])
+        superclass = str(relation["superclass_iri"])
+        if is_atmonto_iri(subclass) and is_atmonto_iri(superclass):
+            parent_rows[subclass].add(superclass)
+    queue = deque(sorted(selected_class_iris))
+    while queue:
+        child = queue.popleft()
+        for parent in sorted(parent_rows.get(child, set())):
+            if parent not in selected_class_iris:
+                selected_class_iris.add(parent)
+                queue.append(parent)
 
     selected_classes = sorted(
         [
@@ -892,16 +944,22 @@ def build_atcscc_schema_slice(catalog: dict[str, object]) -> dict[str, object]:
         relation
         for relation in catalog["class_hierarchy"]  # type: ignore[index]
         if str(relation["subclass_iri"]) in selected_class_iris
-        or str(relation["superclass_iri"]) in selected_class_iris
+        and str(relation["superclass_iri"]) in selected_class_iris
     ]
 
     missing_targets = {
-        "classes": sorted(name for name in ATCSCC_CLASS_TARGETS if name not in class_map),
+        "classes": sorted(
+            iri for iri in ATCSCC_CLASS_IRI_TARGETS if iri not in class_iris
+        ),
         "object_properties": sorted(
-            name for name in ATCSCC_OBJECT_PROPERTY_TARGETS if name not in object_property_map
+            iri
+            for iri in ATCSCC_OBJECT_PROPERTY_IRI_TARGETS
+            if iri not in object_property_iris
         ),
         "datatype_properties": sorted(
-            name for name in ATCSCC_DATA_PROPERTY_TARGETS if name not in datatype_property_map
+            iri
+            for iri in ATCSCC_DATA_PROPERTY_IRI_TARGETS
+            if iri not in datatype_property_iris
         ),
     }
     return {
@@ -910,7 +968,7 @@ def build_atcscc_schema_slice(catalog: dict[str, object]) -> dict[str, object]:
         "selection_policy": {
             "primary_source": "NASA ATMONTO OWL/XML TBox",
             "source_family": "atcscc_advisories",
-            "selected_by": "exact local-name targets for ATCSCC TMI fields plus domain/range dependencies",
+            "selected_by": "exact ATMONTO IRI targets plus ATMONTO-only domain, range, and ancestor closure",
             "boundary": "closed-world runtime validation slice derived from open-world OWL axioms",
         },
         "classes": selected_classes,
@@ -1024,15 +1082,19 @@ def nas_entity_iri(code: str) -> str:
 
 
 def classify_tmi(text: str) -> str:
-    upper = text.upper()
-    if "GROUND DELAY PROGRAM" in upper or re.search(r"\bGDP\b", upper):
-        return "GroundDelayProgramTMI"
-    if "GROUND STOP" in upper:
-        return "GroundStopTMI"
-    if "AIRSPACE FLOW PROGRAM" in upper or re.search(r"\bAFP\b", upper):
-        return "AirspaceFlowProgramTMI"
-    if "REROUTE" in upper or "RE-ROUTE" in upper or "NRP SUSPENSION" in upper or " ROUTE " in upper:
-        return "ReRouteTMI"
+    """Return the active application-profile class or the common TMI root."""
+
+    from aviation_agentic_ai.agent_system.tmi_profiles import (
+        classify_tmi_family,
+        get_tmi_profile,
+    )
+
+    profile = get_tmi_profile(
+        classify_tmi_family(text) or "",
+        publishable_only=True,
+    )
+    if profile is not None and profile.ontology_class is not None:
+        return profile.ontology_class.rsplit("#", 1)[-1]
     return "TrafficManagementInitiative"
 
 

@@ -672,6 +672,8 @@ def test_build_corpus_v2_registers_the_complete_layout_stably(
         "profile_gaps",
         "context_associations",
         "observations",
+        "alignment_audit",
+        "tmi_coverage",
         "kg",
         "kg_ttl",
         "neo4j_nodes",
@@ -679,6 +681,22 @@ def test_build_corpus_v2_registers_the_complete_layout_stably(
     }
     assert set(first_manifest.artifacts) == expected
     assert first_manifest == second_manifest
+    alignment = json.loads(
+        (first / "alignment_audit.json").read_text(encoding="utf-8")
+    )
+    coverage = json.loads(
+        (first / "tmi_coverage.json").read_text(encoding="utf-8")
+    )
+    assert alignment["formal_fact_count"] == first_manifest.fact_count
+    assert alignment["unknown_formal_term_count"] == 0
+    assert coverage["selected_count"] == 1
+    assert coverage["eligible_count"] == 1
+    assert coverage["published_case_count"] == 1
+    ground_stop = next(
+        row for row in coverage["families"] if row["family"] == "GS"
+    )
+    assert ground_stop["detected_count"] == 1
+    assert ground_stop["published_count"] == 1
     for metadata in first_manifest.artifacts.values():
         first_path = first / metadata.path
         second_path = second / metadata.path

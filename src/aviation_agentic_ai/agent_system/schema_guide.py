@@ -20,16 +20,16 @@ from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.config import resolve_project_path
+from aviation_agentic_ai.agent_system.tmi_profiles import active_tmi_profiles
 
 DEFAULT_SCHEMA_SLICE = "data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json"
 
-# Authority-term abbreviation -> ATMONTO event class (prefixed name). The term
-# registry normalizes the abbreviation; this map binds the normalized TMI to its
-# ontology class. GDP/GS are the two TMI families the system mainline exercises.
+# Authority-term abbreviation -> exact ATMONTO event class (prefixed name).
+# The active event-family profile is the single policy source for this map.
 TERM_TO_EVENT_CLASS: dict[str, str] = {
-    "GDP": "atm:GroundDelayProgramTMI",
-    "GS": "atm:GroundStopTMI",
-    "AFP": "atm:AirspaceFlowProgramTMI",
+    profile.authority_term: event_class
+    for profile in active_tmi_profiles()
+    if (event_class := profile.prefixed_ontology_class) is not None
 }
 
 # Predicate allowed for source traceability. prov:wasDerivedFrom is a W3C PROV
@@ -116,6 +116,14 @@ class SchemaGuide:
     def superclasses(self, prefixed_name: str) -> frozenset[str]:
         """All transitive superclasses of a class (reflexive: includes itself)."""
 
+        prefixed_name = next(
+            (
+                candidate.prefixed_name
+                for candidate in self.classes.values()
+                if candidate.iri == prefixed_name
+            ),
+            prefixed_name,
+        )
         seen: set[str] = set()
         stack = [prefixed_name]
         while stack:

@@ -10,7 +10,7 @@ model_defaults:
 
 roles:
   query:
-    prompt_version: hybrid-query-agent-v1
+    prompt_version: hybrid-query-agent-v2
     max_output_tokens: 10000
     invocation_policy: bounded_action_observation_loop
     system: |
@@ -44,11 +44,11 @@ roles:
     few_shot:
       - user: |
           USER_QUESTION:
-          What reason is recorded for example GDP 1?
+          What source-declared reason is recorded for the selected TMI?
           QUERY_SCOPE:
           {"event_id":null,"limit":20,"offset":0}
         assistant: |
-          {"status":"ok","statements":[{"kind":"source_fact","text":"The example advisory records weather as its reason.","support_case_ids":["example:case:1"],"support_fact_ids":["example:fact:1"],"support_profile_gap_ids":[],"support_context_association_ids":[],"support_observation_ids":[],"support_graph_path_ids":[],"support_source_ids":["example:source:1"]}],"limitations":[]}
+          {"status":"ok","statements":[{"kind":"source_fact","text":"The selected advisory records weather as its source-declared reason.","support_case_ids":["example:case:1"],"support_fact_ids":["example:fact:1"],"support_profile_gap_ids":[],"support_context_association_ids":[],"support_observation_ids":[],"support_graph_path_ids":[],"support_source_ids":["example:source:1"]}],"limitations":[]}
       - user: |
           USER_QUESTION:
           Should the same measure be used now?

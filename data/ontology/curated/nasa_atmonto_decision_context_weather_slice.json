@@ -19,6 +19,7 @@
     {"iri": "https://data.nasa.gov/ontologies/atmonto/data#dataIntervalStartTime", "prefixed_name": "data:dataIntervalStartTime", "local_name": "dataIntervalStartTime", "label": "data interval start time", "comment": "For temporally-dependent data, the starting time of the data's period of validity."},
     {"iri": "https://data.nasa.gov/ontologies/atmonto/data#forecastIssueTime", "prefixed_name": "data:forecastIssueTime", "local_name": "forecastIssueTime", "label": "forecast issue time", "comment": "The time that the report was issued."},
     {"iri": "https://data.nasa.gov/ontologies/atmonto/data#metarReportString", "prefixed_name": "data:metarReportString", "local_name": "metarReportString", "label": "METAR report string", "comment": "Entire text of METAR report."},
+    {"iri": "https://data.nasa.gov/ontologies/atmonto/data#meteorologicalConditionStatus", "prefixed_name": "data:meteorologicalConditionStatus", "local_name": "meteorologicalConditionStatus", "label": "meteorological condition status", "comment": "An indicator of whether the meteorological condition is based on actual observations (observed) or on future projections (forecast)."},
     {"iri": "https://data.nasa.gov/ontologies/atmonto/data#tafReportString", "prefixed_name": "data:tafReportString", "local_name": "tafReportString", "label": "taf report string", "comment": "The full text of the entire Meteorological report."}
   ]
 }

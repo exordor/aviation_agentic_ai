@@ -20,12 +20,9 @@ Checks per proposed fact (in order):
 9. Every fact binds to source-contained evidence.
 10. Applicable exact-cardinality constraints are satisfied.
 
-Graph-level constraints (plan §5.4 GroundStop):
-
-- exactly one ``atm:controlledNASelement``;
-- exactly one ``atm:extensionProbability``;
-- the active allowed values for extension probability;
-- the active allowed values for impacting condition when present.
+Graph-level constraints are read from the active ATMONTO schema slice. Exact
+cardinality is enforced for the selected event class; enumerated values are
+checked while validating each proposed fact.
 
 Provenance (plan §4.2) is derived here, not accepted from Assembly output:
 every accepted fact carries the source IDs and bound evidence texts.
@@ -70,15 +67,6 @@ RDF_TYPE = "rdf:type"
 _DATE_TIME_RE = re.compile(
     r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})$"
 )
-
-# Required (class, property) exact-cardinality constraints enforced for the
-# Ground Stop mainline (plan §5.4). The kernel looks these up via SchemaGuide;
-# this table names the constraints the slice must declare for atm:GroundStopTMI.
-GROUND_STOP_REQUIRED: tuple[tuple[str, str], ...] = (
-    ("atm:GroundStopTMI", "atm:controlledNASelement"),
-    ("atm:GroundStopTMI", "atm:extensionProbability"),
-)
-
 
 # ---------------------------------------------------------------------------
 # Evidence index (claim-level, source-contained)
@@ -230,9 +218,14 @@ def _claim_matches(
     # atm:advisoryNumber -> the advisory-number claim with the same value.
     if predicate == "atm:advisoryNumber":
         return claim.field_name == "advisory_number" and (claim.value or "").strip() == norm_patch
-    # atm:effectiveStartTime/EndTime -> the matching advisory claim after dt normalization.
-    if predicate in ("atm:effectiveStartTime", "atm:effectiveEndTime"):
-        wanted = "effective_start" if predicate == "atm:effectiveStartTime" else "effective_end"
+    # ATCSCC timestamps -> the matching advisory claim after UTC normalization.
+    timestamp_fields = {
+        "atm:effectiveStartTime": "effective_start",
+        "atm:effectiveEndTime": "effective_end",
+        "atm:issuedTime": "issued_time",
+    }
+    if predicate in timestamp_fields:
+        wanted = timestamp_fields[predicate]
         return claim.field_name == wanted and _normalize_claim_value(claim, predicate) == norm_patch
     # atm:extensionProbability -> the extension-probability claim with the same value.
     if predicate == "atm:extensionProbability":
@@ -240,6 +233,17 @@ def _claim_matches(
     # atm:impactingCondition -> the impacting-condition claim with the same value.
     if predicate == "atm:impactingCondition":
         return claim.field_name == "impacting_condition" and (claim.value or "").strip() == norm_patch
+    reroute_fields = {
+        "atm:implementationStatus": "implementation_status",
+        "atm:reRouteType": "re_route_type",
+        "atm:reRouteReason": "re_route_reason",
+        "atm:reRouteTimeType": "re_route_time_type",
+    }
+    if predicate in reroute_fields:
+        return (
+            claim.field_name == reroute_fields[predicate]
+            and (claim.value or "").strip() == norm_patch
+        )
     return False
 
 
@@ -323,9 +327,14 @@ def validate_graph_patch(
         event_class=event_class,
     )
 
-    # Graph-level required-property/cardinality/enum enforcement for GroundStop.
-    if event_class == "atm:GroundStopTMI":
-        graph_errors.extend(_ground_stop_graph_errors(accepted, schema_guide))
+    graph_errors.extend(
+        _event_exact_cardinality_errors(
+            accepted,
+            schema_guide,
+            event_iri=event_iri,
+            event_class=event_class,
+        )
+    )
 
     publishable = bool(accepted) and not rejected and not graph_errors
     return GraphValidationResult(
@@ -358,15 +367,29 @@ def _collect_profile_gaps(
         return []
     gaps: list[ProfileGap] = []
     for gap in block.profile_gaps:
-        predicate = {
-            "impacting_condition": "atm:impactingCondition",
-        }.get(gap.field)
-        if (
-            predicate is None
-            or gap.reason != "not_in_profile"
-            or not schema_guide.has_property(predicate)
-            or schema_guide.datatype_property_ok(predicate, event_class)
-        ):
+        impacting_gap = (
+            gap.field == "impacting_condition"
+            and gap.reason == "not_in_profile"
+            and schema_guide.has_property("atm:impactingCondition")
+            and not schema_guide.datatype_property_ok(
+                "atm:impactingCondition",
+                event_class,
+            )
+        )
+        constrained_area_gap = (
+            gap.field == "constrained_area"
+            and gap.reason == "range_not_admitted"
+            and schema_guide.has_property("atm:controlledNASelement")
+            and schema_guide.object_property_domain_ok(
+                "atm:controlledNASelement",
+                event_class,
+            )
+            and not schema_guide.object_property_range_ok(
+                "atm:controlledNASelement",
+                "nas:ARTCC",
+            )
+        )
+        if not (impacting_gap or constrained_area_gap):
             continue
         matching_claims = [
             claim
@@ -675,43 +698,47 @@ _PROV_WAS_DERIVED_FROM_IRI = "http://www.w3.org/ns/prov#wasDerivedFrom"
 
 
 # ---------------------------------------------------------------------------
-# GroundStop graph-level enforcement (plan §5.4)
+# Event graph-level enforcement
 # ---------------------------------------------------------------------------
 
 
-def _ground_stop_graph_errors(
-    accepted: list[ValidatedFact], guide: SchemaGuide
+def _event_exact_cardinality_errors(
+    accepted: list[ValidatedFact],
+    guide: SchemaGuide,
+    *,
+    event_iri: str,
+    event_class: str,
 ) -> list[str]:
-    """Enforce GroundStop required exact-cardinality and enum constraints."""
+    """Enforce all exact-cardinality constraints for the selected TMI class."""
 
     errors: list[str] = []
-    # Exactly one atm:controlledNASelement on the event subject.
-    controlled = [
-        f for f in accepted
-        if f.predicate_iri == _object_property_iri(guide, "atm:controlledNASelement")
-    ]
-    required_count = guide.exact_cardinality("atm:GroundStopTMI", "atm:controlledNASelement")
-    if required_count is not None and len(controlled) != required_count:
-        errors.append(
-            f"atm:controlledNASelement exact cardinality {required_count} not satisfied "
-            f"(found {len(controlled)})"
+    constraints = {
+        (constraint.property_prefixed, int(constraint.cardinality))
+        for constraint in guide.constraints
+        if constraint.class_prefixed == event_class
+        and constraint.constraint_type
+        in {"objectExactCardinality", "dataExactCardinality"}
+        and constraint.property_prefixed
+        and constraint.cardinality is not None
+    }
+    for property_prefixed, required_count in sorted(constraints):
+        property_iri = _object_property_iri(guide, property_prefixed)
+        if not property_iri:
+            property_iri = _datatype_property_iri(guide, property_prefixed)
+        found = sum(
+            fact.subject_iri == event_iri
+            and fact.predicate_iri == property_iri
+            for fact in accepted
         )
-    # Exactly one atm:extensionProbability.
-    ext_prob = [
-        f for f in accepted
-        if f.predicate_iri == _datatype_property_iri(guide, "atm:extensionProbability")
-    ]
-    required_ext = guide.exact_cardinality("atm:GroundStopTMI", "atm:extensionProbability")
-    if required_ext is not None and len(ext_prob) != required_ext:
-        errors.append(
-            f"atm:extensionProbability exact cardinality {required_ext} not satisfied "
-            f"(found {len(ext_prob)})"
-        )
+        if found != required_count:
+            errors.append(
+                f"{property_prefixed} exact cardinality {required_count} "
+                f"not satisfied (found {found})"
+            )
     return errors
 
 
 __all__ = [
-    "GROUND_STOP_REQUIRED",
     "build_evidence_index",
     "validate_graph_patch",
     "write_fact_trace",

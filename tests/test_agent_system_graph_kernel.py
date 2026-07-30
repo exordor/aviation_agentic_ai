@@ -549,6 +549,94 @@ def test_missing_required_ground_stop_property_non_publishable(
     assert any("extensionProbability exact cardinality" in e for e in result.graph_errors)
 
 
+def test_missing_required_reroute_time_type_is_non_publishable(guide) -> None:
+    source_id = "example:reroute:137"
+    event_class = "atm:ReRouteTMI"
+    event_uri = stable_id("evt", source_id, event_class)
+    content = (
+        "ATCSCC ADVZY 137 DCC ROUTE RQD /FL\n"
+        "REASON: WEATHER VALID: ETD 202030 TO 210200 "
+        "PROBABILITY OF EXTENSION: MODERATE"
+    )
+    source = SourceRecord(
+        source_id=source_id,
+        family=SourceFamily.ATCSCC_ADVISORY,
+        content=content,
+    )
+    snapshot = SourceSnapshotRegistry(
+        snapshots=(build_source_snapshot(source),)
+    )
+    evidence = EvidenceCard(
+        agent_role="advisory",
+        status=AgentStatus.RESOLVED,
+        source_ids=[source_id],
+        claims=[
+            EvidenceClaim(
+                field_name="event_type",
+                value="REROUTE",
+                ontology_target=event_class,
+                evidence_text="ROUTE RQD",
+                source_id=source_id,
+            ),
+            EvidenceClaim(
+                field_name="extension_probability",
+                value="MEDIUM",
+                evidence_text="PROBABILITY OF EXTENSION: MODERATE",
+                source_id=source_id,
+            ),
+            EvidenceClaim(
+                field_name="implementation_status",
+                value="RQD",
+                evidence_text="ROUTE RQD",
+                source_id=source_id,
+            ),
+            EvidenceClaim(
+                field_name="re_route_reason",
+                value="WEATHER",
+                evidence_text="REASON: WEATHER",
+                source_id=source_id,
+            ),
+            EvidenceClaim(
+                field_name="re_route_type",
+                value="ROUTE",
+                evidence_text="ROUTE RQD",
+                source_id=source_id,
+            ),
+            EvidenceClaim(
+                field_name="re_route_time_type",
+                value="ETD",
+                evidence_text="VALID: ETD",
+                source_id=source_id,
+            ),
+        ],
+    )
+    block = _test_block(
+        "GRAPH_PATCH\n"
+        f"{event_uri} | rdf:type | {event_class} | {source_id}\n"
+        f"{event_uri} | atm:extensionProbability | MEDIUM | {source_id}\n"
+        f"{event_uri} | atm:implementationStatus | RQD | {source_id}\n"
+        f"{event_uri} | atm:reRouteReason | WEATHER | {source_id}\n"
+        f"{event_uri} | atm:reRouteType | ROUTE | {source_id}\n"
+    )
+
+    result = validate_graph_patch(
+        block=block,
+        event_iri=event_uri,
+        event_class=event_class,
+        schema_guide=guide,
+        canonical_entities={},
+        known_source_ids={source_id},
+        evidence_cards=[evidence],
+        source_snapshot=snapshot,
+    )
+
+    assert not result.publishable
+    assert any(
+        "reRouteTimeType exact cardinality" in error
+        for error in result.graph_errors
+    )
+
+
 def test_non_source_contained_evidence_cannot_support_fact(
     guide, event_uri, snapshot, advisory_record, facility_entity, mentions
 ):

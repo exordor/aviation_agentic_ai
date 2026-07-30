@@ -34,6 +34,10 @@ XSD_DATETIME = "http://www.w3.org/2001/XMLSchema#dateTime"
 XSD_STRING = "http://www.w3.org/2001/XMLSchema#string"
 NAS_AIRPORT = "https://data.nasa.gov/ontologies/atmonto/NAS#Airport"
 METEOROLOGICAL_REPORT = "https://data.nasa.gov/ontologies/atmonto/data#MeteorologicalReport"
+METEOROLOGICAL_CONDITION_STATUS = (
+    "https://data.nasa.gov/ontologies/atmonto/data#"
+    "meteorologicalConditionStatus"
+)
 FORECASTING_AIRPORT = "https://data.nasa.gov/ontologies/atmonto/data#forecastingAirport"
 METAR_STRING = "https://data.nasa.gov/ontologies/atmonto/data#metarReportString"
 TAF_STRING = "https://data.nasa.gov/ontologies/atmonto/data#tafReportString"
@@ -246,6 +250,17 @@ def _facts_for_report(
         (FORECASTING_AIRPORT, facility.entity_id, "iri", NAS_AIRPORT, None),
         (INTERVAL_START, report.interval_start.isoformat(), "literal", None, XSD_DATETIME),
         (INTERVAL_END, report.interval_end.isoformat(), "literal", None, XSD_DATETIME),
+        (
+            METEOROLOGICAL_CONDITION_STATUS,
+            (
+                "observed"
+                if report.family == SourceFamily.METAR
+                else "forecast"
+            ),
+            "literal",
+            None,
+            XSD_STRING,
+        ),
     ]
     if report.family == SourceFamily.METAR:
         values.append((METAR_STRING, report.raw, "literal", None, XSD_STRING))

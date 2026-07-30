@@ -10,6 +10,10 @@ from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.agent_system.agents import parse_structured_fields
+from aviation_agentic_ai.agent_system.tmi_profiles import (
+    classify_tmi_family,
+    get_tmi_profile,
+)
 from aviation_agentic_ai.agent_system.agent_usage import (
     AgentUsageManifest,
     AgentUsageRecord,
@@ -148,11 +152,17 @@ def build_corpus_batch(
     pending: list[Any] = []
     for advisory in selected:
         source_id = str(advisory["source_id"])
+        source = _source_record(advisory)
         prior = previous.get(source_id)
         if prior is not None and prior.status in {"ok", "insufficient"}:
-            results[source_id] = prior
+            results[source_id] = _with_tmi_metadata(
+                prior,
+                source,
+                preflight_eligible=(
+                    prior.status == "ok" or _preflight(source) is None
+                ),
+            )
             continue
-        source = _source_record(advisory)
         preflight = _preflight(source)
         if preflight is not None:
             results[source_id] = preflight
@@ -185,12 +195,25 @@ def build_corpus_batch(
                 raise ValueError("case runner returned a result for another advisory")
             if result.status == "ok" and execution.run_dir is None:
                 raise ValueError("ok case runner result is missing a staged run bundle")
+            execution = BatchCaseExecution(
+                result=_with_tmi_metadata(
+                    result,
+                    advisory,
+                    preflight_eligible=True,
+                ),
+                run_dir=execution.run_dir,
+                agent_usage_records=execution.agent_usage_records,
+                model_calls=execution.model_calls,
+            )
         except Exception as exc:  # preserve the rest of the independent cohort
             execution = BatchCaseExecution(
                 result=CorpusBuildResult(
                     source_id=source_id,
                     status="blocked",
                     reason=f"{type(exc).__name__}: {exc}",
+                    tmi_family=classify_tmi_family(advisory.content)
+                    or "UNCLASSIFIED",
+                    preflight_eligible=True,
                 ),
                 agent_usage_records=build_blocked_agent_usage_records(
                     source_id=source_id,
@@ -306,12 +329,15 @@ def run_batch_case(
     """Run the existing workflow once, retaining its bundle only when valid."""
 
     source_id = advisory.source_id
+    family = classify_tmi_family(advisory.content) or "UNCLASSIFIED"
     if not allow_live_model:
         return BatchCaseExecution(
             result=CorpusBuildResult(
                 source_id=source_id,
                 status="blocked",
                 reason="build-corpus requires --allow-live-model for eligible advisories",
+                tmi_family=family,
+                preflight_eligible=True,
             )
         )
     binding = create_run_binding(
@@ -366,6 +392,8 @@ def run_batch_case(
                     or "workflow did not publish a validated decision case"
                 ),
                 provider_call_count=len(model_calls),
+                tmi_family=family,
+                preflight_eligible=True,
             ),
             agent_usage_records=agent_usage_records,
             model_calls=tuple(model_calls),
@@ -407,6 +435,8 @@ def run_batch_case(
             case_id=event_id,
             reason="validated run staged",
             provider_call_count=len(model_calls),
+            tmi_family=family,
+            preflight_eligible=True,
         ),
         run_dir=binding.run_dir,
         agent_usage_records=agent_usage_records,
@@ -442,23 +472,62 @@ def _select_advisories(
 def _preflight(advisory: Any) -> CorpusBuildResult | None:
     source_id = advisory.source_id
     mentions = parse_structured_fields(advisory.content)
-    if mentions.event_type not in {"GS", "GDP"}:
+    family = classify_tmi_family(advisory.content)
+    profile = get_tmi_profile(family or "")
+    if profile is None:
         return CorpusBuildResult(
             source_id=source_id,
             status="insufficient",
             reason="unsupported traffic-management initiative",
+            tmi_family=family or "UNCLASSIFIED",
+            preflight_eligible=False,
         )
-    if not (
-        mentions.controlled_facility
-        and mentions.effective_start
-        and mentions.effective_end
-    ):
+    if profile.publication_status == "deferred":
+        return CorpusBuildResult(
+            source_id=source_id,
+            status="insufficient",
+            reason="deferred traffic-management lifecycle event",
+            tmi_family=family,
+            preflight_eligible=False,
+        )
+    if profile.publication_status == "boundary":
+        return CorpusBuildResult(
+            source_id=source_id,
+            status="insufficient",
+            reason="recognized advisory family outside active publication profile",
+            tmi_family=family,
+            preflight_eligible=False,
+        )
+    if any(not getattr(mentions, field, None) for field in profile.required_fields):
         return CorpusBuildResult(
             source_id=source_id,
             status="insufficient",
             reason="incomplete core advisory fields",
+            tmi_family=family,
+            preflight_eligible=False,
         )
     return None
+
+
+def _with_tmi_metadata(
+    result: CorpusBuildResult,
+    advisory: Any,
+    *,
+    preflight_eligible: bool,
+) -> CorpusBuildResult:
+    """Bind a runner result to the deterministic source-family classification."""
+
+    family = classify_tmi_family(advisory.content) or "UNCLASSIFIED"
+    return result.model_copy(
+        update={
+            "tmi_family": result.tmi_family or family,
+            "preflight_eligible": (
+                result.preflight_eligible
+                if result.preflight_eligible is not None
+                else preflight_eligible
+            ),
+        }
+    )
 
 
 def _source_record(row: dict[str, Any]) -> Any:

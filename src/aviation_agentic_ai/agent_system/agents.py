@@ -32,6 +32,11 @@ from aviation_agentic_ai.agent_system.contracts import (
     ToolTraceEntry,
 )
 from aviation_agentic_ai.agent_system.prompts import assemble_prompt
+from aviation_agentic_ai.agent_system.tmi_profiles import (
+    classify_tmi_family,
+    get_tmi_profile,
+)
+
 
 @dataclass
 class AdvisoryMentions:
@@ -45,13 +50,19 @@ class AdvisoryMentions:
 
     event_type: str | None = None
     controlled_facility: str | None = None
+    constrained_area: str | None = None
     operational_term: str | None = None
     effective_start: str | None = None
     effective_end: str | None = None
+    issued_time: str | None = None
     status: str | None = None
     advisory_number: str | None = None
     extension_probability: str | None = None
     impacting_condition: str | None = None
+    implementation_status: str | None = None
+    re_route_type: str | None = None
+    re_route_reason: str | None = None
+    re_route_time_type: str | None = None
     element_type_code: str | None = None
     facility_structural_slot: str | None = None
     facility_expected_entity_type: str | None = None
@@ -69,16 +80,41 @@ ELEMENT_TYPE_TO_ENTITY_TYPE = {
 
 
 _CTL_ELEMENT_RE = re.compile(r"CTL\s*ELEMENT\s*:\s*([A-Z]{2,5})", re.IGNORECASE)
+_CONSTRAINED_AREA_RE = re.compile(
+    r"CONSTRAINED\s+AREA\s*:\s*([A-Z][A-Z0-9]{2,4})",
+    re.IGNORECASE,
+)
 _ELEMENT_TYPE_RE = re.compile(r"ELEMENT\s*TYPE\s*:\s*([A-Z][A-Z0-9_-]*)", re.IGNORECASE)
-_EVENT_RE = re.compile(r"\b(GDP|GS|GROUND\s*DELAY\s*PROGRAM|GROUND\s*STOP)\b", re.IGNORECASE)
+_EVENT_SPAN_PATTERNS: dict[str, re.Pattern[str]] = {
+    "GDP": re.compile(r"\b(?:GDP|GROUND\s*DELAY\s*PROGRAM)\b", re.IGNORECASE),
+    "GS": re.compile(r"\b(?:GS|GROUND\s*STOP)\b", re.IGNORECASE),
+    "REROUTE": re.compile(r"\bROUTE\s+(?:FYI|PLN|RMD|RQD)\b", re.IGNORECASE),
+}
 _PERIOD_RE = re.compile(
     r"(?:GROUND\s*STOP\s*PERIOD|PERIOD|GDP\s*CNX\s*PERIOD)\s*:\s*"
     r"(\d{2}/\d{2,4}\w*\s*-\s*\d{2}/\d{2,4}\w*)",
     re.IGNORECASE,
 )
+_COMPACT_EFFECTIVE_RE = re.compile(
+    r"EFFECTIVE\s+TIME\s*:\s*(\d{6})\s*-\s*(\d{6})",
+    re.IGNORECASE,
+)
+_SIGNATURE_RE = re.compile(
+    r"SIGNATURE\s*:\s*(\d{2})/(\d{2})/(\d{2})\s+(\d{2}):(\d{2})",
+    re.IGNORECASE,
+)
 _ADVZY_RE = re.compile(r"ADVZY\s*(\d{3})", re.IGNORECASE)
 _CNX_RE = re.compile(r"\bCNX\b", re.IGNORECASE)
 _EXT_PROB_RE = re.compile(r"PROBABILITY\s+OF\s+EXTENSION\s*:\s*([A-Z]+)", re.IGNORECASE)
+_REROUTE_STATUS_RE = re.compile(r"\bROUTE\s+(FYI|PLN|RMD|RQD)\b", re.IGNORECASE)
+_REROUTE_REASON_RE = re.compile(
+    r"\bREASON\s*:\s*([A-Z][A-Z0-9_-]*)",
+    re.IGNORECASE,
+)
+_REROUTE_TIME_TYPE_RE = re.compile(
+    r"\bVALID\s*:\s*(ETA|ETD|FCA\s+FLIGHT\s+LIST)\b",
+    re.IGNORECASE,
+)
 _IMPACTING_RE = re.compile(
     r"IMPACTING\s+CONDITION\s*:\s*([A-Z][A-Z /]*?)"
     r"(?=\s+(?:COMMENTS?|PROBABILITY|EFFECTIVE|CTL|GROUND|GDP|CUMULATIVE)"
@@ -131,6 +167,27 @@ def _anchor_period_value(
     return anchored.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _anchor_compact_effective_value(
+    token: str,
+    year: int,
+    month: int,
+    header_day: int,
+    *,
+    allow_next_day: bool = False,
+) -> str | None:
+    """Anchor a compact ATCSCC ``DDHHMM`` effective-time token."""
+
+    if not re.fullmatch(r"\d{6}", token):
+        return None
+    return _anchor_period_value(
+        f"{token[:2]}/{token[2:]}",
+        year,
+        month,
+        header_day,
+        allow_next_day=allow_next_day,
+    )
+
+
 def parse_structured_fields(advisory_text: str) -> AdvisoryMentions:
     """Deterministic structured-field parser (design §13; not an Agent).
 
@@ -145,26 +202,36 @@ def parse_structured_fields(advisory_text: str) -> AdvisoryMentions:
     """
 
     mentions = AdvisoryMentions()
+    event_family = classify_tmi_family(advisory_text)
     ctl = _CTL_ELEMENT_RE.search(advisory_text)
     if ctl:
         mentions.controlled_facility = ctl.group(1).upper()
         mentions.evidence_spans["controlled_facility"] = ctl.group(0)
-    event = _EVENT_RE.search(advisory_text)
+    elif event_family == "REROUTE":
+        constrained_area = _CONSTRAINED_AREA_RE.search(advisory_text)
+        if constrained_area:
+            mentions.controlled_facility = constrained_area.group(1).upper()
+            mentions.constrained_area = constrained_area.group(1).upper()
+            mentions.evidence_spans["controlled_facility"] = constrained_area.group(0)
+            mentions.evidence_spans["constrained_area"] = constrained_area.group(0)
+            mentions.element_type_code = "ARTCC"
+
+    event = (
+        _EVENT_SPAN_PATTERNS[event_family].search(advisory_text)
+        if event_family in _EVENT_SPAN_PATTERNS
+        else None
+    )
     if event:
-        raw = event.group(1).upper().replace(" ", "")
-        if "GROUNDDELAYPROGRAM" in raw:
-            mentions.event_type = "GDP"
-        elif "GROUNDSTOP" in raw:
-            mentions.event_type = "GS"
-        else:
-            mentions.event_type = raw
-        mentions.operational_term = mentions.event_type
+        mentions.event_type = event_family
+        mentions.operational_term = (
+            "RR" if event_family == "REROUTE" else event_family
+        )
         mentions.evidence_spans["event_type"] = event.group(0)
         mentions.evidence_spans["operational_term"] = event.group(0)
     element_type = _ELEMENT_TYPE_RE.search(advisory_text)
     if element_type:
         mentions.element_type_code = element_type.group(1).upper()
-    if mentions.event_type in {"GDP", "GS"}:
+    if mentions.event_type in {"GDP", "GS", "REROUTE"}:
         if mentions.controlled_facility:
             mentions.facility_structural_slot = FACILITY_SLOT
             if mentions.element_type_code:
@@ -201,6 +268,48 @@ def parse_structured_fields(advisory_text: str) -> AdvisoryMentions:
             if end_val is not None:
                 mentions.effective_end = end_val
                 mentions.evidence_spans["effective_end"] = end_token
+    elif header_date:
+        compact_period = _COMPACT_EFFECTIVE_RE.search(advisory_text)
+        if compact_period:
+            year = int(header_date.group(3))
+            month = int(header_date.group(1))
+            header_day = int(header_date.group(2))
+            start_token, end_token = compact_period.group(1), compact_period.group(2)
+            start_val = _anchor_compact_effective_value(
+                start_token,
+                year,
+                month,
+                header_day,
+            )
+            end_val = _anchor_compact_effective_value(
+                end_token,
+                year,
+                month,
+                header_day,
+                allow_next_day=True,
+            )
+            if start_val is not None:
+                mentions.effective_start = start_val
+                mentions.evidence_spans["effective_start"] = start_token
+            if end_val is not None:
+                mentions.effective_end = end_val
+                mentions.evidence_spans["effective_end"] = end_token
+    signature = _SIGNATURE_RE.search(advisory_text)
+    if signature:
+        try:
+            issued = datetime(
+                2000 + int(signature.group(1)),
+                int(signature.group(2)),
+                int(signature.group(3)),
+                int(signature.group(4)),
+                int(signature.group(5)),
+                tzinfo=UTC,
+            )
+        except ValueError:
+            pass
+        else:
+            mentions.issued_time = issued.strftime("%Y-%m-%dT%H:%M:%SZ")
+            mentions.evidence_spans["issued_time"] = signature.group(0)
     advzy = _ADVZY_RE.search(advisory_text)
     if advzy:
         mentions.advisory_number = advzy.group(1)
@@ -210,7 +319,10 @@ def parse_structured_fields(advisory_text: str) -> AdvisoryMentions:
         mentions.evidence_spans["status"] = _CNX_RE.search(advisory_text).group(0)
     ext_prob = _EXT_PROB_RE.search(advisory_text)
     if ext_prob:
-        mentions.extension_probability = ext_prob.group(1).upper()
+        extension_value = ext_prob.group(1).upper()
+        mentions.extension_probability = (
+            "MEDIUM" if extension_value == "MODERATE" else extension_value
+        )
         mentions.evidence_spans["extension_probability"] = ext_prob.group(0)
     impacting = _IMPACTING_RE.search(advisory_text)
     if impacting:
@@ -220,6 +332,25 @@ def parse_structured_fields(advisory_text: str) -> AdvisoryMentions:
         first_token = re.split(r"\s*/\s*|\s+", raw, maxsplit=1)[0].lower()
         mentions.impacting_condition = first_token
         mentions.evidence_spans["impacting_condition"] = impacting.group(0)
+    if mentions.event_type == "REROUTE":
+        reroute_status = _REROUTE_STATUS_RE.search(advisory_text)
+        if reroute_status:
+            mentions.implementation_status = reroute_status.group(1).upper()
+            mentions.re_route_type = "ROUTE"
+            mentions.evidence_spans["implementation_status"] = reroute_status.group(0)
+            mentions.evidence_spans["re_route_type"] = reroute_status.group(0)
+        reroute_reason = _REROUTE_REASON_RE.search(advisory_text)
+        if reroute_reason:
+            mentions.re_route_reason = reroute_reason.group(1).upper()
+            mentions.evidence_spans["re_route_reason"] = reroute_reason.group(0)
+        reroute_time_type = _REROUTE_TIME_TYPE_RE.search(advisory_text)
+        if reroute_time_type:
+            mentions.re_route_time_type = " ".join(
+                reroute_time_type.group(1).upper().split()
+            )
+            mentions.evidence_spans["re_route_time_type"] = (
+                reroute_time_type.group(0)
+            )
     return mentions
 
 
@@ -280,13 +411,19 @@ def build_advisory_evidence(
     for field_name, value in (
         ("event_type", mentions.event_type),
         ("controlled_facility", mentions.controlled_facility),
+        ("constrained_area", mentions.constrained_area),
         ("operational_term", mentions.operational_term),
         ("effective_start", mentions.effective_start),
         ("effective_end", mentions.effective_end),
+        ("issued_time", mentions.issued_time),
         ("status", mentions.status),
         ("advisory_number", mentions.advisory_number),
         ("extension_probability", mentions.extension_probability),
         ("impacting_condition", mentions.impacting_condition),
+        ("implementation_status", mentions.implementation_status),
+        ("re_route_type", mentions.re_route_type),
+        ("re_route_reason", mentions.re_route_reason),
+        ("re_route_time_type", mentions.re_route_time_type),
     ):
         if not value:
             continue
@@ -299,12 +436,20 @@ def build_advisory_evidence(
         assert span in advisory.content, (
             f"advisory evidence span for {field_name!r} is not source-contained"
         )
+        profile = get_tmi_profile(mentions.event_type or "", publishable_only=True)
+        ontology_target = (
+            profile.prefixed_ontology_class
+            if profile is not None
+            and field_name in {"event_type", "operational_term"}
+            else None
+        )
         claims.append(
             EvidenceClaim(
                 field_name=field_name,
                 value=value,
                 evidence_text=span,
                 source_id=source_id,
+                ontology_target=ontology_target,
             )
         )
 

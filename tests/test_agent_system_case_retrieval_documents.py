@@ -252,7 +252,6 @@ def test_document_identity_and_facilities_are_stable(
     "updates",
     [
         {"event_type_iris": [PROV_ENTITY]},
-        {"facility_ids": []},
         {"operational_start": None},
         {"operational_end": None},
     ],
@@ -267,3 +266,20 @@ def test_incomplete_accepted_case_does_not_publish_a_partial_document(
 
     with pytest.raises(ValueError):
         build_case_retrieval_documents(corpus_store)
+
+
+def test_case_without_formal_facility_edge_remains_retrievable(
+    corpus_store: CorpusQueryStore,
+) -> None:
+    corpus_store.cases = (
+        corpus_store.cases[0].model_copy(update={"facility_ids": []}),
+    )
+
+    document = build_case_retrieval_documents(corpus_store)[0]
+
+    assert document.facility_ids == ()
+    assert (
+        "Controlled scope: not represented by a formal facility edge "
+        "in the active profile."
+        in document.text
+    )

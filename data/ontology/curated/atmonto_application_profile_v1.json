@@ -1,0 +1,166 @@
+{
+  "profile_id": "atmonto-application-profile-v1",
+  "profile_version": "1.0.0",
+  "schema_authority": {
+    "role": "checksum-pinned ATMONTO TBox application profile",
+    "source_note": "Vendored NASA ATMONTO OWL/XML modules from the ICARUS ontology distribution",
+    "upstream_modules": [
+      {
+        "path": "data/ontology/external/icarus_ontology/NASA/ATM.owl",
+        "sha256": "bb528f3893e35b165ce7204172e8bbf3366d3aaab6c26e6a6551b8049cc20b24"
+      },
+      {
+        "path": "data/ontology/external/icarus_ontology/NASA/NAS.owl",
+        "sha256": "dc12b6f02700e4ba8d2c105d59bf3b4b330a560cc5f24f777b52ba0490a499d9"
+      },
+      {
+        "path": "data/ontology/external/icarus_ontology/NASA/atmontoCore.owl",
+        "sha256": "2f6aacfff422e248beda8e32042cde8cb9f8ef32eb550899de670a9fc1be9fdc"
+      },
+      {
+        "path": "data/ontology/external/icarus_ontology/NASA/data.owl",
+        "sha256": "3030708ff9ba65846b9ac1ee62c8164194665b65d89c1ce7aeea4b5d46432cf5"
+      },
+      {
+        "path": "data/ontology/external/icarus_ontology/NASA/equipment.owl",
+        "sha256": "3f18e04b03a3b4266ff9d832aae2519d138fefa978c189302532988c2878aa9e"
+      },
+      {
+        "path": "data/ontology/external/icarus_ontology/NASA/general.owl",
+        "sha256": "913bb7118e9418e80f86a9e5fd226d367dec7bfe84f27643f31d60e88b1883ae"
+      }
+    ]
+  },
+  "common_event_root": "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative",
+  "active_event_profiles": [
+    {
+      "code": "GDP",
+      "ontology_class": "https://data.nasa.gov/ontologies/atmonto/ATM#GroundDelayProgramTMI",
+      "publication_status": "active",
+      "required_fields": [
+        "controlled_facility",
+        "effective_start",
+        "effective_end",
+        "issued_time"
+      ],
+      "retrieval_label": "Ground Delay Program",
+      "field_mappings": {
+        "advisory_number": "https://data.nasa.gov/ontologies/atmonto/ATM#advisoryNumber",
+        "controlled_facility": "https://data.nasa.gov/ontologies/atmonto/ATM#controlledNASelement",
+        "effective_end": "https://data.nasa.gov/ontologies/atmonto/ATM#effectiveEndTime",
+        "effective_start": "https://data.nasa.gov/ontologies/atmonto/ATM#effectiveStartTime",
+        "extension_probability": "https://data.nasa.gov/ontologies/atmonto/ATM#extensionProbability",
+        "impacting_condition": "https://data.nasa.gov/ontologies/atmonto/ATM#impactingCondition",
+        "issued_time": "https://data.nasa.gov/ontologies/atmonto/ATM#issuedTime"
+      }
+    },
+    {
+      "code": "GS",
+      "ontology_class": "https://data.nasa.gov/ontologies/atmonto/ATM#GroundStopTMI",
+      "publication_status": "active",
+      "required_fields": [
+        "controlled_facility",
+        "effective_start",
+        "effective_end",
+        "extension_probability",
+        "issued_time"
+      ],
+      "retrieval_label": "Ground Stop",
+      "field_mappings": {
+        "advisory_number": "https://data.nasa.gov/ontologies/atmonto/ATM#advisoryNumber",
+        "controlled_facility": "https://data.nasa.gov/ontologies/atmonto/ATM#controlledNASelement",
+        "effective_end": "https://data.nasa.gov/ontologies/atmonto/ATM#effectiveEndTime",
+        "effective_start": "https://data.nasa.gov/ontologies/atmonto/ATM#effectiveStartTime",
+        "extension_probability": "https://data.nasa.gov/ontologies/atmonto/ATM#extensionProbability",
+        "issued_time": "https://data.nasa.gov/ontologies/atmonto/ATM#issuedTime"
+      }
+    },
+    {
+      "code": "REROUTE",
+      "ontology_class": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
+      "publication_status": "active",
+      "required_fields": [
+        "effective_start",
+        "effective_end",
+        "extension_probability",
+        "implementation_status",
+        "issued_time",
+        "re_route_reason",
+        "re_route_time_type",
+        "re_route_type"
+      ],
+      "retrieval_label": "Required Reroute",
+      "field_mappings": {
+        "advisory_number": "https://data.nasa.gov/ontologies/atmonto/ATM#advisoryNumber",
+        "effective_end": "https://data.nasa.gov/ontologies/atmonto/ATM#effectiveEndTime",
+        "effective_start": "https://data.nasa.gov/ontologies/atmonto/ATM#effectiveStartTime",
+        "extension_probability": "https://data.nasa.gov/ontologies/atmonto/ATM#extensionProbability",
+        "implementation_status": "https://data.nasa.gov/ontologies/atmonto/ATM#implementationStatus",
+        "issued_time": "https://data.nasa.gov/ontologies/atmonto/ATM#issuedTime",
+        "re_route_reason": "https://data.nasa.gov/ontologies/atmonto/ATM#reRouteReason",
+        "re_route_time_type": "https://data.nasa.gov/ontologies/atmonto/ATM#reRouteTimeType",
+        "re_route_type": "https://data.nasa.gov/ontologies/atmonto/ATM#reRouteType"
+      }
+    }
+  ],
+  "deferred_event_profiles": [
+    {
+      "code": "REROUTE_CANCELLATION",
+      "ontology_class": null,
+      "publication_status": "deferred",
+      "required_fields": [],
+      "retrieval_label": "Reroute Cancellation",
+      "field_mappings": {}
+    }
+  ],
+  "boundary_event_profiles": [
+    {
+      "code": "NATOTS",
+      "ontology_class": null,
+      "publication_status": "boundary",
+      "required_fields": [],
+      "retrieval_label": "NAT OTS Notice",
+      "field_mappings": {}
+    },
+    {
+      "code": "ARRIVAL_DELAY",
+      "ontology_class": null,
+      "publication_status": "boundary",
+      "required_fields": [],
+      "retrieval_label": "Arrival Delay Notice",
+      "field_mappings": {}
+    },
+    {
+      "code": "SWAP",
+      "ontology_class": null,
+      "publication_status": "boundary",
+      "required_fields": [],
+      "retrieval_label": "SWAP Notice",
+      "field_mappings": {}
+    },
+    {
+      "code": "HOTLINE",
+      "ontology_class": null,
+      "publication_status": "boundary",
+      "required_fields": [],
+      "retrieval_label": "Hotline Notice",
+      "field_mappings": {}
+    }
+  ],
+  "project_overlays": [
+    {
+      "field": "impacting_condition",
+      "note": "FAA source value retained outside the upstream ATMONTO enum",
+      "value": "staffing"
+    }
+  ],
+  "atmgraph_alignment": {
+    "role": "ABox construction and cross-source query reference; not an imported ontology",
+    "principles": [
+      "source-specific adapters",
+      "stable cross-source identities",
+      "explicit temporal facts",
+      "schema and instance separation"
+    ]
+  }
+}

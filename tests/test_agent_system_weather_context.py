@@ -17,6 +17,7 @@ from aviation_agentic_ai.agent_system.contracts import (
 )
 from aviation_agentic_ai.agent_system.weather_context import (
     DecisionContextEvent,
+    METEOROLOGICAL_CONDITION_STATUS,
     build_weather_context,
 )
 from aviation_agentic_ai.cross_source.contracts import (
@@ -258,6 +259,7 @@ def test_emits_only_weather_profile_facts_with_exact_source_trace_and_no_event_e
         "https://data.nasa.gov/ontologies/atmonto/data#dataIntervalStartTime",
         "https://data.nasa.gov/ontologies/atmonto/data#dataIntervalEndTime",
         "https://data.nasa.gov/ontologies/atmonto/data#forecastIssueTime",
+        METEOROLOGICAL_CONDITION_STATUS,
     }
     assert {fact.predicate_iri for fact in bundle.formal_facts} <= allowed_predicates
     assert {fact.subject_class_iri for fact in bundle.formal_facts} == {
@@ -269,6 +271,22 @@ def test_emits_only_weather_profile_facts_with_exact_source_trace_and_no_event_e
         trace.source_snapshot_sha256
         == next(snapshot for snapshot in (taf, metar) if snapshot.source_id == trace.source_id).content_sha256
         for trace in bundle.fact_traces
+    )
+    status_facts = [
+        fact
+        for fact in bundle.formal_facts
+        if fact.predicate_iri == METEOROLOGICAL_CONDITION_STATUS
+    ]
+    assert {
+        (fact.source_ids[0], fact.object_value)
+        for fact in status_facts
+    } == {
+        ("metar:source", "observed"),
+        ("taf:source", "forecast"),
+    }
+    assert all(
+        fact.datatype_iri == "http://www.w3.org/2001/XMLSchema#string"
+        for fact in status_facts
     )
 
 
@@ -291,6 +309,7 @@ def test_weather_slice_is_closed_to_the_approved_nasa_atmonto_terms():
         "data:dataIntervalStartTime",
         "data:dataIntervalEndTime",
         "data:forecastIssueTime",
+        "data:meteorologicalConditionStatus",
     }
 
 

@@ -27,6 +27,7 @@ from aviation_agentic_ai.agent_system.weather_context import (
     INTERVAL_END,
     INTERVAL_START,
     METAR_STRING,
+    METEOROLOGICAL_CONDITION_STATUS,
     METEOROLOGICAL_REPORT,
     NAS_AIRPORT,
     RDF_TYPE,
@@ -392,6 +393,17 @@ def _expected_facts(
             "literal",
             None,
             XSD_DATETIME,
+        ),
+        (
+            METEOROLOGICAL_CONDITION_STATUS,
+            (
+                "observed"
+                if report.family == SourceFamily.METAR
+                else "forecast"
+            ),
+            "literal",
+            None,
+            XSD_STRING,
         ),
     ]
     if report.family == SourceFamily.METAR:

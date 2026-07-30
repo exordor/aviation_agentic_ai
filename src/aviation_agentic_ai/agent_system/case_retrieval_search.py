@@ -17,12 +17,13 @@ from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusCaseQuery,
     CorpusQueryStore,
 )
+from aviation_agentic_ai.agent_system.tmi_profiles import active_tmi_profiles
 
 
-_ATM_NAMESPACE = "https://data.nasa.gov/ontologies/atmonto/ATM#"
 _RETRIEVABLE_TMI_TYPES = {
-    f"{_ATM_NAMESPACE}GroundDelayProgramTMI",
-    f"{_ATM_NAMESPACE}GroundStopTMI",
+    profile.ontology_class
+    for profile in active_tmi_profiles()
+    if profile.ontology_class is not None
 }
 _FILTER_PAGE_SIZE = 100
 

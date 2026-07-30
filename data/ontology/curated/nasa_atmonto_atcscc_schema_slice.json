@@ -4,7 +4,7 @@
   "selection_policy": {
     "primary_source": "NASA ATMONTO OWL/XML TBox",
     "source_family": "atcscc_advisories",
-    "selected_by": "exact local-name targets for ATCSCC TMI fields plus domain/range dependencies",
+    "selected_by": "exact ATMONTO IRI targets plus ATMONTO-only domain, range, and ancestor closure",
     "boundary": "closed-world runtime validation slice derived from open-world OWL axioms"
   },
   "classes": [
@@ -58,6 +58,28 @@
       "local_name": "GroundStopTMI",
       "label": "Ground Stop (GS)",
       "comment": "A Ground Stop (GS) traffic management initiative (TMI). A ground stop is a procedure requiring aircraft that meet specific criteria to remain on the ground. The GS may be airport specific, related to a geographical area, or equipment related.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#NavigationElement",
+      "prefixed_name": "atm:NavigationElement",
+      "local_name": "NavigationElement",
+      "label": "Navigation element",
+      "comment": "A navigation element is a set of components that can be used to assemble a flight plan or trajectory. They include fixes, routes, airports, SID/STAR traverses, etc.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#NavigationPath",
+      "prefixed_name": "atm:NavigationPath",
+      "local_name": "NavigationPath",
+      "label": "Navigation path",
+      "comment": "An ordered sequence of navigation elements (fixes, routes, airports) representing a path through the airspace.",
       "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
       "source_files": [
         "data/ontology/external/icarus_ontology/NASA/ATM.owl"
@@ -199,17 +221,6 @@
       "namespace": "https://data.nasa.gov/ontologies/atmonto/NAS#",
       "source_files": [
         "data/ontology/external/icarus_ontology/NASA/NAS.owl"
-      ]
-    },
-    {
-      "iri": "urn:absolute:icarus#FlightSpec",
-      "prefixed_name": "urn:absolute:icarus#FlightSpec",
-      "local_name": "FlightSpec",
-      "label": "Flight spec",
-      "comment": "A specification describing a set of flights.",
-      "namespace": "urn:absolute:icarus#",
-      "source_files": [
-        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
       ]
     }
   ],
@@ -729,6 +740,30 @@
       "functional": false
     },
     {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#reRouteTimeType",
+      "prefixed_name": "atm:reRouteTimeType",
+      "local_name": "reRouteTimeType",
+      "label": "ReRoute time type",
+      "comment": "The time period associated with the reroute is specified in one of three ways. The reroute can apply to flights that: depart specified airports or centers during a certain time window (timeType=ETD); depart specified airports or centers to arrive at their destinations during a certain time window (timeType=ETA); or arrive at the boundary of a flow constrained area during a certain time window (timeType=FCA Flight List).",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI"
+      ],
+      "domain_set": [
+        "atm:ReRouteTMI"
+      ],
+      "datatype_iri_set": [
+        "http://www.w3.org/2001/XMLSchema#string"
+      ],
+      "datatype_set": [
+        "xsd:string"
+      ],
+      "functional": true
+    },
+    {
       "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#reRouteType",
       "prefixed_name": "atm:reRouteType",
       "local_name": "reRouteType",
@@ -755,24 +790,10 @@
   ],
   "class_hierarchy": [
     {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#AirportSpec",
-      "subclass": "atm:AirportSpec",
-      "superclass_iri": "urn:absolute:icarus#NASA_Ontology",
-      "superclass": "urn:absolute:icarus#NASA_Ontology",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
-    },
-    {
       "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#AirspaceFlowProgramTMI",
       "subclass": "atm:AirspaceFlowProgramTMI",
       "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative",
       "superclass": "atm:TrafficManagementInitiative",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
-    },
-    {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#FlightSpec",
-      "subclass": "atm:FlightSpec",
-      "superclass_iri": "urn:absolute:icarus#NASA_Ontology",
-      "superclass": "urn:absolute:icarus#NASA_Ontology",
       "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
     },
     {
@@ -790,13 +811,6 @@
       "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
     },
     {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#MilesInTrailTMI",
-      "subclass": "atm:MilesInTrailTMI",
-      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative",
-      "superclass": "atm:TrafficManagementInitiative",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
-    },
-    {
       "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#NavigationElement",
       "subclass": "atm:NavigationElement",
       "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TFMcontrolElement",
@@ -804,10 +818,10 @@
       "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
     },
     {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteSegment",
-      "subclass": "atm:ReRouteSegment",
-      "superclass_iri": "urn:absolute:icarus#NASA_Ontology",
-      "superclass": "urn:absolute:icarus#NASA_Ontology",
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#NavigationPath",
+      "subclass": "atm:NavigationPath",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#NavigationElement",
+      "superclass": "atm:NavigationElement",
       "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
     },
     {
@@ -815,20 +829,6 @@
       "subclass": "atm:ReRouteTMI",
       "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative",
       "superclass": "atm:TrafficManagementInitiative",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
-    },
-    {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TFMcontrolElement",
-      "subclass": "atm:TFMcontrolElement",
-      "superclass_iri": "urn:absolute:icarus#NASA_Ontology",
-      "superclass": "urn:absolute:icarus#NASA_Ontology",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
-    },
-    {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative",
-      "subclass": "atm:TrafficManagementInitiative",
-      "superclass_iri": "urn:absolute:icarus#NASA_Ontology",
-      "superclass": "urn:absolute:icarus#NASA_Ontology",
       "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
     },
     {
@@ -843,13 +843,6 @@
       "subclass": "nas:ARTCCtier",
       "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceInfrastructureComponent",
       "superclass": "nas:AirspaceInfrastructureComponent",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
-    },
-    {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#ATCT",
-      "subclass": "nas:ATCT",
-      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#NASfacility",
-      "superclass": "nas:NASfacility",
       "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
     },
     {
@@ -874,20 +867,6 @@
       "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
     },
     {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceInfrastructureComponent",
-      "subclass": "nas:AirspaceInfrastructureComponent",
-      "superclass_iri": "urn:absolute:icarus#NASA_Ontology",
-      "superclass": "urn:absolute:icarus#NASA_Ontology",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
-    },
-    {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceLayer",
-      "subclass": "nas:AirspaceLayer",
-      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceInfrastructureComponent",
-      "superclass": "nas:AirspaceInfrastructureComponent",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
-    },
-    {
       "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceRoute",
       "subclass": "nas:AirspaceRoute",
       "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#NavigationPath",
@@ -902,88 +881,11 @@
       "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
     },
     {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#FederalAirway",
-      "subclass": "nas:FederalAirway",
-      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceRoute",
-      "superclass": "nas:AirspaceRoute",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
-    },
-    {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#NASfacility",
-      "subclass": "nas:NASfacility",
-      "superclass_iri": "urn:absolute:icarus#NASA_Ontology",
-      "superclass": "urn:absolute:icarus#NASA_Ontology",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
-    },
-    {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#RadialRoute",
-      "subclass": "nas:RadialRoute",
-      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceRoute",
-      "superclass": "nas:AirspaceRoute",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
-    },
-    {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#SIDSTAR",
-      "subclass": "nas:SIDSTAR",
-      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceInfrastructureComponent",
-      "superclass": "nas:AirspaceInfrastructureComponent",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
-    },
-    {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#SIDSTARroute",
-      "subclass": "nas:SIDSTARroute",
-      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceRoute",
-      "superclass": "nas:AirspaceRoute",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
-    },
-    {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#Sector",
-      "subclass": "nas:Sector",
-      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceInfrastructureComponent",
-      "superclass": "nas:AirspaceInfrastructureComponent",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
-    },
-    {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#TRACON",
-      "subclass": "nas:TRACON",
-      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#NASfacility",
-      "superclass": "nas:NASfacility",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
-    },
-    {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/data#SkyCondition",
-      "subclass": "data:SkyCondition",
-      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/data#MeteorologicalCondition",
-      "superclass": "data:MeteorologicalCondition",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/data.owl"
-    },
-    {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/data#SurfaceWindCondition",
-      "subclass": "data:SurfaceWindCondition",
-      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/data#MeteorologicalCondition",
-      "superclass": "data:MeteorologicalCondition",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/data.owl"
-    },
-    {
-      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/data#VisibilityCondition",
-      "subclass": "data:VisibilityCondition",
-      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/data#MeteorologicalCondition",
-      "superclass": "data:MeteorologicalCondition",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/data.owl"
-    },
-    {
       "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/data#WeatherCondition",
       "subclass": "data:WeatherCondition",
       "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/data#MeteorologicalCondition",
       "superclass": "data:MeteorologicalCondition",
       "source_file": "data/ontology/external/icarus_ontology/NASA/data.owl"
-    },
-    {
-      "subclass_iri": "urn:absolute:icarus#FlightSpec",
-      "subclass": "urn:absolute:icarus#FlightSpec",
-      "superclass_iri": "urn:absolute:icarus#Icarus_extra_properties",
-      "superclass": "urn:absolute:icarus#Icarus_extra_properties",
-      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
     }
   ],
   "class_property_constraints": [
@@ -1025,7 +927,6 @@
         "equipment",
         "other",
         "runway",
-        "staffing",
         "volume",
         "weather"
       ],
@@ -1105,7 +1006,6 @@
         "equipment",
         "other",
         "runway",
-        "staffing",
         "volume",
         "weather"
       ],
@@ -1212,6 +1112,36 @@
     },
     {
       "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#reRouteTimeType",
+      "constraint_type": "dataExactCardinality",
+      "cardinality": "1",
+      "class_set": [],
+      "datatype_set": [],
+      "class": "atm:ReRouteTMI",
+      "property": "atm:reRouteTimeType",
+      "class_iri_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#reRouteTimeType",
+      "constraint_type": "data_all_values_from",
+      "datatype_set": [],
+      "allowed_values": [
+        "ETA",
+        "ETD",
+        "FCA Flight List"
+      ],
+      "class": "atm:ReRouteTMI",
+      "property": "atm:reRouteTimeType",
+      "class_set": [],
+      "class_iri_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
       "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#reRouteType",
       "constraint_type": "dataExactCardinality",
       "cardinality": "1",
@@ -1273,10 +1203,10 @@
     "datatype_properties": []
   },
   "counts": {
-    "classes": 18,
+    "classes": 19,
     "object_properties": 11,
-    "datatype_properties": 11,
-    "class_hierarchy_axioms": 33,
-    "class_property_constraints": 17
+    "datatype_properties": 12,
+    "class_hierarchy_axioms": 14,
+    "class_property_constraints": 19
   }
 }
