@@ -7,11 +7,12 @@ historical comparison hypotheses belong in the optional experiment documents.
 
 ## Primary Goal
 
-Build a useful, extensible bounded-Agent aviation decision-case knowledge
-system that:
+Build a useful, extensible, ontology-grounded aviation knowledge-integration
+and HybridRAG system that:
 
 1. reads retrospective FAA ATCSCC advisories and bounded authority records
-   into a repeatable corpus-first build;
+   into a repeatable corpus-first build, with GDP, GS, and ReRoute as the
+   current active ATMONTO-aligned TMI families;
 2. coordinates deterministic parsing and authority services, conditionally
    activated semantic resolution and decision-case assembly Agents, and a
    bounded, always-on LLM Query Agent over read-only HybridRAG tools;
@@ -24,13 +25,14 @@ system that:
    dynamically selects Corpus, graph, and vector tools, and exposes evidence,
    uncertainty, and missing information for every supported statement.
 
-The goal is a working system and framework, not proof that more Agent roles are
-always better than fewer roles.
+Retrospective TMI decision records are the current vertical slice, not the
+permanent architecture boundary. The goal is a working system and framework,
+not proof that more Agent roles are always better than fewer roles.
 
 ## User Value
 
-The system should help a user understand and verify a published ATCSCC decision
-record:
+The current vertical slice should help a user understand and verify a published
+ATCSCC TMI record:
 
 - what traffic-management measure was published;
 - which facility it controlled;
@@ -50,11 +52,17 @@ genuinely missing information.
 
 The current system provides:
 
+- one event-family registry rooted at `atm:TrafficManagementInitiative`, with
+  active GDP, GS, and ReRoute application profiles over exact ATMONTO terms;
+- ATMGRAPH-style ABox construction principles for stable identities, explicit
+  time, cross-source links, and graph queries, without importing ATMGRAPH data
+  or claiming an exact replica;
 - deterministic one-record parsing and authority-resolution services;
 - a shared Semantic Resolution Agent only for genuine multi-candidate
   authority ambiguity;
-- a deterministic canonical-case compiler and a bounded Decision Case
-  Assembly Agent only for genuine evidence/schema choice;
+- a zero-call deterministic compiler for complete active-profile records and a
+  bounded Decision Case Assembly Agent only for a genuine unresolved
+  evidence/schema choice;
 - a write-free final Formal Publication Kernel shared by decision, Weather,
   public-observation, and DecisionCase-core layers;
 - a payload-free corpus-bound sidecar that measures selective Agent activation,
@@ -81,16 +89,21 @@ The current system provides:
 - deterministic historical decision-record retrieval through exact corpus
   filters followed by a rebuildable local Chroma vector index, exposed as one
   tool within the model-routed query loop;
-- explicit profile-gap, insufficient, and blocked outcomes.
+- explicit profile-gap, insufficient, and blocked outcomes;
+- compact, rebuildable `alignment_audit.json` and `tmi_coverage.json` corpus
+  summaries that do not act as audit ledgers or publication authorities.
 
 Ground Stop `123`, Ground Delay Program `138`, and missing-reason cancellation
 `020` are compact acceptance fixtures for those capabilities, not the system's
 storage or processing boundary.
 
-## Current Capability Boundary
+## Current TMI Vertical-Slice Boundary
 
-The current decision-case construction path has these boundaries:
+The current TMI record construction path has these boundaries:
 
+- the frozen 68-record cohort contains 46 active-family eligible records,
+  3 incomplete records, 18 boundary notices, and 1 deferred ReRoute
+  cancellation;
 - eligible TAF and METAR reports become source-bound weather report facts;
 - event-to-weather links remain audit-only associations with
   `causal_claim=false`;
@@ -104,8 +117,9 @@ The current decision-case construction path has these boundaries:
 - missing or invalid optional layers remain `insufficient` or `blocked` without
   invalidating an otherwise verified ATCSCC event.
 - Weather/BTS preparation occurs before one immutable Assembly task is sealed.
-- Ground Stop `123`, GDP `138`, and cancellation `020` use a deterministic
-  compiler and make zero Decision Case Assembly provider calls.
+- Complete active-profile records use a deterministic compiler when all
+  required slots are resolved; the tracked GDP, GS, and ReRoute regression
+  records therefore make zero Decision Case Assembly provider calls.
 - A bounded Decision Case Assembly Agent may activate only for a genuine
   non-canonical evidence/schema choice.
 - Task-bound event validation keeps Assembly output within the sealed evidence
@@ -113,9 +127,9 @@ The current decision-case construction path has these boundaries:
   multi-profile Formal Publication Kernel applies the sole final publication
   decision and any projection is written.
 
-The Assembly role does not turn adapters into Agents and does not add model
-calls to the three canonical cases. It reconstructs auditable historical
-context; it does not evaluate operational optimality.
+The Assembly role does not turn adapters into Agents or select execution paths
+from source IDs. It reconstructs auditable historical context; it does not
+evaluate operational optimality.
 
 The DecisionCase semantic core owns reconstruction identity and membership
 independently of the Weather and BTS profiles. The Query Agent can inspect the
@@ -135,6 +149,8 @@ uses the LLM Agent to decide whether and how to invoke that tool.
 The system mainline succeeds when:
 
 - a selected source record can run end to end;
+- active TMI classes and properties are admitted by the versioned ATMONTO
+  application profile rather than family-specific hard coding;
 - every published fact is admitted by the active schema profile;
 - every published fact carries source and exact evidence support;
 - canonical entities are reused rather than duplicated;

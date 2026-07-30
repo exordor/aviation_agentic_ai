@@ -8,20 +8,23 @@ thesis-first navigation model.
 
 ## Current Project Snapshot
 
-Aviation Agentic AI is a runnable, source-bounded corpus builder for
-retrospective FAA ATCSCC advisories. It deterministically selects and preflights
-advisories, processes eligible cases through the bounded-Agent workflow, and
-normalizes validated evidence into canonical corpus v2. Queries and
-selected-case exports read that corpus. RDF/Turtle and Neo4j are offline,
+Aviation Agentic AI is a runnable, ontology-grounded aviation
+knowledge-integration and HybridRAG system. Retrospective FAA ATCSCC TMI
+records are its current end-to-end vertical slice. It deterministically
+classifies active GDP, GS, and ReRoute families through one ATMONTO-aligned
+application profile, processes eligible records through the bounded-Agent
+workflow, and normalizes validated evidence into canonical corpus v2. Queries
+and selected-case exports read that corpus. RDF/Turtle and Neo4j are offline,
 rebuildable KG exports; Chroma is a rebuildable metadata-conditioned case
 index.
 
 ```text
 718 advisory rows
   -> cohort/all selection or explicit source-ID subset
+  -> ATMONTO-aligned TMI classification
   -> deterministic preflight
-  -> insufficient without model for 23 unsupported + 3 incomplete records
-  -> sequential workflow for the remaining 42 eligible records
+  -> insufficient without model for 18 boundary + 1 deferred + 3 incomplete records
+  -> sequential workflow for the remaining 46 active-family eligible records
   -> event-patch admissibility check
   -> DecisionCase assembly
   -> final decision/profile/membership Formal Publication Kernel
@@ -40,6 +43,12 @@ run-directory query, or corpus v1 compatibility layer.
 
 ## Verified Main-Branch Capabilities
 
+- One registry rooted at `atm:TrafficManagementInitiative` drives active GDP,
+  GS, and ReRoute detection, preflight, formal property mapping, and retrieval
+  labels. The application profile uses exact ATMONTO terms.
+- ATMGRAPH is the ABox construction and cross-source-query reference. It is not
+  imported as another dataset, and the project does not claim to reproduce its
+  original store exactly.
 - `agent-system build-corpus` builds a selected corpus directly from configured
   advisory sources. `--source-id` provides a bounded single-case debug path;
   `--resume` retries blocked records only.
@@ -75,17 +84,21 @@ run-directory query, or corpus v1 compatibility layer.
   as the authority or runtime read contract.
 - Missing or unsupported fields return explicit `insufficient`; provider or
   workflow failures return `blocked`; profile gaps never become formal KG facts.
-- GS 123 remains a profile gap, GDP 138 retains formal `weather`, and GDP 020
-  retains an honest missing declared-reason result.
+- GS 123, GDP 138, and GDP 020 are regression fixtures rather than the system
+  scope. They respectively preserve a profile gap, formal `weather`, and an
+  honest missing declared-reason result.
 - Weather associations remain non-causal. BTS observations are not FAA demand,
   AAR, capacity, EDCT, or proof that a TMI caused an outcome.
+- `alignment_audit.json` and `tmi_coverage.json` are compact, rebuildable corpus
+  summaries. They are not audit ledgers or additional publication gates.
 
 ## Historical Pre-Refactor Evaluations
 
 These results were recorded before the always-on Hybrid Query Agent cutover.
 They remain valid artifacts for the retired registered-analysis runtime, but
 they are not evidence of current natural-language routing, tool selection, or
-answer quality.
+answer quality. The frozen task selection is GDP-biased and cannot support
+cross-family performance claims.
 
 Evaluation mode: `live_smoke`. The frozen one-shot DeepSeek run completed with
 model acceptance `0/5`: three Assembly output-token-cap failures, one malformed
@@ -152,10 +165,10 @@ local-cache integrity failures.
 Task acceptance was `12/60`, not `120/120`. The GDP `138` natural-language
 HybridRAG query passed in all 12 cycles. The four Assembly tasks failed all 48
 measurements: 28 exceeded the frozen output-token cap and 20 returned malformed
-typed contracts. These results establish current query-loop provider
-compatibility for one repeated task and expose a separate Assembly
-compatibility gap. They are not a broad query benchmark or 60 independent
-evaluation samples.
+typed contracts. These results establish query-loop provider compatibility for
+one repeated GDP task and expose a separate Assembly compatibility gap. They
+are GDP-biased historical compatibility evidence, not a broad query benchmark,
+representative cross-family evaluation, or 60 independent samples.
 
 ## Compact Assembly Output-Contract Acceptance
 
@@ -188,8 +201,9 @@ Their independently verified SHA-256 values are
 `491ad8dc2966e863b0e65571ba143f57302a840de98e13eb091a15fb5bc6994c`
 and
 `ac827ab06e2a19aeca9206e9f32241aa1174b9b4c32310b7402ede00bf6f9edf`
-for raw and parsed JSONL respectively. This is a repeated compatibility result
-on five fixed tasks, not 60 independent samples or a broad Agent benchmark.
+for raw and parsed JSONL respectively. This is a repeated, GDP-biased
+compatibility result on five fixed tasks, not 60 independent samples,
+representative cross-family evaluation, or a broad Agent benchmark.
 
 A fresh one-repetition run using the subsequent 10,000-token configuration
 completed 10/10 real DeepSeek calls and passed all five frozen tasks, with zero
@@ -200,11 +214,12 @@ benchmark.
 ## Current Intake And Publication Rules
 
 The frozen cohort starts with 718 discovered advisories. It selects 68 records:
-42 are Agent-eligible, 23 are unsupported TMIs, and 3 have incomplete core
-fields. Each selected advisory receives one `CorpusBuildResult`. Preflight
-returns the 26 unsupported/incomplete records as `insufficient` with zero model
-calls. A final `decision-case-corpus-v2` manifest is published only when no
-entry is `blocked`; `--resume` retries only blocked entries.
+46 are eligible under the active GDP/GS/ReRoute profiles, 3 have incomplete
+core fields, 18 are boundary notices, and 1 is a deferred ReRoute
+cancellation. Each selected advisory receives one `CorpusBuildResult`.
+Preflight returns the 22 boundary/deferred/incomplete records as `insufficient`
+with zero model calls. A final `decision-case-corpus-v2` manifest is published
+only when no entry is `blocked`; `--resume` retries only blocked entries.
 
 Corpus facts use semantic identity independent of provenance. Source content is
 deduplicated globally by SHA-256, while `evidence_links.jsonl` preserves all
@@ -241,10 +256,10 @@ five-task runs are repeated compatibility measurements, not a broad query
 benchmark or evidence of reliable performance across an operational task
 distribution.
 
-Comparison experiments, Gold adjudication, alignment MVE work, broader Weather
-expansion, causal explanation, and recommendation require an explicit approved
-task. Production security against hostile local artifact tampering is also
-deferred unless explicitly activated.
+Comparison experiments, Gold adjudication, broader ATMONTO family coverage,
+Weather expansion, causal explanation, and recommendation require an explicit
+approved task. Production security against hostile local artifact tampering is
+also deferred unless explicitly activated.
 
 ## Verification Defaults
 

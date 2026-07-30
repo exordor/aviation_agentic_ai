@@ -1,4 +1,4 @@
-# Bounded-Agent Aviation Decision-Case Knowledge System
+# Ontology-Grounded Aviation Knowledge Integration and HybridRAG System
 
 Status: normative current architecture with explicit final publication,
 selective construction Agents, and an always-on bounded Hybrid Query Agent over
@@ -10,9 +10,10 @@ Date: 2026-07-30
 
 This document defines the runnable system for converting a selected corpus of
 retrospective FAA ATCSCC advisories and bounded authority records into
-evidence-bound decision cases, validated corpus artifacts, and bounded
-graph-grounded answers. It is the normative description of the current
-implementation.
+ATMONTO-aligned TMI knowledge, validated corpus artifacts, and bounded
+graph-grounded answers. Retrospective TMI decision records are the current
+vertical slice, not the permanent architecture boundary. This is the normative
+description of the current implementation.
 
 The system is not live ATC decision support, a complete aviation ontology, a
 causal explanation engine, or a TMI recommendation system. It does not claim
@@ -33,15 +34,16 @@ Editable source:
 ```text
 718 advisory rows + bounded FAA authority records
   -> cohort/all selection or explicit source-ID subset
+  -> ATMONTO-aligned TMI classification (GDP, GS, and ReRoute active)
   -> deterministic preflight
-  -> zero-call insufficient result for unsupported/incomplete records
+  -> zero-call insufficient result for boundary/deferred/incomplete records
   -> deterministic AdvisoryParser
   -> deterministic facility and terminology authority services
      -> shared Semantic Resolution Agent only for genuine ambiguity
   -> deterministic Weather and BTS adapters
   -> sealed Decision Case Assembly task
-     -> canonical zero-call compiler for the three approved cases
-     -> bounded Decision Case Assembly Agent only for genuine evidence/schema choice
+     -> zero-call compiler when all required slots are resolved
+     -> bounded Decision Case Assembly Agent only for a genuine unresolved evidence/schema choice
   -> task-bound event-patch admissibility validation
   -> source-independent DecisionCase membership finalization
   -> write-free multi-profile Formal Publication Kernel
@@ -56,7 +58,9 @@ Editable source:
 
 The coordinator, parsers, authority services, adapters, validators, profiles,
 writers, and materializers are deterministic components. They are not Agents.
-The ontology profile constrains publication; it is not an Agent.
+The versioned application profile constrains publication through exact ATMONTO
+terms; it is not an Agent. ATMGRAPH supplies ABox construction and cross-source
+query principles, not an imported dataset or an exact-replication target.
 
 Only three components can make bounded model-mediated decisions:
 
@@ -72,7 +76,7 @@ Agent loop rather than a fixed question registry.
 
 | Item | Current decision |
 | --- | --- |
-| Capability | Build a source-bounded ATCSCC decision-case corpus and answer natural-language questions through model-selected, read-only HybridRAG tools. |
+| Capability | Build source-bounded, ATMONTO-aligned aviation TMI knowledge and answer natural-language questions through model-selected, read-only HybridRAG tools. |
 | Smallest end-to-end result | Build a selected source-ID subset into corpus v2, ask a paraphrased question, retrieve the needed evidence, and return supported statements or an honest terminal state. |
 | Minimum components | AdvisoryParser, authority services, optional semantic/assembly Agents, Weather/BTS adapters, DecisionCase core, Formal Publication Kernel, corpus store, case-graph view, Chroma sidecar, bounded query tools, Query Agent, and statement-support validator. |
 | Evidence | Source IDs, exact evidence text, snapshot checksums, sealed construction contracts, fact traces, tool observations, statement-level support IDs, and deterministic software tests. |
@@ -181,12 +185,12 @@ resolution, Weather/BTS preparation, and profile checks. The task binds core
 facts, source and evidence references, profile gaps, resolution proposals,
 context associations, observations, component states, and source snapshots.
 
-The three approved cases use `compile_case_assembly_proposal` and require no
-Assembly provider construction or call. A non-canonical record may activate the
-Decision Case Assembly Agent only when a dedicated factory is available and a
-genuine evidence/schema choice remains. The Agent sees a compact task-bound
-schema context and read-only task tools; it never receives graph-write
-authority.
+Every complete active-profile record uses
+`compile_case_assembly_proposal` when all required slots are resolved; source
+identifiers never select this path. The Decision Case Assembly Agent may
+activate only when a dedicated factory is available and a genuine required
+evidence/schema choice remains. The Agent sees a compact task-bound schema
+context and read-only task tools; it never receives graph-write authority.
 
 The active Agent contract uses two provider turns and one read-only tool call.
 It first reads one compact sealed candidate bundle, then returns only an
@@ -213,6 +217,19 @@ accepts only the formal layers owned by their profiles:
    `prov:specializationOf`, and `prov:hadMember` facts under the DecisionCase
    core profile.
 
+The ATCSCC application-profile root is
+`atm:TrafficManagementInitiative`. Its active v1 families are GDP
+(`atm:GroundDelayProgramTMI`), GS (`atm:GroundStopTMI`), and ReRoute
+(`atm:ReRouteTMI`). One registry drives family detection, required-field
+preflight, admitted properties, and retrieval labels. Boundary notices are
+detected but are not promoted to a formal subtype; ReRoute cancellation remains
+deferred until a lifecycle model is approved.
+
+This is the schema/TBox alignment target. The populated ABox follows the
+relevant ATMGRAPH principles of source-specific translation, stable identity,
+explicit time, cross-source links, and graph queries. ATMGRAPH is neither
+loaded as a data source nor claimed as an exact replica of this corpus.
+
 The DecisionCase core records source-independent system structure. Its
 membership relations say that an admitted record belongs to one
 reconstruction; they do not state that Weather caused the TMI or that the TMI
@@ -231,9 +248,9 @@ drop that layer and retry a smaller publication.
 frozen cohort (or an explicit source-ID subset), preflights each advisory, and
 runs eligible records sequentially through the existing workflow. It writes
 one `CorpusBuildResult` for every selected source. The frozen intake is 718
-discovered, 68 selected, 42 Agent-eligible, 23 unsupported-TMI, and 3
-incomplete-core-field records. The 26 preflight outcomes are `insufficient`
-with zero model calls.
+discovered and 68 selected: 46 active-family eligible records, 3 incomplete
+records, 18 boundary notices, and 1 deferred ReRoute cancellation. The 22
+preflight insufficiencies use zero model calls.
 
 The corpus manifest has version `decision-case-corpus-v2` and registers every
 table and projection by path, count, and SHA-256:
@@ -251,11 +268,21 @@ evidence_links.jsonl
 profile_gaps.jsonl
 context_associations.jsonl
 observations.jsonl
+alignment_audit.json
+tmi_coverage.json
 kg.jsonl
 kg.ttl
 neo4j_nodes.jsonl
 neo4j_relationships.jsonl
 ```
+
+`alignment_audit.json` summarizes exact application-profile use and separates
+ATMONTO terms from external-standard and project extensions. ATMGRAPH is
+reported separately as a declared ABox-construction reference, not inferred
+from namespace membership.
+`tmi_coverage.json` summarizes detected, eligible, and published records by
+registered family. Both are compact, rebuildable corpus summaries; neither is a
+per-run audit ledger or an additional publication authority.
 
 Source payloads are globally deduplicated by content checksum. `facts.jsonl`
 uses semantic identity independent of provenance; `evidence_links.jsonl`
@@ -364,19 +391,22 @@ operational effectiveness, or recommended actions. The deterministic vector
 tool is derived from and bound to `corpus_id`; changing the corpus requires
 rebuilding it. The surrounding query always remains model-routed.
 
-## 12. Canonical Acceptance Cases
+## 12. Cross-Family Regression Records
 
-The three cases are regression contracts, not a causal or semantic benchmark.
+The following records are regression contracts, not a causal, representative,
+or semantic benchmark.
 
-| Source ID | Facility and period | Declared-reason state | Active BTS-reported counts |
-| --- | --- | --- | --- |
-| `2026-05-19:123` | KJFK, `2026-05-19T21:00:00Z` to `2026-05-19T22:45:00Z` | Source-bound profile gap only; no formal `atm:impactingCondition`. | 20 scheduled, 18 completed, 2 cancellations, 0 diversions. |
-| `2026-05-19:138` | KJFK, `2026-05-19T22:05:00Z` to `2026-05-20T02:59:00Z` | Formal `weather`; exact advisory evidence ends at `THUNDERSTORMS`. | 77 scheduled, 68 completed, 4 cancellations, 5 diversions. |
-| `2026-05-20:020` | KEWR, preserved operational period | Declared reason missing; the Query Agent can retrieve that missing state but cannot fill it from Weather or BTS. | 50 scheduled, 49 completed, 1 cancellation, 0 diversions. |
+| Source ID | TMI / scope | Required semantic state |
+| --- | --- | --- |
+| `2026-05-19:123` | Ground Stop / KJFK | Source-bound profile-gap reason; no formal `atm:impactingCondition`. |
+| `2026-05-19:138` | GDP / KJFK | Formal `weather`; exact advisory evidence ends at `THUNDERSTORMS`. |
+| `2026-05-20:020` | GDP cancellation / KEWR | Declared reason missing; Weather or BTS cannot fill it. |
+| `2026-05-19:108` | ReRoute / ZBW source scope | Formal `atm:ReRouteTMI` and `reRouteTimeType=ETD`; ARTCC scope remains a profile gap. |
+| `2026-05-20:137` | ReRoute / ZNY source scope | Formal `atm:ReRouteTMI` and `reRouteTimeType=ETD`; ARTCC scope remains a profile gap. |
 
-All three take the canonical zero-call Assembly path. Weather context remains
-non-causal and cannot widen, infer, replace, or otherwise change these reason
-states.
+All five take the general zero-call Assembly path because their required slots
+are resolved. Weather context remains non-causal and cannot widen, infer,
+replace, or otherwise change these reason states.
 
 ## 13. Command Interface and Breaking Cutover
 
@@ -424,6 +454,11 @@ Scripted and fake providers remain appropriate for these software and data-flow
 checks. Model-dependent claims require the explicit live-evaluation path,
 which reuses the real corpus builder, Formal Publication Kernel, and corpus
 query implementation and does not silently substitute a fake provider.
+
+All currently frozen DeepSeek suites select four GDP Assembly records and the
+GDP `138` query. They remain historical compatibility evidence for their named
+contracts, but they are GDP-biased and do not evaluate performance across the
+active GDP, GS, and ReRoute families.
 
 The frozen Batch F live smoke predates the Hybrid Query Agent. It used DeepSeek
 `deepseek-v4-pro`, temperature `0.0`, thinking disabled, no automatic retries,

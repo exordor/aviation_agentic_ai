@@ -1,17 +1,19 @@
 # Aviation Agentic AI
 
-Aviation Agentic AI builds an evidence-bounded corpus of retrospective FAA
-ATCSCC decision cases. It parses each selected advisory, resolves bounded FAA
-authority records, prepares non-causal Weather and BTS context, validates a
-sealed decision case, and publishes only facts accepted by the Formal
-Publication Kernel.
+Aviation Agentic AI is an ontology-grounded aviation knowledge-integration and
+HybridRAG system. Its current end-to-end vertical slice builds an
+evidence-bounded corpus of retrospective FAA ATCSCC TMI records. It classifies
+GDP, GS, and ReRoute under an ATMONTO-aligned application profile, resolves
+bounded FAA authority records, prepares non-causal Weather and BTS context,
+and publishes only facts accepted by the Formal Publication Kernel.
 
 ```text
 718 discovered advisories
   -> frozen 68-record cohort or explicit source-ID subset
+  -> ATMONTO-aligned TMI classification
   -> deterministic preflight
-  -> 26 insufficient results with zero model calls
-  -> sequential workflow for the 42 eligible records
+  -> 22 insufficient boundary/deferred/incomplete results with zero model calls
+  -> sequential workflow for the 46 active-family eligible records
   -> event-patch admissibility check
   -> final decision/profile/membership publication kernel
   -> canonical corpus v2 with case and reconstruction identities
@@ -41,7 +43,8 @@ Python 3.11 or newer is required. Before any eligible build, obtain the pinned
 FAA NASR ZIP described in [REPRODUCIBILITY.md](REPRODUCIBILITY.md); it is
 intentionally ignored by Git.
 
-Build the three tracked acceptance sources into an ignored smoke corpus:
+Build five tracked cross-family regression sources into an ignored smoke
+corpus:
 
 ```bash
 uv run aviation-ai agent-system build-corpus \
@@ -49,15 +52,18 @@ uv run aviation-ai agent-system build-corpus \
   --output-dir data/corpus/agent_system/smoke-v2 \
   --source-id 2026-05-19:123 \
   --source-id 2026-05-19:138 \
+  --source-id 2026-05-19:108 \
   --source-id 2026-05-20:020 \
+  --source-id 2026-05-20:137 \
   --allow-live-model
 ```
 
 `--allow-live-model` permits the bounded semantic-resolution or case-assembly
-path only when it genuinely activates. The three acceptance records use the
-zero-call canonical compiler, but the flag is required for eligible corpus
-builds. Keep `DEEPSEEK_API_KEY` and any optional `DEEPSEEK_BASE_URL` in ignored
-local environment files; the system does not substitute an ambient provider.
+path only when it genuinely activates. Complete active-profile records use the
+zero-call deterministic compiler; source identifiers do not select the path.
+The flag is required for eligible corpus builds. Keep `DEEPSEEK_API_KEY` and
+any optional `DEEPSEEK_BASE_URL` in ignored local environment files; the
+system does not substitute an ambient provider.
 
 Build or resume the frozen cohort:
 
@@ -70,13 +76,14 @@ uv run aviation-ai agent-system build-corpus \
   --resume
 ```
 
-The frozen intake ledger is 718 discovered, 68 selected, 42 Agent-eligible, 23
-unsupported-TMI, and 3 incomplete-core-field records. Every selected advisory
-gets one `CorpusBuildResult`. The 26 preflight outcomes are `insufficient` with
-zero model calls. Provider or workflow failures are `blocked`; `--resume`
-retries only blocked records. A final manifest is written only when blocked is
-zero. The completion summary also reports bounded-Agent activations,
-deterministic bypasses, outcomes, calls, tokens, and recorded latency.
+The frozen intake is 718 discovered and 68 selected: 46 active-family eligible
+records, 3 incomplete records, 18 boundary notices, and 1 deferred ReRoute
+cancellation. Every selected advisory gets one `CorpusBuildResult`. The 22
+preflight insufficiencies use zero model calls. Provider or workflow failures
+are `blocked`; `--resume` retries only blocked records. A final manifest is
+written only when blocked is zero. The completion summary also reports
+bounded-Agent activations, deterministic bypasses, outcomes, calls, tokens,
+and recorded latency.
 
 ## Corpus v2
 
@@ -96,6 +103,8 @@ evidence_links.jsonl
 profile_gaps.jsonl
 context_associations.jsonl
 observations.jsonl
+alignment_audit.json
+tmi_coverage.json
 kg.jsonl
 kg.ttl
 neo4j_nodes.jsonl
@@ -116,121 +125,23 @@ RDF/Turtle and Neo4j are offline, rebuildable KG exports. Chroma is a
 rebuildable metadata-conditioned retrieval index. None is authoritative
 runtime storage.
 
-## Agent Usage Sidecar
+The active schema/TBox target is a versioned application profile over exact
+ATMONTO terms. ATMGRAPH is the reference for source-specific ABox construction,
+stable cross-source identity, explicit time, and cross-source graph queries; it
+is not imported as a dataset and this project does not claim an exact
+ATMGRAPH replica. `alignment_audit.json` and `tmi_coverage.json` are compact,
+rebuildable corpus summaries of that alignment and TMI-family coverage. They
+are not per-run audit ledgers or additional publication gates.
 
-Each eligible workflow case produces one usage record for facility semantic
-resolution, terminology semantic resolution, and decision-case assembly.
-Actual provider use is recorded as `activated`; unique-candidate resolution and
-the canonical compiler are `deterministic_bypass`; an unavailable downstream
-role is `not_reached`. Preflight insufficiencies produce no usage rows.
+## Evaluation Boundary
 
-The payload-free sidecar is written after a successful corpus publication:
-
-```text
-agent_usage/
-  agent_usage.jsonl
-  agent_usage_manifest.json
-```
-
-It is bound to `corpus_id` but is not part of the canonical corpus manifest and
-does not affect corpus identity. It contains aggregate counts, tokens, and
-latency only—not prompts, model responses, tool arguments, tool results, or
-model reasoning.
-
-## Current Output-Contract Live Acceptance
-
-Decision Case Assembly now asks the model to inspect one sealed candidate
-bundle and return a compact accept-or-abstain selection. Deterministic code
-restores the full facts and evidence bindings before the existing Formal
-Publication Kernel runs. The system-wide output ceiling, Hybrid Query Agent,
-and Decision Case Assembly Agent are configured for 10,000 output tokens.
-Semantic Resolution retains its narrower 256-token decision cap.
-
-Before the ceiling change, the compact-contract DeepSeek acceptance run
-completed 12 cycles over the same four Assembly tasks and the GDP `138`
-natural-language query. It recorded 120 attempted and 120 successful
-real-provider calls, zero failed calls, 261,238 input tokens, and 30,561 output
-tokens. All 60 task measurements passed, with zero invalid tool calls,
-assertion failures, or raw/parsed integrity failures. These are repeated
-compatibility measurements of five fixed tasks, not 60 independent samples or
-a broad Agent benchmark.
-
-After raising the ceiling, a fresh one-repetition DeepSeek smoke completed
-10/10 real-provider calls and passed all five frozen tasks, with zero failed
-calls, 21,780 input tokens, and 2,705 output tokens.
-
-The ignored evidence is stored under:
-
-```text
-data/corpus/agent_system/live-agent-output-contract-v3-experiment/
-  raw_responses_v2.jsonl
-  parsed_outputs_v2.jsonl
-  experiment_manifest_v2.json
-```
-
-## Historical Pre-Fix Hybrid Query Agent Live Acceptance
-
-The post-refactor v2 DeepSeek run exercised the current always-on Hybrid Query
-Agent together with the then-unchanged four Assembly tasks. The frozen
-configuration was `deepseek-v4-pro`, temperature `0.0`, thinking disabled, no
-automatic retries, and no local response cache.
-
-The repeated experiment completed 12 cycles and recorded 120 attempted and 120
-successful real-provider calls with zero failed calls. It used 383,201 input
-tokens and 69,986 output tokens. The current GDP `138` natural-language query
-passed in all 12 cycles. The four Assembly tasks failed in all 48
-measurements—28 output-token-cap failures and 20 malformed-contract
-failures—so provider-call success must not be confused with task acceptance.
-
-The tracked, sanitized reports are
-[`agent_system_live_agent_experiment_v2.json`](reports/stages/agent_system_live_agent_experiment_v2.json)
-and
-[`agent_system_live_agent_experiment_v2.md`](reports/stages/agent_system_live_agent_experiment_v2.md).
-Raw responses, parsed trial outputs, and the experiment manifest remain
-gitignored under `data/corpus/agent_system/live-agent-experiment-v2/`.
-
-## Historical Pre-Refactor Live Evaluation
-
-Offline fake and scripted model tests verify software contracts, routing, and
-data flow only; they do not measure real LLM or Agent behavior. Before the
-always-on Hybrid Query Agent cutover, the project recorded a frozen DeepSeek
-`deepseek-v4-pro` compatibility smoke over four Assembly tasks and one retired
-registered-analysis task. The five trials passed `0/5`: three Assembly trials
-exceeded the frozen output-token cap, one returned a malformed Assembly
-contract, and the analysis answer failed its typed answer/support contract.
-Semantic Resolution was `not_evaluated_no_natural_ambiguity` because the
-cohort contains no natural ambiguity that activates that Agent.
-
-These results describe the retired registered-analysis runtime. They are not
-evidence about the current Hybrid Query Agent, natural-language routing, or
-HybridRAG answer quality. Temperature zero reduced sampling variance but did
-not guarantee determinism.
-
-The tracked, sanitized reports are
-[`agent_system_live_agent_smoke_v1.json`](reports/stages/agent_system_live_agent_smoke_v1.json)
-and
-[`agent_system_live_agent_smoke_v1.md`](reports/stages/agent_system_live_agent_smoke_v1.md).
-Credentials, prompts, raw responses, tool arguments, tool results, and detailed
-local run artifacts remain ignored and untracked.
-
-The separate pre-refactor repeated experiment completed 12 cycles with 108
-attempted and 108 successful provider calls, zero provider failures, 431,018
-input tokens, and 89,148 output tokens. Task-level acceptance was `0/60`: 48
-Assembly trials exceeded the frozen output-token cap and 12 retired-analysis
-trials failed the answer/support contract. DeepSeek also reported 396,928
-prompt-cache-hit tokens and 34,090 prompt-cache-miss tokens. These are repeated
-measurements of five pre-refactor tasks, not 60 independent tasks or a current
-query benchmark.
-
-The tracked summaries are
-[`agent_system_live_agent_experiment_v1.json`](reports/stages/agent_system_live_agent_experiment_v1.json)
-and
-[`agent_system_live_agent_experiment_v1.md`](reports/stages/agent_system_live_agent_experiment_v1.md).
-Raw responses and parsed outputs remain ignored at
-`data/corpus/agent_system/live-agent-experiment-v1/`. The earlier
-`live-agent-experiment-v1-invalid-observer-phase/` and
-`live-agent-experiment-v1-normalized-response-only/` directories are excluded
-local diagnostics and are not part of the reported result.
+Offline fake or scripted tests validate software contracts only. Existing
+DeepSeek runs are preserved as historical, GDP-biased compatibility evidence
+under `reports/stages/`; they do not establish cross-family Query Agent,
+HybridRAG, or model-quality performance. A representative live evaluation over
+GDP, GS, and ReRoute remains a separate approved research task rather than a
+mainline implementation gate. See [RESEARCH_AUDIT.md](RESEARCH_AUDIT.md) and
+[ARTIFACT_INDEX.md](ARTIFACT_INDEX.md) for the detailed historical records.
 
 ## Historical Case Retrieval
 
@@ -307,7 +218,7 @@ Export one bounded, non-replayable case:
 uv run aviation-ai agent-system export-case \
   --corpus-dir data/corpus/agent_system/smoke-v2 \
   --event-id <event-id-from-cases.jsonl> \
-  --output-dir data/corpus/agent_system/export-gdp-138
+  --output-dir data/corpus/agent_system/export-selected-event
 ```
 
 Load the full corpus projection into Neo4j:
@@ -321,13 +232,22 @@ Neo4j is an offline, rebuildable full-corpus export rather than an authoritative
 runtime query store. Its loader uses parameterized `MERGE`, preserves unrelated
 data, and returns `BLOCKED` when credentials or connectivity are unavailable.
 
-## Acceptance Semantics
+## Cross-Family Regression Semantics
 
 - Ground Stop `2026-05-19:123` retains a source-bound profile-gap reason.
 - Ground Delay Program `2026-05-19:138` retains formal `weather`, with source
   evidence ending at `THUNDERSTORMS`.
 - GDP cancellation `2026-05-20:020` retains a missing declared reason and a
   deterministic `insufficient` declared-reason answer.
+- ReRoute `2026-05-19:108` and `2026-05-20:137` publish
+  `atm:ReRouteTMI`, `reRouteTimeType=ETD`, implementation status, and the
+  source-declared reason. Their ARTCC scope remains an explicit profile gap
+  because the active ATMONTO range does not admit it as
+  `controlledNASelement`.
+
+These records are regression fixtures for distinct semantic states and TMI
+families. They are not the storage boundary, a representative benchmark, or
+special runtime routes.
 
 The system does not provide live ATC support, causal explanation,
 operational-situation or outcome-aware similarity, TMI recommendation, general

@@ -6,23 +6,25 @@ detailed designs and historical protocols live under `docs/`.
 ## Project Posture
 
 This is a **system and framework construction project**. The primary deliverable
-is a runnable bounded-Agent aviation decision-case knowledge system over
-retrospective FAA ATCSCC advisories.
+is a runnable, ontology-grounded aviation knowledge-integration and HybridRAG
+system. Retrospective FAA ATCSCC TMI records are the current end-to-end
+vertical slice; they are not the architecture's permanent subject boundary.
 
 The active pipeline is:
 
 ```text
 718 ATCSCC advisories + bounded FAA authority records
   -> cohort/all selection or explicit source-ID subset
-  -> deterministic preflight (unsupported/incomplete -> zero-call insufficient)
+  -> ATMONTO-aligned TMI classification (GDP, GS, and ReRoute active)
+  -> deterministic preflight (boundary/deferred/incomplete -> zero-call insufficient)
   -> deterministic AdvisoryParser
   -> facility and terminology authority services
      -> shared Semantic Resolution Agent only for genuine ambiguity
   -> deterministic Weather and BTS context preparation and validation
   -> sealed Decision Case Assembly task
-  -> deterministic compiler for the three canonical cases or bounded
-     Decision Case Assembly Agent for compact sealed-bundle
-     acceptance/abstention
+  -> zero-call deterministic compiler when all required slots are resolved
+     or bounded Decision Case Assembly Agent for a genuine unresolved
+     evidence/schema choice
   -> task-bound validation
   -> source-independent DecisionCase core and formal reconstruction membership
   -> write-free multi-profile Formal Publication Kernel
@@ -37,8 +39,11 @@ The active pipeline is:
 
 Corpus v2 is the canonical persisted knowledge and evidence layer. Formal graph
 views, RDF/Turtle, and Neo4j are derived runtime views or rebuildable outputs.
-The ontology profile constrains publication; it is not a separate Agent and is
-not claimed to be a complete aviation ontology.
+The versioned application profile aligns the active TMI schema with exact
+ATMONTO terms and constrains publication; it is not a separate Agent and is not
+claimed to be a complete aviation ontology. ATMGRAPH is the reference for
+constructing and querying the populated ABox, not an imported dataset or an
+exact system replica.
 
 The normative implementation design is
 `docs/multi_agent_kg_system_design.md`. Reader-facing documents use full Agent
@@ -49,13 +54,18 @@ names, not internal alphanumeric labels.
 - The active implementation contains the corpus-first builder, validation,
   corpus v2 materialization, full-corpus Neo4j projection, DecisionCase
   semantic core, Decision Case Assembly, and the bounded HybridRAG Query Agent.
+- The common semantic root is `atm:TrafficManagementInitiative`; the active
+  application-profile families are GDP, GS, and ReRoute. Family detection,
+  preflight, formal property mapping, and retrieval labels share one registry.
 - The formal case graph exposes general, case-scoped formal edges to a read-only
   query tool. It is no longer limited to one registered evidence-path shape.
-- The three Decision Record Explorer cases preserve their profile-gap, formal
-  weather, and honest missing-reason states. Public answers are nevertheless
-  model-routed and evidence-bound, not deterministic sentence matches.
-- The three canonical records still use the zero-call deterministic compiler,
-  and the Formal Publication Kernel remains the sole final publication
+- The three Decision Record Explorer cases are regression fixtures, not the
+  system scope. They preserve their profile-gap, formal weather, and honest
+  missing-reason states. Public answers are nevertheless model-routed and
+  evidence-bound, not deterministic sentence matches.
+- Complete active-profile records use the zero-call deterministic compiler
+  when all required slots are resolved; source identifiers never choose that
+  path. The Formal Publication Kernel remains the sole final publication
   authority.
 - Every valid public `ask` invokes the Query Agent. The model may select exact
   corpus reads, Weather context, BTS observations, case-graph edges, or
@@ -68,21 +78,27 @@ names, not internal alphanumeric labels.
   There is no persistent single-case `ingest`, `ask-corpus`, `--runs-root`,
   `--run-dir`, or corpus-v1 compatibility path. Use `build-corpus --source-id`
   for a bounded debug build.
-- The frozen cohort is 718 discovered and 68 selected: 42 Agent-eligible, 23
-  unsupported TMI, and 3 incomplete core-field records. The 26 preflight
-  failures are `insufficient` with zero model calls. A corpus manifest is
-  published only when blocked is zero; `--resume` retries only blocked entries.
+- The frozen cohort is 718 discovered and 68 selected: 46 active-family
+  eligible records, 3 incomplete records, 18 boundary notices, and 1 deferred
+  ReRoute cancellation. The 22 preflight insufficiencies use zero model calls.
+  A corpus manifest is published only when blocked is zero; `--resume` retries
+  only blocked entries.
+- Successful corpus builds include compact, rebuildable
+  `alignment_audit.json` and `tmi_coverage.json` summaries. They describe the
+  corpus/profile alignment and family coverage; they are not run ledgers or
+  additional publication authorities.
 - The system output ceiling is 10,000 tokens. The Query Agent and Decision Case
   Assembly Agent use that ceiling; the compact Semantic Resolution decision
   remains capped at 256 tokens.
 - A current-ceiling DeepSeek smoke passed all five frozen tasks with 10/10 real
-  provider calls and zero failures. This is a compatibility check, not a broad
-  Agent benchmark.
+  provider calls and zero failures. The suite is GDP-biased historical
+  compatibility evidence, not representative cross-family evaluation.
 - `live_experiment`: the current compact-selection contract completed 12 full
   five-task cycles with DeepSeek `deepseek-v4-pro`: 120/120 real calls and all
   60 task measurements succeeded. Provider-call success is not by itself task
-  acceptance, and these are repeated measurements of five fixed tasks, not 60
-  independent samples or a model-quality benchmark.
+  acceptance; these are repeated measurements of five fixed, GDP-biased tasks,
+  not 60 independent samples, cross-family evidence, or a model-quality
+  benchmark.
 - The pre-fix v2 experiment remains historical evidence: its Query task passed,
   while the former full-graph-patch Assembly contract failed. Do not relabel
   those failures as current compact-selection results.
@@ -92,7 +108,7 @@ names, not internal alphanumeric labels.
 - The read-only visualization prototype is isolated on
   `codex/kg-visualization-research`. Visualization is paused and is not the
   active `main` implementation track.
-- Comparison experiments, Gold adjudication, alignment MVE work, broader
+- Comparison experiments, Gold adjudication, broader ATMONTO family coverage,
   weather expansion, causal explanation, and recommendation remain optional or
   deferred unless explicitly reactivated.
 

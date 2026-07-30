@@ -1,6 +1,6 @@
 # Reproducibility
 
-Last updated: 2026-07-29
+Last updated: 2026-07-30
 
 This is the corpus-first Agent-system workflow. Historical experiments remain
 available through `EXPERIMENTS.md`, but they are not the default path.
@@ -61,17 +61,20 @@ normalizes their validated packages into corpus v2, and removes temporary case
 bundles only after finalization. `index-cases` writes only a rebuildable
 derived sidecar.
 
-The frozen cohort has 718 discovered advisories and this required ledger:
+The frozen cohort has 718 discovered advisories and this required preflight
+summary:
 
 | State | Count |
 | --- | ---: |
 | Selected | 68 |
-| Agent-eligible | 42 |
-| Unsupported TMI | 23 |
+| Active-family eligible (GDP, GS, ReRoute) | 46 |
 | Incomplete core fields | 3 |
-| Deterministic preflight `insufficient` | 26 |
+| Boundary notices | 18 |
+| Deferred ReRoute cancellation | 1 |
+| Deterministic preflight `insufficient` | 22 |
 
-Build the three tracked acceptance sources into an ignored smoke directory:
+Build five tracked cross-family regression sources into an ignored smoke
+directory:
 
 ```bash
 uv run aviation-ai agent-system build-corpus \
@@ -79,7 +82,9 @@ uv run aviation-ai agent-system build-corpus \
   --output-dir data/corpus/agent_system/smoke-v2 \
   --source-id 2026-05-19:123 \
   --source-id 2026-05-19:138 \
+  --source-id 2026-05-19:108 \
   --source-id 2026-05-20:020 \
+  --source-id 2026-05-20:137 \
   --allow-live-model
 ```
 
@@ -95,11 +100,11 @@ uv run aviation-ai agent-system build-corpus \
 ```
 
 Eligible cases require `--allow-live-model`. Put `DEEPSEEK_API_KEY` and any
-optional `DEEPSEEK_BASE_URL` in ignored local environment files. The 26
-preflight failures are `insufficient` with zero model calls. Provider or
-workflow failures become `blocked`, do not stop the batch, and are the only
-results retried by the same `--resume` command. A final manifest is published
-only when the blocked count is zero.
+optional `DEEPSEEK_BASE_URL` in ignored local environment files. The 22
+boundary/deferred/incomplete preflight outcomes are `insufficient` with zero
+model calls. Provider or workflow failures become `blocked`, do not stop the
+batch, and are the only results retried by the same `--resume` command. A final
+manifest is published only when the blocked count is zero.
 
 ## Corpus Layout And Read Commands
 
@@ -118,11 +123,18 @@ evidence_links.jsonl
 profile_gaps.jsonl
 context_associations.jsonl
 observations.jsonl
+alignment_audit.json
+tmi_coverage.json
 kg.jsonl
 kg.ttl
 neo4j_nodes.jsonl
 neo4j_relationships.jsonl
 ```
+
+`alignment_audit.json` summarizes exact ATMONTO application-profile use and
+ATMGRAPH-style ABox term roles. `tmi_coverage.json` summarizes detected,
+eligible, and published records by registered family. Both are rebuildable
+corpus summaries, not run ledgers or additional validation authorities.
 
 Ask a free natural-language question. A valid corpus query always activates the
 configured Query Agent; the model selects bounded, read-only retrieval tools and
@@ -190,7 +202,7 @@ Export one bounded case:
 uv run aviation-ai agent-system export-case \
   --corpus-dir data/corpus/agent_system/smoke-v2 \
   --event-id <event-id-from-cases.jsonl> \
-  --output-dir data/corpus/agent_system/export-gdp-138
+  --output-dir data/corpus/agent_system/export-selected-event
 ```
 
 Load the full projection:
@@ -210,6 +222,8 @@ The loader uses parameterized `MERGE`, preserves unrelated data, and returns
 | `2026-05-19:123` | Profile-gap declared reason; no formal `atm:impactingCondition`. |
 | `2026-05-19:138` | Formal `weather`; evidence ends at `THUNDERSTORMS`. |
 | `2026-05-20:020` | Missing declared reason; deterministic `insufficient`. |
+| `2026-05-19:108` | Formal `atm:ReRouteTMI` with `reRouteTimeType=ETD`; ARTCC scope remains a profile gap. |
+| `2026-05-20:137` | Formal `atm:ReRouteTMI` with `reRouteTimeType=ETD`; ARTCC scope remains a profile gap. |
 
 Weather associations remain non-causal. BTS observations are source-qualified
 public observations and are never FAA demand, AAR, capacity, EDCT, or a
@@ -238,7 +252,9 @@ owned, sanitized `hybrid_query_run.json` records containing statement types,
 statement text, evidence IDs, tool names, tool statuses, and referenceable IDs.
 It does not retain prompts, tool arguments, tool results, or model reasoning.
 Semantic Resolution remains `not_evaluated_no_natural_ambiguity`; synthetic
-ambiguity is not presented as cohort performance.
+ambiguity is not presented as cohort performance. This frozen suite is
+GDP-biased historical compatibility evidence; it is not the cross-family
+evaluation required for a current HybridRAG performance claim.
 
 This five-task run is a compatibility and bounded-behavior smoke test, not a
 benchmark or reliability estimate. Temperature zero reduces variance but does

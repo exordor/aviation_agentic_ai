@@ -8,14 +8,13 @@ decisions. Historical experiment backlogs are discoverable through
 
 ## Active Decisions
 
-- [ ] Decide whether to merge the reviewed read-only visualization from
-  `codex/kg-visualization-research` into `main`.
-- [ ] Expand the Hybrid Query Agent live suite beyond the repeated GDP `138`
-  task to cover paraphrased, multilingual, multi-tool,
-  insufficient-evidence, and claim-boundary questions.
-- [ ] Otherwise, choose one bounded system increment with an explicit source
-  and acceptance boundary, such as ASPM validation, regional Weather context,
-  decision-episode grouping, or operational-situation similarity.
+- [ ] Replace the GDP-biased historical compatibility suite with a separately
+  approved cross-family live evaluation over active GDP, GS, and ReRoute
+  records, including paraphrased, multi-tool, insufficient-evidence, and
+  claim-boundary questions.
+- [ ] Choose any next TMI family only from an explicit ATMONTO mapping and a
+  reviewed source/evidence boundary. Do not promote detected informational
+  notices merely to increase coverage.
 
 Do not reintroduce exact-question registries or bypass the Query Agent for
 apparently simple questions. Deterministic retrieval remains inside bounded
@@ -27,6 +26,9 @@ tools; natural-language interpretation and tool routing remain model-mediated.
 - ASPM demand, AAR, capacity, EDCT, runway configuration, and flight-level
   impact.
 - TCF, CWA, SIGMET, NOTAM, ADS-B, and single-flight trajectories.
+- Separating a general aviation-event catalog from the optional
+  DecisionCase reconstruction projection. The current corpus remains a
+  TMI-record vertical slice until that structural expansion is approved.
 - Advisory lifecycle or decision-episode grouping.
 - Operational-situation and outcome-aware similarity, learned reranking, and
   TMI recommendation.
@@ -37,11 +39,12 @@ tools; natural-language interpretation and tool routing remain model-mediated.
   benchmarks.
 - Frozen-cohort Semantic Resolution performance claims until a natural
   ambiguous case exists.
+- Merging the paused read-only visualization branch into the system mainline.
 - Production hardening and public deployment.
 - Adversarial local-object, path, symlink, concurrency, and cross-run tampering
   defenses unless a deployment or security task activates them.
-- Reopening optional alignment, Gold, Critic, Self-Refine, or paired-comparison
-  experiments as the default project path.
+- Reopening Gold, Critic, Self-Refine, or paired-comparison experiments as the
+  default project path.
 
 ## Maintenance Rules
 
