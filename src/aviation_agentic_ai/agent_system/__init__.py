@@ -11,7 +11,7 @@ This package implements the runnable system mainline:
     -> DecisionCase membership finalization
     -> multi-profile Formal Publication Kernel
     -> canonical corpus v2 and rebuildable retrieval/export views
-    -> bounded Query Agent and registered Decision Case Analysis
+    -> always-on bounded HybridRAG Query Agent
 
 LangGraph expresses the fixed topology; LangChain is used only when a
 conditional Agent path activates. The write-free Formal Publication Kernel is

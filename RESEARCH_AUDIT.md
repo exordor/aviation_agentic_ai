@@ -26,8 +26,10 @@ index.
   -> DecisionCase assembly
   -> final decision/profile/membership Formal Publication Kernel
   -> canonical corpus v2
-  -> exact corpus, case-scoped graph, and metadata-conditioned case views
-  -> bounded corpus query / similarity retrieval / case export
+  -> read-only Corpus, case-graph, and metadata-conditioned vector tools
+  -> bounded LLM action-observation query loop
+  -> per-statement evidence support
+  -> answer / insufficient / blocked
 ```
 
 The Coordinator and Formal Publication Kernel are deterministic components,
@@ -48,18 +50,23 @@ run-directory query, or corpus v1 compatibility layer.
 - Corpus v2 content-addresses source objects and stores cases, semantic facts,
   membership, evidence links, profile gaps, Weather associations, BTS
   observations, and stable conceptual-case/reconstruction identities.
-- Each accepted case has formal DecisionCase reconstruction membership. The
-  exact registered Weather and active-window BTS evidence-path question
-  traverses only that case's admitted facts, makes zero model calls, and does
-  not expose arbitrary graph traversal.
+- Each accepted case has formal DecisionCase reconstruction membership.
+  Bounded graph reads expose admitted case edges by entity, direction,
+  predicate, and limit without arbitrary SPARQL, Cypher, or graph writes.
 - `agent-system index-cases` builds an ignored, corpus-bound Chroma sidecar with
   one explicit vector per accepted decision record.
-- `agent-system ask` filters the corpus and answers exact registered record,
-  context, observation, and reconstructed-case questions with bounded read-only
-  tools.
-- The historical-similarity route applies exact metadata filters before cosine
-  recall, excludes the anchor, supports archive and prior scopes, and makes zero
-  chat-model calls.
+- Every valid `agent-system ask` request activates the bounded Query Agent.
+  Natural-language interpretation and routing are model-mediated; deterministic
+  read-only tools provide exact cases/facts, Weather context, BTS observations,
+  case-graph edges, and historical vector recall.
+- The Query Agent must retrieve before answering, stays inside the immutable CLI
+  scope, and may use at most four provider turns and six tool calls.
+- Every answer statement is checked against its cited case, fact, profile-gap,
+  context, observation, graph-path, and source identities. Missing support is
+  `insufficient`; invalid contracts or dependencies are `blocked`.
+- The historical-similarity tool applies exact metadata filters before cosine
+  recall, excludes the anchor, and supports archive and prior scopes. Tool
+  execution is deterministic, but its selection occurs inside the LLM loop.
 - `agent-system export-case` writes a selected bounded, non-replayable case.
 - `agent-system neo4j-export` loads the full corpus projection with
   parameterized `MERGE` when Neo4j is available.
@@ -72,31 +79,34 @@ run-directory query, or corpus v1 compatibility layer.
   retains an honest missing declared-reason result.
 - Weather associations remain non-causal. BTS observations are not FAA demand,
   AAR, capacity, EDCT, or proof that a TMI caused an outcome.
-- Exact registered Decision Case Analysis questions use closed plans and
-  bounded read-only tools only with `--allow-live-model`.
 
-## Verified Main-Branch Evaluations
+## Historical Pre-Refactor Evaluations
 
-Evaluation mode: `live_smoke`. The explicit live runner reuses the real batch
-builder, Formal Publication Kernel, and corpus query path. The frozen one-shot
-DeepSeek run completed with model acceptance `0/5`: three Assembly
-output-token-cap failures, one malformed Assembly contract, and one Analysis
-answer/evidence-support contract failure.
+These results were recorded before the always-on Hybrid Query Agent cutover.
+They remain valid artifacts for the retired registered-analysis runtime, but
+they are not evidence of current natural-language routing, tool selection, or
+answer quality.
+
+Evaluation mode: `live_smoke`. The frozen one-shot DeepSeek run completed with
+model acceptance `0/5`: three Assembly output-token-cap failures, one malformed
+Assembly contract, and one retired-analysis answer/evidence-support contract
+failure.
 
 Evaluation mode: `live_experiment`. The corrected repeated real-provider
-experiment then ran the same five tasks for 12 full cycles. DeepSeek
+experiment ran the same pre-refactor five tasks for 12 full cycles. DeepSeek
 `deepseek-v4-pro` returned successfully for all 108 provider calls with zero
 recorded provider failures, 431,018 input tokens, and 89,148 output tokens.
 Task acceptance was still `0/60`: all 48 Assembly trials exceeded the frozen
-output-token cap and all 12 Analysis trials failed the typed answer/support
-contract. DeepSeek reported 396,928 prompt-cache-hit tokens and 34,090
-prompt-cache-miss tokens from its automatic input-prefix context cache. This
-was not cached-response replay; every call returned a unique provider response
-ID. The earlier local
+output-token cap and all 12 retired-analysis trials failed the typed
+answer/support contract. DeepSeek reported 396,928 prompt-cache-hit tokens and
+34,090 prompt-cache-miss tokens from its automatic input-prefix context cache.
+This was not cached-response replay; every call returned a unique provider
+response ID. The earlier local
 `live-agent-experiment-v1-invalid-observer-phase` and
 `live-agent-experiment-v1-normalized-response-only` diagnostics are excluded:
-the former changed Assembly outcomes and missed provider turns, while the latter
-did not retain the full native response payload required by the final contract.
+the former changed Assembly outcomes and missed provider turns, while the
+latter did not retain the full native response payload required by the final
+contract.
 
 ## Evaluation Boundary
 
@@ -106,11 +116,12 @@ real-model extraction, tool selection, reasoning, or end-to-end Agent quality.
 Likewise, `--allow-live-model` is only authorization to construct a configured
 provider, and `agent_usage/` records only execution telemetry.
 
-The frozen `live_smoke` used DeepSeek `deepseek-v4-pro`, temperature `0.0`,
-thinking disabled, no automatic retry, one repetition, four Assembly tasks,
-and one Analysis task. Temperature `0` reduces sampling variance but does not
-guarantee identical provider outputs. A single five-task smoke is a provider
-compatibility and bounded-behavior diagnostic, not a statistical benchmark.
+The frozen pre-refactor `live_smoke` used DeepSeek `deepseek-v4-pro`,
+temperature `0.0`, thinking disabled, no automatic retry, one repetition, four
+Assembly tasks, and one registered-analysis task. Temperature `0` reduces
+sampling variance but does not guarantee identical provider outputs. A single
+five-task smoke is a provider compatibility diagnostic for the retired
+runtime, not a statistical benchmark.
 
 The Semantic Resolution Agent is
 `not_evaluated_no_natural_ambiguity`: the current frozen cohort supplies no
@@ -119,11 +130,32 @@ offline software tests, but must not be reported as cohort performance.
 Prompt and output-token-cap compatibility fixes are deferred so the failed
 frozen result remains unchanged.
 
-The `live_experiment` is likewise a compatibility and reliability diagnostic.
-Its 60 trial rows are 12 repetitions of five fixed tasks, not 60 independent
-evaluation samples. The 108 successful calls establish provider return and
-trace capture under the frozen configuration; they do not establish Agent task
-success.
+The pre-refactor `live_experiment` is likewise a compatibility and reliability
+diagnostic. Its 60 trial rows are 12 repetitions of five tasks, not 60
+independent evaluation samples. The 108 successful calls establish provider
+return and trace capture under that frozen configuration; they do not establish
+current Query Agent task success.
+
+## Current Hybrid Query Agent Live Evaluation
+
+The v2 experiment evaluated the current Hybrid Query Agent without changing
+the four frozen Assembly tasks. It ran 12 repetitions of five tasks with
+DeepSeek `deepseek-v4-pro`, temperature `0.0`, thinking disabled, no automatic
+retry, and no local response cache.
+
+The runner recorded 120 attempted and 120 successful real-provider calls,
+zero failed calls, 383,201 input tokens, and 69,986 output tokens. Raw-response
+and parsed-output file hashes independently matched the experiment manifest;
+there were no call-binding, duplicate-trial, missing-trial, configuration, or
+local-cache integrity failures.
+
+Task acceptance was `12/60`, not `120/120`. The GDP `138` natural-language
+HybridRAG query passed in all 12 cycles. The four Assembly tasks failed all 48
+measurements: 28 exceeded the frozen output-token cap and 20 returned malformed
+typed contracts. These results establish current query-loop provider
+compatibility for one repeated task and expose a separate Assembly
+compatibility gap. They are not a broad query benchmark or 60 independent
+evaluation samples.
 
 ## Current Intake And Publication Rules
 
@@ -163,8 +195,11 @@ The project does not provide general aviation QA, live ATC support,
 weather-based causal explanation, operational-situation or outcome-aware
 similarity, TMI recommendation, a complete aviation ontology, or external
 expert certification. The tracked six-query relevance smoke set is not expert
-Gold or decision-quality evidence. The five-task live-Agent smoke is likewise
-not a benchmark or evidence of reliable model performance.
+Gold or decision-quality evidence and predates LLM-routed similarity. The v1
+five-task live-Agent runs predate the current Query Agent. The current v2
+five-task runs are repeated compatibility measurements, not a broad query
+benchmark or evidence of reliable performance across an operational task
+distribution.
 
 Comparison experiments, Gold adjudication, alignment MVE work, broader Weather
 expansion, causal explanation, and recommendation require an explicit approved

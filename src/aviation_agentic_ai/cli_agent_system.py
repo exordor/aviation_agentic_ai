@@ -193,13 +193,12 @@ def index_cases_command(
     required=True,
     help="Normalized decision-case corpus directory.",
 )
-@click.option("--question", required=True, help="Registered corpus question.")
-@click.option("--event-id", default=None, help="Exact event for record questions.")
 @click.option(
-    "--allow-live-model",
-    is_flag=True,
-    help="Authorize a registered Decision Case Analysis model call when available.",
+    "--question",
+    required=True,
+    help="Free natural-language question over the decision-case corpus.",
 )
+@click.option("--event-id", default=None, help="Exact event for record questions.")
 @click.option("--event-type-iri", default=None, help="Exact event-type IRI filter.")
 @click.option("--facility-id", default=None, help="Exact canonical facility filter.")
 @click.option(
@@ -214,7 +213,7 @@ def index_cases_command(
     type=click.Choice(["archive", "prior"]),
     default="archive",
     show_default=True,
-    help="Historical candidate set for exact similarity questions.",
+    help="Historical candidate set available to similarity retrieval.",
 )
 @click.option("--offset", type=click.IntRange(min=0), default=0, show_default=True)
 @click.option(
@@ -227,7 +226,6 @@ def ask(
     corpus_dir: Path,
     question: str,
     event_id: str | None,
-    allow_live_model: bool,
     event_type_iri: str | None,
     facility_id: str | None,
     reason_status: str | None,
@@ -236,7 +234,7 @@ def ask(
     offset: int,
     limit: int,
 ) -> None:
-    """Run one deterministic read over the normalized case corpus."""
+    """Run the LLM-routed HybridRAG Query Agent."""
 
     outcome = answer_corpus_question(
         corpus_dir=corpus_dir,
@@ -249,14 +247,11 @@ def ask(
         candidate_scope=candidate_scope,
         offset=offset,
         limit=limit,
-        allow_live_model=allow_live_model,
         model_factory=lambda tools: make_live_tool_calling_model(
             tools=tools,
-            role="decision_case_analysis",
+            role="query",
         ),
     )
-    if outcome.analysis_artifact_dir:
-        click.echo(f"analysis_artifact_dir: {outcome.analysis_artifact_dir}")
     if outcome.status == "blocked":
         raise click.ClickException(
             f"ask BLOCKED: {outcome.failure_reason}"

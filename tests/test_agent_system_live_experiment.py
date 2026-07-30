@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import inspect
 import json
 from pathlib import Path
@@ -87,7 +88,7 @@ def _call(
 
 def test_tracked_experiment_suite_freezes_real_call_threshold_and_tasks() -> None:
     suite = load_live_agent_experiment_suite(
-        "data/evaluation/agent_system/live_agent_experiment_v1.yaml"
+        "data/evaluation/agent_system/live_agent_experiment_v2.yaml"
     )
 
     assert isinstance(suite, LiveAgentExperimentSuite)
@@ -110,10 +111,27 @@ def test_tracked_experiment_suite_freezes_real_call_threshold_and_tasks() -> Non
     ]
 
 
+def test_pre_refactor_v1_experiment_artifacts_remain_byte_frozen() -> None:
+    expected = {
+        "data/evaluation/agent_system/live_agent_experiment_v1.yaml": (
+            "d4ca31b365e1fb953cb5ac27c4bf088f31b8a4a250f3e83e455185edf004796b"
+        ),
+        "reports/stages/agent_system_live_agent_experiment_v1.json": (
+            "da02b42848b7aa86cc2415f6bf24687ffe9f0e7dff71ee2d5b1a7ef4a3e56e04"
+        ),
+        "reports/stages/agent_system_live_agent_experiment_v1.md": (
+            "f38c1c65fab498d454eab5c9ca15e42a9a832dbba338e605eba7024caea33525"
+        ),
+    }
+
+    for path, checksum in expected.items():
+        assert hashlib.sha256(Path(path).read_bytes()).hexdigest() == checksum
+
+
 def test_call_observer_sees_native_turn_before_workflow_sanitization() -> None:
     observed: list[tuple[str, ModelCallRecord, object]] = []
     record = ModelCallRecord(
-        agent="decision_case_analysis",
+        agent="query",
         raw_response="raw text emitted alongside a native tool call",
         provider="deepseek",
         model="deepseek-v4-pro",
@@ -121,8 +139,8 @@ def test_call_observer_sees_native_turn_before_workflow_sanitization() -> None:
         tool_calls=[
             ModelToolCall(
                 call_id="call-1",
-                name="execute_bound_query_step",
-                arguments={"step_id": "step-1"},
+                name="read_public_observations",
+                arguments={"event_id": "urn:event:gdp-138"},
             )
         ],
     )
@@ -133,8 +151,8 @@ def test_call_observer_sees_native_turn_before_workflow_sanitization() -> None:
         "tool_calls": [
             {
                 "id": "call-1",
-                "name": "execute_bound_query_step",
-                "args": {"step_id": "step-1"},
+                "name": "read_public_observations",
+                "args": {"event_id": "urn:event:gdp-138"},
             }
         ],
         "response_metadata": {"finish_reason": "tool_calls"},
@@ -146,12 +164,12 @@ def test_call_observer_sees_native_turn_before_workflow_sanitization() -> None:
         )
     ):
         _emit_tool_model_call_observation(
-            "select_tool",
+            "query_step",
             record,
             native_response,
         )
 
-    assert observed == [("select_tool", record, native_response)]
+    assert observed == [("query_step", record, native_response)]
     assert observed[0][1].raw_response.startswith("raw text")
     assert observed[0][2] == native_response
 
@@ -171,8 +189,9 @@ def test_call_observer_accepts_all_existing_agent_runtime_phases() -> None:
     ):
         _emit_tool_model_call_observation("emit_proposal", record)
         _emit_tool_model_call_observation("revision", record)
+        _emit_tool_model_call_observation("query_step", record)
 
-    assert observed == ["emit_proposal", "revision"]
+    assert observed == ["emit_proposal", "revision", "query_step"]
 
 
 def test_summary_counts_real_provider_returns_separately_from_task_results() -> None:
@@ -305,9 +324,13 @@ def test_raw_and_parsed_artifacts_are_separate_and_checksum_bound(
         parsed_output_path=str(tmp_path / "parsed_outputs.jsonl"),
     )
 
+    reports = tmp_path / "reports"
+    reports.mkdir()
+    legacy_report = reports / "agent_system_live_agent_experiment_v1.json"
+    legacy_report.write_text("historical-v1\n", encoding="utf-8")
     paths = write_live_agent_experiment_artifacts(
         output_dir=tmp_path,
-        report_dir=tmp_path / "reports",
+        report_dir=reports,
         calls=calls,
         parsed_outputs=parsed,
         summary=summary,
@@ -324,6 +347,12 @@ def test_raw_and_parsed_artifacts_are_separate_and_checksum_bound(
     assert "real provider response 1" not in report_text
     assert manifest["raw_responses_sha256"]
     assert manifest["parsed_outputs_sha256"]
+    assert raw_path.name == "raw_responses_v2.jsonl"
+    assert parsed_path.name == "parsed_outputs_v2.jsonl"
+    assert manifest_path.name == "experiment_manifest_v2.json"
+    assert report_json.name == "agent_system_live_agent_experiment_v2.json"
+    assert report_markdown.name == "agent_system_live_agent_experiment_v2.md"
+    assert legacy_report.read_text(encoding="utf-8") == "historical-v1\n"
     assert report_markdown.is_file()
 
 

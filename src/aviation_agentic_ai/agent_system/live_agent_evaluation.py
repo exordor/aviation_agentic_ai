@@ -14,12 +14,9 @@ import yaml
 from pydantic import Field, model_validator
 
 from aviation_agentic_ai.agent_system.agent_usage import AgentUsageRecord
+from aviation_agentic_ai.agent_system.audit import sanitize_text
 from aviation_agentic_ai.agent_system.authority_evidence import (
     AuthorityBuildStatus,
-)
-from aviation_agentic_ai.agent_system.case_analysis import (
-    MAX_CASE_ANALYSIS_BOUND_STEPS,
-    MAX_CASE_ANALYSIS_MODEL_CALLS,
 )
 from aviation_agentic_ai.agent_system.case_assembly import (
     MAX_ASSEMBLY_PROVIDER_TURNS,
@@ -43,6 +40,11 @@ from aviation_agentic_ai.agent_system.corpus_query import (
 from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusBuildResult,
     CorpusQueryStore,
+)
+from aviation_agentic_ai.agent_system.hybrid_query_agent import (
+    MAX_QUERY_PROVIDER_TURNS,
+    MAX_QUERY_TOOL_CALLS,
+    validate_hybrid_query_statement,
 )
 from aviation_agentic_ai.agent_system.prompts import get_prompt_catalog
 from aviation_agentic_ai.agent_system.runtime import (
@@ -81,6 +83,16 @@ FORBIDDEN_OPERATIONAL_OR_CAUSAL_PREDICATES = frozenset(
         "urn:aviation-agentic-ai:affectedBy",
     }
 )
+HYBRID_QUERY_READ_TOOLS = frozenset(
+    {
+        "find_cases",
+        "read_case_facts",
+        "read_weather_context",
+        "read_public_observations",
+        "read_case_graph",
+        "find_similar_cases",
+    }
+)
 
 
 class LiveEvaluationAuthorizationError(RuntimeError):
@@ -95,7 +107,7 @@ class LiveEvaluationTrial(StrictModel):
     source_id: str = Field(min_length=1)
     expected_role: Literal[
         "decision_case_assembly",
-        "decision_case_analysis",
+        "query",
     ]
     question: str | None = None
     forbidden_predicate_iris: tuple[str, ...] = ()
@@ -108,7 +120,7 @@ class LiveEvaluationTrial(StrictModel):
             raise ValueError("assembly trial does not accept question")
         expected = {
             "assembly": "decision_case_assembly",
-            "analysis": "decision_case_analysis",
+            "analysis": "query",
         }[self.kind]
         if self.expected_role != expected:
             raise ValueError("trial kind and expected_role disagree")
@@ -118,7 +130,7 @@ class LiveEvaluationTrial(StrictModel):
 class LiveEvaluationSuite(StrictModel):
     """Frozen smoke-evaluation manifest."""
 
-    version: Literal["live-agent-smoke-v1"]
+    version: Literal["live-agent-smoke-v2"]
     suite_id: str = Field(min_length=1)
     repetitions: int = Field(default=1, ge=1)
     trials: tuple[LiveEvaluationTrial, ...] = Field(min_length=1)
@@ -145,6 +157,68 @@ class LiveEvaluationAssertion(StrictModel):
     detail_code: str = Field(min_length=1)
 
 
+class HybridQueryRunStatement(StrictModel):
+    """One sanitized answer statement and its typed citation verdicts."""
+
+    kind: Literal[
+        "source_fact",
+        "non_causal_context",
+        "public_observation",
+        "similarity",
+    ]
+    text: str = Field(min_length=1)
+    case_ids: tuple[str, ...] = ()
+    fact_ids: tuple[str, ...] = ()
+    profile_gap_ids: tuple[str, ...] = ()
+    context_association_ids: tuple[str, ...] = ()
+    observation_ids: tuple[str, ...] = ()
+    graph_path_ids: tuple[str, ...] = ()
+    source_ids: tuple[str, ...] = ()
+    citation_valid: bool
+    claim_boundary_valid: bool
+    validation_error: str = ""
+
+
+class HybridQueryRunSupport(StrictModel):
+    """One sanitized evidence-kind and source binding used for validation."""
+
+    kind: Literal[
+        "source_fact",
+        "non_causal_context",
+        "public_observation",
+        "similarity",
+    ]
+    case_ids: tuple[str, ...] = ()
+    fact_ids: tuple[str, ...] = ()
+    profile_gap_ids: tuple[str, ...] = ()
+    context_association_ids: tuple[str, ...] = ()
+    observation_ids: tuple[str, ...] = ()
+    graph_path_ids: tuple[str, ...] = ()
+    source_ids: tuple[str, ...] = ()
+
+
+class HybridQueryRunTool(StrictModel):
+    """One sanitized read-only tool trace retained by the evaluator."""
+
+    name: str = Field(min_length=1)
+    status: Literal["ok", "insufficient", "blocked"]
+    reference_ids: tuple[str, ...] = ()
+    source_ids: tuple[str, ...] = ()
+
+
+class HybridQueryRunArtifact(StrictModel):
+    """Evaluator-owned Hybrid Query trace without raw model/tool payloads."""
+
+    manifest_version: Literal["hybrid-query-run-v1"] = "hybrid-query-run-v1"
+    trial_id: str = Field(min_length=1)
+    event_id: str = Field(min_length=1)
+    run_status: Literal["ok", "insufficient", "blocked"]
+    answer_contract_status: Literal["valid", "invalid", "missing"]
+    statements: tuple[HybridQueryRunStatement, ...] = ()
+    support_records: tuple[HybridQueryRunSupport, ...] = ()
+    tools: tuple[HybridQueryRunTool, ...] = ()
+
+
 class LiveEvaluationResult(StrictModel):
     """One sanitized live or offline trial result."""
 
@@ -155,7 +229,7 @@ class LiveEvaluationResult(StrictModel):
     event_id: str | None = None
     role: Literal[
         "decision_case_assembly",
-        "decision_case_analysis",
+        "query",
     ]
     live_model: bool
     workflow_status: Literal["ok", "insufficient", "blocked", "not_run"]
@@ -178,14 +252,20 @@ class LiveEvaluationResult(StrictModel):
     tool_latency_ms: float = Field(default=0.0, ge=0.0)
     retrieved_fact_count: int = Field(default=0, ge=0)
     retrieved_source_count: int = Field(default=0, ge=0)
+    query_run_artifact: str | None = None
+    query_run_artifact_sha256: str | None = Field(
+        default=None,
+        min_length=64,
+        max_length=64,
+    )
     failure_code: str = ""
 
 
 class LiveEvaluationSummary(StrictModel):
     """Aggregate smoke outcome, separate from canonical corpus identity."""
 
-    manifest_version: Literal["decision-case-live-evaluation-v1"] = (
-        "decision-case-live-evaluation-v1"
+    manifest_version: Literal["decision-case-live-evaluation-v2"] = (
+        "decision-case-live-evaluation-v2"
     )
     suite_id: str = Field(min_length=1)
     suite_checksum: str = Field(min_length=64, max_length=64)
@@ -434,18 +514,112 @@ def score_assembly_trial(
     )
 
 
-def _analysis_artifacts_present(path: str | None) -> bool:
-    if not path:
-        return False
-    root = Path(path)
-    return all(
-        (root / name).is_file()
-        for name in (
-            "case_analysis_task.json",
-            "query_evidence_bundle.json",
-            "case_analysis_run.json",
+def build_hybrid_query_run_artifact(
+    *,
+    trial: LiveEvaluationTrial,
+    event_id: str,
+    outcome: QueryToolOutcome,
+) -> HybridQueryRunArtifact:
+    """Build the evaluator's sanitized statement/tool evidence record."""
+
+    support_records = list(outcome.support_records)
+    statements = tuple(
+        HybridQueryRunStatement(
+            kind=statement.kind,
+            text=sanitize_text(statement.text),
+            case_ids=statement.support_case_ids,
+            fact_ids=statement.support_fact_ids,
+            profile_gap_ids=statement.support_profile_gap_ids,
+            context_association_ids=(
+                statement.support_context_association_ids
+            ),
+            observation_ids=statement.support_observation_ids,
+            graph_path_ids=statement.support_graph_path_ids,
+            source_ids=statement.support_source_ids,
+            citation_valid=(
+                validate_hybrid_query_statement(
+                    statement.model_copy(
+                        update={"text": "Evidence-supported statement."}
+                    ),
+                    support_records,
+                )
+                is None
+            ),
+            claim_boundary_valid=(
+                (
+                    validation_error := validate_hybrid_query_statement(
+                        statement,
+                        support_records,
+                    )
+                )
+                is None
+                or "claim boundary" not in validation_error
+            ),
+            validation_error=sanitize_text(validation_error or ""),
         )
+        for statement in outcome.answer_statements
     )
+    support_summaries = tuple(
+        HybridQueryRunSupport(
+            kind=record.kind,
+            case_ids=record.case_ids,
+            fact_ids=record.fact_ids,
+            profile_gap_ids=record.profile_gap_ids,
+            context_association_ids=record.context_association_ids,
+            observation_ids=record.observation_ids,
+            graph_path_ids=record.graph_path_ids,
+            source_ids=record.source_ids,
+        )
+        for record in support_records
+    )
+    tools = tuple(
+        HybridQueryRunTool(
+            name=trace.tool,
+            status=trace.status,
+            reference_ids=tuple(
+                sorted(
+                    {
+                        *trace.result_refs,
+                        *trace.context_association_ids,
+                        *trace.outcome_summary_ids,
+                        *trace.observation_ids,
+                        *trace.derivation_ids,
+                    }
+                )
+            ),
+            source_ids=tuple(sorted(set(trace.source_ids))),
+        )
+        for trace in outcome.tool_calls
+    )
+    return HybridQueryRunArtifact(
+        trial_id=trial.trial_id,
+        event_id=event_id,
+        run_status=outcome.status,
+        answer_contract_status=(
+            "valid"
+            if outcome.status in {"ok", "insufficient"}
+            else "invalid"
+        ),
+        statements=statements,
+        support_records=support_summaries,
+        tools=tools,
+    )
+
+
+def write_hybrid_query_run_artifact(
+    output_dir: str | Path,
+    artifact: HybridQueryRunArtifact,
+) -> Path:
+    """Persist one evaluator-owned, payload-free Hybrid Query run."""
+
+    root = Path(output_dir)
+    root.mkdir(parents=True, exist_ok=True)
+    path = root / "hybrid_query_run.json"
+    path.write_text(
+        artifact.model_dump_json(indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return path
 
 
 def score_analysis_trial(
@@ -455,13 +629,15 @@ def score_analysis_trial(
     live_model: bool,
     event_id: str,
     outcome: QueryToolOutcome,
+    query_run: HybridQueryRunArtifact | None = None,
+    query_run_artifact_path: str | Path | None = None,
 ) -> LiveEvaluationResult:
-    """Score one real Analysis execution over its sealed evidence bundle."""
+    """Score one real always-on Hybrid Query Agent execution."""
 
     calls = tuple(
         call
         for call in outcome.model_calls
-        if call.agent == "decision_case_analysis"
+        if call.agent == "query"
     )
     native_tools = [
         tool_call.name for call in calls for tool_call in call.tool_calls
@@ -476,8 +652,8 @@ def score_analysis_trial(
         ),
         _assertion(
             "bounded_execution",
-            1 <= len(calls) <= MAX_CASE_ANALYSIS_MODEL_CALLS
-            and len(outcome.tool_calls) <= MAX_CASE_ANALYSIS_BOUND_STEPS,
+            1 <= len(calls) <= MAX_QUERY_PROVIDER_TURNS
+            and len(outcome.tool_calls) <= MAX_QUERY_TOOL_CALLS,
             passed_code="within_existing_model_and_tool_budgets",
             failed_code="analysis_budget_not_satisfied",
         ),
@@ -485,30 +661,68 @@ def score_analysis_trial(
             "frozen_model_contract",
             _model_configuration_ok(
                 calls,
-                role="decision_case_analysis",
+                role="query",
             ),
             passed_code="frozen_deepseek_configuration_observed",
             failed_code="model_configuration_or_provider_call_failed",
         ),
         _assertion(
             "read_only_registered_tools",
-            all(
-                name == "execute_bound_query_step"
+            bool(bound_tools)
+            and all(
+                name in HYBRID_QUERY_READ_TOOLS
                 for name in (*native_tools, *bound_tools)
             ),
-            passed_code="only_registered_bound_read_tool_observed",
+            passed_code="only_hybrid_query_read_tools_observed",
             failed_code="unregistered_or_write_tool_observed",
         ),
         _assertion(
-            "evidence_bundle_support",
+            "query_run_contract",
             outcome.status == "ok"
-            and bool(outcome.retrieved_fact_ids)
-            and bool(outcome.source_ids)
-            and _analysis_artifacts_present(
-                outcome.analysis_artifact_dir
+            and query_run is not None
+            and query_run.run_status == outcome.status
+            and query_run.answer_contract_status == "valid"
+            and bool(query_run.statements)
+            and query_run_artifact_path is not None
+            and Path(query_run_artifact_path).is_file(),
+            passed_code="evaluator_owned_query_run_is_valid",
+            failed_code="valid_evaluator_owned_query_run_not_observed",
+        ),
+        _assertion(
+            "statement_citations",
+            query_run is not None
+            and bool(query_run.statements)
+            and all(
+                statement.citation_valid
+                for statement in query_run.statements
             ),
-            passed_code="sealed_supported_evidence_bundle_persisted",
-            failed_code="supported_evidence_bundle_not_observed",
+            passed_code="every_statement_has_trace_bound_citations",
+            failed_code="statement_citation_not_supported_by_tool_trace",
+        ),
+        _assertion(
+            "statement_claim_boundaries",
+            query_run is not None
+            and bool(query_run.statements)
+            and all(
+                statement.claim_boundary_valid
+                for statement in query_run.statements
+            ),
+            passed_code="every_statement_respects_claim_boundaries",
+            failed_code="statement_crossed_claim_boundary",
+        ),
+        _assertion(
+            "tool_trace_status",
+            query_run is not None
+            and bool(query_run.tools)
+            and len(query_run.tools) == len(outcome.tool_calls)
+            and any(tool.status == "ok" for tool in query_run.tools)
+            and all(
+                tool.name in HYBRID_QUERY_READ_TOOLS
+                and tool.status != "blocked"
+                for tool in query_run.tools
+            ),
+            passed_code="query_tool_trace_has_support_without_blocked_tools",
+            failed_code="query_tool_trace_missing_or_unsuccessful",
         ),
     )
     blocked = any(call.error for call in calls)
@@ -526,7 +740,7 @@ def score_analysis_trial(
         kind="analysis",
         source_id=trial.source_id,
         event_id=event_id,
-        role="decision_case_analysis",
+        role="query",
         live_model=live_model,
         workflow_status=outcome.status,
         activation_status="activated" if calls else "not_activated",
@@ -538,6 +752,19 @@ def score_analysis_trial(
         ),
         retrieved_fact_count=len(set(outcome.retrieved_fact_ids)),
         retrieved_source_count=len(set(outcome.source_ids)),
+        query_run_artifact=(
+            str(query_run_artifact_path)
+            if query_run_artifact_path is not None
+            else None
+        ),
+        query_run_artifact_sha256=(
+            hashlib.sha256(
+                Path(query_run_artifact_path).read_bytes()
+            ).hexdigest()
+            if query_run_artifact_path is not None
+            and Path(query_run_artifact_path).is_file()
+            else None
+        ),
         failure_code=(
             ""
             if acceptance == "passed"
@@ -648,7 +875,7 @@ def _markdown_report(
     results: Sequence[LiveEvaluationResult],
 ) -> str:
     lines = [
-        "# Agent System Live Agent Smoke v1",
+        "# Agent System Live Agent Smoke v2",
         "",
         "## Boundary",
         "",
@@ -716,14 +943,14 @@ def write_live_evaluation_artifacts(
     reports = Path(report_dir)
     runtime.mkdir(parents=True, exist_ok=True)
     reports.mkdir(parents=True, exist_ok=True)
-    result_path = runtime / "live_evaluation_results.jsonl"
+    result_path = runtime / "live_evaluation_results_v2.jsonl"
     result_path.write_bytes(_result_bytes(results))
-    manifest_path = runtime / "live_evaluation_manifest.json"
+    manifest_path = runtime / "live_evaluation_manifest_v2.json"
     manifest_path.write_text(
         summary.model_dump_json(indent=2) + "\n",
         encoding="utf-8",
     )
-    report_json = reports / "agent_system_live_agent_smoke_v1.json"
+    report_json = reports / "agent_system_live_agent_smoke_v2.json"
     report_json.write_text(
         json.dumps(
             {
@@ -738,7 +965,7 @@ def write_live_evaluation_artifacts(
         + "\n",
         encoding="utf-8",
     )
-    report_markdown = reports / "agent_system_live_agent_smoke_v1.md"
+    report_markdown = reports / "agent_system_live_agent_smoke_v2.md"
     report_markdown.write_text(
         _markdown_report(summary, results),
         encoding="utf-8",
@@ -761,7 +988,7 @@ def _live_preflight_failures(
     if FROZEN_TEMPERATURE != 0.0:
         failures.append("temperature_not_zero")
     catalog = get_prompt_catalog()
-    for role in ("decision_case_assembly", "decision_case_analysis"):
+    for role in ("decision_case_assembly", "query"):
         prompt = catalog.role(role)
         if prompt.temperature != 0.0:
             failures.append(f"{role}_temperature_not_zero")
@@ -813,7 +1040,7 @@ def _blocked_analysis_result(
         repetition=repetition,
         kind="analysis",
         source_id=trial.source_id,
-        role="decision_case_analysis",
+        role="query",
         live_model=live_model,
         workflow_status="not_run",
         activation_status="not_reached",
@@ -1074,11 +1301,19 @@ def run_live_agent_evaluation(
                 corpus_dir=corpus_dir,
                 question=trial.question,
                 event_id=event_id,
-                allow_live_model=True,
                 model_factory=lambda tools: make_live_tool_calling_model(
                     tools=tools,
-                    role="decision_case_analysis",
+                    role="query",
                 ),
+            )
+            query_run = build_hybrid_query_run_artifact(
+                trial=trial,
+                event_id=event_id,
+                outcome=outcome,
+            )
+            query_run_path = write_hybrid_query_run_artifact(
+                runtime_root / "hybrid_query_runs" / trial.trial_id,
+                query_run,
             )
             results.append(
                 score_analysis_trial(
@@ -1087,6 +1322,8 @@ def run_live_agent_evaluation(
                     live_model=True,
                     event_id=event_id,
                     outcome=outcome,
+                    query_run=query_run,
+                    query_run_artifact_path=query_run_path,
                 )
             )
         summary = summarize_live_evaluation(
@@ -1156,18 +1393,24 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 
 __all__ = [
+    "HybridQueryRunArtifact",
+    "HybridQueryRunStatement",
+    "HybridQueryRunSupport",
+    "HybridQueryRunTool",
     "LiveEvaluationAssertion",
     "LiveEvaluationAuthorizationError",
     "LiveEvaluationResult",
     "LiveEvaluationSummary",
     "LiveEvaluationSuite",
     "LiveEvaluationTrial",
+    "build_hybrid_query_run_artifact",
     "load_live_evaluation_suite",
     "main",
     "run_live_agent_evaluation",
     "score_analysis_trial",
     "score_assembly_trial",
     "summarize_live_evaluation",
+    "write_hybrid_query_run_artifact",
     "write_live_evaluation_artifacts",
 ]
 

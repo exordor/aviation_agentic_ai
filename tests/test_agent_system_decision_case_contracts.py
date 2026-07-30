@@ -12,13 +12,10 @@ from pydantic import ValidationError
 from aviation_agentic_ai.agent_system.contracts import SourceFamily
 from aviation_agentic_ai.agent_system.decision_case_contracts import (
     DECISION_CASE_CONTRACT_VERSION,
-    AnswerStatement,
-    AnswerStatementKind,
     AssemblyStatus,
     AuthorityDefinitionEvidenceClaim,
     AuthorityRecordEvidenceClaim,
     CandidateBuildStatus,
-    CaseAnalysisTaskFields,
     CaseAssemblyProposalFields,
     CaseAssemblyTaskFields,
     CaseFactProposal,
@@ -30,8 +27,6 @@ from aviation_agentic_ai.agent_system.decision_case_contracts import (
     ContractExecutionBinding,
     FactAssessment,
     FactDisposition,
-    QueryEvidenceBundleFields,
-    QueryToolTrace,
     QueryStatus,
     RawResolutionCandidateRef,
     ResolutionCandidate,
@@ -44,10 +39,8 @@ from aviation_agentic_ai.agent_system.decision_case_contracts import (
     canonical_id_tuple_token,
     canonical_payload_bytes,
     canonicalize_contract_value,
-    seal_case_analysis_task,
     seal_case_assembly_proposal,
     seal_case_assembly_task,
-    seal_query_evidence_bundle,
     seal_resolution_proposal,
     seal_resolution_task,
     seal_validation_feedback,
@@ -601,52 +594,6 @@ def _assembly_proposal_fields(
     )
 
 
-def _analysis_task_fields() -> CaseAnalysisTaskFields:
-    task_id = stable_contract_id(
-        "case-analysis-task",
-        "run-1",
-        "query-plan-1",
-        canonical_id_tuple_token(("event-1", "case-1"), sort_values=False),
-        canonical_id_tuple_token(("formal",), sort_values=True),
-        "answer-contract-1",
-    )
-    return CaseAnalysisTaskFields(
-        task_id=task_id,
-        run_id="run-1",
-        question="What happened?",
-        intent_family="episode",
-        event_or_case_scope=("event-1", "case-1"),
-        query_plan_id="query-plan-1",
-        available_bound_step_ids=("step-1",),
-        executed_bound_step_ids=("step-1",),
-        requested_evidence_layers=("formal",),
-        retrieved_fact_ids=("fact-1",),
-        retrieved_derivation_ids=(),
-        retrieved_profile_gap_ids=(),
-        retrieved_assessment_ids=(),
-        retrieved_source_ids=("source:event",),
-        component_layer_results=(
-            ComponentLayerResult(
-                layer_id="formal",
-                status=ComponentLayerStatus.OK,
-                required_for_task=True,
-                artifact_ids=("fact-1",),
-            ),
-        ),
-        missing_evidence=(),
-        source_snapshot_bindings=(
-            SourceSnapshotBinding(
-                source_id="source:event",
-                source_family=SourceFamily.ATCSCC_ADVISORY,
-                source_snapshot_sha256=SHA_B,
-            ),
-        ),
-        remaining_step_budget=2,
-        answer_status=QueryStatus.OK,
-        answer_contract_id="answer-contract-1",
-    )
-
-
 def test_enum_values_and_strict_frozen_surface() -> None:
     assert DECISION_CASE_CONTRACT_VERSION == "decision-case-agent-contracts-v1"
     assert {item.value for item in ResolutionDecision} == {
@@ -751,44 +698,6 @@ def test_binding_normalizes_to_utc_and_requires_prompt_or_tool_version() -> None
             run_id="run-1",
             created_at=datetime(2026, 5, 19, 20, 15),
             tool_version="v1",
-        )
-
-
-def test_query_tool_trace_has_stable_id_and_rejects_unsorted_evidence() -> None:
-    """A trace is a sanitized projection of a validated bound observation."""
-
-    trace_id = stable_contract_id(
-        "query-tool-trace",
-        "query-plan-1",
-        "step-1",
-        "read_operational_situation",
-        "ok",
-        canonical_id_tuple_token(("fact-1",), sort_values=True),
-        canonical_id_tuple_token((), sort_values=True),
-        canonical_id_tuple_token((), sort_values=True),
-        canonical_id_tuple_token((), sort_values=True),
-        canonical_id_tuple_token(("source:event",), sort_values=True),
-    )
-    trace = QueryToolTrace(
-        trace_id=trace_id,
-        query_plan_id="query-plan-1",
-        step_id="step-1",
-        operation="read_operational_situation",
-        observation_status="ok",
-        fact_ids=("fact-1",),
-        source_ids=("source:event",),
-    )
-
-    assert trace.trace_id == trace_id
-    with pytest.raises(ValidationError, match="fact_ids must be sorted"):
-        QueryToolTrace(
-            trace_id=trace_id,
-            query_plan_id="query-plan-1",
-            step_id="step-1",
-            operation="read_operational_situation",
-            observation_status="ok",
-            fact_ids=("fact-2", "fact-1"),
-            source_ids=("source:event",),
         )
 
 
@@ -1179,111 +1088,6 @@ def test_validation_feedback_binds_exact_proposal_and_affected_item() -> None:
             ),
             binding=_binding(),
         )
-
-
-def test_analysis_bundle_enforces_projection_rollup_and_statement_support() -> None:
-    task = seal_case_analysis_task(fields=_analysis_task_fields(), binding=_binding())
-    statement = AnswerStatement(
-        statement_id="statement-1",
-        statement_kind=AnswerStatementKind.SOURCE_FACT,
-        text="A ground stop was issued.",
-        support_fact_ids=("fact-1",),
-        support_source_ids=("source:event",),
-    )
-    query_id = stable_contract_id(
-        "query-evidence-bundle",
-        task.task_id,
-        task.payload_checksum,
-        QueryStatus.OK.value,
-        canonical_id_tuple_token(("step-1",), sort_values=False),
-        canonical_id_tuple_token(("fact-1",), sort_values=True),
-        canonical_id_tuple_token((), sort_values=True),
-        canonical_id_tuple_token((), sort_values=True),
-        canonical_id_tuple_token(("source:event",), sort_values=True),
-        "answer-contract-1",
-    )
-    fields = QueryEvidenceBundleFields(
-        query_id=query_id,
-        run_id="run-1",
-        task_id=task.task_id,
-        task_payload_checksum=task.payload_checksum,
-        answer_status=QueryStatus.OK,
-        answer_contract_id="answer-contract-1",
-        component_statuses=(ComponentLayerStatus.OK,),
-        component_layer_results=task.component_layer_results,
-        executed_step_ids=("step-1",),
-        unexecuted_required_step_ids=(),
-        retrieved_fact_ids=("fact-1",),
-        retrieved_derivation_ids=(),
-        retrieved_profile_gap_ids=(),
-        retrieved_assessment_ids=(),
-        retrieved_source_ids=("source:event",),
-        source_snapshot_bindings=task.source_snapshot_bindings,
-        tool_trace_ids=("trace-2", "trace-1"),
-        answer_statements=(statement,),
-        limitations=(),
-    )
-    bundle = seal_query_evidence_bundle(task=task, fields=fields, binding=_binding())
-    assert bundle.tool_trace_ids == ("trace-2", "trace-1")
-    assert bundle.answer_statements == (statement,)
-    with pytest.raises(ValidationError):
-        QueryEvidenceBundleFields.model_validate(
-            {
-                **fields.model_dump(mode="python"),
-                "component_statuses": (ComponentLayerStatus.BLOCKED,),
-            }
-        )
-    foreign_statement = statement.model_copy(
-        update={"support_fact_ids": ("foreign-fact",)}
-    )
-    with pytest.raises(ValidationError):
-        QueryEvidenceBundleFields.model_validate(
-            {
-                **fields.model_dump(mode="python"),
-                "answer_statements": (foreign_statement,),
-            }
-        )
-
-
-def test_analysis_required_blocked_layer_cannot_be_labelled_ok_or_insufficient() -> None:
-    task_fields = _analysis_task_fields()
-    blocked = ComponentLayerResult(
-        layer_id="formal",
-        status=ComponentLayerStatus.BLOCKED,
-        required_for_task=True,
-        blocking_error_id="error:formal",
-    )
-    fields = task_fields.model_copy(
-        update={
-            "component_layer_results": (blocked,),
-            "answer_status": QueryStatus.INSUFFICIENT,
-        }
-    )
-    with pytest.raises(ValidationError):
-        CaseAnalysisTaskFields.model_validate(fields.model_dump(mode="python"))
-
-
-def test_analysis_blocked_required_layer_dominates_missing_required_layer() -> None:
-    task_fields = _analysis_task_fields()
-    blocked = ComponentLayerResult(
-        layer_id="formal",
-        status=ComponentLayerStatus.BLOCKED,
-        required_for_task=True,
-        blocking_error_id="error:formal",
-    )
-    missing = ComponentLayerResult(
-        layer_id="weather",
-        status=ComponentLayerStatus.INSUFFICIENT,
-        required_for_task=True,
-        missing_reason_code="weather_unavailable",
-    )
-    fields = task_fields.model_copy(
-        update={
-            "component_layer_results": (blocked, missing),
-            "answer_status": QueryStatus.BLOCKED,
-        }
-    )
-    assert CaseAnalysisTaskFields.model_validate(fields.model_dump(mode="python")) == fields
 
 
 def test_case_assembly_parser_accepts_only_json_rows_and_none_marker() -> None:

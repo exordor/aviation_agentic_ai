@@ -132,10 +132,13 @@ def test_adapter_records_the_configured_active_agent_role():
     assert turn.record.agent == "decision_case_assembly"
 
 
-def test_adapter_binds_tools_only_for_selection_without_json_mode_or_strict_schema():
+def test_adapter_binds_tools_for_construction_and_query_without_strict_schema():
     chat = _FakeChat(required=[_tool_call_message()])
     _adapter(chat)
-    assert [call["tool_choice"] for call in chat.bind_calls] == ["required"]
+    assert [call["tool_choice"] for call in chat.bind_calls] == [
+        "required",
+        "auto",
+    ]
     for call in chat.bind_calls:
         assert [bound.name for bound in call["tools"]] == ["fictional_lookup"]
         assert "response_format" not in call

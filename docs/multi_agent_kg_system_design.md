@@ -1,10 +1,10 @@
 # Bounded-Agent Aviation Decision-Case Knowledge System
 
 Status: normative current architecture with explicit final publication,
-selective Agent evidence, bounded Decision Case Analysis, metadata-conditioned
-historical retrieval, and one registered case-scoped graph query
+selective construction Agents, and an always-on bounded Hybrid Query Agent over
+Corpus, case-graph, and metadata-conditioned vector tools
 
-Date: 2026-07-29
+Date: 2026-07-30
 
 ## 1. Purpose and Scope
 
@@ -46,11 +46,12 @@ Editable source:
   -> source-independent DecisionCase membership finalization
   -> write-free multi-profile Formal Publication Kernel
   -> canonical corpus v2 normalization
-  -> exact corpus and case-scoped formal graph runtime views
-  -> metadata-conditioned Chroma case index
   -> offline rebuildable RDF/Turtle and Neo4j exports
-  -> deterministic corpus query routing with bounded read-only graph tools
-     -> Decision Case Analysis Agent only for exact registered analysis questions
+  -> always-on bounded Hybrid Query Agent
+     -> exact Corpus, Weather, BTS, case-graph, and filtered-vector tools
+     -> action / observation / continue-or-stop loop
+     -> per-statement evidence-support validation
+     -> answer / insufficient / blocked
 ```
 
 The coordinator, parsers, authority services, adapters, validators, profiles,
@@ -61,23 +62,23 @@ Only three components can make bounded model-mediated decisions:
 
 1. the shared Semantic Resolution Agent;
 2. the Decision Case Assembly Agent;
-3. the Decision Case Analysis Agent for exact registered bounded analysis
-   questions.
+3. the Hybrid Query Agent for every valid natural-language query.
 
-No Critic, Verifier, Planner, Memory, Weather, BTS, ASPM, or recommendation
-Agent is active.
+No separate Critic, long-term Memory, Weather, BTS, ASPM, or recommendation
+Agent is active. Query planning and tool routing occur inside the bounded Query
+Agent loop rather than a fixed question registry.
 
 ## 3. System Increment and Boundaries
 
 | Item | Current decision |
 | --- | --- |
-| Capability | Build, inspect, and narrowly analyze a source-bounded corpus of ATCSCC decision cases with audited context and one closed graph evidence-path query. |
-| Smallest end-to-end result | Build a selected source-ID subset into corpus v2, publish only accepted facts, and retrieve its event, Weather, and active BTS membership paths. |
-| Minimum components | AdvisoryParser, authority services, optional semantic/assembly Agents, Weather/BTS adapters, DecisionCase core, Formal Publication Kernel, corpus store, closed graph view, materializers, and bounded query tools. |
-| Evidence | Source IDs, exact evidence text, snapshot checksums, sealed contracts, preflight records, fact traces, and deterministic tests. |
-| Success | Accepted facts materialize consistently; profile gaps and missing evidence remain distinct; registered queries return `ok`, `insufficient`, or `blocked`. |
-| Failure | A component invents a candidate, source, fact, cause, ontology term, or graph write; a provider is built on a deterministic path; or a result bypasses the Kernel. |
-| Deferred | Causal explanation, recommendation, lifecycle episode grouping, operational-situation or outcome-aware similarity, general aviation QA, and analysis outside the exact registered families. |
+| Capability | Build a source-bounded ATCSCC decision-case corpus and answer natural-language questions through model-selected, read-only HybridRAG tools. |
+| Smallest end-to-end result | Build a selected source-ID subset into corpus v2, ask a paraphrased question, retrieve the needed evidence, and return supported statements or an honest terminal state. |
+| Minimum components | AdvisoryParser, authority services, optional semantic/assembly Agents, Weather/BTS adapters, DecisionCase core, Formal Publication Kernel, corpus store, case-graph view, Chroma sidecar, bounded query tools, Query Agent, and statement-support validator. |
+| Evidence | Source IDs, exact evidence text, snapshot checksums, sealed construction contracts, fact traces, tool observations, statement-level support IDs, and deterministic software tests. |
+| Success | Accepted facts materialize consistently; every valid question enters the LLM query loop; supported statements cite admitted evidence; missing evidence returns `insufficient`. |
+| Failure | A component invents a candidate, source, fact, cause, ontology term, recommendation, or graph write; the Query Agent answers before retrieval; a statement cites unavailable evidence; or a result bypasses the Kernel. |
+| Deferred | Causal explanation, recommendation, lifecycle episode grouping, operational-situation or outcome-aware similarity, general aviation chat outside the bounded corpus, and current live-model performance claims. |
 
 ## 4. Source and Evidence Boundaries
 
@@ -100,7 +101,7 @@ The runtime uses these terminal states:
 | State | Meaning |
 | --- | --- |
 | `ok` | Validated evidence supports the requested result. |
-| `insufficient` | The field, optional layer, or registered evidence is absent or unsupported. |
+| `insufficient` | The requested field, optional layer, or retrieved evidence is absent or unsupported. |
 | `blocked` | A required contract, source, checksum, schema, or provider dependency failed. |
 | `profile_gap` | The source supports a value that the active formal profile cannot publish. |
 
@@ -262,11 +263,13 @@ and source artifact.
 
 Corpus v2 is the canonical persisted knowledge layer. Every `cases.jsonl`
 record requires a conceptual `case_iri` and a `reconstruction_iri` extracted
-from accepted DecisionCase core facts. The exact corpus and case-scoped graph
-are runtime read views. RDF/Turtle and Neo4j are offline rebuildable KG
-exports; Chroma is a rebuildable metadata-conditioned retrieval index. Context
-associations are excluded from formal RDF and Neo4j; already admitted BTS
-public-observation facts remain formal.
+from accepted DecisionCase core facts. Exact Corpus reads and the case-scoped
+graph are runtime views; Chroma is a rebuildable metadata-conditioned retrieval
+index. All three are accessed through deterministic, read-only Query Agent
+tools. RDF/Turtle and Neo4j are offline rebuildable KG exports and do not
+connect to the runtime query loop. Context associations are excluded from
+formal RDF and Neo4j; already admitted BTS public-observation facts remain
+formal.
 
 The successful build also publishes a research-only usage sidecar:
 
@@ -291,60 +294,71 @@ final-manifest publication and is the only state retried by
 `build-corpus --resume`. Successful finalization deletes temporary case
 bundles; those staging packages are never a public read backend.
 
-## 11. QueryEvidenceBundle and Decision Case Analysis
+## 11. Always-On Hybrid Query Agent
 
-The query surface reads only checksum-verified corpus tables through bounded
-read-only tools. Registered deterministic question families cover the
-measure, facility, operational period, declared reason, provenance, decision
-context, public observations, and reconstruction record. Missing or
-unsupported registered evidence returns `insufficient` before model
-construction. These existing routes, including the combined record question,
-remain deterministic and make zero model calls.
+The public `ask` surface accepts a natural-language question; it has no exact
+question registry, keyword classifier, or deterministic answer bypass. After
+the corpus, immutable query scope, and provider are constructed successfully,
+every request enters the bounded Query Agent. The first model response must
+request retrieval and cannot answer from model memory.
 
-One registered multi-hop question uses the case-scoped formal graph view:
+The Agent follows a Pi-style action-observation loop:
 
 ```text
-Which weather reports and active-window BTS public observations belong to this reconstructed decision case?
+natural-language question + immutable query scope
+  -> LLM selects one or more bounded tools
+  -> deterministic tools return typed observations and evidence identities
+  -> LLM continues retrieval or emits a typed answer
+  -> per-statement support and claim-boundary validation
+  -> answer / insufficient / blocked
 ```
 
-The closed traversal follows the selected reconstruction through
-`prov:specializationOf` and `prov:hadMember`, then reads admitted Weather and
-active-window BTS observation facts. It returns formal fact and source paths
-from only the selected case, makes zero model calls, and returns
-`insufficient` unless both required evidence families are complete. It does
-not expose arbitrary predicates, hop counts, SPARQL, Cypher, or general graph
-QA.
+The loop permits at most four provider turns, at most three tool calls in one
+turn, and at most six tool calls in total. Tool errors and observations are
+returned to the model through typed tool messages. Repeated retrieval is
+allowed when a first observation reveals the event or evidence needed for a
+later call; unbounded planning, external web access, graph writes, and
+long-term Agent memory are not available.
 
-Exact registered analysis questions compile to closed typed plans. Episode,
-operational-situation, and applicability analysis may activate the Decision
-Case Analysis Agent with explicit model authorization. The Agent sees only a
-plan-step ID, makes at most two model calls, executes at most three distinct
-steps, and has no raw advisory reader, external web access, graph-write
-capability, or model-memory fallback.
+Six deterministic, read-only tools form the HybridRAG surface:
 
-Deterministic routes form their answer directly from the validated
-`QueryToolOutcome`. For an exact registered analysis route, selected runtime
-reads are sealed into a typed `QueryEvidenceBundle`; evidence-support
-validation checks the proposed analysis against that bundle before returning
-citations, limitations, and terminal status. Query-time Analysis Agent
-execution remains inside the existing query evidence result; it is not written
-back into the corpus build usage sidecar.
+| Tool capability | Runtime source | Boundary |
+| --- | --- | --- |
+| Find cases | Corpus case catalog | Exact filters and bounded paging. |
+| Read case facts | Formal facts and profile gaps | Preserves formal, profile-gap, and missing reason states. |
+| Read Weather context | Context associations plus admitted report facts | Always `causal_claim=false`. |
+| Read public observations | BTS observation records and formal facts | Never FAA demand, capacity, AAR, EDCT, or decision rationale. |
+| Read case graph | Case-scoped formal graph view | Entity, direction, predicate, and result limits; no SPARQL or Cypher. |
+| Find similar cases | Corpus-bound Chroma sidecar | Exact filters before vector recall; no recommendation or optimality claim. |
 
-Operational-situation analysis is the supported complete fixture. Episode
-analysis reports only the current record and cannot group a lifecycle.
-Applicability analysis can report formal facility/time applicability but
-cannot infer observed individual-flight impact from aggregate BTS records.
+The CLI event ID, exact filters, pagination window, and archive/prior candidate
+scope form an immutable upper bound. A model may narrow that scope but cannot
+widen it. The model never receives graph-write tools, raw storage paths, or an
+external retriever.
 
-Historical similarity is a separate deterministic retrieval route. One compact
-document per accepted case encodes TMI type, canonical facility,
-declared-reason state/value, UTC time of day, and duration bucket. Exact corpus
-filters run before normalized cosine recall from a persistent local Chroma
-sidecar, and the reference case is always excluded. This is a
-metadata-conditioned decision-record index, not operational-situation,
-Weather, outcome, or effectiveness similarity. The index is derived from and
-bound to `corpus_id`; changing the corpus requires rebuilding it. Results are
-retrieval records only and do not enter corpus facts, RDF, Neo4j, or the Formal
-Publication Kernel. The route invokes no chat provider.
+Every typed answer consists of statements and limitations. Each statement
+declares a semantic kind and cites the subset of retrieved case, fact,
+profile-gap, context-association, observation, graph-path, and source IDs that
+supports it. The validator rejects unknown IDs and applies kind-specific
+requirements:
+
+- a source fact needs a source plus a case, formal fact, or profile gap;
+- a non-causal context statement needs a source and context association;
+- a public-observation statement needs a source and observation;
+- a similarity statement needs source and case support.
+
+The validator also rejects causal language over Weather context, attempts to
+reinterpret BTS observations as FAA demand/capacity or decision rationale, and
+recommendation or optimality language over similarity results. No answer prose
+is written back into corpus v2, RDF, Neo4j, or the construction
+`agent_usage/` sidecar.
+
+The metadata-conditioned case index still uses one compact document per
+accepted case: TMI type, canonical facility, declared-reason state/value, UTC
+time of day, and duration bucket. It does not encode Weather, BTS outcomes,
+operational effectiveness, or recommended actions. The deterministic vector
+tool is derived from and bound to `corpus_id`; changing the corpus requires
+rebuilding it. The surrounding query always remains model-routed.
 
 ## 12. Canonical Acceptance Cases
 
@@ -354,7 +368,7 @@ The three cases are regression contracts, not a causal or semantic benchmark.
 | --- | --- | --- | --- |
 | `2026-05-19:123` | KJFK, `2026-05-19T21:00:00Z` to `2026-05-19T22:45:00Z` | Source-bound profile gap only; no formal `atm:impactingCondition`. | 20 scheduled, 18 completed, 2 cancellations, 0 diversions. |
 | `2026-05-19:138` | KJFK, `2026-05-19T22:05:00Z` to `2026-05-20T02:59:00Z` | Formal `weather`; exact advisory evidence ends at `THUNDERSTORMS`. | 77 scheduled, 68 completed, 4 cancellations, 5 diversions. |
-| `2026-05-20:020` | KEWR, preserved operational period | Declared reason missing; declared-reason query is `insufficient` before model construction. | 50 scheduled, 49 completed, 1 cancellation, 0 diversions. |
+| `2026-05-20:020` | KEWR, preserved operational period | Declared reason missing; the Query Agent can retrieve that missing state but cannot fill it from Weather or BTS. | 50 scheduled, 49 completed, 1 cancellation, 0 diversions. |
 
 All three take the canonical zero-call Assembly path. Weather context remains
 non-causal and cannot widen, infer, replace, or otherwise change these reason
@@ -367,7 +381,7 @@ The current commands are:
 ```text
 aviation-ai agent-system build-corpus --config <config> --output-dir <corpus-dir> [--selection cohort|all] [--source-id <id> ...] --allow-live-model [--resume]
 aviation-ai agent-system index-cases --corpus-dir <corpus-dir> [--model-name <model>] [--allow-model-download]
-aviation-ai agent-system ask --corpus-dir <corpus-dir> --question "<question>" [--event-id <event-id>] [--allow-live-model]
+aviation-ai agent-system ask --corpus-dir <corpus-dir> --question "<question>" [--event-id <event-id>] [exact filters and paging]
 aviation-ai agent-system neo4j-export --corpus-dir <corpus-dir>
 aviation-ai agent-system export-case --corpus-dir <corpus-dir> --event-id <event-id> --output-dir <export-dir>
 ```
@@ -378,13 +392,12 @@ v1 corpus migration layer. `build-corpus --source-id` is the bounded
 single-case debug route. Corpus queries, projections, Neo4j loads, and case
 exports all use the checksum-verified v2 tables.
 
-`--allow-live-model` authorizes the existing bounded workflow for eligible
-build records and a model-bound Decision Case Analysis route. Preflight,
-existing deterministic questions, and historical similarity do not construct
-a chat provider. Historical similarity accepts exact event-type, facility, and
-declared-reason filters plus `archive` or `prior` candidate scope. The flag is
-authorization only: its presence does not prove that a provider was called or
-that a model result passed acceptance.
+`--allow-live-model` remains explicit authorization for eligible corpus builds.
+The public `ask` command has no deterministic fallback or opt-in query flag: it
+constructs the configured `query` model and returns `blocked` when that provider
+is unavailable. Event type, facility, declared reason, pagination, and
+`archive`/`prior` options bound the tool scope; they do not select a hard-coded
+question route.
 
 ## 14. Verification Requirements
 
@@ -408,32 +421,45 @@ checks. Model-dependent claims require the explicit live-evaluation path,
 which reuses the real corpus builder, Formal Publication Kernel, and corpus
 query implementation and does not silently substitute a fake provider.
 
-The frozen Batch F live smoke used DeepSeek `deepseek-v4-pro`, temperature
-`0.0`, thinking disabled, no automatic retries, and one repetition for four
-Assembly tasks and the GDP `138` operational-situation Analysis task. Its runner
-completed, but model acceptance was `0/5`:
+The frozen Batch F live smoke predates the Hybrid Query Agent. It used DeepSeek
+`deepseek-v4-pro`, temperature `0.0`, thinking disabled, no automatic retries,
+and one repetition for four Assembly tasks and the GDP `138` registered-analysis
+task. Its runner completed, but model acceptance was `0/5`:
 
 - Assembly `025`, `030`, and `072` exceeded the frozen output-token cap;
 - Assembly `070` returned a malformed typed Assembly contract;
-- the GDP `138` Analysis answer failed its typed evidence-support contract.
+- the GDP `138` retired-analysis answer failed its typed evidence-support
+  contract.
 
 No prompt or token-cap adjustment was made during the frozen run. Those
 compatibility fixes are deferred. Temperature `0` reduces sampling variance
-but does not make provider output deterministic, and a one-shot five-task
-smoke is not a statistical benchmark.
+but does not make provider output deterministic, and this one-shot smoke is
+neither a statistical benchmark nor evidence about the current Query Agent.
 
 The separate repeated-provider experiment used the same frozen five tasks for
 12 full cycles. It recorded 108 attempted and 108 successful real-provider
 calls, zero provider failures, 431,018 input tokens, and 89,148 output tokens.
 Task acceptance remained `0/60`: 48 Assembly measurements exceeded the frozen
-output-token cap and 12 Analysis measurements failed the typed answer/support
-contract. DeepSeek reported 396,928 prompt-cache-hit tokens and 34,090
+output-token cap and 12 retired-analysis measurements failed the typed
+answer/support contract. DeepSeek reported 396,928 prompt-cache-hit tokens and 34,090
 prompt-cache-miss tokens from its automatic input-prefix context cache. This
 was not cached-response replay, and all 108 provider response IDs were unique.
-These are repeated compatibility measurements, not 60 independent tasks. The
+These are repeated pre-refactor compatibility measurements, not 60 independent
+tasks or current query performance. The
 local `live-agent-experiment-v1-invalid-observer-phase/` and
 `live-agent-experiment-v1-normalized-response-only/` diagnostics are excluded
 from this result.
+
+The current v2 experiment retains the same four Assembly tasks but replaces the
+retired registered-analysis trial with the always-on Hybrid Query Agent. Across
+12 cycles, all 120 real DeepSeek calls returned successfully with zero call
+failures, using 383,201 input tokens and 69,986 output tokens. The GDP `138`
+query passed 12/12 measurements. The Assembly tasks failed 48/48 measurements:
+28 output-token-cap failures and 20 malformed-contract failures. The raw and
+parsed artifact hashes matched the v2 manifest, and no call-binding, cache, or
+frozen-configuration integrity violation was recorded. This establishes one
+repeated current-query compatibility result, not a broad natural-language
+benchmark.
 
 The Semantic Resolution Agent is
 `not_evaluated_no_natural_ambiguity` because the frozen cohort has no natural

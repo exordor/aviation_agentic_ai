@@ -36,18 +36,17 @@ from aviation_agentic_ai.agent_system.contracts import (
     GraphPatchBlock,
     GraphPatchLine,
     GraphValidationResult,
+    HybridQueryScope,
     PersistedProfileGap,
     SourceFamily,
     SourceRecord,
     ValidatedFact,
 )
-from aviation_agentic_ai.agent_system.corpus_query import (
-    answer_corpus_question,
-)
 from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusQueryStore,
     build_corpus,
 )
+from aviation_agentic_ai.agent_system.hybrid_query_tools import HybridQueryGateway
 from aviation_agentic_ai.agent_system.decision_case_graph import (
     CASE_DECISION_CASE_IRI,
     CASE_RECONSTRUCTION_IRI,
@@ -60,10 +59,6 @@ from aviation_agentic_ai.agent_system.materialize import (
     materialize_validated_facts,
 )
 from aviation_agentic_ai.agent_system.runtime import write_run_manifest
-from aviation_agentic_ai.agent_system.query_registry import (
-    DECLARED_REASON_QUESTION,
-    RECONSTRUCTION_EVIDENCE_PATH_QUESTION,
-)
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
@@ -1284,45 +1279,39 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
     assert corpus_case.case_iri == case_graph.case_iri
     assert corpus_case.reconstruction_iri == case_graph.reconstruction_iri
 
-    graph_outcome = answer_corpus_question(
-        corpus_dir=corpus_dir,
-        question=RECONSTRUCTION_EVIDENCE_PATH_QUESTION,
-        event_id=state["decision_context_event"].event_id,
+    gateway = HybridQueryGateway(
+        store=corpus_store,
+        scope=HybridQueryScope(
+            event_id=state["decision_context_event"].event_id
+        ),
     )
-    assert {
-        path.path_kind for path in graph_outcome.retrieved_graph_paths
-    } >= {"event_member", "weather_member"}
-    assert graph_outcome.status == "ok"
-    assert any(
-        path.path_kind == "active_public_observation"
-        for path in graph_outcome.retrieved_graph_paths
+    graph_observation = gateway.read_case_graph(
+        event_id=state["decision_context_event"].event_id
     )
+    assert graph_observation.status == "ok"
     case_fact_ids = {
         fact.fact_id
         for fact in corpus_store.get_case_facts(
             state["decision_context_event"].event_id
         )
     }
-    assert set(graph_outcome.retrieved_fact_ids) <= case_fact_ids
-    assert set(graph_outcome.source_ids) <= set(corpus_case.source_ids)
-    assert not set(graph_outcome.retrieved_fact_ids).intersection(
+    assert set(graph_observation.details.fact_ids) <= case_fact_ids
+    assert len(graph_observation.details.fact_ids) == 50
+    assert set(graph_observation.details.source_ids) <= set(corpus_case.source_ids)
+    assert not set(graph_observation.details.fact_ids).intersection(
         association.association_id
         for association in corpus_store.context_associations
     )
-    assert graph_outcome.model_calls == []
 
-    corpus_reason = answer_corpus_question(
-        corpus_dir=corpus_dir,
-        question=DECLARED_REASON_QUESTION,
+    corpus_reason = gateway.read_case_facts(
         event_id=state["decision_context_event"].event_id,
     )
-    assert corpus_reason.status == (
-        "ok" if reason_state == "formal_weather" else "insufficient"
-    )
-    if reason_state == "missing":
-        assert corpus_reason.answer == (
-            "No declared reason is recorded for this corpus case."
-        )
+    reason_payload = json.loads(corpus_reason.content)["case"]
+    assert reason_payload["reason_status"] == {
+        "formal_weather": "formal",
+        "profile_gap": "profile_gap",
+        "missing": "missing",
+    }[reason_state]
 
 
 def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_artifacts(

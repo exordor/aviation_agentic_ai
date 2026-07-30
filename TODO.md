@@ -11,14 +11,19 @@ decisions. Historical experiment backlogs are discoverable through
 - [ ] Decide whether to merge the reviewed read-only visualization from
   `codex/kg-visualization-research` into `main`.
 - [ ] If a model-compatibility task is approved, version prompt or output-token
-  changes separately from the frozen `live_smoke` and `live_experiment`
-  results.
+  changes separately from the frozen Assembly results. The current v2 run
+  confirms the Hybrid Query Agent on one repeated GDP `138` task while exposing
+  48/48 Assembly compatibility failures.
+- [ ] Expand the Hybrid Query Agent live suite beyond the repeated GDP `138`
+  task to cover paraphrased, multilingual, multi-tool,
+  insufficient-evidence, and claim-boundary questions.
 - [ ] Otherwise, choose one bounded system increment with an explicit source
   and acceptance boundary, such as ASPM validation, regional Weather context,
   decision-episode grouping, or operational-situation similarity.
 
-Do not expand Decision Case Analysis beyond the exact registered families
-without a new approved task and evidence boundary.
+Do not reintroduce exact-question registries or bypass the Query Agent for
+apparently simple questions. Deterministic retrieval remains inside bounded
+tools; natural-language interpretation and tool routing remain model-mediated.
 
 ## Explicitly Deferred
 
@@ -30,7 +35,7 @@ without a new approved task and evidence boundary.
 - Operational-situation and outcome-aware similarity, learned reranking, and
   TMI recommendation.
 - General-purpose planner and long-term Agent memory.
-- General RAG and general aviation chat.
+- General aviation chat or retrieval outside the bounded corpus tools.
 - New Agent roles without an observed need.
 - Prompt or token-cap tuning for the recorded `live_smoke` and
   `live_experiment` failures.

@@ -1,6 +1,10 @@
 # Decision Case Semantic Expansion Design
 
-Status: approved design, implementation not started
+Status: historical design; query-routing sections superseded on 2026-07-30
+
+> This document records the earlier fixed-query design. The active runtime is
+> defined by `docs/multi_agent_kg_system_design.md` and uses an always-on,
+> tool-selecting HybridRAG Query Agent.
 
 Date: 2026-07-27
 

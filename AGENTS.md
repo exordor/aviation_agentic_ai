@@ -26,11 +26,12 @@ The active pipeline is:
   -> source-independent DecisionCase core and formal reconstruction membership
   -> write-free multi-profile Formal Publication Kernel
   -> canonical corpus v2 normalization
-  -> case-scoped formal graph view for one exact evidence-path question
   -> rebuildable JSONL + RDF + Neo4j materialization
   -> rebuildable case-level Chroma index for filtered decision-record retrieval
-  -> deterministic corpus query routing with bounded read-only graph tools
-     -> Decision Case Analysis Agent only for exact registered analysis questions
+  -> every valid natural-language ask activates the bounded Query Agent
+     -> model-selected read-only Corpus, Weather, BTS, graph, and similarity tools
+     -> per-statement evidence and claim-boundary validation
+     -> answer, insufficient, or blocked
 ```
 
 Corpus v2 is the canonical persisted knowledge and evidence layer. Formal graph
@@ -44,23 +45,21 @@ names, not internal alphanumeric labels.
 
 ## Current Status
 
-- `main` contains the corpus-first builder, validation, corpus v2
-  materialization, full-corpus Neo4j projection, bounded query path,
-  DecisionCase semantic core, Decision Case Assembly, and Decision Case
-  Analysis.
-- The formal case graph supports one closed Weather and active-BTS
-  evidence-path question with zero model calls; it is not a general graph-query
-  interface.
-- The three Decision Record Explorer cases have deterministic query support on
-  `main`, including a profile-gap reason and an honest missing-reason outcome.
-- The current architecture cutover and bounded analysis surface are merged into
-  `main`. The three canonical records use the zero-call deterministic compiler,
+- The active implementation contains the corpus-first builder, validation,
+  corpus v2 materialization, full-corpus Neo4j projection, DecisionCase
+  semantic core, Decision Case Assembly, and the bounded HybridRAG Query Agent.
+- The formal case graph exposes general, case-scoped formal edges to a read-only
+  query tool. It is no longer limited to one registered evidence-path shape.
+- The three Decision Record Explorer cases preserve their profile-gap, formal
+  weather, and honest missing-reason states. Public answers are nevertheless
+  model-routed and evidence-bound, not deterministic sentence matches.
+- The three canonical records still use the zero-call deterministic compiler,
   and the Formal Publication Kernel remains the sole final publication
   authority.
-- Decision Case Analysis is active only for exact registered episode,
-  operational-situation, and applicability questions. It uses closed plans and
-  bounded read-only tools. Historical decision-record similarity uses exact
-  filters before a corpus-bound Chroma index and remains zero-chat-model.
+- Every valid public `ask` invokes the Query Agent. The model may select exact
+  corpus reads, Weather context, BTS observations, case-graph edges, or
+  metadata-conditioned Chroma retrieval over multiple bounded turns. There is
+  no fixed question registry or deterministic answer fallback.
 - The corpus-first storage cutover is complete. The rebuildable `index-cases`
   sidecar supports the deterministic filtered-similarity route. The public
   commands are `build-corpus`, `index-cases`, `ask`, `neo4j-export`, and
@@ -72,18 +71,19 @@ names, not internal alphanumeric labels.
   unsupported TMI, and 3 incomplete core-field records. The 26 preflight
   failures are `insufficient` with zero model calls. A corpus manifest is
   published only when blocked is zero; `--resume` retries only blocked entries.
-- `live_smoke`: the main branch includes a separate live-model acceptance
-  layer. Its frozen one-shot DeepSeek smoke completed, but model acceptance was
-  `0/5`: three Assembly trials reached the output-token cap, one returned a
-  malformed Assembly contract, and one Analysis answer failed its typed
-  evidence-support contract. These are recorded compatibility failures, not
-  benchmark results.
-- `live_experiment`: a separate repeated real-provider experiment completed 12
-  full five-task cycles with DeepSeek `deepseek-v4-pro`: 108/108 provider calls
-  returned successfully, while task acceptance remained `0/60` (48 Assembly
-  output-token-cap failures and 12 Analysis support-contract failures). This is
-  repeated compatibility evidence, not 60 independent tasks or a model-quality
-  benchmark.
+- `live_smoke`: the current v2 one-shot DeepSeek smoke completed with 10/10
+  successful real calls. The Hybrid Query Agent passed its GDP `138` task;
+  all four unchanged Assembly tasks failed their frozen compatibility checks.
+- `live_experiment`: the current v2 repeated real-provider experiment completed
+  12 full five-task cycles with DeepSeek `deepseek-v4-pro`: 120/120 real calls
+  succeeded with zero call failures. The Hybrid Query Agent passed 12/12
+  measurements; the unchanged Assembly tasks failed 48/48 measurements because
+  of output-token-cap or malformed-contract results. Provider-call success is
+  not task acceptance, and these are repeated measurements of five fixed tasks,
+  not 60 independent samples or a model-quality benchmark.
+- The v1 smoke and repeated experiment remain frozen historical evidence for
+  the retired registered-analysis runtime. Do not relabel them as current Query
+  Agent results.
 - The read-only visualization prototype is isolated on
   `codex/kg-visualization-research`. Visualization is paused and is not the
   active `main` implementation track.

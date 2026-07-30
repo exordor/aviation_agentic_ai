@@ -124,18 +124,23 @@ neo4j_nodes.jsonl
 neo4j_relationships.jsonl
 ```
 
-Ask a deterministic registered question:
+Ask a free natural-language question. A valid corpus query always activates the
+configured Query Agent; the model selects bounded, read-only retrieval tools and
+the runtime validates each final statement against returned evidence IDs:
 
 ```bash
 uv run aviation-ai agent-system ask \
   --corpus-dir data/corpus/agent_system/smoke-v2 \
-  --event-id event:2026-05-19:138 \
+  --event-id <event-id-from-cases.jsonl> \
   --question "What forecast was known at decision time?"
 ```
 
-Exact catalog filters are `--event-type-iri`, `--facility-id`,
-`--reason-status`, `--reason-value`, `--offset`, and `--limit`. Decision Case
-Analysis requires `--allow-live-model` for its exact registered questions.
+Scope hints are `--event-type-iri`, `--facility-id`, `--reason-status`,
+`--reason-value`, `--offset`, and `--limit`. They bound tool access; they do not
+select an answer branch. The `ask` command has no `--allow-live-model` flag:
+running it is the explicit request to use the configured provider. If the
+provider cannot be constructed, the query returns `blocked` without a
+deterministic fallback.
 
 Build the rebuildable case-level vector index:
 
@@ -150,7 +155,8 @@ The first permitted run may download the pinned embedding model. Later runs can
 omit `--allow-model-download` when the model is already local. The resulting
 `case_index/` directory is a derived, ignored sidecar bound to the corpus ID.
 
-Run one exact-filtered archive or prior-case query:
+Run one bounded archive or prior-case query. The Query Agent decides whether
+the metadata-conditioned vector tool is relevant:
 
 ```bash
 uv run --extra case-retrieval aviation-ai agent-system ask \
@@ -183,7 +189,7 @@ Export one bounded case:
 ```bash
 uv run aviation-ai agent-system export-case \
   --corpus-dir data/corpus/agent_system/smoke-v2 \
-  --event-id event:2026-05-19:138 \
+  --event-id <event-id-from-cases.jsonl> \
   --output-dir data/corpus/agent_system/export-gdp-138
 ```
 
@@ -218,8 +224,8 @@ authorized live smoke with the frozen DeepSeek configuration:
 ```bash
 uv run python -m aviation_agentic_ai.agent_system.live_agent_evaluation \
   --config configs/cross_source_v1.yaml \
-  --suite data/evaluation/agent_system/live_agent_smoke_v1.yaml \
-  --output-dir data/corpus/agent_system/live-agent-smoke-v1 \
+  --suite data/evaluation/agent_system/live_agent_smoke_v2.yaml \
+  --output-dir data/corpus/agent_system/live-agent-smoke-v2 \
   --report-dir reports/stages \
   --allow-live-model \
   --repetitions 1
@@ -227,24 +233,26 @@ uv run python -m aviation_agentic_ai.agent_system.live_agent_evaluation \
 
 The suite fixes provider/model to DeepSeek `deepseek-v4-pro`, temperature to
 `0.0`, thinking to disabled, automatic retries to `0`, and one repetition.
-The recorded run completed all five trials and passed `0/5`: three Assembly
-trials exceeded the frozen output-token cap, one returned a malformed Assembly
-contract, and the Analysis answer failed its typed answer/support contract.
-Semantic Resolution is `not_evaluated_no_natural_ambiguity`; synthetic
+The v2 suite evaluates the always-on Hybrid Query Agent and writes evaluator-
+owned, sanitized `hybrid_query_run.json` records containing statement types,
+statement text, evidence IDs, tool names, tool statuses, and referenceable IDs.
+It does not retain prompts, tool arguments, tool results, or model reasoning.
+Semantic Resolution remains `not_evaluated_no_natural_ambiguity`; synthetic
 ambiguity is not presented as cohort performance.
 
 This five-task run is a compatibility and bounded-behavior smoke test, not a
 benchmark or reliability estimate. Temperature zero reduces variance but does
-not make provider behavior deterministic. Review the sanitized reports:
+not make provider behavior deterministic. A completed v2 run writes:
 
 ```text
-reports/stages/agent_system_live_agent_smoke_v1.json
-reports/stages/agent_system_live_agent_smoke_v1.md
+reports/stages/agent_system_live_agent_smoke_v2.json
+reports/stages/agent_system_live_agent_smoke_v2.md
 ```
 
-Credentials, complete prompts, raw responses, tool arguments, tool results,
-model reasoning, and detailed live-run artifacts remain ignored and
-untracked.
+The existing v1 suite and reports are frozen historical evidence for the
+retired registered-analysis runtime. The v2 writer uses distinct filenames and
+must not overwrite them. Credentials, complete prompts, raw responses, tool
+arguments, tool results, and model reasoning remain ignored and untracked.
 
 ### Repeated Real-Provider Experiment
 
@@ -254,48 +262,53 @@ repeated experiment with:
 ```bash
 uv run python -m aviation_agentic_ai.agent_system.live_agent_experiment \
   --config configs/cross_source_v1.yaml \
-  --suite data/evaluation/agent_system/live_agent_experiment_v1.yaml \
-  --output-dir data/corpus/agent_system/live-agent-experiment-v1 \
+  --suite data/evaluation/agent_system/live_agent_experiment_v2.yaml \
+  --output-dir data/corpus/agent_system/live-agent-experiment-v2 \
   --report-dir reports/stages \
   --allow-live-model
 ```
 
 The experiment fixes DeepSeek `deepseek-v4-pro`, temperature `0.0`, thinking
 disabled, automatic retries to `0`, and the local model cache to disabled. The
-recorded run stopped after 12 cycles when it had observed 108 attempted and 108
-successful real-provider calls, zero provider failures, 431,018 input tokens,
-and 89,148 output tokens. DeepSeek reported 396,928 prompt-cache-hit tokens and
-34,090 prompt-cache-miss tokens. Its automatic input-prefix context cache is
-distinct from a cached response or replay; all 108 calls returned unique
-provider response IDs.
+v2 experiment applies the existing provider-call integrity policy to the
+Hybrid Query Agent. Every query measurement is scored from its evaluator-owned
+statement/tool artifact, including per-statement citation and claim-boundary
+checks. Repeated cycles remain repeated measurements of five fixed tasks, not
+independent evaluation samples.
 
-Task acceptance was `0/60`: all 48 Assembly measurements exceeded the frozen
-output-token cap, and all 12 Analysis measurements failed the typed
-answer/support contract. The 60 rows are repeated measurements of five fixed
-tasks, not 60 independent evaluation tasks.
-
-Tracked sanitized reports:
+A completed v2 experiment writes sanitized reports:
 
 ```text
-reports/stages/agent_system_live_agent_experiment_v1.json
-reports/stages/agent_system_live_agent_experiment_v1.md
+reports/stages/agent_system_live_agent_experiment_v2.json
+reports/stages/agent_system_live_agent_experiment_v2.md
 ```
 
 Ignored local evidence:
 
 ```text
-data/corpus/agent_system/live-agent-experiment-v1/raw_responses.jsonl
-data/corpus/agent_system/live-agent-experiment-v1/parsed_outputs.jsonl
-data/corpus/agent_system/live-agent-experiment-v1/experiment_manifest.json
-data/corpus/agent_system/live-agent-experiment-v1/cycles/
+data/corpus/agent_system/live-agent-experiment-v2/raw_responses_v2.jsonl
+data/corpus/agent_system/live-agent-experiment-v2/parsed_outputs_v2.jsonl
+data/corpus/agent_system/live-agent-experiment-v2/experiment_manifest_v2.json
+data/corpus/agent_system/live-agent-experiment-v2/hybrid_query_runs/
+data/corpus/agent_system/live-agent-experiment-v2/cycles/
 ```
 
-The local
-`data/corpus/agent_system/live-agent-experiment-v1-invalid-observer-phase/`
-and
-`data/corpus/agent_system/live-agent-experiment-v1-normalized-response-only/`
-directories came from excluded diagnostic attempts. Neither is part of the
-108-call result, and neither may be reported as experimental evidence.
+The verified v2 run completed 12 cycles with 120 attempted and 120 successful
+real calls, zero failed calls, 383,201 input tokens, and 69,986 output tokens.
+The current Hybrid Query Agent passed 12/12 query measurements; the four
+unchanged Assembly tasks failed 48/48 measurements. Independently recomputed
+SHA-256 values were:
+
+```text
+raw_responses_v2.jsonl
+  6b38bfc0b705fb802acc56a4468d07a90210422b8e694aca9b6bea9dab948053
+parsed_outputs_v2.jsonl
+  f567449dda7f76afe238f34673e3086c74605db7274e28b6c0a6cdb43384558e
+```
+
+The pre-refactor v1 suite, tracked reports, and ignored local artifacts remain
+historical evidence only. They must not be relabeled as Hybrid Query Agent
+results.
 
 ## Verification
 
@@ -312,9 +325,9 @@ uv run --extra case-retrieval pytest -q \
   tests/test_agent_system_case_retrieval_index.py \
   tests/test_agent_system_case_retrieval_search.py \
   tests/test_agent_system_case_retrieval_evaluation.py \
-  tests/test_agent_system_query_registry.py \
-  tests/test_agent_system_case_analysis_tools.py \
-  tests/test_agent_system_case_analysis_readers.py \
+  tests/test_agent_system_hybrid_query_agent.py \
+  tests/test_agent_system_hybrid_query_tools.py \
+  tests/test_agent_system_hybrid_query_public.py \
   tests/test_cli_agent_system.py
 
 uv run ruff check .

@@ -15,8 +15,10 @@ Publication Kernel.
   -> event-patch admissibility check
   -> final decision/profile/membership publication kernel
   -> canonical corpus v2 with case and reconstruction identities
-  -> exact corpus, case-scoped graph, and metadata-conditioned case views
-  -> bounded corpus query, offline KG export, and case export
+  -> read-only Corpus, case-graph, and metadata-conditioned vector tools
+  -> always-on bounded LLM query loop
+  -> per-statement evidence support
+  -> answer, insufficient, or blocked
 ```
 
 The public persisted interface is corpus-first. `build-corpus` is the only
@@ -135,31 +137,43 @@ does not affect corpus identity. It contains aggregate counts, tokens, and
 latency only—not prompts, model responses, tool arguments, tool results, or
 model reasoning.
 
-## Live Agent Smoke Evaluation
+## Current Hybrid Query Agent Live Acceptance
+
+The post-refactor v2 DeepSeek run exercised the current always-on Hybrid Query
+Agent together with the unchanged four Assembly tasks. The frozen
+configuration was `deepseek-v4-pro`, temperature `0.0`, thinking disabled, no
+automatic retries, and no local response cache.
+
+The repeated experiment completed 12 cycles and recorded 120 attempted and 120
+successful real-provider calls with zero failed calls. It used 383,201 input
+tokens and 69,986 output tokens. The current GDP `138` natural-language query
+passed in all 12 cycles. The four Assembly tasks failed in all 48
+measurements—28 output-token-cap failures and 20 malformed-contract
+failures—so provider-call success must not be confused with task acceptance.
+
+The tracked, sanitized reports are
+[`agent_system_live_agent_experiment_v2.json`](reports/stages/agent_system_live_agent_experiment_v2.json)
+and
+[`agent_system_live_agent_experiment_v2.md`](reports/stages/agent_system_live_agent_experiment_v2.md).
+Raw responses, parsed trial outputs, and the experiment manifest remain
+gitignored under `data/corpus/agent_system/live-agent-experiment-v2/`.
+
+## Historical Pre-Refactor Live Evaluation
 
 Offline fake and scripted model tests verify software contracts, routing, and
-data flow only; they do not measure real LLM or Agent behavior. The explicit
-live smoke layer uses DeepSeek `deepseek-v4-pro` with temperature `0.0`,
-thinking disabled, and zero automatic retries:
+data flow only; they do not measure real LLM or Agent behavior. Before the
+always-on Hybrid Query Agent cutover, the project recorded a frozen DeepSeek
+`deepseek-v4-pro` compatibility smoke over four Assembly tasks and one retired
+registered-analysis task. The five trials passed `0/5`: three Assembly trials
+exceeded the frozen output-token cap, one returned a malformed Assembly
+contract, and the analysis answer failed its typed answer/support contract.
+Semantic Resolution was `not_evaluated_no_natural_ambiguity` because the
+cohort contains no natural ambiguity that activates that Agent.
 
-```bash
-uv run python -m aviation_agentic_ai.agent_system.live_agent_evaluation \
-  --config configs/cross_source_v1.yaml \
-  --suite data/evaluation/agent_system/live_agent_smoke_v1.yaml \
-  --output-dir data/corpus/agent_system/live-agent-smoke-v1 \
-  --report-dir reports/stages \
-  --allow-live-model \
-  --repetitions 1
-```
-
-The frozen single-run smoke completed all five trials but passed `0/5`: three
-Decision Case Assembly trials exceeded the frozen output-token cap, one
-returned a malformed Assembly contract, and the Decision Case Analysis answer
-failed its typed answer/support contract. Semantic Resolution was
-`not_evaluated_no_natural_ambiguity` because the cohort contains no natural
-ambiguity that activates that Agent. This is a provider-compatibility and
-bounded-behavior smoke result, not a statistical benchmark; temperature zero
-reduces sampling variance but does not guarantee determinism.
+These results describe the retired registered-analysis runtime. They are not
+evidence about the current Hybrid Query Agent, natural-language routing, or
+HybridRAG answer quality. Temperature zero reduced sampling variance but did
+not guarantee determinism.
 
 The tracked, sanitized reports are
 [`agent_system_live_agent_smoke_v1.json`](reports/stages/agent_system_live_agent_smoke_v1.json)
@@ -168,33 +182,15 @@ and
 Credentials, prompts, raw responses, tool arguments, tool results, and detailed
 local run artifacts remain ignored and untracked.
 
-### Repeated Real-Provider Experiment
+The separate pre-refactor repeated experiment completed 12 cycles with 108
+attempted and 108 successful provider calls, zero provider failures, 431,018
+input tokens, and 89,148 output tokens. Task-level acceptance was `0/60`: 48
+Assembly trials exceeded the frozen output-token cap and 12 retired-analysis
+trials failed the answer/support contract. DeepSeek also reported 396,928
+prompt-cache-hit tokens and 34,090 prompt-cache-miss tokens. These are repeated
+measurements of five pre-refactor tasks, not 60 independent tasks or a current
+query benchmark.
 
-The one-shot smoke remains the fast compatibility check. A separate repeated
-experiment runs the same five tasks for 12 cycles with the local model cache
-disabled:
-
-```bash
-uv run python -m aviation_agentic_ai.agent_system.live_agent_experiment \
-  --config configs/cross_source_v1.yaml \
-  --suite data/evaluation/agent_system/live_agent_experiment_v1.yaml \
-  --output-dir data/corpus/agent_system/live-agent-experiment-v1 \
-  --report-dir reports/stages \
-  --allow-live-model
-```
-
-The frozen configuration is DeepSeek `deepseek-v4-pro`, temperature `0.0`,
-thinking disabled, zero automatic retries, and local cache disabled. The
-recorded run completed 12 cycles with 108 attempted and 108 successful
-provider calls, zero provider failures, 431,018 input tokens, and 89,148 output
-tokens. Task-level acceptance was `0/60`: 48 Assembly trials exceeded the
-frozen output-token cap and 12 Analysis trials failed the answer/support
-contract. DeepSeek also reported 396,928 prompt-cache-hit tokens and 34,090
-prompt-cache-miss tokens. This is the provider's automatic input-prefix context
-cache, not a cached response or response replay; all 108 calls returned unique
-provider response IDs.
-
-These are repeated measurements of five fixed tasks, not 60 independent tasks.
 The tracked summaries are
 [`agent_system_live_agent_experiment_v1.json`](reports/stages/agent_system_live_agent_experiment_v1.json)
 and
@@ -226,31 +222,34 @@ rebuilt after the corpus changes.
 
 ## Read And Export
 
-Ask a deterministic corpus question:
+Ask a natural-language question:
 
 ```bash
 uv run aviation-ai agent-system ask \
   --corpus-dir data/corpus/agent_system/smoke-v2 \
-  --event-id event:2026-05-19:138 \
-  --question "What traffic management measure was published?"
+  --event-id <event-id-from-cases.jsonl> \
+  --question "What was published, what reason did the source declare, and what weather context was retained?"
 ```
 
-`ask` supports exact event-type, facility, declared-reason, pagination, formal
-record, Weather-context, BTS-observation, reconstructed-case, and historical
-decision-record similarity questions. Registered deterministic questions,
-including similarity retrieval, use zero chat-model calls. Exact registered
-Decision Case Analysis questions require `--allow-live-model`.
+Every valid `ask` request invokes the configured Query Agent. The model does
+not answer from memory: its first action must retrieve evidence, and it may
+continue through a bounded action-observation loop. It selects among six
+deterministic, read-only HybridRAG tools:
 
-The registered question below uses a closed, case-scoped formal graph
-traversal and returns the supporting fact and source paths with zero model
-calls:
+- exact case discovery and filtering;
+- formal case facts and declared-reason state;
+- non-causal Weather context;
+- BTS public observations;
+- case-scoped graph edges;
+- exact-filtered, metadata-conditioned vector recall.
 
-```text
-Which weather reports and active-window BTS public observations belong to this reconstructed decision case?
-```
-
-This is a bounded evidence-path capability, not arbitrary graph QA, SPARQL, or
-Cypher access.
+CLI filters, pagination, event ID, and candidate scope form an immutable upper
+bound around every tool call. The Agent can make at most four provider turns,
+at most three tool calls in one turn, and at most six tool calls in total.
+Each final statement must cite the supporting case, fact, profile-gap, context,
+observation, graph-path, and source IDs appropriate to its claim type.
+Unsupported evidence yields `insufficient`; invalid contracts, unavailable
+providers, or failed dependencies yield `blocked`.
 
 ```bash
 uv run --extra case-retrieval aviation-ai agent-system ask \
@@ -264,17 +263,19 @@ uv run --extra case-retrieval aviation-ai agent-system ask \
   --candidate-scope archive
 ```
 
-The tracked six-query smoke set over the 38 accepted cases returned all four
-reviewed analogues at rank one and both unique-filter queries as
-`insufficient`. This is a small relevance smoke test, not expert-certified
-Gold, decision-quality evidence, or a recommendation benchmark.
+Similarity remains a deterministic retrieval capability inside the LLM-routed
+tool loop. It compares only the published decision-record representation and
+cannot be promoted to operational effectiveness, recommendation, or
+optimality. The pre-refactor six-query relevance smoke remains historical
+retrieval evidence, not evidence of current Query Agent routing or answer
+quality.
 
 Export one bounded, non-replayable case:
 
 ```bash
 uv run aviation-ai agent-system export-case \
   --corpus-dir data/corpus/agent_system/smoke-v2 \
-  --event-id event:2026-05-19:138 \
+  --event-id <event-id-from-cases.jsonl> \
   --output-dir data/corpus/agent_system/export-gdp-138
 ```
 
@@ -299,7 +300,8 @@ data, and returns `BLOCKED` when credentials or connectivity are unavailable.
 
 The system does not provide live ATC support, causal explanation,
 operational-situation or outcome-aware similarity, TMI recommendation, general
-aviation QA, or a complete aviation ontology. See
+aviation chat beyond the bounded corpus tools, or a complete aviation ontology.
+See
 [REPRODUCIBILITY.md](REPRODUCIBILITY.md) for source checks, verification, and
 corpus commands; see
 [docs/multi_agent_kg_system_design.md](docs/multi_agent_kg_system_design.md)

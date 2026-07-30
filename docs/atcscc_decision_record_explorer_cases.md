@@ -1,6 +1,6 @@
 # ATCSCC Decision Record Explorer Case Set
 
-Status: validated acceptance set; critical query fixes implemented on `main`
+Status: validated construction and query-evidence regression set
 Selected: 2026-07-26
 Scope: two positive records and one missing-reason control
 
@@ -62,9 +62,11 @@ GROUND STOP PERIOD: 19/2100Z - 19/2245Z
 IMPACTING CONDITION: WEATHER / THUNDERSTORMS
 ```
 
-This is the fixed real advisory already used by the Formal Publication Kernel,
-deterministic corpus query route, and CLI test surface. It minimizes
-implementation risk.
+This real advisory is already used by the Formal Publication Kernel, the
+deterministic read-only case-fact tool, and the CLI regression surface. On the
+current read path, a natural-language question still enters the always-on LLM
+HybridRAG loop; the model selects the bounded tool, while deterministic code
+returns the facts and validates statement support.
 
 The active NASA schema slice does not permit `atm:impactingCondition` on
 `atm:GroundStopTMI`. The reason must therefore remain a source-bound
@@ -125,9 +127,10 @@ GDP CNX PERIOD: 20/0124Z - 20/0546Z
 ```
 
 There is no `IMPACTING CONDITION` field in this record. A declared-reason
-question must return an explicit missing or insufficient state without a
-provider call. The record is only a missing-field control; this stage does not
-interpret cancellation or group it into a lifecycle.
+question still enters the LLM HybridRAG loop. The selected read-only tool
+returns the explicit missing state, and the support validator prevents Weather
+or BTS evidence from filling it. The record is only a missing-field control;
+this stage does not interpret cancellation or group it into a lifecycle.
 
 ## 5. Time Semantics
 
@@ -151,10 +154,11 @@ the active formal graph.
 1. [x] Anchor a valid next-day period end for cross-midnight records such as
    `19/2205Z - 20/0259Z`.
 2. [x] Normalize valid GDP reasons to the schema's lowercase value set and add
-   `atm:advisoryNumber` and `atm:impactingCondition` to the deterministic corpus
-   query surface.
-3. [x] Let the read-only query path retrieve source-bound `ProfileGap` entries so it
-   can report the Ground Stop reason without promoting it to a KG fact.
+   `atm:advisoryNumber` and `atm:impactingCondition` to the deterministic
+   case-fact tool output.
+3. [x] Let the read-only case-fact tool retrieve source-bound `ProfileGap`
+   entries so the Query Agent can report the Ground Stop reason without
+   promoting it to a KG fact.
 4. [x] Stop the impacting-condition source span before the `COMMENTS:` field.
 5. [x] Preserve the distinction between TMI operational period and advisory
    envelope in labels and evidence.
@@ -164,7 +168,8 @@ the active formal graph.
 - [x] Show the normalized formal reason and exact source wording separately.
 - [x] Show the fact ID or profile-gap record plus its source ID.
 - [x] Confirm both positive records resolve to the same canonical JFK node.
-- [x] Confirm the missing-reason control makes no provider call.
+- [x] Confirm the missing-reason tool result stays explicit and cannot be
+  replaced by an unsupported model statement.
 
 ### Remaining Deferred Scope
 
@@ -174,7 +179,7 @@ the active formal graph.
 
 ## 7. Acceptance Expectations
 
-The `main` implementation satisfies the acceptance contract when:
+The current implementation satisfies the acceptance contract when:
 
 - Case A returns type, JFK, operational period, and source-bound reason;
 - Case B returns type, JFK, complete cross-midnight operational period, and

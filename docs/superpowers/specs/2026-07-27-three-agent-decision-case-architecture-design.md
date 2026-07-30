@@ -1,6 +1,10 @@
 # Three-Agent Decision Case Architecture Design
 
-Status: implemented through the completed Batch C.1 breaking cutover
+Status: historical design; query role superseded on 2026-07-30
+
+> This document preserves the earlier fixed Analysis path for design history.
+> The active runtime is defined by `docs/multi_agent_kg_system_design.md` and
+> replaces that path with one always-on HybridRAG Query Agent.
 
 Date: 2026-07-27
 

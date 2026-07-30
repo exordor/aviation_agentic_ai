@@ -7,7 +7,6 @@ import importlib.util
 import json
 from pathlib import Path
 
-from click.testing import CliRunner
 import pytest
 
 from aviation_agentic_ai.agent_system.contracts import (
@@ -38,9 +37,6 @@ from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
 )
-from aviation_agentic_ai.cli_agent_system import agent_system
-
-
 _FIXTURE_SPEC = importlib.util.spec_from_file_location(
     "corpus_store_query_tools_fixture",
     Path(__file__).with_name("test_agent_system_query_tools.py"),
@@ -794,133 +790,6 @@ def test_corpus_query_store_filters_and_pages_cases(tmp_path: Path) -> None:
     assert {
         fact.subject_iri for fact in store.get_case_facts("urn:event:c")
     } >= {"urn:event:c", store.get_case("urn:event:c").case_iri}
-
-
-def test_corpus_query_preserves_formal_gap_and_missing_reason_states(
-    tmp_path: Path,
-) -> None:
-    from aviation_agentic_ai.agent_system.corpus_query import (
-        answer_corpus_question,
-    )
-    from aviation_agentic_ai.agent_system.query_registry import (
-        DECLARED_REASON_QUESTION,
-    )
-
-    ground_stop = tmp_path / "ground-stop"
-    gdp = tmp_path / "gdp"
-    cancellation = tmp_path / "cancellation"
-    _write_run(
-        ground_stop,
-        event_id="urn:event:ground-stop",
-        suffix="ground-stop",
-    )
-    _write_reason_profile_gap(
-        ground_stop,
-        event_id="urn:event:ground-stop",
-    )
-    _write_run(
-        gdp,
-        event_id="urn:event:gdp",
-        suffix="gdp",
-        event_type="atm:GroundDelayProgramTMI",
-        formal_reason="weather",
-    )
-    _write_run(
-        cancellation,
-        event_id="urn:event:cancellation",
-        suffix="cancellation",
-        event_type="atm:GroundDelayProgramTMI",
-    )
-    corpus_dir = tmp_path / "corpus"
-    build_corpus([ground_stop, gdp, cancellation], corpus_dir)
-
-    gap = answer_corpus_question(
-        corpus_dir=corpus_dir,
-        question=DECLARED_REASON_QUESTION,
-        event_id="urn:event:ground-stop",
-    )
-    formal = answer_corpus_question(
-        corpus_dir=corpus_dir,
-        question=DECLARED_REASON_QUESTION,
-        event_id="urn:event:gdp",
-    )
-    missing = answer_corpus_question(
-        corpus_dir=corpus_dir,
-        question=DECLARED_REASON_QUESTION,
-        event_id="urn:event:cancellation",
-    )
-
-    assert gap.status == "insufficient"
-    assert gap.retrieved_case_ids == ["urn:event:ground-stop"]
-    assert gap.retrieved_fact_ids == []
-    assert "profile-gap metadata" in gap.answer
-    assert formal.status == "ok"
-    assert formal.retrieved_case_ids == ["urn:event:gdp"]
-    assert len(formal.retrieved_fact_ids) == 1
-    assert formal.retrieved_fact_ids[0].startswith("corpus-fact:")
-    assert "weather" in formal.answer
-    assert "IMPACTING CONDITION: WEATHER / THUNDERSTORMS" in formal.answer
-    assert missing.status == "insufficient"
-    assert missing.retrieved_case_ids == ["urn:event:cancellation"]
-    assert missing.retrieved_fact_ids == []
-    assert "No declared reason" in missing.answer
-    assert gap.model_calls == formal.model_calls == missing.model_calls == []
-
-
-def test_ask_corpus_lists_bounded_cases_without_a_model(tmp_path: Path) -> None:
-    from aviation_agentic_ai.agent_system.corpus_query import (
-        CORPUS_CATALOG_QUESTION,
-    )
-
-    run_a = tmp_path / "run-a"
-    run_b = tmp_path / "run-b"
-    _write_run(run_a, event_id="urn:event:a", suffix="a")
-    _write_run(run_b, event_id="urn:event:b", suffix="b")
-    corpus_dir = tmp_path / "corpus"
-    build_corpus([run_a, run_b], corpus_dir)
-
-    result = CliRunner().invoke(
-        agent_system,
-        [
-            "ask",
-            "--corpus-dir",
-            str(corpus_dir),
-            "--question",
-            CORPUS_CATALOG_QUESTION,
-            "--limit",
-            "1",
-        ],
-    )
-
-    assert result.exit_code == 0, result.output
-    assert "status: ok" in result.output
-    assert "matching_cases: 2" in result.output
-    assert "cases_returned: urn:event:a" in result.output
-    assert "model_calls: 0" in result.output
-
-
-def test_corpus_query_answers_forecast_context_without_a_run_directory(
-    tmp_path: Path,
-) -> None:
-    """Routing corpus weather questions through a run directory would break this."""
-
-    from aviation_agentic_ai.agent_system.corpus_query import answer_corpus_question
-    from aviation_agentic_ai.agent_system.query_registry import FORECAST_CONTEXT_QUESTION
-
-    run_dir = tmp_path / "run"
-    _write_context_run(run_dir)
-    corpus_dir = tmp_path / "corpus"
-    build_corpus([run_dir], corpus_dir)
-
-    outcome = answer_corpus_question(
-        corpus_dir=corpus_dir,
-        question=FORECAST_CONTEXT_QUESTION,
-        event_id=_fixture_module.EVENT_ID,
-    )
-
-    assert outcome.status == "ok"
-    assert "non-causal context" in outcome.answer
-    assert outcome.model_calls == []
 
 
 def test_corpus_query_store_returns_context_observations_and_gap_evidence(

@@ -271,16 +271,94 @@ class QueryGraphEdge(StrictModel):
 
 
 class QueryGraphPath(StrictModel):
-    """One closed evidence path through a reconstructed decision case."""
+    """One case-scoped graph path retained as structured query evidence."""
 
     path_id: str = Field(min_length=1)
-    path_kind: Literal[
-        "event_member",
-        "weather_member",
-        "active_public_observation",
-    ]
+    path_kind: str = Field(min_length=1)
     edges: tuple[QueryGraphEdge, ...]
     source_ids: tuple[str, ...] = ()
+
+
+class HybridQueryScope(StrictModel):
+    """User-supplied bounds passed to every HybridRAG query tool."""
+
+    event_id: str | None = Field(default=None, min_length=1)
+    event_type_iri: str | None = Field(default=None, min_length=1)
+    facility_id: str | None = Field(default=None, min_length=1)
+    reason_status: Literal["formal", "profile_gap", "missing"] | None = None
+    reason_value: str | None = Field(default=None, min_length=1)
+    candidate_scope: Literal["archive", "prior"] = "archive"
+    offset: int = Field(default=0, ge=0)
+    limit: int = Field(default=20, ge=1, le=100)
+
+
+class HybridQueryEvidence(StrictModel):
+    """Structured evidence retained outside model-visible answer prose."""
+
+    case_ids: tuple[str, ...] = ()
+    fact_ids: tuple[str, ...] = ()
+    profile_gap_ids: tuple[str, ...] = ()
+    context_association_ids: tuple[str, ...] = ()
+    observation_ids: tuple[str, ...] = ()
+    graph_path_ids: tuple[str, ...] = ()
+    source_ids: tuple[str, ...] = ()
+
+
+class HybridQuerySupportRecord(StrictModel):
+    """One evidence-layer-specific binding exposed by a read-only query tool."""
+
+    kind: Literal[
+        "source_fact",
+        "non_causal_context",
+        "public_observation",
+        "similarity",
+    ]
+    case_ids: tuple[str, ...] = ()
+    fact_ids: tuple[str, ...] = ()
+    profile_gap_ids: tuple[str, ...] = ()
+    context_association_ids: tuple[str, ...] = ()
+    observation_ids: tuple[str, ...] = ()
+    graph_path_ids: tuple[str, ...] = ()
+    source_ids: tuple[str, ...] = ()
+
+
+class HybridQueryToolObservation(StrictModel):
+    """One deterministic tool result with content/details separation."""
+
+    status: Literal["ok", "insufficient", "blocked"]
+    content: str = Field(min_length=1)
+    details: HybridQueryEvidence = Field(default_factory=HybridQueryEvidence)
+    support_records: tuple[HybridQuerySupportRecord, ...] = ()
+    graph_paths: tuple[QueryGraphPath, ...] = ()
+    similarity_matches: tuple[CaseSimilarityMatch, ...] = ()
+    limitation: str = ""
+
+
+class HybridQueryStatement(StrictModel):
+    """One model-generated statement with evidence-layer-specific support."""
+
+    kind: Literal[
+        "source_fact",
+        "non_causal_context",
+        "public_observation",
+        "similarity",
+    ]
+    text: str = Field(min_length=1)
+    support_case_ids: tuple[str, ...] = ()
+    support_fact_ids: tuple[str, ...] = ()
+    support_profile_gap_ids: tuple[str, ...] = ()
+    support_context_association_ids: tuple[str, ...] = ()
+    support_observation_ids: tuple[str, ...] = ()
+    support_graph_path_ids: tuple[str, ...] = ()
+    support_source_ids: tuple[str, ...] = ()
+
+
+class HybridQueryAnswer(StrictModel):
+    """Compact model response validated against current-turn observations."""
+
+    status: Literal["ok", "insufficient"]
+    statements: tuple[HybridQueryStatement, ...] = ()
+    limitations: tuple[str, ...] = ()
 
 
 class QueryToolOutcome(StrictModel):
@@ -288,7 +366,6 @@ class QueryToolOutcome(StrictModel):
 
     status: Literal["ok", "insufficient", "blocked"]
     answer: str = ""
-    analysis_artifact_dir: str | None = None
     match_count: int = Field(default=0, ge=0)
     retrieved_case_ids: list[str] = Field(default_factory=list)
     source_ids: list[str] = Field(default_factory=list)
@@ -298,10 +375,13 @@ class QueryToolOutcome(StrictModel):
     retrieved_outcome_summary_ids: list[str] = Field(default_factory=list)
     retrieved_observation_ids: list[str] = Field(default_factory=list)
     retrieved_derivation_ids: list[str] = Field(default_factory=list)
+    retrieved_graph_path_ids: list[str] = Field(default_factory=list)
     retrieved_graph_paths: list[QueryGraphPath] = Field(default_factory=list)
     similarity_matches: list[CaseSimilarityMatch] = Field(
         default_factory=list
     )
+    answer_statements: list[HybridQueryStatement] = Field(default_factory=list)
+    support_records: list[HybridQuerySupportRecord] = Field(default_factory=list)
     model_calls: list[ModelCallRecord] = Field(default_factory=list)
     tool_calls: list[QueryToolTrace] = Field(default_factory=list)
     failure_reason: str = ""

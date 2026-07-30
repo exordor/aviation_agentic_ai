@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import inspect
+import json
 from pathlib import Path
 
 import pytest
@@ -9,6 +11,8 @@ import yaml
 import aviation_agentic_ai.agent_system.live_agent_evaluation as live_eval
 from aviation_agentic_ai.agent_system.agent_usage import AgentUsageRecord
 from aviation_agentic_ai.agent_system.contracts import (
+    HybridQueryStatement,
+    HybridQuerySupportRecord,
     ModelCallRecord,
     ModelToolCall,
     QueryToolOutcome,
@@ -22,11 +26,13 @@ from aviation_agentic_ai.agent_system.live_agent_evaluation import (
     LiveEvaluationResult,
     LiveEvaluationSuite,
     LiveEvaluationTrial,
+    build_hybrid_query_run_artifact,
     load_live_evaluation_suite,
     run_live_agent_evaluation,
     score_analysis_trial,
     score_assembly_trial,
     summarize_live_evaluation,
+    write_hybrid_query_run_artifact,
     write_live_evaluation_artifacts,
 )
 
@@ -35,8 +41,8 @@ def test_load_live_evaluation_suite_seals_frozen_trials(tmp_path: Path) -> None:
     suite_path = tmp_path / "suite.yaml"
     suite_path.write_text(
         """
-version: live-agent-smoke-v1
-suite_id: decision-case-live-agent-smoke-v1
+version: live-agent-smoke-v2
+suite_id: decision-case-live-agent-smoke-v2
 repetitions: 1
 trials:
   - trial_id: assembly-025
@@ -48,7 +54,7 @@ trials:
   - trial_id: analysis-138
     kind: analysis
     source_id: "2026-05-19:138"
-    expected_role: decision_case_analysis
+    expected_role: query
     question: What public operational situation is recorded?
 """.strip()
         + "\n",
@@ -68,7 +74,7 @@ trials:
 
 def test_tracked_live_suite_contains_exactly_five_frozen_trials() -> None:
     suite = load_live_evaluation_suite(
-        "data/evaluation/agent_system/live_agent_smoke_v1.yaml"
+        "data/evaluation/agent_system/live_agent_smoke_v2.yaml"
     )
 
     assert [
@@ -86,6 +92,23 @@ def test_tracked_live_suite_contains_exactly_five_frozen_trials() -> None:
         ),
     ]
     assert suite.repetitions == 1
+
+
+def test_pre_refactor_v1_live_artifacts_remain_byte_frozen() -> None:
+    expected = {
+        "data/evaluation/agent_system/live_agent_smoke_v1.yaml": (
+            "e23315ba4656e84c0b2b17d0e4991bc383232e9704f38e24028c34e1b2c56c38"
+        ),
+        "reports/stages/agent_system_live_agent_smoke_v1.json": (
+            "4c74027a49a0800615ec1c3d5c9616af4877c8bda4d23fa91ac6ac65c4b331d1"
+        ),
+        "reports/stages/agent_system_live_agent_smoke_v1.md": (
+            "e351e6c49b91bed4b29d3f8f6ba9c3d220c9d7da7ba94c04f19cf2ceba6a75cb"
+        ),
+    }
+
+    for path, checksum in expected.items():
+        assert hashlib.sha256(Path(path).read_bytes()).hexdigest() == checksum
 
 
 def _result(
@@ -172,9 +195,13 @@ def test_report_projection_contains_only_sanitized_metrics(tmp_path: Path) -> No
         live_model=False,
     )
 
+    reports = tmp_path / "reports"
+    reports.mkdir()
+    legacy_report = reports / "agent_system_live_agent_smoke_v1.json"
+    legacy_report.write_text("historical-v1\n", encoding="utf-8")
     paths = write_live_evaluation_artifacts(
         output_dir=tmp_path / "runtime",
-        report_dir=tmp_path / "reports",
+        report_dir=reports,
         results=(result,),
         summary=summary,
     )
@@ -182,6 +209,11 @@ def test_report_projection_contains_only_sanitized_metrics(tmp_path: Path) -> No
         path.read_text(encoding="utf-8") for path in paths
     )
 
+    assert paths[0].name == "live_evaluation_results_v2.jsonl"
+    assert paths[1].name == "live_evaluation_manifest_v2.json"
+    assert paths[2].name == "agent_system_live_agent_smoke_v2.json"
+    assert paths[3].name == "agent_system_live_agent_smoke_v2.md"
+    assert legacy_report.read_text(encoding="utf-8") == "historical-v1\n"
     assert "deepseek-v4-pro" in serialized
     assert "raw_response" not in serialized
     assert "tool_arguments" not in serialized
@@ -194,8 +226,8 @@ def _write_frozen_suite(path: Path) -> Path:
     path.write_text(
         yaml.safe_dump(
             {
-                "version": "live-agent-smoke-v1",
-                "suite_id": "decision-case-live-agent-smoke-v1",
+                "version": "live-agent-smoke-v2",
+                "suite_id": "decision-case-live-agent-smoke-v2",
                 "repetitions": 1,
                 "trials": [
                     {
@@ -208,7 +240,7 @@ def _write_frozen_suite(path: Path) -> Path:
                         "trial_id": "analysis-138",
                         "kind": "analysis",
                         "source_id": "2026-05-19:138",
-                        "expected_role": "decision_case_analysis",
+                        "expected_role": "query",
                         "question": (
                             "What public operational situation is recorded?"
                         ),
@@ -407,11 +439,12 @@ def _live_call(
     *,
     agent: str,
     tool_name: str | None = None,
+    raw_response: str = "provider payload must never enter the report",
     error: str | None = None,
 ) -> ModelCallRecord:
     return ModelCallRecord(
         agent=agent,
-        raw_response="provider payload must never enter the report",
+        raw_response=raw_response,
         prompt_set_id="decision-case-agents-v1",
         prompt_version=f"{agent}-v1",
         provider="deepseek",
@@ -553,41 +586,81 @@ def test_assembly_scoring_classifies_output_token_cap_as_model_failure() -> None
     assert result.failure_code == "assembly_output_token_cap_exceeded"
 
 
-def test_analysis_scoring_requires_supported_read_only_outcome(
-    tmp_path: Path,
-) -> None:
-    artifact_dir = tmp_path / "analysis"
-    artifact_dir.mkdir()
-    for name in (
-        "case_analysis_task.json",
-        "query_evidence_bundle.json",
-        "case_analysis_run.json",
-    ):
-        (artifact_dir / name).write_text("{}\n", encoding="utf-8")
-    trial = LiveEvaluationTrial(
-        trial_id="analysis-gdp-138",
-        kind="analysis",
-        source_id="2026-05-19:138",
-        expected_role="decision_case_analysis",
-        question="What public operational situation is recorded?",
-    )
-    outcome = QueryToolOutcome(
+def _supported_query_outcome(*, statement_text: str) -> QueryToolOutcome:
+    return QueryToolOutcome(
         status="ok",
-        answer="The record contains source-qualified operational observations.",
-        analysis_artifact_dir=str(artifact_dir),
+        answer=statement_text,
         source_ids=["bts:on-time:2026-05"],
         retrieved_fact_ids=["fact:observation"],
-        model_calls=[_live_call(agent="decision_case_analysis")],
+        retrieved_observation_ids=["observation:active"],
+        answer_statements=[
+            HybridQueryStatement(
+                kind="public_observation",
+                text=statement_text,
+                support_fact_ids=("fact:observation",),
+                support_observation_ids=("observation:active",),
+                support_source_ids=("bts:on-time:2026-05",),
+            )
+        ],
+        support_records=[
+            HybridQuerySupportRecord(
+                kind="public_observation",
+                fact_ids=("fact:observation",),
+                observation_ids=("observation:active",),
+                source_ids=("bts:on-time:2026-05",),
+            )
+        ],
+        model_calls=[
+            _live_call(
+                agent="query",
+                tool_name="read_public_observations",
+                raw_response="",
+            ),
+            _live_call(
+                agent="query",
+                raw_response="sk-secret raw model payload must be ignored",
+            ),
+        ],
         tool_calls=[
             QueryToolTrace(
                 tool_call_id="trace:1",
-                tool="execute_bound_query_step",
-                arguments={"step_id": "step:1"},
-                result_refs=["fact:observation"],
+                tool="read_public_observations",
+                arguments={"event_id": "urn:event:gdp-138"},
+                result_refs=[
+                    "fact:observation",
+                    "observation:active",
+                ],
+                observation_ids=["observation:active"],
                 source_ids=["bts:on-time:2026-05"],
                 status="ok",
             )
         ],
+    )
+
+
+def test_hybrid_query_run_artifact_is_sanitized_and_drives_scoring(
+    tmp_path: Path,
+) -> None:
+    trial = LiveEvaluationTrial(
+        trial_id="query-gdp-138",
+        kind="analysis",
+        source_id="2026-05-19:138",
+        expected_role="query",
+        question="What public operational situation is recorded?",
+    )
+    outcome = _supported_query_outcome(
+        statement_text=(
+            "BTS reports source-qualified active-period observations."
+        )
+    )
+    query_run = build_hybrid_query_run_artifact(
+        trial=trial,
+        event_id="urn:event:gdp-138",
+        outcome=outcome,
+    )
+    artifact_path = write_hybrid_query_run_artifact(
+        tmp_path / "query",
+        query_run,
     )
 
     result = score_analysis_trial(
@@ -596,12 +669,141 @@ def test_analysis_scoring_requires_supported_read_only_outcome(
         live_model=False,
         event_id="urn:event:gdp-138",
         outcome=outcome,
+        query_run=query_run,
+        query_run_artifact_path=artifact_path,
     )
 
+    payload = json.loads(artifact_path.read_text(encoding="utf-8"))
+    serialized = artifact_path.read_text(encoding="utf-8")
+    assert artifact_path.name == "hybrid_query_run.json"
+    assert payload["statements"][0]["kind"] == "public_observation"
+    assert payload["statements"][0]["observation_ids"] == [
+        "observation:active"
+    ]
+    assert payload["support_records"][0] == {
+        "kind": "public_observation",
+        "case_ids": [],
+        "fact_ids": ["fact:observation"],
+        "profile_gap_ids": [],
+        "context_association_ids": [],
+        "observation_ids": ["observation:active"],
+        "graph_path_ids": [],
+        "source_ids": ["bts:on-time:2026-05"],
+    }
+    assert payload["tools"][0] == {
+        "name": "read_public_observations",
+        "status": "ok",
+        "reference_ids": [
+            "fact:observation",
+            "observation:active",
+        ],
+        "source_ids": ["bts:on-time:2026-05"],
+    }
+    assert "arguments" not in serialized
+    assert "raw_response" not in serialized
+    assert "provider payload" not in serialized
+    assert "sk-secret" not in serialized
     assert result.workflow_status == "ok"
     assert result.activation_status == "activated"
     assert result.model_acceptance_status == "passed"
     assert result.bound_tool_execution_count == 1
+    assert result.query_run_artifact == str(artifact_path)
+    assert result.query_run_artifact_sha256 == hashlib.sha256(
+        artifact_path.read_bytes()
+    ).hexdigest()
+
+
+@pytest.mark.parametrize(
+    ("statement_text", "expected_failed_check"),
+    [
+        (
+            "BTS observations prove FAA arrival capacity caused the decision.",
+            "statement_claim_boundaries",
+        ),
+    ],
+)
+def test_hybrid_query_scoring_rejects_claim_boundary_violations(
+    statement_text: str,
+    expected_failed_check: str,
+) -> None:
+    trial = LiveEvaluationTrial(
+        trial_id="query-gdp-138",
+        kind="analysis",
+        source_id="2026-05-19:138",
+        expected_role="query",
+        question="What public operational situation is recorded?",
+    )
+    outcome = _supported_query_outcome(statement_text=statement_text)
+    query_run = build_hybrid_query_run_artifact(
+        trial=trial,
+        event_id="urn:event:gdp-138",
+        outcome=outcome,
+    )
+
+    result = score_analysis_trial(
+        trial=trial,
+        repetition=1,
+        live_model=False,
+        event_id="urn:event:gdp-138",
+        outcome=outcome,
+        query_run=query_run,
+    )
+
+    failed_checks = {
+        assertion.check_id
+        for assertion in result.assertions
+        if not assertion.passed
+    }
+    assert expected_failed_check in failed_checks
+    assert result.model_acceptance_status == "failed"
+
+
+def test_hybrid_query_scoring_rejects_statement_citation_not_in_tool_trace() -> None:
+    trial = LiveEvaluationTrial(
+        trial_id="query-gdp-138",
+        kind="analysis",
+        source_id="2026-05-19:138",
+        expected_role="query",
+        question="What public operational situation is recorded?",
+    )
+    outcome = _supported_query_outcome(
+        statement_text="BTS reports an active-period observation."
+    )
+    outcome = outcome.model_copy(
+        update={
+            "answer_statements": [
+                HybridQueryStatement(
+                    kind="public_observation",
+                    text="BTS reports an active-period observation.",
+                    support_fact_ids=("fact:not-returned",),
+                    support_observation_ids=("observation:active",),
+                    support_source_ids=("bts:on-time:2026-05",),
+                )
+            ]
+        }
+    )
+    query_run = build_hybrid_query_run_artifact(
+        trial=trial,
+        event_id="urn:event:gdp-138",
+        outcome=outcome,
+    )
+
+    result = score_analysis_trial(
+        trial=trial,
+        repetition=1,
+        live_model=False,
+        event_id="urn:event:gdp-138",
+        outcome=outcome,
+        query_run=query_run,
+    )
+
+    assert query_run.statements[0].citation_valid is False
+    assert any(
+        assertion.check_id == "statement_citations"
+        and not assertion.passed
+        for assertion in result.assertions
+    )
+    assert result.model_acceptance_status == "failed"
 
 
 def test_analysis_contract_rejection_is_failed_not_runner_blocked() -> None:
@@ -609,19 +811,24 @@ def test_analysis_contract_rejection_is_failed_not_runner_blocked() -> None:
         trial_id="analysis-gdp-138",
         kind="analysis",
         source_id="2026-05-19:138",
-        expected_role="decision_case_analysis",
+        expected_role="query",
         question="What public operational situation is recorded?",
     )
     outcome = QueryToolOutcome(
         status="blocked",
         source_ids=["bts:on-time:2026-05"],
         retrieved_fact_ids=["fact:observation"],
-        model_calls=[_live_call(agent="decision_case_analysis")],
+        model_calls=[
+            _live_call(
+                agent="query",
+                tool_name="read_public_observations",
+            )
+        ],
         tool_calls=[
             QueryToolTrace(
                 tool_call_id="trace:1",
-                tool="execute_bound_query_step",
-                arguments={"step_id": "step:1"},
+                tool="read_public_observations",
+                arguments={"event_id": "urn:event:gdp-138"},
                 result_refs=["fact:observation"],
                 source_ids=["bts:on-time:2026-05"],
                 status="ok",
@@ -650,7 +857,7 @@ def test_blocked_corpus_dependency_does_not_activate_analysis() -> None:
         trial_id="analysis-gdp-138",
         kind="analysis",
         source_id="2026-05-19:138",
-        expected_role="decision_case_analysis",
+        expected_role="query",
         question="What public operational situation is recorded?",
     )
 

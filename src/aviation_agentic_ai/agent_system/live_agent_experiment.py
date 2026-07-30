@@ -36,7 +36,9 @@ from aviation_agentic_ai.agent_system.live_agent_evaluation import (
     _resource_preflight_failures,
     _resolve_analysis_event_id,
     _score_assembly_results,
+    build_hybrid_query_run_artifact,
     score_analysis_trial,
+    write_hybrid_query_run_artifact,
 )
 from aviation_agentic_ai.agent_system.runtime import (
     FROZEN_MODEL,
@@ -58,7 +60,7 @@ class LiveAgentExperimentAuthorizationError(RuntimeError):
 class LiveAgentExperimentSuite(StrictModel):
     """Frozen repeated-measures real-provider experiment."""
 
-    version: Literal["live-agent-experiment-v1"]
+    version: Literal["live-agent-experiment-v2"]
     suite_id: str = Field(min_length=1)
     minimum_successful_calls: int = Field(ge=100)
     minimum_cycles: int = Field(ge=1)
@@ -120,6 +122,7 @@ class ObservedProviderCall(StrictModel):
         "final_answer",
         "emit_proposal",
         "revision",
+        "query_step",
     ]
     provider: str | None = None
     model: str | None = None
@@ -214,7 +217,7 @@ class LiveAgentExperimentParsedOutput(StrictModel):
     source_id: str = Field(min_length=1)
     role: Literal[
         "decision_case_assembly",
-        "decision_case_analysis",
+        "query",
     ]
     event_id: str | None = None
     workflow_status: Literal["ok", "insufficient", "blocked", "not_run"]
@@ -234,8 +237,8 @@ class LiveAgentExperimentParsedOutput(StrictModel):
 class LiveAgentExperimentSummary(StrictModel):
     """Aggregate real-provider counts and artifact bindings."""
 
-    manifest_version: Literal["decision-case-live-agent-experiment-v1"] = (
-        "decision-case-live-agent-experiment-v1"
+    manifest_version: Literal["decision-case-live-agent-experiment-v2"] = (
+        "decision-case-live-agent-experiment-v2"
     )
     suite_id: str = Field(min_length=1)
     suite_checksum: str = Field(min_length=64, max_length=64)
@@ -594,7 +597,7 @@ def summarize_live_agent_experiment(
 def _markdown_report(summary: LiveAgentExperimentSummary) -> str:
     return "\n".join(
         [
-            "# Agent System Real-Provider Experiment v1",
+            "# Agent System Real-Provider Experiment v2",
             "",
             "## Result",
             "",
@@ -669,8 +672,8 @@ def write_live_agent_experiment_artifacts(
     reports = Path(report_dir)
     runtime.mkdir(parents=True, exist_ok=True)
     reports.mkdir(parents=True, exist_ok=True)
-    raw_path = runtime / "raw_responses.jsonl"
-    parsed_path = runtime / "parsed_outputs.jsonl"
+    raw_path = runtime / "raw_responses_v2.jsonl"
+    parsed_path = runtime / "parsed_outputs_v2.jsonl"
     raw_bytes = _jsonl_bytes(tuple(calls))
     parsed_bytes = _jsonl_bytes(tuple(parsed_outputs))
     raw_path.write_bytes(raw_bytes)
@@ -685,7 +688,7 @@ def write_live_agent_experiment_artifacts(
             ).hexdigest(),
         }
     )
-    manifest_path = runtime / "experiment_manifest.json"
+    manifest_path = runtime / "experiment_manifest_v2.json"
     manifest_path.write_text(
         final_summary.model_dump_json(indent=2) + "\n",
         encoding="utf-8",
@@ -705,7 +708,7 @@ def write_live_agent_experiment_artifacts(
         for row in parsed_outputs
     ]
     report_json = (
-        reports / "agent_system_live_agent_experiment_v1.json"
+        reports / "agent_system_live_agent_experiment_v2.json"
     )
     report_json.write_text(
         json.dumps(
@@ -720,7 +723,7 @@ def write_live_agent_experiment_artifacts(
         encoding="utf-8",
     )
     report_markdown = (
-        reports / "agent_system_live_agent_experiment_v1.md"
+        reports / "agent_system_live_agent_experiment_v2.md"
     )
     report_markdown.write_text(
         _markdown_report(final_summary),
@@ -766,6 +769,10 @@ def _parsed_from_live_result(
             ],
             "retrieved_fact_count": result.retrieved_fact_count,
             "retrieved_source_count": result.retrieved_source_count,
+            "hybrid_query_run_artifact": result.query_run_artifact,
+            "hybrid_query_run_artifact_sha256": (
+                result.query_run_artifact_sha256
+            ),
         },
     )
 
@@ -853,8 +860,8 @@ def _current_summary(
             trial.trial_id for trial in suite.trials
         ),
         runner_status=runner_status,
-        raw_response_path=str(runtime_root / "raw_responses.jsonl"),
-        parsed_output_path=str(runtime_root / "parsed_outputs.jsonl"),
+        raw_response_path=str(runtime_root / "raw_responses_v2.jsonl"),
+        parsed_output_path=str(runtime_root / "parsed_outputs_v2.jsonl"),
         runner_detail_codes=detail_codes,
     )
 
@@ -1079,20 +1086,33 @@ def run_live_agent_experiment(
                         corpus_dir=analysis_corpus,
                         question=trial.question,
                         event_id=analysis_event_ids[trial.source_id],
-                        allow_live_model=True,
                         model_factory=lambda tools: (
                             make_live_tool_calling_model(
                                 tools=tools,
-                                role="decision_case_analysis",
+                                role="query",
                             )
                         ),
                     )
+                query_run = build_hybrid_query_run_artifact(
+                    trial=trial,
+                    event_id=analysis_event_ids[trial.source_id],
+                    outcome=outcome,
+                )
+                query_run_path = write_hybrid_query_run_artifact(
+                    runtime_root
+                    / "hybrid_query_runs"
+                    / f"cycle-{cycle:03d}"
+                    / trial.trial_id,
+                    query_run,
+                )
                 result = score_analysis_trial(
                     trial=trial,
                     repetition=cycle,
                     live_model=True,
                     event_id=analysis_event_ids[trial.source_id],
                     outcome=outcome,
+                    query_run=query_run,
+                    query_run_artifact_path=query_run_path,
                 )
                 parsed_outputs.append(
                     _parsed_from_live_result(

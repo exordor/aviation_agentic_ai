@@ -45,6 +45,7 @@ from aviation_agentic_ai.agent_system.runtime import (
 ToolPhase = Literal[
     "select_tool",
     "final_answer",
+    "query_step",
     "emit_proposal",
     "revision",
 ]
@@ -146,17 +147,19 @@ class LangChainToolCallingModel:
         if not tools:
             raise ValueError("tool-calling model requires at least one bound tool")
         self.tools = tuple(tools)
-        # The first turn must select a tool; the second must return a natural-
-        # language answer. Local graph logic still validates both phases.
+        # Construction roles keep their existing forced-selection/final-answer
+        # phases. The public Query Agent uses the separate auto-tool loop below.
         self._tool_selector = chat_model.bind_tools(
             list(self.tools),
             tool_choice="required",
         )
-        # The second turn has no available action: it composes the answer from
-        # the matching ToolMessage. Keeping it unbound avoids sending unused
-        # tool schemas again and works with providers that do not implement
-        # ``tool_choice="none"`` consistently.
+        # Construction final-answer turns remain unbound because no further
+        # action is permitted in those role-specific workflows.
         self._answer_model = chat_model
+        self._query_loop_model = chat_model.bind_tools(
+            list(self.tools),
+            tool_choice="auto",
+        )
         self.prompt_set_id = prompt_set_id
         self.prompt_version = prompt_version
         self.agent = agent
@@ -172,7 +175,12 @@ class LangChainToolCallingModel:
         phase: ToolPhase,
     ) -> ToolModelTurn:
         attempt = next(self._attempts)
-        runnable = self._tool_selector if phase == "select_tool" else self._answer_model
+        if phase == "select_tool":
+            runnable = self._tool_selector
+        elif phase == "query_step":
+            runnable = self._query_loop_model
+        else:
+            runnable = self._answer_model
         started = time.perf_counter()
         try:
             result = runnable.invoke(messages)

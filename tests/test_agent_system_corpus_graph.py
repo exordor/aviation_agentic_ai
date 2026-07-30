@@ -3,10 +3,7 @@
 from __future__ import annotations
 
 from aviation_agentic_ai.agent_system.contracts import ValidationProfileRef
-from aviation_agentic_ai.agent_system.corpus_graph import (
-    CorpusGraphView,
-    get_reconstructed_case_evidence_paths,
-)
+from aviation_agentic_ai.agent_system.corpus_graph import CorpusGraphView
 from aviation_agentic_ai.agent_system.corpus_store import CorpusFact
 
 
@@ -155,61 +152,28 @@ def test_graph_view_supports_sorted_incoming_outgoing_and_literal_edges() -> Non
     ]
 
 
-def test_closed_case_paths_include_weather_and_only_active_observations() -> None:
-    """Using audit rows or accepting a recovery observation would misstate the case."""
+def test_graph_view_exposes_all_formal_facts_and_predicate_filters() -> None:
+    """The runtime graph tool must not be limited to one registered path shape."""
 
-    paths = get_reconstructed_case_evidence_paths(
-        CorpusGraphView(_case_facts()),
-        case_iri="urn:case:1",
-        reconstruction_iri="urn:reconstruction:1",
-    )
+    graph = CorpusGraphView(_case_facts())
 
-    assert [path.path_kind for path in paths] == [
-        "active_public_observation",
-        "event_member",
-        "weather_member",
-    ]
-    active = next(path for path in paths if path.path_kind == "active_public_observation")
-    assert {edge.fact_id for edge in active.edges} == {
-        "f01",
-        "f04",
-        "f07",
-        "f08",
-        "f09",
-        "f10",
-        "f11",
-        "f12",
-        "f13",
-        "f14",
+    assert {edge.fact_id for edge in graph.edges()} == {
+        fact.fact_id for fact in _case_facts()
     }
-    assert "f05" not in {edge.fact_id for path in paths for edge in path.edges}
-    assert "f15" not in {edge.fact_id for path in paths for edge in path.edges}
-    assert {path.source_ids for path in paths} == {
-        ("advisory:1",),
-        ("taf:1",),
-        ("bts:1",),
-    }
-    assert all("association" not in edge.fact_id for path in paths for edge in path.edges)
+    assert {
+        edge.fact_id
+        for edge in graph.edges(predicate_iris=(PROV_HAD_MEMBER,))
+    } == {"f02", "f03", "f04", "f05"}
 
 
 def test_graph_view_is_strictly_limited_to_supplied_case_facts() -> None:
-    """A global adjacency index would leak another case into this traversal."""
+    """The corpus store, not a hard-coded path, owns case isolation."""
 
-    other = _fact(
-        "other-fact",
-        "urn:reconstruction:2",
-        PROV_HAD_MEMBER,
-        "urn:weather:other",
-        sources=("taf:other",),
-    )
-    graph = CorpusGraphView((*_case_facts(), other))
-
-    paths = get_reconstructed_case_evidence_paths(
-        graph,
-        case_iri="urn:case:1",
-        reconstruction_iri="urn:reconstruction:1",
+    graph = CorpusGraphView(
+        tuple(fact for fact in _case_facts() if fact.fact_id != "f05")
     )
 
-    assert "other-fact" not in {
-        edge.fact_id for path in paths for edge in path.edges
+    assert "f05" not in {edge.fact_id for edge in graph.edges()}
+    assert {edge.fact_id for edge in graph.edges()} == {
+        fact.fact_id for fact in _case_facts() if fact.fact_id != "f05"
     }

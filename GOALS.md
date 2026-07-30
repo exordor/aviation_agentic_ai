@@ -14,15 +14,15 @@ system that:
    into a repeatable corpus-first build;
 2. coordinates deterministic parsing and authority services, conditionally
    activated semantic resolution and decision-case assembly Agents, and a
-   graph-grounded read surface with bounded Decision Case Analysis for exact
-   registered questions;
+   bounded, always-on LLM Query Agent over read-only HybridRAG tools;
 3. publishes only evidence-bound facts accepted by one explicit final
    multi-profile Formal Publication Kernel;
 4. keeps corpus v2 as the canonical persisted knowledge layer and derives
    runtime corpus/graph views, offline RDF/Turtle and Neo4j exports, and a
    metadata-conditioned Chroma retrieval index;
-5. answers bounded user questions through read-only graph tools while exposing
-   evidence, uncertainty, and missing information.
+5. accepts natural-language questions without an exact-question registry,
+   dynamically selects Corpus, graph, and vector tools, and exposes evidence,
+   uncertainty, and missing information for every supported statement.
 
 The goal is a working system and framework, not proof that more Agent roles are
 always better than fewer roles.
@@ -59,9 +59,9 @@ The current system provides:
   public-observation, and DecisionCase-core layers;
 - a payload-free corpus-bound sidecar that measures selective Agent activation,
   bypass, outcome, calls, tokens, and recorded latency;
-- explicit `live_smoke` and `live_experiment` harnesses that reuse the real
-  corpus build, Formal Publication Kernel, and corpus query path without
-  replacing failures with scripted responses;
+- retained pre-refactor `live_smoke` and `live_experiment` artifacts that used
+  real provider calls and preserved failures; they are historical compatibility
+  evidence, not current Hybrid Query Agent performance;
 - fact-level evidence binding and source provenance;
 - canonical facility reuse and idempotent Neo4j merge behavior;
 - JSONL, RDF/Turtle, and Neo4j projection artifacts;
@@ -69,18 +69,18 @@ The current system provides:
   explicit case-to-fact membership;
 - a source-independent DecisionCase core with stable conceptual-case and
   reconstruction identities plus formal reconstruction membership;
-- deterministic cross-case catalog filtering and selected-event formal fact
-  retrieval with zero model calls;
-- a closed case-scoped graph traversal for the exact registered Weather and
-  active-window BTS evidence-path question, with zero model calls;
-- deterministic corpus query routing through bounded read-only tools;
-- deterministic support for measure, facility, operational period, declared
-  reason, provenance, and combined decision-record questions;
-- bounded Decision Case Analysis for exact registered episode,
-  operational-situation, and applicability questions, with immutable analysis
-  artifacts;
+- deterministic cross-case catalog filtering, selected-event fact retrieval,
+  Weather-context reads, BTS-observation reads, and case-scoped graph edges
+  exposed as bounded read-only tools;
+- an always-on Query Agent with a bounded action-observation loop rather than
+  exact registered questions or a fixed route registry;
+- immutable CLI scope around event IDs, filters, paging, and historical
+  candidate selection;
+- per-statement support checks over case, fact, profile-gap, context,
+  observation, graph-path, and source identities;
 - deterministic historical decision-record retrieval through exact corpus
-  filters followed by a rebuildable local Chroma vector index;
+  filters followed by a rebuildable local Chroma vector index, exposed as one
+  tool within the model-routed query loop;
 - explicit profile-gap, insufficient, and blocked outcomes.
 
 Ground Stop `123`, Ground Delay Program `138`, and missing-reason cancellation
@@ -115,21 +115,20 @@ The current decision-case construction path has these boundaries:
 
 The Assembly role does not turn adapters into Agents and does not add model
 calls to the three canonical cases. It reconstructs auditable historical
-context; it does not evaluate operational optimality. The closed analysis
-surface supports a complete operational-situation fixture. Episode analysis is
-current-record-only, and applicability analysis has no observed
-individual-flight evidence.
+context; it does not evaluate operational optimality.
 
 The DecisionCase semantic core owns reconstruction identity and membership
-independently of the Weather and BTS profiles. Corpus queries use that formal
-structure for one exact, closed evidence-path question; this is not a general
-graph-query interface.
+independently of the Weather and BTS profiles. The Query Agent can inspect the
+formal case graph through bounded predicates, direction, and result limits. It
+does not receive arbitrary SPARQL, Cypher, graph writes, external web access,
+or a general aviation knowledge source.
 
 Published decision-record similarity embeds only TMI type, canonical facility,
 declared-reason state/value, UTC time of day, and duration category. Exact
 filters run before normalized cosine retrieval; the anchor case is excluded,
-and the route makes zero chat-model calls. It does not compare Weather, BTS
-outcomes, operational effectiveness, or recommended actions.
+and the deterministic vector tool does not compare Weather, BTS outcomes,
+operational effectiveness, or recommended actions. The surrounding query still
+uses the LLM Agent to decide whether and how to invoke that tool.
 
 ## Success Criteria
 
@@ -140,8 +139,11 @@ The system mainline succeeds when:
 - every published fact carries source and exact evidence support;
 - canonical entities are reused rather than duplicated;
 - RDF and Neo4j represent the same validated fact identities;
-- corpus query routing exposes only query-relevant facts and evidence;
-- unsupported or missing questions do not trigger model completion;
+- corpus query tools remain bounded by the user-supplied scope;
+- every valid natural-language query activates the Query Agent and retrieves
+  before answering;
+- every returned statement is supported by retrieved evidence identities;
+- unsupported or missing evidence produces an honest `insufficient` result;
 - a user can inspect why an answer was produced.
 
 These are system acceptance criteria, not external semantic certification.
@@ -176,7 +178,6 @@ failures.
 - Automatic ontology expansion.
 - Production deployment and access control.
 - New Agent roles without a demonstrated system need.
-- Analysis beyond the exact registered question families.
 - Paired comparison experiments as a prerequisite for feature delivery.
 
 ## Historical And Optional Tracks
