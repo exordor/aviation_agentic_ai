@@ -157,8 +157,7 @@ not merged into `main`.
 Later increments require an explicit user task and source boundary. Possible
 directions include decision-episode identity, regional Weather,
 ASPM-based demand/capacity evidence, operational-situation similarity, or a
-separately versioned response to the recorded live-model compatibility
-failures.
+broader live-Agent benchmark.
 
 ## Deferred Work
 
@@ -169,8 +168,6 @@ failures.
   TMI recommendation.
 - General-purpose aviation QA.
 - Full-corpus live-model execution.
-- Prompt and output-token-cap compatibility fixes for the recorded
-  `live_smoke` and `live_experiment` failures.
 - Multi-model or statistically powered live-Agent benchmarks.
 - A natural frozen-cohort Semantic Resolution evaluation; synthetic ambiguity
   fixtures remain `offline_software_test` evidence and must not be reported as

@@ -19,7 +19,7 @@ from aviation_agentic_ai.agent_system.prompts import DEFAULT_PROMPT_CATALOG
 FROZEN_PROVIDER = "deepseek"
 FROZEN_MODEL = "deepseek-v4-pro"
 FROZEN_TEMPERATURE = 0.0
-FROZEN_MAX_OUTPUT_TOKENS = 512
+FROZEN_MAX_OUTPUT_TOKENS = 10_000
 FROZEN_TIMEOUT = 120.0
 MAX_PROVIDER_CALLS = 8
 
@@ -37,8 +37,8 @@ class RunBinding:
 
 def extract_model_metadata(
     result: Any,
-) -> tuple[int, int, str | None, str | None, str | None]:
-    """Extract (input_tokens, output_tokens, provider, model, fingerprint)."""
+) -> tuple[int, int, str | None, str | None, str | None, str | None]:
+    """Extract usage plus provider, model, fingerprint, and finish reason."""
 
     usage = (
         getattr(result, "usage_metadata", None)
@@ -60,8 +60,16 @@ def extract_model_metadata(
     metadata = getattr(result, "response_metadata", None) or {}
     model = metadata.get("model_name") or metadata.get("model")
     fingerprint = metadata.get("system_fingerprint")
-    provider = FROZEN_PROVIDER if (fingerprint or metadata.get("finish_reason")) else None
-    return input_tokens, output_tokens, provider, model, fingerprint
+    finish_reason = metadata.get("finish_reason")
+    provider = FROZEN_PROVIDER if (fingerprint or finish_reason) else None
+    return (
+        input_tokens,
+        output_tokens,
+        provider,
+        model,
+        fingerprint,
+        str(finish_reason) if finish_reason is not None else None,
+    )
 
 
 def create_run_binding(

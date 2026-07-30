@@ -137,10 +137,41 @@ does not affect corpus identity. It contains aggregate counts, tokens, and
 latency only—not prompts, model responses, tool arguments, tool results, or
 model reasoning.
 
-## Current Hybrid Query Agent Live Acceptance
+## Current Output-Contract Live Acceptance
+
+Decision Case Assembly now asks the model to inspect one sealed candidate
+bundle and return a compact accept-or-abstain selection. Deterministic code
+restores the full facts and evidence bindings before the existing Formal
+Publication Kernel runs. The system-wide output ceiling, Hybrid Query Agent,
+and Decision Case Assembly Agent are configured for 10,000 output tokens.
+Semantic Resolution retains its narrower 256-token decision cap.
+
+Before the ceiling change, the compact-contract DeepSeek acceptance run
+completed 12 cycles over the same four Assembly tasks and the GDP `138`
+natural-language query. It recorded 120 attempted and 120 successful
+real-provider calls, zero failed calls, 261,238 input tokens, and 30,561 output
+tokens. All 60 task measurements passed, with zero invalid tool calls,
+assertion failures, or raw/parsed integrity failures. These are repeated
+compatibility measurements of five fixed tasks, not 60 independent samples or
+a broad Agent benchmark.
+
+After raising the ceiling, a fresh one-repetition DeepSeek smoke completed
+10/10 real-provider calls and passed all five frozen tasks, with zero failed
+calls, 21,780 input tokens, and 2,705 output tokens.
+
+The ignored evidence is stored under:
+
+```text
+data/corpus/agent_system/live-agent-output-contract-v3-experiment/
+  raw_responses_v2.jsonl
+  parsed_outputs_v2.jsonl
+  experiment_manifest_v2.json
+```
+
+## Historical Pre-Fix Hybrid Query Agent Live Acceptance
 
 The post-refactor v2 DeepSeek run exercised the current always-on Hybrid Query
-Agent together with the unchanged four Assembly tasks. The frozen
+Agent together with the then-unchanged four Assembly tasks. The frozen
 configuration was `deepseek-v4-pro`, temperature `0.0`, thinking disabled, no
 automatic retries, and no local response cache.
 

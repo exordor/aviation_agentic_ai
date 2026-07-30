@@ -1,4 +1,4 @@
-"""Bounded model -> tool batch -> preflight validation -> revision loop for case assembly."""
+"""Bounded model -> compact candidate selection -> deterministic case assembly."""
 
 from __future__ import annotations
 
@@ -17,6 +17,7 @@ from aviation_agentic_ai.agent_system.contracts import ModelCallRecord, ToolTrac
 from aviation_agentic_ai.agent_system.decision_case_contracts import (
     AssemblyStatus,
     CaseAssemblyProposal,
+    CaseAssemblySelection,
     CaseAssemblyTask,
     ComponentLayerResult,
     ComponentLayerStatus,
@@ -31,14 +32,13 @@ from aviation_agentic_ai.agent_system.case_assembly_tools import (
     compile_case_assembly_proposal,
     preflight_validate_case_assembly_proposal,
 )
-from aviation_agentic_ai.agent_system.graph_patch import parse_case_assembly_output
 from aviation_agentic_ai.agent_system.prompts import DEFAULT_PROMPT_CATALOG, assemble_prompt
 from aviation_agentic_ai.agent_system.tool_model import ToolCallingModel
 
-MAX_ASSEMBLY_PROVIDER_TURNS = 3
-MAX_ASSEMBLY_TOOL_CALLS = 6
+MAX_ASSEMBLY_TOOL_CALLS = 1
+MAX_ASSEMBLY_PROVIDER_TURNS = 2
 MAX_RENDERED_INPUT_TOKENS = 4096
-MAX_OUTPUT_TOKENS = 512
+MAX_OUTPUT_TOKENS = 10_000
 
 
 @dataclass(frozen=True)
@@ -50,63 +50,6 @@ class CaseAssemblyResult:
     tool_traces: tuple[ToolTraceEntry, ...]
     feedback: ValidationFeedback | None = None
     failure_reason: str | None = None
-
-
-def _revision_scope_violation(
-    *,
-    original: CaseAssemblyProposal,
-    revised: CaseAssemblyProposal,
-    feedback: ValidationFeedback,
-) -> str | None:
-    """Return a reason when a revision changes more than the named value."""
-
-    invariant_fields = (
-        "run_id",
-        "task_id",
-        "task_payload_checksum",
-        "case_id",
-        "assembly_status",
-        "component_layer_results",
-        "evidence_bindings",
-        "resolution_proposal_ids",
-        "context_association_ids",
-        "profile_gaps",
-        "omitted_slots",
-        "limitations",
-        "tool_trace_ids",
-        "source_snapshot_bindings",
-    )
-    for field_name in invariant_fields:
-        if getattr(original, field_name) != getattr(revised, field_name):
-            return f"revision changed invariant field {field_name}"
-
-    original_facts = {
-        fact.proposal_item_id: fact for fact in original.proposed_facts
-    }
-    revised_facts = {
-        fact.proposal_item_id: fact for fact in revised.proposed_facts
-    }
-    affected_id = feedback.affected_proposal_item_id
-    if affected_id not in original_facts or affected_id not in revised_facts:
-        return "affected fact is missing from the revision"
-    if set(original_facts) != set(revised_facts):
-        return "revision changed the formal fact set"
-
-    for item_id, original_fact in original_facts.items():
-        revised_fact = revised_facts[item_id]
-        if item_id != affected_id:
-            if revised_fact != original_fact:
-                return f"revision changed unrelated fact {item_id}"
-            continue
-        if (
-            original_fact.model_dump(exclude={"object_value"})
-            != revised_fact.model_dump(exclude={"object_value"})
-        ):
-            return "revision changed fields other than the affected object value"
-        if revised_fact.object_value not in feedback.allowed_corrections:
-            return "revision used a correction outside the allowed set"
-
-    return None
 
 
 def _base_messages(task: CaseAssemblyTask, *, catalog_path: str) -> list[BaseMessage]:
@@ -295,7 +238,7 @@ def _build_case_assembly_trace(
 
 
 def _model_tool_observation(result: CaseAssemblyToolResult) -> str:
-    return result.model_dump_json()
+    return result.model_dump_json(exclude_defaults=True)
 
 
 def _tool_result_bindings(
@@ -305,6 +248,7 @@ def _tool_result_bindings(
 
     result_refs = sorted(
         {
+            *([result.candidate_bundle_id] if result.candidate_bundle_id else []),
             *(row.evidence_id for row in result.evidence_records),
             *(
                 row.resolution_proposal_id
@@ -329,6 +273,75 @@ def _tool_result_bindings(
     return result_refs, source_ids
 
 
+def _execute_tool_batch(
+    *,
+    task: CaseAssemblyTask,
+    calls: list[dict[str, Any]],
+    registry: dict[str, BaseTool],
+    traces: list[ToolTraceEntry],
+    seen_ids: set[str],
+    allowed_tool_count: int,
+) -> tuple[list[ToolMessage], str | None]:
+    """Execute one native tool batch within the cumulative sealed-task budget."""
+
+    if len(traces) + len(calls) > allowed_tool_count:
+        return [], "Decision Case Assembly Agent tool-call budget exceeded"
+
+    tool_messages: list[ToolMessage] = []
+    for call in calls:
+        call_id = str(call.get("id") or "").strip()
+        name = str(call.get("name") or "").strip()
+        arguments = call.get("args")
+        if not call_id or call_id in seen_ids:
+            return [], "missing or duplicate native tool-call ID"
+        if name not in registry:
+            return [], f"unknown Decision Case Assembly Agent tool: {name}"
+        if not isinstance(arguments, dict):
+            return [], f"invalid arguments for assembly tool: {name}"
+
+        seen_ids.add(call_id)
+        started = time.perf_counter()
+        safe_parameters = _safe_parameters(arguments)
+        try:
+            content = registry[name].invoke(arguments)
+            result = CaseAssemblyToolResult.model_validate_json(str(content))
+        except Exception as exc:
+            error = sanitize_text(f"{type(exc).__name__}: {exc}")
+            trace = _build_case_assembly_trace(
+                task=task,
+                ordinal=len(traces),
+                tool=name,
+                parameters=safe_parameters,
+                status="blocked",
+                duration_ms=(time.perf_counter() - started) * 1000.0,
+                error=error,
+            )
+            traces.append(trace)
+            return [], trace.error or "assembly tool failed"
+
+        duration = (time.perf_counter() - started) * 1000.0
+        result_refs, source_ids = _tool_result_bindings(result)
+        traces.append(
+            _build_case_assembly_trace(
+                task=task,
+                ordinal=len(traces),
+                tool=name,
+                parameters=safe_parameters,
+                result_refs=result_refs,
+                source_ids=source_ids,
+                status="ok",
+                duration_ms=duration,
+            )
+        )
+        tool_messages.append(
+            ToolMessage(
+                content=_model_tool_observation(result),
+                tool_call_id=call_id,
+            )
+        )
+    return tool_messages, None
+
+
 def _message_text(message: AIMessage) -> str:
     if isinstance(message.content, list):
         return "".join(
@@ -336,6 +349,16 @@ def _message_text(message: AIMessage) -> str:
             for part in message.content
         )
     return str(message.content or "")
+
+
+def _output_budget_failure(record: ModelCallRecord) -> str | None:
+    """Distinguish provider truncation from a local observed-budget breach."""
+
+    if record.finish_reason == "length":
+        return "Decision Case Assembly Agent provider output was truncated"
+    if record.output_tokens > MAX_OUTPUT_TOKENS:
+        return "Decision Case Assembly Agent output budget exceeded"
+    return None
 
 
 def _compile_blocked_result(
@@ -384,6 +407,42 @@ def _compile_blocked_result(
         model_calls=tuple(model_calls),
         tool_traces=tuple(traces),
         feedback=feedback,
+        failure_reason=reason,
+    )
+
+
+def _compile_insufficient_result(
+    *,
+    task: CaseAssemblyTask,
+    binding: ContractExecutionBinding,
+    model_calls: list[ModelCallRecord],
+    traces: list[ToolTraceEntry],
+    reason: str,
+    component_layer_results: Sequence[ComponentLayerResult] = (),
+    limitations: Sequence[str] = (),
+) -> CaseAssemblyResult:
+    """Compile an honest non-publishable result after model abstention."""
+
+    agent_layer = ComponentLayerResult(
+        layer_id="decision_case_assembly",
+        status=ComponentLayerStatus.INSUFFICIENT,
+        required_for_task=True,
+        missing_reason_code="agent_abstained",
+    )
+    proposal = compile_case_assembly_proposal(
+        task=task,
+        assembly_status=AssemblyStatus.INSUFFICIENT,
+        component_layer_results=(*component_layer_results, agent_layer),
+        limitations=(*limitations, reason),
+        tool_trace_ids=[
+            trace.tool_call_id for trace in traces if trace.tool_call_id
+        ],
+        binding=binding,
+    )
+    return CaseAssemblyResult(
+        proposal=proposal,
+        model_calls=tuple(model_calls),
+        tool_traces=tuple(traces),
         failure_reason=reason,
     )
 
@@ -466,6 +525,14 @@ def run_case_assembly_agent(
         )
 
     model_calls.append(first.record)
+    if output_failure := _output_budget_failure(first.record):
+        return _blocked(
+            task=task,
+            binding=binding,
+            model_calls=model_calls,
+            traces=traces,
+            reason=output_failure,
+        )
     if first.record.error:
         return _blocked(
             task=task,
@@ -473,14 +540,6 @@ def run_case_assembly_agent(
             model_calls=model_calls,
             traces=traces,
             reason=first.record.error,
-        )
-    if first.record.output_tokens > MAX_OUTPUT_TOKENS:
-        return _blocked(
-            task=task,
-            binding=binding,
-            model_calls=model_calls,
-            traces=traces,
-            reason="Decision Case Assembly Agent output-token cap exceeded",
         )
     if first.message is None:
         return _blocked(
@@ -511,84 +570,37 @@ def run_case_assembly_agent(
         )
 
     seen_ids: set[str] = set()
-    tool_messages: list[ToolMessage] = []
-    for call in calls:
-        call_id = str(call.get("id") or "").strip()
-        name = str(call.get("name") or "").strip()
-        arguments = call.get("args")
-        if not call_id or call_id in seen_ids:
-            return _blocked(
-                task=task,
-                binding=binding,
-                model_calls=model_calls,
-                traces=traces,
-                reason="missing or duplicate native tool-call ID",
-            )
-        if name not in registry:
-            return _blocked(
-                task=task,
-                binding=binding,
-                model_calls=model_calls,
-                traces=traces,
-                reason=f"unknown Decision Case Assembly Agent tool: {name}",
-            )
-        if not isinstance(arguments, dict):
-            return _blocked(
-                task=task,
-                binding=binding,
-                model_calls=model_calls,
-                traces=traces,
-                reason=f"invalid arguments for assembly tool: {name}",
-            )
-
-        seen_ids.add(call_id)
-        started = time.perf_counter()
-        safe_parameters = _safe_parameters(arguments)
-        try:
-            content = registry[name].invoke(arguments)
-            result = CaseAssemblyToolResult.model_validate_json(str(content))
-        except Exception as exc:
-            error = sanitize_text(f"{type(exc).__name__}: {exc}")
-            trace = _build_case_assembly_trace(
-                task=task,
-                ordinal=len(traces),
-                tool=name,
-                parameters=safe_parameters,
-                status="blocked",
-                duration_ms=(time.perf_counter() - started) * 1000.0,
-                error=error,
-            )
-            traces.append(trace)
-            return _blocked(
-                task=task,
-                binding=binding,
-                model_calls=model_calls,
-                traces=traces,
-                reason=trace.error or "assembly tool failed",
-            )
-
-        duration = (time.perf_counter() - started) * 1000.0
-        result_refs, source_ids = _tool_result_bindings(result)
-        traces.append(
-            _build_case_assembly_trace(
-                task=task,
-                ordinal=len(traces),
-                tool=name,
-                parameters=safe_parameters,
-                result_refs=result_refs,
-                source_ids=source_ids,
-                status="ok",
-                duration_ms=duration,
-            )
-        )
-        tool_messages.append(
-            ToolMessage(
-                content=_model_tool_observation(result),
-                tool_call_id=call_id,
-            )
+    tool_messages, tool_error = _execute_tool_batch(
+        task=task,
+        calls=calls,
+        registry=registry,
+        traces=traces,
+        seen_ids=seen_ids,
+        allowed_tool_count=allowed_tool_count,
+    )
+    if tool_error is not None:
+        return _blocked(
+            task=task,
+            binding=binding,
+            model_calls=model_calls,
+            traces=traces,
+            reason=tool_error,
         )
 
-    # Provider turn 2: Emit proposal
+    if len(calls) != 1 or calls[0].get("name") != "get_candidate_bundle":
+        return _blocked(
+            task=task,
+            binding=binding,
+            model_calls=model_calls,
+            traces=traces,
+            reason=(
+                "Decision Case Assembly Agent must inspect exactly one "
+                "candidate bundle"
+            ),
+        )
+
+    # Provider turn 2: emit one compact accept/abstain decision. The full
+    # facts remain in the sealed task and are never regenerated by the model.
     turn_2_messages = [messages[0], messages[-1], first.message, *tool_messages]
     if _estimated_input_tokens(turn_2_messages) > MAX_RENDERED_INPUT_TOKENS:
         return _blocked(
@@ -622,6 +634,14 @@ def run_case_assembly_agent(
         )
 
     model_calls.append(second.record)
+    if output_failure := _output_budget_failure(second.record):
+        return _blocked(
+            task=task,
+            binding=binding,
+            model_calls=model_calls,
+            traces=traces,
+            reason=output_failure,
+        )
     if second.record.error:
         return _blocked(
             task=task,
@@ -629,14 +649,6 @@ def run_case_assembly_agent(
             model_calls=model_calls,
             traces=traces,
             reason=second.record.error,
-        )
-    if second.record.output_tokens > MAX_OUTPUT_TOKENS:
-        return _blocked(
-            task=task,
-            binding=binding,
-            model_calls=model_calls,
-            traces=traces,
-            reason="Decision Case Assembly Agent output-token cap exceeded",
         )
     if second.message is None:
         return _blocked(
@@ -647,19 +659,61 @@ def run_case_assembly_agent(
             reason="provider returned no AI message",
         )
 
-    proposal_text = _message_text(second.message).strip()
+    selection_text = _message_text(second.message).strip()
     try:
-        parsed_sections = parse_case_assembly_output(
-            proposal_text,
-            allowed_validation_profile_ids=frozenset({task.schema_profile_id}),
-        )
+        selection = CaseAssemblySelection.model_validate_json(selection_text)
     except Exception as exc:
         return _blocked(
             task=task,
             binding=binding,
             model_calls=model_calls,
             traces=traces,
-            reason=sanitize_text(f"malformed case assembly proposal output: {exc}"),
+            reason=sanitize_text(
+                f"malformed case assembly selection output: {exc}"
+            ),
+        )
+
+    expected_bundle_id = stable_contract_id(
+        "case-assembly-candidate-bundle",
+        task.task_id,
+        task.payload_checksum,
+    )
+    if selection.candidate_bundle_id != expected_bundle_id:
+        return _blocked(
+            task=task,
+            binding=binding,
+            model_calls=model_calls,
+            traces=traces,
+            reason="Decision Case Assembly Agent selected the wrong candidate bundle",
+        )
+    if selection.decision == "abstained":
+        return _compile_insufficient_result(
+            task=task,
+            binding=binding,
+            model_calls=model_calls,
+            traces=traces,
+            reason=selection.limitation or "Decision Case Assembly Agent abstained",
+            component_layer_results=component_layer_results,
+            limitations=limitations,
+        )
+
+    expected_fact_ids = set(task.core_event_fact_ids)
+    expected_gap_ids = {
+        row.proposal_item_id for row in task.profile_gaps
+    }
+    if (
+        set(selection.selected_fact_ids) != expected_fact_ids
+        or set(selection.selected_profile_gap_ids) != expected_gap_ids
+    ):
+        return _blocked(
+            task=task,
+            binding=binding,
+            model_calls=model_calls,
+            traces=traces,
+            reason=(
+                "Decision Case Assembly Agent selection differs from the "
+                "sealed candidate bundle"
+            ),
         )
 
     try:
@@ -667,8 +721,6 @@ def run_case_assembly_agent(
             task=task,
             assembly_status=assembly_status,
             component_layer_results=component_layer_results,
-            proposed_facts=parsed_sections.proposed_facts,
-            profile_gaps=parsed_sections.profile_gaps,
             limitations=limitations,
             tool_trace_ids=[trace.tool_call_id for trace in traces if trace.tool_call_id],
             binding=binding,
@@ -682,7 +734,6 @@ def run_case_assembly_agent(
             reason=sanitize_text(f"case assembly proposal compilation error: {exc}"),
         )
 
-    # Preflight Validation
     feedback = preflight_validate_case_assembly_proposal(
         task=task,
         proposal=proposal,
@@ -690,163 +741,8 @@ def run_case_assembly_agent(
     )
 
     if feedback is None:
-        # Valid on first try!
         return CaseAssemblyResult(
             proposal=proposal,
-            model_calls=tuple(model_calls),
-            tool_traces=tuple(traces),
-            feedback=None,
-        )
-
-    if not feedback.repairable:
-        # Hard violation -> block immediately without revision
-        return _blocked(
-            task=task,
-            binding=binding,
-            model_calls=model_calls,
-            traces=traces,
-            reason=f"hard validation violation: {feedback.violation_code}",
-            feedback=feedback,
-        )
-
-    # Repairable defect -> Provider turn 3 (validation-guided revision)
-    revision_user_msg = (
-        f"REVISION_FEEDBACK\n"
-        f"VIOLATION_CODE: {feedback.violation_code}\n"
-        f"AFFECTED_ITEM: {feedback.affected_proposal_item_id}\n"
-        f"ALLOWED_CORRECTIONS: {', '.join(feedback.allowed_corrections)}\n\n"
-        f"Please emit a revised proposal with GRAPH_PATCH and PROFILE_GAPS correcting only this item using an allowed correction."
-    )
-    turn_3_messages = [
-        *turn_2_messages,
-        second.message,
-        HumanMessage(content=revision_user_msg),
-    ]
-
-    if _estimated_input_tokens(turn_3_messages) > MAX_RENDERED_INPUT_TOKENS:
-        return _blocked(
-            task=task,
-            binding=binding,
-            model_calls=model_calls,
-            traces=traces,
-            reason="Decision Case Assembly Agent rendered input budget exceeded on revision turn",
-            feedback=feedback,
-        )
-
-    provider_started = time.perf_counter()
-    try:
-        third = model.invoke(turn_3_messages, phase="revision")
-    except Exception as exc:
-        provider_error = sanitize_text(f"{type(exc).__name__}: {exc}")
-        model_calls.append(
-            ModelCallRecord(
-                agent="decision_case_assembly",
-                raw_response="",
-                latency_ms=(time.perf_counter() - provider_started) * 1000.0,
-                attempt=3,
-                error=provider_error,
-            )
-        )
-        return _blocked(
-            task=task,
-            binding=binding,
-            model_calls=model_calls,
-            traces=traces,
-            reason=sanitize_text(f"Decision Case Assembly Agent provider revision failed: {provider_error}"),
-            feedback=feedback,
-        )
-
-    model_calls.append(third.record)
-    if third.record.error:
-        return _blocked(
-            task=task,
-            binding=binding,
-            model_calls=model_calls,
-            traces=traces,
-            reason=third.record.error,
-            feedback=feedback,
-        )
-    if third.record.output_tokens > MAX_OUTPUT_TOKENS:
-        return _blocked(
-            task=task,
-            binding=binding,
-            model_calls=model_calls,
-            traces=traces,
-            reason="Decision Case Assembly Agent output-token cap exceeded on revision turn",
-            feedback=feedback,
-        )
-    if third.message is None:
-        return _blocked(
-            task=task,
-            binding=binding,
-            model_calls=model_calls,
-            traces=traces,
-            reason="provider returned no AI message on revision turn",
-            feedback=feedback,
-        )
-
-    revised_text = _message_text(third.message).strip()
-    try:
-        revised_sections = parse_case_assembly_output(
-            revised_text,
-            allowed_validation_profile_ids=frozenset({task.schema_profile_id}),
-        )
-    except Exception as exc:
-        return _blocked(
-            task=task,
-            binding=binding,
-            model_calls=model_calls,
-            traces=traces,
-            reason=sanitize_text(f"malformed revised case assembly proposal: {exc}"),
-            feedback=feedback,
-        )
-
-    try:
-        revised_proposal = compile_case_assembly_proposal(
-            task=task,
-            assembly_status=assembly_status,
-            component_layer_results=component_layer_results,
-            proposed_facts=revised_sections.proposed_facts,
-            profile_gaps=revised_sections.profile_gaps,
-            limitations=limitations,
-            tool_trace_ids=[trace.tool_call_id for trace in traces if trace.tool_call_id],
-            revision_count=1,
-            binding=binding,
-        )
-    except Exception as exc:
-        return _blocked(
-            task=task,
-            binding=binding,
-            model_calls=model_calls,
-            traces=traces,
-            reason=sanitize_text(f"revised case assembly proposal compilation error: {exc}"),
-            feedback=feedback,
-        )
-
-    revision_scope_error = _revision_scope_violation(
-        original=proposal,
-        revised=revised_proposal,
-        feedback=feedback,
-    )
-    if revision_scope_error is not None:
-        return _blocked(
-            task=task,
-            binding=binding,
-            model_calls=model_calls,
-            traces=traces,
-            reason=f"REVISION_SCOPE_VIOLATION: {revision_scope_error}",
-            feedback=feedback,
-        )
-
-    revised_feedback = preflight_validate_case_assembly_proposal(
-        task=task,
-        proposal=revised_proposal,
-        binding=binding,
-    )
-
-    if revised_feedback is None:
-        return CaseAssemblyResult(
-            proposal=revised_proposal,
             model_calls=tuple(model_calls),
             tool_traces=tuple(traces),
             feedback=None,
@@ -857,6 +753,6 @@ def run_case_assembly_agent(
         binding=binding,
         model_calls=model_calls,
         traces=traces,
-        reason=f"validation feedback not resolved after revision: {revised_feedback.violation_code}",
-        feedback=revised_feedback,
+        reason=f"sealed candidate validation failed: {feedback.violation_code}",
+        feedback=feedback,
     )

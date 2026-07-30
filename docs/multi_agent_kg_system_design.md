@@ -188,11 +188,15 @@ genuine evidence/schema choice remains. The Agent sees a compact task-bound
 schema context and read-only task tools; it never receives graph-write
 authority.
 
-Every proposal is checked against the exact sealed task before publication. A
-repair is allowed only for the explicitly permitted value-only correction. Any
-out-of-task, causal, source-binding, schema, profile, or evidence violation is
-blocked. This event-patch check is an early admissibility gate; it does not
-write a projection.
+The active Agent contract uses two provider turns and one read-only tool call.
+It first reads one compact sealed candidate bundle, then returns only an
+`accepted` or `abstained` decision plus selected candidate IDs. It does not
+regenerate predicates, values, evidence bindings, or a complete graph patch.
+An accepted selection must equal the sealed candidate set; deterministic code
+restores the full proposal and sends it through the existing preflight and
+publication checks. An abstention becomes an honest `insufficient` result.
+Any out-of-task candidate or malformed selection is blocked. This event-patch
+check is an early admissibility gate; it does not write a projection.
 
 ## 9. Formal Publication Kernel and Profiles
 
@@ -431,10 +435,11 @@ task. Its runner completed, but model acceptance was `0/5`:
 - the GDP `138` retired-analysis answer failed its typed evidence-support
   contract.
 
-No prompt or token-cap adjustment was made during the frozen run. Those
-compatibility fixes are deferred. Temperature `0` reduces sampling variance
-but does not make provider output deterministic, and this one-shot smoke is
-neither a statistical benchmark nor evidence about the current Query Agent.
+No prompt or token-cap adjustment was made during that frozen run. The later
+versioned compatibility fix is described below. Temperature `0` reduces
+sampling variance but does not make provider output deterministic, and this
+one-shot smoke is neither a statistical benchmark nor evidence about the
+current Query Agent.
 
 The separate repeated-provider experiment used the same frozen five tasks for
 12 full cycles. It recorded 108 attempted and 108 successful real-provider
@@ -450,16 +455,28 @@ local `live-agent-experiment-v1-invalid-observer-phase/` and
 `live-agent-experiment-v1-normalized-response-only/` diagnostics are excluded
 from this result.
 
-The current v2 experiment retains the same four Assembly tasks but replaces the
-retired registered-analysis trial with the always-on Hybrid Query Agent. Across
-12 cycles, all 120 real DeepSeek calls returned successfully with zero call
-failures, using 383,201 input tokens and 69,986 output tokens. The GDP `138`
-query passed 12/12 measurements. The Assembly tasks failed 48/48 measurements:
-28 output-token-cap failures and 20 malformed-contract failures. The raw and
-parsed artifact hashes matched the v2 manifest, and no call-binding, cache, or
-frozen-configuration integrity violation was recorded. This establishes one
-repeated current-query compatibility result, not a broad natural-language
-benchmark.
+The pre-fix v2 experiment retained the same four Assembly tasks but replaced
+the retired registered-analysis trial with the always-on Hybrid Query Agent.
+Across 12 cycles, all 120 real DeepSeek calls returned successfully. The GDP
+`138` query passed 12/12 measurements, while the Assembly tasks failed 48/48
+measurements because the full graph-patch response was incompatible with the
+frozen output contract.
+
+The compact-selection fix was then accepted with the same five frozen tasks
+over 12 cycles. All 120 real DeepSeek calls returned successfully and all
+60 task measurements passed. The run used 261,238 input tokens and 30,561
+output tokens; all observed Assembly and query outputs remained below the
+then-active stricter limits. The raw and parsed artifact hashes
+matched the experiment manifest, with no call-binding, cache, configuration,
+invalid-tool-call, or assertion failure. These are repeated compatibility
+measurements of five fixed tasks, not a broad natural-language benchmark.
+
+The active system ceiling is now 10,000 output tokens for the Query Agent and
+Decision Case Assembly Agent. Semantic Resolution remains capped at 256 tokens
+because its final result is a compact candidate decision.
+
+A subsequent one-repetition live smoke verified the 10,000-token configuration
+with 10/10 successful real calls and all five frozen tasks accepted.
 
 The Semantic Resolution Agent is
 `not_evaluated_no_natural_ambiguity` because the frozen cohort has no natural

@@ -10,10 +10,6 @@ decisions. Historical experiment backlogs are discoverable through
 
 - [ ] Decide whether to merge the reviewed read-only visualization from
   `codex/kg-visualization-research` into `main`.
-- [ ] If a model-compatibility task is approved, version prompt or output-token
-  changes separately from the frozen Assembly results. The current v2 run
-  confirms the Hybrid Query Agent on one repeated GDP `138` task while exposing
-  48/48 Assembly compatibility failures.
 - [ ] Expand the Hybrid Query Agent live suite beyond the repeated GDP `138`
   task to cover paraphrased, multilingual, multi-tool,
   insufficient-evidence, and claim-boundary questions.
@@ -37,8 +33,6 @@ tools; natural-language interpretation and tool routing remain model-mediated.
 - General-purpose planner and long-term Agent memory.
 - General aviation chat or retrieval outside the bounded corpus tools.
 - New Agent roles without an observed need.
-- Prompt or token-cap tuning for the recorded `live_smoke` and
-  `live_experiment` failures.
 - Additional repeated-run, multi-model, or statistically powered live-Agent
   benchmarks.
 - Frozen-cohort Semantic Resolution performance claims until a natural

@@ -164,7 +164,7 @@ def get_deepseek_mve_llm(
     *,
     model: str,
     temperature: float = 0.0,
-    max_tokens: int = 512,
+    max_tokens: int = 10_000,
     timeout: float | None = 120.0,
     max_retries: int = 0,
 ) -> "BaseChatModel":
@@ -205,8 +205,14 @@ def get_deepseek_mve_llm(
         api_key=api_key,
         cache=False,
         temperature=temperature,
-        max_tokens=max_tokens,
         timeout=timeout,
         max_retries=max_retries,
-        extra_body={"thinking": {"type": "disabled"}},
+        extra_body={
+            "thinking": {"type": "disabled"},
+            # DeepSeek's OpenAI-compatible endpoint accepts ``max_tokens``.
+            # Passing it as ChatOpenAI's top-level argument is rewritten by
+            # langchain-openai 1.2.x to ``max_completion_tokens``, which this
+            # endpoint does not enforce.
+            "max_tokens": max_tokens,
+        },
     )

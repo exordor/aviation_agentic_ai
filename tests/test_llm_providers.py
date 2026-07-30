@@ -224,3 +224,39 @@ def test_get_llm_rejects_unsupported_provider_after_loading_environment(monkeypa
 
     assert load_calls == ["loaded"]
     assert FakeChatOpenAI.calls == []
+
+
+def test_deepseek_mve_sends_provider_native_max_tokens_in_extra_body(
+    monkeypatch,
+) -> None:
+    _install_fake_langchain_openai(monkeypatch)
+    monkeypatch.setattr(providers, "load_environment", lambda: None)
+    monkeypatch.setenv("DEEPSEEK_BASE_URL", "https://deepseek.example/v1")
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "deepseek-key")
+
+    llm = providers.get_deepseek_mve_llm(
+        model="deepseek-v4-pro",
+        max_tokens=512,
+    )
+
+    assert "max_tokens" not in llm.kwargs
+    assert llm.kwargs["extra_body"] == {
+        "thinking": {"type": "disabled"},
+        "max_tokens": 512,
+    }
+
+
+def test_deepseek_mve_defaults_to_10k_provider_output_tokens(
+    monkeypatch,
+) -> None:
+    _install_fake_langchain_openai(monkeypatch)
+    monkeypatch.setattr(providers, "load_environment", lambda: None)
+    monkeypatch.setenv("DEEPSEEK_BASE_URL", "https://deepseek.example/v1")
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "deepseek-key")
+
+    llm = providers.get_deepseek_mve_llm(model="deepseek-v4-pro")
+
+    assert llm.kwargs["extra_body"] == {
+        "thinking": {"type": "disabled"},
+        "max_tokens": 10_000,
+    }

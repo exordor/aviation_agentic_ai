@@ -89,6 +89,7 @@ def _tool_call_message() -> AIMessage:
         response_metadata={
             "model_name": "deepseek-test",
             "system_fingerprint": "fp-test",
+            "finish_reason": "tool_calls",
         },
     )
 
@@ -107,6 +108,7 @@ def test_adapter_preserves_native_tool_call_and_metadata():
     assert turn.record.input_tokens == 12
     assert turn.record.output_tokens == 4
     assert turn.record.system_fingerprint == "fp-test"
+    assert turn.record.finish_reason == "tool_calls"
     assert turn.record.tool_calls[0].call_id == "call:1"
     assert turn.record.tool_calls[0].arguments == {
         "candidate_id": "candidate:alpha"
@@ -137,6 +139,7 @@ def test_adapter_binds_tools_for_construction_and_query_without_strict_schema():
     _adapter(chat)
     assert [call["tool_choice"] for call in chat.bind_calls] == [
         "required",
+        "none",
         "auto",
     ]
     for call in chat.bind_calls:
@@ -162,7 +165,7 @@ def test_final_turn_receives_original_ai_message_and_matching_tool_message():
     )
     assert second_turn.message is final
     phase, captured = chat.invocations[-1]
-    assert phase == "unbound"
+    assert phase == "none"
     assert captured[-2] is first
     assert captured[-1] is observation
     assert captured[-1].tool_call_id == first.tool_calls[0]["id"]

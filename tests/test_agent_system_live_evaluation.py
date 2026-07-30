@@ -220,15 +220,16 @@ def test_report_projection_contains_only_sanitized_metrics(tmp_path: Path) -> No
     assert "tool_result" not in serialized
     assert "<think>" not in serialized
     assert "sk-secret" not in serialized
+    assert "| Repetition | Trial |" in paths[3].read_text(encoding="utf-8")
 
 
-def _write_frozen_suite(path: Path) -> Path:
+def _write_frozen_suite(path: Path, *, repetitions: int = 1) -> Path:
     path.write_text(
         yaml.safe_dump(
             {
                 "version": "live-agent-smoke-v2",
                 "suite_id": "decision-case-live-agent-smoke-v2",
-                "repetitions": 1,
+                "repetitions": repetitions,
                 "trials": [
                     {
                         "trial_id": "assembly-025",
@@ -325,6 +326,171 @@ def test_public_live_runner_has_no_fake_factory_injection() -> None:
     assert "model_factory" not in parameters
     assert "case_runner" not in parameters
     assert "resource_loader" not in parameters
+
+
+def test_live_runner_executes_every_frozen_repetition(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config_path = _write_preflight_config(
+        tmp_path / "config.yaml",
+        tmp_path / "sources",
+    )
+    suite_path = _write_frozen_suite(
+        tmp_path / "suite.yaml",
+        repetitions=3,
+    )
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "fixture-key")
+    monkeypatch.setattr(live_eval, "_live_preflight_failures", lambda *args, **kwargs: ())
+    monkeypatch.setattr(live_eval, "load_batch_resources", lambda config: object())
+    monkeypatch.setattr(live_eval, "_resource_preflight_failures", lambda resources: ())
+    observed: list[int] = []
+
+    suite = load_live_evaluation_suite(suite_path)
+
+    def run_repetition(**kwargs):
+        repetition = kwargs["repetition"]
+        observed.append(repetition)
+        return tuple(
+            _result(trial.trial_id, live_model=True).model_copy(
+                update={
+                    "repetition": repetition,
+                    "kind": trial.kind,
+                    "source_id": trial.source_id,
+                    "role": trial.expected_role,
+                }
+            )
+            for trial in suite.trials
+        )
+
+    monkeypatch.setattr(
+        live_eval,
+        "_run_live_evaluation_repetition",
+        run_repetition,
+    )
+
+    summary = run_live_agent_evaluation(
+        config_path=config_path,
+        suite_path=suite_path,
+        output_dir=tmp_path / "runtime",
+        report_dir=tmp_path / "reports",
+        allow_live_model=True,
+        repetitions=3,
+    )
+
+    assert observed == [1, 2, 3]
+    assert summary.repetitions == 3
+    assert summary.trial_count == 6
+    assert summary.provider_call_count == 12
+    results = [
+        json.loads(line)
+        for line in (
+            tmp_path / "runtime" / "live_evaluation_results_v2.jsonl"
+        ).read_text(encoding="utf-8").splitlines()
+    ]
+    assert {
+        (row["repetition"], row["trial_id"]) for row in results
+    } == {
+        (repetition, trial.trial_id)
+        for repetition in range(1, 4)
+        for trial in suite.trials
+    }
+
+
+def test_live_runner_continues_after_one_repetition_fails(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config_path = _write_preflight_config(
+        tmp_path / "config.yaml",
+        tmp_path / "sources",
+    )
+    suite_path = _write_frozen_suite(
+        tmp_path / "suite.yaml",
+        repetitions=3,
+    )
+    suite = load_live_evaluation_suite(suite_path)
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "fixture-key")
+    monkeypatch.setattr(live_eval, "_live_preflight_failures", lambda *args, **kwargs: ())
+    monkeypatch.setattr(live_eval, "load_batch_resources", lambda config: object())
+    monkeypatch.setattr(live_eval, "_resource_preflight_failures", lambda resources: ())
+    observed: list[int] = []
+
+    def run_repetition(**kwargs):
+        repetition = kwargs["repetition"]
+        observed.append(repetition)
+        if repetition == 2:
+            raise RuntimeError("simulated repetition failure")
+        return tuple(
+            _result(trial.trial_id, live_model=True).model_copy(
+                update={
+                    "repetition": repetition,
+                    "kind": trial.kind,
+                    "source_id": trial.source_id,
+                    "role": trial.expected_role,
+                }
+            )
+            for trial in suite.trials
+        )
+
+    monkeypatch.setattr(
+        live_eval,
+        "_run_live_evaluation_repetition",
+        run_repetition,
+    )
+
+    summary = run_live_agent_evaluation(
+        config_path=config_path,
+        suite_path=suite_path,
+        output_dir=tmp_path / "runtime",
+        report_dir=tmp_path / "reports",
+        allow_live_model=True,
+        repetitions=3,
+    )
+
+    assert observed == [1, 2, 3]
+    assert summary.runner_status == "runner_failed"
+    assert summary.trial_count == 6
+    assert summary.not_run_count == 2
+    assert summary.provider_call_count == 8
+    assert summary.runner_detail_codes == (
+        "repetition_002_runner_exception",
+    )
+
+
+def test_repetition_matrix_rejects_missing_duplicate_and_mismatched_rows() -> None:
+    suite = LiveEvaluationSuite(
+        version="live-agent-smoke-v2",
+        suite_id="suite",
+        repetitions=1,
+        trials=(
+            LiveEvaluationTrial(
+                trial_id="assembly",
+                kind="assembly",
+                source_id="source:assembly",
+                expected_role="decision_case_assembly",
+            ),
+        ),
+    )
+    row = _result("assembly", live_model=True).model_copy(
+        update={"source_id": "source:assembly"}
+    )
+
+    assert live_eval._repetition_matrix_failures(
+        suite=suite,
+        repetitions=1,
+        results=(),
+    ) == ("missing_repetition_trial_result",)
+    assert live_eval._repetition_matrix_failures(
+        suite=suite,
+        repetitions=1,
+        results=(row, row),
+    ) == ("duplicate_repetition_trial_result",)
+    assert live_eval._repetition_matrix_failures(
+        suite=suite,
+        repetitions=1,
+        results=(row.model_copy(update={"source_id": "source:wrong"}),),
+    ) == ("repetition_trial_metadata_mismatch",)
 
 
 def test_missing_credentials_blocks_before_corpus_build(

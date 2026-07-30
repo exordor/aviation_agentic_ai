@@ -203,6 +203,46 @@ def test_case_assembly_gateway_get_case_requirements() -> None:
     assert result.remaining_tool_budget == 6
 
 
+def test_case_assembly_gateway_gets_compact_candidate_bundle() -> None:
+    task = _assembly_task()
+    gateway = CaseAssemblyToolGateway(task=task)
+
+    first = gateway.get_candidate_bundle()
+    second = gateway.get_candidate_bundle()
+
+    assert first.status == "ok"
+    assert first.candidate_bundle_id == second.candidate_bundle_id
+    assert first.candidate_bundle_id == stable_contract_id(
+        "case-assembly-candidate-bundle",
+        task.task_id,
+        task.payload_checksum,
+    )
+    assert [row.proposal_item_id for row in first.candidate_facts] == [
+        "proposal-fact-1"
+    ]
+    assert first.candidate_facts[0].predicate_iri == "rdf:type"
+    assert first.candidate_facts[0].object_value == "atm:GroundStopTMI"
+    assert [row.proposal_item_id for row in first.candidate_profile_gaps] == [
+        "proposal-gap-1"
+    ]
+    assert [row.evidence_id for row in first.evidence_records] == [
+        "evidence:event:type",
+        "evidence:event:weather",
+    ]
+    assert [row.resolution_proposal_id for row in first.resolution_records] == [
+        "res-prop-1"
+    ]
+    assert first.context_association_count == 1
+    assert first.public_observation_count == 1
+    assert first.context_associations == []
+    assert first.public_observations == []
+    assert first.association_ids == []
+    assert first.observation_ids == []
+    assert {
+        binding.source_id for binding in first.source_snapshot_bindings
+    } == {"source:event"}
+
+
 def test_case_assembly_gateway_get_schema_context() -> None:
     task = _assembly_task()
     gateway = CaseAssemblyToolGateway(task=task)
@@ -294,29 +334,19 @@ def test_case_assembly_gateway_get_public_observations() -> None:
         gateway.get_public_observations(observation_ids=["unknown-obs"])
 
 
-def test_build_case_assembly_tools_returns_six_tools() -> None:
+def test_build_case_assembly_tools_exposes_only_compact_candidate_bundle() -> None:
     task = _assembly_task()
     gateway = CaseAssemblyToolGateway(task=task)
     tools = build_case_assembly_tools(gateway)
 
-    assert len(tools) == 6
-    names = [t.name for t in tools]
-    expected_names = [
-        "get_case_requirements",
-        "get_schema_context",
-        "get_source_evidence",
-        "get_resolution_result",
-        "get_context_associations",
-        "get_public_observations",
-    ]
-    assert names == expected_names
+    assert [tool.name for tool in tools] == ["get_candidate_bundle"]
 
-    # Test executing a tool
-    req_tool = tools[0]
-    out = req_tool.invoke({})
-    parsed = json.loads(out)
-    assert parsed["status"] == "ok"
-    assert parsed["case_id"] == "case-1"
+    bundle = json.loads(tools[0].invoke({}))
+    assert bundle["candidate_bundle_id"]
+    assert bundle["context_association_count"] == 1
+    assert bundle["public_observation_count"] == 1
+    assert "context_associations" not in bundle
+    assert "public_observations" not in bundle
 
 
 def test_deterministic_compiler_compiles_fixed_proposal() -> None:
@@ -982,9 +1012,9 @@ def _assembly_tool_turn():
 
     calls = [
         {
-            "id": "call:ev-1",
-            "name": "get_source_evidence",
-            "args": {"evidence_ids": ["evidence:event:type"]},
+            "id": "call:candidate-bundle",
+            "name": "get_candidate_bundle",
+            "args": {},
             "type": "tool_call",
         }
     ]
@@ -993,71 +1023,92 @@ def _assembly_tool_turn():
         record=ModelCallRecord(
             agent="decision_case_assembly",
             raw_response="",
-            prompt_version="decision-case-assembly-v1",
+            prompt_version="decision-case-assembly-v3",
             tool_calls=[
                 ModelToolCall(
-                    call_id="call:ev-1",
-                    name="get_source_evidence",
-                    arguments={"evidence_ids": ["evidence:event:type"]},
+                    call_id="call:candidate-bundle",
+                    name="get_candidate_bundle",
+                    arguments={},
                 )
             ],
         ),
     )
 
 
-def _valid_proposal_text() -> str:
-    return (
-        'GRAPH_PATCH\n'
-        '{"proposal_item_id":"proposal-fact-1","subject_id":"event-1","predicate_iri":"rdf:type","object_kind":"iri","object_value":"atm:GroundStopTMI","evidence_claim_ids":["evidence:event:type"],"derivation_ids":[],"validation_profile_id":"profile-1"}\n\n'
-        'PROFILE_GAPS\n'
-        '{"proposal_item_id":"proposal-gap-1","event_id":"event-1","field":"impacting_condition","normalized_value":"weather","evidence_claim_ids":["evidence:event:weather"],"schema_mapping_reason_code":"not_in_profile","validation_profile_id":"profile-1"}\n'
+def _valid_proposal_text(task: CaseAssemblyTask | None = None) -> str:
+    task = task or _assembly_task()
+    return json.dumps(
+        {
+            "decision": "accepted",
+            "candidate_bundle_id": stable_contract_id(
+                "case-assembly-candidate-bundle",
+                task.task_id,
+                task.payload_checksum,
+            ),
+            "selected_fact_ids": list(task.core_event_fact_ids),
+            "selected_profile_gap_ids": [
+                gap.proposal_item_id for gap in task.profile_gaps
+            ],
+            "limitation": None,
+        },
+        sort_keys=True,
     )
 
 
-def _proposal_text(
-    facts: tuple[CaseFactProposal, ...],
-    gaps: tuple[CaseProfileGapProposal, ...] = (),
-) -> str:
-    fact_lines = "\n".join(fact.model_dump_json() for fact in facts) or "NONE"
-    gap_lines = "\n".join(gap.model_dump_json() for gap in gaps) or "NONE"
-    return f"GRAPH_PATCH\n{fact_lines}\n\nPROFILE_GAPS\n{gap_lines}\n"
+def test_case_assembly_tool_observation_preserves_compact_serialization() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly import (
+        _model_tool_observation,
+    )
+    from aviation_agentic_ai.agent_system.case_assembly_tools import (
+        CaseAssemblyToolResult,
+    )
+
+    payload = json.loads(
+        _model_tool_observation(
+            CaseAssemblyToolResult(
+                tool="get_candidate_bundle",
+                candidate_bundle_id="bundle:1",
+            )
+        )
+    )
+
+    assert payload == {
+        "tool": "get_candidate_bundle",
+        "candidate_bundle_id": "bundle:1",
+    }
 
 
-def _run_revision_script(
-    *,
-    task: CaseAssemblyTask,
-    initial_text: str,
-    revised_text: str,
-):
-    from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
+def test_case_assembly_reports_provider_truncation_before_tool_call_error() -> None:
+    from aviation_agentic_ai.agent_system.case_assembly import (
+        run_case_assembly_agent,
+    )
     from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
     from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
-    from langchain_core.messages import AIMessage
 
-    turns = [
-        _assembly_tool_turn(),
-        ToolModelTurn(
-            message=AIMessage(content=initial_text),
-            record=ModelCallRecord(
-                agent="decision_case_assembly",
-                raw_response=initial_text,
-                prompt_version="decision-case-assembly-v1",
-            ),
-        ),
-        ToolModelTurn(
-            message=AIMessage(content=revised_text),
-            record=ModelCallRecord(
-                agent="decision_case_assembly",
-                raw_response=revised_text,
-                prompt_version="decision-case-assembly-v1",
-            ),
-        ),
-    ]
-    scripted_model = _ScriptedAssemblyModel(turns)
-    return run_case_assembly_agent(
-        task=task,
+    scripted_model = _ScriptedAssemblyModel(
+        [
+            ToolModelTurn(
+                message=None,
+                record=ModelCallRecord(
+                    agent="decision_case_assembly",
+                    raw_response="",
+                    prompt_version="decision-case-assembly-v3",
+                    output_tokens=512,
+                    finish_reason="length",
+                    error="provider returned an invalid native tool call",
+                ),
+            )
+        ]
+    )
+
+    result = run_case_assembly_agent(
+        task=_assembly_task(),
         binding=_binding(),
         tool_model_factory=lambda tools: scripted_model,
+    )
+
+    assert result.failure_reason == (
+        "Decision Case Assembly Agent provider output was truncated"
     )
 
 
@@ -1103,7 +1154,7 @@ def test_case_assembly_agent_evidence_schema_choice_success() -> None:
         record=ModelCallRecord(
             agent="decision_case_assembly",
             raw_response=_valid_proposal_text(),
-            prompt_version="decision-case-assembly-v1",
+            prompt_version="decision-case-assembly-v3",
         ),
     )
     scripted_model = _ScriptedAssemblyModel([turn_1, turn_2])
@@ -1122,13 +1173,22 @@ def test_case_assembly_agent_evidence_schema_choice_success() -> None:
     assert result.proposal.limitations == limitations
     assert len(result.model_calls) == 2
     assert len(result.tool_traces) == 1
-    assert result.tool_traces[0].result_refs == ["evidence:event:type"]
+    assert result.tool_traces[0].result_refs == [
+        stable_contract_id(
+            "case-assembly-candidate-bundle",
+            task.task_id,
+            task.payload_checksum,
+        ),
+        "evidence:event:type",
+        "evidence:event:weather",
+        "res-prop-1",
+    ]
     assert result.tool_traces[0].source_ids == ["source:event"]
     assert result.feedback is None
     assert result.failure_reason is None
 
 
-def test_case_assembly_agent_one_allowed_revision_success() -> None:
+def test_case_assembly_agent_abstention_is_honest_insufficient() -> None:
     from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
     from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
     from aviation_agentic_ai.agent_system.decision_case_contracts import (
@@ -1139,16 +1199,21 @@ def test_case_assembly_agent_one_allowed_revision_success() -> None:
     from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
     from langchain_core.messages import AIMessage
 
-    task_fact = CaseFactProposal(
-        proposal_item_id="proposal-fact-1",
-        subject_id="event-1",
-        predicate_iri="atm:controlledFacility",
-        object_kind="iri",
-        object_value="KJFK",
-        evidence_claim_ids=("evidence:event:type",),
-        validation_profile_id="profile-1",
+    task = _assembly_task()
+    selection_text = json.dumps(
+        {
+            "decision": "abstained",
+            "candidate_bundle_id": stable_contract_id(
+                "case-assembly-candidate-bundle",
+                task.task_id,
+                task.payload_checksum,
+            ),
+            "selected_fact_ids": [],
+            "selected_profile_gap_ids": [],
+            "limitation": "The sealed evidence remains ambiguous.",
+        },
+        sort_keys=True,
     )
-    task = _assembly_task(proposed_facts=(task_fact,), profile_gaps=())
     component_layer_results = (
         ComponentLayerResult(
             layer_id="core",
@@ -1156,230 +1221,114 @@ def test_case_assembly_agent_one_allowed_revision_success() -> None:
             required_for_task=True,
             artifact_ids=("proposal-fact-1",),
         ),
-        ComponentLayerResult(
-            layer_id="weather",
-            status=ComponentLayerStatus.BLOCKED,
-            required_for_task=False,
-            blocking_error_id="weather:source-unavailable",
-        ),
     )
-    turn_1 = _assembly_tool_turn()
-
-    # Repairable formatting defect: lowercase 'kjfk' for facility
-    repairable_text = (
-        'GRAPH_PATCH\n'
-        '{"proposal_item_id":"proposal-fact-1","subject_id":"event-1","predicate_iri":"atm:controlledFacility","object_kind":"iri","object_value":"kjfk","evidence_claim_ids":["evidence:event:type"],"derivation_ids":[],"validation_profile_id":"profile-1"}\n\n'
-        'PROFILE_GAPS\nNONE\n'
+    scripted_model = _ScriptedAssemblyModel(
+        [
+            _assembly_tool_turn(),
+            ToolModelTurn(
+                message=AIMessage(content=selection_text),
+                record=ModelCallRecord(
+                    agent="decision_case_assembly",
+                    raw_response=selection_text,
+                    prompt_version="decision-case-assembly-v3",
+                ),
+            ),
+        ]
     )
-    turn_2 = ToolModelTurn(
-        message=AIMessage(content=repairable_text),
-        record=ModelCallRecord(
-            agent="decision_case_assembly",
-            raw_response=repairable_text,
-            prompt_version="decision-case-assembly-v1",
-        ),
-    )
-
-    # Turn 3 applies allowed correction 'KJFK'
-    corrected_text = (
-        'GRAPH_PATCH\n'
-        '{"proposal_item_id":"proposal-fact-1","subject_id":"event-1","predicate_iri":"atm:controlledFacility","object_kind":"iri","object_value":"KJFK","evidence_claim_ids":["evidence:event:type"],"derivation_ids":[],"validation_profile_id":"profile-1"}\n\n'
-        'PROFILE_GAPS\nNONE\n'
-    )
-    turn_3 = ToolModelTurn(
-        message=AIMessage(content=corrected_text),
-        record=ModelCallRecord(
-            agent="decision_case_assembly",
-            raw_response=corrected_text,
-            prompt_version="decision-case-assembly-v1",
-        ),
-    )
-
-    scripted_model = _ScriptedAssemblyModel([turn_1, turn_2, turn_3])
 
     result = run_case_assembly_agent(
         task=task,
         binding=_binding(),
         tool_model_factory=lambda tools: scripted_model,
-        assembly_status=AssemblyStatus.PARTIAL,
         component_layer_results=component_layer_results,
-        limitations=("Weather context layer is blocked",),
     )
 
-    assert result.proposal.assembly_status is AssemblyStatus.PARTIAL
-    assert result.proposal.component_layer_results == component_layer_results
-    assert result.proposal.limitations == ("Weather context layer is blocked",)
-    assert result.proposal.revision_count == 1
-    assert len(result.model_calls) == 3
-    assert result.feedback is None
+    assert result.proposal.assembly_status is AssemblyStatus.INSUFFICIENT
+    assert result.proposal.proposed_facts == ()
+    assert result.proposal.component_layer_results[-1].layer_id == (
+        "decision_case_assembly"
+    )
+    assert result.proposal.component_layer_results[-1].status is (
+        ComponentLayerStatus.INSUFFICIENT
+    )
+    assert result.failure_reason == "The sealed evidence remains ambiguous."
+    assert len(result.model_calls) == 2
+    assert len(result.tool_traces) == 1
 
 
-@pytest.mark.parametrize("mutation", ("unrelated_fact", "profile_gap"))
-def test_case_assembly_revision_cannot_change_unrelated_items(
+@pytest.mark.parametrize("mutation", ("wrong_bundle", "extra_fact"))
+def test_case_assembly_agent_rejects_selection_outside_sealed_bundle(
     mutation: str,
 ) -> None:
-    facility_fact = CaseFactProposal(
-        proposal_item_id="proposal-fact-1",
-        subject_id="event-1",
-        predicate_iri="atm:controlledFacility",
-        object_kind="iri",
-        object_value="KJFK",
-        evidence_claim_ids=("evidence:event:type",),
-        validation_profile_id="profile-1",
+    from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
+    from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
+    from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
+    from langchain_core.messages import AIMessage
+
+    task = _assembly_task()
+    bundle_id = stable_contract_id(
+        "case-assembly-candidate-bundle",
+        task.task_id,
+        task.payload_checksum,
     )
-    type_fact = CaseFactProposal(
-        proposal_item_id="proposal-fact-2",
-        subject_id="event-1",
-        predicate_iri="rdf:type",
-        object_kind="iri",
-        object_value="atm:GroundStopTMI",
-        evidence_claim_ids=("evidence:event:type",),
-        validation_profile_id="profile-1",
+    selected_fact_ids = list(task.core_event_fact_ids)
+    if mutation == "wrong_bundle":
+        bundle_id = "bundle:outside-task"
+    else:
+        selected_fact_ids.append("proposal-fact-outside-task")
+    selection_text = json.dumps(
+        {
+            "decision": "accepted",
+            "candidate_bundle_id": bundle_id,
+            "selected_fact_ids": selected_fact_ids,
+            "selected_profile_gap_ids": [
+                gap.proposal_item_id for gap in task.profile_gaps
+            ],
+            "limitation": None,
+        },
+        sort_keys=True,
     )
-    gap = _assembly_task().profile_gaps[0]
-    task = _assembly_task(
-        proposed_facts=(facility_fact, type_fact),
-        profile_gaps=(gap,),
-    )
-    initial_facility = facility_fact.model_copy(update={"object_value": "kjfk"})
-    revised_facility = facility_fact
-    revised_type = (
-        type_fact.model_copy(update={"object_value": "atm:GroundDelayProgramTMI"})
-        if mutation == "unrelated_fact"
-        else type_fact
-    )
-    revised_gap = (
-        gap.model_copy(update={"normalized_value": "volume"})
-        if mutation == "profile_gap"
-        else gap
+    scripted_model = _ScriptedAssemblyModel(
+        [
+            _assembly_tool_turn(),
+            ToolModelTurn(
+                message=AIMessage(content=selection_text),
+                record=ModelCallRecord(
+                    agent="decision_case_assembly",
+                    raw_response=selection_text,
+                    prompt_version="decision-case-assembly-v3",
+                ),
+            ),
+        ]
     )
 
-    result = _run_revision_script(
+    result = run_case_assembly_agent(
         task=task,
-        initial_text=_proposal_text(
-            (initial_facility, type_fact),
-            (gap,),
-        ),
-        revised_text=_proposal_text(
-            (revised_facility, revised_type),
-            (revised_gap,),
-        ),
+        binding=_binding(),
+        tool_model_factory=lambda tools: scripted_model,
     )
 
     assert result.proposal.assembly_status.value == "blocked"
     assert result.failure_reason is not None
-    assert "REVISION_SCOPE_VIOLATION" in result.failure_reason
-    assert len(result.model_calls) == 3
+    assert "candidate bundle" in result.failure_reason
+    assert len(result.model_calls) == 2
 
 
-def test_case_assembly_revision_requires_listed_correction() -> None:
-    facility_fact = CaseFactProposal(
-        proposal_item_id="proposal-fact-1",
-        subject_id="event-1",
-        predicate_iri="atm:controlledFacility",
-        object_kind="iri",
-        object_value="KJFK",
-        evidence_claim_ids=("evidence:event:type",),
-        validation_profile_id="profile-1",
-    )
-    task = _assembly_task(proposed_facts=(facility_fact,), profile_gaps=())
-
-    result = _run_revision_script(
-        task=task,
-        initial_text=_proposal_text(
-            (facility_fact.model_copy(update={"object_value": "kjfk"}),),
-        ),
-        revised_text=_proposal_text(
-            (facility_fact.model_copy(update={"object_value": "KXYZ"}),),
-        ),
-    )
-
-    assert result.proposal.assembly_status.value == "blocked"
-    assert result.failure_reason is not None
-    assert "REVISION_SCOPE_VIOLATION" in result.failure_reason
-    assert len(result.model_calls) == 3
-
-
-def test_case_assembly_initial_prompt_lists_all_authorized_record_ids() -> None:
+def test_case_assembly_initial_prompt_keeps_record_details_in_tool_bundle() -> None:
     from aviation_agentic_ai.agent_system.case_assembly import _base_messages
 
     task = _assembly_task()
     prompt = str(_base_messages(task, catalog_path="configs/prompts/decision_case_agents_v1.yaml")[-1].content)
 
-    assert "EVIDENCE_IDS:evidence:event:type\nevidence:event:weather" in prompt
-    assert "RESOLUTION_IDS:res-prop-1" in prompt
-    assert "CONTEXT_ASSOCIATION_IDS:assoc-weather-1" in prompt
-    assert "PUBLIC_OBSERVATION_IDS:obs-bts-1" in prompt
+    assert "evidence:event:type" not in prompt
+    assert "evidence:event:weather" not in prompt
+    assert "res-prop-1" not in prompt
+    assert "assoc-weather-1" not in prompt
+    assert "obs-bts-1" not in prompt
+    assert "REQUIREMENTS:controlled_facility" in prompt
+    assert "PROFILE:profile-1" in prompt
     assert "GROUND STOP" not in prompt
     assert "cancelled_count" not in prompt
-
-
-def test_case_assembly_agent_hard_semantic_violation_blocks() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
-    from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
-    from aviation_agentic_ai.agent_system.decision_case_contracts import (
-        AssemblyStatus,
-        ComponentLayerResult,
-        ComponentLayerStatus,
-    )
-    from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
-    from langchain_core.messages import AIMessage
-
-    task = _assembly_task()
-    component_layer_results = (
-        ComponentLayerResult(
-            layer_id="core",
-            status=ComponentLayerStatus.OK,
-            required_for_task=True,
-            artifact_ids=("proposal-fact-1",),
-        ),
-        ComponentLayerResult(
-            layer_id="weather",
-            status=ComponentLayerStatus.BLOCKED,
-            required_for_task=False,
-            blocking_error_id="weather:source-unavailable",
-        ),
-    )
-    turn_1 = _assembly_tool_turn()
-
-    # Forbidden causal claim
-    forbidden_text = (
-        'GRAPH_PATCH\n'
-        '{"proposal_item_id":"proposal-fact-1","subject_id":"event-1","predicate_iri":"atm:causedByWeather","object_kind":"iri","object_value":"atm:Thunderstorm","evidence_claim_ids":["evidence:event:type"],"derivation_ids":[],"validation_profile_id":"profile-1"}\n\n'
-        'PROFILE_GAPS\nNONE\n'
-    )
-    turn_2 = ToolModelTurn(
-        message=AIMessage(content=forbidden_text),
-        record=ModelCallRecord(
-            agent="decision_case_assembly",
-            raw_response=forbidden_text,
-            prompt_version="decision-case-assembly-v1",
-        ),
-    )
-
-    scripted_model = _ScriptedAssemblyModel([turn_1, turn_2])
-
-    result = run_case_assembly_agent(
-        task=task,
-        binding=_binding(),
-        tool_model_factory=lambda tools: scripted_model,
-        assembly_status=AssemblyStatus.PARTIAL,
-        component_layer_results=component_layer_results,
-        limitations=("Weather context layer is blocked",),
-    )
-
-    assert result.proposal.assembly_status.value == "blocked"
-    assert (
-        result.proposal.component_layer_results[: len(component_layer_results)]
-        == component_layer_results
-    )
-    assert result.proposal.component_layer_results[-1].layer_id == (
-        "decision_case_assembly"
-    )
-    assert "Weather context layer is blocked" in result.proposal.limitations
-    assert len(result.model_calls) == 2  # No turn 3 attempted!
-    assert result.feedback is not None
-    assert result.feedback.repairable is False
 
 
 def test_case_assembly_agent_malformed_output_blocks_without_repair() -> None:
@@ -1391,11 +1340,11 @@ def test_case_assembly_agent_malformed_output_blocks_without_repair() -> None:
     task = _assembly_task()
     turn_1 = _assembly_tool_turn()
     turn_2 = ToolModelTurn(
-        message=AIMessage(content="GRAPH_PATCH\nnot a json line\n"),
+        message=AIMessage(content="{not-json"),
         record=ModelCallRecord(
             agent="decision_case_assembly",
-            raw_response="GRAPH_PATCH\nnot a json line\n",
-            prompt_version="decision-case-assembly-v1",
+            raw_response="{not-json",
+            prompt_version="decision-case-assembly-v3",
         ),
     )
 
@@ -1432,7 +1381,7 @@ def test_case_assembly_agent_replay_stability() -> None:
             record=ModelCallRecord(
                 agent="decision_case_assembly",
                 raw_response=_valid_proposal_text(),
-                prompt_version="decision-case-assembly-v1",
+                prompt_version="decision-case-assembly-v3",
             ),
         )
         return _ScriptedAssemblyModel([turn_1, turn_2])

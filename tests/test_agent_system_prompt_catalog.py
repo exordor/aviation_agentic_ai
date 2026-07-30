@@ -41,10 +41,6 @@ EXPECTED_PLACEHOLDERS = {
         "missing_slots",
         "schema_profile_id",
         "available_evidence_layer_ids",
-        "selected_evidence_claim_ids",
-        "resolution_proposal_ids",
-        "context_association_ids",
-        "public_observation_ids",
     },
 }
 
@@ -68,22 +64,30 @@ def test_every_role_has_version_policy_and_bounded_output() -> None:
     expected_versions = {
         "query": "hybrid-query-agent-v1",
         "semantic_resolution": "semantic-resolution-agent-v1",
-        "decision_case_assembly": "decision-case-assembly-v1",
+        "decision_case_assembly": "decision-case-assembly-v3",
     }
     for role, prompt in _catalog()["roles"].items():
         assert prompt["prompt_version"] == expected_versions[role]
         assert prompt["invocation_policy"]
-        assert 1 <= prompt["max_output_tokens"] <= 768
+        assert 1 <= prompt["max_output_tokens"] <= 10_000
         assert prompt["system"].strip()
         assert prompt["user_template"].strip()
         assert role.replace("_", " ") in prompt["system"].lower()
+
+
+def test_active_generation_roles_use_the_10k_output_ceiling() -> None:
+    roles = _catalog()["roles"]
+
+    assert roles["query"]["max_output_tokens"] == 10_000
+    assert roles["decision_case_assembly"]["max_output_tokens"] == 10_000
+    assert roles["semantic_resolution"]["max_output_tokens"] == 256
 
 
 def test_every_role_has_two_fictional_contrastive_few_shot_pairs() -> None:
     expected_headers = {
         "query": {"{"},
         "semantic_resolution": {"{"},
-        "decision_case_assembly": {"GRAPH_PATCH"},
+        "decision_case_assembly": {"{"},
     }
     forbidden_real_tokens = re.compile(r"\b(?:DCA|SFO|MIA|CLT)\b")
     for role, prompt in _catalog()["roles"].items():

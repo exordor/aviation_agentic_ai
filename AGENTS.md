@@ -21,7 +21,8 @@ The active pipeline is:
   -> deterministic Weather and BTS context preparation and validation
   -> sealed Decision Case Assembly task
   -> deterministic compiler for the three canonical cases or bounded
-     Decision Case Assembly Agent for genuine evidence/schema choice
+     Decision Case Assembly Agent for compact sealed-bundle
+     acceptance/abstention
   -> task-bound validation
   -> source-independent DecisionCase core and formal reconstruction membership
   -> write-free multi-profile Formal Publication Kernel
@@ -71,16 +72,20 @@ names, not internal alphanumeric labels.
   unsupported TMI, and 3 incomplete core-field records. The 26 preflight
   failures are `insufficient` with zero model calls. A corpus manifest is
   published only when blocked is zero; `--resume` retries only blocked entries.
-- `live_smoke`: the current v2 one-shot DeepSeek smoke completed with 10/10
-  successful real calls. The Hybrid Query Agent passed its GDP `138` task;
-  all four unchanged Assembly tasks failed their frozen compatibility checks.
-- `live_experiment`: the current v2 repeated real-provider experiment completed
-  12 full five-task cycles with DeepSeek `deepseek-v4-pro`: 120/120 real calls
-  succeeded with zero call failures. The Hybrid Query Agent passed 12/12
-  measurements; the unchanged Assembly tasks failed 48/48 measurements because
-  of output-token-cap or malformed-contract results. Provider-call success is
-  not task acceptance, and these are repeated measurements of five fixed tasks,
-  not 60 independent samples or a model-quality benchmark.
+- The system output ceiling is 10,000 tokens. The Query Agent and Decision Case
+  Assembly Agent use that ceiling; the compact Semantic Resolution decision
+  remains capped at 256 tokens.
+- A current-ceiling DeepSeek smoke passed all five frozen tasks with 10/10 real
+  provider calls and zero failures. This is a compatibility check, not a broad
+  Agent benchmark.
+- `live_experiment`: the current compact-selection contract completed 12 full
+  five-task cycles with DeepSeek `deepseek-v4-pro`: 120/120 real calls and all
+  60 task measurements succeeded. Provider-call success is not by itself task
+  acceptance, and these are repeated measurements of five fixed tasks, not 60
+  independent samples or a model-quality benchmark.
+- The pre-fix v2 experiment remains historical evidence: its Query task passed,
+  while the former full-graph-patch Assembly contract failed. Do not relabel
+  those failures as current compact-selection results.
 - The v1 smoke and repeated experiment remain frozen historical evidence for
   the retired registered-analysis runtime. Do not relabel them as current Query
   Agent results.

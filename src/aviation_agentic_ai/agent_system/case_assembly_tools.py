@@ -65,6 +65,27 @@ class GetPublicObservationsInput(StrictModel):
     observation_ids: list[str] = Field(min_length=1, max_length=10)
 
 
+class CaseAssemblyCandidateFactSummary(StrictModel):
+    """Compact model-visible projection of one sealed formal-fact candidate."""
+
+    proposal_item_id: str
+    predicate_iri: str
+    object_kind: Literal["iri", "literal"]
+    object_value: str
+    evidence_claim_ids: tuple[str, ...] = ()
+    derivation_ids: tuple[str, ...] = ()
+
+
+class CaseAssemblyCandidateProfileGapSummary(StrictModel):
+    """Compact model-visible projection of one sealed profile-gap candidate."""
+
+    proposal_item_id: str
+    field: str
+    normalized_value: str
+    evidence_claim_ids: tuple[str, ...]
+    schema_mapping_reason_code: str
+
+
 class CaseAssemblyToolResult(StrictModel):
     """One deterministic, JSON-serializable case-assembly tool observation."""
 
@@ -75,6 +96,7 @@ class CaseAssemblyToolResult(StrictModel):
         "get_resolution_result",
         "get_context_associations",
         "get_public_observations",
+        "get_candidate_bundle",
     ]
     status: Literal["ok", "insufficient", "blocked"] = "ok"
     case_id: str = ""
@@ -100,6 +122,15 @@ class CaseAssemblyToolResult(StrictModel):
     public_observations: list[CaseAssemblyPublicObservation] = Field(
         default_factory=list
     )
+    candidate_bundle_id: str = ""
+    candidate_facts: list[CaseAssemblyCandidateFactSummary] = Field(
+        default_factory=list
+    )
+    candidate_profile_gaps: list[CaseAssemblyCandidateProfileGapSummary] = Field(
+        default_factory=list
+    )
+    context_association_count: int = Field(default=0, ge=0)
+    public_observation_count: int = Field(default=0, ge=0)
     source_snapshot_bindings: list[SourceSnapshotBinding] = Field(
         default_factory=list
     )
@@ -140,6 +171,65 @@ class CaseAssemblyToolGateway:
             schema_profile_id=self.task.schema_profile_id,
             available_evidence_layer_ids=list(self.task.available_evidence_layer_ids),
             remaining_tool_budget=self.task.remaining_tool_budget,
+        )
+
+    def get_candidate_bundle(self) -> CaseAssemblyToolResult:
+        """Read the compact sealed candidates and evidence needed for acceptance."""
+
+        candidate_bundle_id = stable_contract_id(
+            "case-assembly-candidate-bundle",
+            self.task.task_id,
+            self.task.payload_checksum,
+        )
+        model_visible_source_ids = {
+            *(record.source_id for record in self.task.evidence_records),
+            *(
+                source_id
+                for record in self.task.resolution_records
+                for source_id in record.authority_source_ids
+            ),
+        }
+        return CaseAssemblyToolResult(
+            tool="get_candidate_bundle",
+            case_id=self.task.case_id,
+            schema_profile_id=self.task.schema_profile_id,
+            schema_context_id=self.task.schema_context_id,
+            schema_snapshot_sha256=self.task.schema_snapshot_sha256,
+            available_evidence_layer_ids=list(
+                self.task.available_evidence_layer_ids
+            ),
+            candidate_bundle_id=candidate_bundle_id,
+            candidate_facts=[
+                CaseAssemblyCandidateFactSummary(
+                    proposal_item_id=row.proposal_item_id,
+                    predicate_iri=row.predicate_iri,
+                    object_kind=row.object_kind,
+                    object_value=row.object_value,
+                    evidence_claim_ids=row.evidence_claim_ids,
+                    derivation_ids=row.derivation_ids,
+                )
+                for row in self.task.proposed_facts
+            ],
+            candidate_profile_gaps=[
+                CaseAssemblyCandidateProfileGapSummary(
+                    proposal_item_id=row.proposal_item_id,
+                    field=row.field,
+                    normalized_value=row.normalized_value,
+                    evidence_claim_ids=row.evidence_claim_ids,
+                    schema_mapping_reason_code=row.schema_mapping_reason_code,
+                )
+                for row in self.task.profile_gaps
+            ],
+            evidence_records=list(self.task.evidence_records),
+            resolution_proposal_ids=list(self.task.resolution_proposal_ids),
+            resolution_records=list(self.task.resolution_records),
+            context_association_count=len(self.task.context_associations),
+            public_observation_count=len(self.task.public_observations),
+            source_snapshot_bindings=[
+                binding
+                for binding in self.task.source_snapshot_bindings
+                if binding.source_id in model_visible_source_ids
+            ],
         )
 
     def get_schema_context(self) -> CaseAssemblyToolResult:
@@ -255,52 +345,16 @@ class CaseAssemblyToolGateway:
 
 
 def build_case_assembly_tools(gateway: CaseAssemblyToolGateway) -> list[BaseTool]:
-    """Build the six model-visible read-only tools for one case assembly task."""
+    """Expose the single compact, task-scoped candidate bundle to the Agent."""
 
-    @tool("get_case_requirements")
-    def get_case_requirements() -> str:
-        """Read case slot requirements and available evidence layers."""
-        return gateway.get_case_requirements().model_dump_json()
+    @tool("get_candidate_bundle")
+    def get_candidate_bundle() -> str:
+        """Read compact sealed fact/gap candidates and their source evidence."""
+        return gateway.get_candidate_bundle().model_dump_json(
+            exclude_defaults=True,
+        )
 
-    @tool("get_schema_context")
-    def get_schema_context() -> str:
-        """Read schema profile, context ID, and snapshot SHA for the task."""
-        return gateway.get_schema_context().model_dump_json()
-
-    @tool("get_source_evidence", args_schema=GetEvidenceInput)
-    def get_source_evidence(evidence_ids: list[str]) -> str:
-        """Read task-owned source evidence claims and snapshot bindings."""
-        return gateway.get_source_evidence(evidence_ids=evidence_ids).model_dump_json()
-
-    @tool("get_resolution_result", args_schema=GetResolutionResultInput)
-    def get_resolution_result(resolution_proposal_ids: list[str]) -> str:
-        """Read resolution proposals bound to the task."""
-        return gateway.get_resolution_result(
-            resolution_proposal_ids=resolution_proposal_ids
-        ).model_dump_json()
-
-    @tool("get_context_associations", args_schema=GetContextAssociationsInput)
-    def get_context_associations(association_ids: list[str]) -> str:
-        """Read context association IDs bound to the task."""
-        return gateway.get_context_associations(
-            association_ids=association_ids
-        ).model_dump_json()
-
-    @tool("get_public_observations", args_schema=GetPublicObservationsInput)
-    def get_public_observations(observation_ids: list[str]) -> str:
-        """Read public observation IDs bound to the task."""
-        return gateway.get_public_observations(
-            observation_ids=observation_ids
-        ).model_dump_json()
-
-    return [
-        get_case_requirements,
-        get_schema_context,
-        get_source_evidence,
-        get_resolution_result,
-        get_context_associations,
-        get_public_observations,
-    ]
+    return [get_candidate_bundle]
 
 
 def build_case_assembly_task(

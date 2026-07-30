@@ -153,9 +153,13 @@ class LangChainToolCallingModel:
             list(self.tools),
             tool_choice="required",
         )
-        # Construction final-answer turns remain unbound because no further
-        # action is permitted in those role-specific workflows.
-        self._answer_model = chat_model
+        # Final-answer/proposal turns retain the registered tool schema but
+        # explicitly prohibit further actions. This prevents a provider from
+        # serializing an attempted tool call as ordinary answer text.
+        self._answer_model = chat_model.bind_tools(
+            list(self.tools),
+            tool_choice="none",
+        )
         self._query_loop_model = chat_model.bind_tools(
             list(self.tools),
             tool_choice="auto",
@@ -222,7 +226,14 @@ class LangChainToolCallingModel:
                 message=None,
                 record=record,
             )
-        input_tokens, output_tokens, _provider, model, fingerprint = extract_model_metadata(result)
+        (
+            input_tokens,
+            output_tokens,
+            _provider,
+            model,
+            fingerprint,
+            finish_reason,
+        ) = extract_model_metadata(result)
         invalid_calls = [sanitize_json_value(dict(call)) for call in result.invalid_tool_calls]
         error = "provider returned an invalid native tool call" if invalid_calls else None
         observed_record = ModelCallRecord(
@@ -233,6 +244,7 @@ class LangChainToolCallingModel:
             provider=self.provider,
             model=model or self.model,
             system_fingerprint=fingerprint,
+            finish_reason=finish_reason,
             temperature=self.temperature,
             input_tokens=input_tokens,
             output_tokens=output_tokens,

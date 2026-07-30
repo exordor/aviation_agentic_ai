@@ -305,9 +305,9 @@ class LiveEvaluationSummary(StrictModel):
     provider_latency_ms: float = Field(ge=0.0)
     tool_latency_ms: float = Field(ge=0.0)
     claim_boundary: str = (
-        "Single-run provider compatibility and bounded-behavior smoke only; "
-        "not a benchmark, statistical reliability result, or Semantic "
-        "Resolution evaluation."
+        "Provider compatibility and bounded-behavior measurements over a "
+        "frozen task suite; repetitions are repeated measurements, not "
+        "independent samples or a Semantic Resolution evaluation."
     )
 
 
@@ -380,8 +380,14 @@ def _assembly_failure_code(
     calls: Sequence[ModelCallRecord],
 ) -> str:
     reason = build_result.reason.lower()
+    if "provider output was truncated" in reason:
+        return "assembly_provider_output_truncated"
+    if "output budget exceeded" in reason:
+        return "assembly_output_budget_exceeded"
     if "output-token cap exceeded" in reason:
         return "assembly_output_token_cap_exceeded"
+    if "malformed case assembly selection output" in reason:
+        return "assembly_malformed_selection_output"
     if "malformed case assembly proposal output" in reason:
         return "assembly_malformed_contract_output"
     if any(call.error for call in calls):
@@ -909,12 +915,13 @@ def _markdown_report(
         "",
         "## Trials",
         "",
-        "| Trial | Role | Workflow | Activation | Acceptance | Calls | Tokens |",
-        "| --- | --- | --- | --- | --- | ---: | ---: |",
+        "| Repetition | Trial | Role | Workflow | Activation | Acceptance | Calls | Tokens |",
+        "| ---: | --- | --- | --- | --- | --- | ---: | ---: |",
     ]
     for row in results:
         lines.append(
-            f"| `{row.trial_id}` | `{row.role}` | `{row.workflow_status}` | "
+            f"| {row.repetition} | `{row.trial_id}` | `{row.role}` | "
+            f"`{row.workflow_status}` | "
             f"`{row.activation_status}` | `{row.model_acceptance_status}` | "
             f"{row.provider_call_count} | "
             f"{row.input_tokens}/{row.output_tokens} |"
@@ -1056,6 +1063,72 @@ def _blocked_analysis_result(
     )
 
 
+def _not_run_trial_result(
+    *,
+    trial: LiveEvaluationTrial,
+    repetition: int,
+    failure_code: str,
+) -> LiveEvaluationResult:
+    """Record one trial that could not reach its real-provider execution."""
+
+    return LiveEvaluationResult(
+        trial_id=trial.trial_id,
+        repetition=repetition,
+        kind=trial.kind,
+        source_id=trial.source_id,
+        role=trial.expected_role,
+        live_model=True,
+        workflow_status="not_run",
+        activation_status="not_reached",
+        model_acceptance_status="not_run",
+        assertions=(
+            LiveEvaluationAssertion(
+                check_id="repetition_execution",
+                passed=False,
+                detail_code=failure_code,
+            ),
+        ),
+        failure_code=failure_code,
+    )
+
+
+def _repetition_matrix_failures(
+    *,
+    suite: LiveEvaluationSuite,
+    repetitions: int,
+    results: Sequence[LiveEvaluationResult],
+) -> tuple[str, ...]:
+    """Validate exact repetition-by-trial result coverage and metadata."""
+
+    expected_trials = {trial.trial_id: trial for trial in suite.trials}
+    expected_pairs = {
+        (repetition, trial_id)
+        for repetition in range(1, repetitions + 1)
+        for trial_id in expected_trials
+    }
+    observed_pairs = [(row.repetition, row.trial_id) for row in results]
+    observed_pair_set = set(observed_pairs)
+    failures: list[str] = []
+    if len(observed_pairs) != len(observed_pair_set):
+        failures.append("duplicate_repetition_trial_result")
+    if expected_pairs - observed_pair_set:
+        failures.append("missing_repetition_trial_result")
+    if observed_pair_set - expected_pairs:
+        failures.append("unexpected_repetition_trial_result")
+    for row in results:
+        trial = expected_trials.get(row.trial_id)
+        if trial is None:
+            continue
+        if (
+            row.kind != trial.kind
+            or row.source_id != trial.source_id
+            or row.role != trial.expected_role
+        ):
+            failures.append("repetition_trial_metadata_mismatch")
+            break
+    return tuple(sorted(set(failures)))
+
+
 def _assembly_usage_from_execution(
     execution: BatchCaseExecution | None,
     *,
@@ -1167,6 +1240,121 @@ def _resolve_analysis_event_id(
     return matches[0] if len(matches) == 1 else None
 
 
+def _run_live_evaluation_repetition(
+    *,
+    config: Mapping[str, Any],
+    suite: LiveEvaluationSuite,
+    resources: BatchResources,
+    runtime_root: Path,
+    repetition: int,
+) -> tuple[LiveEvaluationResult, ...]:
+    """Execute one isolated real-provider repetition of the frozen suite."""
+
+    repetition_root = (
+        runtime_root
+        if suite.repetitions == 1
+        else runtime_root / "repetitions" / f"{repetition:03d}"
+    )
+    corpus_dir = repetition_root / "corpus"
+    executions: dict[str, BatchCaseExecution] = {}
+
+    def recording_runner(
+        advisory: Any,
+        shared_resources: BatchResources,
+        staging_dir: Path,
+        authorized: bool,
+    ) -> BatchCaseExecution:
+        execution = run_batch_case(
+            advisory,
+            shared_resources,
+            staging_dir,
+            authorized,
+        )
+        executions[advisory.source_id] = execution
+        return execution
+
+    batch = build_corpus_batch(
+        config,
+        corpus_dir,
+        selection="cohort",
+        source_ids=suite.build_source_ids,
+        allow_live_model=True,
+        resume=False,
+        resource_loader=lambda _config: resources,
+        case_runner=recording_runner,
+    )
+    build_results = {row.source_id: row for row in batch.results}
+    store = (
+        CorpusQueryStore(corpus_dir)
+        if (corpus_dir / "corpus_manifest.json").is_file()
+        else None
+    )
+    results = _score_assembly_results(
+        suite=suite,
+        repetition=repetition,
+        build_results=build_results,
+        executions=executions,
+        store=store,
+    )
+    for trial in (row for row in suite.trials if row.kind == "analysis"):
+        if store is None:
+            results.append(
+                _blocked_analysis_result(
+                    trial=trial,
+                    repetition=repetition,
+                    failure_code="analysis_dependency_corpus_not_published",
+                    live_model=True,
+                )
+            )
+            continue
+        event_id = _resolve_analysis_event_id(
+            source_id=trial.source_id,
+            build_results=build_results,
+            store=store,
+        )
+        if event_id is None:
+            results.append(
+                _blocked_analysis_result(
+                    trial=trial,
+                    repetition=repetition,
+                    failure_code="analysis_dependency_event_not_found",
+                    live_model=True,
+                )
+            )
+            continue
+        assert trial.question is not None
+        outcome = answer_corpus_question(
+            corpus_dir=corpus_dir,
+            question=trial.question,
+            event_id=event_id,
+            model_factory=lambda tools: make_live_tool_calling_model(
+                tools=tools,
+                role="query",
+            ),
+        )
+        query_run = build_hybrid_query_run_artifact(
+            trial=trial,
+            event_id=event_id,
+            outcome=outcome,
+        )
+        query_run_path = write_hybrid_query_run_artifact(
+            repetition_root / "hybrid_query_runs" / trial.trial_id,
+            query_run,
+        )
+        results.append(
+            score_analysis_trial(
+                trial=trial,
+                repetition=repetition,
+                live_model=True,
+                event_id=event_id,
+                outcome=outcome,
+                query_run=query_run,
+                query_run_artifact_path=query_run_path,
+            )
+        )
+    return tuple(results)
+
+
 def run_live_agent_evaluation(
     *,
     config_path: str | Path,
@@ -1219,131 +1407,50 @@ def run_live_agent_evaluation(
         return summary
     assert resources is not None
     runtime_root = Path(output_dir)
-    corpus_dir = runtime_root / "corpus"
     shutil.rmtree(runtime_root, ignore_errors=True)
-    executions: dict[str, BatchCaseExecution] = {}
-
-    def recording_runner(
-        advisory: Any,
-        shared_resources: BatchResources,
-        staging_dir: Path,
-        authorized: bool,
-    ) -> BatchCaseExecution:
-        execution = run_batch_case(
-            advisory,
-            shared_resources,
-            staging_dir,
-            authorized,
-        )
-        executions[advisory.source_id] = execution
-        return execution
-
     results: list[LiveEvaluationResult] = []
-    try:
-        batch = build_corpus_batch(
-            config,
-            corpus_dir,
-            selection="cohort",
-            source_ids=suite.build_source_ids,
-            allow_live_model=True,
-            resume=False,
-            resource_loader=lambda _config: resources,
-            case_runner=recording_runner,
-        )
-        build_results = {
-            row.source_id: row for row in batch.results
-        }
-        store = (
-            CorpusQueryStore(corpus_dir)
-            if (corpus_dir / "corpus_manifest.json").is_file()
-            else None
-        )
-        results.extend(
-            _score_assembly_results(
-                suite=suite,
-                repetition=1,
-                build_results=build_results,
-                executions=executions,
-                store=store,
-            )
-        )
-        analysis_trials = [
-            trial for trial in suite.trials if trial.kind == "analysis"
-        ]
-        for trial in analysis_trials:
-            if store is None:
-                results.append(
-                    _blocked_analysis_result(
-                        trial=trial,
-                        repetition=1,
-                        failure_code="analysis_dependency_corpus_not_published",
-                        live_model=True,
-                    )
+    runner_detail_codes: list[str] = []
+    for repetition in range(1, repetitions + 1):
+        try:
+            results.extend(
+                _run_live_evaluation_repetition(
+                    config=config,
+                    suite=suite,
+                    resources=resources,
+                    runtime_root=runtime_root,
+                    repetition=repetition,
                 )
-                continue
-            event_id = _resolve_analysis_event_id(
-                source_id=trial.source_id,
-                build_results=build_results,
-                store=store,
             )
-            if event_id is None:
-                results.append(
-                    _blocked_analysis_result(
-                        trial=trial,
-                        repetition=1,
-                        failure_code="analysis_dependency_event_not_found",
-                        live_model=True,
-                    )
-                )
-                continue
-            assert trial.question is not None
-            outcome = answer_corpus_question(
-                corpus_dir=corpus_dir,
-                question=trial.question,
-                event_id=event_id,
-                model_factory=lambda tools: make_live_tool_calling_model(
-                    tools=tools,
-                    role="query",
-                ),
+        except (OSError, RuntimeError, TypeError, ValueError):
+            runner_detail_codes.append(
+                f"repetition_{repetition:03d}_runner_exception"
             )
-            query_run = build_hybrid_query_run_artifact(
-                trial=trial,
-                event_id=event_id,
-                outcome=outcome,
-            )
-            query_run_path = write_hybrid_query_run_artifact(
-                runtime_root / "hybrid_query_runs" / trial.trial_id,
-                query_run,
-            )
-            results.append(
-                score_analysis_trial(
+            results.extend(
+                _not_run_trial_result(
                     trial=trial,
-                    repetition=1,
-                    live_model=True,
-                    event_id=event_id,
-                    outcome=outcome,
-                    query_run=query_run,
-                    query_run_artifact_path=query_run_path,
+                    repetition=repetition,
+                    failure_code="evaluation_repetition_not_executed",
                 )
+                for trial in suite.trials
             )
-        summary = summarize_live_evaluation(
-            suite_id=suite.suite_id,
-            suite_checksum=suite_checksum,
+    runner_detail_codes.extend(
+        _repetition_matrix_failures(
+            suite=suite,
             repetitions=repetitions,
             results=results,
-            runner_status="completed",
-            live_model=True,
         )
-    except (OSError, RuntimeError, TypeError, ValueError):
-        summary = summarize_live_evaluation(
-            suite_id=suite.suite_id,
-            suite_checksum=suite_checksum,
-            repetitions=repetitions,
-            results=results,
-            runner_status="runner_failed",
-            live_model=True,
-            runner_detail_codes=("evaluation_runner_exception",),
-        )
+    )
+    summary = summarize_live_evaluation(
+        suite_id=suite.suite_id,
+        suite_checksum=suite_checksum,
+        repetitions=repetitions,
+        results=results,
+        runner_status=(
+            "runner_failed" if runner_detail_codes else "completed"
+        ),
+        live_model=True,
+        runner_detail_codes=runner_detail_codes,
+    )
     write_live_evaluation_artifacts(
         output_dir=runtime_root,
         report_dir=report_dir,

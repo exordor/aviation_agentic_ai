@@ -216,6 +216,7 @@ class ModelCallRecord(StrictModel):
     provider: str | None = None
     model: str | None = None
     system_fingerprint: str | None = None
+    finish_reason: str | None = None
     temperature: float | None = None
     input_tokens: int = Field(default=0, ge=0)
     output_tokens: int = Field(default=0, ge=0)

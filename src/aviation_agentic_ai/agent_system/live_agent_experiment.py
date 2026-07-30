@@ -127,6 +127,7 @@ class ObservedProviderCall(StrictModel):
     provider: str | None = None
     model: str | None = None
     system_fingerprint: str | None = None
+    finish_reason: str | None = None
     prompt_set_id: str | None = None
     prompt_version: str | None = None
     temperature: float | None = None
@@ -188,6 +189,7 @@ class ObservedProviderCall(StrictModel):
             provider=record.provider,
             model=record.model,
             system_fingerprint=record.system_fingerprint,
+            finish_reason=record.finish_reason,
             prompt_set_id=record.prompt_set_id,
             prompt_version=record.prompt_version,
             temperature=record.temperature,

@@ -17,6 +17,7 @@ from aviation_agentic_ai.agent_system.decision_case_contracts import (
     AuthorityRecordEvidenceClaim,
     CandidateBuildStatus,
     CaseAssemblyProposalFields,
+    CaseAssemblySelection,
     CaseAssemblyTaskFields,
     CaseFactProposal,
     CaseProfileGapProposal,
@@ -1116,6 +1117,64 @@ def test_case_assembly_parser_accepts_only_json_rows_and_none_marker() -> None:
     )
     assert empty.proposed_facts == ()
     assert empty.profile_gaps == ()
+
+
+def test_case_assembly_selection_accepts_compact_selected_ids() -> None:
+    selection = CaseAssemblySelection(
+        decision="accepted",
+        candidate_bundle_id="candidate-bundle:1",
+        selected_fact_ids=("fact:1", "fact:2"),
+        selected_profile_gap_ids=("gap:1",),
+    )
+
+    assert selection.decision == "accepted"
+    assert selection.selected_fact_ids == ("fact:1", "fact:2")
+    assert selection.selected_profile_gap_ids == ("gap:1",)
+    assert selection.limitation is None
+
+
+def test_case_assembly_selection_requires_consistent_terminal_shape() -> None:
+    accepted_failures = (
+        {
+            "decision": "accepted",
+            "candidate_bundle_id": "candidate-bundle:1",
+        },
+        {
+            "decision": "accepted",
+            "candidate_bundle_id": "candidate-bundle:1",
+            "selected_fact_ids": ("fact:1",),
+            "limitation": "Unexpected limitation.",
+        },
+        {
+            "decision": "accepted",
+            "candidate_bundle_id": "candidate-bundle:1",
+            "selected_fact_ids": ("fact:1", "fact:1"),
+        },
+    )
+    for payload in accepted_failures:
+        with pytest.raises(ValidationError):
+            CaseAssemblySelection.model_validate(payload)
+
+    abstained = CaseAssemblySelection(
+        decision="abstained",
+        candidate_bundle_id="candidate-bundle:1",
+        limitation="The source evidence does not support the sealed candidate.",
+    )
+    assert abstained.selected_fact_ids == ()
+    assert abstained.selected_profile_gap_ids == ()
+
+    with pytest.raises(ValidationError):
+        CaseAssemblySelection(
+            decision="abstained",
+            candidate_bundle_id="candidate-bundle:1",
+        )
+    with pytest.raises(ValidationError):
+        CaseAssemblySelection(
+            decision="abstained",
+            candidate_bundle_id="candidate-bundle:1",
+            selected_fact_ids=("fact:1",),
+            limitation="Cannot accept.",
+        )
 
 
 @pytest.mark.parametrize(

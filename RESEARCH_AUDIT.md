@@ -127,8 +127,8 @@ The Semantic Resolution Agent is
 `not_evaluated_no_natural_ambiguity`: the current frozen cohort supplies no
 natural multi-candidate activation. Synthetic ambiguity fixtures remain valid
 offline software tests, but must not be reported as cohort performance.
-Prompt and output-token-cap compatibility fixes are deferred so the failed
-frozen result remains unchanged.
+The failed frozen result remains unchanged as historical evidence; the later
+compact-selection compatibility fix is reported separately below.
 
 The pre-refactor `live_experiment` is likewise a compatibility and reliability
 diagnostic. Its 60 trial rows are 12 repetitions of five tasks, not 60
@@ -156,6 +156,46 @@ typed contracts. These results establish current query-loop provider
 compatibility for one repeated task and expose a separate Assembly
 compatibility gap. They are not a broad query benchmark or 60 independent
 evaluation samples.
+
+## Compact Assembly Output-Contract Acceptance
+
+The compatibility gap was first addressed by changing the output contract
+rather than relying on a larger response. Instead of regenerating a complete
+GraphPatch, the Agent reads one sealed candidate bundle and emits a compact
+accept-or-abstain selection. The full proposal is restored deterministically
+and still passes through the existing preflight and Formal Publication Kernel.
+The active system ceiling was subsequently raised to 10,000 output tokens for
+the Query Agent and Decision Case Assembly Agent; Semantic Resolution retains
+its compact 256-token decision cap.
+
+Before the ceiling change, the same five frozen tasks ran for 12 cycles with real DeepSeek
+`deepseek-v4-pro`, temperature `0.0`, thinking disabled, no automatic retries,
+and no local response cache. The runner recorded 120 attempted and 120
+successful calls, zero failed calls, 261,238 input tokens, and 30,561 output
+tokens. All 60 task measurements and 432 assertions passed. There were zero
+invalid tool calls, call-binding mismatches, missing or duplicate trial
+executions, configuration mismatches, or integrity failures.
+
+The ignored raw and parsed artifacts are:
+
+```text
+data/corpus/agent_system/live-agent-output-contract-v3-experiment/raw_responses_v2.jsonl
+data/corpus/agent_system/live-agent-output-contract-v3-experiment/parsed_outputs_v2.jsonl
+data/corpus/agent_system/live-agent-output-contract-v3-experiment/experiment_manifest_v2.json
+```
+
+Their independently verified SHA-256 values are
+`491ad8dc2966e863b0e65571ba143f57302a840de98e13eb091a15fb5bc6994c`
+and
+`ac827ab06e2a19aeca9206e9f32241aa1174b9b4c32310b7402ede00bf6f9edf`
+for raw and parsed JSONL respectively. This is a repeated compatibility result
+on five fixed tasks, not 60 independent samples or a broad Agent benchmark.
+
+A fresh one-repetition run using the subsequent 10,000-token configuration
+completed 10/10 real DeepSeek calls and passed all five frozen tasks, with zero
+failed calls, 21,780 input tokens, and 2,705 output tokens. This verifies
+provider compatibility with the active ceiling; it is not a statistical
+benchmark.
 
 ## Current Intake And Publication Rules
 
