@@ -348,6 +348,11 @@ git commit -m "refactor(agent-system): clarify BTS public observations"
 - Modify: `src/aviation_agentic_ai/agent_system/corpus_batch.py`
 - Modify: `src/aviation_agentic_ai/agent_system/agent_usage.py`
 - Modify: `src/aviation_agentic_ai/agent_system/prompts.py`
+- Modify: `src/aviation_agentic_ai/agent_system/authority_evidence.py`
+- Modify: `src/aviation_agentic_ai/agent_system/authority_resolution.py`
+- Modify: `src/aviation_agentic_ai/agent_system/resolution_tools.py`
+- Modify: `src/aviation_agentic_ai/agent_system/semantic_resolution.py`
+- Modify: `src/aviation_agentic_ai/agent_system/context_artifacts.py`
 - Modify: `src/aviation_agentic_ai/agent_system/live_agent_evaluation.py`
 - Modify: `src/aviation_agentic_ai/agent_system/live_agent_experiment.py`
 - Move: `configs/prompts/decision_case_agents_v1.yaml`
@@ -361,6 +366,17 @@ git commit -m "refactor(agent-system): clarify BTS public observations"
 - Modify: `tests/test_agent_system_runtime_binding.py`
 - Modify: `tests/test_agent_system_live_evaluation.py`
 - Modify: `tests/test_agent_system_live_experiment.py`
+- Modify: `tests/test_agent_system_authority_evidence.py`
+- Modify: `tests/test_agent_system_semantic_resolution.py`
+- Modify: `tests/test_agent_system_multisource_context.py`
+- Modify: `tests/test_agent_system_current_architecture.py`
+- Modify: `tests/test_agent_system_corpus_batch.py`
+- Modify: `tests/test_agent_system_reroute.py`
+- Modify: `tests/test_agent_system_tool_model.py`
+- Modify: `tests/test_agent_system_multisource_contracts.py`
+- Modify: `tests/test_agent_system_query_tools.py`
+- Create: `data/evaluation/agent_system/live_agent_smoke_v3.yaml`
+- Create: `data/evaluation/agent_system/live_agent_experiment_v3.yaml`
 
 **Interfaces:**
 - Consumes: the same sealed event fields, resolution proposals, evidence
@@ -417,12 +433,15 @@ Update new metadata literals:
 ```text
 aviation-tmi-event-agents-v1
 event-evidence-integration-v1
+tmi-event-construction-contracts-v1
+tmi-event-run-v1
 tmi-event-agent-usage-v1
 deterministic_event_evidence_compiler
 ```
 
-Historical committed result reports keep their original labels. Active
-evaluation code and current suites use only the new role.
+Historical committed result reports and v1/v2 suite files keep their original
+labels and bytes. New v3 suite files use the new role; active evaluation code
+targets v3. Do not make an old report point to a silently rewritten suite.
 
 - [ ] **Step 4: Run focused tests and verify GREEN**
 
