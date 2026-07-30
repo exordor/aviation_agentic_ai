@@ -1,4 +1,4 @@
-"""Validated artifacts for deterministic weather and public outcome context."""
+"""Validated artifacts for deterministic weather and public observation context."""
 
 from __future__ import annotations
 
@@ -10,13 +10,13 @@ from typing import Any, TypeVar
 
 from pydantic import BaseModel
 
-from aviation_agentic_ai.agent_system.bts_outcomes import (
-    build_bts_outcome_summaries,
+from aviation_agentic_ai.agent_system.bts_observations import (
+    build_bts_public_observation_summaries,
 )
 from aviation_agentic_ai.agent_system.contracts import (
     BTSObservationBundle,
-    BTSOutcomeBundle,
-    BTSOutcomeSummary,
+    BTSPublicObservationBundle,
+    BTSPublicObservationSummary,
     DecisionCaseGraphBundle,
     DecisionCaseMemberBinding,
     DecisionCaseReconstructionSeed,
@@ -139,8 +139,8 @@ def _build_event(ctx: Any, state: dict[str, Any]) -> DecisionContextEvent:
     )
 
 
-def _validate_outcomes(
-    bundle: BTSOutcomeBundle,
+def _validate_public_observations(
+    bundle: BTSPublicObservationBundle,
     *,
     event: DecisionContextEvent,
     facility: CanonicalEntity,
@@ -152,7 +152,7 @@ def _validate_outcomes(
         return
     identifiers = [summary.summary_id for summary in bundle.summaries]
     if len(identifiers) != len(set(identifiers)):
-        raise ValueError("duplicate BTS outcome summary ID")
+        raise ValueError("duplicate BTS public observation summary ID")
     phases = [summary.phase for summary in bundle.summaries]
     if (
         len(phases) != 3
@@ -164,7 +164,7 @@ def _validate_outcomes(
             "recovery",
         }
     ):
-        raise ValueError("BTS outcome bundle requires exactly one summary per phase")
+        raise ValueError("BTS public observation bundle requires exactly one summary per phase")
     expected_windows = {
         "baseline": (
             event.operational_start - timedelta(hours=2),
@@ -179,15 +179,15 @@ def _validate_outcomes(
     for summary in bundle.summaries:
         clocks = (summary.window_start, summary.window_end)
         if any(clock.tzinfo is None or clock.utcoffset() is None for clock in clocks):
-            raise ValueError("BTS outcome windows must be timezone-aware")
+            raise ValueError("BTS public observation windows must be timezone-aware")
         expected_start, expected_end = expected_windows[summary.phase]
         if summary.window_start.astimezone(UTC) != expected_start.astimezone(
             UTC
         ) or summary.window_end.astimezone(UTC) != expected_end.astimezone(UTC):
-            raise ValueError("BTS outcome window mismatch")
+            raise ValueError("BTS public observation window mismatch")
         snapshot = registry.get(summary.source_id)
         if snapshot is None or snapshot.family != SourceFamily.BTS_ON_TIME:
-            raise ValueError("BTS outcome source is not registered")
+            raise ValueError("BTS public observation source is not registered")
         if (
             summary.run_id != event.run_id
             or summary.event_id != event.event_id
@@ -195,7 +195,7 @@ def _validate_outcomes(
             or summary.source_snapshot_sha256 != snapshot.content_sha256
             or summary.causal_claim is not False
         ):
-            raise ValueError("BTS outcome binding mismatch")
+            raise ValueError("BTS public observation binding mismatch")
 
 
 def _write_typed_jsonl(
@@ -242,8 +242,8 @@ def read_context_associations(path: str | Path) -> list[WeatherContextAssociatio
     )
 
 
-def read_outcome_summaries(path: str | Path) -> list[BTSOutcomeSummary]:
-    return _read_typed_jsonl(path, BTSOutcomeSummary, id_field="summary_id")
+def read_bts_observation_summaries(path: str | Path) -> list[BTSPublicObservationSummary]:
+    return _read_typed_jsonl(path, BTSPublicObservationSummary, id_field="summary_id")
 
 
 def read_weather_fact_traces(path: str | Path) -> list[WeatherFactTrace]:
@@ -352,8 +352,8 @@ def _empty_weather(status: str, reason: str) -> WeatherContextBundle:
     return WeatherContextBundle(status=status, failure_reason=reason)
 
 
-def _empty_outcomes(status: str, reason: str) -> BTSOutcomeBundle:
-    return BTSOutcomeBundle(status=status, failure_reason=reason)
+def _empty_public_observations(status: str, reason: str) -> BTSPublicObservationBundle:
+    return BTSPublicObservationBundle(status=status, failure_reason=reason)
 
 
 def _empty_observations(status: str, reason: str) -> BTSObservationBundle:
@@ -531,18 +531,18 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
             except (TypeError, ValueError) as exc:
                 weather_bundle = _empty_weather("blocked", str(exc))
 
-    outcome_bundle = _empty_outcomes(common_status, common_reason)
+    public_observations = _empty_public_observations(common_status, common_reason)
     bts_record: SourceRecord | None = None
     if common_status == "ok" and decision_event is not None and facility is not None:
         if ctx.bts_failure_reason:
-            outcome_bundle = _empty_outcomes("blocked", ctx.bts_failure_reason)
+            public_observations = _empty_public_observations("blocked", ctx.bts_failure_reason)
         elif ctx.bts_source is None or not ctx.bts_rows:
-            outcome_bundle = _empty_outcomes(
+            public_observations = _empty_public_observations(
                 "insufficient",
                 "no BTS normalized snapshot was provided",
             )
         elif ctx.bts_manifest_binding is None:
-            outcome_bundle = _empty_outcomes(
+            public_observations = _empty_public_observations(
                 "blocked",
                 "BTS manifest binding was not provided",
             )
@@ -561,7 +561,7 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
                 )
                 if public_profile.aggregation_procedure is None:
                     raise ValueError("public-observation profile has no aggregation procedure")
-                outcome_bundle = build_bts_outcome_summaries(
+                public_observations = build_bts_public_observation_summaries(
                     decision_event,
                     facility,
                     ctx.bts_rows,
@@ -570,14 +570,14 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
                     manifest_binding=ctx.bts_manifest_binding,
                     aggregation_procedure=public_profile.aggregation_procedure,
                 )
-                _validate_outcomes(
-                    outcome_bundle,
+                _validate_public_observations(
+                    public_observations,
                     event=decision_event,
                     facility=facility,
                     registry=bts_registry,
                 )
             except (TypeError, ValueError) as exc:
-                outcome_bundle = _empty_outcomes("blocked", str(exc))
+                public_observations = _empty_public_observations("blocked", str(exc))
 
     profile_registry = load_validation_profile_registry(
         decision_guide=ctx.guide or load_schema_guide()
@@ -590,9 +590,28 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
                 {association.source_id for association in weather_bundle.associations}
             )
         )
-    if outcome_bundle.status == "ok" and bts_record is not None:
+    if public_observations.status == "ok" and bts_record is not None:
         selected_records.append(bts_record)
     selected_registry = build_source_snapshot_registry(selected_records)
+    observation_bundle = _empty_observations(
+        public_observations.status,
+        public_observations.failure_reason,
+    )
+    if (
+        public_observations.status == "ok"
+        and decision_event is not None
+        and facility is not None
+    ):
+        try:
+            observation_bundle = build_bts_observation_facts(
+                decision_event,
+                facility,
+                public_observations,
+                selected_registry,
+                profile_registry,
+            )
+        except (TypeError, ValueError) as exc:
+            observation_bundle = _empty_observations("blocked", str(exc))
     reconstruction_seed: DecisionCaseReconstructionSeed | None = None
     if common_status == "ok" and decision_event is not None and facility is not None:
         try:
@@ -600,47 +619,18 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
                 decision_event,
                 facility,
                 weather_bundle,
-                outcome_bundle,
+                public_observations,
                 selected_registry,
                 profile_registry,
             )
         except (TypeError, ValueError) as exc:
             common_status = "blocked"
             common_reason = str(exc)
-    observation_bundle = _empty_observations(
-        (
-            outcome_bundle.status
-            if reconstruction_seed is not None
-            else common_status
-        ),
-        (
-            outcome_bundle.failure_reason
-            if reconstruction_seed is not None
-            else common_reason
-        ),
-    )
-    if (
-        outcome_bundle.status == "ok"
-        and decision_event is not None
-        and facility is not None
-        and reconstruction_seed is not None
-    ):
-        try:
-            observation_bundle = build_bts_observation_facts(
-                decision_event,
-                facility,
-                outcome_bundle,
-                selected_registry,
-                profile_registry,
-                reconstruction_seed,
-            )
-        except (TypeError, ValueError) as exc:
-            observation_bundle = _empty_observations("blocked", str(exc))
     return {
         "decision_context_prepared": True,
         "decision_context_event": decision_event,
         "weather_context": weather_bundle,
-        "outcome_context": outcome_bundle,
+        "public_observation_context": public_observations,
         "observation_context": observation_bundle,
         "decision_case_reconstruction_seed": reconstruction_seed,
         "prepared_source_snapshot": selected_registry,
@@ -717,7 +707,7 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
     )
     decision_event = prepared.get("decision_context_event")
     weather_bundle = prepared["weather_context"]
-    outcome_bundle = prepared["outcome_context"]
+    public_observations = prepared["public_observation_context"]
     observation_bundle = prepared["observation_context"]
     weather_records_by_id = {record.source_id: record for record in ctx.weather_sources}
     bts_record = ctx.bts_source
@@ -766,7 +756,7 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
             )
     if common_status == "blocked":
         weather_bundle = _empty_weather("blocked", common_reason)
-        outcome_bundle = _empty_outcomes("blocked", common_reason)
+        public_observations = _empty_public_observations("blocked", common_reason)
         observation_bundle = _empty_observations("blocked", common_reason)
 
     authority_registry = state.get("authority_source_records")
@@ -791,7 +781,7 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
         persisted_records.extend(
             weather_records_by_id[source_id] for source_id in selected_source_ids
         )
-    if outcome_bundle.status == "ok" and bts_record is not None:
+    if public_observations.status == "ok" and bts_record is not None:
         persisted_records.append(bts_record)
     persisted_registry = build_source_snapshot_registry(persisted_records)
     snapshots_path = write_source_snapshot_registry(
@@ -822,14 +812,14 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
 
     associations = weather_bundle.associations if weather_bundle.status == "ok" else []
     traces = weather_bundle.fact_traces if weather_bundle.status == "ok" else []
-    summaries = outcome_bundle.summaries if outcome_bundle.status == "ok" else []
+    summaries = public_observations.summaries if public_observations.status == "ok" else []
     association_path = _write_typed_jsonl(
         output_dir / "context_associations.jsonl",
         associations,
         id_field="association_id",
     )
-    outcome_path = _write_typed_jsonl(
-        output_dir / "outcome_summaries.jsonl",
+    observation_summary_path = _write_typed_jsonl(
+        output_dir / "bts_observation_summaries.jsonl",
         summaries,
         id_field="summary_id",
     )
@@ -919,10 +909,10 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
             status=weather_bundle.status,
             failure_reason=weather_bundle.failure_reason,
         ),
-        "outcome_summaries": _artifact_metadata(
-            outcome_path,
-            status=outcome_bundle.status,
-            failure_reason=outcome_bundle.failure_reason,
+        "bts_observation_summaries": _artifact_metadata(
+            observation_summary_path,
+            status=public_observations.status,
+            failure_reason=public_observations.failure_reason,
         ),
         "weather_fact_trace": _artifact_metadata(
             trace_path,
@@ -990,7 +980,7 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
     return {
         "decision_context_event": decision_event,
         "weather_context": weather_bundle,
-        "outcome_context": outcome_bundle,
+        "public_observation_context": public_observations,
         "observation_context": observation_bundle,
         "decision_case_graph": decision_case_graph,
         "context_artifacts": context_artifacts,

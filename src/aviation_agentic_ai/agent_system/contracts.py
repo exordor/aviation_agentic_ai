@@ -629,8 +629,8 @@ class BTSManifestBinding(StrictModel):
     normalized_snapshot_sha256: str = Field(min_length=1)
 
 
-class BTSOutcomeSummary(StrictModel):
-    """Audit-only BTS-reported operational summary for a resolved decision event."""
+class BTSPublicObservationSummary(StrictModel):
+    """BTS-reported public operational observations for one TMI event phase."""
 
     summary_id: str = Field(min_length=1)
     run_id: str = Field(min_length=1)
@@ -671,11 +671,11 @@ class ObservationDerivationSeed(StrictModel):
     selected_row_ids_sha256: str = Field(min_length=1)
 
 
-class BTSOutcomeBundle(StrictModel):
-    """Deterministic BTS adapter result; Task 4 owns persistence and query use."""
+class BTSPublicObservationBundle(StrictModel):
+    """Deterministic, source-bound BTS public-observation adapter result."""
 
     status: Literal["ok", "insufficient", "blocked"]
-    summaries: list[BTSOutcomeSummary] = Field(default_factory=list)
+    summaries: list[BTSPublicObservationSummary] = Field(default_factory=list)
     derivation_seeds: list[ObservationDerivationSeed] = Field(default_factory=list)
     failure_reason: str = ""
 
@@ -726,7 +726,7 @@ class ObservationFactTrace(StrictModel):
     aggregation_procedure_checksum: str = Field(min_length=1)
 
 
-class OutcomeObservationRead(StrictModel):
+class PublicObservationRead(StrictModel):
     """One profile-owned public observation reconstructed from formal facts."""
 
     observation_id: str = Field(min_length=1)
@@ -745,12 +745,12 @@ class OutcomeObservationRead(StrictModel):
     profile_checksum: str = Field(min_length=64, max_length=64)
 
 
-class OutcomeSummaryRead(StrictModel):
+class PublicObservationSetRead(StrictModel):
     """Validated formal public observations exposed to the bounded query tool."""
 
     status: Literal["ok", "insufficient", "blocked"]
     event_id: str = Field(min_length=1)
-    observations: tuple[OutcomeObservationRead, ...] = ()
+    observations: tuple[PublicObservationRead, ...] = ()
     source_ids: tuple[str, ...] = ()
     failure_reason: str | None = None
 

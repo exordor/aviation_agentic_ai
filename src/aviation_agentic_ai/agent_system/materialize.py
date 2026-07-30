@@ -101,7 +101,7 @@ _PUBLIC_CLASS_LABELS = {
     "http://qudt.org/schema/qudt/QuantityValue": "ObservationResult",
     "http://www.w3.org/2006/time#Interval": "TimeInterval",
     "http://www.w3.org/2006/time#Instant": "TimeInstant",
-    "urn:aviation-agentic-ai:decision-case-schema:ObservationPhase": "ObservationPhase",
+    "urn:aviation-agentic-ai:public-observation-schema:ObservationPhase": "ObservationPhase",
     "http://www.w3.org/ns/sosa/ObservableProperty": "ObservableProperty",
     "http://qudt.org/schema/qudt/Unit": "Unit",
     "http://www.w3.org/ns/prov#Activity": "AggregationActivity",

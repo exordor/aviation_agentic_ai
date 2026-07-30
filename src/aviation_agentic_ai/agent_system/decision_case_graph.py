@@ -6,7 +6,7 @@ import hashlib
 import json
 
 from aviation_agentic_ai.agent_system.contracts import (
-    BTSOutcomeBundle,
+    BTSPublicObservationBundle,
     DecisionCaseGraphBundle,
     DecisionCaseMemberBinding,
     DecisionCaseReconstructionSeed,
@@ -103,7 +103,7 @@ def prepare_decision_case_reconstruction(
     event: DecisionContextEvent,
     canonical_facility: CanonicalEntity,
     weather_bundle: WeatherContextBundle,
-    outcome_bundle: BTSOutcomeBundle,
+    public_observations: BTSPublicObservationBundle,
     snapshot_registry: SourceSnapshotRegistry,
     profile_registry: ValidationProfileRegistry,
 ) -> DecisionCaseReconstructionSeed:
@@ -116,8 +116,8 @@ def prepare_decision_case_reconstruction(
         else ()
     )
     summary_ids = (
-        tuple(sorted(summary.summary_id for summary in outcome_bundle.summaries))
-        if outcome_bundle.status == "ok"
+        tuple(sorted(summary.summary_id for summary in public_observations.summaries))
+        if public_observations.status == "ok"
         else ()
     )
     source_ids = {event.advisory_source_id}
@@ -125,8 +125,8 @@ def prepare_decision_case_reconstruction(
         source_ids.update(
             association.source_id for association in weather_bundle.associations
         )
-    if outcome_bundle.status == "ok":
-        source_ids.update(summary.source_id for summary in outcome_bundle.summaries)
+    if public_observations.status == "ok":
+        source_ids.update(summary.source_id for summary in public_observations.summaries)
     bindings = _source_bindings(source_ids, snapshot_registry)
     profile_refs = tuple(
         sorted(
@@ -153,10 +153,10 @@ def prepare_decision_case_reconstruction(
     ]
     procedure = (
         public_profiles[0].aggregation_procedure
-        if outcome_bundle.status == "ok" and len(public_profiles) == 1
+        if public_observations.status == "ok" and len(public_profiles) == 1
         else None
     )
-    if outcome_bundle.status == "ok" and procedure is None:
+    if public_observations.status == "ok" and procedure is None:
         raise ValueError("BTS observations require one aggregation procedure")
     return DecisionCaseReconstructionSeed(
         conceptual_case_iri=_stable_iri(

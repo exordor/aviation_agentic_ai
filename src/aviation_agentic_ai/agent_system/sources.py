@@ -27,7 +27,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceSnapshot,
     SourceSnapshotRegistry,
 )
-from aviation_agentic_ai.agent_system.bts_outcomes import (
+from aviation_agentic_ai.agent_system.bts_observations import (
     ARCHIVE_SHA256,
     NORMALIZED_SNAPSHOT_SHA256,
     NORMALIZED_SOURCE_ID,

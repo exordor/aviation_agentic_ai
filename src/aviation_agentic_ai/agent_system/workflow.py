@@ -272,7 +272,7 @@ class IngestState(TypedDict):
     decision_case_graph: Any
     prepared_source_snapshot: Any
     weather_context: Any
-    outcome_context: Any
+    public_observation_context: Any
     observation_context: Any
     context_artifacts: Any
     formal_layers: Any
@@ -1014,7 +1014,7 @@ def _build_case_assembly_task_from_state(
             key=lambda row: row.association_id,
         )
     )
-    outcome_bundle = state.get("outcome_context")
+    public_observations = state.get("public_observation_context")
     observation_bundle = state.get("observation_context")
     profile_registry = load_validation_profile_registry(decision_guide=guide)
     public_profile = next(
@@ -1025,8 +1025,8 @@ def _build_case_assembly_task_from_state(
     summaries_by_id = {
         summary.summary_id: summary
         for summary in (
-            outcome_bundle.summaries
-            if outcome_bundle is not None and outcome_bundle.status == "ok"
+            public_observations.summaries
+            if public_observations is not None and public_observations.status == "ok"
             else ()
         )
     }

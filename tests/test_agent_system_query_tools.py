@@ -12,7 +12,7 @@ import pytest
 from aviation_agentic_ai.agent_system.contracts import (
     BTSManifestBinding,
     BTSOnTimeRow,
-    BTSOutcomeSummary,
+    BTSPublicObservationSummary,
     DecisionCaseMemberBinding,
     DecisionContextEvent,
     SourceFamily,
@@ -21,8 +21,8 @@ from aviation_agentic_ai.agent_system.contracts import (
     WeatherContextAssociation,
     WeatherContextBundle,
 )
-from aviation_agentic_ai.agent_system.bts_outcomes import (
-    build_bts_outcome_summaries,
+from aviation_agentic_ai.agent_system.bts_observations import (
+    build_bts_public_observation_summaries,
 )
 from aviation_agentic_ai.agent_system.materialize import (
     write_validated_facts_jsonl,
@@ -509,9 +509,9 @@ def _write_context_layer(run_dir: Path) -> tuple[str, list[str]]:
     for phase, (window_start, window_end) in windows.items():
         scheduled, completed, cancelled, diverted = counts[phase]
         outcomes.append(
-            BTSOutcomeSummary(
+            BTSPublicObservationSummary(
                 summary_id=(
-                    f"bts-outcome:{bts_source_id}:"
+                    f"bts-observation-summary:{bts_source_id}:"
                     + hashlib.sha256(
                         json.dumps(
                             {
@@ -627,9 +627,9 @@ def _write_context_layer(run_dir: Path) -> tuple[str, list[str]]:
             "context_associations.jsonl",
             [association.model_dump_json()],
         ),
-        "outcome_summaries": _write_artifact(
+        "bts_observation_summaries": _write_artifact(
             run_dir,
-            "outcome_summaries.jsonl",
+            "bts_observation_summaries.jsonl",
             [outcome.model_dump_json() for outcome in outcomes],
         ),
     }
@@ -744,7 +744,7 @@ def _write_formal_observation_layer(run_dir: Path) -> tuple[list[str], list[str]
             CodeValue(scheme="ICAO", value="KJFK"),
         ],
     )
-    outcome = build_bts_outcome_summaries(
+    public_observations = build_bts_public_observation_summaries(
         event,
         facility,
         bts_rows,
@@ -757,7 +757,15 @@ def _write_formal_observation_layer(run_dir: Path) -> tuple[list[str], list[str]
         ),
         aggregation_procedure=public_profile.aggregation_procedure,
     )
-    assert outcome.status == "ok", outcome.failure_reason
+    assert public_observations.status == "ok", public_observations.failure_reason
+    observations = build_bts_observation_facts(
+        event,
+        facility,
+        public_observations,
+        registry,
+        profile_registry,
+    )
+    assert observations.status == "ok"
     reconstruction_seed = prepare_decision_case_reconstruction(
         event,
         facility,
@@ -765,19 +773,10 @@ def _write_formal_observation_layer(run_dir: Path) -> tuple[list[str], list[str]
             status="insufficient",
             failure_reason="no Weather source was provided",
         ),
-        outcome,
+        public_observations,
         registry,
         profile_registry,
     )
-    observations = build_bts_observation_facts(
-        event,
-        facility,
-        outcome,
-        registry,
-        profile_registry,
-        reconstruction_seed,
-    )
-    assert observations.status == "ok"
     core = build_decision_case_graph(
         seed=reconstruction_seed,
         members=(
@@ -825,8 +824,8 @@ def _write_formal_observation_layer(run_dir: Path) -> tuple[list[str], list[str]
     )
     outcome_metadata = _write_artifact(
         run_dir,
-        "outcome_summaries.jsonl",
-        [summary.model_dump_json() for summary in outcome.summaries],
+        "bts_observation_summaries.jsonl",
+        [summary.model_dump_json() for summary in public_observations.summaries],
     )
     derivation_metadata = _write_artifact(
         run_dir,
@@ -848,7 +847,7 @@ def _write_formal_observation_layer(run_dir: Path) -> tuple[list[str], list[str]
     manifest["context_artifacts"].update(
         {
             "source_snapshots": snapshot_metadata,
-            "outcome_summaries": outcome_metadata,
+            "bts_observation_summaries": outcome_metadata,
             "observation_derivations": derivation_metadata,
             "observation_fact_trace": trace_metadata,
             "reconstruction_trace": reconstruction_metadata,

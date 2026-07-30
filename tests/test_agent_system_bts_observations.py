@@ -1,4 +1,4 @@
-"""Behavior tests for the deterministic BTS on-time outcome adapter."""
+"""Behavior tests for the deterministic BTS on-time public-observation adapter."""
 
 from __future__ import annotations
 
@@ -12,14 +12,14 @@ from zoneinfo import ZoneInfo
 import pytest
 from pydantic import ValidationError
 
-import aviation_agentic_ai.agent_system.bts_outcomes as bts_outcomes
-from aviation_agentic_ai.agent_system.bts_outcomes import (
+import aviation_agentic_ai.agent_system.bts_observations as bts_observations
+from aviation_agentic_ai.agent_system.bts_observations import (
     ARCHIVE_SHA256,
     MEMBER_SHA256,
     NORMALIZED_SNAPSHOT_SHA256,
     NORMALIZED_SOURCE_ID,
     EXPECTED_FIELDS,
-    build_bts_outcome_summaries,
+    build_bts_public_observation_summaries,
     infer_destination_arrival_utc,
     normalize_bts_archive,
 )
@@ -135,7 +135,7 @@ def test_normalization_is_byte_stable_and_rejects_a_bad_archive_checksum(tmp_pat
 
 
 def test_normalization_rejects_the_member_checksum_before_parsing(monkeypatch, tmp_path):
-    monkeypatch.setattr("aviation_agentic_ai.agent_system.bts_outcomes.MEMBER_SHA256", "0" * 64)
+    monkeypatch.setattr("aviation_agentic_ai.agent_system.bts_observations.MEMBER_SHA256", "0" * 64)
     blocked = normalize_bts_archive(
         ARCHIVE,
         output_path=tmp_path / "bad-member.jsonl",
@@ -152,10 +152,10 @@ def test_normalization_rejects_a_nonempty_terminal_column(monkeypatch, tmp_path)
             "member.csv",
             ",".join((*EXPECTED_FIELDS, "")) + "\n" + ",".join(("" for _ in EXPECTED_FIELDS)) + ",not-empty\n",
         )
-    monkeypatch.setattr("aviation_agentic_ai.agent_system.bts_outcomes.ARCHIVE_SHA256", hashlib.sha256(archive.read_bytes()).hexdigest())
-    monkeypatch.setattr("aviation_agentic_ai.agent_system.bts_outcomes.MEMBER_NAME", "member.csv")
+    monkeypatch.setattr("aviation_agentic_ai.agent_system.bts_observations.ARCHIVE_SHA256", hashlib.sha256(archive.read_bytes()).hexdigest())
+    monkeypatch.setattr("aviation_agentic_ai.agent_system.bts_observations.MEMBER_NAME", "member.csv")
     with zipfile.ZipFile(archive) as zipped:
-        monkeypatch.setattr("aviation_agentic_ai.agent_system.bts_outcomes.MEMBER_SHA256", hashlib.sha256(zipped.read("member.csv")).hexdigest())
+        monkeypatch.setattr("aviation_agentic_ai.agent_system.bts_observations.MEMBER_SHA256", hashlib.sha256(zipped.read("member.csv")).hexdigest())
     blocked = normalize_bts_archive(
         archive,
         output_path=tmp_path / "terminal.jsonl",
@@ -192,12 +192,12 @@ def test_normalization_rejects_duplicate_natural_keys(monkeypatch, tmp_path):
         row_line = ",".join(row[field] for field in EXPECTED_FIELDS) + ",\n"
         zipped.writestr(member, header + row_line * 1_978)
     monkeypatch.setattr(
-        bts_outcomes, "ARCHIVE_SHA256", hashlib.sha256(archive.read_bytes()).hexdigest()
+        bts_observations, "ARCHIVE_SHA256", hashlib.sha256(archive.read_bytes()).hexdigest()
     )
-    monkeypatch.setattr(bts_outcomes, "MEMBER_NAME", member)
+    monkeypatch.setattr(bts_observations, "MEMBER_NAME", member)
     with zipfile.ZipFile(archive) as zipped:
         monkeypatch.setattr(
-            bts_outcomes, "MEMBER_SHA256", hashlib.sha256(zipped.read(member)).hexdigest()
+            bts_observations, "MEMBER_SHA256", hashlib.sha256(zipped.read(member)).hexdigest()
         )
     blocked = normalize_bts_archive(
         archive,
@@ -232,7 +232,7 @@ def test_summaries_use_half_open_windows_and_preserve_null_aggregates(normalized
         datetime(2026, 5, 19, 21, tzinfo=UTC),
         datetime(2026, 5, 19, 22, 45, tzinfo=UTC),
     )
-    bundle = build_bts_outcome_summaries(
+    bundle = build_bts_public_observation_summaries(
         event,
         _facility("JFK", "KJFK"),
         rows,
@@ -260,7 +260,7 @@ def test_summary_windows_and_ids_are_canonical_utc(normalized):
         datetime(2026, 5, 19, 17, tzinfo=ZoneInfo("America/New_York")),
         datetime(2026, 5, 19, 18, tzinfo=ZoneInfo("America/New_York")),
     )
-    bundle = build_bts_outcome_summaries(
+    bundle = build_bts_public_observation_summaries(
         event,
         _facility("JFK", "KJFK"),
         normalized.rows,
@@ -301,7 +301,7 @@ def test_summary_windows_and_ids_are_canonical_utc(normalized):
     ],
 )
 def test_frozen_cases_have_the_exact_active_bts_reported_counts(normalized, event_id, facility, start, end, expected):
-    bundle = build_bts_outcome_summaries(
+    bundle = build_bts_public_observation_summaries(
         _event(event_id, start, end),
         facility,
         normalized.rows,
@@ -330,7 +330,7 @@ def test_summary_selects_bts_rows_for_a_nasr_faa_icao_airport(normalized):
             CodeValue(scheme="ICAO", value="KJFK"),
         ],
     )
-    bundle = build_bts_outcome_summaries(
+    bundle = build_bts_public_observation_summaries(
         _event(
             "urn:test:nasr-faa-icao",
             datetime(2026, 5, 19, 21, tzinfo=UTC),
@@ -356,7 +356,7 @@ def test_blocks_ambiguous_facility_binding(normalized):
         preferred_label="ambiguous",
         codes=[CodeValue(scheme="IATA", value="JFK"), CodeValue(scheme="IATA", value="JFK")],
     )
-    bundle = build_bts_outcome_summaries(
+    bundle = build_bts_public_observation_summaries(
         _event("urn:test:ambiguous", datetime(2026, 5, 19, 21, tzinfo=UTC), datetime(2026, 5, 19, 22, tzinfo=UTC)),
         facility,
         normalized.rows,
@@ -378,7 +378,7 @@ def test_blocks_a_nasr_faa_code_when_icao_does_not_match(normalized):
             CodeValue(scheme="ICAO", value="KEWR"),
         ],
     )
-    bundle = build_bts_outcome_summaries(
+    bundle = build_bts_public_observation_summaries(
         _event(
             "urn:test:mismatched",
             datetime(2026, 5, 19, 21, tzinfo=UTC),
@@ -421,7 +421,7 @@ def test_persisted_rows_reject_a_timezone_naive_arrival(normalized):
 def test_summary_fails_closed_for_unbound_or_modified_normalized_snapshot(
     normalized, source_id, source_sha256, rows
 ):
-    bundle = build_bts_outcome_summaries(
+    bundle = build_bts_public_observation_summaries(
         _event("urn:test:source-binding", datetime(2026, 5, 19, 21, tzinfo=UTC), datetime(2026, 5, 19, 22, tzinfo=UTC)),
         _facility("JFK", "KJFK"),
         rows(normalized.rows),
@@ -442,8 +442,8 @@ def test_summary_uses_half_open_boundaries_and_null_aggregates(monkeypatch, norm
         for row in sorted(selected, key=lambda row: row.row_id)
     ).encode()
     snapshot_sha256 = hashlib.sha256(serialized).hexdigest()
-    monkeypatch.setattr(bts_outcomes, "NORMALIZED_SNAPSHOT_SHA256", snapshot_sha256)
-    bundle = build_bts_outcome_summaries(
+    monkeypatch.setattr(bts_observations, "NORMALIZED_SNAPSHOT_SHA256", snapshot_sha256)
+    bundle = build_bts_public_observation_summaries(
         _event("urn:test:nulls", datetime(2026, 5, 19, 21, tzinfo=UTC), datetime(2026, 5, 19, 22, tzinfo=UTC)),
         _facility("JFK", "KJFK"),
         selected,
@@ -482,9 +482,9 @@ def test_summary_includes_lower_bounds_and_excludes_upper_bounds(monkeypatch, no
         for row in sorted(rows, key=lambda row: row.row_id)
     ).encode()
     snapshot_sha256 = hashlib.sha256(serialized).hexdigest()
-    monkeypatch.setattr(bts_outcomes, "NORMALIZED_SNAPSHOT_SHA256", snapshot_sha256)
+    monkeypatch.setattr(bts_observations, "NORMALIZED_SNAPSHOT_SHA256", snapshot_sha256)
 
-    bundle = build_bts_outcome_summaries(
+    bundle = build_bts_public_observation_summaries(
         event,
         _facility("JFK", "KJFK"),
         rows,
@@ -497,14 +497,14 @@ def test_summary_includes_lower_bounds_and_excludes_upper_bounds(monkeypatch, no
     assert [summary.scheduled_arrival_count for summary in bundle.summaries] == [1, 1, 1]
 
 
-def test_outcome_bundle_emits_one_byte_stable_seed_per_phase(normalized):
+def test_public_observation_bundle_emits_one_byte_stable_seed_per_phase(normalized):
     event = _event(
         "urn:test:derivation-seeds",
         datetime(2026, 5, 19, 21, tzinfo=UTC),
         datetime(2026, 5, 19, 22, 45, tzinfo=UTC),
     )
 
-    first = build_bts_outcome_summaries(
+    first = build_bts_public_observation_summaries(
         event,
         _facility("JFK", "KJFK"),
         normalized.rows,
@@ -512,7 +512,7 @@ def test_outcome_bundle_emits_one_byte_stable_seed_per_phase(normalized):
         source_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
         **_seed_inputs(),
     )
-    second = build_bts_outcome_summaries(
+    second = build_bts_public_observation_summaries(
         event,
         _facility("JFK", "KJFK"),
         reversed(normalized.rows),
@@ -544,7 +544,7 @@ def test_emitted_seed_procedure_is_the_checksum_verified_profile_descriptor(norm
         ).profiles
         if profile.ref.layer == "public_operational_observation"
     )
-    bundle = build_bts_outcome_summaries(
+    bundle = build_bts_public_observation_summaries(
         _event(
             "urn:test:profile-procedure",
             datetime(2026, 5, 19, 21, tzinfo=UTC),
@@ -583,7 +583,7 @@ def test_derivation_seed_uses_the_explicit_manifest_archive_binding(normalized):
         archive_sha256="0" * 64,
         normalized_snapshot_sha256=NORMALIZED_SNAPSHOT_SHA256,
     )},):
-        bundle = build_bts_outcome_summaries(
+        bundle = build_bts_public_observation_summaries(
             event,
             _facility("JFK", "KJFK"),
             normalized.rows,
@@ -594,7 +594,7 @@ def test_derivation_seed_uses_the_explicit_manifest_archive_binding(normalized):
 
 
 def test_valid_bts_source_with_no_selected_phase_rows_is_insufficient(normalized):
-    bundle = build_bts_outcome_summaries(
+    bundle = build_bts_public_observation_summaries(
         _event(
             "urn:test:no-selected-rows",
             datetime(2026, 5, 25, 21, tzinfo=UTC),
@@ -613,7 +613,7 @@ def test_valid_bts_source_with_no_selected_phase_rows_is_insufficient(normalized
 
 
 def test_invalid_normalized_row_schema_blocks_the_bundle():
-    bundle = build_bts_outcome_summaries(
+    bundle = build_bts_public_observation_summaries(
         _event(
             "urn:test:invalid-row-schema",
             datetime(2026, 5, 19, 21, tzinfo=UTC),

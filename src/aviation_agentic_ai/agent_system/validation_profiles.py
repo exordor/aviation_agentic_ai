@@ -26,7 +26,7 @@ DEFAULT_DECISION_CASE_CORE_PROFILE_PATH = (
     "data/ontology/curated/decision_case_core_slice.json"
 )
 DEFAULT_PUBLIC_OBSERVATION_PROFILE_PATH = (
-    "data/ontology/curated/decision_case_public_observation_slice.json"
+    "data/ontology/curated/public_observation_slice.json"
 )
 
 ValidationLayer = Literal[

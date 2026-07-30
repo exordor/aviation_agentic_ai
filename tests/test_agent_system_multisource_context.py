@@ -17,7 +17,7 @@ from aviation_agentic_ai.agent_system.context_artifacts import (
     parse_advisory_signature,
     prepare_decision_context,
     read_context_associations,
-    read_outcome_summaries,
+    read_bts_observation_summaries,
     read_weather_fact_traces,
 )
 from aviation_agentic_ai.agent_system.authority_evidence import AuthorityBuildStatus
@@ -474,7 +474,7 @@ def test_missing_or_malformed_signature_fails_the_optional_context_layer(
     }
     prepared = prepare_decision_context(ctx, state)
     assert prepared["weather_context"].status == expected_status
-    assert prepared["outcome_context"].status == expected_status
+    assert prepared["public_observation_context"].status == expected_status
 
     with pytest.raises(
         FormalPublicationBlocked,
@@ -549,7 +549,7 @@ def test_gdp_138_assembly_sees_only_prepared_validated_multisource_rows(
             (output_dir / name).exists()
             for name in (
                 "context_associations.jsonl",
-                "outcome_summaries.jsonl",
+                "bts_observation_summaries.jsonl",
                 "source_snapshots.jsonl",
             )
         )
@@ -873,7 +873,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         advisory.content
     )
     assert result["weather_context"].status == "ok"
-    assert result["outcome_context"].status == "ok"
+    assert result["public_observation_context"].status == "ok"
     if source_id == "2026-05-19:138":
         assert result["observation_context"].status == "ok", result[
             "observation_context"
@@ -908,7 +908,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
             ].reconstruction_trace.aggregation_procedure_checksum
         )
     active = next(
-        summary for summary in result["outcome_context"].summaries if summary.phase == "active"
+        summary for summary in result["public_observation_context"].summaries if summary.phase == "active"
     )
     assert (
         active.scheduled_arrival_count,
@@ -944,7 +944,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     assert not any("authority:" in json.dumps(row) for row in kg_rows)
 
     associations = read_context_associations(tmp_path / "context_associations.jsonl")
-    summaries = read_outcome_summaries(tmp_path / "outcome_summaries.jsonl")
+    summaries = read_bts_observation_summaries(tmp_path / "bts_observation_summaries.jsonl")
     traces = read_weather_fact_traces(tmp_path / "weather_fact_trace.jsonl")
     assert associations and summaries and traces
     assert all(association.causal_claim is False for association in associations)
@@ -1013,11 +1013,11 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         assert not reasons
 
     first_associations = (tmp_path / "context_associations.jsonl").read_bytes()
-    first_outcomes = (tmp_path / "outcome_summaries.jsonl").read_bytes()
+    first_outcomes = (tmp_path / "bts_observation_summaries.jsonl").read_bytes()
     first_traces = (tmp_path / "weather_fact_trace.jsonl").read_bytes()
     repeated = integrate_decision_context(ctx, state)
     assert (tmp_path / "context_associations.jsonl").read_bytes() == first_associations
-    assert (tmp_path / "outcome_summaries.jsonl").read_bytes() == first_outcomes
+    assert (tmp_path / "bts_observation_summaries.jsonl").read_bytes() == first_outcomes
     assert (tmp_path / "weather_fact_trace.jsonl").read_bytes() == first_traces
     first_authority_bindings = {
         snapshot.source_id: snapshot.content_sha256
@@ -1248,7 +1248,7 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
 
     active = next(
         summary
-        for summary in state["outcome_context"].summaries
+        for summary in state["public_observation_context"].summaries
         if summary.phase == "active"
     )
     assert (
@@ -1365,7 +1365,7 @@ def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_a
     )
 
     assert result["weather_context"].status == "blocked"
-    assert result["outcome_context"].status == "blocked"
+    assert result["public_observation_context"].status == "blocked"
     assert result["decision_case_graph"].status == "ok"
     assert result["materialization"].layer_fact_counts == {
         "decision": len(facts),
@@ -1375,12 +1375,12 @@ def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_a
     }
     for name in (
         "context_associations.jsonl",
-        "outcome_summaries.jsonl",
+        "bts_observation_summaries.jsonl",
         "weather_fact_trace.jsonl",
     ):
         assert (tmp_path / name).read_bytes() == b""
     assert result["context_artifacts"]["context_associations"]["status"] == "blocked"
-    assert result["context_artifacts"]["outcome_summaries"]["status"] == "blocked"
+    assert result["context_artifacts"]["bts_observation_summaries"]["status"] == "blocked"
     assert result["context_artifacts"]["source_snapshots"]["status"] == "blocked"
     assert {snapshot.source_id for snapshot in result["source_snapshot"].snapshots} == {source_id}
 
@@ -1755,7 +1755,7 @@ def test_weather_bundle_rejects_conflicting_report_source_bindings(
         )
 
 
-def test_outcome_bundle_rejects_duplicate_phase_with_a_distinct_id(
+def test_public_observation_bundle_rejects_duplicate_phase_with_a_distinct_id(
     config,
     bts_context,
 ):
@@ -1781,7 +1781,7 @@ def test_outcome_bundle_rejects_duplicate_phase_with_a_distinct_id(
     )
     bts_source, bts_rows, bts_binding = bts_context
     registry = build_source_snapshot_registry([bts_source])
-    valid = context_artifacts_module.build_bts_outcome_summaries(
+    valid = context_artifacts_module.build_bts_public_observation_summaries(
         event,
         facility,
         bts_rows,
@@ -1800,7 +1800,7 @@ def test_outcome_bundle_rejects_duplicate_phase_with_a_distinct_id(
     corrupted = valid.model_copy(update={"summaries": [*valid.summaries, duplicate]})
 
     with pytest.raises(ValueError, match="exactly one summary per phase"):
-        context_artifacts_module._validate_outcomes(
+        context_artifacts_module._validate_public_observations(
             corrupted,
             event=event,
             facility=facility,
@@ -1968,7 +1968,7 @@ def test_outcome_validator_rejects_event_unbound_1999_windows(
     )
     bts_source, bts_rows, bts_binding = bts_context
     registry = build_source_snapshot_registry([bts_source])
-    valid = context_artifacts_module.build_bts_outcome_summaries(
+    valid = context_artifacts_module.build_bts_public_observation_summaries(
         event,
         facility,
         bts_rows,
@@ -1998,8 +1998,8 @@ def test_outcome_validator_rejects_event_unbound_1999_windows(
         }
     )
 
-    with pytest.raises(ValueError, match="BTS outcome window mismatch"):
-        context_artifacts_module._validate_outcomes(
+    with pytest.raises(ValueError, match="BTS public observation window mismatch"):
+        context_artifacts_module._validate_public_observations(
             corrupted,
             event=event,
             facility=facility,

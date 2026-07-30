@@ -16,8 +16,8 @@ from zoneinfo import ZoneInfo
 from aviation_agentic_ai.agent_system.contracts import (
     BTSManifestBinding,
     BTSOnTimeRow,
-    BTSOutcomeBundle,
-    BTSOutcomeSummary,
+    BTSPublicObservationBundle,
+    BTSPublicObservationSummary,
     DecisionContextEvent,
     ObservationDerivationSeed,
 )
@@ -337,7 +337,7 @@ def _summary_and_seed(
     archive_sha256: str,
     aggregation_procedure: AggregationProcedureDescriptor,
     selected: list[BTSOnTimeRow],
-) -> tuple[BTSOutcomeSummary, ObservationDerivationSeed]:
+) -> tuple[BTSPublicObservationSummary, ObservationDerivationSeed]:
     completed = [row for row in selected if row.Cancelled == 0 and row.Diverted == 0]
     arrival_delays = [row.ArrDelay for row in completed if row.ArrDelay is not None]
     weather_delays = [row.WeatherDelay for row in selected if row.WeatherDelay is not None]
@@ -352,10 +352,10 @@ def _summary_and_seed(
         "window_end": window_end.isoformat(),
         "window_start": window_start.isoformat(),
     }
-    summary_id = "bts-outcome:" + source_id + ":" + hashlib.sha256(
+    summary_id = "bts-observation-summary:" + source_id + ":" + hashlib.sha256(
         _canonical_json_bytes(summary_id_payload)
     ).hexdigest()[:24]
-    summary = BTSOutcomeSummary(
+    summary = BTSPublicObservationSummary(
         summary_id=summary_id,
         run_id=event.run_id,
         event_id=event.event_id,
@@ -411,7 +411,7 @@ def _summary_and_seed(
     return summary, seed
 
 
-def build_bts_outcome_summaries(
+def build_bts_public_observation_summaries(
     event: DecisionContextEvent,
     canonical_facility: CanonicalEntity,
     rows: Iterable[BTSOnTimeRow],
@@ -421,22 +421,22 @@ def build_bts_outcome_summaries(
     manifest_binding: BTSManifestBinding,
     aggregation_procedure: AggregationProcedureDescriptor,
     timezone_name: str = TIMEZONE_NAME,
-) -> BTSOutcomeBundle:
+) -> BTSPublicObservationBundle:
     """Aggregate BTS-reported arrivals and emit provenance seeds in one pass."""
 
     try:
         if timezone_name != TIMEZONE_NAME:
             ZoneInfo(timezone_name)
         if source_id != manifest_binding.source_id:
-            raise ValueError("BTS outcome source ID does not match the manifest binding")
+            raise ValueError("BTS public observation source ID does not match the manifest binding")
         if source_snapshot_sha256 != manifest_binding.normalized_snapshot_sha256:
-            raise ValueError("BTS outcome source checksum does not match the manifest binding")
+            raise ValueError("BTS public observation source checksum does not match the manifest binding")
         all_rows = list(rows)
         if len({row.row_id for row in all_rows}) != len(all_rows):
             raise ValueError("duplicate normalized BTS row ID")
         reconstructed_sha256 = hashlib.sha256(_canonical_rows_bytes(all_rows)).hexdigest()
         if reconstructed_sha256 != source_snapshot_sha256:
-            raise ValueError("BTS outcome rows do not match the supplied normalized snapshot checksum")
+            raise ValueError("BTS public observation rows do not match the supplied normalized snapshot checksum")
         destination = resolve_bts_destination(canonical_facility)
         if any(clock.tzinfo is None or clock.utcoffset() is None for clock in (event.operational_start, event.operational_end)):
             raise ValueError("decision context clocks must be timezone-aware")
@@ -444,7 +444,7 @@ def build_bts_outcome_summaries(
             raise ValueError("operational end must be after operational start")
         source_rows = [row for row in all_rows if row.Dest == destination]
         if not source_rows:
-            return BTSOutcomeBundle(status="insufficient", failure_reason="no BTS rows for canonical facility")
+            return BTSPublicObservationBundle(status="insufficient", failure_reason="no BTS rows for canonical facility")
         phases = (
             ("baseline", event.operational_start - timedelta(hours=2), event.operational_start),
             ("active", event.operational_start, event.operational_end),
@@ -464,7 +464,7 @@ def build_bts_outcome_summaries(
             for phase, start, end in phases
         ]
         if not any(selected for _, _, _, selected in phase_rows):
-            return BTSOutcomeBundle(
+            return BTSPublicObservationBundle(
                 status="insufficient",
                 failure_reason="no BTS rows in decision-context phase windows",
             )
@@ -484,8 +484,8 @@ def build_bts_outcome_summaries(
             for phase, start, end, selected in phase_rows
         ]
     except (AttributeError, TypeError, ValueError) as exc:
-        return BTSOutcomeBundle(status="blocked", failure_reason=str(exc))
-    return BTSOutcomeBundle(
+        return BTSPublicObservationBundle(status="blocked", failure_reason=str(exc))
+    return BTSPublicObservationBundle(
         status="ok",
         summaries=[summary for summary, _ in summary_seed_pairs],
         derivation_seeds=[seed for _, seed in summary_seed_pairs],

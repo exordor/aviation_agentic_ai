@@ -27,7 +27,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     ValidatedFact,
     WeatherContextBundle,
 )
-from aviation_agentic_ai.agent_system.bts_outcomes import build_bts_outcome_summaries
+from aviation_agentic_ai.agent_system.bts_observations import build_bts_public_observation_summaries
 from aviation_agentic_ai.agent_system.context_artifacts import (
     read_observation_derivations,
     read_observation_fact_traces,
@@ -196,7 +196,7 @@ def test_registry_resolves_each_independent_profile_by_exact_ref() -> None:
         "nasa_atmonto_atcscc_tmi_slice",
         "decision_case_core_slice_v1",
         "nasa_atmonto_decision_context_weather_slice",
-        "decision_case_public_observation_slice_v1",
+        "public_observation_slice_v1",
     }
     for ref in registry.refs:
         assert registry.resolve(ref).ref == ref
@@ -462,7 +462,7 @@ def _observation_input(*, nasr_airport_codes: bool = False) -> dict[str, object]
         if profile.ref.layer == "public_operational_observation"
     )
     assert public_profile.aggregation_procedure is not None
-    outcome_bundle = build_bts_outcome_summaries(
+    observation_bundle = build_bts_public_observation_summaries(
         event,
         facility,
         rows,
@@ -475,25 +475,13 @@ def _observation_input(*, nasr_airport_codes: bool = False) -> dict[str, object]
         ),
         aggregation_procedure=public_profile.aggregation_procedure,
     )
-    assert outcome_bundle.status == "ok"
-    reconstruction_seed = prepare_decision_case_reconstruction(
-        event,
-        facility,
-        WeatherContextBundle(
-            status="insufficient",
-            failure_reason="no Weather source was provided",
-        ),
-        outcome_bundle,
-        snapshot_registry,
-        profile_registry,
-    )
+    assert observation_bundle.status == "ok"
     return {
         "event": event,
         "canonical_facility": facility,
-        "outcome_bundle": outcome_bundle,
+        "observation_bundle": observation_bundle,
         "snapshot_registry": snapshot_registry,
         "profile_registry": profile_registry,
-        "reconstruction_seed": reconstruction_seed,
     }
 
 
@@ -502,8 +490,19 @@ def _all_observation_facts(bundle) -> list[ValidatedFact]:
 
 
 def _case_core(inputs: dict[str, object], bundle):
+    reconstruction_seed = prepare_decision_case_reconstruction(
+        inputs["event"],
+        inputs["canonical_facility"],
+        WeatherContextBundle(
+            status="insufficient",
+            failure_reason="no Weather source was provided",
+        ),
+        inputs["observation_bundle"],
+        inputs["snapshot_registry"],
+        inputs["profile_registry"],
+    )
     core = build_decision_case_graph(
-        seed=inputs["reconstruction_seed"],
+        seed=reconstruction_seed,
         members=(
             DecisionCaseMemberBinding(
                 member_iri=inputs["event"].event_id,
@@ -547,11 +546,21 @@ def test_public_observation_builder_does_not_own_case_identity() -> None:
         == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
     )
     assert not any(
+        "decision-case-schema" in value
+        for fact in facts
+        for value in (fact.subject_iri, fact.object_value)
+    )
+    assert not any(
         fact.predicate_iri
         in {
             "http://www.w3.org/ns/prov#specializationOf",
             "http://www.w3.org/ns/prov#hadMember",
         }
+        for fact in facts
+    )
+    assert not any(
+        fact.predicate_iri
+        == "https://data.nasa.gov/ontologies/atmonto/ATM#impactingCondition"
         for fact in facts
     )
 
@@ -582,10 +591,10 @@ def test_observation_builder_emits_typed_noncausal_graph_with_null_omission() ->
         fact.validation_profile.layer == "public_operational_observation"
         for fact in facts
     )
-    assert {
-        fact.evidence_mode
-        for fact in facts
-    } == {"deterministic_derivation", "profile_definition", "system_membership"}
+    assert {fact.evidence_mode for fact in facts} == {
+        "deterministic_derivation",
+        "profile_definition",
+    }
     assert not any("caused" in fact.predicate_iri.lower() for fact in facts)
 
     numeric_facts = [
@@ -631,7 +640,7 @@ def test_observation_builder_materializes_a_nasr_faa_icao_airport() -> None:
     } == {"urn:aviation-agentic-ai:facility:airport:KJFK"}
 
 
-def test_observation_ids_are_stable_and_reconstruction_tracks_exact_inputs() -> None:
+def test_observation_ids_are_stable_and_track_exact_event_inputs() -> None:
     inputs = _observation_input()
     first = build_bts_observation_facts(**inputs)
     second = build_bts_observation_facts(**inputs)
@@ -648,7 +657,7 @@ def test_observation_ids_are_stable_and_reconstruction_tracks_exact_inputs() -> 
 
 def test_observation_builder_rejects_rehashed_unknown_selected_row_ids() -> None:
     inputs = _observation_input()
-    outcome = inputs["outcome_bundle"]
+    outcome = inputs["observation_bundle"]
     seed = outcome.derivation_seeds[0]
     selected = ("bts-row:not-in-snapshot",)
     digest = hashlib.sha256(
@@ -681,7 +690,7 @@ def test_observation_builder_rejects_rehashed_unknown_selected_row_ids() -> None
     )
 
     bundle = build_bts_observation_facts(
-        **{**inputs, "outcome_bundle": tampered}
+        **{**inputs, "observation_bundle": tampered}
     )
     assert bundle.status == "blocked"
     assert "selected row ID" in (bundle.failure_reason or "")
@@ -689,7 +698,7 @@ def test_observation_builder_rejects_rehashed_unknown_selected_row_ids() -> None
 
 def test_observation_builder_rejects_rehashed_existing_row_from_wrong_phase() -> None:
     inputs = _observation_input()
-    outcome = inputs["outcome_bundle"]
+    outcome = inputs["observation_bundle"]
     baseline = next(
         seed
         for seed in outcome.derivation_seeds
@@ -747,7 +756,7 @@ def test_observation_builder_rejects_rehashed_existing_row_from_wrong_phase() ->
     )
 
     bundle = build_bts_observation_facts(
-        **{**inputs, "outcome_bundle": tampered}
+        **{**inputs, "observation_bundle": tampered}
     )
     assert bundle.status == "blocked"
     assert "phase window" in (bundle.failure_reason or "")

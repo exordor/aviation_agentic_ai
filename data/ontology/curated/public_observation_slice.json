@@ -1,6 +1,6 @@
 {
-  "profile_id": "decision_case_public_observation_slice_v1",
-  "source_catalog": "decision_case_graph_v1",
+  "profile_id": "public_observation_slice_v1",
+  "source_catalog": "public_observation_graph_v1",
   "namespace_prefixes": {
     "sosa": "http://www.w3.org/ns/sosa/",
     "time": "http://www.w3.org/2006/time#",
@@ -9,13 +9,13 @@
     "unit": "http://qudt.org/vocab/unit/",
     "skos": "http://www.w3.org/2004/02/skos/core#",
     "dcterms": "http://purl.org/dc/terms/",
-    "case": "urn:aviation-agentic-ai:decision-case-schema:",
+    "obs": "urn:aviation-agentic-ai:public-observation-schema:",
     "btsobs": "urn:aviation-agentic-ai:observable-property:bts:",
     "phase": "urn:aviation-agentic-ai:observation-phase:",
     "proc": "urn:aviation-agentic-ai:observation-procedure:"
   },
   "class_mappings": {
-    "case:ObservationPhase": {"iri": "urn:aviation-agentic-ai:decision-case-schema:ObservationPhase", "label": "Observation phase"},
+    "obs:ObservationPhase": {"iri": "urn:aviation-agentic-ai:public-observation-schema:ObservationPhase", "label": "Observation phase"},
     "sosa:Observation": {"iri": "http://www.w3.org/ns/sosa/Observation", "label": "Observation"},
     "sosa:Result": {"iri": "http://www.w3.org/ns/sosa/Result", "label": "Result"},
     "sosa:FeatureOfInterest": {"iri": "http://www.w3.org/ns/sosa/FeatureOfInterest", "label": "Feature of interest"},

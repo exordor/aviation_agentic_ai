@@ -12,9 +12,8 @@ from typing import Any
 from aviation_agentic_ai.agent_system.contracts import (
     BTSObservationBundle,
     BTSOnTimeRow,
-    BTSOutcomeBundle,
-    BTSOutcomeSummary,
-    DecisionCaseReconstructionSeed,
+    BTSPublicObservationBundle,
+    BTSPublicObservationSummary,
     DecisionContextEvent,
     ObservationDerivation,
     ObservationDerivationSeed,
@@ -24,7 +23,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceSnapshotRegistry,
     ValidatedFact,
 )
-from aviation_agentic_ai.agent_system.bts_outcomes import resolve_bts_destination
+from aviation_agentic_ai.agent_system.bts_observations import resolve_bts_destination
 from aviation_agentic_ai.agent_system.validation_profiles import (
     LoadedValidationProfile,
     ValidationProfileRegistry,
@@ -41,7 +40,7 @@ PROV = "http://www.w3.org/ns/prov#"
 QUDT = "http://qudt.org/schema/qudt/"
 SKOS = "http://www.w3.org/2004/02/skos/core#"
 DCTERMS = "http://purl.org/dc/terms/"
-CASE = "urn:aviation-agentic-ai:decision-case-schema:"
+PUBLIC_OBSERVATION = "urn:aviation-agentic-ai:public-observation-schema:"
 PHASE = "urn:aviation-agentic-ai:observation-phase:"
 
 _PHASES = ("baseline", "active", "recovery")
@@ -232,23 +231,37 @@ def _parse_snapshot_rows(snapshot: SourceSnapshot) -> dict[str, BTSOnTimeRow]:
 def _validate_bundle(
     event: DecisionContextEvent,
     facility: CanonicalEntity,
-    outcome: BTSOutcomeBundle,
+    public_observations: BTSPublicObservationBundle,
     snapshots: SourceSnapshotRegistry,
     profile: LoadedValidationProfile,
-) -> tuple[
-    list[tuple[BTSOutcomeSummary, ObservationDerivationSeed]],
-    SourceSnapshot,
-]:
+) -> list[tuple[BTSPublicObservationSummary, ObservationDerivationSeed]]:
     if facility.entity_type != EntityType.AIRPORT:
         raise ValueError("public observations require a canonical airport facility")
-    if outcome.status != "ok":
-        raise ValueError(outcome.failure_reason or f"BTS outcome layer is {outcome.status}")
-    summaries = {summary.phase: summary for summary in outcome.summaries}
-    seeds = {seed.summary_id: seed for seed in outcome.derivation_seeds}
-    if set(summaries) != set(_PHASES) or len(outcome.summaries) != len(_PHASES):
-        raise ValueError("BTS outcome bundle requires exactly one summary per phase")
+    if public_observations.status != "ok":
+        raise ValueError(
+            public_observations.failure_reason
+            or f"BTS public-observation layer is {public_observations.status}"
+        )
+    summaries = {
+        summary.phase: summary for summary in public_observations.summaries
+    }
+    seeds = {
+        seed.summary_id for seed in public_observations.derivation_seeds
+    }
+    seeds_by_summary = {
+        seed.summary_id: seed for seed in public_observations.derivation_seeds
+    }
+    if (
+        set(summaries) != set(_PHASES)
+        or len(public_observations.summaries) != len(_PHASES)
+    ):
+        raise ValueError(
+            "BTS public-observation bundle requires exactly one summary per phase"
+        )
     if len(seeds) != len(_PHASES):
-        raise ValueError("BTS outcome bundle requires exactly one derivation seed per phase")
+        raise ValueError(
+            "BTS public-observation bundle requires exactly one derivation seed per phase"
+        )
     if profile.aggregation_procedure is None:
         raise ValueError("public-observation profile has no aggregation procedure")
     expected_windows = {
@@ -262,11 +275,11 @@ def _validate_bundle(
             event.operational_end + timedelta(hours=6),
         ),
     }
-    pairs: list[tuple[BTSOutcomeSummary, ObservationDerivationSeed]] = []
+    pairs: list[tuple[BTSPublicObservationSummary, ObservationDerivationSeed]] = []
     bts_snapshot: SourceSnapshot | None = None
     for phase in _PHASES:
         summary = summaries[phase]
-        seed = seeds.get(summary.summary_id)
+        seed = seeds_by_summary.get(summary.summary_id)
         if seed is None:
             raise ValueError("summary has no matching derivation seed")
         if (
@@ -274,22 +287,26 @@ def _validate_bundle(
             or summary.event_id != event.event_id
             or summary.facility_id != facility.entity_id
         ):
-            raise ValueError("BTS outcome event or facility binding mismatch")
+            raise ValueError(
+                "BTS public-observation event or facility binding mismatch"
+            )
         expected_start, expected_end = expected_windows[phase]
         if (
             summary.window_start.astimezone(UTC) != expected_start.astimezone(UTC)
             or summary.window_end.astimezone(UTC) != expected_end.astimezone(UTC)
         ):
-            raise ValueError("BTS outcome phase window mismatch")
+            raise ValueError("BTS public-observation phase window mismatch")
         if summary.reporting_scope != _REPORTING_SCOPE or summary.causal_claim is not False:
-            raise ValueError("BTS outcome reporting scope or causal flag mismatch")
+            raise ValueError(
+                "BTS public-observation reporting scope or causal flag mismatch"
+            )
         snapshot = snapshots.get(summary.source_id)
         if snapshot is None:
-            raise ValueError("BTS outcome source is not registered")
+            raise ValueError("BTS public-observation source is not registered")
         if snapshot.family != SourceFamily.BTS_ON_TIME:
-            raise ValueError("BTS outcome source family mismatch")
+            raise ValueError("BTS public-observation source family mismatch")
         if summary.source_snapshot_sha256 != snapshot.content_sha256:
-            raise ValueError("BTS outcome source checksum mismatch")
+            raise ValueError("BTS public-observation source checksum mismatch")
         if bts_snapshot is not None and bts_snapshot.source_id != snapshot.source_id:
             raise ValueError("BTS phases use different sources")
         bts_snapshot = snapshot
@@ -346,7 +363,7 @@ def _validate_bundle(
             raise ValueError(
                 "selected row IDs do not match the canonical facility and phase window"
             )
-    return pairs, bts_snapshot
+    return pairs
 
 
 def _profile_definition_facts(
@@ -391,7 +408,7 @@ def _profile_definition_facts(
             [
                 _typed_fact(
                     phase_iri,
-                    CASE + "ObservationPhase",
+                    PUBLIC_OBSERVATION + "ObservationPhase",
                     profile=profile,
                     evidence_mode="profile_definition",
                     evidence_ref=evidence_ref,
@@ -447,60 +464,31 @@ def _profile_definition_facts(
 def build_bts_observation_facts(
     event: DecisionContextEvent,
     canonical_facility: CanonicalEntity,
-    outcome_bundle: BTSOutcomeBundle,
+    observation_bundle: BTSPublicObservationBundle,
     snapshot_registry: SourceSnapshotRegistry,
     profile_registry: ValidationProfileRegistry,
-    reconstruction_seed: DecisionCaseReconstructionSeed,
 ) -> BTSObservationBundle:
     """Project an already aggregated, source-bound BTS bundle into formal facts."""
 
-    if outcome_bundle.status == "insufficient":
+    if observation_bundle.status == "insufficient":
         return BTSObservationBundle(
             status="insufficient",
-            failure_reason=outcome_bundle.failure_reason or "BTS outcome evidence is insufficient",
+            failure_reason=(
+                observation_bundle.failure_reason
+                or "BTS public-observation evidence is insufficient"
+            ),
         )
     try:
         profile, metrics = _public_profile(profile_registry)
-        pairs, bts_snapshot = _validate_bundle(
+        pairs = _validate_bundle(
             event,
             canonical_facility,
-            outcome_bundle,
+            observation_bundle,
             snapshot_registry,
             profile,
         )
         procedure = profile.aggregation_procedure
         assert procedure is not None
-        if (
-            reconstruction_seed.aggregation_procedure_id
-            != procedure.procedure_id
-            or reconstruction_seed.aggregation_procedure_checksum
-            != procedure.checksum
-        ):
-            raise ValueError(
-                "reconstruction aggregation procedure does not match "
-                "public-observation profile"
-            )
-        if reconstruction_seed.conceptual_case_iri != _stable_iri(
-            "urn:aviation-agentic-ai:decision-case:",
-            event.event_id,
-        ):
-            raise ValueError("reconstruction seed does not belong to event")
-        binding = next(
-            (
-                item
-                for item in reconstruction_seed.source_bindings
-                if item.source_id == bts_snapshot.source_id
-            ),
-            None,
-        )
-        if (
-            binding is None
-            or binding.source_family != SourceFamily.BTS_ON_TIME
-            or binding.snapshot_sha256 != bts_snapshot.content_sha256
-        ):
-            raise ValueError("BTS source is absent from reconstruction seed")
-        reconstruction = reconstruction_seed.reconstruction_iri
-        reconstruction_trace_id = reconstruction_seed.reconstruction_trace_id
 
         derivations: list[ObservationDerivation] = []
         activity_facts: list[ValidatedFact] = []
@@ -516,45 +504,61 @@ def build_bts_observation_facts(
                 "urn:aviation-agentic-ai:observation-interval:",
                 {
                     "end": _canonical_datetime(summary.window_end),
+                    "event_id": event.event_id,
+                    "facility_id": canonical_facility.entity_id,
                     "phase": phase,
-                    "reconstruction": reconstruction,
                     "start": _canonical_datetime(summary.window_start),
+                    "source_id": summary.source_id,
+                    "source_snapshot_sha256": summary.source_snapshot_sha256,
                 },
             )
             interval_ids[phase] = interval
             start_instant = _stable_iri(
                 "urn:aviation-agentic-ai:time-instant:",
-                _canonical_datetime(summary.window_start),
+                {
+                    "boundary": "start",
+                    "event_id": event.event_id,
+                    "facility_id": canonical_facility.entity_id,
+                    "phase": phase,
+                    "timestamp": _canonical_datetime(summary.window_start),
+                },
             )
             end_instant = _stable_iri(
                 "urn:aviation-agentic-ai:time-instant:",
-                _canonical_datetime(summary.window_end),
+                {
+                    "boundary": "end",
+                    "event_id": event.event_id,
+                    "facility_id": canonical_facility.entity_id,
+                    "phase": phase,
+                    "timestamp": _canonical_datetime(summary.window_end),
+                },
             )
-            membership_ref = reconstruction_trace_id
-            structural_facts.extend(
-                [
-                    _typed_fact(
+            phase_structural_facts = [
+                _typed_fact(
                         interval,
                         TIME + "Interval",
                         profile=profile,
-                        evidence_mode="system_membership",
-                        evidence_ref=membership_ref,
-                    ),
-                    _typed_fact(
+                        evidence_mode="deterministic_derivation",
+                        evidence_ref="pending",
+                        source_ids=(summary.source_id,),
+                ),
+                _typed_fact(
                         start_instant,
                         TIME + "Instant",
                         profile=profile,
-                        evidence_mode="system_membership",
-                        evidence_ref=membership_ref,
-                    ),
-                    _typed_fact(
+                        evidence_mode="deterministic_derivation",
+                        evidence_ref="pending",
+                        source_ids=(summary.source_id,),
+                ),
+                _typed_fact(
                         end_instant,
                         TIME + "Instant",
                         profile=profile,
-                        evidence_mode="system_membership",
-                        evidence_ref=membership_ref,
-                    ),
-                    _fact(
+                        evidence_mode="deterministic_derivation",
+                        evidence_ref="pending",
+                        source_ids=(summary.source_id,),
+                ),
+                _fact(
                         subject=interval,
                         subject_class=TIME + "Interval",
                         predicate=TIME + "hasBeginning",
@@ -562,10 +566,11 @@ def build_bts_observation_facts(
                         object_value=start_instant,
                         object_class=TIME + "Instant",
                         profile=profile,
-                        evidence_mode="system_membership",
-                        evidence_ref=membership_ref,
-                    ),
-                    _fact(
+                        evidence_mode="deterministic_derivation",
+                        evidence_ref="pending",
+                        source_ids=(summary.source_id,),
+                ),
+                _fact(
                         subject=interval,
                         subject_class=TIME + "Interval",
                         predicate=TIME + "hasEnd",
@@ -573,21 +578,23 @@ def build_bts_observation_facts(
                         object_value=end_instant,
                         object_class=TIME + "Instant",
                         profile=profile,
-                        evidence_mode="system_membership",
-                        evidence_ref=membership_ref,
-                    ),
-                    _fact(
+                        evidence_mode="deterministic_derivation",
+                        evidence_ref="pending",
+                        source_ids=(summary.source_id,),
+                ),
+                _fact(
                         subject=interval,
                         subject_class=TIME + "Interval",
                         predicate=DCTERMS + "type",
                         object_kind="iri",
                         object_value=PHASE + phase,
-                        object_class=CASE + "ObservationPhase",
+                        object_class=PUBLIC_OBSERVATION + "ObservationPhase",
                         profile=profile,
-                        evidence_mode="system_membership",
-                        evidence_ref=membership_ref,
-                    ),
-                    _fact(
+                        evidence_mode="deterministic_derivation",
+                        evidence_ref="pending",
+                        source_ids=(summary.source_id,),
+                ),
+                _fact(
                         subject=start_instant,
                         subject_class=TIME + "Instant",
                         predicate=TIME + "inXSDDateTimeStamp",
@@ -595,10 +602,11 @@ def build_bts_observation_facts(
                         object_value=_canonical_datetime(summary.window_start),
                         datatype=XSD_DATETIME,
                         profile=profile,
-                        evidence_mode="system_membership",
-                        evidence_ref=membership_ref,
-                    ),
-                    _fact(
+                        evidence_mode="deterministic_derivation",
+                        evidence_ref="pending",
+                        source_ids=(summary.source_id,),
+                ),
+                _fact(
                         subject=end_instant,
                         subject_class=TIME + "Instant",
                         predicate=TIME + "inXSDDateTimeStamp",
@@ -606,14 +614,21 @@ def build_bts_observation_facts(
                         object_value=_canonical_datetime(summary.window_end),
                         datatype=XSD_DATETIME,
                         profile=profile,
-                        evidence_mode="system_membership",
-                        evidence_ref=membership_ref,
-                    ),
-                ]
-            )
+                        evidence_mode="deterministic_derivation",
+                        evidence_ref="pending",
+                        source_ids=(summary.source_id,),
+                ),
+            ]
             activity = _stable_iri(
                 "urn:aviation-agentic-ai:observation-activity:",
-                {"phase": phase, "reconstruction": reconstruction},
+                {
+                    "event_id": event.event_id,
+                    "facility_id": canonical_facility.entity_id,
+                    "phase": phase,
+                    "procedure_checksum": procedure.checksum,
+                    "source_id": summary.source_id,
+                    "source_snapshot_sha256": summary.source_snapshot_sha256,
+                },
             )
             derivation = ObservationDerivation(
                 **seed.model_dump(),
@@ -634,10 +649,11 @@ def build_bts_observation_facts(
                 observation = _stable_iri(
                     "urn:aviation-agentic-ai:observation:",
                     {
+                        "event_id": event.event_id,
+                        "facility_id": canonical_facility.entity_id,
                         "metric": property_iri,
                         "phase": phase,
                         "procedure_checksum": procedure.checksum,
-                        "reconstruction": reconstruction,
                         "source_id": summary.source_id,
                         "source_snapshot_sha256": summary.source_snapshot_sha256,
                     },
@@ -830,6 +846,10 @@ def build_bts_observation_facts(
             if not phase_trace_ids:
                 raise ValueError("BTS phase has no emitted observation trace")
             activity_evidence_ref = sorted(phase_trace_ids)[0]
+            structural_facts.extend(
+                fact.model_copy(update={"evidence_ref": activity_evidence_ref})
+                for fact in phase_structural_facts
+            )
             activity_source_ids = (summary.source_id,)
             activity_facts.extend(
                 [
