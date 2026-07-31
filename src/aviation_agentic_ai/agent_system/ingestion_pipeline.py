@@ -6,7 +6,8 @@ import json
 from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
+from pathlib import Path
+from typing import Any, Protocol
 
 from aviation_agentic_ai.agent_system.agent_usage import (
     AgentUsageRecord,
@@ -108,6 +109,20 @@ CaseRunner = Callable[
 AssetDiscoverer = Callable[[dict[str, Any]], tuple[SourceAssetRecord, ...]]
 
 
+class RetrievalIndexer(Protocol):
+    """Derived-index update boundary kept outside semantic transactions."""
+
+    def __call__(
+        self,
+        store: AviationEvidenceStore,
+        *,
+        source_version_ids: Sequence[str],
+        event_publication_ids: Sequence[str],
+        allow_model_download: bool,
+        model_name: str,
+    ) -> object: ...
+
+
 def load_ingestion_resources(config: dict[str, Any]) -> IngestionResources:
     """Load schema, authority, Weather, and BTS inputs exactly once."""
 
@@ -178,6 +193,7 @@ def run_ingestion_pipeline(
     resource_loader: ResourceLoader | None = None,
     case_runner: CaseRunner | None = None,
     asset_discoverer: AssetDiscoverer = discover_source_assets,
+    retrieval_indexer: RetrievalIndexer | None = None,
 ) -> IngestionSummary:
     """Register configured evidence, then process selected advisories one by one.
 
@@ -186,8 +202,9 @@ def run_ingestion_pipeline(
     sources are registered before the first semantic publication.
     """
 
-    del allow_model_download  # embedding/model download belongs to indexing
     typed_config = dict(config)
+    changed_source_version_ids: set[str] = set()
+    changed_event_publication_ids: set[str] = set()
     assets = asset_discoverer(typed_config)
     for asset in assets:
         store.register_source_asset(asset)
@@ -198,7 +215,11 @@ def run_ingestion_pipeline(
     for advisory in _iter_advisories(typed_config, assets_by_key):
         discovered_count += 1
         available_source_ids.add(advisory.source_id)
-        store.register_source_version(build_source_version(advisory))
+        advisory_version = build_source_version(advisory)
+        if store.register_source_version(advisory_version) == "inserted":
+            changed_source_version_ids.add(
+                advisory_version.source_version_id
+            )
     requested = set(source_ids)
     unknown = sorted(requested - available_source_ids)
     if unknown:
@@ -208,7 +229,11 @@ def run_ingestion_pipeline(
     resources = loader(typed_config)
     for record in resources.logical_sources:
         bound_record = _bind_logical_source_asset(record, assets_by_key)
-        store.register_source_version(build_source_version(bound_record))
+        source_version = build_source_version(bound_record)
+        if store.register_source_version(source_version) == "inserted":
+            changed_source_version_ids.add(
+                source_version.source_version_id
+            )
 
     selected_count = (
         discovered_count if not requested else len(requested)
@@ -253,7 +278,10 @@ def run_ingestion_pipeline(
             execution = runner(advisory, resources, allow_live_model)
             usage_records = execution.agent_usage_records
             for version in execution.source_versions:
-                store.register_source_version(version)
+                if store.register_source_version(version) == "inserted":
+                    changed_source_version_ids.add(
+                        version.source_version_id
+                    )
             if (
                 execution.attempt.result.source_version_id
                 != advisory_version.source_version_id
@@ -263,6 +291,8 @@ def run_ingestion_pipeline(
                 )
             store.apply_ingestion_attempt(execution.attempt)
             result = execution.attempt.result
+            if result.status == "ok" and result.publication_id is not None:
+                changed_event_publication_ids.add(result.publication_id)
         except Exception as exc:
             provider_call_count = sum(
                 row.provider_call_count for row in usage_records
@@ -317,7 +347,95 @@ def run_ingestion_pipeline(
         insufficient_count=summary.insufficient_count,
         blocked_count=summary.blocked_count,
     )
+    if changed_source_version_ids or changed_event_publication_ids:
+        indexer = retrieval_indexer or _update_retrieval_indexes
+        try:
+            indexer(
+                store,
+                source_version_ids=tuple(
+                    sorted(changed_source_version_ids)
+                ),
+                event_publication_ids=tuple(
+                    sorted(changed_event_publication_ids)
+                ),
+                allow_model_download=allow_model_download,
+                model_name=_embedding_model_name(typed_config),
+            )
+        except Exception:
+            # Semantic publication is authoritative and already committed.
+            # The default indexer records its own rebuildable failure state.
+            pass
     return summary
+
+
+def _embedding_model_name(config: dict[str, Any]) -> str:
+    from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
+        DEFAULT_TMI_EVENT_EMBEDDING_MODEL,
+    )
+
+    agent_system = config.get("agent_system")
+    if not isinstance(agent_system, dict):
+        return DEFAULT_TMI_EVENT_EMBEDDING_MODEL
+    storage = agent_system.get("storage")
+    if not isinstance(storage, dict):
+        return DEFAULT_TMI_EVENT_EMBEDDING_MODEL
+    configured = storage.get("embedding_model")
+    return (
+        configured
+        if isinstance(configured, str) and configured
+        else DEFAULT_TMI_EVENT_EMBEDDING_MODEL
+    )
+
+
+def _update_retrieval_indexes(
+    store: AviationEvidenceStore,
+    *,
+    source_version_ids: Sequence[str],
+    event_publication_ids: Sequence[str],
+    allow_model_download: bool,
+    model_name: str,
+) -> object:
+    from aviation_agentic_ai.agent_system.source_retrieval import (
+        build_source_record_chunks,
+    )
+    from aviation_agentic_ai.agent_system.tmi_event_retrieval_index import (
+        SentenceTransformerTMIEventEncoder,
+        mark_vector_indexes_blocked,
+        update_store_indexes,
+    )
+
+    source_versions = tuple(
+        version
+        for source_version_id in source_version_ids
+        if (
+            version := store.get_source_version(source_version_id)
+        )
+        is not None
+    )
+    store.upsert_source_chunks(
+        build_source_record_chunks(source_versions)
+    )
+    try:
+        encoder = SentenceTransformerTMIEventEncoder(
+            model_name,
+            allow_download=allow_model_download,
+        )
+    except Exception as exc:
+        return mark_vector_indexes_blocked(
+            store,
+            embedding_model_id=model_name,
+            reason=f"{type(exc).__name__}: {exc}",
+        )
+    try:
+        return update_store_indexes(
+            store,
+            Path(store.root) / "chroma",
+            encoder=encoder,
+            source_version_ids=source_version_ids,
+            event_publication_ids=event_publication_ids,
+        )
+    except Exception:
+        return ()
 
 
 def _run_case(

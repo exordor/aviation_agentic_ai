@@ -30,6 +30,7 @@ from aviation_agentic_ai.agent_system.storage_contracts import (
     SourceChunkRecord,
     SourceVersionRecord,
     TMIEventRecord,
+    VectorIndexStateRecord,
 )
 from aviation_agentic_ai.cross_source.identifiers import stable_id
 
@@ -1574,6 +1575,159 @@ def test_semantic_ingestion_attempt_rejects_source_chunks() -> None:
         )
 
 
+def test_source_chunks_and_vector_state_are_persisted_as_derived_data(
+    tmp_path: Path,
+) -> None:
+    """Chunk/index state must persist without becoming semantic publication."""
+
+    from aviation_agentic_ai.agent_system.evidence_store import (
+        AviationEvidenceStore,
+    )
+
+    content = "GROUND STOP DUE TO THUNDERSTORMS"
+    version = _source_version("2026-05-19:123", content)
+    chunk = SourceChunkRecord(
+        chunk_id=stable_id(
+            "source-chunk",
+            version.source_version_id,
+            "source_record",
+            0,
+            len(content),
+            "aviation-source-chunk-v1",
+        ),
+        source_version_id=version.source_version_id,
+        event_id=None,
+        chunk_kind="source_record",
+        text=content,
+        char_start=0,
+        char_end=len(content),
+        source_anchor_id=stable_id(
+            "source-anchor",
+            version.source_version_id,
+            0,
+            len(content),
+        ),
+        representation_version="aviation-source-chunk-v1",
+        metadata={"source_id": version.source_id},
+    )
+    state = VectorIndexStateRecord(
+        collection_name="aviation_source_chunks_v1",
+        representation_version="aviation-source-chunk-v1",
+        embedding_model_id="test/two-dimensional",
+        embedding_dimension=2,
+        indexed_knowledge_revision=1,
+        document_count=1,
+        vector_count=1,
+        status="current",
+        updated_at=datetime(2026, 5, 19, tzinfo=UTC),
+        failure_reason=None,
+    )
+    store = AviationEvidenceStore.open(
+        tmp_path / "store",
+        dataset_id="test",
+        create=True,
+    )
+    try:
+        store.register_source_version(version)
+        assert store.list_source_versions() == (version,)
+        assert store.list_source_versions(current_only=True) == (version,)
+        assert store.upsert_source_chunks((chunk,)) == 1
+        assert store.get_knowledge_revision() == 1
+        assert store.upsert_source_chunks((chunk,)) == 0
+        assert store.get_knowledge_revision() == 1
+        assert store.get_source_chunk(chunk.chunk_id) == chunk
+        assert store.list_source_chunks() == (chunk,)
+        assert store.search_source_text("THUNDERSTORMS") == (chunk,)
+
+        store.set_vector_index_state(state)
+
+        assert store.get_vector_index_state(state.collection_name) == state
+        assert store.get_knowledge_revision() == 1
+    finally:
+        store.close()
+
+
+def test_unknown_vector_dimension_is_reserved_for_blocked_initialization(
+) -> None:
+    blocked = VectorIndexStateRecord(
+        collection_name="aviation_source_chunks_v1",
+        representation_version="aviation-source-chunk-v1",
+        embedding_model_id="test/unavailable",
+        embedding_dimension=0,
+        indexed_knowledge_revision=0,
+        document_count=0,
+        vector_count=0,
+        status="blocked",
+        updated_at=datetime(2026, 5, 19, tzinfo=UTC),
+        failure_reason="encoder could not be initialized",
+    )
+
+    assert blocked.embedding_dimension == 0
+    with pytest.raises(ValidationError, match="zero embedding dimension"):
+        VectorIndexStateRecord.model_validate(
+            {**blocked.model_dump(), "status": "current"}
+        )
+
+
+def test_source_text_search_defaults_to_latest_observed_version(
+    tmp_path: Path,
+) -> None:
+    """Normal retrieval must not surface superseded source text."""
+
+    from aviation_agentic_ai.agent_system.evidence_store import (
+        AviationEvidenceStore,
+    )
+
+    original = _source_version("source:revision", "ORIGINAL GROUND STOP")
+    revised = _source_version("source:revision", "REVISED GROUND STOP")
+
+    def chunk_for(version: SourceVersionRecord) -> SourceChunkRecord:
+        return SourceChunkRecord(
+            chunk_id=stable_id(
+                "source-chunk",
+                version.source_version_id,
+                "source_record",
+                0,
+                len(version.content),
+                "aviation-source-chunk-v1",
+            ),
+            source_version_id=version.source_version_id,
+            event_id=None,
+            chunk_kind="source_record",
+            text=version.content,
+            char_start=0,
+            char_end=len(version.content),
+            source_anchor_id=stable_id(
+                "source-anchor",
+                version.source_version_id,
+                0,
+                len(version.content),
+            ),
+            representation_version="aviation-source-chunk-v1",
+            metadata={"source_id": version.source_id},
+        )
+
+    store = AviationEvidenceStore.open(
+        tmp_path / "store",
+        dataset_id="test",
+        create=True,
+    )
+    try:
+        store.register_source_version(original)
+        store.upsert_source_chunks((chunk_for(original),))
+        store.register_source_version(revised)
+        store.upsert_source_chunks((chunk_for(revised),))
+
+        assert store.search_source_text("ORIGINAL") == ()
+        assert store.search_source_text(
+            "ORIGINAL",
+            current_only=False,
+        ) == (chunk_for(original),)
+        assert store.search_source_text("REVISED") == (chunk_for(revised),)
+    finally:
+        store.close()
+
+
 def test_event_listing_and_sources_use_active_bounded_publication(
     tmp_path: Path,
 ) -> None:
@@ -1693,6 +1847,10 @@ def test_event_listing_and_sources_use_active_bounded_publication(
         assert page.dataset_id == "dataset:test"
         assert page.total_matches == 1
         assert page.events == (event,)
+        assert store.list_tmi_event_publications() == (event,)
+        assert store.list_tmi_event_publications(
+            active_only=True
+        ) == (event,)
         assert store.get_event_sources(event_id) == tuple(
             sorted(
                 (advisory, authority),

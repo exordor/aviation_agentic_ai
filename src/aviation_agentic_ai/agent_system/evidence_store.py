@@ -26,6 +26,7 @@ from aviation_agentic_ai.agent_system.storage_contracts import (
     TMIEventPage,
     TMIEventQuery,
     TMIEventRecord,
+    VectorIndexStateRecord,
 )
 from aviation_agentic_ai.cross_source.identifiers import stable_id
 
@@ -707,6 +708,45 @@ class AviationEvidenceStore:
         ).fetchone()
         return self._source_version_from_row(row) if row is not None else None
 
+    def list_source_versions(
+        self,
+        *,
+        current_only: bool = False,
+        families: tuple[SourceFamily, ...] = (),
+    ) -> tuple[SourceVersionRecord, ...]:
+        """Return immutable source versions in stable order."""
+
+        predicates: list[str] = []
+        parameters: list[object] = []
+        if current_only:
+            predicates.append(
+                """
+                version.source_version_id =
+                source.latest_observed_version_id
+                """
+            )
+        if families:
+            placeholders = ", ".join("?" for _ in families)
+            predicates.append(f"version.family IN ({placeholders})")
+            parameters.extend(family.value for family in families)
+        where_clause = (
+            "WHERE " + " AND ".join(predicates)
+            if predicates
+            else ""
+        )
+        rows = self._connection.execute(
+            f"""
+            SELECT version.*
+            FROM source_versions AS version
+            JOIN sources AS source
+              ON source.source_id = version.source_id
+            {where_clause}
+            ORDER BY version.source_version_id
+            """,
+            parameters,
+        ).fetchall()
+        return tuple(self._source_version_from_row(row) for row in rows)
+
     def register_source_anchor(
         self,
         source_version_id: str,
@@ -1381,6 +1421,44 @@ class AviationEvidenceStore:
             reason_value=row["reason_value"],
         )
 
+    def list_tmi_event_publications(
+        self,
+        *,
+        active_only: bool = False,
+    ) -> tuple[TMIEventRecord, ...]:
+        """Return active or all immutable TMI event publications."""
+
+        if active_only:
+            rows = self._connection.execute(
+                """
+                SELECT
+                    event.event_id,
+                    event.active_publication_id AS publication_id
+                FROM tmi_events AS event
+                WHERE event.active_publication_id IS NOT NULL
+                ORDER BY event.event_id
+                """
+            ).fetchall()
+        else:
+            rows = self._connection.execute(
+                """
+                SELECT publication.event_id, publication.publication_id
+                FROM event_publications AS publication
+                ORDER BY publication.event_id, publication.publication_id
+                """
+            ).fetchall()
+        return tuple(
+            event
+            for row in rows
+            if (
+                event := self.get_event(
+                    row["event_id"],
+                    publication_id=row["publication_id"],
+                )
+            )
+            is not None
+        )
+
     def find_tmi_events(
         self,
         query: TMIEventQuery,
@@ -1717,6 +1795,7 @@ class AviationEvidenceStore:
         *,
         families: tuple[SourceFamily, ...] = (),
         event_id: str | None = None,
+        current_only: bool = True,
         limit: int = 10,
     ) -> tuple[SourceChunkRecord, ...]:
         """Search bounded source chunks with optional family and event scope."""
@@ -1734,6 +1813,13 @@ class AviationEvidenceStore:
         if event_id is not None:
             predicates.append("chunk.event_id = ?")
             parameters.append(event_id)
+        if current_only:
+            predicates.append(
+                """
+                chunk.source_version_id =
+                source.latest_observed_version_id
+                """
+            )
         parameters.append(limit)
         rows = self._connection.execute(
             f"""
@@ -1743,6 +1829,8 @@ class AviationEvidenceStore:
               ON chunk.rowid = source_chunks_fts.rowid
             JOIN source_versions AS version
               ON version.source_version_id = chunk.source_version_id
+            JOIN sources AS source
+              ON source.source_id = version.source_id
             WHERE {" AND ".join(predicates)}
             ORDER BY bm25(source_chunks_fts), chunk.chunk_id
             LIMIT ?
@@ -1750,6 +1838,257 @@ class AviationEvidenceStore:
             parameters,
         ).fetchall()
         return tuple(self._source_chunk_from_row(row) for row in rows)
+
+    def upsert_source_chunks(
+        self,
+        chunks: Sequence[SourceChunkRecord],
+    ) -> int:
+        """Persist immutable derived chunks and their exact source anchors."""
+
+        inserted = 0
+        with self._connection:
+            for chunk in chunks:
+                existing = self.get_source_chunk(chunk.chunk_id)
+                if existing is not None:
+                    if existing != chunk:
+                        raise ValueError("source chunk is immutable")
+                    continue
+                version = self.get_source_version(chunk.source_version_id)
+                if version is None:
+                    raise ValueError("source chunk version does not exist")
+                if chunk.char_end > len(version.content):
+                    raise ValueError("source chunk exceeds source content")
+                if (
+                    chunk.chunk_kind == "source_record"
+                    and version.content[
+                        chunk.char_start : chunk.char_end
+                    ]
+                    != chunk.text
+                ):
+                    raise ValueError(
+                        "source-record chunk must match exact source text"
+                    )
+                anchor = SourceAnchorRecord(
+                    source_anchor_id=chunk.source_anchor_id,
+                    source_version_id=chunk.source_version_id,
+                    char_start=chunk.char_start,
+                    char_end=chunk.char_end,
+                    anchor_kind=(
+                        "full_record"
+                        if (
+                            chunk.char_start == 0
+                            and chunk.char_end == len(version.content)
+                        )
+                        else "text_span"
+                    ),
+                )
+                self._connection.execute(
+                    """
+                    INSERT OR IGNORE INTO source_anchors(
+                        source_anchor_id,
+                        source_version_id,
+                        char_start,
+                        char_end,
+                        anchor_kind
+                    )
+                    VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (
+                        anchor.source_anchor_id,
+                        anchor.source_version_id,
+                        anchor.char_start,
+                        anchor.char_end,
+                        anchor.anchor_kind,
+                    ),
+                )
+                self._connection.execute(
+                    """
+                    INSERT INTO source_chunks(
+                        chunk_id,
+                        source_version_id,
+                        event_id,
+                        chunk_kind,
+                        text,
+                        char_start,
+                        char_end,
+                        source_anchor_id,
+                        representation_version,
+                        metadata_json
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        chunk.chunk_id,
+                        chunk.source_version_id,
+                        chunk.event_id,
+                        chunk.chunk_kind,
+                        chunk.text,
+                        chunk.char_start,
+                        chunk.char_end,
+                        chunk.source_anchor_id,
+                        chunk.representation_version,
+                        json.dumps(
+                            chunk.metadata,
+                            sort_keys=True,
+                            separators=(",", ":"),
+                        ),
+                    ),
+                )
+                inserted += 1
+            if inserted:
+                self._increment_knowledge_revision(
+                    datetime.now(UTC).isoformat()
+                )
+        return inserted
+
+    def get_source_chunk(
+        self,
+        chunk_id: str,
+    ) -> SourceChunkRecord | None:
+        """Return one immutable source chunk."""
+
+        row = self._connection.execute(
+            """
+            SELECT *
+            FROM source_chunks
+            WHERE chunk_id = ?
+            """,
+            (chunk_id,),
+        ).fetchone()
+        return self._source_chunk_from_row(row) if row is not None else None
+
+    def list_source_chunks(
+        self,
+        *,
+        source_version_ids: tuple[str, ...] = (),
+        event_id: str | None = None,
+        chunk_kind: str | None = None,
+    ) -> tuple[SourceChunkRecord, ...]:
+        """Return derived chunks under explicit optional bounds."""
+
+        predicates: list[str] = []
+        parameters: list[object] = []
+        if source_version_ids:
+            placeholders = ", ".join("?" for _ in source_version_ids)
+            predicates.append(
+                f"source_version_id IN ({placeholders})"
+            )
+            parameters.extend(source_version_ids)
+        if event_id is not None:
+            predicates.append("event_id = ?")
+            parameters.append(event_id)
+        if chunk_kind is not None:
+            predicates.append("chunk_kind = ?")
+            parameters.append(chunk_kind)
+        where_clause = (
+            "WHERE " + " AND ".join(predicates)
+            if predicates
+            else ""
+        )
+        rows = self._connection.execute(
+            f"""
+            SELECT *
+            FROM source_chunks
+            {where_clause}
+            ORDER BY chunk_id
+            """,
+            parameters,
+        ).fetchall()
+        return tuple(self._source_chunk_from_row(row) for row in rows)
+
+    def get_knowledge_revision(self) -> int:
+        """Return the current authoritative semantic-store revision."""
+
+        row = self._connection.execute(
+            """
+            SELECT value
+            FROM store_metadata
+            WHERE key = 'knowledge_revision'
+            """
+        ).fetchone()
+        if row is None:
+            raise ValueError("knowledge revision metadata is missing")
+        return int(row["value"])
+
+    def set_vector_index_state(
+        self,
+        state: VectorIndexStateRecord,
+    ) -> None:
+        """Publish rebuildable vector-index status."""
+
+        with self._connection:
+            self._connection.execute(
+                """
+                INSERT INTO vector_index_state(
+                    collection_name,
+                    representation_version,
+                    embedding_model_id,
+                    embedding_dimension,
+                    indexed_knowledge_revision,
+                    document_count,
+                    vector_count,
+                    status,
+                    updated_at,
+                    failure_reason
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(collection_name) DO UPDATE SET
+                    representation_version =
+                        excluded.representation_version,
+                    embedding_model_id = excluded.embedding_model_id,
+                    embedding_dimension = excluded.embedding_dimension,
+                    indexed_knowledge_revision =
+                        excluded.indexed_knowledge_revision,
+                    document_count = excluded.document_count,
+                    vector_count = excluded.vector_count,
+                    status = excluded.status,
+                    updated_at = excluded.updated_at,
+                    failure_reason = excluded.failure_reason
+                """,
+                (
+                    state.collection_name,
+                    state.representation_version,
+                    state.embedding_model_id,
+                    state.embedding_dimension,
+                    state.indexed_knowledge_revision,
+                    state.document_count,
+                    state.vector_count,
+                    state.status,
+                    state.updated_at.isoformat(),
+                    state.failure_reason,
+                ),
+            )
+
+    def get_vector_index_state(
+        self,
+        collection_name: str,
+    ) -> VectorIndexStateRecord | None:
+        """Return rebuildable state for one vector collection."""
+
+        row = self._connection.execute(
+            """
+            SELECT *
+            FROM vector_index_state
+            WHERE collection_name = ?
+            """,
+            (collection_name,),
+        ).fetchone()
+        if row is None:
+            return None
+        return VectorIndexStateRecord(
+            collection_name=row["collection_name"],
+            representation_version=row["representation_version"],
+            embedding_model_id=row["embedding_model_id"],
+            embedding_dimension=row["embedding_dimension"],
+            indexed_knowledge_revision=row[
+                "indexed_knowledge_revision"
+            ],
+            document_count=row["document_count"],
+            vector_count=row["vector_count"],
+            status=row["status"],
+            updated_at=datetime.fromisoformat(row["updated_at"]),
+            failure_reason=row["failure_reason"],
+        )
 
     def _select_publication_id(
         self,

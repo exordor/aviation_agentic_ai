@@ -28,11 +28,15 @@ DurationBucket = Literal[
 
 
 class TMIEventRetrievalDocument(StrictModel):
-    """One deterministic TMI-event document prepared for embedding."""
+    """One immutable event-publication document prepared for embedding."""
 
     document_id: str = Field(min_length=1)
     event_id: str = Field(min_length=1)
+    publication_id: str = Field(min_length=1)
     advisory_source_id: str = Field(min_length=1)
+    publication_source_version_id: str = Field(min_length=1)
+    source_version_ids: tuple[str, ...]
+    fact_ids: tuple[str, ...]
     representation_version: Literal["tmi-event-record-v1"] = (
         REPRESENTATION_VERSION
     )
@@ -57,36 +61,11 @@ class TMIEventEncoder(Protocol):
     ) -> Sequence[Sequence[float]]: ...
 
 
-class TMIEventDocumentArtifact(StrictModel):
-    """Registered canonical-document file used to build the index."""
-
-    path: str = Field(min_length=1)
-    count: int = Field(ge=0)
-    sha256: str = Field(min_length=64, max_length=64)
-
-
-class TMIEventIndexManifest(StrictModel):
-    """Corpus-bound metadata for one persistent TMI-event vector index."""
-
-    manifest_version: Literal["tmi-event-index-v1"] = "tmi-event-index-v1"
-    corpus_id: str = Field(min_length=1)
-    representation_version: Literal["tmi-event-record-v1"] = (
-        REPRESENTATION_VERSION
-    )
-    vector_backend: Literal["chromadb"] = "chromadb"
-    collection_name: Literal["tmi_events"] = "tmi_events"
-    distance_metric: Literal["cosine"] = "cosine"
-    embedding_model_id: str = Field(min_length=1)
-    embedding_dimension: int = Field(ge=1)
-    document_count: int = Field(ge=0)
-    vector_count: int = Field(ge=0)
-    tmi_event_documents: TMIEventDocumentArtifact
-
-
 class TMIEventVectorHit(StrictModel):
     """One Chroma result retaining distance and cosine similarity."""
 
     event_id: str = Field(min_length=1)
+    publication_id: str = Field(min_length=1)
     advisory_source_id: str = Field(min_length=1)
     distance: float
     similarity: float

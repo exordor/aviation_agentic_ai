@@ -184,6 +184,7 @@ def _run(
         source_ids=source_ids,
         resource_loader=lambda _config: resources,
         case_runner=runner,
+        retrieval_indexer=lambda *_args, **_kwargs: (),
     )
 
 
@@ -269,6 +270,7 @@ def test_shared_resources_load_once_and_are_registered_before_first_case(
         store,
         resource_loader=load_resources,
         case_runner=runner,
+        retrieval_indexer=lambda *_args, **_kwargs: (),
     )
 
     assert summary.ok_count == 2
@@ -645,4 +647,182 @@ def test_post_model_publication_failure_preserves_real_usage_counts(
     assert records[0].tool_call_count == 2
     assert records[0].input_tokens == 21
     assert records[0].output_tokens == 8
+    store.close()
+
+
+def test_ingestion_indexes_only_new_versions_and_publications(
+    tmp_path: Path,
+) -> None:
+    """An unchanged second ingestion must not invoke embedding/index work."""
+
+    api = _pipeline_api()
+    path = tmp_path / "advisories.jsonl"
+    rows = [
+        _eligible_advisory("source:selected"),
+        _unsupported_advisory("source:registered-only"),
+    ]
+    _write_advisories(path, rows)
+    store = AviationEvidenceStore.open(
+        tmp_path / "store",
+        dataset_id="test-ingestion",
+        create=True,
+    )
+    calls: list[dict[str, object]] = []
+
+    def runner(record, _resources, _allow_live_model):  # type: ignore[no-untyped-def]
+        return _execution(api, _ok_attempt(record), record)
+
+    def indexer(  # type: ignore[no-untyped-def]
+        indexed_store,
+        *,
+        source_version_ids,
+        event_publication_ids,
+        allow_model_download,
+        model_name,
+    ):
+        calls.append(
+            {
+                "store": indexed_store,
+                "source_version_ids": source_version_ids,
+                "event_publication_ids": event_publication_ids,
+                "allow_model_download": allow_model_download,
+                "model_name": model_name,
+            }
+        )
+        return ()
+
+    config = _config(path)
+    resources = _resources(api)
+    first = api.run_ingestion_pipeline(
+        config,
+        store,
+        source_ids=("source:selected",),
+        resource_loader=lambda _config: resources,
+        case_runner=runner,
+        retrieval_indexer=indexer,
+    )
+    second = api.run_ingestion_pipeline(
+        config,
+        store,
+        source_ids=("source:selected",),
+        resource_loader=lambda _config: resources,
+        case_runner=runner,
+        retrieval_indexer=indexer,
+    )
+
+    selected = store.get_latest_source_version("source:selected")
+    registered_only = store.get_latest_source_version(
+        "source:registered-only"
+    )
+    assert selected is not None
+    assert registered_only is not None
+    assert first.ok_count == 1
+    assert second.skipped_count == 1
+    assert len(calls) == 1
+    assert calls[0]["store"] is store
+    assert calls[0]["source_version_ids"] == tuple(
+        sorted(
+            (
+                selected.source_version_id,
+                registered_only.source_version_id,
+            )
+        )
+    )
+    assert calls[0]["event_publication_ids"] == (
+        _ok_attempt(
+            SourceRecord(
+                source_id="source:selected",
+                family=SourceFamily.ATCSCC_ADVISORY,
+                content=rows[0]["text"],
+                title=rows[0]["title"],
+            )
+        ).result.publication_id,
+    )
+    store.close()
+
+
+def test_vector_index_failure_does_not_rollback_semantic_publication(
+    tmp_path: Path,
+) -> None:
+    """A rebuildable-index error is not a semantic ingestion failure."""
+
+    api = _pipeline_api()
+    path = tmp_path / "advisories.jsonl"
+    _write_advisories(path, [_eligible_advisory("source:index-failure")])
+    store = AviationEvidenceStore.open(
+        tmp_path / "store",
+        dataset_id="test-ingestion",
+        create=True,
+    )
+
+    def runner(record, _resources, _allow_live_model):  # type: ignore[no-untyped-def]
+        return _execution(api, _ok_attempt(record), record)
+
+    def failing_indexer(*_args, **_kwargs):  # type: ignore[no-untyped-def]
+        raise RuntimeError("embedding unavailable")
+
+    summary = api.run_ingestion_pipeline(
+        _config(path),
+        store,
+        resource_loader=lambda _config: _resources(api),
+        case_runner=runner,
+        retrieval_indexer=failing_indexer,
+    )
+
+    assert summary.ok_count == 1
+    assert summary.blocked_count == 0
+    assert store.find_tmi_events(api.TMIEventQuery()).total_matches == 1
+    store.close()
+
+
+def test_encoder_initialization_failure_keeps_exact_source_search(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """Chunking/FTS precede embedding and survive an unavailable model."""
+
+    api = _pipeline_api()
+    record = SourceRecord(
+        source_id="source:fts-before-vector",
+        family=SourceFamily.ATCSCC_ADVISORY,
+        content="GROUND STOP SOURCE REMAINS SEARCHABLE",
+    )
+    version = build_source_version(record)
+    store = AviationEvidenceStore.open(
+        tmp_path / "store",
+        dataset_id="test-ingestion",
+        create=True,
+    )
+    store.register_source_version(version)
+    index_module = importlib.import_module(
+        "aviation_agentic_ai.agent_system.tmi_event_retrieval_index"
+    )
+
+    class UnavailableEncoder:
+        def __init__(self, *_args, **_kwargs):
+            raise RuntimeError("embedding model unavailable")
+
+    monkeypatch.setattr(
+        index_module,
+        "SentenceTransformerTMIEventEncoder",
+        UnavailableEncoder,
+    )
+
+    api._update_retrieval_indexes(
+        store,
+        source_version_ids=(version.source_version_id,),
+        event_publication_ids=(),
+        allow_model_download=False,
+        model_name="test/unavailable",
+    )
+
+    assert tuple(
+        chunk.source_version_id
+        for chunk in store.search_source_text("SEARCHABLE")
+    ) == (version.source_version_id,)
+    source_state = store.get_vector_index_state(
+        "aviation_source_chunks_v1"
+    )
+    assert source_state is not None
+    assert source_state.status == "blocked"
     store.close()

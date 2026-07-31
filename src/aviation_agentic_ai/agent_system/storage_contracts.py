@@ -277,3 +277,41 @@ class SourceChunkRecord(StrictModel):
         if self.chunk_id != expected_id:
             raise ValueError("source chunk identity does not match span")
         return self
+
+
+class VectorIndexStateRecord(StrictModel):
+    """Rebuildable vector-index state bound to one store revision."""
+
+    collection_name: str = Field(min_length=1)
+    representation_version: str = Field(min_length=1)
+    embedding_model_id: str = Field(min_length=1)
+    embedding_dimension: int = Field(
+        ge=0,
+        description=(
+            "Zero only when indexing was blocked before an encoder dimension "
+            "could be observed."
+        ),
+    )
+    indexed_knowledge_revision: int = Field(ge=0)
+    document_count: int = Field(ge=0)
+    vector_count: int = Field(ge=0)
+    status: Literal["current", "stale", "blocked"]
+    updated_at: datetime
+    failure_reason: str | None
+
+    @field_validator("updated_at")
+    @classmethod
+    def _require_updated_at_timezone(cls, value: datetime) -> datetime:
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("vector index timestamp must be timezone-aware")
+        return value
+
+    @model_validator(mode="after")
+    def _require_dimension_for_materialized_state(
+        self,
+    ) -> VectorIndexStateRecord:
+        if self.embedding_dimension == 0 and self.status != "blocked":
+            raise ValueError(
+                "zero embedding dimension is valid only for blocked state"
+            )
+        return self

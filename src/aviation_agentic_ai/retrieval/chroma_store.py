@@ -55,6 +55,26 @@ def recreate_collection(
     return client.get_or_create_collection(name=name, **kwargs)
 
 
+def get_or_create_collection(
+    client: Any,
+    name: str,
+    *,
+    embedding_function: object = _UNSET,
+    configuration: Mapping[str, object] | None = None,
+    metadata: Mapping[str, str | int | float | bool] | None = None,
+) -> Any:
+    """Open or create one non-destructive persistent collection."""
+
+    kwargs: dict[str, object] = {}
+    if embedding_function is not _UNSET:
+        kwargs["embedding_function"] = embedding_function
+    if configuration is not None:
+        kwargs["configuration"] = dict(configuration)
+    if metadata is not None:
+        kwargs["metadata"] = dict(metadata)
+    return client.get_or_create_collection(name=name, **kwargs)
+
+
 def get_collection(
     client: Any,
     name: str,
@@ -85,6 +105,20 @@ def upsert_explicit_embeddings(
         ids=list(ids),
         embeddings=[list(vector) for vector in embeddings],
         documents=list(documents),
+        metadatas=[dict(metadata) for metadata in metadatas],
+    )
+
+
+def update_record_metadatas(
+    collection: Any,
+    *,
+    ids: Sequence[str],
+    metadatas: Sequence[Mapping[str, str | int | float | bool]],
+) -> None:
+    """Update scalar metadata without recomputing stored embeddings."""
+
+    collection.update(
+        ids=list(ids),
         metadatas=[dict(metadata) for metadata in metadatas],
     )
 

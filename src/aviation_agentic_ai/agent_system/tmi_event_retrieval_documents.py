@@ -9,14 +9,18 @@ from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
     TMIEventRetrievalDocument,
     DurationBucket,
 )
-from aviation_agentic_ai.agent_system.corpus_store import (
-    CorpusQueryStore,
-    CorpusTMIEvent,
+from aviation_agentic_ai.agent_system.evidence_store import (
+    AviationEvidenceStore,
+)
+from aviation_agentic_ai.agent_system.storage_contracts import (
+    TMIEventQuery,
+    TMIEventRecord,
 )
 from aviation_agentic_ai.agent_system.tmi_profiles import active_tmi_profiles
 from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 
+_EVENT_PAGE_SIZE = 100
 _TMI_LABELS = {
     profile.ontology_class: profile.retrieval_label
     for profile in active_tmi_profiles()
@@ -58,7 +62,7 @@ def _duration_bucket(
     return "8_hours_or_more"
 
 
-def _reviewed_tmi(event: CorpusTMIEvent) -> tuple[str, str]:
+def _reviewed_tmi(event: TMIEventRecord) -> tuple[str, str]:
     reviewed = [
         (iri, _TMI_LABELS[iri])
         for iri in event.event_type_iris
@@ -77,7 +81,7 @@ def _facility_label(facility_id: str) -> str:
 
 def _document_text(
     *,
-    event: CorpusTMIEvent,
+    event: TMIEventRecord,
     tmi_label: str,
     facility_ids: tuple[str, ...],
     start: datetime,
@@ -120,51 +124,93 @@ def _document_text(
     return "\n".join(lines)
 
 
+def build_tmi_event_retrieval_document(
+    store: AviationEvidenceStore,
+    event: TMIEventRecord,
+) -> TMIEventRetrievalDocument:
+    """Build one deterministic document for an immutable publication."""
+
+    tmi_type_iri, tmi_label = _reviewed_tmi(event)
+    facility_ids = tuple(sorted(event.facility_ids))
+    if event.effective_start is None or event.effective_end is None:
+        raise ValueError(
+            f"event has incomplete effective boundaries: {event.event_id}"
+        )
+    start = _parse_utc(event.effective_start)
+    end = _parse_utc(event.effective_end)
+    duration_bucket = _duration_bucket(
+        event.effective_start,
+        event.effective_end,
+    )
+    text = _document_text(
+        event=event,
+        tmi_label=tmi_label,
+        facility_ids=facility_ids,
+        start=start,
+        end=end,
+        duration_bucket=duration_bucket,
+    )
+    source_version_ids = tuple(
+        row.source_version_id
+        for row in store.get_event_sources(
+            event.event_id,
+            publication_id=event.publication_id,
+        )
+    )
+    fact_ids = tuple(
+        row.fact_id
+        for row in store.get_event_facts(
+            event.event_id,
+            publication_id=event.publication_id,
+        )
+    )
+    return TMIEventRetrievalDocument(
+        document_id=stable_id(
+            "tmi-event-retrieval-document",
+            REPRESENTATION_VERSION,
+            event.publication_id,
+            text,
+        ),
+        event_id=event.event_id,
+        publication_id=event.publication_id,
+        advisory_source_id=event.advisory_source_id,
+        publication_source_version_id=(
+            event.publication_source_version_id
+        ),
+        source_version_ids=source_version_ids,
+        fact_ids=fact_ids,
+        text=text,
+        tmi_type_iri=tmi_type_iri,
+        facility_ids=facility_ids,
+        reason_status=event.reason_status,
+        reason_value=event.reason_value,
+        duration_bucket=duration_bucket,
+        effective_start=event.effective_start,
+        effective_end=event.effective_end,
+    )
+
+
 def build_tmi_event_retrieval_documents(
-    store: CorpusQueryStore,
+    store: AviationEvidenceStore,
 ) -> tuple[TMIEventRetrievalDocument, ...]:
-    """Return one canonical document for each accepted corpus TMI event."""
+    """Return one document for each active accepted TMI publication."""
 
     documents: list[TMIEventRetrievalDocument] = []
-    for event in sorted(store.events, key=lambda row: row.event_id):
-        tmi_type_iri, tmi_label = _reviewed_tmi(event)
-        facility_ids = tuple(sorted(event.facility_ids))
-        if event.effective_start is None or event.effective_end is None:
-            raise ValueError(
-                f"event has incomplete effective boundaries: {event.event_id}"
-            )
-        start = _parse_utc(event.effective_start)
-        end = _parse_utc(event.effective_end)
-        duration_bucket = _duration_bucket(
-            event.effective_start,
-            event.effective_end,
+    offset = 0
+    while True:
+        page = store.find_tmi_events(
+            TMIEventQuery(offset=offset, limit=_EVENT_PAGE_SIZE)
         )
-        text = _document_text(
-            event=event,
-            tmi_label=tmi_label,
-            facility_ids=facility_ids,
-            start=start,
-            end=end,
-            duration_bucket=duration_bucket,
+        documents.extend(
+            build_tmi_event_retrieval_document(store, event)
+            for event in page.events
         )
-        documents.append(
-            TMIEventRetrievalDocument(
-                document_id=stable_id(
-                    "tmi-event-retrieval-document",
-                    REPRESENTATION_VERSION,
-                    event.event_id,
-                    text,
-                ),
-                event_id=event.event_id,
-                advisory_source_id=event.advisory_source_id,
-                text=text,
-                tmi_type_iri=tmi_type_iri,
-                facility_ids=facility_ids,
-                reason_status=event.reason_status,
-                reason_value=event.reason_value,
-                duration_bucket=duration_bucket,
-                effective_start=event.effective_start,
-                effective_end=event.effective_end,
-            )
+        offset += len(page.events)
+        if offset >= page.total_matches or not page.events:
+            break
+    return tuple(
+        sorted(
+            documents,
+            key=lambda row: (row.event_id, row.publication_id),
         )
-    return tuple(documents)
+    )

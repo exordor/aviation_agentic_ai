@@ -1,23 +1,25 @@
-"""Filtered TMI-event vector retrieval over a verified corpus."""
+"""Filtered TMI-event vector retrieval over the live evidence store."""
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import UTC, datetime
+from typing import Protocol
 
 from aviation_agentic_ai.agent_system.contracts import (
     TMIEventSimilarityMatch,
 )
-from aviation_agentic_ai.agent_system.corpus_store import (
-    CorpusEventQuery,
-    CorpusQueryStore,
-    CorpusTMIEvent,
+from aviation_agentic_ai.agent_system.evidence_store import (
+    AviationEvidenceStore,
+)
+from aviation_agentic_ai.agent_system.storage_contracts import (
+    TMIEventQuery,
+    TMIEventRecord,
 )
 from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
     TMIEventSimilarityQuery,
     TMIEventSimilarityResult,
-)
-from aviation_agentic_ai.agent_system.tmi_event_retrieval_index import (
-    ChromaTMIEventRetrievalIndex,
+    TMIEventVectorHit,
 )
 from aviation_agentic_ai.agent_system.tmi_profiles import active_tmi_profiles
 
@@ -30,6 +32,30 @@ _RETRIEVABLE_TMI_TYPES = {
 _FILTER_PAGE_SIZE = 100
 
 
+class _IndexState(Protocol):
+    representation_version: str
+    embedding_model_id: str
+
+
+class TMIEventRetrievalIndex(Protocol):
+    """Read-only publication-vector boundary used by deterministic ranking."""
+
+    state: _IndexState
+
+    def get_publication_vector(
+        self,
+        publication_id: str,
+    ) -> tuple[float, ...]: ...
+
+    def query_candidates(
+        self,
+        *,
+        query_vector: Sequence[float],
+        candidate_publication_ids: Sequence[str],
+        n_results: int,
+    ) -> tuple[TMIEventVectorHit, ...]: ...
+
+
 def _parse_utc(value: str | datetime) -> datetime:
     parsed = (
         value
@@ -40,14 +66,14 @@ def _parse_utc(value: str | datetime) -> datetime:
 
 
 def _exact_candidates(
-    store: CorpusQueryStore,
+    store: AviationEvidenceStore,
     query: TMIEventSimilarityQuery,
-) -> list[CorpusTMIEvent]:
-    candidates: list[CorpusTMIEvent] = []
+) -> list[TMIEventRecord]:
+    candidates: list[TMIEventRecord] = []
     page_offset = 0
     while True:
-        page = store.find_events(
-            CorpusEventQuery(
+        page = store.find_tmi_events(
+            TMIEventQuery(
                 event_type_iri=query.event_type_iri,
                 facility_id=query.facility_id,
                 reason_status=query.reason_status,
@@ -62,7 +88,7 @@ def _exact_candidates(
             return candidates
 
 
-def _tmi_type(event: CorpusTMIEvent) -> str:
+def _tmi_type(event: TMIEventRecord) -> str:
     reviewed = sorted(
         iri
         for iri in event.event_type_iris
@@ -76,8 +102,8 @@ def _tmi_type(event: CorpusTMIEvent) -> str:
 
 
 def rank_tmi_events_by_metadata(
-    store: CorpusQueryStore,
-    index: ChromaTMIEventRetrievalIndex,
+    store: AviationEvidenceStore,
+    index: TMIEventRetrievalIndex,
     query: TMIEventSimilarityQuery,
 ) -> TMIEventSimilarityResult:
     """Rank TMI events with exact filters and metadata-conditioned recall."""
@@ -88,9 +114,11 @@ def rank_tmi_events_by_metadata(
             status="insufficient",
             query=query,
             candidate_count=0,
-            representation_version=index.manifest.representation_version,
-            embedding_model_id=index.manifest.embedding_model_id,
-            limitation="The reference event is not present in this corpus.",
+            representation_version=index.state.representation_version,
+            embedding_model_id=index.state.embedding_model_id,
+            limitation=(
+                "The reference event is not present in this evidence store."
+            ),
         )
 
     candidates = [
@@ -104,8 +132,8 @@ def rank_tmi_events_by_metadata(
                 status="blocked",
                 query=query,
                 candidate_count=0,
-                representation_version=index.manifest.representation_version,
-                embedding_model_id=index.manifest.embedding_model_id,
+                representation_version=index.state.representation_version,
+                embedding_model_id=index.state.embedding_model_id,
                 limitation=(
                     "The reference event has no effective start boundary."
                 ),
@@ -123,18 +151,22 @@ def rank_tmi_events_by_metadata(
             status="insufficient",
             query=query,
             candidate_count=0,
-            representation_version=index.manifest.representation_version,
-            embedding_model_id=index.manifest.embedding_model_id,
+            representation_version=index.state.representation_version,
+            embedding_model_id=index.state.embedding_model_id,
             limitation=(
                 "No historical TMI events match the exact candidate filters."
             ),
         )
 
     try:
-        reference_vector = index.get_event_vector(anchor.event_id)
+        reference_vector = index.get_publication_vector(
+            anchor.publication_id
+        )
         hits = index.query_candidates(
             query_vector=reference_vector,
-            candidate_event_ids=[event.event_id for event in candidates],
+            candidate_publication_ids=[
+                event.publication_id for event in candidates
+            ],
             n_results=min(len(candidates), query.offset + query.limit),
         )
     except ValueError as exc:
@@ -142,51 +174,55 @@ def rank_tmi_events_by_metadata(
             status="blocked",
             query=query,
             candidate_count=len(candidates),
-            representation_version=index.manifest.representation_version,
-            embedding_model_id=index.manifest.embedding_model_id,
+            representation_version=index.state.representation_version,
+            embedding_model_id=index.state.embedding_model_id,
             limitation=str(exc),
         )
 
-    candidate_by_id = {event.event_id: event for event in candidates}
+    candidate_by_publication = {
+        event.publication_id: event for event in candidates
+    }
     ranked_hits = sorted(
         hits,
         key=lambda hit: (-hit.similarity, hit.event_id),
     )
     selected_hits = ranked_hits[query.offset : query.offset + query.limit]
     try:
-        matches = tuple(
-            TMIEventSimilarityMatch(
-                rank=query.offset + position,
-                event_id=hit.event_id,
-                advisory_source_id=(
-                    candidate_by_id[hit.event_id].advisory_source_id
-                ),
-                score=round(hit.similarity, 6),
-                tmi_type_iri=_tmi_type(candidate_by_id[hit.event_id]),
-                facility_ids=tuple(
-                    sorted(candidate_by_id[hit.event_id].facility_ids)
-                ),
-                reason_status=candidate_by_id[hit.event_id].reason_status,
-                reason_value=candidate_by_id[hit.event_id].reason_value,
+        matches: list[TMIEventSimilarityMatch] = []
+        for position, hit in enumerate(selected_hits, start=1):
+            candidate = candidate_by_publication[hit.publication_id]
+            if candidate.event_id != hit.event_id:
+                raise ValueError(
+                    "vector hit does not match its event publication"
+                )
+            matches.append(
+                TMIEventSimilarityMatch(
+                    rank=query.offset + position,
+                    event_id=candidate.event_id,
+                    advisory_source_id=candidate.advisory_source_id,
+                    score=round(hit.similarity, 6),
+                    tmi_type_iri=_tmi_type(candidate),
+                    facility_ids=tuple(sorted(candidate.facility_ids)),
+                    reason_status=candidate.reason_status,
+                    reason_value=candidate.reason_value,
+                )
             )
-            for position, hit in enumerate(selected_hits, start=1)
-        )
     except (KeyError, ValueError) as exc:
         return TMIEventSimilarityResult(
             status="blocked",
             query=query,
             candidate_count=len(candidates),
-            representation_version=index.manifest.representation_version,
-            embedding_model_id=index.manifest.embedding_model_id,
+            representation_version=index.state.representation_version,
+            embedding_model_id=index.state.embedding_model_id,
             limitation=str(exc),
         )
     return TMIEventSimilarityResult(
         status="ok" if matches else "insufficient",
         query=query,
         candidate_count=len(candidates),
-        representation_version=index.manifest.representation_version,
-        embedding_model_id=index.manifest.embedding_model_id,
-        matches=matches,
+        representation_version=index.state.representation_version,
+        embedding_model_id=index.state.embedding_model_id,
+        matches=tuple(matches),
         limitation=(
             ""
             if matches
