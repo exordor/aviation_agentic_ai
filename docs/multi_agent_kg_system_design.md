@@ -1,4 +1,4 @@
-# ATMONTO-Centered Ingestion-First Aviation HybridRAG
+# ATMONTO-Grounded Agentic HybridRAG for Heterogeneous Aviation Knowledge Integration
 
 Status: normative current architecture
 
@@ -6,35 +6,73 @@ Date: 2026-07-31
 
 ## 1. Purpose
 
-This document defines the runnable system for ingesting retrospective FAA
-ATCSCC records and bounded cross-source evidence into ATMONTO-aligned TMI event
-knowledge, then answering free-form natural-language questions with explicit
-source support.
+This document defines a runnable architecture that integrates heterogeneous
+aviation evidence into ATMONTO-aligned knowledge and lets an LLM Query Agent
+answer free-form natural-language questions through exact, graph, lexical,
+vector, context, and source retrieval.
 
-The current vertical slice covers GDP, GS, and ReRoute. It validates a reusable
-aviation knowledge-integration architecture; it is not a claim of complete ATM
-coverage.
+The method combines deterministic source-specific processing, one formal
+publication boundary, an authoritative persistent knowledge layer, and
+model-directed HybridRAG. Every released answer statement remains traceable to
+retrieved evidence.
 
-The system does not provide:
+The current vertical slice covers GDP, GS, and ReRoute. These families
+demonstrate the complete architecture but do not define its permanent subject
+boundary.
 
-- live ATC decision support;
-- a complete aviation ontology;
-- an internal FAA decision-process model;
-- causal explanation;
-- operational effectiveness or optimality;
-- TMI recommendation.
+## 2. Research Narrative And Architecture
 
-## 2. Architecture
+### 2.1 Motivated Example
 
-![ATMONTO-centered TMI event knowledge construction](figures/tmi_event_construction_architecture.png)
+![Why aviation questions require cross-source evidence](figures/cross_source_evidence_motivated_example.png)
 
+**Figure 1.** Advisory 138 shows why a source-bound answer needs multiple
+evidence roles: ATCSCC states the TMI and impacting condition, NASR resolves
+KJFK, Weather adds time-aligned non-causal context, and BTS supplies separate
+public observations. The figure does not turn those associations into a causal
+or effectiveness claim. Editable source:
+[cross_source_evidence_motivated_example.drawio](figures/cross_source_evidence_motivated_example.drawio).
+
+### 2.2 System Overview
+
+![ATMONTO-grounded Agentic HybridRAG architecture](figures/aviation_hybridrag_system_architecture.png)
+
+**Figure 2.** The five-plane architecture keeps deterministic integration,
+formal semantic publication, authoritative knowledge, rebuildable retrieval,
+and model-directed interaction distinct while connecting them end to end.
 Editable source:
-[tmi_event_construction_architecture.drawio](figures/tmi_event_construction_architecture.drawio).
+[aviation_hybridrag_system_architecture.drawio](figures/aviation_hybridrag_system_architecture.drawio).
 
-![TMI event HybridRAG retrieval and answer validation](figures/tmi_event_retrieval_architecture.png)
+### 2.3 Query Agent Workflow
 
-Editable source:
-[tmi_event_retrieval_architecture.drawio](figures/tmi_event_retrieval_architecture.drawio).
+![Bounded Query Agent action-observation-evidence loop](figures/bounded_query_agent_workflow.png)
+
+**Figure 3.** The Query Agent makes bounded tool choices over multiple turns;
+discovery results become answer support only after exact source verification
+and statement-level validation. Editable source:
+[bounded_query_agent_workflow.drawio](figures/bounded_query_agent_workflow.drawio).
+
+The figures answer three separate questions: why cross-source integration is
+needed, how the complete system is organized, and how the LLM Agent behaves at
+query time. This separation prevents the architecture diagram from becoming a
+dense workflow chart.
+
+The five planes are:
+
+1. **Evidence Plane** — ATCSCC, FAA authority, Weather, and BTS records.
+2. **Deterministic Ingestion Orchestration** — parsing, versioning,
+   normalization, identity and time alignment, and evidence preparation.
+3. **Semantic and Trust Plane** — ATMONTO profiles, selective semantic
+   resolution when ambiguity remains, and the Formal Publication Kernel.
+4. **Knowledge and Retrieval Plane** — authoritative SQLite knowledge with
+   rebuildable graph, lexical, vector, and offline export views.
+5. **Agent Interaction Plane** — the model-directed Query Agent, evidence
+   assembly, statement-level support validation, and user answer.
+
+`Agentic` refers to the Query Agent's online action-observation loop and the
+selective Semantic Resolution Agent. The coordinator, adapters, parsers,
+authority services, profile loaders, validators, materializers, SQLite
+queries, graph views, and index implementations remain deterministic services.
 
 Construction:
 
@@ -68,10 +106,6 @@ free-form question + immutable user scope
 
 RDF/Turtle, JSONL KG, and Neo4j are optional offline exports from SQLite, not
 mandatory runtime databases.
-
-The coordinator, adapters, parsers, authority services, profile loaders,
-validators, materializers, SQLite queries, graph views, and index
-implementations are deterministic. They are not Agents.
 
 Only two roles make bounded model-mediated choices:
 
@@ -306,7 +340,7 @@ The Query runtime attaches a Chroma collection only when dataset identity,
 schema/representation version, embedding model, vector dimension, record
 counts, and indexed knowledge revision are current.
 
-## 12. Always-On Hybrid Query Agent
+## 12. Model-Directed HybridRAG Query Agent
 
 The public `ask` command accepts free natural language. There is no exact
 question registry, keyword classifier, or deterministic answer bypass.

@@ -5,10 +5,11 @@ detailed designs and historical protocols live under `docs/`.
 
 ## Project Posture
 
-This is a **system and framework construction project**. The primary deliverable
-is a runnable, ontology-grounded aviation knowledge-integration and HybridRAG
-system. Retrospective FAA ATCSCC TMI records are the current end-to-end
-vertical slice; they are not the architecture's permanent subject boundary.
+This is a **system and framework construction project**. Its research-facing
+positioning is **ATMONTO-Grounded Agentic HybridRAG for Heterogeneous Aviation
+Knowledge Integration**. Retrospective FAA ATCSCC TMI records are the current
+end-to-end vertical slice; they are not the architecture's permanent subject
+boundary.
 
 The active pipeline is:
 
@@ -26,7 +27,7 @@ configured ATCSCC, FAA authority, Weather, and BTS source artifacts
      -> sealed evidence task
      -> source-supported proposal or honest insufficient
   -> task-bound validation
-  -> write-free Formal Publication Kernel over decision, Weather,
+  -> write-free Formal Publication Kernel over TMI, Weather,
      and public-observation profiles
   -> authoritative SQLite evidence and semantic store
   -> source chunks and SQLite FTS5
@@ -61,8 +62,9 @@ names, not internal alphanumeric labels.
   Evidence Integration, store-backed exact and graph reads, SQLite FTS5,
   rebuildable Chroma indexes, optional exports, and the bounded HybridRAG Query
   Agent.
-- The only model-backed roles are the always-on Query Agent and the selectively
-  activated Semantic Resolution Agent.
+- The only model-backed roles are the Query Agent invoked for every valid
+  natural-language question and the selectively activated Semantic Resolution
+  Agent.
 - The common semantic root is `atm:TrafficManagementInitiative`; the active
   application-profile families are GDP, GS, and ReRoute. Family detection,
   preflight, formal property mapping, and retrieval labels share one registry.

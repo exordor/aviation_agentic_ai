@@ -14,10 +14,12 @@ rebuildable outputs, optional evaluation material, and historical artifacts.
 | `GOALS.md` | Durable system goal and boundaries. |
 | `README.md` | Current user-facing overview and commands. |
 | `TODO.md` | Active execution queue only. |
-| `docs/multi_agent_kg_system_design.md` | Normative event-centered system design. |
-| `docs/figures/tmi_event_construction_architecture.{drawio,png}` | Editable and rendered construction architecture. |
-| `docs/figures/tmi_event_retrieval_architecture.{drawio,png}` | Editable and rendered retrieval architecture. |
-| `docs/figures/heterogeneous_source_formats.{drawio,png}` | Editable and rendered source-format and ingestion-normalization figure. |
+| `docs/architecture_narrative.md` | Shared positioning, five-plane terminology, and running-example contract. |
+| `docs/multi_agent_kg_system_design.md` | Normative ATMONTO-grounded Agentic HybridRAG design. |
+| `docs/figures/cross_source_evidence_motivated_example.{drawio,png}` | Flagship Figure 1: cross-source motivated example. |
+| `docs/figures/aviation_hybridrag_system_architecture.{drawio,png}` | Flagship Figure 2: five-plane system architecture. |
+| `docs/figures/bounded_query_agent_workflow.{drawio,png}` | Flagship Figure 3: Query Agent action-observation-evidence loop. |
+| `docs/figures/heterogeneous_source_formats.{drawio,png}` | Supporting source-format and normalization figure. |
 | `src/aviation_agentic_ai/agent_system/` | Active implementation. |
 | `tests/test_agent_system*.py`, `tests/test_cli_agent_system.py` | Focused acceptance surface. |
 | `configs/aviation_knowledge_v1.yaml` | Active dataset identity, persistent-store paths, source files, and retrieval model configuration. |

@@ -13,10 +13,10 @@ snapshots/provider outputs, or the paused browser prototype.
 
 ## Current Scope
 
-Aviation Agentic AI is an ontology-grounded aviation knowledge-integration and
-HybridRAG system. Its current vertical slice converts retrospective FAA ATCSCC
-records into ATMONTO-aligned TMI-event facts, optional Weather facts, and
-source-qualified BTS public observations.
+Aviation Agentic AI is an **ATMONTO-Grounded Agentic HybridRAG for
+Heterogeneous Aviation Knowledge Integration**. Its current vertical slice
+converts retrospective FAA ATCSCC records into ATMONTO-aligned TMI-event facts,
+optional Weather facts, and source-qualified BTS public observations.
 
 The admitted ATMONTO `TrafficManagementInitiative` instance is the formal
 knowledge root. Event Evidence Integration is a deterministic service that
