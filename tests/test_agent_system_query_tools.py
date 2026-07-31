@@ -13,13 +13,11 @@ from aviation_agentic_ai.agent_system.contracts import (
     BTSManifestBinding,
     BTSOnTimeRow,
     BTSPublicObservationSummary,
-    DecisionCaseMemberBinding,
     DecisionContextEvent,
     SourceFamily,
     SourceSnapshot,
     SourceSnapshotRegistry,
     WeatherContextAssociation,
-    WeatherContextBundle,
 )
 from aviation_agentic_ai.agent_system.bts_observations import (
     build_bts_public_observation_summaries,
@@ -29,10 +27,6 @@ from aviation_agentic_ai.agent_system.materialize import (
 )
 from aviation_agentic_ai.agent_system.public_observations import (
     build_bts_observation_facts,
-)
-from aviation_agentic_ai.agent_system.decision_case_graph import (
-    build_decision_case_graph,
-    prepare_decision_case_reconstruction,
 )
 from aviation_agentic_ai.agent_system.query_tools import (
     QueryGraphStore,
@@ -286,12 +280,6 @@ def _write_graph(
         [],
         status="insufficient",
     )
-    reconstruction_metadata = _write_artifact(
-        run_dir,
-        "reconstruction_trace.json",
-        [],
-        status="insufficient",
-    )
     profile_gap_metadata = _write_artifact(
         run_dir,
         "profile_gaps.jsonl",
@@ -349,7 +337,6 @@ def _write_graph(
                     "observation_fact_trace": (
                         observation_trace_metadata
                     ),
-                    "reconstruction_trace": reconstruction_metadata,
                 },
                 "profile_gaps": profile_gap_metadata,
             },
@@ -766,39 +753,7 @@ def _write_formal_observation_layer(run_dir: Path) -> tuple[list[str], list[str]
         profile_registry,
     )
     assert observations.status == "ok"
-    reconstruction_seed = prepare_decision_case_reconstruction(
-        event,
-        facility,
-        WeatherContextBundle(
-            status="insufficient",
-            failure_reason="no Weather source was provided",
-        ),
-        public_observations,
-        registry,
-        profile_registry,
-    )
-    core = build_decision_case_graph(
-        seed=reconstruction_seed,
-        members=(
-            DecisionCaseMemberBinding(
-                member_iri=event.event_id,
-                member_kind="event",
-                source_ids=(event.advisory_source_id,),
-            ),
-            *(
-                DecisionCaseMemberBinding(
-                    member_iri=observation_id,
-                    member_kind="public_observation",
-                    source_ids=(bts_snapshot.source_id,),
-                )
-                for observation_id in observations.observation_ids
-            ),
-        ),
-        profile_registry=profile_registry,
-    )
-    assert core.status == "ok", core.failure_reason
-    assert core.reconstruction_trace is not None
-    formal_facts = [*observations.formal_facts, *core.formal_facts]
+    formal_facts = list(observations.formal_facts)
     formal_dir = run_dir / "formal-observation-fixture"
     formal_path = write_validated_facts_jsonl(
         facts=formal_facts,
@@ -837,11 +792,6 @@ def _write_formal_observation_layer(run_dir: Path) -> tuple[list[str], list[str]
         "observation_fact_trace.jsonl",
         [row.model_dump_json() for row in observations.fact_traces],
     )
-    reconstruction_metadata = _write_artifact(
-        run_dir,
-        "reconstruction_trace.json",
-        [core.reconstruction_trace.model_dump_json()],
-    )
     manifest_path = run_dir / "run_manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     manifest["context_artifacts"].update(
@@ -850,20 +800,8 @@ def _write_formal_observation_layer(run_dir: Path) -> tuple[list[str], list[str]
             "bts_observation_summaries": outcome_metadata,
             "observation_derivations": derivation_metadata,
             "observation_fact_trace": trace_metadata,
-            "reconstruction_trace": reconstruction_metadata,
         }
     )
-    core_profile = next(
-        profile
-        for profile in profile_registry.profiles
-        if profile.ref.layer == "decision_case_core"
-    )
-    manifest["formal_layers"]["decision_case_core"] = {
-        "status": "ok",
-        "profile_id": core_profile.ref.profile_id,
-        "profile_checksum": core_profile.ref.profile_checksum,
-        "formal_fact_count": len(core.formal_facts),
-    }
     manifest["formal_layers"]["public_operational_observation"] = {
             "status": "ok",
             "profile_id": public_profile.ref.profile_id,
@@ -978,7 +916,6 @@ def test_tool_cannot_escape_run_directory_via_symlink(tmp_path):
         "fact_trace.jsonl",
         "weather_fact_trace.jsonl",
         "observation_fact_trace.jsonl",
-        "reconstruction_trace.json",
     ):
         (run_dir / name).write_bytes((outside / name).read_bytes())
     (run_dir / "kg.jsonl").symlink_to(outside / "kg.jsonl")

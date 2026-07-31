@@ -17,14 +17,10 @@ from aviation_agentic_ai.agent_system.contracts import (
     BTSObservationBundle,
     BTSPublicObservationBundle,
     BTSPublicObservationSummary,
-    DecisionCaseGraphBundle,
-    DecisionCaseMemberBinding,
-    DecisionCaseReconstructionSeed,
     DecisionContextEvent,
     FactTraceRow,
     ObservationDerivation,
     ObservationFactTrace,
-    ReconstructionTrace,
     SourceFamily,
     SourceRecord,
     SourceSnapshotRegistry,
@@ -33,10 +29,6 @@ from aviation_agentic_ai.agent_system.contracts import (
     WeatherFactTrace,
 )
 from aviation_agentic_ai.agent_system.construction_contracts import EventEvidenceIntegrationStatus
-from aviation_agentic_ai.agent_system.decision_case_graph import (
-    build_decision_case_graph,
-    prepare_decision_case_reconstruction,
-)
 from aviation_agentic_ai.agent_system.materialize import (
     _absolute_event_iri,
     materialize_formal_publication,
@@ -304,30 +296,6 @@ def read_observation_fact_traces(
         ObservationFactTrace,
         id_field="fact_id",
     )
-
-
-def write_reconstruction_trace(
-    output_dir: str | Path,
-    trace: ReconstructionTrace | None,
-) -> Path:
-    """Write the one immutable reconstruction input binding."""
-
-    path = Path(output_dir) / "reconstruction_trace.json"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        trace.model_dump_json() + "\n" if trace is not None else "",
-        encoding="utf-8",
-    )
-    return path
-
-
-def read_reconstruction_trace(path: str | Path) -> ReconstructionTrace:
-    """Read and strictly validate the reconstruction input binding."""
-
-    try:
-        return ReconstructionTrace.model_validate_json(Path(path).read_text(encoding="utf-8"))
-    except Exception as exc:
-        raise ValueError("invalid reconstruction trace JSON") from exc
 
 
 def _artifact_metadata(
@@ -612,87 +580,15 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
             )
         except (TypeError, ValueError) as exc:
             observation_bundle = _empty_observations("blocked", str(exc))
-    reconstruction_seed: DecisionCaseReconstructionSeed | None = None
-    if common_status == "ok" and decision_event is not None and facility is not None:
-        try:
-            reconstruction_seed = prepare_decision_case_reconstruction(
-                decision_event,
-                facility,
-                weather_bundle,
-                public_observations,
-                selected_registry,
-                profile_registry,
-            )
-        except (TypeError, ValueError) as exc:
-            common_status = "blocked"
-            common_reason = str(exc)
     return {
         "decision_context_prepared": True,
         "decision_context_event": decision_event,
         "weather_context": weather_bundle,
         "public_observation_context": public_observations,
         "observation_context": observation_bundle,
-        "decision_case_reconstruction_seed": reconstruction_seed,
         "prepared_source_snapshot": selected_registry,
         "model_calls": [],
     }
-
-
-def _build_case_core(
-    *,
-    event: DecisionContextEvent | None,
-    weather_bundle: WeatherContextBundle,
-    observation_bundle: BTSObservationBundle,
-    seed: DecisionCaseReconstructionSeed | None,
-    profile_registry: Any,
-) -> DecisionCaseGraphBundle:
-    if event is None or seed is None:
-        return DecisionCaseGraphBundle(
-            status="blocked",
-            failure_reason="DecisionCase reconstruction seed is unavailable",
-        )
-    members = [
-        DecisionCaseMemberBinding(
-            member_iri=event.event_id,
-            member_kind="event",
-            source_ids=(event.advisory_source_id,),
-        )
-    ]
-    if weather_bundle.status == "ok":
-        sources_by_report: dict[str, set[str]] = {}
-        for association in weather_bundle.associations:
-            report_iri = f"urn:aviation-agentic-ai:{association.report_id}"
-            sources_by_report.setdefault(report_iri, set()).add(
-                association.source_id
-            )
-        members.extend(
-            DecisionCaseMemberBinding(
-                member_iri=report_iri,
-                member_kind="weather_report",
-                source_ids=tuple(sorted(source_ids)),
-            )
-            for report_iri, source_ids in sorted(sources_by_report.items())
-        )
-    if observation_bundle.status == "ok":
-        for observation_id in observation_bundle.observation_ids:
-            source_ids = {
-                source_id
-                for fact in observation_bundle.formal_facts
-                if fact.subject_iri == observation_id
-                for source_id in fact.source_ids
-            }
-            members.append(
-                DecisionCaseMemberBinding(
-                    member_iri=observation_id,
-                    member_kind="public_observation",
-                    source_ids=tuple(sorted(source_ids)),
-                )
-            )
-    return build_decision_case_graph(
-        seed=seed,
-        members=tuple(members),
-        profile_registry=profile_registry,
-    )
 
 
 def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
@@ -792,21 +688,6 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
     profile_registry = load_validation_profile_registry(
         decision_guide=ctx.guide or load_schema_guide()
     )
-    reconstruction_seed = prepared.get("decision_case_reconstruction_seed")
-    decision_case_graph = (
-        _build_case_core(
-            event=decision_event,
-            weather_bundle=weather_bundle,
-            observation_bundle=observation_bundle,
-            seed=reconstruction_seed,
-            profile_registry=profile_registry,
-        )
-        if validation is not None and validation.publishable and common_status == "ok"
-        else DecisionCaseGraphBundle(
-            status="blocked",
-            failure_reason=common_reason or "core event is not publishable",
-        )
-    )
 
     materialization = None
 
@@ -834,11 +715,6 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
     observation_fact_traces = (
         observation_bundle.fact_traces if observation_bundle.status == "ok" else []
     )
-    reconstruction_trace = (
-        decision_case_graph.reconstruction_trace
-        if decision_case_graph.status == "ok"
-        else None
-    )
     derivation_path = write_observation_derivations(
         output_dir,
         observation_derivations,
@@ -847,11 +723,6 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
         output_dir,
         observation_fact_traces,
     )
-    reconstruction_path = write_reconstruction_trace(
-        output_dir,
-        reconstruction_trace,
-    )
-
     validation = state.get("validation")
     fact_trace_path = output_dir / "fact_trace.jsonl"
     if (
@@ -869,8 +740,6 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
             formal_facts.extend(weather_bundle.formal_facts)
         if observation_bundle.status == "ok":
             formal_facts.extend(observation_bundle.formal_facts)
-        if decision_case_graph.status == "ok":
-            formal_facts.extend(decision_case_graph.formal_facts)
         publication = run_formal_publication_kernel(
             facts=formal_facts,
             profile_registry=profile_registry,
@@ -878,7 +747,6 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
             fact_traces=direct_traces,
             weather_fact_traces=traces,
             observation_fact_traces=observation_fact_traces,
-            reconstruction_trace=reconstruction_trace,
         )
         materialization = materialize_formal_publication(
             publication=publication,
@@ -929,11 +797,6 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
             status=observation_bundle.status,
             failure_reason=observation_bundle.failure_reason or "",
         ),
-        "reconstruction_trace": _artifact_metadata(
-            reconstruction_path,
-            status=decision_case_graph.status,
-            failure_reason=decision_case_graph.failure_reason,
-        ),
     }
     formal_layers = {
         "decision": _formal_layer_metadata(
@@ -954,17 +817,6 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
             ),
             failure_reason=weather_bundle.failure_reason,
         ),
-        "decision_case_core": _formal_layer_metadata(
-            profile_registry,
-            layer="decision_case_core",
-            status=decision_case_graph.status,
-            formal_fact_count=(
-                len(decision_case_graph.formal_facts)
-                if decision_case_graph.status == "ok"
-                else 0
-            ),
-            failure_reason=decision_case_graph.failure_reason,
-        ),
         "public_operational_observation": _formal_layer_metadata(
             profile_registry,
             layer="public_operational_observation",
@@ -982,7 +834,6 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
         "weather_context": weather_bundle,
         "public_observation_context": public_observations,
         "observation_context": observation_bundle,
-        "decision_case_graph": decision_case_graph,
         "context_artifacts": context_artifacts,
         "formal_layers": formal_layers,
         "public_observation_publication": _public_observation_publication(

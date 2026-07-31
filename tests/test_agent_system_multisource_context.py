@@ -36,7 +36,6 @@ from aviation_agentic_ai.agent_system.contracts import (
     GraphPatchBlock,
     GraphPatchLine,
     GraphValidationResult,
-    HybridQueryScope,
     PersistedProfileGap,
     SourceFamily,
     SourceRecord,
@@ -45,13 +44,6 @@ from aviation_agentic_ai.agent_system.contracts import (
 from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusQueryStore,
     build_corpus,
-)
-from aviation_agentic_ai.agent_system.hybrid_query_tools import HybridQueryGateway
-from aviation_agentic_ai.agent_system.decision_case_graph import (
-    CASE_DECISION_CASE_IRI,
-    CASE_RECONSTRUCTION_IRI,
-    PROV_HAD_MEMBER_IRI,
-    PROV_SPECIALIZATION_OF_IRI,
 )
 from aviation_agentic_ai.agent_system.construction_contracts import stable_contract_id
 from aviation_agentic_ai.agent_system.materialize import (
@@ -849,7 +841,6 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         "decision",
         "weather",
         "public_operational_observation",
-        "decision_case_core",
     }
     assert (
         publication_calls[0].layer_fact_counts
@@ -886,7 +877,6 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         for artifact_name in (
             "observation_derivations",
             "observation_fact_trace",
-            "reconstruction_trace",
         ):
             assert result["context_artifacts"][artifact_name]["status"] == "ok"
             assert result["context_artifacts"][artifact_name]["count"] > 0
@@ -894,19 +884,13 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
             layer: metadata["status"] for layer, metadata in result["formal_layers"].items()
         } == {
             "decision": "ok",
-            "decision_case_core": "ok",
             "weather": "ok",
             "public_operational_observation": "ok",
         }
         publication = result["public_observation_publication"]
         assert publication["status"] == "ok"
         assert publication["bts_source_id"] == bts_source.source_id
-        assert (
-            publication["aggregation_procedure_checksum"]
-            == result[
-                "decision_case_graph"
-            ].reconstruction_trace.aggregation_procedure_checksum
-        )
+        assert publication["aggregation_procedure_checksum"]
     active = next(
         summary for summary in result["public_observation_context"].summaries if summary.phase == "active"
     )
@@ -1049,12 +1033,8 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         )
         blocked = integrate_decision_context(ctx, state)
         assert blocked["observation_context"].status == "blocked"
-        assert blocked["decision_case_graph"].status == "ok"
         assert blocked["materialization"].layer_fact_counts == {
             "decision": len(facts),
-            "decision_case_core": len(
-                blocked["decision_case_graph"].formal_facts
-            ),
             "weather": len(blocked["weather_context"].formal_facts),
         }
         for artifact_name in (
@@ -1062,7 +1042,6 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
             "observation_fact_trace.jsonl",
         ):
             assert (tmp_path / artifact_name).read_bytes() == b""
-        assert (tmp_path / "reconstruction_trace.json").read_bytes()
 
         insufficient = integrate_decision_context(
             replace(
@@ -1074,12 +1053,8 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
             state,
         )
         assert insufficient["observation_context"].status == "insufficient"
-        assert insufficient["decision_case_graph"].status == "ok"
         assert insufficient["materialization"].layer_fact_counts == {
             "decision": len(facts),
-            "decision_case_core": len(
-                insufficient["decision_case_graph"].formal_facts
-            ),
             "weather": len(insufficient["weather_context"].formal_facts),
         }
 
@@ -1189,27 +1164,6 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
     assert state["model_calls"] == []
     assert semantic_factory.calls == 0
     assert assembly_factory.calls == 0
-    case_graph = state["decision_case_graph"]
-    assert case_graph.status == "ok", case_graph.failure_reason
-    assert case_graph.case_iri
-    assert case_graph.reconstruction_iri
-    assert {
-        fact.object_value
-        for fact in case_graph.formal_facts
-        if fact.predicate_iri == RDF_TYPE
-    } >= {CASE_DECISION_CASE_IRI, CASE_RECONSTRUCTION_IRI}
-    assert any(
-        fact.subject_iri == case_graph.reconstruction_iri
-        and fact.predicate_iri == PROV_SPECIALIZATION_OF_IRI
-        and fact.object_value == case_graph.case_iri
-        for fact in case_graph.formal_facts
-    )
-    assert any(
-        fact.subject_iri == case_graph.reconstruction_iri
-        and fact.predicate_iri == PROV_HAD_MEMBER_IRI
-        and fact.object_value == state["decision_context_event"].event_id
-        for fact in case_graph.formal_facts
-    )
 
     event_facts = [
         fact
@@ -1275,40 +1229,21 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
     corpus_dir = tmp_path / "corpus"
     build_corpus([tmp_path], corpus_dir)
     corpus_store = CorpusQueryStore(corpus_dir)
-    corpus_case = corpus_store.get_case(state["decision_context_event"].event_id)
-    assert corpus_case is not None
-    assert corpus_case.case_iri == case_graph.case_iri
-    assert corpus_case.reconstruction_iri == case_graph.reconstruction_iri
-
-    gateway = HybridQueryGateway(
-        store=corpus_store,
-        scope=HybridQueryScope(
-            event_id=state["decision_context_event"].event_id
-        ),
-    )
-    graph_observation = gateway.read_case_graph(
-        event_id=state["decision_context_event"].event_id
-    )
-    assert graph_observation.status == "ok"
-    case_fact_ids = {
+    corpus_event = corpus_store.get_event(state["decision_context_event"].event_id)
+    assert corpus_event is not None
+    event_fact_ids = {
         fact.fact_id
-        for fact in corpus_store.get_case_facts(
+        for fact in corpus_store.get_event_facts(
             state["decision_context_event"].event_id
         )
     }
-    assert set(graph_observation.details.fact_ids) <= case_fact_ids
-    assert len(graph_observation.details.fact_ids) == 50
-    assert set(graph_observation.details.source_ids) <= set(corpus_case.source_ids)
-    assert not set(graph_observation.details.fact_ids).intersection(
+    assert event_fact_ids == set(corpus_event.fact_ids)
+    assert event_fact_ids
+    assert not event_fact_ids.intersection(
         association.association_id
         for association in corpus_store.context_associations
     )
-
-    corpus_reason = gateway.read_case_facts(
-        event_id=state["decision_context_event"].event_id,
-    )
-    reason_payload = json.loads(corpus_reason.content)["case"]
-    assert reason_payload["reason_status"] == {
+    assert corpus_event.reason_status == {
         "formal_weather": "formal",
         "profile_gap": "profile_gap",
         "missing": "missing",
@@ -1366,12 +1301,8 @@ def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_a
 
     assert result["weather_context"].status == "blocked"
     assert result["public_observation_context"].status == "blocked"
-    assert result["decision_case_graph"].status == "ok"
     assert result["materialization"].layer_fact_counts == {
         "decision": len(facts),
-        "decision_case_core": len(
-            result["decision_case_graph"].formal_facts
-        ),
     }
     for name in (
         "context_associations.jsonl",
@@ -2012,8 +1943,8 @@ def test_ingest_graph_names_explicit_validation_and_publication_nodes():
     graph_json = graph.get_graph().to_json()
     edges = {(edge["source"], edge["target"]) for edge in graph_json["edges"]}
     assert ("event_evidence_integration", "validate_event_patch") in edges
-    assert ("validate_event_patch", "publish_case") in edges
-    assert ("publish_case", "__end__") in edges
+    assert ("validate_event_patch", "publish_event") in edges
+    assert ("publish_event", "__end__") in edges
     assert not {"materialize", "decision_context"} & {
         node["id"] for node in graph_json["nodes"]
     }
@@ -2079,7 +2010,7 @@ def test_event_preflight_rejection_does_not_call_final_publication_kernel(
     assert event_validation["validation"].accepted
     assert event_validation["validation"].graph_errors
 
-    published = workflow_module._publish_case_node(
+    published = workflow_module._publish_event_node(
         {
             **state,
             **event_validation,

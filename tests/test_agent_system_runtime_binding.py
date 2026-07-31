@@ -1188,7 +1188,7 @@ def test_event_class_hint_mismatch_blocks_before_assembly_factory(tmp_path, monk
     assert result["integration_graph_patch"] is None
     assert calls == []
 
-    context_result = workflow_module._publish_case_node(
+    context_result = workflow_module._publish_event_node(
         {
             "resolution_preflight_status": "resolved",
             **result,

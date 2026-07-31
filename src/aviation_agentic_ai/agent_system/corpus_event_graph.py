@@ -1,4 +1,4 @@
-"""Closed, case-scoped traversal over canonical corpus facts."""
+"""Closed, event-scoped traversal over canonical corpus facts."""
 
 from __future__ import annotations
 
@@ -43,8 +43,8 @@ def _edge_key(edge: QueryGraphEdge) -> tuple[str, str, str, str]:
     )
 
 
-class CorpusGraphView:
-    """Deterministic adjacency indexes over one selected case's formal facts."""
+class CorpusEventGraphView:
+    """Deterministic adjacency indexes over one selected event's formal facts."""
 
     def __init__(self, facts: tuple[GraphFact, ...]) -> None:
         outgoing: dict[str, list[QueryGraphEdge]] = defaultdict(list)
@@ -73,7 +73,7 @@ class CorpusGraphView:
         direction: Literal["out", "in"] = "out",
         predicate_iris: tuple[str, ...] = (),
     ) -> tuple[QueryGraphEdge, ...]:
-        """Return bounded formal edges from this case-scoped graph view."""
+        """Return bounded formal edges from this event-scoped graph view."""
 
         if entity_iri is not None:
             return self.neighbors(
@@ -120,4 +120,4 @@ class CorpusGraphView:
             )
         )
 
-__all__ = ["CorpusGraphView"]
+__all__ = ["CorpusEventGraphView"]

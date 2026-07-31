@@ -81,6 +81,7 @@ def test_ingest_publishes_assembly_patch_without_legacy_kg_envelope(tmp_path) ->
     }
     assert state["integration_graph_patch"].patch_lines
     assert state.get("kg_result") is None
+    assert state.get("decision_case_graph") is None
     state = run_ingest(
         IngestContext(
             advisory=advisory,

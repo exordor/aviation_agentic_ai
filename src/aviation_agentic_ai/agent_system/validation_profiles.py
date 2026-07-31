@@ -22,16 +22,12 @@ from aviation_agentic_ai.agent_system.schema_guide import (
 from aviation_agentic_ai.config import resolve_project_path
 
 DEFAULT_WEATHER_PROFILE_PATH = "data/ontology/curated/nasa_atmonto_decision_context_weather_slice.json"
-DEFAULT_DECISION_CASE_CORE_PROFILE_PATH = (
-    "data/ontology/curated/decision_case_core_slice.json"
-)
 DEFAULT_PUBLIC_OBSERVATION_PROFILE_PATH = (
     "data/ontology/curated/public_observation_slice.json"
 )
 
 ValidationLayer = Literal[
     "decision",
-    "decision_case_core",
     "weather",
     "public_operational_observation",
 ]
@@ -39,7 +35,6 @@ EvidenceMode = Literal[
     "source_text",
     "deterministic_derivation",
     "profile_definition",
-    "system_membership",
 ]
 
 _FORBIDDEN_OPERATIONAL_OR_CAUSAL_PREDICATES = frozenset(
@@ -367,21 +362,14 @@ def _profile_evidence_policy(
     if layer == "weather":
         families = (SourceFamily.METAR, SourceFamily.TAF)
         return ("source_text",), {"source_text": families}
-    if layer == "decision_case_core":
-        return ("system_membership",), {
-            "system_membership": tuple(SourceFamily),
-        }
-    all_families = tuple(SourceFamily)
     return (
         (
             "deterministic_derivation",
             "profile_definition",
-            "system_membership",
         ),
         {
             "deterministic_derivation": (SourceFamily.BTS_ON_TIME,),
             "profile_definition": (),
-            "system_membership": all_families,
         },
     )
 
@@ -450,21 +438,16 @@ def _decision_profile(decision_guide: SchemaGuide) -> LoadedValidationProfile:
 def load_validation_profile_registry(
     *,
     decision_guide: SchemaGuide,
-    decision_case_core_profile_path: str | Path = (
-        DEFAULT_DECISION_CASE_CORE_PROFILE_PATH
-    ),
     weather_profile_path: str | Path = DEFAULT_WEATHER_PROFILE_PATH,
     public_observation_profile_path: str | Path = DEFAULT_PUBLIC_OBSERVATION_PROFILE_PATH,
 ) -> ValidationProfileRegistry:
     """Load the independent profiles and pin each file's SHA-256."""
 
-    core_path = resolve_project_path(decision_case_core_profile_path)
     weather_path = resolve_project_path(weather_profile_path)
     observation_path = resolve_project_path(public_observation_profile_path)
     return ValidationProfileRegistry(
         profiles=(
             _decision_profile(decision_guide),
-            _load_json_profile(core_path, "decision_case_core"),
             _load_json_profile(weather_path, "weather"),
             _load_json_profile(observation_path, "public_operational_observation"),
         )
@@ -473,7 +456,6 @@ def load_validation_profile_registry(
 
 __all__ = [
     "AggregationProcedureDescriptor",
-    "DEFAULT_DECISION_CASE_CORE_PROFILE_PATH",
     "DEFAULT_PUBLIC_OBSERVATION_PROFILE_PATH",
     "DEFAULT_WEATHER_PROFILE_PATH",
     "LoadedValidationProfile",

@@ -18,7 +18,6 @@ from aviation_agentic_ai.agent_system.contracts import (
     FactTraceRow,
     ObservationFactTrace,
     PersistedProfileGap,
-    ReconstructionTrace,
     SourceSnapshot,
     SourceSnapshotRegistry,
     ValidatedFact,
@@ -28,7 +27,6 @@ from aviation_agentic_ai.agent_system.contracts import (
 from aviation_agentic_ai.agent_system.context_artifacts import (
     read_fact_traces,
     read_observation_fact_traces,
-    read_reconstruction_trace,
     read_weather_fact_traces,
 )
 from aviation_agentic_ai.agent_system.materialize import (
@@ -92,7 +90,6 @@ class QueryGraphStore:
             fact_traces,
             weather_fact_traces,
             observation_fact_traces,
-            reconstruction_trace,
         ) = self._load_publication_evidence(
             root,
             manifest=manifest,
@@ -161,7 +158,6 @@ class QueryGraphStore:
                 fact_traces=fact_traces,
                 weather_fact_traces=weather_fact_traces,
                 observation_fact_traces=observation_fact_traces,
-                reconstruction_trace=reconstruction_trace,
                 require_source_text_in_snapshot=True,
             )
         except ValueError as exc:
@@ -302,7 +298,6 @@ class QueryGraphStore:
         raw_layers = manifest.get("formal_layers")
         required_layers = {
             "decision",
-            "decision_case_core",
             "weather",
             "public_operational_observation",
         }
@@ -423,7 +418,6 @@ class QueryGraphStore:
         list[FactTraceRow],
         list[WeatherFactTrace],
         list[ObservationFactTrace],
-        ReconstructionTrace | None,
     ]:
         decision_trace_path = cls._registered_artifact_path(
             root,
@@ -448,29 +442,17 @@ class QueryGraphStore:
                 "public_operational_observation"
             ]["status"],
         )
-        reconstruction_path = cls._registered_artifact_path(
-            root,
-            manifest=manifest,
-            key="reconstruction_trace",
-            filename="reconstruction_trace.json",
-            expected_status=formal_layers["decision_case_core"]["status"],
-        )
         try:
             direct = read_fact_traces(decision_trace_path)
             weather = read_weather_fact_traces(weather_trace_path)
             observations = read_observation_fact_traces(
                 observation_trace_path
             )
-            reconstruction = (
-                read_reconstruction_trace(reconstruction_path)
-                if formal_layers["decision_case_core"]["status"] == "ok"
-                else None
-            )
         except ValueError as exc:
             raise QueryToolError(
                 "current run publication evidence is invalid"
             ) from exc
-        return direct, weather, observations, reconstruction
+        return direct, weather, observations
 
     @staticmethod
     def _registered_artifact_path(
@@ -682,7 +664,6 @@ class QueryGraphStore:
             "source_text",
             "deterministic_derivation",
             "profile_definition",
-            "system_membership",
         }:
             raise QueryToolError(
                 f"graph row {line_number} has invalid evidence_mode"

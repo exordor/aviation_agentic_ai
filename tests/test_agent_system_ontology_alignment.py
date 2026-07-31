@@ -114,7 +114,7 @@ def test_application_profile_rejects_an_unadmitted_atmonto_property() -> None:
     )
 
 
-def test_corpus_alignment_audit_separates_core_standard_and_project_terms() -> None:
+def test_corpus_alignment_audit_separates_atmonto_and_standard_terms() -> None:
     profile = SimpleNamespace(layer="decision")
     facts = [
         SimpleNamespace(
@@ -127,14 +127,12 @@ def test_corpus_alignment_audit_separates_core_standard_and_project_terms() -> N
             validation_profile=profile,
         ),
         SimpleNamespace(
-            subject_class_iri=(
-                "urn:aviation-agentic-ai:decision-case-schema:DecisionCase"
-            ),
-            predicate_iri="http://www.w3.org/ns/prov#hadMember",
-            object_class_iri=ATM + "TrafficManagementInitiative",
+            subject_class_iri="http://www.w3.org/ns/sosa/Observation",
+            predicate_iri="http://www.w3.org/ns/sosa/hasResult",
+            object_class_iri="http://www.w3.org/ns/sosa/Result",
             datatype_iri=None,
             validation_profile=SimpleNamespace(
-                layer="decision_case_core"
+                layer="public_operational_observation"
             ),
         ),
     ]
@@ -144,17 +142,14 @@ def test_corpus_alignment_audit_separates_core_standard_and_project_terms() -> N
     assert report["formal_fact_count"] == 2
     assert report["fact_counts_by_validation_layer"] == {
         "decision": 1,
-        "decision_case_core": 1,
+        "public_operational_observation": 1,
     }
     assert ATM + "GroundStopTMI" in report["schema_terms"]["atmonto_core"]
     assert (
-        "http://www.w3.org/ns/prov#hadMember"
+        "http://www.w3.org/ns/sosa/hasResult"
         in report["schema_terms"]["external_standard_extension"]
     )
-    assert (
-        "urn:aviation-agentic-ai:decision-case-schema:DecisionCase"
-        in report["schema_terms"]["project_extension"]
-    )
+    assert report["schema_terms"]["project_extension"] == []
     assert report["unknown_formal_term_count"] == 0
     assert report["atmgraph_reference"]["verification_scope"] == (
         "declared construction principles; not namespace or instance equivalence"

@@ -111,7 +111,6 @@ def test_cohort_batch_preflights_26_records_without_running_models(tmp_path: Pat
                 source_id=advisory.source_id,
                 status="ok",
                 event_id=f"event:{advisory.source_id}",
-                case_id=f"case:{advisory.source_id}",
                 provider_call_count=1,
             ),
             run_dir=staging_dir,
@@ -171,9 +170,9 @@ def test_all_insufficient_batch_publishes_valid_empty_corpus(tmp_path: Path) -> 
     manifest = json.loads(
         (output / "corpus_manifest.json").read_text(encoding="utf-8")
     )
-    assert manifest["manifest_version"] == "decision-case-corpus-v2"
+    assert manifest["manifest_version"] == "tmi-event-corpus-v3"
     assert manifest["run_count"] == 0
-    assert manifest["case_count"] == 0
+    assert manifest["event_count"] == 0
     assert manifest["fact_count"] == 0
     assert "agent_usage" not in manifest["artifacts"]
     results = [
@@ -199,9 +198,9 @@ def test_all_insufficient_batch_publishes_valid_empty_corpus(tmp_path: Path) -> 
     for name in (
         "artifacts.jsonl",
         "source_bindings.jsonl",
-        "cases.jsonl",
+        "events.jsonl",
         "facts.jsonl",
-        "case_facts.jsonl",
+        "event_facts.jsonl",
         "evidence_links.jsonl",
         "profile_gaps.jsonl",
         "context_associations.jsonl",
@@ -386,7 +385,7 @@ def test_resume_replaces_blocked_usage_rows_without_duplicating_terminal_rows(
         manifest = CorpusBuildManifest(
             corpus_id="corpus:resume",
             run_count=2,
-            case_count=2,
+            event_count=2,
             fact_count=0,
             source_binding_count=0,
             source_object_count=0,
@@ -545,7 +544,7 @@ def test_resume_rejects_expanding_a_finalized_source_subset(tmp_path: Path) -> N
         manifest = CorpusBuildManifest(
             corpus_id="finalized-subset",
             run_count=1,
-            case_count=1,
+            event_count=1,
             fact_count=0,
             source_binding_count=0,
             source_object_count=0,

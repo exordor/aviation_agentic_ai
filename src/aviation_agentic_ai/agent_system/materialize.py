@@ -17,7 +17,6 @@ from typing import Any
 from aviation_agentic_ai.agent_system.contracts import (
     FactTraceRow,
     ObservationFactTrace,
-    ReconstructionTrace,
     SourceSnapshotRegistry,
     ValidatedFact,
     ValidationProfileRef,
@@ -94,8 +93,6 @@ _REL_DERIVED = "DERIVED_FROM"
 _REL_FORECASTING_AIRPORT = "FORECASTING_AIRPORT"
 
 _PUBLIC_CLASS_LABELS = {
-    "urn:aviation-agentic-ai:decision-case-schema:DecisionCase": "DecisionCase",
-    "urn:aviation-agentic-ai:decision-case-schema:DecisionCaseReconstruction": "DecisionCaseReconstruction",
     "http://www.w3.org/ns/sosa/Observation": "Observation",
     "http://www.w3.org/ns/sosa/Result": "ObservationResult",
     "http://qudt.org/schema/qudt/QuantityValue": "ObservationResult",
@@ -109,8 +106,6 @@ _PUBLIC_CLASS_LABELS = {
     "http://www.w3.org/ns/prov#Plan": "ObservationProcedure",
 }
 _PUBLIC_RELATIONSHIP_TYPES = {
-    "http://www.w3.org/ns/prov#hadMember": "HAS_MEMBER",
-    "http://www.w3.org/ns/prov#specializationOf": "SPECIALIZATION_OF",
     "http://www.w3.org/ns/sosa/hasFeatureOfInterest": "HAS_FEATURE_OF_INTEREST",
     "http://www.w3.org/ns/sosa/observedProperty": "OBSERVED_PROPERTY",
     "http://www.w3.org/ns/sosa/phenomenonTime": "PHENOMENON_TIME",
@@ -131,8 +126,6 @@ _LABEL_PRIORITY = {
     label: priority
     for priority, label in enumerate(
         (
-            "DecisionCase",
-            "DecisionCaseReconstruction",
             "Observation",
             "ObservationResult",
             "TimeInterval",
@@ -307,7 +300,6 @@ def validate_fact_publication(
     observation_fact_traces: (
         tuple[ObservationFactTrace, ...] | list[ObservationFactTrace]
     ) = (),
-    reconstruction_trace: ReconstructionTrace | None = None,
     require_source_text_in_snapshot: bool = False,
 ) -> None:
     """Fail closed before publishing facts from independent semantic profiles."""
@@ -323,11 +315,6 @@ def validate_fact_publication(
     if len(derived_traces) != len(observation_fact_traces):
         raise ValueError("duplicate deterministic observation fact trace")
 
-    reconstruction_bindings = (
-        {binding.source_id: binding for binding in reconstruction_trace.source_bindings}
-        if reconstruction_trace is not None
-        else {}
-    )
     for fact in facts:
         profile = profile_registry.resolve(fact.validation_profile)
         validate_fact_for_publication(fact, profile_registry)
@@ -480,26 +467,6 @@ def validate_fact_publication(
                 raise ValueError("profile-definition evidence reference mismatch")
             if fact.source_ids or fact.evidence_texts:
                 raise ValueError("profile-definition facts cannot cite source text")
-        elif fact.evidence_mode == "system_membership":
-            if (
-                reconstruction_trace is None
-                or fact.evidence_ref
-                != reconstruction_trace.reconstruction_trace_id
-            ):
-                raise ValueError("system-membership evidence reference mismatch")
-            for source_id in fact.source_ids:
-                binding = reconstruction_bindings.get(source_id)
-                snapshot = snapshots.get(source_id)
-                if (
-                    binding is None
-                    or snapshot is None
-                    or binding.snapshot_sha256 != snapshot.content_sha256
-                ):
-                    raise ValueError(
-                        f"system-membership source binding mismatch: {source_id}"
-                    )
-            if fact.evidence_texts:
-                raise ValueError("system-membership facts cannot carry source text")
         else:  # pragma: no cover - Pydantic constrains this before publication
             raise ValueError(f"unsupported evidence mode: {fact.evidence_mode}")
 
@@ -630,7 +597,6 @@ def _build_rdflib_graph() -> Any:
     g.bind("unit", "http://qudt.org/vocab/unit/")
     g.bind("skos", "http://www.w3.org/2004/02/skos/core#")
     g.bind("dcterms", "http://purl.org/dc/terms/")
-    g.bind("case", "urn:aviation-agentic-ai:decision-case-schema:")
     g.bind("aviation-event", _EVENT_NAMESPACE)
     g.bind("aviation-source", _SOURCE_NAMESPACE)
     return g
@@ -1049,7 +1015,6 @@ def run_formal_publication_kernel(
     observation_fact_traces: (
         tuple[ObservationFactTrace, ...] | list[ObservationFactTrace]
     ) = (),
-    reconstruction_trace: ReconstructionTrace | None = None,
 ) -> FormalPublication:
     """Validate every admitted formal layer without writing projections."""
 
@@ -1063,7 +1028,6 @@ def run_formal_publication_kernel(
             fact_traces=fact_traces,
             weather_fact_traces=weather_fact_traces,
             observation_fact_traces=observation_fact_traces,
-            reconstruction_trace=reconstruction_trace,
         )
     except ValueError as exc:
         raise FormalPublicationBlocked(str(exc)) from exc
@@ -1142,7 +1106,6 @@ def materialize_validated_facts(
     observation_fact_traces: (
         tuple[ObservationFactTrace, ...] | list[ObservationFactTrace]
     ) = (),
-    reconstruction_trace: ReconstructionTrace | None = None,
     output_dir: str | Path,
 ) -> FactMaterialization:
     """Low-level helper composing the final gate and projection writer."""
@@ -1154,7 +1117,6 @@ def materialize_validated_facts(
         fact_traces=fact_traces,
         weather_fact_traces=weather_fact_traces,
         observation_fact_traces=observation_fact_traces,
-        reconstruction_trace=reconstruction_trace,
     )
     return materialize_formal_publication(
         publication=publication,

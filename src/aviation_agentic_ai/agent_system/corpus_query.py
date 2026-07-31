@@ -1,4 +1,4 @@
-"""LLM-routed HybridRAG queries over the canonical decision-case corpus."""
+"""LLM-routed HybridRAG queries over the canonical TMI-event corpus."""
 
 from __future__ import annotations
 

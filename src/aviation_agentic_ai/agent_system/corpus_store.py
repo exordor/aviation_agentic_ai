@@ -1,4 +1,4 @@
-"""Deterministic cross-run storage for validated decision-case corpora."""
+"""Deterministic cross-run storage for validated ATMONTO TMI events."""
 
 from __future__ import annotations
 
@@ -24,12 +24,7 @@ from aviation_agentic_ai.agent_system.context_artifacts import (
     read_context_associations,
     read_observation_fact_traces,
 )
-from aviation_agentic_ai.agent_system.corpus_graph import CorpusGraphView
-from aviation_agentic_ai.agent_system.decision_case_graph import (
-    CASE_DECISION_CASE_IRI,
-    PROV_HAD_MEMBER_IRI,
-    PROV_SPECIALIZATION_OF_IRI,
-)
+from aviation_agentic_ai.agent_system.corpus_event_graph import CorpusEventGraphView
 from aviation_agentic_ai.agent_system.query_tools import QueryGraphStore
 from aviation_agentic_ai.agent_system.materialize import (
     build_validated_facts_neo4j_projection,
@@ -64,12 +59,10 @@ class CorpusArtifactMetadata(StrictModel):
 class CorpusBuildManifest(StrictModel):
     """Stable summary of one materialized cross-run corpus."""
 
-    manifest_version: Literal["decision-case-corpus-v2"] = (
-        "decision-case-corpus-v2"
-    )
+    manifest_version: Literal["tmi-event-corpus-v3"] = "tmi-event-corpus-v3"
     corpus_id: str = Field(min_length=1)
     run_count: int = Field(ge=0)
-    case_count: int = Field(ge=0)
+    event_count: int = Field(ge=0)
     fact_count: int = Field(ge=0)
     source_binding_count: int = Field(ge=0)
     source_object_count: int = Field(ge=0)
@@ -149,26 +142,23 @@ class CorpusBuildResult(StrictModel):
     source_id: str = Field(min_length=1)
     status: Literal["ok", "insufficient", "blocked"]
     event_id: str | None = None
-    case_id: str | None = None
     reason: str = ""
     provider_call_count: int = Field(default=0, ge=0)
     tmi_family: str | None = None
     preflight_eligible: bool | None = None
 
 
-class CorpusCase(StrictModel):
-    """Catalog row for one validated event run."""
+class CorpusTMIEvent(StrictModel):
+    """Catalog row whose identity is one admitted ATMONTO TMI instance."""
 
-    case_id: str = Field(min_length=1)
-    case_iri: str = Field(min_length=1)
-    reconstruction_iri: str = Field(min_length=1)
     event_id: str = Field(min_length=1)
     run_ids: list[str] = Field(min_length=1)
     advisory_source_id: str = Field(min_length=1)
     event_type_iris: list[str] = Field(default_factory=list)
     facility_ids: list[str] = Field(default_factory=list)
-    operational_start: str | None = None
-    operational_end: str | None = None
+    effective_start: str | None = None
+    effective_end: str | None = None
+    issued_at: str | None = None
     reason_status: Literal["formal", "profile_gap", "missing"]
     reason_value: str | None = None
     fact_ids: list[str] = Field(default_factory=list)
@@ -176,9 +166,9 @@ class CorpusCase(StrictModel):
 
 
 class CorpusSourceBinding(StrictModel):
-    """Bind one case source to a shared content-addressed object."""
+    """Bind one event source to a shared content-addressed object."""
 
-    case_id: str = Field(min_length=1)
+    event_id: str = Field(min_length=1)
     source_id: str = Field(min_length=1)
     source_family: str = Field(min_length=1)
     source_url: str | None = None
@@ -187,16 +177,15 @@ class CorpusSourceBinding(StrictModel):
     object_key: str = Field(min_length=64, max_length=64)
 
 
-class CorpusCaseFact(StrictModel):
-    """Membership edge from a case catalog row to a canonical fact."""
+class CorpusEventFact(StrictModel):
+    """Corpus membership edge from one TMI event to an admitted fact."""
 
-    case_id: str = Field(min_length=1)
     event_id: str = Field(min_length=1)
     fact_id: str = Field(min_length=1)
 
 
-class CorpusCaseQuery(StrictModel):
-    """Exact, bounded filters over the normalized case catalog."""
+class CorpusEventQuery(StrictModel):
+    """Exact, bounded filters over the normalized event catalog."""
 
     event_type_iri: str | None = Field(default=None, min_length=1)
     facility_id: str | None = Field(default=None, min_length=1)
@@ -206,23 +195,23 @@ class CorpusCaseQuery(StrictModel):
     limit: int = Field(default=20, ge=1, le=100)
 
 
-class CorpusCasePage(StrictModel):
-    """One deterministic page of exact case-catalog matches."""
+class CorpusEventPage(StrictModel):
+    """One deterministic page of exact event-catalog matches."""
 
     corpus_id: str = Field(min_length=1)
     total_matches: int = Field(ge=0)
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=100)
-    cases: tuple[CorpusCase, ...] = ()
+    events: tuple[CorpusTMIEvent, ...] = ()
 
 
 class CorpusQueryStore:
-    """Read-only indexed view of one normalized decision-case corpus."""
+    """Read-only indexed view of one normalized TMI-event corpus."""
 
     _REQUIRED_ARTIFACTS = (
-        "cases",
+        "events",
         "facts",
-        "case_facts",
+        "event_facts",
         "source_bindings",
     )
     _OPTIONAL_ARTIFACTS = (
@@ -236,10 +225,16 @@ class CorpusQueryStore:
         root = Path(corpus_dir).resolve()
         manifest_path = root / "corpus_manifest.json"
         try:
-            manifest = CorpusBuildManifest.model_validate_json(
-                manifest_path.read_text(encoding="utf-8")
+            manifest_payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ValueError("invalid corpus manifest") from exc
+        if manifest_payload.get("manifest_version") != "tmi-event-corpus-v3":
+            raise ValueError(
+                "unsupported corpus manifest; rebuild the corpus as tmi-event-corpus-v3"
             )
-        except (OSError, ValueError) as exc:
+        try:
+            manifest = CorpusBuildManifest.model_validate(manifest_payload)
+        except ValueError as exc:
             raise ValueError("invalid corpus manifest") from exc
 
         artifact_rows: dict[str, list[dict[str, object]]] = {}
@@ -261,17 +256,17 @@ class CorpusQueryStore:
                 raise ValueError(f"corpus artifact count mismatch: {name}")
             artifact_rows[name] = rows
 
-        cases = tuple(
-            CorpusCase.model_validate(row)
-            for row in artifact_rows["cases"]
+        events = tuple(
+            CorpusTMIEvent.model_validate(row)
+            for row in artifact_rows["events"]
         )
         facts = tuple(
             CorpusFact.model_validate(row)
             for row in artifact_rows["facts"]
         )
         memberships = tuple(
-            CorpusCaseFact.model_validate(row)
-            for row in artifact_rows["case_facts"]
+            CorpusEventFact.model_validate(row)
+            for row in artifact_rows["event_facts"]
         )
         self.source_bindings = tuple(
             CorpusSourceBinding.model_validate(row)
@@ -295,18 +290,18 @@ class CorpusQueryStore:
         )
         self.root = root
         self.manifest = manifest
-        self.cases = tuple(sorted(cases, key=lambda row: row.case_id))
+        self.events = tuple(sorted(events, key=lambda row: row.event_id))
         self.facts = tuple(sorted(facts, key=lambda row: row.fact_id))
-        self._case_by_event = {case.event_id: case for case in self.cases}
+        self._event_by_id = {event.event_id: event for event in self.events}
         self._fact_by_id = {fact.fact_id: fact for fact in self.facts}
-        source_artifacts_by_case: dict[str, set[tuple[str, str]]] = defaultdict(set)
+        source_artifacts_by_event: dict[str, set[tuple[str, str]]] = defaultdict(set)
         for binding in self.source_bindings:
-            source_artifacts_by_case[binding.case_id].add(
+            source_artifacts_by_event[binding.event_id].add(
                 (binding.source_id, binding.content_sha256)
             )
-        self._source_artifacts_by_case = {
-            case_id: frozenset(source_artifacts)
-            for case_id, source_artifacts in source_artifacts_by_case.items()
+        self._source_artifacts_by_event = {
+            event_id: frozenset(source_artifacts)
+            for event_id, source_artifacts in source_artifacts_by_event.items()
         }
         source_artifacts_by_fact: dict[str, set[tuple[str, str]]] = defaultdict(set)
         for link in self.evidence_links:
@@ -318,13 +313,13 @@ class CorpusQueryStore:
             fact_id: frozenset(source_artifacts)
             for fact_id, source_artifacts in source_artifacts_by_fact.items()
         }
-        self._fact_ids_by_case: dict[str, tuple[str, ...]] = {}
-        for case in self.cases:
-            self._fact_ids_by_case[case.case_id] = tuple(
+        self._fact_ids_by_event: dict[str, tuple[str, ...]] = {}
+        for event in self.events:
+            self._fact_ids_by_event[event.event_id] = tuple(
                 sorted(
                     row.fact_id
                     for row in memberships
-                    if row.case_id == case.case_id
+                    if row.event_id == event.event_id
                 )
             )
 
@@ -332,20 +327,20 @@ class CorpusQueryStore:
     def event_ids(self) -> tuple[str, ...]:
         """Return all corpus events in deterministic order."""
 
-        return tuple(case.event_id for case in self.cases)
+        return tuple(event.event_id for event in self.events)
 
-    def find_cases(
+    def find_events(
         self,
-        filters: CorpusCaseQuery | dict[str, object] | None = None,
+        filters: CorpusEventQuery | dict[str, object] | None = None,
         offset: int | None = None,
         limit: int | None = None,
-    ) -> CorpusCasePage:
+    ) -> CorpusEventPage:
         """Return one page of exact catalog matches."""
 
         query = (
             filters
-            if isinstance(filters, CorpusCaseQuery)
-            else CorpusCaseQuery.model_validate(
+            if isinstance(filters, CorpusEventQuery)
+            else CorpusEventQuery.model_validate(
                 {
                     **(filters or {}),
                     **({"offset": offset} if offset is not None else {}),
@@ -355,46 +350,46 @@ class CorpusQueryStore:
         )
 
         matches = [
-            case
-            for case in self.cases
+            event
+            for event in self.events
             if (
                 query.event_type_iri is None
-                or query.event_type_iri in case.event_type_iris
+                or query.event_type_iri in event.event_type_iris
             )
             and (
                 query.facility_id is None
-                or query.facility_id in case.facility_ids
+                or query.facility_id in event.facility_ids
             )
             and (
                 query.reason_status is None
-                or query.reason_status == case.reason_status
+                or query.reason_status == event.reason_status
             )
             and (
                 query.reason_value is None
-                or query.reason_value == case.reason_value
+                or query.reason_value == event.reason_value
             )
         ]
-        return CorpusCasePage(
+        return CorpusEventPage(
             corpus_id=self.manifest.corpus_id,
             total_matches=len(matches),
             offset=query.offset,
             limit=query.limit,
-            cases=tuple(matches[query.offset : query.offset + query.limit]),
+            events=tuple(matches[query.offset : query.offset + query.limit]),
         )
 
-    def get_case(self, event_id: str) -> CorpusCase | None:
-        """Return one case by its canonical event ID."""
+    def get_event(self, event_id: str) -> CorpusTMIEvent | None:
+        """Return one catalog row by its canonical TMI event ID."""
 
-        return self._case_by_event.get(event_id)
+        return self._event_by_id.get(event_id)
 
-    def get_case_facts(self, event_id: str) -> tuple[CorpusFact, ...]:
-        """Return the canonical facts assigned to one case."""
+    def get_event_facts(self, event_id: str) -> tuple[CorpusFact, ...]:
+        """Return all admitted formal facts assigned to one TMI event."""
 
-        case = self.get_case(event_id)
-        if case is None:
+        event = self.get_event(event_id)
+        if event is None:
             return ()
-        case_source_artifacts = self._source_artifacts_by_case.get(
-            case.case_id,
+        event_source_artifacts = self._source_artifacts_by_event.get(
+            event.event_id,
             frozenset(),
         )
         return tuple(
@@ -410,26 +405,21 @@ class CorpusQueryStore:
                                     frozenset(),
                                 )
                             )
-                            if (source_id, artifact_id) in case_source_artifacts
+                            if (source_id, artifact_id) in event_source_artifacts
                         }
                     )
                 }
             )
-            for fact_id in self._fact_ids_by_case.get(case.case_id, ())
+            for fact_id in self._fact_ids_by_event.get(event.event_id, ())
             if fact_id in self._fact_by_id
         )
 
-    def get_event_facts(self, event_id: str) -> tuple[CorpusFact, ...]:
-        """Return all formal facts for one selected corpus event."""
+    def graph_for_event(self, event_id: str) -> CorpusEventGraphView:
+        """Build one read-only graph view over only the selected event."""
 
-        return self.get_case_facts(event_id)
+        return CorpusEventGraphView(self.get_event_facts(event_id))
 
-    def graph_for_event(self, event_id: str) -> CorpusGraphView:
-        """Build one read-only graph view over only the selected case."""
-
-        return CorpusGraphView(self.get_case_facts(event_id))
-
-    def get_decision_context(
+    def get_weather_context(
         self, event_id: str
     ) -> tuple[CorpusContextAssociation, ...]:
         """Return non-causal weather associations for one selected event."""
@@ -445,7 +435,7 @@ class CorpusQueryStore:
             )
         )
 
-    def get_outcome_observations(
+    def get_public_observations(
         self,
         event_id: str,
         phases: tuple[str, ...] | list[str] | None = None,
@@ -468,14 +458,14 @@ class CorpusQueryStore:
             )
         )
 
-    def get_case_evidence(self, event_id: str) -> tuple[EvidenceLink, ...]:
+    def get_event_evidence(self, event_id: str) -> tuple[EvidenceLink, ...]:
         """Return evidence links owned by the selected event's retained rows."""
 
-        case = self.get_case(event_id)
-        if case is None:
+        event = self.get_event(event_id)
+        if event is None:
             return ()
         owner_ids = {
-            *self._fact_ids_by_case.get(case.case_id, ()),
+            *self._fact_ids_by_event.get(event.event_id, ()),
             *(row.profile_gap_id for row in self.profile_gaps if row.event_id == event_id),
             *(row.association_id for row in self.context_associations if row.event_id == event_id),
             *(row.observation_id for row in self.observations if row.event_id == event_id),
@@ -488,57 +478,38 @@ class CorpusQueryStore:
         )
 
 
-def _formal_case_identity(
+def _formal_event_types(
     facts: list[ValidatedFact],
     *,
     event_id: str,
-) -> tuple[str, str]:
-    """Extract the one accepted conceptual case and reconstruction for an event."""
+) -> tuple[str, ...]:
+    """Return the admitted ATMONTO type that establishes a TMI event."""
 
-    core_facts = [
-        fact
+    event_types = {
+        fact.object_value
         for fact in facts
-        if fact.validation_profile.layer == "decision_case_core"
-    ]
-    case_iris = {
-        fact.subject_iri
-        for fact in core_facts
+        if fact.subject_iri == event_id
+        and fact.validation_profile.layer == "decision"
         if fact.predicate_iri == _RDF_TYPE_IRI
-        and fact.object_value == CASE_DECISION_CASE_IRI
     }
-    if len(case_iris) != 1:
+    active_types = {
+        profile.ontology_class
+        for profile in active_tmi_profiles()
+        if profile.ontology_class is not None
+    }
+    admitted_types = event_types & active_types
+    if len(admitted_types) != 1:
         raise ValueError(
-            "corpus event requires exactly one formal DecisionCase identity"
+            "corpus event requires exactly one admitted ATMONTO TMI type"
         )
-    case_iri = next(iter(case_iris))
-    specialization_facts = [
-        fact
-        for fact in core_facts
-        if fact.predicate_iri == PROV_SPECIALIZATION_OF_IRI
-        and fact.object_value == case_iri
-    ]
-    if len(specialization_facts) != 1:
-        raise ValueError(
-            "corpus event requires exactly one formal reconstruction identity"
-        )
-    reconstruction_iri = specialization_facts[0].subject_iri
-    if not any(
-        fact.subject_iri == reconstruction_iri
-        and fact.predicate_iri == PROV_HAD_MEMBER_IRI
-        and fact.object_value == event_id
-        for fact in core_facts
-    ):
-        raise ValueError(
-            "formal DecisionCase reconstruction does not contain its event"
-        )
-    return case_iri, reconstruction_iri
+    return tuple(sorted(admitted_types))
 
 
 def _build_tmi_coverage(
     results: list[CorpusBuildResult],
-    cases: list[CorpusCase],
+    events: list[CorpusTMIEvent],
 ) -> dict[str, object]:
-    """Build one deterministic coverage summary from selected rows and cases."""
+    """Build one deterministic coverage summary from selected rows and events."""
 
     profiles = registered_tmi_profiles()
     profiles_by_code = {profile.code: profile for profile in profiles}
@@ -547,16 +518,16 @@ def _build_tmi_coverage(
         for profile in profiles
         if profile.ontology_class is not None
     }
-    case_family_by_source: dict[str, str] = {}
+    event_family_by_source: dict[str, str] = {}
     published_counts: dict[str, int] = defaultdict(int)
-    for case in cases:
+    for event in events:
         matches = {
             exact_class_to_code[event_type]
-            for event_type in case.event_type_iris
+            for event_type in event.event_type_iris
             if event_type in exact_class_to_code
         }
         family = next(iter(matches)) if len(matches) == 1 else "UNCLASSIFIED"
-        case_family_by_source[case.advisory_source_id] = family
+        event_family_by_source[event.advisory_source_id] = family
         published_counts[family] += 1
 
     counters: dict[str, dict[str, int]] = defaultdict(
@@ -573,7 +544,7 @@ def _build_tmi_coverage(
     for result in results:
         family = (
             result.tmi_family
-            or case_family_by_source.get(result.source_id)
+            or event_family_by_source.get(result.source_id)
             or "UNCLASSIFIED"
         )
         counters[family]["detected_count"] += 1
@@ -614,7 +585,7 @@ def _build_tmi_coverage(
         "eligibility_unknown_count": sum(
             result.preflight_eligible is None for result in results
         ),
-        "published_case_count": len(cases),
+        "published_event_count": len(events),
         "families": families,
     }
 
@@ -625,7 +596,7 @@ def build_corpus(
     *,
     build_results: list[CorpusBuildResult] | tuple[CorpusBuildResult, ...] | None = None,
 ) -> CorpusBuildManifest:
-    """Normalize validated runs into a provenance-aware v2 corpus.
+    """Normalize validated runs into a provenance-aware TMI-event corpus.
 
     Facts are merged by semantic content.  Their source IDs, verbatim evidence,
     and source-object versions are retained as ``EvidenceLink`` rows rather
@@ -637,9 +608,9 @@ def build_corpus(
         for run_dir in sorted(run_dirs, key=lambda value: str(Path(value).resolve()))
     ]
     facts_by_id: dict[str, CorpusFact] = {}
-    cases_by_id: dict[str, CorpusCase] = {}
+    events_by_id: dict[str, CorpusTMIEvent] = {}
     bindings_by_id: dict[tuple[str, str, str], CorpusSourceBinding] = {}
-    case_facts_by_id: dict[tuple[str, str], CorpusCaseFact] = {}
+    event_facts_by_id: dict[tuple[str, str], CorpusEventFact] = {}
     source_objects: dict[str, str] = {}
     evidence_links_by_id: dict[str, EvidenceLink] = {}
     gaps_by_id: dict[str, CorpusProfileGap] = {}
@@ -651,9 +622,8 @@ def build_corpus(
         if len(store.event_ids) != 1:
             raise ValueError("each corpus run must contain exactly one event")
         event_id = store.event_ids[0]
-        case_id = event_id
         facts = sorted(store.validated_facts, key=lambda fact: fact.fact_id)
-        case_iri, reconstruction_iri = _formal_case_identity(
+        event_type_iris = _formal_event_types(
             facts,
             event_id=event_id,
         )
@@ -672,21 +642,15 @@ def build_corpus(
                     previous,
                     corpus_fact,
                 )
-            membership = CorpusCaseFact(
-                case_id=case_id,
+            membership = CorpusEventFact(
                 event_id=event_id,
                 fact_id=semantic_id,
             )
-            case_facts_by_id[(case_id, semantic_id)] = membership
+            event_facts_by_id[(event_id, semantic_id)] = membership
 
         event_facts = [
             fact for fact in facts if fact.subject_iri == event_id
         ]
-        event_type_iris = {
-            fact.object_value
-            for fact in event_facts
-            if fact.predicate_iri == _RDF_TYPE_IRI
-        }
         event_profile = next(
             (
                 profile
@@ -737,7 +701,7 @@ def build_corpus(
                 snapshot.content,
             )
             binding = CorpusSourceBinding(
-                case_id=case_id,
+                event_id=event_id,
                 source_id=snapshot.source_id,
                 source_family=snapshot.family.value,
                 source_url=snapshot.source_url,
@@ -746,7 +710,7 @@ def build_corpus(
                 object_key=snapshot.content_sha256,
             )
             binding_key = (
-                case_id,
+                event_id,
                 snapshot.source_id,
                 snapshot.content_sha256,
             )
@@ -758,7 +722,7 @@ def build_corpus(
                 current_payload.pop("snapshot_timestamps")
                 if previous_payload != current_payload:
                     raise ValueError(
-                        f"conflicting source binding for case: {case_id}"
+                        f"conflicting source binding for event: {event_id}"
                     )
                 binding = previous_binding.model_copy(
                     update={
@@ -848,10 +812,7 @@ def build_corpus(
             )
             evidence_links_by_id[link.evidence_link_id] = link
 
-        case = CorpusCase(
-            case_id=case_id,
-            case_iri=case_iri,
-            reconstruction_iri=reconstruction_iri,
+        event = CorpusTMIEvent(
             event_id=event_id,
             run_ids=[str(store.manifest["run_id"])],
             advisory_source_id=str(store.manifest["source_id"]),
@@ -864,33 +825,34 @@ def build_corpus(
                     == "controlledNASelement"
                 }
             ),
-            operational_start=_first_object(
+            effective_start=_first_object(
                 event_facts,
                 "effectiveStartTime",
             ),
-            operational_end=_first_object(
+            effective_end=_first_object(
                 event_facts,
                 "effectiveEndTime",
             ),
+            issued_at=_first_object(event_facts, "issuedTime"),
             reason_status=reason_status,
             reason_value=reason_value,
             fact_ids=sorted(set(semantic_ids_by_run_fact_id.values())),
             source_ids=[snapshot.source_id for snapshot in snapshots],
         )
-        previous_case = cases_by_id.get(case_id)
-        if previous_case is None:
-            cases_by_id[case_id] = case
+        previous_event = events_by_id.get(event_id)
+        if previous_event is None:
+            events_by_id[event_id] = event
         else:
-            previous_payload = previous_case.model_dump(mode="json")
-            current_payload = case.model_dump(mode="json")
+            previous_payload = previous_event.model_dump(mode="json")
+            current_payload = event.model_dump(mode="json")
             previous_payload.pop("run_ids")
             current_payload.pop("run_ids")
             if previous_payload != current_payload:
-                raise ValueError(f"conflicting case content for case ID: {case_id}")
-            cases_by_id[case_id] = previous_case.model_copy(
+                raise ValueError(f"conflicting event content for event ID: {event_id}")
+            events_by_id[event_id] = previous_event.model_copy(
                 update={
                     "run_ids": sorted(
-                        set(previous_case.run_ids) | set(case.run_ids)
+                        set(previous_event.run_ids) | set(event.run_ids)
                     )
                 }
             )
@@ -899,7 +861,6 @@ def build_corpus(
             source_id=str(store.manifest["source_id"]),
             status="ok",
             event_id=event_id,
-            case_id=case_id,
             reason="validated run normalized",
             provider_call_count=len(store.manifest.get("model_calls") or []),
             tmi_family=(event_profile.code if event_profile is not None else None),
@@ -921,9 +882,9 @@ def build_corpus(
     artifact_refs_path = output / "artifacts.jsonl"
     build_results_path = output / "build_results.jsonl"
     bindings_path = output / "source_bindings.jsonl"
-    cases_path = output / "cases.jsonl"
+    events_path = output / "events.jsonl"
     facts_path = output / "facts.jsonl"
-    case_facts_path = output / "case_facts.jsonl"
+    event_facts_path = output / "event_facts.jsonl"
     evidence_links_path = output / "evidence_links.jsonl"
     profile_gaps_path = output / "profile_gaps.jsonl"
     associations_path = output / "context_associations.jsonl"
@@ -996,15 +957,15 @@ def build_corpus(
             binding.model_dump(mode="json")
             for binding in sorted(
                 bindings_by_id.values(),
-                key=lambda row: (row.case_id, row.source_id, row.object_key),
+                key=lambda row: (row.event_id, row.source_id, row.object_key),
             )
         ],
     )
     _write_jsonl(
-        cases_path,
+        events_path,
         [
-            case.model_dump(mode="json")
-            for case in sorted(cases_by_id.values(), key=lambda row: row.case_id)
+            event.model_dump(mode="json")
+            for event in sorted(events_by_id.values(), key=lambda row: row.event_id)
         ],
     )
     _write_jsonl(
@@ -1015,12 +976,12 @@ def build_corpus(
         ],
     )
     _write_jsonl(
-        case_facts_path,
+        event_facts_path,
         [
             row.model_dump(mode="json")
             for row in sorted(
-                case_facts_by_id.values(),
-                key=lambda value: (value.case_id, value.fact_id),
+                event_facts_by_id.values(),
+                key=lambda value: (value.event_id, value.fact_id),
             )
         ],
     )
@@ -1065,7 +1026,7 @@ def build_corpus(
         json.dumps(
             _build_tmi_coverage(
                 result_rows,
-                list(cases_by_id.values()),
+                list(events_by_id.values()),
             ),
             sort_keys=True,
             indent=2,
@@ -1084,9 +1045,9 @@ def build_corpus(
         ("build_results", build_results_path, len(result_rows)),
         ("artifacts", artifact_refs_path, len(source_objects)),
         ("source_bindings", bindings_path, len(bindings_by_id)),
-        ("cases", cases_path, len(cases_by_id)),
+        ("events", events_path, len(events_by_id)),
         ("facts", facts_path, len(facts_by_id)),
-        ("case_facts", case_facts_path, len(case_facts_by_id)),
+        ("event_facts", event_facts_path, len(event_facts_by_id)),
         ("evidence_links", evidence_links_path, len(evidence_links_by_id)),
         ("profile_gaps", profile_gaps_path, len(gaps_by_id)),
         ("context_associations", associations_path, len(associations_by_id)),
@@ -1114,7 +1075,7 @@ def build_corpus(
     manifest = CorpusBuildManifest(
         corpus_id=corpus_id,
         run_count=len(stores),
-        case_count=len(cases_by_id),
+        event_count=len(events_by_id),
         fact_count=len(facts_by_id),
         source_binding_count=len(bindings_by_id),
         source_object_count=len(source_objects),
@@ -1136,12 +1097,12 @@ def build_corpus(
     return manifest
 
 
-def load_case_catalog(corpus_dir: str | Path) -> tuple[CorpusCase, ...]:
-    """Load the stable case catalog for a materialized corpus."""
+def load_event_catalog(corpus_dir: str | Path) -> tuple[CorpusTMIEvent, ...]:
+    """Load the stable TMI event catalog for a materialized corpus."""
 
     return tuple(
-        CorpusCase.model_validate(row)
-        for row in _read_jsonl(Path(corpus_dir) / "cases.jsonl")
+        CorpusTMIEvent.model_validate(row)
+        for row in _read_jsonl(Path(corpus_dir) / "events.jsonl")
     )
 
 
@@ -1149,7 +1110,7 @@ def load_corpus_facts(
     corpus_dir: str | Path,
     event_id: str | None = None,
 ) -> tuple[CorpusFact, ...]:
-    """Load canonical facts, optionally restricted to one event's case."""
+    """Load canonical facts, optionally restricted to one TMI event."""
 
     root = Path(corpus_dir)
     facts = {
@@ -1162,15 +1123,10 @@ def load_corpus_facts(
     if event_id is None:
         selected_ids = set(facts)
     else:
-        case_ids = {
-            case.case_id
-            for case in load_case_catalog(root)
-            if case.event_id == event_id
-        }
         selected_ids = {
             str(row["fact_id"])
-            for row in _read_jsonl(root / "case_facts.jsonl")
-            if str(row.get("case_id") or "") in case_ids
+            for row in _read_jsonl(root / "event_facts.jsonl")
+            if str(row.get("event_id") or "") == event_id
         }
     return tuple(
         facts[fact_id]
@@ -1179,29 +1135,29 @@ def load_corpus_facts(
     )
 
 
-def export_case(
+def export_event(
     *,
     corpus_dir: str | Path,
     event_id: str,
     output_dir: str | Path,
 ) -> Path:
-    """Write a bounded, non-replayable artifact bundle for one corpus case."""
+    """Write a bounded, non-replayable artifact bundle for one TMI event."""
 
     store = CorpusQueryStore(corpus_dir)
-    case = store.get_case(event_id)
-    if case is None:
+    event = store.get_event(event_id)
+    if event is None:
         raise ValueError("requested event is not present in this corpus")
     output = Path(output_dir)
     output.mkdir(parents=True, exist_ok=True)
     facts = list(store.get_event_facts(event_id))
     gaps = [row for row in store.profile_gaps if row.event_id == event_id]
-    associations = list(store.get_decision_context(event_id))
-    observations = list(store.get_outcome_observations(event_id))
-    evidence = list(store.get_case_evidence(event_id))
+    associations = list(store.get_weather_context(event_id))
+    observations = list(store.get_public_observations(event_id))
+    evidence = list(store.get_event_evidence(event_id))
     bindings = [
         CorpusSourceBinding.model_validate(row)
         for row in _read_jsonl(store.root / "source_bindings.jsonl")
-        if str(row.get("case_id") or "") == case.case_id
+        if str(row.get("event_id") or "") == event.event_id
     ]
     _write_jsonl(output / "facts.jsonl", [row.model_dump(mode="json") for row in facts])
     _write_jsonl(
@@ -1222,8 +1178,8 @@ def export_case(
         output / "source_bindings.jsonl",
         [row.model_dump(mode="json") for row in bindings],
     )
-    (output / "case.json").write_text(
-        json.dumps(case.model_dump(mode="json"), sort_keys=True, indent=2) + "\n",
+    (output / "event.json").write_text(
+        json.dumps(event.model_dump(mode="json"), sort_keys=True, indent=2) + "\n",
         encoding="utf-8",
     )
     source_objects = {
@@ -1246,13 +1202,12 @@ def export_case(
         include_jsonl=False,
         include_neo4j=False,
     )
-    (output / "case_export_manifest.json").write_text(
+    (output / "event_export_manifest.json").write_text(
         json.dumps(
             {
-                "manifest_version": "decision-case-export-v1",
+                "manifest_version": "tmi-event-export-v1",
                 "corpus_id": store.manifest.corpus_id,
                 "event_id": event_id,
-                "case_id": case.case_id,
             },
             sort_keys=True,
             indent=2,

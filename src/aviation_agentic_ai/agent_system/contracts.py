@@ -115,7 +115,6 @@ class ValidationProfileRef(StrictModel):
     profile_checksum: str = Field(min_length=64, max_length=64)
     layer: Literal[
         "decision",
-        "decision_case_core",
         "weather",
         "public_operational_observation",
     ]
@@ -427,7 +426,6 @@ class ValidatedFact(StrictModel):
         "source_text",
         "deterministic_derivation",
         "profile_definition",
-        "system_membership",
     ] = "source_text"
     evidence_ref: str = Field(min_length=1)
 
@@ -681,7 +679,7 @@ class BTSPublicObservationBundle(StrictModel):
 
 
 class SourceBinding(StrictModel):
-    """Checksum-bound source identity included in one reconstruction."""
+    """Checksum-bound source identity included in one publication."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -753,50 +751,6 @@ class PublicObservationSetRead(StrictModel):
     observations: tuple[PublicObservationRead, ...] = ()
     source_ids: tuple[str, ...] = ()
     failure_reason: str | None = None
-
-
-class DecisionCaseReconstructionSeed(StrictModel):
-    """Stable source and profile binding prepared before case membership."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    conceptual_case_iri: str = Field(min_length=1)
-    reconstruction_iri: str = Field(min_length=1)
-    reconstruction_trace_id: str = Field(min_length=1)
-    reconstruction_input_sha256: str = Field(min_length=64, max_length=64)
-    profile_refs: tuple[ValidationProfileRef, ...]
-    source_bindings: tuple[SourceBinding, ...]
-    builder_id: str = Field(min_length=1)
-    builder_checksum: str = Field(min_length=64, max_length=64)
-    aggregation_procedure_id: str | None = None
-    aggregation_procedure_checksum: str | None = None
-
-
-class ReconstructionTrace(DecisionCaseReconstructionSeed):
-    """Exact immutable input and member binding for one reconstruction."""
-
-    member_iris: tuple[str, ...]
-
-
-class DecisionCaseMemberBinding(StrictModel):
-    """One accepted formal member and the sources that establish it."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    member_iri: str = Field(min_length=1)
-    member_kind: Literal["event", "weather_report", "public_observation"]
-    source_ids: tuple[str, ...]
-
-
-class DecisionCaseGraphBundle(StrictModel):
-    """Formal source-independent DecisionCase core graph."""
-
-    status: Literal["ok", "blocked"]
-    case_iri: str | None = None
-    reconstruction_iri: str | None = None
-    formal_facts: list[ValidatedFact] = Field(default_factory=list)
-    reconstruction_trace: ReconstructionTrace | None = None
-    failure_reason: str = ""
 
 
 class BTSObservationBundle(StrictModel):

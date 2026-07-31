@@ -268,8 +268,6 @@ class IngestState(TypedDict):
     source_snapshot: Any
     decision_context_event: Any
     decision_context_prepared: bool
-    decision_case_reconstruction_seed: Any
-    decision_case_graph: Any
     prepared_source_snapshot: Any
     weather_context: Any
     public_observation_context: Any
@@ -291,7 +289,7 @@ def build_ingest_graph() -> Any:
     sg.add_node("prepare_context", _prepare_context_node)
     sg.add_node("event_evidence_integration", _event_evidence_integration_node)
     sg.add_node("validate_event_patch", _validate_event_patch_node)
-    sg.add_node("publish_case", _publish_case_node)
+    sg.add_node("publish_event", _publish_event_node)
     sg.add_edge(START, "advisory")
     # Parallel fan-out after deterministic advisory evidence construction.
     sg.add_edge("advisory", "facility_authority")
@@ -302,8 +300,8 @@ def build_ingest_graph() -> Any:
     sg.add_edge("join", "prepare_context")
     sg.add_edge("prepare_context", "event_evidence_integration")
     sg.add_edge("event_evidence_integration", "validate_event_patch")
-    sg.add_edge("validate_event_patch", "publish_case")
-    sg.add_edge("publish_case", END)
+    sg.add_edge("validate_event_patch", "publish_event")
+    sg.add_edge("publish_event", END)
     return sg.compile()
 
 
@@ -1478,7 +1476,7 @@ def _validate_event_patch_node(state: dict) -> dict:
     }
 
 
-def _publish_case_node(state: dict) -> dict:
+def _publish_event_node(state: dict) -> dict:
     """Run the final multi-profile publication path without model calls."""
 
     return integrate_decision_context(_ctx(), state)

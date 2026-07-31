@@ -206,7 +206,6 @@ def _write_current_query_run(
     for key, filename in (
         ("weather_fact_trace", "weather_fact_trace.jsonl"),
         ("observation_fact_trace", "observation_fact_trace.jsonl"),
-        ("reconstruction_trace", "reconstruction_trace.json"),
     ):
         path = run_dir / filename
         path.write_text("", encoding="utf-8")

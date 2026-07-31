@@ -1,9 +1,9 @@
-"""Validation-profile ownership contracts for Decision Case Graph v1."""
+"""Validation-profile ownership contracts for published TMI-event facts."""
 
 from __future__ import annotations
 
-import json
 import hashlib
+import json
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
@@ -15,7 +15,6 @@ from aviation_agentic_ai.agent_system.contracts import (
     AgentStatus,
     BTSManifestBinding,
     BTSOnTimeRow,
-    DecisionCaseMemberBinding,
     DecisionContextEvent,
     EvidenceCard,
     EvidenceClaim,
@@ -25,16 +24,13 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceSnapshot,
     SourceSnapshotRegistry,
     ValidatedFact,
-    WeatherContextBundle,
 )
 from aviation_agentic_ai.agent_system.bts_observations import build_bts_public_observation_summaries
 from aviation_agentic_ai.agent_system.context_artifacts import (
     read_observation_derivations,
     read_observation_fact_traces,
-    read_reconstruction_trace,
     write_observation_derivations,
     write_observation_fact_traces,
-    write_reconstruction_trace,
 )
 from aviation_agentic_ai.agent_system.formal_graph import validate_graph_patch
 from aviation_agentic_ai.agent_system.materialize import (
@@ -58,10 +54,6 @@ from aviation_agentic_ai.agent_system.validation_profiles import (
 )
 from aviation_agentic_ai.agent_system.public_observations import (
     build_bts_observation_facts,
-)
-from aviation_agentic_ai.agent_system.decision_case_graph import (
-    build_decision_case_graph,
-    prepare_decision_case_reconstruction,
 )
 from aviation_agentic_ai.agent_system.weather_context import build_weather_context
 from aviation_agentic_ai.cross_source.contracts import (
@@ -194,7 +186,6 @@ def test_registry_resolves_each_independent_profile_by_exact_ref() -> None:
         for ref in registry.refs
     } == {
         "nasa_atmonto_atcscc_tmi_slice",
-        "decision_case_core_slice_v1",
         "nasa_atmonto_decision_context_weather_slice",
         "public_observation_slice_v1",
     }
@@ -224,7 +215,7 @@ def test_registry_rejects_duplicate_ids_malformed_mappings_and_forbidden_predica
 
     path = _copy_public_profile(tmp_path)
     payload = json.loads(path.read_text())
-    payload["class_mappings"] = {"case:DecisionCase": {"label": "missing IRI"}}
+    payload["class_mappings"] = {"sosa:Observation": {"label": "missing IRI"}}
     path.write_text(json.dumps(payload), encoding="utf-8")
     with pytest.raises(ValueError, match="class mapping"):
         _registry(public_observation_profile_path=path)
@@ -489,82 +480,6 @@ def _all_observation_facts(bundle) -> list[ValidatedFact]:
     return list(bundle.formal_facts)
 
 
-def _case_core(inputs: dict[str, object], bundle):
-    reconstruction_seed = prepare_decision_case_reconstruction(
-        inputs["event"],
-        inputs["canonical_facility"],
-        WeatherContextBundle(
-            status="insufficient",
-            failure_reason="no Weather source was provided",
-        ),
-        inputs["observation_bundle"],
-        inputs["snapshot_registry"],
-        inputs["profile_registry"],
-    )
-    core = build_decision_case_graph(
-        seed=reconstruction_seed,
-        members=(
-            DecisionCaseMemberBinding(
-                member_iri=inputs["event"].event_id,
-                member_kind="event",
-                source_ids=(inputs["event"].advisory_source_id,),
-            ),
-            *(
-                DecisionCaseMemberBinding(
-                    member_iri=observation_id,
-                    member_kind="public_observation",
-                    source_ids=("bts_on_time:test",),
-                )
-                for observation_id in bundle.observation_ids
-            ),
-        ),
-        profile_registry=inputs["profile_registry"],
-    )
-    assert core.status == "ok", core.failure_reason
-    assert core.reconstruction_trace is not None
-    return core
-
-
-def test_public_observation_builder_does_not_own_case_identity() -> None:
-    """Removing the core builder must not let BTS recreate case identity."""
-
-    bundle = build_bts_observation_facts(**_observation_input())
-
-    assert bundle.status == "ok", bundle.failure_reason
-    facts = _all_observation_facts(bundle)
-    assert not any(
-        fact.object_value
-        in {
-            "urn:aviation-agentic-ai:decision-case-schema:DecisionCase",
-            (
-                "urn:aviation-agentic-ai:decision-case-schema:"
-                "DecisionCaseReconstruction"
-            ),
-        }
-        for fact in facts
-        if fact.predicate_iri
-        == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-    )
-    assert not any(
-        "decision-case-schema" in value
-        for fact in facts
-        for value in (fact.subject_iri, fact.object_value)
-    )
-    assert not any(
-        fact.predicate_iri
-        in {
-            "http://www.w3.org/ns/prov#specializationOf",
-            "http://www.w3.org/ns/prov#hadMember",
-        }
-        for fact in facts
-    )
-    assert not any(
-        fact.predicate_iri
-        == "https://data.nasa.gov/ontologies/atmonto/ATM#impactingCondition"
-        for fact in facts
-    )
-
-
 def test_observation_builder_emits_typed_noncausal_graph_with_null_omission() -> None:
     inputs = _observation_input()
     bundle = build_bts_observation_facts(**inputs)
@@ -596,6 +511,11 @@ def test_observation_builder_emits_typed_noncausal_graph_with_null_omission() ->
         "profile_definition",
     }
     assert not any("caused" in fact.predicate_iri.lower() for fact in facts)
+    assert not any(
+        fact.predicate_iri
+        == "https://data.nasa.gov/ontologies/atmonto/ATM#impactingCondition"
+        for fact in facts
+    )
 
     numeric_facts = [
         fact
@@ -784,27 +704,20 @@ def test_observation_artifacts_are_byte_stable_and_strict(tmp_path: Path) -> Non
     inputs = _observation_input()
     bundle = build_bts_observation_facts(**inputs)
     assert bundle.status == "ok"
-    core = _case_core(inputs, bundle)
-    reconstruction_trace = core.reconstruction_trace
     derivation_path = write_observation_derivations(tmp_path, bundle.derivations)
     trace_path = write_observation_fact_traces(tmp_path, bundle.fact_traces)
-    reconstruction_path = write_reconstruction_trace(
-        tmp_path, reconstruction_trace
-    )
     before = {
         path.name: path.read_bytes()
-        for path in (derivation_path, trace_path, reconstruction_path)
+        for path in (derivation_path, trace_path)
     }
 
     assert read_observation_derivations(derivation_path) == bundle.derivations
     assert read_observation_fact_traces(trace_path) == bundle.fact_traces
-    assert read_reconstruction_trace(reconstruction_path) == reconstruction_trace
     write_observation_derivations(tmp_path, bundle.derivations)
     write_observation_fact_traces(tmp_path, bundle.fact_traces)
-    write_reconstruction_trace(tmp_path, reconstruction_trace)
     assert before == {
         path.name: path.read_bytes()
-        for path in (derivation_path, trace_path, reconstruction_path)
+        for path in (derivation_path, trace_path)
     }
 
     derivation_path.write_text(
@@ -814,21 +727,19 @@ def test_observation_artifacts_are_byte_stable_and_strict(tmp_path: Path) -> Non
         read_observation_derivations(derivation_path)
 
 
-def test_multi_profile_materialization_preserves_explicit_projection_and_audit_metadata(
+def test_public_observation_materialization_preserves_projection_and_audit_metadata(
     tmp_path: Path,
 ) -> None:
     inputs = _observation_input()
     bundle = build_bts_observation_facts(**inputs)
     assert bundle.status == "ok"
-    core = _case_core(inputs, bundle)
-    facts = [*bundle.formal_facts, *core.formal_facts]
+    facts = list(bundle.formal_facts)
 
     first = materialize_validated_facts(
         facts=facts,
         profile_registry=inputs["profile_registry"],
         source_snapshot=inputs["snapshot_registry"],
         observation_fact_traces=bundle.fact_traces,
-        reconstruction_trace=core.reconstruction_trace,
         output_dir=tmp_path / "first",
     )
     second = materialize_validated_facts(
@@ -836,7 +747,6 @@ def test_multi_profile_materialization_preserves_explicit_projection_and_audit_m
         profile_registry=inputs["profile_registry"],
         source_snapshot=inputs["snapshot_registry"],
         observation_fact_traces=bundle.fact_traces,
-        reconstruction_trace=core.reconstruction_trace,
         output_dir=tmp_path / "second",
     )
 
@@ -847,8 +757,7 @@ def test_multi_profile_materialization_preserves_explicit_projection_and_audit_m
     ]
     assert rows
     assert {row["validation_layer"] for row in rows} == {
-        "decision_case_core",
-        "public_operational_observation",
+        "public_operational_observation"
     }
     assert all(row["evidence_mode"] and row["evidence_ref"] for row in rows)
     nodes = [
@@ -862,8 +771,6 @@ def test_multi_profile_materialization_preserves_explicit_projection_and_audit_m
         if line
     ]
     assert {
-        "DecisionCase",
-        "DecisionCaseReconstruction",
         "Observation",
         "ObservationResult",
         "TimeInterval",
@@ -874,12 +781,9 @@ def test_multi_profile_materialization_preserves_explicit_projection_and_audit_m
         "AggregationActivity",
         "ObservationProcedure",
         "Facility",
-        "AviationEvent",
         "SourceRecord",
     }.issubset({node["label"] for node in nodes})
     assert {
-        "HAS_MEMBER",
-        "SPECIALIZATION_OF",
         "HAS_FEATURE_OF_INTEREST",
         "OBSERVED_PROPERTY",
         "PHENOMENON_TIME",
@@ -915,20 +819,17 @@ def test_formal_publication_kernel_validates_without_writing_then_materializes(
     inputs = _observation_input()
     bundle = build_bts_observation_facts(**inputs)
     assert bundle.status == "ok"
-    core = _case_core(inputs, bundle)
     output_dir = tmp_path / "formal-publication"
 
     publication = run_formal_publication_kernel(
-        facts=[*bundle.formal_facts, *core.formal_facts],
+        facts=list(bundle.formal_facts),
         profile_registry=inputs["profile_registry"],
         source_snapshot=inputs["snapshot_registry"],
         observation_fact_traces=bundle.fact_traces,
-        reconstruction_trace=core.reconstruction_trace,
     )
 
     assert isinstance(publication, FormalPublication)
     assert publication.layer_fact_counts == {
-        "decision_case_core": len(core.formal_facts),
         "public_operational_observation": len(bundle.formal_facts),
     }
     assert not output_dir.exists()
@@ -957,7 +858,6 @@ def test_formal_publication_kernel_blocks_before_projection_writes(
     inputs = _observation_input()
     bundle = build_bts_observation_facts(**inputs)
     assert bundle.status == "ok"
-    core = _case_core(inputs, bundle)
     trace = next(
         trace
         for trace in bundle.fact_traces
@@ -976,11 +876,10 @@ def test_formal_publication_kernel_blocks_before_projection_writes(
         match="deterministic numeric value mismatch",
     ):
         run_formal_publication_kernel(
-            facts=[*corrupted, *core.formal_facts],
+            facts=corrupted,
             profile_registry=inputs["profile_registry"],
             source_snapshot=inputs["snapshot_registry"],
             observation_fact_traces=bundle.fact_traces,
-            reconstruction_trace=core.reconstruction_trace,
         )
 
     assert not output_dir.exists()
@@ -989,7 +888,6 @@ def test_formal_publication_kernel_blocks_before_projection_writes(
 def test_publication_rejects_unknown_derivation_reference_and_class() -> None:
     inputs = _observation_input()
     bundle = build_bts_observation_facts(**inputs)
-    core = _case_core(inputs, bundle)
     facts = _all_observation_facts(bundle)
     derived = next(
         fact for fact in facts if fact.evidence_mode == "deterministic_derivation"
@@ -1000,7 +898,6 @@ def test_publication_rejects_unknown_derivation_reference_and_class() -> None:
             profile_registry=inputs["profile_registry"],
             snapshot_registry=inputs["snapshot_registry"],
             observation_fact_traces=bundle.fact_traces,
-            reconstruction_trace=core.reconstruction_trace,
         )
 
     definition = next(
@@ -1018,7 +915,6 @@ def test_publication_rejects_unknown_derivation_reference_and_class() -> None:
             facts=[unknown],
             profile_registry=inputs["profile_registry"],
             snapshot_registry=inputs["snapshot_registry"],
-            reconstruction_trace=core.reconstruction_trace,
         )
 
 
@@ -1054,7 +950,6 @@ def test_publication_rejects_tampered_numeric_fact_with_stale_trace(
 ) -> None:
     inputs = _observation_input()
     bundle = build_bts_observation_facts(**inputs)
-    core = _case_core(inputs, bundle)
     trace = next(
         trace for trace in bundle.fact_traces if trace.metric_key == metric_key
     )
@@ -1070,5 +965,4 @@ def test_publication_rejects_tampered_numeric_fact_with_stale_trace(
             profile_registry=inputs["profile_registry"],
             snapshot_registry=inputs["snapshot_registry"],
             observation_fact_traces=bundle.fact_traces,
-            reconstruction_trace=core.reconstruction_trace,
         )

@@ -432,7 +432,6 @@ def run_batch_case(
             source_id=source_id,
             status="ok",
             event_id=event_id,
-            case_id=event_id,
             reason="validated run staged",
             provider_call_count=len(model_calls),
             tmi_family=family,
