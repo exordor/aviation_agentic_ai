@@ -7,6 +7,9 @@ import hashlib
 import json
 from collections.abc import Callable
 from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
 
 from aviation_agentic_ai.agent_system.agent_usage import AgentUsageRecord
 from aviation_agentic_ai.agent_system.contracts import SourceFamily, SourceRecord
@@ -188,6 +191,159 @@ def _run(
         case_runner=runner,
         retrieval_indexer=lambda *_args, **_kwargs: (),
     )
+
+
+def test_configured_ingestion_routes_all_domains_without_sharing_raw_root(
+    tmp_path: Path,
+) -> None:
+    """The public orchestrator should compose domains without coupling them."""
+
+    api = _pipeline_api()
+    store = object()
+    calls: list[tuple[str, dict[str, object]]] = []
+
+    def run_tmi(config, selected_store, **kwargs):  # type: ignore[no-untyped-def]
+        assert selected_store is store
+        calls.append(("tmi", kwargs))
+        return SimpleNamespace(
+            discovered_count=3,
+            selected_count=2,
+            attempted_count=2,
+            skipped_count=0,
+            ok_count=1,
+            insufficient_count=1,
+            blocked_count=0,
+        )
+
+    def run_flight(config, selected_store, **kwargs):  # type: ignore[no-untyped-def]
+        assert selected_store is store
+        calls.append(("flight-airspace", kwargs))
+        return SimpleNamespace(
+            discovered_count=5,
+            selected_count=5,
+            attempted_count=4,
+            skipped_count=1,
+            ok_count=4,
+            insufficient_count=0,
+            blocked_count=0,
+        )
+
+    summary = api.run_configured_ingestion(
+        {},
+        store,
+        domain="all",
+        source_root=tmp_path / "raw",
+        allow_live_model=True,
+        allow_model_download=True,
+        tmi_runner=run_tmi,
+        flight_airspace_runner=run_flight,
+    )
+
+    assert calls == [
+        (
+            "tmi",
+            {
+                "advisory_ids": (),
+                "allow_live_model": True,
+                "allow_model_download": True,
+            },
+        ),
+        (
+            "flight-airspace",
+            {"source_root": tmp_path / "raw"},
+        ),
+    ]
+    assert summary.discovered_count == 8
+    assert summary.selected_count == 7
+    assert summary.attempted_count == 6
+    assert summary.skipped_count == 1
+    assert summary.ok_count == 5
+    assert summary.insufficient_count == 1
+    assert summary.blocked_count == 0
+
+
+def test_configured_ingestion_runs_only_the_selected_domain() -> None:
+    api = _pipeline_api()
+    store = object()
+    calls: list[str] = []
+    summary_row = SimpleNamespace(
+        discovered_count=1,
+        selected_count=1,
+        attempted_count=1,
+        skipped_count=0,
+        ok_count=1,
+        insufficient_count=0,
+        blocked_count=0,
+    )
+
+    def run_tmi(*_args, **_kwargs):  # type: ignore[no-untyped-def]
+        calls.append("tmi")
+        return summary_row
+
+    def run_flight(*_args, **_kwargs):  # type: ignore[no-untyped-def]
+        calls.append("flight-airspace")
+        return summary_row
+
+    api.run_configured_ingestion(
+        {},
+        store,
+        domain="flight-airspace",
+        tmi_runner=run_tmi,
+        flight_airspace_runner=run_flight,
+    )
+
+    assert calls == ["flight-airspace"]
+
+
+def test_configured_ingestion_limits_advisory_backfill_to_tmi_domain() -> None:
+    api = _pipeline_api()
+
+    with pytest.raises(ValueError, match="advisory_ids.*tmi"):
+        api.run_configured_ingestion(
+            {},
+            object(),
+            domain="all",
+            advisory_ids=("advisory:1",),
+            tmi_runner=lambda *_args, **_kwargs: None,
+            flight_airspace_runner=lambda *_args, **_kwargs: None,
+        )
+
+
+def test_tmi_pipeline_discovers_only_its_configured_source_families(
+    tmp_path: Path,
+) -> None:
+    """Adding raw Flight assets must not couple them to TMI-only ingestion."""
+
+    api = _pipeline_api()
+    advisory_path = tmp_path / "advisories.jsonl"
+    _write_advisories(advisory_path, [_unsupported_advisory("source:1")])
+    config = _config(advisory_path)
+    config["sources"]["bts_flight_operations"] = "missing/month.zip"  # type: ignore[index]
+    observed_keys: tuple[str, ...] = ()
+
+    def discover(selected_config):  # type: ignore[no-untyped-def]
+        nonlocal observed_keys
+        observed_keys = tuple(sorted(selected_config["sources"]))
+        return ()
+
+    store = AviationEvidenceStore.open(
+        tmp_path / "store",
+        dataset_id="test-ingestion",
+        create=True,
+    )
+    try:
+        api.run_ingestion_pipeline(
+            config,
+            store,
+            resource_loader=lambda _config: _resources(api),
+            case_runner=lambda *_args: None,
+            asset_discoverer=discover,
+            retrieval_indexer=lambda *_args, **_kwargs: (),
+        )
+    finally:
+        store.close()
+
+    assert observed_keys == ("atcscc_advisories",)
 
 
 def test_advisory_filter_registers_and_constructs_only_selected_advisories(

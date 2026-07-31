@@ -38,36 +38,67 @@ class FlightRecord(StrictModel):
     flight_id: str = Field(min_length=1)
     temporal_domain_id: str = Field(min_length=1)
     source_family: SourceFamily
+    source_flight_key: str | None = Field(default=None, min_length=1)
     service_date: date
-    reporting_carrier: str = Field(min_length=1)
-    flight_number: str = Field(min_length=1)
+    call_sign: str | None = Field(default=None, min_length=1)
+    reporting_carrier: str | None = Field(default=None, min_length=1)
+    flight_number: str | None = Field(default=None, min_length=1)
+    operated_by_id: str | None = Field(default=None, min_length=1)
+    aircraft_id: str | None = Field(default=None, min_length=1)
+    aircraft_type_id: str | None = Field(default=None, min_length=1)
     origin_airport_id: str = Field(min_length=1)
     destination_airport_id: str = Field(min_length=1)
-    scheduled_departure_key: str = Field(min_length=1)
+    scheduled_departure_key: str | None = Field(default=None, min_length=1)
     tail_number: str | None = Field(default=None, min_length=1)
     scheduled_departure: datetime | None = None
     actual_wheels_off: datetime | None = None
-    time_basis: Literal["origin_local", "utc", "unknown"]
-    cancelled: bool
-    diverted: bool
+    actual_departure: datetime | None = None
+    actual_arrival: datetime | None = None
+    time_basis: Literal[
+        "origin_local",
+        "utc",
+        "unknown",
+        "source_naive_interpreted_utc",
+    ]
+    cancelled: bool | None = None
+    diverted: bool | None = None
 
     @model_validator(mode="after")
     def _validate_record(self) -> FlightRecord:
-        expected_id = stable_id(
-            "flight",
-            _source_family_value(self.source_family),
-            self.service_date.isoformat(),
-            self.reporting_carrier,
-            self.flight_number,
-            self.origin_airport_id,
-            self.destination_airport_id,
-            self.scheduled_departure_key,
-        )
+        if self.source_flight_key is not None:
+            expected_id = stable_id(
+                "flight",
+                _source_family_value(self.source_family),
+                self.source_flight_key,
+            )
+        else:
+            if not (
+                self.reporting_carrier
+                and self.flight_number
+                and self.scheduled_departure_key
+            ):
+                raise ValueError(
+                    "composite Flight identity requires carrier, number, and "
+                    "scheduled departure key"
+                )
+            expected_id = stable_id(
+                "flight",
+                _source_family_value(self.source_family),
+                self.service_date.isoformat(),
+                self.reporting_carrier,
+                self.flight_number,
+                self.origin_airport_id,
+                self.destination_airport_id,
+                self.scheduled_departure_key,
+            )
         if self.flight_id != expected_id:
             raise ValueError("Flight identity does not match the source-qualified key")
         if self.time_basis == "utc":
             _require_aware(self.scheduled_departure, "scheduled departure")
             _require_aware(self.actual_wheels_off, "actual wheels-off time")
+        if self.time_basis in {"utc", "source_naive_interpreted_utc"}:
+            _require_aware(self.actual_departure, "actual departure time")
+            _require_aware(self.actual_arrival, "actual arrival time")
         return self
 
 
@@ -221,6 +252,11 @@ class NavigationFixRecord(StrictModel):
 
     @model_validator(mode="after")
     def _validate_stable_identity(self) -> NavigationFixRecord:
+        if (
+            self.source_family is SourceFamily.NASA_ATMONTO_INSTANCE
+            and self.fix_id.startswith(("http://", "https://", "urn:"))
+        ):
+            return self
         expected_id = stable_id(
             "navigation-fix",
             _source_family_value(self.source_family),
@@ -355,6 +391,11 @@ class WeatherObservationRecord(StrictModel):
 
     @model_validator(mode="after")
     def _validate_stable_identity(self) -> WeatherObservationRecord:
+        if (
+            self.source_family is SourceFamily.NASA_ATMONTO_INSTANCE
+            and self.observation_id.startswith(("http://", "https://", "urn:"))
+        ):
+            return self
         expected_id = stable_id(
             "weather-observation",
             _source_family_value(self.source_family),
@@ -365,6 +406,65 @@ class WeatherObservationRecord(StrictModel):
         if self.observation_id != expected_id:
             raise ValueError("weather observation identity does not match source record")
         return self
+
+
+class WeatherForecastRecord(StrictModel):
+    forecast_id: str = Field(min_length=1)
+    publication_id: str = Field(min_length=1)
+    temporal_domain_id: str = Field(min_length=1)
+    source_family: SourceFamily
+    station_id: str = Field(min_length=1)
+    issued_at: datetime
+    valid_from: datetime | None = None
+    valid_to: datetime | None = None
+    raw_report: str | None = Field(default=None, min_length=1)
+    source_version_id: str = Field(min_length=1)
+
+    @field_validator("issued_at", "valid_from", "valid_to")
+    @classmethod
+    def _validate_times(cls, value: datetime | None) -> datetime | None:
+        return _require_aware(value, "weather forecast time")
+
+
+class AirportOperationalObservationRecord(StrictModel):
+    observation_id: str = Field(min_length=1)
+    publication_id: str = Field(min_length=1)
+    temporal_domain_id: str = Field(min_length=1)
+    source_family: SourceFamily
+    airport_id: str = Field(min_length=1)
+    interval_start: datetime
+    interval_end: datetime | None = None
+    metrics: dict[str, str]
+    source_version_id: str = Field(min_length=1)
+
+    @field_validator("interval_start", "interval_end")
+    @classmethod
+    def _validate_times(cls, value: datetime | None) -> datetime | None:
+        return _require_aware(value, "airport observation time")
+
+
+class TMIPublicationRecord(StrictModel):
+    tmi_id: str = Field(min_length=1)
+    publication_id: str = Field(min_length=1)
+    temporal_domain_id: str = Field(min_length=1)
+    source_family: SourceFamily
+    tmi_type: Literal[
+        "GroundDelayProgramTMI",
+        "GroundStopTMI",
+        "ReRouteTMI",
+    ]
+    controlled_element_id: str | None = Field(default=None, min_length=1)
+    airport_id: str | None = Field(default=None, min_length=1)
+    reason: str | None = Field(default=None, min_length=1)
+    issued_at: datetime
+    effective_from: datetime | None = None
+    effective_to: datetime | None = None
+    source_version_id: str = Field(min_length=1)
+
+    @field_validator("issued_at", "effective_from", "effective_to")
+    @classmethod
+    def _validate_times(cls, value: datetime | None) -> datetime | None:
+        return _require_aware(value, "TMI time")
 
 
 class FlightWeatherAssociationRecord(StrictModel):
@@ -493,6 +593,11 @@ class FlightAirspaceMaterialization(StrictModel):
     track_points: tuple[TrackPointRecord, ...] = ()
     sector_passages: tuple[SectorPassageRecord, ...] = ()
     weather_observations: tuple[WeatherObservationRecord, ...] = ()
+    weather_forecasts: tuple[WeatherForecastRecord, ...] = ()
+    airport_operational_observations: tuple[
+        AirportOperationalObservationRecord, ...
+    ] = ()
+    tmi_publications: tuple[TMIPublicationRecord, ...] = ()
     flight_weather_associations: tuple[FlightWeatherAssociationRecord, ...] = ()
     aircraft_snapshot_matches: tuple[FlightAircraftSnapshotMatchRecord, ...] = ()
     tmi_applicability: tuple[FlightTMIApplicabilityRecord, ...] = ()
@@ -526,6 +631,9 @@ class FlightAirspaceMaterialization(StrictModel):
             self.track_points,
             self.sector_passages,
             self.weather_observations,
+            self.weather_forecasts,
+            self.airport_operational_observations,
+            self.tmi_publications,
             self.flight_weather_associations,
             self.aircraft_snapshot_matches,
             self.tmi_applicability,
@@ -544,6 +652,30 @@ class FlightAirspaceMaterialization(StrictModel):
                     raise ValueError("weather detail differs from publication root")
                 if observation.publication_id != publication_id:
                     raise ValueError("weather detail references another publication")
+        if self.weather_forecasts:
+            if package.root.root_kind != "weather_forecast":
+                raise ValueError("forecast detail requires a forecast publication")
+            for forecast in self.weather_forecasts:
+                if forecast.forecast_id != package.root.root_id:
+                    raise ValueError("forecast detail differs from publication root")
+                if forecast.publication_id != publication_id:
+                    raise ValueError("forecast detail references another publication")
+        if self.airport_operational_observations:
+            if package.root.root_kind != "airport_operational_observation":
+                raise ValueError("airport observation requires its own publication")
+            for observation in self.airport_operational_observations:
+                if observation.observation_id != package.root.root_id:
+                    raise ValueError("airport observation differs from publication root")
+                if observation.publication_id != publication_id:
+                    raise ValueError("airport observation references another publication")
+        if self.tmi_publications:
+            if package.root.root_kind != "tmi":
+                raise ValueError("TMI detail requires a TMI publication")
+            for tmi in self.tmi_publications:
+                if tmi.tmi_id != package.root.root_id:
+                    raise ValueError("TMI detail differs from publication root")
+                if tmi.publication_id != publication_id:
+                    raise ValueError("TMI detail references another publication")
         route_ids = {route.route_id for route in self.routes}
         point_ids = {point.track_point_id for point in self.track_points}
         for route in self.routes:
@@ -563,6 +695,12 @@ class FlightAirspaceMaterialization(StrictModel):
             *(point.track_point_id for point in self.track_points),
             *(passage.passage_id for passage in self.sector_passages),
             *(observation.observation_id for observation in self.weather_observations),
+            *(forecast.forecast_id for forecast in self.weather_forecasts),
+            *(
+                observation.observation_id
+                for observation in self.airport_operational_observations
+            ),
+            *(tmi.tmi_id for tmi in self.tmi_publications),
             *(row.assignment_id for row in self.airport_artcc_assignments),
             *(row.association_id for row in self.flight_weather_associations),
             *(row.match_id for row in self.aircraft_snapshot_matches),

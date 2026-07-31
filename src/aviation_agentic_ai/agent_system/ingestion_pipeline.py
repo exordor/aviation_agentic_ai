@@ -7,7 +7,7 @@ from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 
 from aviation_agentic_ai.agent_system.agent_usage import (
     AgentUsageRecord,
@@ -58,6 +58,22 @@ from aviation_agentic_ai.agent_system.tool_model import (
 from aviation_agentic_ai.agent_system.workflow import IngestContext, run_ingest
 from aviation_agentic_ai.config import resolve_project_path
 from aviation_agentic_ai.utils.identifiers import stable_id
+
+
+_TMI_SOURCE_ASSET_KEYS = frozenset(
+    {
+        "atcscc_advisories",
+        "stationinfo",
+        "metar",
+        "taf",
+        "nasr_zip",
+        "nasr_manifest",
+        "pilot_controller_glossary",
+        "term_seed",
+        "bts_on_time_manifest",
+        "bts_on_time_snapshot",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -111,6 +127,22 @@ class IngestionSummary:
     results: tuple[IngestionResult, ...]
 
 
+@dataclass(frozen=True)
+class ConfiguredIngestionSummary:
+    """Aggregate status for one public multi-domain ingestion invocation."""
+
+    domain: Literal["all", "tmi", "flight-airspace"]
+    discovered_count: int
+    selected_count: int
+    attempted_count: int
+    skipped_count: int
+    ok_count: int
+    insufficient_count: int
+    blocked_count: int
+    tmi_summary: object | None = None
+    flight_airspace_summary: object | None = None
+
+
 ResourceLoader = Callable[[dict[str, Any]], IngestionResources]
 CaseRunner = Callable[
     [SourceRecord, IngestionResources, bool],
@@ -131,6 +163,73 @@ class RetrievalIndexer(Protocol):
         allow_model_download: bool,
         model_name: str,
     ) -> object: ...
+
+
+def run_configured_ingestion(
+    config: dict[str, object],
+    store: AviationEvidenceStore,
+    *,
+    domain: Literal["all", "tmi", "flight-airspace"] = "all",
+    source_root: str | Path | None = None,
+    advisory_ids: tuple[str, ...] = (),
+    allow_live_model: bool = False,
+    allow_model_download: bool = False,
+    tmi_runner: Callable[..., object] | None = None,
+    flight_airspace_runner: Callable[..., object] | None = None,
+) -> ConfiguredIngestionSummary:
+    """Run selected ingestion domains while keeping their adapters isolated."""
+
+    if domain not in {"all", "tmi", "flight-airspace"}:
+        raise ValueError(f"unsupported ingestion domain: {domain}")
+    if advisory_ids and domain != "tmi":
+        raise ValueError("advisory_ids require the tmi ingestion domain")
+
+    selected_tmi_runner = tmi_runner or run_ingestion_pipeline
+    if flight_airspace_runner is None:
+        from aviation_agentic_ai.agent_system.flight_airspace_ingestion import (
+            run_flight_airspace_ingestion,
+        )
+
+        selected_flight_runner = run_flight_airspace_ingestion
+    else:
+        selected_flight_runner = flight_airspace_runner
+
+    tmi_summary: object | None = None
+    flight_summary: object | None = None
+    if domain in {"all", "tmi"}:
+        tmi_summary = selected_tmi_runner(
+            config,
+            store,
+            advisory_ids=advisory_ids,
+            allow_live_model=allow_live_model,
+            allow_model_download=allow_model_download,
+        )
+    if domain in {"all", "flight-airspace"}:
+        flight_summary = selected_flight_runner(
+            config,
+            store,
+            source_root=source_root,
+        )
+
+    summaries = tuple(
+        summary for summary in (tmi_summary, flight_summary) if summary is not None
+    )
+
+    def total(field_name: str) -> int:
+        return sum(int(getattr(summary, field_name)) for summary in summaries)
+
+    return ConfiguredIngestionSummary(
+        domain=domain,
+        discovered_count=total("discovered_count"),
+        selected_count=total("selected_count"),
+        attempted_count=total("attempted_count"),
+        skipped_count=total("skipped_count"),
+        ok_count=total("ok_count"),
+        insufficient_count=total("insufficient_count"),
+        blocked_count=total("blocked_count"),
+        tmi_summary=tmi_summary,
+        flight_airspace_summary=flight_summary,
+    )
 
 
 def load_ingestion_resources(config: dict[str, Any]) -> IngestionResources:
@@ -215,7 +314,17 @@ def run_ingestion_pipeline(
     typed_config = dict(config)
     changed_source_version_ids: set[str] = set()
     changed_event_publication_ids: set[str] = set()
-    assets = asset_discoverer(typed_config)
+    configured_sources = typed_config.get("sources")
+    source_mapping = (
+        configured_sources if isinstance(configured_sources, dict) else {}
+    )
+    asset_config = dict(typed_config)
+    asset_config["sources"] = {
+        key: value
+        for key, value in source_mapping.items()
+        if key in _TMI_SOURCE_ASSET_KEYS
+    }
+    assets = asset_discoverer(asset_config)
     for asset in assets:
         store.register_source_asset(asset)
     assets_by_key = {asset.asset_key: asset for asset in assets}
@@ -716,11 +825,13 @@ def _summarize(
 
 __all__ = [
     "AdvisoryPreflightResult",
+    "ConfiguredIngestionSummary",
     "IngestionCaseExecution",
     "IngestionResources",
     "IngestionSummary",
     "TMIEventQuery",
     "load_ingestion_resources",
     "preflight_advisory",
+    "run_configured_ingestion",
     "run_ingestion_pipeline",
 ]

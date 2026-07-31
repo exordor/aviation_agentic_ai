@@ -28,13 +28,16 @@ from aviation_agentic_ai.agent_system.storage_contracts import (
     SourceAssetRecord,
     SourceVersionRecord,
 )
+from aviation_agentic_ai.agent_system.source_path_resolver import (
+    resolve_source_path,
+)
 from aviation_agentic_ai.agent_system.bts_observations import (
     ARCHIVE_SHA256,
     NORMALIZED_SNAPSHOT_SHA256,
     NORMALIZED_SOURCE_ID,
 )
 from aviation_agentic_ai.config import resolve_project_path
-from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.paths import PROJECT_ROOT
 from aviation_agentic_ai.utils.identifiers import stable_id
 from aviation_agentic_ai.utils.io import read_jsonl_objects
 
@@ -103,11 +106,44 @@ _SOURCE_ASSET_SPECS: dict[
         "bts_on_time",
         "bts_on_time_archive",
     ),
+    "bts_flight_operations": (
+        SourceFamily.BTS_FLIGHT_OPERATION,
+        "application/zip",
+        "bts_flight_operations",
+        "bts_flight_operations",
+    ),
+    "faa_aircraft_registry": (
+        SourceFamily.FAA_AIRCRAFT_REGISTRY,
+        "application/zip",
+        "faa_aircraft_registry",
+        "faa_aircraft_registry",
+    ),
+    "historical_metar_speci": (
+        SourceFamily.HISTORICAL_METAR_SPECI,
+        "text/csv",
+        "historical_metar_speci",
+        "historical_metar_speci",
+    ),
+    "nasa_atmonto_instances": (
+        SourceFamily.NASA_ATMONTO_INSTANCE,
+        "application/zip",
+        "nasa_atmonto_instances",
+        "nasa_atmonto_instances",
+    ),
+    "nasr_airspace_zip": (
+        SourceFamily.NASR_AIRSPACE,
+        "application/zip",
+        "nasr_airspace",
+        "faa_nasr",
+    ),
 }
 
 
 def discover_source_assets(
     config: dict[str, Any],
+    *,
+    source_root: str | Path | None = None,
+    project_root: str | Path = PROJECT_ROOT,
 ) -> tuple[SourceAssetRecord, ...]:
     """Checksum every configured external source asset without storing bytes."""
 
@@ -123,6 +159,8 @@ def discover_source_assets(
     source_metadata = metadata if isinstance(metadata, dict) else {}
     urls = config.get("source_urls")
     source_urls = urls if isinstance(urls, dict) else {}
+    checksums = config.get("source_checksums")
+    source_checksums = checksums if isinstance(checksums, dict) else {}
     assets: list[SourceAssetRecord] = []
     for asset_key in sorted(configured_sources):
         configured_path = configured_sources[asset_key]
@@ -133,9 +171,24 @@ def discover_source_assets(
         family, media_type, metadata_key, url_key = _SOURCE_ASSET_SPECS[
             asset_key
         ]
-        path = resolve_project_path(configured_path)
-        data = path.read_bytes()
-        content_sha256 = hashlib.sha256(data).hexdigest()
+        path = resolve_source_path(
+            configured_path,
+            project_root=project_root,
+            source_root=source_root,
+        ).resolved_path
+        digest = hashlib.sha256()
+        byte_count = 0
+        with path.open("rb") as stream:
+            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(chunk)
+                byte_count += len(chunk)
+        content_sha256 = digest.hexdigest()
+        expected_checksum = source_checksums.get(asset_key)
+        if expected_checksum is not None and expected_checksum != content_sha256:
+            raise ValueError(
+                f"source checksum mismatch for {asset_key}: "
+                f"expected {expected_checksum}, observed {content_sha256}"
+            )
         family_metadata = source_metadata.get(metadata_key)
         effective = (
             family_metadata if isinstance(family_metadata, dict) else {}
@@ -150,7 +203,7 @@ def discover_source_assets(
                 ),
                 asset_key=asset_key,
                 family=family,
-                local_path=project_relative_path(path),
+                local_path=Path(configured_path).as_posix(),
                 source_url=(
                     source_url
                     if isinstance(source_url, str) and source_url
@@ -158,7 +211,7 @@ def discover_source_assets(
                 ),
                 media_type=media_type,
                 content_sha256=content_sha256,
-                byte_count=len(data),
+                byte_count=byte_count,
                 effective_start=(
                     str(effective["effective_start"])
                     if effective.get("effective_start") is not None

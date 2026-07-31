@@ -21,7 +21,9 @@
 - Source-specific parsing is deterministic. Do not add a BTS Agent, PDF Agent, Weather Agent, Flight Agent, or one Agent per source.
 - Every valid natural-language `ask` still invokes the LLM Query Agent. The model selects tools and writes the answer; deterministic services execute structured filters, joins, time arithmetic, counts, ranking, and graph traversal.
 - Search/vector hits remain candidate discovery. Exact source records, accepted facts, structured associations, graph paths, or deterministic derivations support final statements.
-- Keep 2014 NASA atmontoPlus and May/July 2026 proxy sources as separate temporal domains. Reject unsupported cross-era composite claims.
+- Use NASA's public `2014-07-15` atmontoPlus NYC slice as the canonical
+  end-to-end prototype. Keep May/July 2026 raw-source supplements in separate
+  temporal domains and reject unsupported cross-era composite claims.
 - Bind every publication and cross-record association to a `temporal_domain_id`; association construction must verify domain compatibility and must reference concrete publication versions rather than only stable roots.
 - Treat a BTS source row and a semantic Flight root as different identities. A Flight root is source-qualified and version-stable only under a frozen identity rule; do not merge across source families or source versions without reviewed identity evidence.
 - Treat BTS `reporting_carrier` as that exact source role; do not silently map it to ATMONTO `operatedBy` unless an admitted source field supports the stronger semantics.
@@ -34,7 +36,9 @@
 - F3S-style weather matching exposes cardinality (`nearest` or `all`) and a strict `< max_minutes` boundary.
 - Persist source observations and source-qualified time deltas; select `nearest|all` at query time rather than materializing two competing association sets.
 - Every deterministic aggregate or comparison returns a typed derivation containing a stable ID, procedure/method version, normalized parameters, ordered input publication/source identities, result checksum, result summary, and supporting entity IDs. Aggregate answers are not unsupported prose and are not promoted to permanent semantic facts.
-- Do not claim national live sector coverage. The current trajectory source is NASA's published 100-flight 2014 sample with 20,826 track points and 400 sector identifiers.
+- Do not claim national live sector coverage. The canonical trajectory source
+  is NASA's published 100-flight sample for flights departing on
+  `2014-07-15`; arrivals spill into `2014-07-16`.
 - Upgrade the store to `aviation-evidence-store-v2`. Do not add v1 migration or compatibility code; old stores are rebuilt from configured source artifacts.
 - Kernel validation may be batched for throughput, but digest, membership, status, failure isolation, and active-publication activation are partitioned per semantic root. One malformed row must not block unrelated roots in the same chunk.
 - Preserve existing TMI reason states, Weather context, public-observation semantics, source-reading guarantees, and natural-language GDP 138 flagship behavior.
@@ -59,32 +63,76 @@ After a normal `ingest`, a user can ask free natural-language questions spanning
 - evidence-bounded TMI applicability candidates;
 - exact source records, semantic graph neighbors, and provenance.
 
-### Full configured source scope
+### Canonical public-sample scope
 
-| Source | Configured artifact | Runtime role | Temporal domain |
+The default research prototype is the checksum-pinned NASA `atmontoPlus`
+bundle, not a modern monthly BTS archive. `2014-07-15` is the only date in the
+public documentary subset that combines the following layers in one NASA
+artifact:
+
+| Layer | Public sample inventory | Geographic/temporal scope |
+| --- | ---: | --- |
+| Flight and trajectory | 100 Flights with planned and actual routes | JFK/EWR/LGA arrivals or departures; departures on `2014-07-15`, arrival spillover through `2014-07-16T04:54:00Z` |
+| METAR | 130 reports | KJFK, KEWR, and KLGA on `2014-07-15` |
+| TAF | 42 reports issued on the date | KJFK, KEWR, and KLGA; 66 validity intervals overlap the date |
+| ASPM AirportData | 72 airport-hour records | 24 hours for each of KJFK, KEWR, and KLGA on `2014-07-15` |
+| Traffic management initiatives | 80 TMI records | all-NAS scope: 10 GDP, 16 GS, and 54 ReRoute records issued on `2014-07-15`; 114 effective intervals overlap the date |
+| Aeronautical infrastructure | airport, runway, route, fix, ARTCC, and sector instances | static reference coverage bundled with atmontoPlus |
+
+This is the public 100-flight documentary subset of ATMGRAPH, not the private
+approximately 100,000-flight July 2014 graph. ASPM values are airport-hour
+operational observations, not flight-level outcomes.
+
+### Optional modern raw-source supplements
+
+These sources exercise additional adapters and scaling paths independently.
+They are not required to make the canonical public sample complete and must
+not be joined to the 2014 sample merely because labels match.
+
+| Source | Configured artifact | Optional role | Temporal domain |
 | --- | --- | --- | --- |
-| FAA ATCSCC | 718 processed advisory records | TMI publication evidence | 2026-05-14 to 2026-05-21 |
-| BTS On-Time | May 2026 monthly ZIP, 611,735 rows | public Flight operation records | 2026-05 |
-| FAA NASR | 2026-05-14 28-day ZIP | Airport, ARTCC, Fix, Airway reference | effective 2026-05-14 to 2026-06-10 |
-| FAA Aircraft Registry | 2026-07-28 release ZIP | non-personal aircraft/model technical snapshot | snapshot dated 2026-07-28 |
-| IEM ASOS/METAR | KATL CSV, 202 observations | historical METAR/SPECI evidence | 2026-05-14 to 2026-05-22 |
-| NASA atmontoPlus | `allFilesTTL.zip`, 34 members; explicit allowlist for Flight, route, track-point, fix, sector, airport, ARTCC, airline, aircraft, and model instances | published Flight/trajectory/sector sample | naive source timestamps interpreted as UTC under a documented source rule; 2014-07-15 to 2014-07-16 track times |
+| FAA ATCSCC | 718 processed advisory records | modern TMI ingestion supplement | 2026-05-14 to 2026-05-21 |
+| BTS On-Time | May 2026 monthly ZIP | optional public Flight-operation adapter/scalability source; full archive is not the default slice | 2026-05 |
+| FAA NASR | 2026-05-14 28-day ZIP | modern Airport/ARTCC reference supplement | effective 2026-05-14 to 2026-06-10 |
+| FAA Aircraft Registry | 2026-07-28 release ZIP | later non-personal aircraft/model snapshot | snapshot dated 2026-07-28 |
+| IEM ASOS/METAR | KATL CSV, 202 observations | modern historical-weather adapter supplement | 2026-05-14 to 2026-05-22 |
 
 ### Frozen acceptance values
 
 These values are parity checks, not hard-coded outputs:
 
+- Canonical public sample: 100 Flight, 130 METAR, 42 TAF, 72 ASPM
+  AirportData, and 80 TMI records on `2014-07-15`.
+- Canonical TMI breakdown: 10 GDP, 16 GS, and 54 ReRoute records.
+- The canonical ingestion selection is issue-date based for TAF and TMI. The
+  separate overlap inventories are 66 TAF validity intervals and 114 TMI
+  effective intervals; these counts are not mixed with the issued-on-date
+  inventory.
+- Canonical flight window: departures from `2014-07-15T00:01:00Z` through
+  `2014-07-15T23:59:00Z`, with arrival spillover through
+  `2014-07-16T04:54:00Z`.
 - ZTL airport union: 131 airports, retaining `boundary_artcc` and `responsible_artcc` as distinct assignment roles.
-- F1 modern proxy: 624 BTS DL-reporting A319 matches, 616 with actual wheels-off, 8 cancelled/no-wheels-off records, and 2 diverted among departed matches; origins ATL 584, CLT 31, GSO 1; 4,117 of 4,119 tail candidates match the later registry snapshot.
-- F3S modern proxy: 81 KATL departures with nearest explicit-RA observation strictly under 30 minutes; the IEM source has 202 observations and 7 explicit-rain observations; `causal_claim=false`.
+- Optional F1 modern proxy: 624 BTS DL-reporting A319 matches, 616 with actual wheels-off, 8 cancelled/no-wheels-off records, and 2 diverted among departed matches; origins ATL 584, CLT 31, GSO 1; 4,117 of 4,119 tail candidates match the later registry snapshot. This does not join to the 2014 sample.
+- Optional F3S modern proxy: 81 KATL departures with nearest explicit-RA observation strictly under 30 minutes; the IEM source has 202 observations and 7 explicit-rain observations; `causal_claim=false`. This does not join to the 2014 sample.
 - S4 published sample: `KLGAairportSector`, 12 distinct flights and 146 passage/track-point bindings during `[2014-07-15T02:00:00Z, 2014-07-15T03:00:00Z)`. The historical supplement's bare `hour == 2` result is recorded separately and is not the runtime contract.
 - S1S published sample: exactly three unordered pairs in `ZTLsector040`, with time differences `0`, `1525`, and `1525` seconds.
-- NASA source inventory: 100 flights, 20,826 track points/passages, 400 sector identifiers.
-- BTS source inventory: 611,735 monthly rows; the historical ZTL-union oracle contains 50,055 bounded rows, while only UTC-qualified rows may enter UTC interval joins.
+- NASA trajectory-query acceptance slice: 100 flights, 23,300 TrackPoints,
+  20,826 queryable SectorPassages, 935 explicitly typed Sector definitions,
+  and 400 sector identifiers referenced by the trajectory. The runtime adds 45
+  source-referenced sector roots absent from `SectorLocationInst.ttl`, yielding
+  980 queryable Sector roots without claiming that all were explicitly typed
+  in that member. Report these categories separately.
+- Optional BTS source inventory: 611,735 monthly rows. That full count is an
+  adapter/scalability check, not the default prototype ingestion target; any
+  bounded BTS slice remains entirely within the 2026 temporal domain.
 
 ### Success conditions
 
-- All six source families enter the normal immutable source registry and authoritative store; no compiled supplement report is ingested as knowledge.
+- Every canonical atmontoPlus layer enters the normal immutable source
+  registry and authoritative store; no compiled supplement report is ingested
+  as knowledge.
+- Optional modern source families can be ingested independently without being
+  required for, or cross-linked into, the canonical 2014 public sample.
 - TMI and Flight/Airspace publications share one publication/membership/provenance spine.
 - Re-ingesting identical logical records is idempotent; a new source version preserves the previous immutable publication.
 - A malformed record is recorded or skipped without invalidating unrelated accepted records or previously queryable knowledge.
@@ -110,7 +158,9 @@ These values are parity checks, not hard-coded outputs:
 ### Explicitly deferred
 
 - Live FAA acquisition, polling, ADS-B streaming, national current trajectories, Kafka/Celery, distributed workers, or concurrent writers.
-- ASPM demand, AAR, airport capacity, EDCT, runway configuration, decision rationale, effectiveness, optimality, and recommendation.
+- Decision rationale, effectiveness, optimality, and recommendation. The
+  public sample's source-qualified ASPM demand, rate, delay, and operational
+  observations are in scope, but they do not establish these stronger claims.
 - National Playbook PDF grounding, NOTAM, TCF, CWA, SIGMET, PIREP, or new Agent roles.
 - Automatic ontology expansion, unrestricted SPARQL/Cypher, causal inference, and current operational decision support.
 - PostgreSQL/Neo4j as authoritative storage, production authentication, access control, hostile-input hardening, and public deployment.
@@ -277,6 +327,9 @@ nas:AirCarrier
 eqp:Aircraft
 eqp:AircraftModel
 data:MeteorologicalReport
+data:METARreport
+data:TAFreport
+data:AirportData
 
 atm:departureAirport
 atm:arrivalAirport
@@ -293,9 +346,10 @@ nas:withinARTCC
 eqp:hasAircraftModel
 ```
 
-The profile uses only IRIs present in the checked ATMONTO catalog. A METAR
-source record may instantiate `data:MeteorologicalReport`; no project-defined
-`data:METARreport` subclass is introduced in this batch.
+The profile uses only IRIs present in the checked ATMONTO catalog. NASA sample
+records retain the exact `data:METARreport`, `data:TAFreport`, and
+`data:AirportData` classes from the bundle; no project-defined Weather or
+operational-metric subclass is introduced.
 
 - [ ] **Step 1:** Write failing profile tests that derive expected IRIs, domains, and ranges independently from the implementation.
 - [ ] **Step 2:** Build three small checksum-pinned profiles from the existing ATMONTO schema catalog; do not import the entire ontology as the application profile.
@@ -310,7 +364,9 @@ source record may instantiate `data:MeteorologicalReport`; no project-defined
 
 ## 5. Batch P1C — Deterministic Source Adapters and Full Ingestion
 
-**Capability:** All configured source artifacts are streamed into the normal store through source-specific deterministic adapters.
+**Capability:** The canonical atmontoPlus layers and any explicitly selected
+modern supplements are streamed into the normal store through source-specific
+deterministic adapters.
 
 **Files:**
 
@@ -322,6 +378,7 @@ source record may instantiate `data:MeteorologicalReport`; no project-defined
 - Modify: `src/aviation_agentic_ai/agent_system/ingestion_pipeline.py`
 - Modify: `src/aviation_agentic_ai/cli_agent_system.py`
 - Modify: `configs/aviation_knowledge_v1.yaml`
+- Modify: `configs/flight_competency_v1.yaml`
 - Create: `tests/test_agent_system_flight_sources.py`
 - Create: `tests/test_agent_system_airspace_sources.py`
 - Create: `tests/test_agent_system_flight_airspace_ingestion.py`
@@ -330,11 +387,22 @@ source record may instantiate `data:MeteorologicalReport`; no project-defined
 
 **Adapter responsibilities:**
 
-- BTS: preserve source row identity, Flight date, reporting carrier, flight number, tail, origin/destination, scheduled/actual times, cancellation, diversion, and explicit time basis.
+- BTS: treat the monthly archive as an optional raw-source supplement. Apply an
+  explicit date/geographic ingestion scope before semantic materialization,
+  then preserve source row identity, Flight date, reporting carrier, flight
+  number, tail, origin/destination, scheduled/actual times, cancellation,
+  diversion, and explicit time basis. Full-month ingestion is an explicit
+  scalability mode, not the prototype default.
 - FAA registry: keep only non-personal technical fields; normalize tail number; preserve registry snapshot time and manufacturer/model reference.
 - NASR: ingest all records from the explicitly configured APT/FIX/AWY source members, preserve Airport identity plus boundary and responsible ARTCC roles separately, and bind the source-scope selector to the source version. Only materialize `nas:withinARTCC` under the reviewed role mapping.
 - IEM METAR/SPECI: preserve exact raw report and structured station/time/phenomenon tokens; do not infer causality.
-- NASA atmontoPlus: use an explicit member allowlist for Flight, route, track point, fix, sector, airport, ARTCC, airline, aircraft, and aircraft-model instances; preserve member-level identity, source IRI, Flight, call sign, route, sequence number, TrackPoint, reporting time, ground speed/position when available, Fix, and every sector membership. Register the full ZIP asset plus canonical member-record source versions.
+- NASA atmontoPlus: use an explicit member allowlist for Flight, route, track
+  point, fix, sector, airport, ARTCC, airline, aircraft, aircraft-model, METAR,
+  TAF, ASPM AirportData, and TMI instances. Preserve member-level identity,
+  source IRI, Flight, call sign, route, sequence number, TrackPoint, reporting
+  time, ground speed/position when available, Fix, every sector membership,
+  report validity/observation time, airport-hour interval, and TMI identity.
+  Register the full ZIP asset plus canonical member-record source versions.
 
 **Frozen identity/time rules:**
 
@@ -347,7 +415,7 @@ source record may instantiate `data:MeteorologicalReport`; no project-defined
 
 - [ ] **Step 1:** Port the existing synthetic loader tests into failing adapter tests and add missing cancellation/diversion, DST/2400, unknown-timezone, multi-sector, sequence, and source-anchor cases.
 - [ ] **Step 2:** Add and test `--source-root` path resolution so ignored raw artifacts may live outside an isolated worktree without tracked machine-specific paths. External-root resolution precedes project-relative resolution, conflicts fail loudly, and the acceptance command records the chosen root without committing it.
-- [ ] **Step 3:** Implement streaming BTS CSV, NASR fixed-width, FAA registry ZIP, IEM CSV, and NASA Turtle adapters; never load the BTS month into one Python list.
+- [ ] **Step 3:** Implement streaming BTS CSV, NASR fixed-width, FAA registry ZIP, IEM CSV, and NASA Turtle adapters. Default to the canonical 2014 NASA slice; require an explicit bounded scope or explicit scalability mode for BTS and never load its month into one Python list.
 - [ ] **Step 4:** Register each raw asset checksum and one immutable canonical source version per logical row/member record; put member name, row number, raw-row checksum, parser version, time basis, and source-scope metadata on the version and create a full-record character anchor.
 - [ ] **Step 5:** Implement chunked parsing plus per-root Kernel/publication partitions so a malformed record does not roll back unrelated records; do not create one cross-root `FormalPublication` digest.
 - [ ] **Step 6:** Materialize domain tables and Kernel-accepted semantic facts after each accepted chunk/source publication.
@@ -519,9 +587,11 @@ requested applicability-candidate query.
 
 ---
 
-## 9. Batch P1G — Full Pinned-Source Parity and Supplement Cutover
+## 9. Batch P1G — Canonical Public-Sample Parity and Supplement Cutover
 
-**Capability:** The authoritative runtime reproduces the known Flight/Airspace research results from raw sources, not from the compiled sidecar report.
+**Capability:** The authoritative runtime reconstructs the complete public
+`2014-07-15` NYC sample from the NASA artifact, while optional 2026 supplements
+remain independently testable and outside the canonical case.
 
 **Files:**
 
@@ -533,9 +603,9 @@ requested applicability-candidate query.
 - Modify: `ARTIFACT_INDEX.md`
 - Modify: `REPRODUCIBILITY.md`
 
-- [ ] **Step 1:** Add a local-only acceptance runner that verifies all five raw artifact checksums and records source byte/record counts before ingestion.
-- [ ] **Step 2:** Ingest the full configured Flight/Airspace scope into a fresh ignored v2 store using `uv run aviation-ai agent-system ingest --config configs/aviation_knowledge_v1.yaml --domain flight-airspace --source-root <main-checkout-or-raw-root>` rather than copying data into Git; record the resolved root only in ignored execution metadata.
-- [ ] **Step 3:** Assert the authoritative store/tool results equal the frozen values for source inventories, ZTL, F1, F3S, S4, and S1S, including 611,735 BTS rows, 50,055 historical ZTL-bounded rows, cancellation/diversion counts, registry match cardinality, 202/7 weather counts, NASA module/member counts, and exact `0/1525/1525` second pair deltas.
+- [ ] **Step 1:** Add a local-only acceptance runner that first verifies the canonical NASA artifact checksum and records its member and selected-record counts. Verify optional-source checksums only when those supplements are explicitly selected.
+- [ ] **Step 2:** Ingest the canonical public sample into a fresh ignored v2 store using `uv run aviation-ai agent-system ingest --config configs/flight_competency_v1.yaml --domain flight-airspace --source-root <main-checkout-or-raw-root>` rather than copying data into Git; record the resolved root only in ignored execution metadata.
+- [ ] **Step 3:** Assert 100 Flight, 130 METAR, 42 TAF, 72 ASPM AirportData, and 80 TMI records for `2014-07-15`, plus the NASA module/member inventory and exact `0/1525/1525` second pair deltas. Run the historical ZTL/BTS and KATL/IEM parity checks separately only when their optional 2026 sources are selected; do not require 611,735 BTS rows in the default prototype store.
 - [ ] **Step 4:** Assert the corrected runtime semantics: interval-based S4, exact-second S1S, explicit F3 match mode, distinct ARTCC roles, and 2014/2026 separation.
 - [ ] **Step 5:** Add altered-parameter runs whose results differ from the frozen values, proving the implementation is general; include `nearest|all`, a different interval/sector, a different ARTCC, and a local-time record that is correctly excluded from a UTC join.
 - [ ] **Step 6:** Retire the supplement as an active runner after parity; keep its tracked JSON/MD result as a historical migration oracle through `ARTIFACT_INDEX.md`.
@@ -558,12 +628,15 @@ requested applicability-candidate query.
 
 **Frozen real-provider tasks:**
 
-1. Find Delta-reporting A319 departures from airports assigned to ZTL in May 2026 and distinguish aggregate all-record and actual-wheels-off counts, with only a bounded cited sample rather than enumerating 616 rows.
-2. Find KATL departures temporally associated with explicit rain observations within 30 minutes and state the non-causal boundary.
-3. Identify the busiest sector in the NASA sample during `[2014-07-15T02:00:00Z, 2014-07-15T03:00:00Z)` and distinguish flights from passage bindings.
-4. Find unordered Flight pairs passing ZTLsector040 within 30 minutes and preserve exact time differences.
-5. Read one selected Flight's Flight–Route–TrackPoint–Fix–Sector evidence path.
+1. Summarize the canonical `2014-07-15` sample inventory and cite the NASA bundle records supporting Flight, METAR, TAF, ASPM, and TMI counts.
+2. Identify the busiest sector in the NASA sample during `[2014-07-15T02:00:00Z, 2014-07-15T03:00:00Z)` and distinguish flights from passage bindings.
+3. Find unordered Flight pairs passing ZTLsector040 within 30 minutes and preserve exact time differences.
+4. Read one selected Flight's Flight–Route–TrackPoint–Fix–Sector evidence path.
+5. For one selected NYC airport-hour, retrieve the contemporaneous METAR, TAF, ASPM observation, and TMI records while keeping temporal association separate from causation or actual Flight impact.
 6. Ask an out-of-scope causal/recommendation question that must return `insufficient` without inventing support.
+
+The May 2026 BTS and KATL/IEM questions remain optional supplement smoke tasks;
+they are never combined with the 2014 canonical tasks in one evidence claim.
 
 - [ ] **Step 1:** Write offline evaluator tests for authorization, raw/parsed binding, tool/evidence capture, and report redaction; scripted providers are allowed only for these evaluator software tests.
 - [ ] **Step 2:** Generalize the existing live evaluator and artifacts so Flight/sector/derivation evidence is valid without a required TMI event ID; do not create a parallel evaluator contract.

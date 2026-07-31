@@ -100,7 +100,7 @@ def test_active_commands_default_to_the_cohort_free_configuration() -> None:
     assert "configs/cross_source_v1.yaml" not in result.output
 
 
-def test_ingest_uses_store_and_has_no_selection_or_resume(
+def test_ingest_routes_selected_domain_and_external_source_root(
     monkeypatch,
     tmp_path: Path,
 ) -> None:
@@ -131,7 +131,7 @@ def test_ingest_uses_store_and_has_no_selection_or_resume(
         assert selected_store is store
         return summary
 
-    monkeypatch.setattr(cli_module, "run_ingestion_pipeline", run)
+    monkeypatch.setattr(cli_module, "run_configured_ingestion", run)
     result = CliRunner().invoke(
         cli_module.agent_system,
         [
@@ -140,6 +140,10 @@ def test_ingest_uses_store_and_has_no_selection_or_resume(
             "configs/aviation_knowledge_v1.yaml",
             "--store-dir",
             str(tmp_path / "store"),
+            "--domain",
+            "tmi",
+            "--source-root",
+            str(tmp_path),
             "--advisory-id",
             "2026-05-19:123",
             "--allow-live-model",
@@ -148,11 +152,45 @@ def test_ingest_uses_store_and_has_no_selection_or_resume(
 
     assert result.exit_code == 0, result.output
     assert observed["advisory_ids"] == ("2026-05-19:123",)
+    assert observed["domain"] == "tmi"
+    assert observed["source_root"] == tmp_path
     assert observed["allow_live_model"] is True
     assert "selected: 1" in result.output
     assert "knowledge_revision: 7" in result.output
     assert "--selection" not in result.output
     assert "--resume" not in result.output
+
+
+def test_ingest_defaults_to_all_domains_and_rejects_ambiguous_backfill(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        cli_module,
+        "_load_config",
+        lambda _path: {"agent_system": {}},
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "_open_store",
+        lambda config, store_dir, create: _Store(),
+    )
+
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        ["ingest", "--advisory-id", "2026-05-19:123"],
+    )
+
+    assert result.exit_code != 0
+    assert "--advisory-id requires --domain tmi" in result.output
+
+
+def test_ingest_help_exposes_full_domain_as_the_default() -> None:
+    result = CliRunner().invoke(cli_module.agent_system, ["ingest", "--help"])
+
+    assert result.exit_code == 0, result.output
+    assert "--domain [all|tmi|flight-airspace]" in result.output
+    assert "[default: all]" in result.output
+    assert "--source-root DIRECTORY" in result.output
 
 
 def test_ask_always_uses_query_agent_and_preserves_source_scope(

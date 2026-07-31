@@ -26,7 +26,7 @@ from aviation_agentic_ai.agent_system.evidence_store import (
     AviationEvidenceStore,
 )
 from aviation_agentic_ai.agent_system.ingestion_pipeline import (
-    run_ingestion_pipeline,
+    run_configured_ingestion,
 )
 from aviation_agentic_ai.agent_system.knowledge_query import answer_question
 from aviation_agentic_ai.agent_system.materialize import (
@@ -186,6 +186,19 @@ def _store_option(function):
 @_config_option
 @_store_option
 @click.option(
+    "--domain",
+    type=click.Choice(("all", "tmi", "flight-airspace")),
+    default="all",
+    show_default=True,
+    help="Select all configured knowledge domains or one bounded backfill domain.",
+)
+@click.option(
+    "--source-root",
+    type=click.Path(path_type=Path, exists=True, file_okay=False),
+    default=None,
+    help="Optional external root containing ignored raw Flight/Airspace files.",
+)
+@click.option(
     "--advisory-id",
     "advisory_ids",
     multiple=True,
@@ -196,18 +209,24 @@ def _store_option(function):
 def ingest_command(
     config_path: Path,
     store_dir: Path | None,
+    domain: str,
+    source_root: Path | None,
     advisory_ids: tuple[str, ...],
     allow_live_model: bool,
     allow_model_download: bool,
 ) -> None:
     """Incrementally ingest configured sources into the persistent store."""
 
+    if advisory_ids and domain != "tmi":
+        raise click.UsageError("--advisory-id requires --domain tmi")
     config = _load_config(config_path)
     store = _open_store(config, store_dir, create=True)
     try:
-        summary = run_ingestion_pipeline(
+        summary = run_configured_ingestion(
             config,
             store,
+            domain=domain,
+            source_root=source_root,
             advisory_ids=advisory_ids,
             allow_live_model=allow_live_model,
             allow_model_download=allow_model_download,

@@ -354,19 +354,26 @@ class AviationEvidenceStore:
                             ON DELETE CASCADE,
                         flight_id TEXT NOT NULL REFERENCES flights(flight_id),
                         service_date TEXT NOT NULL,
-                        reporting_carrier TEXT NOT NULL,
-                        flight_number TEXT NOT NULL,
+                        source_flight_key TEXT,
+                        call_sign TEXT,
+                        reporting_carrier TEXT,
+                        flight_number TEXT,
+                        operated_by_id TEXT,
+                        aircraft_id TEXT,
+                        aircraft_type_id TEXT,
                         tail_number TEXT,
                         origin_airport_id TEXT NOT NULL,
                         destination_airport_id TEXT NOT NULL,
-                        scheduled_departure_key TEXT NOT NULL,
+                        scheduled_departure_key TEXT,
                         scheduled_departure_time TEXT,
                         actual_wheels_off_time TEXT,
+                        actual_departure_time TEXT,
+                        actual_arrival_time TEXT,
                         time_basis TEXT NOT NULL,
-                        cancelled INTEGER NOT NULL DEFAULT 0,
-                        diverted INTEGER NOT NULL DEFAULT 0,
-                        CHECK(cancelled IN (0, 1)),
-                        CHECK(diverted IN (0, 1))
+                        cancelled INTEGER,
+                        diverted INTEGER,
+                        CHECK(cancelled IS NULL OR cancelled IN (0, 1)),
+                        CHECK(diverted IS NULL OR diverted IN (0, 1))
                     );
 
                     CREATE INDEX IF NOT EXISTS idx_flight_publications_filters
@@ -551,6 +558,65 @@ class AviationEvidenceStore:
 
                     CREATE INDEX IF NOT EXISTS idx_weather_observations_lookup
                     ON weather_observations(station_id, observed_at);
+
+                    CREATE TABLE IF NOT EXISTS weather_forecasts (
+                        weather_forecast_id TEXT PRIMARY KEY,
+                        publication_id TEXT NOT NULL
+                            REFERENCES knowledge_publications(publication_id),
+                        temporal_domain_id TEXT NOT NULL,
+                        source_family TEXT NOT NULL,
+                        station_id TEXT NOT NULL,
+                        issued_at TEXT NOT NULL,
+                        valid_from TEXT,
+                        valid_to TEXT,
+                        raw_report TEXT,
+                        source_version_id TEXT NOT NULL
+                            REFERENCES source_versions(source_version_id)
+                    );
+
+                    CREATE INDEX IF NOT EXISTS idx_weather_forecasts_lookup
+                    ON weather_forecasts(station_id, issued_at);
+
+                    CREATE TABLE IF NOT EXISTS airport_operational_observations (
+                        observation_id TEXT PRIMARY KEY,
+                        publication_id TEXT NOT NULL
+                            REFERENCES knowledge_publications(publication_id),
+                        temporal_domain_id TEXT NOT NULL,
+                        source_family TEXT NOT NULL,
+                        airport_id TEXT NOT NULL,
+                        interval_start TEXT NOT NULL,
+                        interval_end TEXT,
+                        metrics_json TEXT NOT NULL,
+                        source_version_id TEXT NOT NULL
+                            REFERENCES source_versions(source_version_id)
+                    );
+
+                    CREATE INDEX IF NOT EXISTS idx_airport_operations_lookup
+                    ON airport_operational_observations(
+                        airport_id, interval_start
+                    );
+
+                    CREATE TABLE IF NOT EXISTS source_tmi_publications (
+                        tmi_id TEXT PRIMARY KEY,
+                        publication_id TEXT NOT NULL
+                            REFERENCES knowledge_publications(publication_id),
+                        temporal_domain_id TEXT NOT NULL,
+                        source_family TEXT NOT NULL,
+                        tmi_type TEXT NOT NULL,
+                        controlled_element_id TEXT,
+                        airport_id TEXT,
+                        reason TEXT,
+                        issued_at TEXT NOT NULL,
+                        effective_from TEXT,
+                        effective_to TEXT,
+                        source_version_id TEXT NOT NULL
+                            REFERENCES source_versions(source_version_id)
+                    );
+
+                    CREATE INDEX IF NOT EXISTS idx_source_tmi_lookup
+                    ON source_tmi_publications(
+                        tmi_type, airport_id, issued_at
+                    );
 
                     CREATE TABLE IF NOT EXISTS flight_weather_associations (
                         association_id TEXT PRIMARY KEY,
@@ -951,6 +1017,8 @@ class AviationEvidenceStore:
     def register_source_version(
         self,
         version: SourceVersionRecord,
+        *,
+        _manage_transaction: bool = True,
     ) -> str:
         """Register one immutable exact source version."""
 
@@ -965,7 +1033,8 @@ class AviationEvidenceStore:
             sort_keys=True,
             separators=(",", ":"),
         )
-        with self._connection:
+        transaction = self._connection if _manage_transaction else nullcontext()
+        with transaction:
             source = self._connection.execute(
                 "SELECT family FROM sources WHERE source_id = ?",
                 (version.source_id,),
@@ -1019,6 +1088,21 @@ class AviationEvidenceStore:
                 ),
             )
         return "inserted"
+
+    def register_source_versions(
+        self,
+        versions: tuple[SourceVersionRecord, ...],
+    ) -> dict[str, str]:
+        """Register a reusable chunk of immutable source versions atomically."""
+
+        outcomes: dict[str, str] = {}
+        with self._connection:
+            for version in versions:
+                outcomes[version.source_version_id] = self.register_source_version(
+                    version,
+                    _manage_transaction=False,
+                )
+        return outcomes
 
     def get_source_version(
         self,
@@ -1489,6 +1573,9 @@ class AviationEvidenceStore:
     def apply_flight_airspace_publication(
         self,
         materialization: FlightAirspaceMaterialization,
+        *,
+        _manage_transaction: bool = True,
+        _increment_revision: bool = True,
     ) -> str:
         """Atomically publish one common root and its structured domain rows."""
 
@@ -1509,6 +1596,22 @@ class AviationEvidenceStore:
                     "SELECT 1 FROM weather_observations WHERE publication_id = ?",
                     (publication_id,),
                 ).fetchone()
+            elif materialization.weather_forecasts:
+                detail = self._connection.execute(
+                    "SELECT 1 FROM weather_forecasts WHERE publication_id = ?",
+                    (publication_id,),
+                ).fetchone()
+            elif materialization.airport_operational_observations:
+                detail = self._connection.execute(
+                    """SELECT 1 FROM airport_operational_observations
+                       WHERE publication_id = ?""",
+                    (publication_id,),
+                ).fetchone()
+            elif materialization.tmi_publications:
+                detail = self._connection.execute(
+                    "SELECT 1 FROM source_tmi_publications WHERE publication_id = ?",
+                    (publication_id,),
+                ).fetchone()
             elif materialization.sectors:
                 detail = self._connection.execute(
                     "SELECT 1 FROM sectors WHERE sector_id = ?",
@@ -1523,15 +1626,57 @@ class AviationEvidenceStore:
             return "unchanged"
 
         now = datetime.now(UTC).isoformat()
-        with self._connection:
+        transaction = self._connection if _manage_transaction else nullcontext()
+        with transaction:
             outcome = self.apply_knowledge_publication(
                 package,
                 _manage_transaction=False,
                 _increment_revision=False,
             )
             self._insert_flight_airspace_rows(materialization)
-            self._increment_knowledge_revision(now)
+            if _increment_revision:
+                self._increment_knowledge_revision(now)
         return outcome
+
+    def apply_flight_airspace_publication_batch(
+        self,
+        materializations: tuple[FlightAirspaceMaterialization, ...],
+    ) -> dict[str, str]:
+        """Publish one chunk with per-root savepoints and one revision update."""
+
+        outcomes: dict[str, str] = {}
+        changed = False
+        with self._connection:
+            for materialization in materializations:
+                publication_id = (
+                    materialization.publication.publication.publication_id
+                )
+                self._connection.execute("SAVEPOINT flight_airspace_root")
+                try:
+                    outcome = self.apply_flight_airspace_publication(
+                        materialization,
+                        _manage_transaction=False,
+                        _increment_revision=False,
+                    )
+                except (ValueError, sqlite3.IntegrityError):
+                    self._connection.execute(
+                        "ROLLBACK TO SAVEPOINT flight_airspace_root"
+                    )
+                    self._connection.execute(
+                        "RELEASE SAVEPOINT flight_airspace_root"
+                    )
+                    outcomes[publication_id] = "blocked"
+                    continue
+                self._connection.execute(
+                    "RELEASE SAVEPOINT flight_airspace_root"
+                )
+                outcomes[publication_id] = outcome
+                changed = changed or outcome != "unchanged"
+            if changed:
+                self._increment_knowledge_revision(
+                    datetime.now(UTC).isoformat()
+                )
+        return outcomes
 
     def _insert_flight_airspace_rows(
         self,
@@ -1563,118 +1708,134 @@ class AviationEvidenceStore:
             self._connection.execute(
                 """
                 INSERT INTO flight_publications(
-                    publication_id, flight_id, service_date, reporting_carrier,
-                    flight_number, tail_number, origin_airport_id,
+                    publication_id, flight_id, service_date, source_flight_key,
+                    call_sign, reporting_carrier, flight_number, operated_by_id,
+                    aircraft_id, aircraft_type_id, tail_number, origin_airport_id,
                     destination_airport_id, scheduled_departure_key,
-                    scheduled_departure_time, actual_wheels_off_time, time_basis,
+                    scheduled_departure_time, actual_wheels_off_time,
+                    actual_departure_time, actual_arrival_time, time_basis,
                     cancelled, diverted
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     detail.publication_id,
                     flight.flight_id,
                     flight.service_date.isoformat(),
+                    flight.source_flight_key,
+                    flight.call_sign,
                     flight.reporting_carrier,
                     flight.flight_number,
+                    flight.operated_by_id,
+                    flight.aircraft_id,
+                    flight.aircraft_type_id,
                     flight.tail_number,
                     flight.origin_airport_id,
                     flight.destination_airport_id,
                     flight.scheduled_departure_key,
                     self._datetime_text(flight.scheduled_departure),
                     self._datetime_text(flight.actual_wheels_off),
+                    self._datetime_text(flight.actual_departure),
+                    self._datetime_text(flight.actual_arrival),
                     flight.time_basis,
-                    int(flight.cancelled),
-                    int(flight.diverted),
+                    None if flight.cancelled is None else int(flight.cancelled),
+                    None if flight.diverted is None else int(flight.diverted),
                 ),
             )
-        self._connection.executemany(
-            """
-            INSERT INTO air_carriers(
-                carrier_id, temporal_domain_id, source_family, code, name
-            ) VALUES (?, ?, ?, ?, ?)
-            """,
-            (
-                (
+        for row in materialization.air_carriers:
+            self._insert_stable_reference(
+                table="air_carriers",
+                id_column="carrier_id",
+                columns=(
+                    "carrier_id",
+                    "temporal_domain_id",
+                    "source_family",
+                    "code",
+                    "name",
+                ),
+                values=(
                     row.carrier_id,
                     row.temporal_domain_id,
                     row.source_family.value,
                     row.carrier_code,
                     row.display_name,
-                )
-                for row in materialization.air_carriers
-            ),
-        )
-        self._connection.executemany(
-            """
-            INSERT INTO aircraft_models(
-                aircraft_model_id, temporal_domain_id, source_family,
-                manufacturer_code, model_code, display_name
-            ) VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            (
-                (
+                ),
+            )
+        for row in materialization.aircraft_models:
+            self._insert_stable_reference(
+                table="aircraft_models",
+                id_column="aircraft_model_id",
+                columns=(
+                    "aircraft_model_id",
+                    "temporal_domain_id",
+                    "source_family",
+                    "manufacturer_code",
+                    "model_code",
+                    "display_name",
+                ),
+                values=(
                     row.aircraft_model_id,
                     row.temporal_domain_id,
                     row.source_family.value,
                     row.manufacturer_code,
                     row.model_code,
                     row.display_name,
-                )
-                for row in materialization.aircraft_models
-            ),
-        )
-        self._connection.executemany(
-            """
-            INSERT INTO aircraft(
-                aircraft_id, temporal_domain_id, source_family, registration_mark
-            ) VALUES (?, ?, ?, ?)
-            """,
-            (
-                (
+                ),
+            )
+        for row in materialization.aircraft:
+            self._insert_stable_reference(
+                table="aircraft",
+                id_column="aircraft_id",
+                columns=(
+                    "aircraft_id",
+                    "temporal_domain_id",
+                    "source_family",
+                    "registration_mark",
+                ),
+                values=(
                     row.aircraft_id,
                     row.temporal_domain_id,
                     row.source_family.value,
                     row.registration_number,
-                )
-                for row in materialization.aircraft
-            ),
-        )
-        self._connection.executemany(
-            """
-            INSERT INTO airports(
-                airport_id, temporal_domain_id, source_family, identifier,
-                display_name
-            ) VALUES (?, ?, ?, ?, ?)
-            """,
-            (
-                (
+                ),
+            )
+        for row in materialization.airports:
+            self._insert_stable_reference(
+                table="airports",
+                id_column="airport_id",
+                columns=(
+                    "airport_id",
+                    "temporal_domain_id",
+                    "source_family",
+                    "identifier",
+                    "display_name",
+                ),
+                values=(
                     row.airport_id,
                     row.temporal_domain_id,
                     row.source_family.value,
                     row.airport_code,
                     row.display_name,
-                )
-                for row in materialization.airports
-            ),
-        )
-        self._connection.executemany(
-            """
-            INSERT INTO artccs(
-                artcc_id, temporal_domain_id, source_family, identifier,
-                display_name
-            ) VALUES (?, ?, ?, ?, ?)
-            """,
-            (
-                (
+                ),
+            )
+        for row in materialization.artccs:
+            self._insert_stable_reference(
+                table="artccs",
+                id_column="artcc_id",
+                columns=(
+                    "artcc_id",
+                    "temporal_domain_id",
+                    "source_family",
+                    "identifier",
+                    "display_name",
+                ),
+                values=(
                     row.artcc_id,
                     row.temporal_domain_id,
                     row.source_family.value,
                     row.artcc_code,
                     row.display_name,
-                )
-                for row in materialization.artccs
-            ),
-        )
+                ),
+            )
         self._connection.executemany(
             """
             INSERT INTO airport_artcc_assignments(
@@ -1700,41 +1861,44 @@ class AviationEvidenceStore:
                 for row in materialization.airport_artcc_assignments
             ),
         )
-        self._connection.executemany(
-            """
-            INSERT INTO navigation_fixes(
-                fix_id, temporal_domain_id, source_family, identifier,
-                latitude, longitude
-            ) VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            (
-                (
+        for row in materialization.navigation_fixes:
+            self._insert_stable_reference(
+                table="navigation_fixes",
+                id_column="fix_id",
+                columns=(
+                    "fix_id",
+                    "temporal_domain_id",
+                    "source_family",
+                    "identifier",
+                    "latitude",
+                    "longitude",
+                ),
+                values=(
                     row.fix_id,
                     row.temporal_domain_id,
                     row.source_family.value,
                     row.fix_identifier,
                     row.latitude,
                     row.longitude,
-                )
-                for row in materialization.navigation_fixes
-            ),
-        )
-        self._connection.executemany(
-            """
-            INSERT INTO sectors(
-                sector_id, temporal_domain_id, source_family, identifier
-            ) VALUES (?, ?, ?, ?)
-            """,
-            (
-                (
+                ),
+            )
+        for row in materialization.sectors:
+            self._insert_stable_reference(
+                table="sectors",
+                id_column="sector_id",
+                columns=(
+                    "sector_id",
+                    "temporal_domain_id",
+                    "source_family",
+                    "identifier",
+                ),
+                values=(
                     row.sector_id,
                     row.temporal_domain_id,
                     row.source_family.value,
                     row.sector_identifier,
-                )
-                for row in materialization.sectors
-            ),
-        )
+                ),
+            )
         self._connection.executemany(
             """
             INSERT INTO routes(
@@ -1837,6 +2001,79 @@ class AviationEvidenceStore:
         )
         self._connection.executemany(
             """
+            INSERT INTO weather_forecasts(
+                weather_forecast_id, publication_id, temporal_domain_id,
+                source_family, station_id, issued_at, valid_from, valid_to,
+                raw_report, source_version_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.forecast_id,
+                    row.publication_id,
+                    row.temporal_domain_id,
+                    row.source_family.value,
+                    row.station_id,
+                    row.issued_at.isoformat(),
+                    self._datetime_text(row.valid_from),
+                    self._datetime_text(row.valid_to),
+                    row.raw_report,
+                    row.source_version_id,
+                )
+                for row in materialization.weather_forecasts
+            ),
+        )
+        self._connection.executemany(
+            """
+            INSERT INTO airport_operational_observations(
+                observation_id, publication_id, temporal_domain_id,
+                source_family, airport_id, interval_start, interval_end,
+                metrics_json, source_version_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.observation_id,
+                    row.publication_id,
+                    row.temporal_domain_id,
+                    row.source_family.value,
+                    row.airport_id,
+                    row.interval_start.isoformat(),
+                    self._datetime_text(row.interval_end),
+                    json.dumps(row.metrics, sort_keys=True),
+                    row.source_version_id,
+                )
+                for row in materialization.airport_operational_observations
+            ),
+        )
+        self._connection.executemany(
+            """
+            INSERT INTO source_tmi_publications(
+                tmi_id, publication_id, temporal_domain_id, source_family,
+                tmi_type, controlled_element_id, airport_id, reason, issued_at,
+                effective_from, effective_to, source_version_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.tmi_id,
+                    row.publication_id,
+                    row.temporal_domain_id,
+                    row.source_family.value,
+                    row.tmi_type,
+                    row.controlled_element_id,
+                    row.airport_id,
+                    row.reason,
+                    row.issued_at.isoformat(),
+                    self._datetime_text(row.effective_from),
+                    self._datetime_text(row.effective_to),
+                    row.source_version_id,
+                )
+                for row in materialization.tmi_publications
+            ),
+        )
+        self._connection.executemany(
+            """
             INSERT INTO flight_weather_associations(
                 association_id, flight_publication_id, weather_publication_id,
                 flight_time_field, flight_time, observation_time, delta_seconds,
@@ -1926,6 +2163,30 @@ class AviationEvidenceStore:
     def _datetime_text(value: datetime | None) -> str | None:
         return value.isoformat() if value is not None else None
 
+    def _insert_stable_reference(
+        self,
+        *,
+        table: str,
+        id_column: str,
+        columns: tuple[str, ...],
+        values: tuple[object, ...],
+    ) -> None:
+        """Reuse an identical source-qualified reference or reject a conflict."""
+
+        placeholders = ", ".join("?" for _ in values)
+        column_sql = ", ".join(columns)
+        self._connection.execute(
+            f"INSERT OR IGNORE INTO {table}({column_sql}) "
+            f"VALUES ({placeholders})",
+            values,
+        )
+        row = self._connection.execute(
+            f"SELECT {column_sql} FROM {table} WHERE {id_column} = ?",
+            (values[0],),
+        ).fetchone()
+        if row is None or tuple(row[column] for column in columns) != values:
+            raise ValueError(f"stable {table} identity conflicts with stored metadata")
+
     def apply_knowledge_publication_batch(
         self,
         batch: KnowledgePublicationBatch,
@@ -1946,12 +2207,15 @@ class AviationEvidenceStore:
     def record_knowledge_ingestion_result(
         self,
         result: KnowledgeIngestionResult,
+        *,
+        _manage_transaction: bool = True,
     ) -> None:
         """Record one deterministic adapter outcome for resumable ingestion."""
 
         if self.get_source_version(result.source_version_id) is None:
             raise ValueError("ingestion source version does not exist")
-        with self._connection:
+        transaction = self._connection if _manage_transaction else nullcontext()
+        with transaction:
             self._connection.execute(
                 """
                 INSERT INTO knowledge_ingestion_results(
@@ -1989,6 +2253,19 @@ class AviationEvidenceStore:
                     result.recorded_at.isoformat(),
                 ),
             )
+
+    def record_knowledge_ingestion_results(
+        self,
+        results: tuple[KnowledgeIngestionResult, ...],
+    ) -> None:
+        """Record a reusable chunk of deterministic adapter outcomes."""
+
+        with self._connection:
+            for result in results:
+                self.record_knowledge_ingestion_result(
+                    result,
+                    _manage_transaction=False,
+                )
 
     def get_knowledge_ingestion_result(
         self,

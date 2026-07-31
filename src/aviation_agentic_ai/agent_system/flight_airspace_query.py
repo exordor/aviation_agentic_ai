@@ -28,8 +28,10 @@ def _canonical(value: object) -> str:
 
 class FlightQuery(StrictModel):
     flight_id: str | None = Field(default=None, min_length=1)
+    call_sign: str | None = Field(default=None, min_length=1)
     reporting_carrier: str | None = Field(default=None, min_length=1)
     flight_number: str | None = Field(default=None, min_length=1)
+    operated_by_id: str | None = Field(default=None, min_length=1)
     origin_airport_id: str | None = Field(default=None, min_length=1)
     destination_airport_id: str | None = Field(default=None, min_length=1)
     temporal_domain_id: str | None = Field(default=None, min_length=1)
@@ -49,17 +51,24 @@ class FlightView(StrictModel):
     temporal_domain_id: str
     source_family: str
     service_date: date
-    reporting_carrier: str
-    flight_number: str
+    source_flight_key: str | None
+    call_sign: str | None
+    reporting_carrier: str | None
+    flight_number: str | None
+    operated_by_id: str | None
+    aircraft_id: str | None
+    aircraft_type_id: str | None
     tail_number: str | None
     origin_airport_id: str
     destination_airport_id: str
-    scheduled_departure_key: str
+    scheduled_departure_key: str | None
     scheduled_departure: datetime | None
     actual_wheels_off: datetime | None
+    actual_departure: datetime | None
+    actual_arrival: datetime | None
     time_basis: str
-    cancelled: bool
-    diverted: bool
+    cancelled: bool | None
+    diverted: bool | None
     source_ids: tuple[str, ...] = ()
     source_version_ids: tuple[str, ...] = ()
 
@@ -343,8 +352,10 @@ class FlightAirspaceQueryService:
         parameters: list[object] = []
         mappings = (
             ("root.root_id", query.flight_id),
+            ("detail.call_sign", query.call_sign),
             ("detail.reporting_carrier", query.reporting_carrier),
             ("detail.flight_number", query.flight_number),
+            ("detail.operated_by_id", query.operated_by_id),
             ("detail.origin_airport_id", query.origin_airport_id),
             ("detail.destination_airport_id", query.destination_airport_id),
             ("root.temporal_domain_id", query.temporal_domain_id),
@@ -390,8 +401,9 @@ class FlightAirspaceQueryService:
             SELECT root.root_id, root.active_publication_id,
                    root.temporal_domain_id, flight.source_family, detail.*
             {base}
-            ORDER BY detail.service_date, detail.reporting_carrier,
-                     detail.flight_number, root.root_id
+            ORDER BY detail.service_date, COALESCE(detail.call_sign, ''),
+                     COALESCE(detail.reporting_carrier, ''),
+                     COALESCE(detail.flight_number, ''), root.root_id
             LIMIT ? OFFSET ?
             """,
             [*parameters, query.limit, query.offset],
@@ -415,17 +427,26 @@ class FlightAirspaceQueryService:
             temporal_domain_id=row["temporal_domain_id"],
             source_family=row["source_family"],
             service_date=date.fromisoformat(row["service_date"]),
+            source_flight_key=row["source_flight_key"],
+            call_sign=row["call_sign"],
             reporting_carrier=row["reporting_carrier"],
             flight_number=row["flight_number"],
+            operated_by_id=row["operated_by_id"],
+            aircraft_id=row["aircraft_id"],
+            aircraft_type_id=row["aircraft_type_id"],
             tail_number=row["tail_number"],
             origin_airport_id=row["origin_airport_id"],
             destination_airport_id=row["destination_airport_id"],
             scheduled_departure_key=row["scheduled_departure_key"],
             scheduled_departure=self._parse_datetime(row["scheduled_departure_time"]),
             actual_wheels_off=self._parse_datetime(row["actual_wheels_off_time"]),
+            actual_departure=self._parse_datetime(row["actual_departure_time"]),
+            actual_arrival=self._parse_datetime(row["actual_arrival_time"]),
             time_basis=row["time_basis"],
-            cancelled=bool(row["cancelled"]),
-            diverted=bool(row["diverted"]),
+            cancelled=(
+                None if row["cancelled"] is None else bool(row["cancelled"])
+            ),
+            diverted=None if row["diverted"] is None else bool(row["diverted"]),
             source_ids=source_ids,
             source_version_ids=source_version_ids,
         )

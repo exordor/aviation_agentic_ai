@@ -1,0 +1,60 @@
+snapshot_set_id: atmonto-public-sample-2014-v1
+
+agent_system:
+  dataset_id: atmonto-public-sample-2014-v1
+  storage:
+    root: data/stores/aviation/atmonto-public-sample-2014-v1
+    sqlite: aviation_evidence.sqlite3
+    chroma: chroma
+    exports: exports
+    embedding_model: sentence-transformers/all-MiniLM-L6-v2
+
+sources:
+  nasa_atmonto_instances: data/raw/nasa_atmonto_prototype/allFilesTTL.zip
+
+source_checksums:
+  nasa_atmonto_instances: 93dc9675772649079bef11fe3519e6d99fe0d549318a6696af888b7f2b74df47
+
+source_metadata:
+  nasa_atmonto_instances:
+    effective_start: 2014-07-15
+    effective_end: 2014-07-16
+    temporal_domain_id: nasa-atmonto-2014-07-15
+    role: canonical_public_cross_source_sample
+    include_public_sample_layers: true
+    sample_date: 2014-07-15
+    weather_aspm_airport_codes:
+      - KJFK
+      - KEWR
+      - KLGA
+    tmi_scope: all_nas_issued_on_sample_date
+    temporal_selection:
+      weather_observation: observed_on_sample_date
+      weather_forecast: issued_on_sample_date
+      airport_operations: interval_starts_on_sample_date
+      traffic_management_initiative: issued_on_sample_date
+    naive_time_basis: source_naive_interpreted_utc
+    cross_temporal_join_allowed: false
+    selection_basis: >-
+      Public ATMONTO/ATMGRAPH documentary sample in which Flight trajectories,
+      METAR, TAF, ASPM, TMI, and infrastructure records share one NASA bundle
+      and one primary operating date.
+    inventory_issued_on_sample_date:
+      flights: 100
+      metar_reports: 130
+      taf_reports: 42
+      aspm_airport_hours: 72
+      traffic_management_initiatives: 80
+    inventory_interval_overlap_reference:
+      taf_reports: 66
+      traffic_management_initiatives: 114
+    limitations:
+      - >-
+        This is the public 100-flight atmontoPlus subset, not the private full
+        ATMGRAPH graph.
+      - >-
+        ASPM records are airport-hour operational observations and are not
+        flight-level outcomes or causal decision evidence.
+
+source_urls:
+  nasa_atmonto_instances: https://data.nasa.gov/docs/ontologies/atmonto/allFilesTTL.zip

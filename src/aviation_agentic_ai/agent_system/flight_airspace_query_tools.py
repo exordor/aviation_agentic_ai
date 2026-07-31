@@ -47,8 +47,10 @@ def _unique(values: list[str] | tuple[str, ...]) -> tuple[str, ...]:
 
 class FindFlightsInput(StrictModel):
     flight_id: str | None = Field(default=None, min_length=1)
+    call_sign: str | None = Field(default=None, min_length=1)
     reporting_carrier: str | None = Field(default=None, min_length=1)
     flight_number: str | None = Field(default=None, min_length=1)
+    operated_by_id: str | None = Field(default=None, min_length=1)
     origin_airport_id: str | None = Field(default=None, min_length=1)
     destination_airport_id: str | None = Field(default=None, min_length=1)
     temporal_domain_id: str | None = Field(default=None, min_length=1)
@@ -267,8 +269,10 @@ class FlightAirspaceQueryGateway:
         page = self.service.find_flights(
             FlightQuery(
                 flight_id=self._flight_id(query.flight_id),
+                call_sign=query.call_sign,
                 reporting_carrier=query.reporting_carrier,
                 flight_number=query.flight_number,
+                operated_by_id=query.operated_by_id,
                 origin_airport_id=query.origin_airport_id,
                 destination_airport_id=query.destination_airport_id,
                 temporal_domain_id=self._temporal_domain(

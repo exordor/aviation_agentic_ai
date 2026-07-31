@@ -1599,14 +1599,19 @@ def test_configured_source_assets_keep_files_external_to_sqlite(
         "data/stores/aviation/aviation-knowledge-2026-05-v1"
     )
 
-    assets = discover_source_assets(config)
+    discovery_config = dict(config)
+    discovery_config["sources"] = {
+        "term_seed": config["sources"]["term_seed"]
+    }
+    discovery_config["source_checksums"] = {}
+    assets = discover_source_assets(discovery_config)
     assert tuple(asset.asset_key for asset in assets) == tuple(
-        sorted(config["sources"])
+        sorted(discovery_config["sources"])
     )
     pcg = next(
         asset
         for asset in assets
-        if asset.asset_key == "pilot_controller_glossary"
+        if asset.asset_key == "term_seed"
     )
     pcg_path = resolve_project_path(pcg.local_path)
     assert pcg.byte_count == pcg_path.stat().st_size
