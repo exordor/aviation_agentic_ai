@@ -88,6 +88,8 @@ def test_build_corpus_allows_zero_call_deterministic_event_without_live_authoriz
             "configs/cross_source_v1.yaml",
             "--output-dir",
             str(output_dir),
+            "--selection",
+            "cohort",
             "--source-id",
             "2026-05-19:123",
         ],
@@ -97,3 +99,23 @@ def test_build_corpus_allows_zero_call_deterministic_event_without_live_authoriz
     assert "selected: 1" in result.output
     assert "ok: 1" in result.output
     assert "agent_calls: provider=0 tool=0" in result.output
+
+
+def test_build_corpus_requires_explicit_selection(tmp_path) -> None:
+    runner = CliRunner()
+
+    result = runner.invoke(
+        cli_module.agent_system,
+        [
+            "build-corpus",
+            "--config",
+            "configs/cross_source_v1.yaml",
+            "--output-dir",
+            str(tmp_path / "corpus"),
+            "--source-id",
+            "2026-05-19:123",
+        ],
+    )
+
+    assert result.exit_code == 2
+    assert "Missing option '--selection'" in result.output

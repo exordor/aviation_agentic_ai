@@ -16,7 +16,7 @@ from aviation_agentic_ai.agent_system.tmi_event_retrieval_index import (
     ChromaTMIEventRetrievalIndex,
 )
 from aviation_agentic_ai.agent_system.tmi_event_retrieval_search import (
-    find_similar_tmi_events,
+    rank_tmi_events_by_metadata,
 )
 from aviation_agentic_ai.agent_system.contracts import (
     TMIEventSimilarityMatch,
@@ -131,7 +131,7 @@ def evaluate_tmi_event_retrieval_smoke(
             reason_value=row.filters.reason_value,
             limit=20,
         )
-        result = find_similar_tmi_events(store, index, query)
+        result = rank_tmi_events_by_metadata(store, index, query)
         if result.status == "blocked":
             raise ValueError(
                 f"retrieval blocked for {row.query_source_id}: "

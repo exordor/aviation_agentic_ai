@@ -120,7 +120,7 @@ def test_tool_registry_exposes_only_six_read_only_tools(tmp_path: Path) -> None:
         "read_weather_context",
         "read_public_observations",
         "read_tmi_event_graph",
-        "find_similar_tmi_events",
+        "rank_tmi_events_by_metadata",
     ]
     result = next(tool for tool in tools if tool.name == "read_tmi_event_facts").invoke(
         {"event_id": FORMAL_EVENT_ID}
@@ -387,7 +387,7 @@ def test_similarity_uses_the_corpus_bound_index(tmp_path: Path) -> None:
     corpus_dir = _corpus(tmp_path, with_index=True)
     gateway = _gateway(corpus_dir)
 
-    observation = gateway.find_similar_tmi_events(
+    observation = gateway.rank_tmi_events_by_metadata(
         reference_event_id=FORMAL_EVENT_ID,
         candidate_scope="archive",
         limit=2,
@@ -409,7 +409,7 @@ def test_similarity_uses_the_corpus_bound_index(tmp_path: Path) -> None:
 def test_missing_event_index_is_insufficient(tmp_path: Path) -> None:
     gateway = _gateway(_corpus(tmp_path))
 
-    observation = gateway.find_similar_tmi_events(
+    observation = gateway.rank_tmi_events_by_metadata(
         reference_event_id=FORMAL_EVENT_ID,
         candidate_scope="archive",
     )

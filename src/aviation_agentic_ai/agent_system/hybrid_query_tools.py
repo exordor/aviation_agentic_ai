@@ -18,7 +18,7 @@ from aviation_agentic_ai.agent_system.tmi_event_retrieval_index import (
     ChromaTMIEventRetrievalIndex,
 )
 from aviation_agentic_ai.agent_system.tmi_event_retrieval_search import (
-    find_similar_tmi_events as search_similar_tmi_events,
+    rank_tmi_events_by_metadata as search_ranked_tmi_events,
 )
 from aviation_agentic_ai.agent_system.contracts import (
     HybridQueryEvidence,
@@ -886,7 +886,7 @@ class HybridQueryGateway:
             ),
         )
 
-    def find_similar_tmi_events(
+    def rank_tmi_events_by_metadata(
         self,
         *,
         reference_event_id: str,
@@ -935,7 +935,7 @@ class HybridQueryGateway:
                 content=_json({"matches": []}),
                 limitation=str(exc),
             )
-        result = search_similar_tmi_events(self.store, index, query)
+        result = search_ranked_tmi_events(self.store, index, query)
         matches = result.matches
         source_ids = tuple(
             sorted(match.advisory_source_id for match in matches)
@@ -1026,11 +1026,18 @@ def build_hybrid_query_tools(
             limit=limit,
         ).model_dump(mode="json")
 
-    @tool("find_similar_tmi_events", args_schema=SimilarTMIEventsInput)
-    def find_similar_tmi_events_tool(**kwargs: object) -> dict[str, object]:
-        """Find structurally similar TMI events through Chroma."""
+    @tool(
+        "rank_tmi_events_by_metadata",
+        args_schema=SimilarTMIEventsInput,
+    )
+    def rank_tmi_events_by_metadata_tool(
+        **kwargs: object,
+    ) -> dict[str, object]:
+        """Rank TMI events with exact filters and metadata embeddings."""
 
-        return gateway.find_similar_tmi_events(**kwargs).model_dump(mode="json")  # type: ignore[arg-type]
+        return gateway.rank_tmi_events_by_metadata(**kwargs).model_dump(  # type: ignore[arg-type]
+            mode="json"
+        )
 
     return [
         find_tmi_events_tool,
@@ -1038,7 +1045,7 @@ def build_hybrid_query_tools(
         read_weather_context_tool,
         read_public_observations_tool,
         read_tmi_event_graph_tool,
-        find_similar_tmi_events_tool,
+        rank_tmi_events_by_metadata_tool,
     ]
 
 

@@ -110,7 +110,7 @@ def build_corpus_batch(
     config: dict[str, Any],
     output_dir: str | Path,
     *,
-    selection: str = "cohort",
+    selection: str,
     source_ids: Sequence[str] = (),
     allow_live_model: bool = False,
     resume: bool = False,

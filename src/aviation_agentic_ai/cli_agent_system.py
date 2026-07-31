@@ -70,8 +70,7 @@ def _load_config(config_path: Path) -> dict:
 @click.option(
     "--selection",
     type=click.Choice(["cohort", "all"]),
-    default="cohort",
-    show_default=True,
+    required=True,
 )
 @click.option("--source-id", "source_ids", multiple=True)
 @click.option("--allow-live-model", is_flag=True)

@@ -75,12 +75,12 @@ def _tmi_type(event: CorpusTMIEvent) -> str:
     return reviewed[0]
 
 
-def find_similar_tmi_events(
+def rank_tmi_events_by_metadata(
     store: CorpusQueryStore,
     index: ChromaTMIEventRetrievalIndex,
     query: TMIEventSimilarityQuery,
 ) -> TMIEventSimilarityResult:
-    """Apply exact corpus filters before Chroma cosine recall."""
+    """Rank TMI events with exact filters and metadata-conditioned recall."""
 
     anchor = store.get_event(query.reference_event_id)
     if anchor is None:

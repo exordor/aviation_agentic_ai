@@ -106,7 +106,7 @@ def _install_scripted_backend(
     )
     monkeypatch.setattr(
         evaluation,
-        "find_similar_tmi_events",
+        "rank_tmi_events_by_metadata",
         lambda received_store, received_index, query: (
             by_event[query.reference_event_id]
             if received_store is store and received_index is index

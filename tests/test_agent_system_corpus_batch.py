@@ -124,6 +124,7 @@ def test_cohort_batch_preflights_26_records_without_running_models(tmp_path: Pat
             expected_cohort_count=68,
         ),
         output,
+        selection="cohort",
         resource_loader=load_resources,
         case_runner=run_case,
         corpus_normalizer=_normalizer,
@@ -162,6 +163,7 @@ def test_all_insufficient_batch_publishes_valid_empty_corpus(tmp_path: Path) -> 
     summary = build_corpus_batch(
         _config(advisories, tmp_path / "advisories.jsonl"),
         output,
+        selection="cohort",
     )
 
     assert summary.selected_count == 2
@@ -231,6 +233,7 @@ def test_blocked_case_does_not_stop_the_batch_or_publish_manifest(tmp_path: Path
     summary = build_corpus_batch(
         _config(advisories, tmp_path / "advisories.jsonl"),
         output,
+        selection="cohort",
         resource_loader=lambda config: _resources(),
         case_runner=run_case,
         corpus_normalizer=_normalizer,
@@ -270,6 +273,7 @@ def test_resume_withholds_old_manifest_when_new_block_is_persisted(
         build_corpus_batch(
             _config(advisories, tmp_path / "advisories.jsonl"),
             output,
+            selection="cohort",
             resume=True,
             resource_loader=lambda config: _resources(),
             case_runner=run_case,
@@ -312,6 +316,7 @@ def test_resume_retries_only_blocked_cases_and_is_idempotent(tmp_path: Path) -> 
     build_corpus_batch(
         config,
         output,
+        selection="cohort",
         resource_loader=lambda config: _resources(),
         case_runner=run_case,
         corpus_normalizer=_normalizer,
@@ -319,6 +324,7 @@ def test_resume_retries_only_blocked_cases_and_is_idempotent(tmp_path: Path) -> 
     resumed = build_corpus_batch(
         config,
         output,
+        selection="cohort",
         resume=True,
         resource_loader=lambda config: _resources(),
         case_runner=run_case,
@@ -327,6 +333,7 @@ def test_resume_retries_only_blocked_cases_and_is_idempotent(tmp_path: Path) -> 
     repeated = build_corpus_batch(
         config,
         output,
+        selection="cohort",
         resume=True,
         resource_loader=lambda config: _resources(),
         case_runner=run_case,
@@ -402,6 +409,7 @@ def test_resume_replaces_blocked_usage_rows_without_duplicating_terminal_rows(
     first = build_corpus_batch(
         config,
         output,
+        selection="cohort",
         resource_loader=lambda config: _resources(),
         case_runner=run_case,
         corpus_normalizer=finalizer,
@@ -424,6 +432,7 @@ def test_resume_replaces_blocked_usage_rows_without_duplicating_terminal_rows(
     resumed = build_corpus_batch(
         config,
         output,
+        selection="cohort",
         resume=True,
         resource_loader=lambda config: _resources(),
         case_runner=run_case,
@@ -433,6 +442,7 @@ def test_resume_replaces_blocked_usage_rows_without_duplicating_terminal_rows(
     repeated = build_corpus_batch(
         config,
         output,
+        selection="cohort",
         resume=True,
         resource_loader=lambda config: _resources(),
         case_runner=run_case,
@@ -494,6 +504,7 @@ def test_pending_ok_and_blocked_executions_get_exact_fixed_usage_rows(
     summary = build_corpus_batch(
         _config(advisories, tmp_path / "advisories.jsonl"),
         output,
+        selection="cohort",
         resource_loader=lambda config: _resources(),
         case_runner=run_case,
         corpus_normalizer=_normalizer,
@@ -560,6 +571,7 @@ def test_resume_rejects_expanding_a_finalized_source_subset(tmp_path: Path) -> N
     build_corpus_batch(
         config,
         output,
+        selection="cohort",
         source_ids=("ok:one",),
         resource_loader=lambda config: _resources(),
         case_runner=run_case,
@@ -575,6 +587,7 @@ def test_resume_rejects_expanding_a_finalized_source_subset(tmp_path: Path) -> N
         build_corpus_batch(
             config,
             output,
+            selection="cohort",
             source_ids=("ok:one", "ok:two"),
             resume=True,
             resource_loader=lambda config: _resources(),

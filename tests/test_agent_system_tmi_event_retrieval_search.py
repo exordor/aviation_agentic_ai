@@ -11,7 +11,7 @@ from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
     TMIEventVectorHit,
 )
 from aviation_agentic_ai.agent_system.tmi_event_retrieval_search import (
-    find_similar_tmi_events,
+    rank_tmi_events_by_metadata,
 )
 from aviation_agentic_ai.agent_system.contracts import StrictModel
 from aviation_agentic_ai.agent_system.corpus_store import (
@@ -156,7 +156,7 @@ def test_exact_filters_are_applied_before_cosine_ranking(
         },
     )
 
-    result = find_similar_tmi_events(
+    result = rank_tmi_events_by_metadata(
         store,
         index,
         TMIEventSimilarityQuery(
@@ -204,7 +204,7 @@ def test_prior_scope_excludes_same_time_and_later_events(
         },
     )
 
-    result = find_similar_tmi_events(
+    result = rank_tmi_events_by_metadata(
         store,
         index,
         TMIEventSimilarityQuery(
@@ -237,7 +237,7 @@ def test_equal_scores_are_tied_by_event_id(tmp_path: Path) -> None:
         },
     )
 
-    result = find_similar_tmi_events(
+    result = rank_tmi_events_by_metadata(
         store,
         index,
         TMIEventSimilarityQuery(
@@ -274,7 +274,7 @@ def test_offset_and_limit_are_applied_after_ranking(
         },
     )
 
-    result = find_similar_tmi_events(
+    result = rank_tmi_events_by_metadata(
         store,
         index,
         TMIEventSimilarityQuery(
@@ -300,7 +300,7 @@ def test_empty_exact_candidate_set_is_insufficient(
         {"event:query": 1.0, "event:other": 0.9},
     )
 
-    result = find_similar_tmi_events(
+    result = rank_tmi_events_by_metadata(
         store,
         index,
         TMIEventSimilarityQuery(
