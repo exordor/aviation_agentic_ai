@@ -21,18 +21,18 @@ The active pipeline is:
   -> facility and terminology authority services
      -> shared Semantic Resolution Agent only for genuine ambiguity
   -> deterministic Weather and BTS context preparation and validation
-  -> sealed Event Evidence Integration task
-  -> zero-call deterministic compiler when all required slots are resolved
-     or bounded Event Evidence Integration Agent for a genuine unresolved
-     evidence/schema choice
+  -> deterministic Event Evidence Integration service
+     -> sealed evidence task
+     -> source-supported proposal or honest insufficient
   -> task-bound validation
   -> write-free Formal Publication Kernel over decision, Weather,
      and public-observation profiles
   -> canonical tmi-event-corpus-v3 normalization
   -> rebuildable JSONL + RDF + Neo4j materialization
-  -> rebuildable TMI-event Chroma index for metadata-conditioned retrieval
+  -> rebuildable TMI-event Chroma index for metadata-conditioned ranking
   -> every valid natural-language ask activates the bounded Query Agent
-     -> model-selected read-only event, Weather, BTS, graph, and similarity tools
+     -> model-selected read-only event, Weather, BTS, graph-path, and
+        metadata-ranking tools
      -> per-statement evidence and claim-boundary validation
      -> answer, insufficient, or blocked
 ```
@@ -55,51 +55,54 @@ names, not internal alphanumeric labels.
 ## Current Status
 
 - The active implementation contains the corpus-first builder, validation,
-  corpus v3 materialization, full-corpus Neo4j projection, Event Evidence
-  Integration, and the bounded HybridRAG Query Agent.
+  corpus v3 materialization, full-corpus Neo4j projection, deterministic Event
+  Evidence Integration, and the bounded HybridRAG Query Agent.
+- The only model-backed roles are the always-on Query Agent and the selectively
+  activated Semantic Resolution Agent.
 - The common semantic root is `atm:TrafficManagementInitiative`; the active
   application-profile families are GDP, GS, and ReRoute. Family detection,
   preflight, formal property mapping, and retrieval labels share one registry.
-- The formal event graph exposes general, event-scoped formal edges to a read-only
-  query tool. It is no longer limited to one registered evidence-path shape.
-- The five tracked cross-family records are regression fixtures, not the system
-  scope. They preserve profile-gap, formal weather, honest missing-reason, and
-  ReRoute states. Public answers are model-routed and evidence-bound, not
-  deterministic sentence matches.
+- The corpus-backed event graph exposes event-scoped formal edges and derived
+  cross-source evidence paths for Weather context and BTS public observations.
+  The paths preserve source-role bindings and do not add causal graph facts.
+- The five tracked cross-family records are development/regression fixtures,
+  not the system scope. They preserve profile-gap, formal weather, honest
+  missing-reason, and ReRoute states. Public answers are model-routed and
+  evidence-bound, not deterministic sentence matches.
 - Complete active-profile records use the zero-call deterministic compiler
   when all required slots are resolved; source identifiers never choose that
   path. The Formal Publication Kernel remains the sole final publication
   authority.
 - Every valid public `ask` invokes the Query Agent. The model may select exact
   event reads, Weather context, BTS observations, event-graph edges, or
-  metadata-conditioned Chroma retrieval over multiple bounded turns. There is
-  no fixed question registry or deterministic answer fallback.
+  metadata-conditioned event ranking over multiple bounded turns. There is no
+  fixed question registry or deterministic answer fallback.
 - The event-centered storage cutover is complete. The rebuildable `index-events`
-  sidecar supports the deterministic filtered-similarity route. The public
+  sidecar supports deterministic metadata-conditioned ranking. The public
   commands are `build-corpus`, `index-events`, `ask`, `neo4j-export`, and
   `export-event`.
   There is no persistent single-case `ingest`, `ask-corpus`, `--runs-root`,
   `--run-dir`, old corpus reader, or command compatibility path. Use
   `build-corpus --source-id` for a bounded debug build.
-- The frozen cohort is 718 discovered and 68 selected: 46 active-family
-  eligible records, 3 incomplete records, 18 boundary notices, and 1 deferred
-  ReRoute cancellation. The 22 preflight insufficiencies use zero model calls.
-  A corpus manifest is published only when blocked is zero; `--resume` retries
-  only blocked entries.
+- The versioned development cohort is 718 discovered and 68 selected: 46
+  active-family eligible records, 3 incomplete records, 18 boundary notices,
+  and 1 deferred ReRoute cancellation. The 22 preflight insufficiencies use
+  zero model calls. A corpus manifest is published only when blocked is zero;
+  `--resume` retries only blocked entries.
 - Successful corpus builds include compact, rebuildable
   `alignment_audit.json` and `tmi_coverage.json` summaries. They describe the
   corpus/profile alignment and family coverage; they are not run ledgers or
   additional publication authorities.
-- The system output ceiling is 10,000 tokens. The Query Agent and Event
-  Evidence Integration Agent use that ceiling; the compact Semantic Resolution decision
-  remains capped at 256 tokens.
-- The tracked v1/v2 DeepSeek results and later compact-selection runs predate
-  this event-centered semantic cutover. They remain GDP-biased historical
-  compatibility evidence and must not be relabeled as current role, corpus, or
-  cross-family performance.
-- Current v3 live-suite configurations use the event-centered contracts, but
-  no post-cutover result should be claimed until a separately authorized real
-  provider run is captured and verified.
+- The system output ceiling is 10,000 tokens for the Query Agent; the compact
+  Semantic Resolution decision remains capped at 256 tokens. Event Evidence
+  Integration is deterministic and makes no provider call.
+- The tracked v1-v3 DeepSeek contracts/results and later compact-selection runs
+  are historical compatibility artifacts. They must not be relabeled as
+  current role, corpus, or cross-family performance.
+- The five familiar records are development/regression fixtures only. No frozen
+  post-cutover evaluation set currently exists; `future_frozen_evaluation` is
+  `NOT CONSTRUCTED`. Historical suites remain compatibility artifacts and
+  cannot establish current performance.
 - The read-only visualization prototype is isolated on
   `codex/kg-visualization-research`. Visualization is paused and is not the
   active `main` implementation track.
@@ -140,6 +143,10 @@ Prefer the smallest runnable system increment. Do not add a role, data source,
 guardrail, framework, schema layer, or benchmark unless an observed failure or
 the approved task requires it. Do not turn an implementation task into a paired
 comparison experiment without an explicit scope decision.
+
+Every mainline implementation batch must add or simplify a user-visible
+capability. A validator-only batch requires a reproduced failure through a
+supported workflow or an explicit user request.
 
 ## Research Prototype Effort Boundary
 
@@ -228,7 +235,7 @@ The following rules apply to `live_experiment`:
 - Keep provider-call success separate from task acceptance. A returned model
   response may still fail parsing, evidence support, publication, or task
   assertions; preserve and report that negative result.
-- Repeated cycles over the same frozen tasks are repeated measurements, not
+- Repeated cycles over the same versioned tasks are repeated measurements, not
   independent evaluation samples. Do not present them as a larger benchmark.
 
 ## Verification
@@ -245,7 +252,7 @@ The following rules apply to `live_experiment`:
 - A live smoke must report the configured provider result as observed.
   Temperature `0` reduces sampling variance but does not make provider output
   deterministic, and a single five-task run is not a statistical benchmark.
-- Do not report synthetic ambiguity fixtures as frozen-cohort Semantic
+- Do not report synthetic ambiguity fixtures as development-cohort Semantic
   Resolution performance. The current cohort has no natural ambiguity that
   activates that role.
 - Report changes: run the relevant command in `REPRODUCIBILITY.md` and inspect

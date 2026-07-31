@@ -57,7 +57,7 @@ Do not replace a pinned source snapshot implicitly during an ordinary build.
 records, performs deterministic preflight, runs eligible records sequentially,
 and publishes a checksum-verified `tmi-event-corpus-v3`.
 
-The frozen cohort has:
+The versioned development cohort has:
 
 | State | Count |
 | --- | ---: |
@@ -69,12 +69,13 @@ The frozen cohort has:
 | Deferred ReRoute cancellation | 1 |
 | Deterministic preflight `insufficient` | 22 |
 
-Build the five tracked cross-family regression records:
+Build the five cross-family development/regression records:
 
 ```bash
 uv run aviation-ai agent-system build-corpus \
   --config configs/cross_source_v1.yaml \
   --output-dir data/corpus/agent_system/smoke-v3 \
+  --selection cohort \
   --source-id 2026-05-19:123 \
   --source-id 2026-05-19:138 \
   --source-id 2026-05-19:108 \
@@ -82,7 +83,7 @@ uv run aviation-ai agent-system build-corpus \
   --source-id 2026-05-20:137
 ```
 
-Build or resume the frozen cohort:
+Build or resume the versioned development cohort:
 
 ```bash
 uv run aviation-ai agent-system build-corpus \
@@ -93,11 +94,11 @@ uv run aviation-ai agent-system build-corpus \
   --resume
 ```
 
-Complete source-supported records can publish through the deterministic
-zero-call path without `--allow-live-model`. Add that flag only when the
-selected set may require bounded Agent escalation; otherwise unresolved
-records remain `insufficient`. Store `DEEPSEEK_API_KEY` and any optional
-`DEEPSEEK_BASE_URL` only in ignored local environment files.
+Complete source-supported records publish through deterministic Event Evidence
+Integration without `--allow-live-model`. Add that flag only when genuine
+authority ambiguity may activate the Semantic Resolution Agent; otherwise the
+unresolved record remains `insufficient`. Store `DEEPSEEK_API_KEY` and any
+optional `DEEPSEEK_BASE_URL` only in ignored local environment files.
 
 The 22 preflight insufficiencies use zero provider calls. A blocked provider or
 workflow result does not stop later records, but it prevents final-manifest
@@ -145,7 +146,7 @@ Important interpretation rules:
 Corpus v3 is canonical. RDF/Turtle, Neo4j, the runtime event graph, and Chroma
 are rebuildable projections.
 
-## Build The TMI Event Index
+## Build The Metadata-Conditioned TMI Event Index
 
 ```bash
 uv run --extra tmi-event-retrieval aviation-ai agent-system index-events \
@@ -188,7 +189,7 @@ read_tmi_event_facts
 read_weather_context
 read_public_observations
 read_tmi_event_graph
-find_similar_tmi_events
+rank_tmi_events_by_metadata
 ```
 
 Scope hints such as `--event-type-iri`, `--facility-id`, `--reason-status`,
@@ -197,13 +198,13 @@ they do not select a hard-coded answer route. The `ask` command has no
 deterministic fallback. If the configured provider cannot be constructed, the
 result is `blocked`.
 
-Example similarity question:
+Example metadata-ranking question:
 
 ```bash
 uv run --extra tmi-event-retrieval aviation-ai agent-system ask \
   --corpus-dir data/corpus/agent_system/cross-source-2026-05-v3 \
   --event-id <reference-event-id> \
-  --question "Which historical TMI event is most similar?" \
+  --question "Which prior TMI records rank closest by the indexed metadata?" \
   --event-type-iri <exact-tmi-iri> \
   --facility-id <canonical-facility-id> \
   --reason-status formal \
@@ -211,8 +212,9 @@ uv run --extra tmi-event-retrieval aviation-ai agent-system ask \
   --candidate-scope prior
 ```
 
-The similarity result is metadata-conditioned retrieval, not a causal,
-effectiveness, optimality, or recommendation result.
+The result is metadata-conditioned ranking, not operational-situation
+similarity and not a causal, effectiveness, optimality, or recommendation
+result.
 
 ## Export
 
@@ -249,43 +251,53 @@ Weather associations remain non-causal. BTS observations are source-qualified
 public observations and are never FAA demand, AAR, capacity, EDCT, decision
 rationale, effectiveness, or caused outcomes.
 
-## Current Live Evaluation Contracts
+## Live Compatibility And Evaluation Status
 
 Offline fake/scripted tests validate software behavior only. They must not be
 reported as LLM or Agent performance.
 
-Run the current event-centered live smoke only with explicit authorization:
+The five records above are development/regression fixtures, not evaluation
+samples. No frozen post-cutover evaluation set currently exists:
+`future_frozen_evaluation` is `NOT CONSTRUCTED`.
+
+Run the query-only compatibility smoke only with explicit authorization:
 
 ```bash
 uv run python -m aviation_agentic_ai.agent_system.live_agent_evaluation \
   --config configs/cross_source_v1.yaml \
-  --suite data/evaluation/agent_system/live_agent_smoke_v3.yaml \
-  --output-dir data/corpus/agent_system/live-agent-smoke-v3 \
+  --suite data/evaluation/agent_system/live_agent_smoke_v4.yaml \
+  --output-dir data/corpus/agent_system/live-agent-smoke-v4 \
   --report-dir reports/stages \
   --allow-live-model \
   --repetitions 1
 ```
 
-Run the current repeated experiment only under its approved real-provider
-protocol:
+The smoke retains sanitized trial results, model-call totals, and
+`HybridQueryRunArtifact` records. It does not retain native provider payloads
+and therefore supports compatibility claims only.
+
+The v4 repeated runner is query-only and records repeated measurements; it is
+not a frozen benchmark or an independent-sample model-quality evaluation:
 
 ```bash
 uv run python -m aviation_agentic_ai.agent_system.live_agent_experiment \
   --config configs/cross_source_v1.yaml \
-  --suite data/evaluation/agent_system/live_agent_experiment_v3.yaml \
-  --output-dir data/corpus/agent_system/live-agent-experiment-v3 \
+  --suite data/evaluation/agent_system/live_agent_experiment_v4.yaml \
+  --output-dir data/corpus/agent_system/live-agent-experiment-v4 \
   --report-dir reports/stages \
   --allow-live-model
 ```
 
-The v3 suites use the Event Evidence Integration and current Query Agent role,
-event identities, and six tool names. No post-cutover result exists until one
-of these commands is explicitly authorized, executed with the real configured
-provider, and its raw/parsed artifacts and manifest are independently verified.
+The v4 suites use the Query Agent, event identities, cross-source graph-path
+view, and six current tool names. Event Evidence Integration is deterministic
+and has no model trial. A smoke result requires verification of its sanitized
+results, call totals, and query-run artifacts. A repeated-experiment result
+additionally requires verification of its raw responses, parsed outputs, call
+bindings, token usage, and manifest checksums.
 
-Tracked v1/v2 reports and later compact-selection compatibility runs predate the
-event-centered semantic cutover. They remain GDP-biased historical evidence
-and must not be relabeled as current performance.
+Tracked v1-v3 reports and later compact-selection compatibility runs are
+historical artifacts. They must not be relabeled as current architecture,
+cross-family performance, or frozen-evaluation evidence.
 
 ## Verification
 

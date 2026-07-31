@@ -14,8 +14,8 @@ and HybridRAG system that:
    layer;
 2. builds retrospective ATCSCC GDP, GS, and ReRoute event knowledge as the
    current end-to-end vertical slice;
-3. escalates only genuine semantic ambiguity or evidence/schema choice to
-   bounded Agents;
+3. escalates only genuine authority ambiguity to the bounded Semantic
+   Resolution Agent and keeps event-evidence integration deterministic;
 4. publishes only source-supported facts accepted by one explicit Formal
    Publication Kernel;
 5. keeps `tmi-event-corpus-v3` as the canonical persisted layer and derives
@@ -65,8 +65,8 @@ The current system provides:
   FAA facility/terminology authority services;
 - a shared Semantic Resolution Agent only for genuine multi-candidate
   authority ambiguity;
-- a zero-call compiler for complete event evidence and a bounded Event Evidence
-  Integration Agent only for unresolved sealed evidence/schema choice;
+- a deterministic Event Evidence Integration service that compiles only
+  source-supported sealed evidence and preserves honest insufficiency;
 - one write-free Formal Publication Kernel over decision, Weather, and
   public-observation layers;
 - content-addressed source storage, semantic fact deduplication, evidence
@@ -74,7 +74,7 @@ The current system provides:
   observations;
 - an event catalog and explicit event-to-fact membership in corpus v3;
 - consistent JSONL, RDF/Turtle, and Neo4j fact projections;
-- a rebuildable metadata-conditioned Chroma index over TMI events;
+- a rebuildable metadata-conditioned Chroma ranking index over TMI events;
 - six bounded read-only Query Agent tools;
 - an always-on Query Agent action-observation loop with statement-level support
   validation;
@@ -111,15 +111,13 @@ The current evidence rules are:
 Agents are organized by semantic responsibility, not by source:
 
 - the Semantic Resolution Agent chooses only among sealed authority candidates;
-- the Event Evidence Integration Agent chooses only among sealed evidence and
-  schema candidates when deterministic integration is incomplete;
 - the Query Agent selects read-only retrieval tools for every valid
   natural-language question.
 
-Parsers, adapters, profile loaders, validators, writers, and vector search are
-deterministic tools or services. No Agent can invent an ontology term, widen
-its sealed scope, write directly to the graph, or treat model memory as
-evidence.
+Event Evidence Integration, parsers, adapters, profile loaders, validators,
+writers, and vector search are deterministic tools or services. No Agent can
+invent an ontology term, widen its sealed scope, write directly to the graph,
+or treat model memory as evidence.
 
 ## Success Criteria
 
@@ -132,8 +130,8 @@ The current mainline succeeds when:
 - `events.jsonl` and `event_facts.jsonl` organize accepted knowledge without a
   synthetic decision-process node;
 - JSONL, RDF/Turtle, and Neo4j expose the same formal fact identities;
-- exact event, graph, Weather, BTS, and similarity tools remain inside the
-  user-supplied scope;
+- exact event, cross-source graph-path, Weather, BTS, and metadata-ranking
+  tools remain inside the user-supplied scope;
 - every valid natural-language query activates the Query Agent and retrieves
   before answering;
 - each returned statement cites retrieved support;
@@ -171,3 +169,7 @@ establish post-cutover performance.
 
 See `ARTIFACT_INDEX.md` for routing and `DECISION_LOG.md` for the sequence of
 scope decisions.
+
+No frozen post-cutover evaluation set currently exists. The five familiar
+records remain development/regression fixtures, and
+`future_frozen_evaluation` is `NOT CONSTRUCTED`.

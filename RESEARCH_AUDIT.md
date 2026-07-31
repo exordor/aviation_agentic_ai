@@ -17,10 +17,11 @@ are the current vertical slice.
   -> cohort/all selection or explicit source-ID subset
   -> ATMONTO-aligned GDP, GS, and ReRoute classification
   -> deterministic preflight and source preparation
-  -> selective Semantic Resolution / Event Evidence Integration
+  -> selective Semantic Resolution for genuine authority ambiguity
+  -> deterministic Event Evidence Integration
   -> Formal Publication Kernel
   -> canonical tmi-event-corpus-v3
-  -> exact event, event graph, and TMI-event vector views
+  -> exact event, cross-source graph-path, and metadata-ranking views
   -> always-on bounded LLM Query Agent
   -> per-statement evidence validation
   -> answer / insufficient / blocked
@@ -47,6 +48,8 @@ old-corpus reader, or compatibility alias.
 
 ## Verified Implementation Capabilities
 
+- The only model-backed roles are the always-on Query Agent and the selectively
+  activated Semantic Resolution Agent.
 - One registry rooted at `atm:TrafficManagementInitiative` drives GDP, GS, and
   ReRoute detection, required-field preflight, formal property mapping, and
   retrieval labels.
@@ -54,9 +57,9 @@ old-corpus reader, or compatibility alias.
   source-family boundaries.
 - The Semantic Resolution Agent activates only for genuine multi-candidate
   authority ambiguity.
-- Complete event evidence uses a zero-call deterministic compiler. The Event
-  Evidence Integration Agent activates only for unresolved sealed
-  evidence/schema choice.
+- Event Evidence Integration is a deterministic service. It compiles
+  source-supported sealed evidence and returns honest `insufficient` when
+  required evidence is absent; it does not call a provider.
 - The Formal Publication Kernel is write-free and is the sole publication
   authority over decision, Weather, and public-observation profiles.
 - `tmi-event-corpus-v3` content-addresses source objects, deduplicates semantic
@@ -70,14 +73,15 @@ old-corpus reader, or compatibility alias.
 - `alignment_audit.json` and `tmi_coverage.json` are compact rebuildable
   summaries, not additional gates or audit ledgers.
 - RDF/Turtle and Neo4j are rebuildable offline KG projections. The event graph
-  is a checksum-verified corpus-backed runtime view.
+  is a checksum-verified corpus-backed runtime view that exposes formal edges
+  and source-bound Weather/BTS evidence paths without creating causal facts.
 - `index-events` builds a corpus-bound Chroma sidecar with one compact vector
   document per admitted TMI event.
 - Every valid `ask` activates the Query Agent. There is no fixed question
   registry or deterministic answer fallback.
 - The Query Agent must retrieve before answering and may select six bounded
   read-only tools for exact events, formal facts, Weather, BTS observations,
-  event graph paths, and metadata-conditioned similarity.
+  cross-source event graph paths, and metadata-conditioned ranking.
 - Each final statement is checked against returned event, fact, gap, context,
   observation, graph-path, and source IDs.
 - Missing support yields `insufficient`; failed providers, contracts, or
@@ -88,8 +92,8 @@ old-corpus reader, or compatibility alias.
 
 ## Current Intake
 
-The frozen source contains 718 discovered advisories and a selected 68-record
-cohort:
+The versioned source snapshot contains 718 discovered advisories and a selected
+68-record development cohort:
 
 | State | Count |
 | --- | ---: |
@@ -126,8 +130,8 @@ The tracked acceptance fixtures preserve:
 - ReRoute `2026-05-19:108` and `2026-05-20:137`: formal
   `atm:ReRouteTMI`, with unsupported ARTCC scope retained as a profile gap.
 
-These are regression fixtures, not representative evaluation samples or
-special execution routes.
+These are development/regression fixtures, not evaluation samples,
+representative coverage, or special execution routes.
 
 ## Evaluation Boundary
 
@@ -147,21 +151,23 @@ historical compatibility evidence:
 - a later compact-selection run recorded 120 successful calls and 60/60 task
   acceptance under its then-current contracts;
 - a later 10,000-token one-shot smoke recorded 10 successful calls and accepted
-  all five frozen tasks.
+  all five then-defined compatibility tasks.
 
 These measurements are not independent task samples, cross-family evidence, or
 post-cutover performance. Provider-call success and task acceptance remain
 separate claims.
 
-Current `live_agent_smoke_v3.yaml` and `live_agent_experiment_v3.yaml` use the
-event-centered role and tool names. No post-cutover live result should be
-reported until a separately authorized real-provider run captures and verifies
-raw responses, parsed outputs, call bindings, token usage, and manifest
-checksums.
+The tracked v3 suite files are historical compatibility contracts and still
+reflect the superseded construction role. They are not current evaluation
+designs. No frozen post-cutover evaluation set exists:
+`future_frozen_evaluation` is `NOT CONSTRUCTED`. A future model claim requires
+an independently designed suite and a separately authorized real-provider run
+with verified raw responses, parsed outputs, call bindings, token usage, and
+manifest checksums.
 
-The frozen cohort contains no natural ambiguity that activates the Semantic
-Resolution Agent. Synthetic ambiguity fixtures remain offline orchestration
-tests and must not be reported as cohort performance.
+The development cohort contains no natural ambiguity that activates the
+Semantic Resolution Agent. Synthetic ambiguity fixtures remain offline
+orchestration tests and must not be reported as cohort performance.
 
 ## Context Routing
 

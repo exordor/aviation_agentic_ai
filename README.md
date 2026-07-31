@@ -9,10 +9,11 @@ LLM Query Agent.
 ```text
 ATCSCC + FAA authority + Weather + BTS sources
   -> deterministic parsing, normalization, and preflight
-  -> selective Semantic Resolution or Event Evidence Integration
+  -> selective Semantic Resolution for genuine authority ambiguity
+  -> deterministic Event Evidence Integration
   -> Formal Publication Kernel
   -> canonical TMI Event Corpus v3
-  -> exact event, event graph, and vector retrieval views
+  -> exact event, cross-source graph-path, and metadata-ranking views
   -> bounded LLM Query Agent
   -> supported answer / insufficient / blocked
 ```
@@ -37,12 +38,13 @@ Python 3.11 or newer is required. Before building eligible events, obtain the
 pinned FAA NASR snapshot described in
 [REPRODUCIBILITY.md](REPRODUCIBILITY.md).
 
-Build five tracked GDP, GS, and ReRoute regression records:
+Build five GDP, GS, and ReRoute development/regression records:
 
 ```bash
 uv run aviation-ai agent-system build-corpus \
   --config configs/cross_source_v1.yaml \
   --output-dir data/corpus/agent_system/smoke-v3 \
+  --selection cohort \
   --source-id 2026-05-19:123 \
   --source-id 2026-05-19:138 \
   --source-id 2026-05-19:108 \
@@ -51,13 +53,13 @@ uv run aviation-ai agent-system build-corpus \
 ```
 
 Complete source-supported records use the deterministic compiler with zero
-provider calls; source IDs do not select that path. Add `--allow-live-model`
-only when unresolved evidence genuinely requires bounded Agent escalation.
-Without authorization, such a record remains `insufficient` instead of being
-silently sent to a provider. Credentials remain in ignored local environment
-files.
+provider calls; source IDs do not select that path. Event Evidence Integration
+never calls a model. Add `--allow-live-model` only when genuine authority
+ambiguity may activate the Semantic Resolution Agent. Without authorization,
+such a record remains `insufficient` instead of being silently sent to a
+provider. Credentials remain in ignored local environment files.
 
-Build or resume the frozen cohort:
+Build or resume the versioned development cohort:
 
 ```bash
 uv run aviation-ai agent-system build-corpus \
@@ -68,7 +70,7 @@ uv run aviation-ai agent-system build-corpus \
   --resume
 ```
 
-The frozen intake has 718 discovered and 68 selected records: 46 active-family
+The versioned intake has 718 discovered and 68 selected records: 46 active-family
 eligible records, 3 incomplete records, 18 boundary notices, and 1 deferred
 ReRoute cancellation. The 22 preflight insufficiencies use zero model calls.
 A final manifest is published only when no result is `blocked`; `--resume`
@@ -120,7 +122,7 @@ outcome.
 Corpus v3 is authoritative. The event graph view, RDF/Turtle, Neo4j, and Chroma
 are rebuildable projections and do not write back into the corpus.
 
-## Metadata-Conditioned TMI Event Retrieval
+## Metadata-Conditioned TMI Event Ranking
 
 Build one vector document per admitted TMI event:
 
@@ -156,7 +158,7 @@ answering and can select six deterministic, read-only tools:
 - `read_weather_context`;
 - `read_public_observations`;
 - `read_tmi_event_graph`;
-- `find_similar_tmi_events`.
+- `rank_tmi_events_by_metadata`.
 
 CLI event IDs, filters, pagination, and candidate scope form an immutable upper
 bound around tool access. The Agent can make at most four provider turns, at
@@ -164,9 +166,10 @@ most three tool calls in one turn, and at most six tool calls in total. Every
 statement must cite the retrieved event, fact, gap, context, observation,
 graph-path, and source IDs appropriate to its claim type.
 
-Similarity is retrieval of historical metadata-conditioned TMI records. It is
-not operational-situation similarity, effectiveness analysis, a recommendation,
-or evidence that a past TMI should be reused.
+The ranking orders historical TMI records by the compact metadata
+representation after exact filtering. It is not operational-situation
+similarity, effectiveness analysis, a recommendation, or evidence that a past
+TMI should be reused.
 
 Export one bounded event:
 
@@ -206,17 +209,17 @@ old-corpus reader, or compatibility alias.
   `atm:ReRouteTMI`; their ARTCC scope remains a profile gap because the active
   ATMONTO range does not admit it as `controlledNASelement`.
 
-These records are regression fixtures, not special runtime routes or a
-representative benchmark.
+These records are development/regression fixtures, not special runtime routes,
+evaluation samples, or a representative benchmark.
 
 ## Evaluation Boundary
 
-Fake and scripted models verify software contracts only. The tracked v1/v2
-DeepSeek reports and later compact-selection runs predate the event-centered
-semantic cutover and remain GDP-biased historical compatibility evidence.
-Current v3 suite configurations use the new role and event identities, but no
-post-cutover live-performance claim exists until a separately authorized real
-provider run is captured and verified.
+Fake and scripted models verify software contracts only. The tracked v1-v3
+DeepSeek suites and reports predate the capability-centered runtime or remain
+historical compatibility artifacts. No frozen post-cutover evaluation set
+currently exists: `future_frozen_evaluation` is `NOT CONSTRUCTED`. A future
+claim requires an explicitly designed suite and a separately authorized,
+verified real-provider run.
 
 The system does not provide live ATC support, causal explanation, operational
 effectiveness scoring, TMI recommendation, complete aviation coverage, or a

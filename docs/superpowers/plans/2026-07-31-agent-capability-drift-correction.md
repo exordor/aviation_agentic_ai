@@ -101,6 +101,9 @@ For one event containing admitted TMI, Weather, and BTS records:
 - `src/aviation_agentic_ai/agent_system/corpus_batch.py`
 - `src/aviation_agentic_ai/agent_system/prompts.py`
 - `src/aviation_agentic_ai/agent_system/context_artifacts.py`
+- `tests/test_agent_system_current_architecture.py`
+- `tests/test_agent_system_multisource_context.py`
+- `tests/test_agent_system_reroute.py`
 - `tests/test_agent_system_event_evidence_integration.py`
 - `tests/test_agent_system_runtime_binding.py`
 - `tests/test_agent_system_agent_usage.py`
@@ -116,6 +119,11 @@ For one event containing admitted TMI, Weather, and BTS records:
 ### Behavior
 
 - Preserve the deterministic `EventEvidenceIntegrationTask`, proposal compiler, validation, and Formal Publication path.
+- Retain `EventEvidenceIntegrationResult` only as a small deterministic
+  workflow result contract in `event_evidence_integration.py`; remove its model,
+  prompt, tool-loop, trace-construction, and retry implementation. Existing
+  state and context-artifact readers may continue to consume its sealed
+  proposal without fabricating Agent telemetry.
 - Rename the workflow node to `integrate_event_evidence`.
 - Remove the event-integration model factory, activation predicate, model calls, tool traces, prompt role, and provider configuration.
 - The integration stage always compiles from the sealed admitted evidence bundle.
@@ -162,6 +170,7 @@ refactor(agent-system): make event evidence integration deterministic
 
 - `src/aviation_agentic_ai/agent_system/corpus_event_graph.py`
 - `src/aviation_agentic_ai/agent_system/corpus_store.py`
+- `src/aviation_agentic_ai/agent_system/contracts.py`
 - `src/aviation_agentic_ai/agent_system/hybrid_query_tools.py`
 - `src/aviation_agentic_ai/agent_system/hybrid_query_agent.py`
 - `tests/test_agent_system_corpus_event_graph.py`
@@ -201,6 +210,25 @@ context association IDs
 observation IDs
 source IDs
 ```
+
+Define a small `CorpusEventEvidencePath` wrapper in the read-side query layer:
+
+```text
+path: QueryGraphPath
+support_kind: non_causal_context | public_observation
+fact_ids
+context_association_ids
+observation_ids
+source_ids
+```
+
+`QueryGraphPath` remains the model-facing path shape. The wrapper carries the
+extra corpus bindings needed to build one `HybridQuerySupportRecord` that binds
+the path ID and its association/observation, fact, and source IDs together.
+
+Implementation note: the wrapper remains local to `hybrid_query_tools.py`
+because it is a read-time binding and is not part of the canonical corpus or
+formal graph schema.
 
 ### Path construction
 
@@ -264,6 +292,7 @@ feat(agent-system): expose cross-source event evidence paths
 - `src/aviation_agentic_ai/agent_system/tmi_event_retrieval_search.py`
 - `src/aviation_agentic_ai/agent_system/tmi_event_retrieval_evaluation.py`
 - `src/aviation_agentic_ai/agent_system/hybrid_query_tools.py`
+- `src/aviation_agentic_ai/agent_system/corpus_batch.py`
 - `src/aviation_agentic_ai/agent_system/live_agent_evaluation.py`
 - `src/aviation_agentic_ai/agent_system/live_agent_experiment.py`
 - `src/aviation_agentic_ai/cli_agent_system.py`
@@ -276,7 +305,12 @@ feat(agent-system): expose cross-source event evidence paths
 - Rename `find_similar_tmi_events` to `rank_tmi_events_by_metadata`.
 - Keep exactly six Query Agent tools; do not retain the old tool alias.
 - Require `--selection cohort|all` for `build-corpus`; remove the default.
+- Remove the internal `build_corpus_batch(selection="cohort")` default as well;
+  every caller and test must choose explicitly.
 - Update error/help text from “similar cases” to “metadata-conditioned event ranking.”
+- Keep the internal mathematical/support kind name `similarity` in the typed
+  result contract. This batch corrects the public tool/API wording; it does not
+  rename the established score/support primitive.
 
 ### Evaluation partitions
 
@@ -312,7 +346,9 @@ uv run pytest -q \
 
 ### Acceptance
 
-- No active API or prompt calls metadata-only retrieval “similarity.”
+- No active user-facing tool name, help text, or prompt description calls
+  metadata-only retrieval “similar TMI events.” Internal score/support fields
+  may continue to use the established `similarity` primitive.
 - `build-corpus` without `--selection` fails with a clear CLI usage error.
 - Active live suites contain only behaviors that exist in the current architecture.
 - Historical v1–v3 reports remain immutable historical evidence and are not relabeled.

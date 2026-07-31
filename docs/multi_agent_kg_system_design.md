@@ -42,15 +42,15 @@ Editable source:
   -> FAA facility and terminology authority services
      -> Semantic Resolution Agent only for genuine ambiguity
   -> Weather and BTS evidence preparation
-  -> Event Evidence Integration
-     -> zero-call compiler for complete evidence
-     -> bounded Integration Agent for unresolved sealed choice
+  -> deterministic Event Evidence Integration service
+     -> sealed evidence task
+     -> source-supported proposal or honest insufficient
   -> task-bound admissibility validation
   -> Formal Publication Kernel
   -> canonical TMI Event Corpus v3
      -> exact corpus read view
-     -> event graph view
-     -> metadata-conditioned TMI event index
+     -> event graph view with cross-source evidence paths
+     -> metadata-conditioned TMI event ranking index
      -> offline RDF/Turtle and Neo4j exports
   -> bounded LLM Query Agent
   -> evidence support validation
@@ -61,11 +61,13 @@ The coordinator, adapters, parsers, authority services, profile loaders,
 validators, materializers, and search implementations are deterministic. They
 are not Agents.
 
-Only three roles make bounded model-mediated choices:
+Only two roles make bounded model-mediated choices:
 
 1. Semantic Resolution Agent;
-2. Event Evidence Integration Agent;
-3. Query Agent.
+2. Query Agent.
+
+Event Evidence Integration is a deterministic construction service, not an
+Agent.
 
 ## 3. Semantic Alignment
 
@@ -149,7 +151,7 @@ The facility and terminology authority services:
 - activate Semantic Resolution only when more than one eligible candidate
   remains.
 
-The frozen intake has 718 discovered and 68 selected records:
+The versioned development intake has 718 discovered and 68 selected records:
 
 | State | Count |
 | --- | ---: |
@@ -183,7 +185,7 @@ compare_candidate_evidence
 
 A blocked, insufficient, zero-candidate, or unique-candidate path uses no
 provider. Synthetic ambiguity fixtures validate this orchestration offline;
-the frozen cohort currently contains no natural ambiguity suitable for a
+the development cohort currently contains no natural ambiguity suitable for a
 model-performance claim.
 
 ## 7. Weather And Public Observations
@@ -213,7 +215,7 @@ BTS rules:
 
 Neither evidence role changes the source-declared TMI reason.
 
-## 8. Event Evidence Integration
+## 8. Deterministic Event Evidence Integration
 
 After deterministic parsing, authority resolution, and optional-layer
 preparation, the runtime seals an `EventEvidenceIntegrationTask`. The task
@@ -229,21 +231,14 @@ binds:
 - component states and source snapshots;
 - required and optional event slots.
 
-When all required slots are resolved, the deterministic compiler produces the
-proposal with zero provider calls. Source identifiers never select this path.
+The deterministic compiler produces the proposal with zero provider calls when
+all required slots are source-supported. Source identifiers never select a
+special path.
 
-The Event Evidence Integration Agent activates only when a genuine required
-evidence/schema choice remains and a model factory is explicitly available.
-The Agent:
-
-1. reads one compact sealed candidate bundle through a read-only tool;
-2. returns `accepted` or `abstained` with selected candidate IDs;
-3. cannot regenerate predicates, values, evidence, or graph facts;
-4. cannot select a candidate outside the sealed task.
-
-Deterministic code restores an accepted full proposal and validates it against
-the task. Abstention becomes `insufficient`; malformed or out-of-task output is
-`blocked`. The task-bound check is an admissibility gate, not publication.
+If required evidence is absent, the service returns `insufficient`; it does not
+ask a model to invent or choose evidence that is not present. Malformed or
+out-of-task evidence is `blocked`. The task-bound check is an admissibility
+gate, not publication.
 
 ## 9. Formal Publication Kernel
 
@@ -318,12 +313,23 @@ supporting artifacts.
 Corpus v3 is authoritative. These are derived:
 
 - checksum-verified exact corpus views;
-- corpus-backed event graph;
+- corpus-backed event graph with derived cross-source evidence paths;
 - RDF/Turtle export;
 - Neo4j property-graph export;
-- metadata-conditioned Chroma index.
+- metadata-conditioned Chroma ranking index.
 
 Derived stores do not write back into the corpus.
+
+The graph view can derive two event-scoped evidence patterns at read time:
+
+```text
+TMI event -> controlled airport <- Weather report
+TMI event -> controlled airport <- BTS public observation
+```
+
+Each path carries its formal fact IDs, context-association or observation IDs,
+and source IDs. Weather paths remain `causal_claim=false`; public-observation
+paths do not become FAA demand, capacity, rationale, or effectiveness facts.
 
 ## 11. Agent Usage Sidecar
 
@@ -335,8 +341,10 @@ agent_usage/
   agent_usage_manifest.json
 ```
 
-Eligible records contribute facility-resolution, terminology-resolution, and
-event-evidence-integration usage rows. The sidecar distinguishes:
+Eligible records contribute facility and terminology Semantic Resolution usage
+rows when those scopes are reached. Deterministic
+Event Evidence Integration does not create an Agent usage row. The sidecar
+distinguishes:
 
 - actual model activation;
 - deterministic bypass;
@@ -348,7 +356,7 @@ It stores no prompt, raw response, tool arguments, tool results, or model
 reasoning. It is bound to the corpus ID but excluded from canonical corpus
 identity. It is operational telemetry, not model-quality evaluation.
 
-## 12. TMI Event Vector Index
+## 12. Metadata-Conditioned TMI Event Ranking Index
 
 `index-events` creates a rebuildable `tmi_event_index/` sidecar with:
 
@@ -366,9 +374,10 @@ The `tmi_events` collection uses one compact document per accepted event:
 - UTC time-of-day;
 - duration bucket.
 
-Exact metadata filters run before cosine retrieval. The anchor event is
-excluded. Weather, BTS observations, operational effectiveness, outcome
-quality, and recommended actions are not encoded.
+Exact metadata filters run before cosine ranking. The anchor event is excluded.
+Weather, BTS observations, operational effectiveness, outcome quality, and
+recommended actions are not encoded. The index does not represent operational
+situation similarity.
 
 The index is bound to `corpus_id` and must be rebuilt after corpus changes.
 
@@ -400,8 +409,8 @@ The six tools are:
 | `read_tmi_event_facts` | Formal facts, profile gaps, and reason state. |
 | `read_weather_context` | Non-causal Weather associations and admitted report facts. |
 | `read_public_observations` | Source-qualified BTS public observations. |
-| `read_tmi_event_graph` | Event-scoped graph paths with predicate/direction/limit bounds. |
-| `find_similar_tmi_events` | Exact-filtered metadata-conditioned vector recall. |
+| `read_tmi_event_graph` | Event-scoped formal edges and source-bound cross-source evidence paths. |
+| `rank_tmi_events_by_metadata` | Exact-filtered metadata-conditioned vector ranking. |
 
 The CLI event ID, exact filters, paging window, and archive/prior candidate
 scope form an immutable upper bound. The model may narrow but cannot widen it.
@@ -416,7 +425,7 @@ IDs appropriate to that kind. The validator rejects:
 - causal language over Weather associations;
 - reinterpretation of BTS observations as FAA operational metrics or decision
   rationale;
-- recommendation, optimality, or effectiveness claims over similarity.
+- recommendation, optimality, or effectiveness claims over metadata ranking.
 
 Answer prose is never written back into the corpus or its projections.
 
@@ -426,7 +435,7 @@ Answer prose is never written back into the corpus or its projections.
 aviation-ai agent-system build-corpus \
   --config <config> \
   --output-dir <corpus-dir> \
-  [--selection cohort|all] \
+  --selection cohort|all \
   [--source-id <id> ...] \
   --allow-live-model \
   [--resume]
@@ -465,24 +474,23 @@ alias, or run-directory persistence path.
 | `2026-05-20:137` | Formal ReRoute with unsupported ARTCC scope retained as a profile gap. |
 
 All five use the general zero-call integration path when their required slots
-are complete. They are regression fixtures, not representative samples or
-special source-ID routes.
+are complete. They are development/regression fixtures, not evaluation samples,
+representative coverage, or special source-ID routes.
 
 ## 16. Evaluation Boundary
 
 Offline fake/scripted providers validate software contracts only. They do not
 establish extraction, reasoning, tool-selection, or Agent quality.
 
-Tracked v1/v2 reports and later compact-selection runs predate the
-event-centered semantic cutover. They remain GDP-biased historical
-compatibility evidence for their named contracts and must not be relabeled as
-current v3 performance.
+Tracked v1-v3 reports and later compact-selection runs are historical
+compatibility artifacts for their named contracts and must not be relabeled as
+current performance.
 
-Current v3 suite configurations use the event-centered construction role,
-event identities, and six current query tools. A post-cutover model claim
-requires an explicitly authorized real-provider run with independently
-verified raw responses, parsed outputs, call bindings, tokens, and manifest
-checksums.
+No frozen post-cutover evaluation set currently exists:
+`future_frozen_evaluation` is `NOT CONSTRUCTED`. A future model claim requires
+an independently designed suite and an explicitly authorized real-provider run
+with verified raw responses, parsed outputs, call bindings, tokens, and
+manifest checksums.
 
 ## 17. Deferred Work
 
@@ -512,3 +520,7 @@ git diff --check
 
 Software tests may use scripted providers. Model-dependent claims require the
 separate live-evaluation path and may not substitute an offline result.
+
+Each mainline implementation batch must add or simplify a user-visible
+capability. A validator-only batch requires a reproduced failure through a
+supported workflow or an explicit user request.

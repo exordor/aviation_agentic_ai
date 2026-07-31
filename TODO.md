@@ -7,13 +7,14 @@ decisions. Historical backlogs are routed through `ARTIFACT_INDEX.md`.
 
 ## Active Decisions
 
-- [ ] Run a separately approved v3 real-provider evaluation after the
-  event-centered cutover. It must use the current Event Evidence Integration
-  and Query Agent contracts; prior v1/v2 and compact-selection results remain
-  historical compatibility evidence.
-- [ ] Replace the GDP-biased five-task evaluation with a cross-family suite over
-  GDP, GS, and ReRoute, including paraphrased, multi-tool,
-  insufficient-evidence, and claim-boundary questions.
+- [ ] Design a future frozen evaluation set independently from the five
+  development/regression fixtures. Until the sampling frame, annotations,
+  tasks, and acceptance rules are reviewed, record its status as
+  `NOT CONSTRUCTED`.
+- [ ] Run a separately approved query-only real-provider compatibility smoke
+  against the current Query Agent, including one cross-source evidence-path
+  task. Historical v1-v3 and compact-selection results remain compatibility
+  evidence only.
 - [ ] Admit any next TMI family only after an explicit ATMONTO mapping and
   reviewed source/evidence boundary. Do not promote informational notices only
   to increase coverage.
@@ -40,7 +41,7 @@ model-mediated.
   chat.
 - New Agent roles without an observed need.
 - Multi-model or statistically powered evaluation beyond an approved protocol.
-- Frozen-cohort Semantic Resolution performance claims until a natural
+- Development-cohort Semantic Resolution performance claims until a natural
   ambiguous task exists.
 - Merging the paused visualization branch into the system mainline.
 - Production hardening and public deployment.
@@ -57,3 +58,6 @@ model-mediated.
 - Keep generated corpora, provider artifacts, and credentials out of Git.
 - Preserve historical material through the artifact index and Git history.
 - Apply the research-prototype effort boundary in `AGENTS.md`.
+- Require each mainline implementation batch to add or simplify a user-visible
+  capability. A validator-only batch needs a reproduced supported-workflow
+  failure or an explicit user request.

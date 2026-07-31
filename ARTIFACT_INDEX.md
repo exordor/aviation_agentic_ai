@@ -20,13 +20,13 @@ rebuildable outputs, optional evaluation material, and historical artifacts.
 | `src/aviation_agentic_ai/agent_system/` | Active implementation. |
 | `tests/test_agent_system*.py`, `tests/test_cli_agent_system.py` | Focused acceptance surface. |
 | `configs/cross_source_v1.yaml` | ATCSCC, FAA authority, Weather, and BTS source configuration. |
-| `configs/prompts/tmi_event_agents_v1.yaml` | Current bounded-Agent prompt catalog. |
+| `configs/prompts/tmi_event_agents_v1.yaml` | Current Query and Semantic Resolution prompt catalog. |
 | `data/ontology/curated/atmonto_application_profile_v1.json` | Active ATMONTO TMI application profile. |
 | `data/ontology/curated/nasa_atmonto_decision_context_weather_slice.json` | Curated Weather report profile. |
 | `data/ontology/curated/public_observation_slice.json` | Source-qualified BTS public-observation profile. |
-| `data/evaluation/agent_system/live_agent_smoke_v3.yaml` | Current event-centered live-smoke contract; no result implied. |
-| `data/evaluation/agent_system/live_agent_experiment_v3.yaml` | Current repeated real-provider contract; no result implied. |
-| `data/evaluation/agent_system/tmi_event_retrieval_smoke_v1.yaml` | Tracked metadata-conditioned retrieval smoke set. |
+| `data/evaluation/agent_system/live_agent_smoke_v4.yaml` | Query-only compatibility-smoke contract; no result implied. |
+| `data/evaluation/agent_system/live_agent_experiment_v4.yaml` | Query-only repeated-measurement contract; no result implied. |
+| `data/evaluation/agent_system/tmi_event_retrieval_smoke_v1.yaml` | Development metadata-ranking smoke set. |
 
 ## Canonical Runtime Artifacts
 
@@ -80,19 +80,22 @@ index must be rebuilt when the bound corpus ID changes.
 
 ## Current Evaluation Contracts
 
-The v3 live-suite configurations use:
+The v4 live-suite configurations use:
 
-- the `event_evidence_integration` construction role;
-- the always-on `query` role;
+- the always-on `query` role only;
 - TMI event identities;
-- the six current read-only HybridRAG tool names;
+- the six current read-only HybridRAG tool names, including cross-source graph
+  paths and metadata-conditioned ranking;
 - real-provider capture rules when live execution is explicitly authorized.
 
 Their detailed raw responses, parsed outputs, manifests, and local corpora
 belong under ignored `data/corpus/agent_system/` paths. Sanitized reports should
 be tracked only after a completed run is independently verified.
 
-No v3 suite file is itself evidence that the experiment ran.
+No suite file is itself evidence that an experiment ran. The five familiar
+records are development/regression fixtures only. No frozen post-cutover
+evaluation set currently exists; `future_frozen_evaluation` is
+`NOT CONSTRUCTED`.
 
 ## Historical Compatibility Evidence
 
@@ -109,9 +112,12 @@ current role, corpus, or cross-family results:
 | `reports/stages/agent_system_live_agent_smoke_v2.{json,md}` | Historical pre-cutover one-shot result. |
 | `data/evaluation/agent_system/live_agent_experiment_v2.yaml` | Pre-cutover repeated compatibility contract. |
 | `reports/stages/agent_system_live_agent_experiment_v2.{json,md}` | Historical 120-call result; repeated GDP query passed, former construction tasks failed. |
+| `data/evaluation/agent_system/live_agent_smoke_v3.yaml` | Superseded event-centered construction/query contract. |
+| `data/evaluation/agent_system/live_agent_experiment_v3.yaml` | Superseded repeated construction/query contract. |
 
 Later compact-selection and 10,000-token runs are also pre-cutover,
-GDP-biased compatibility evidence. They must not be presented as current v3,
+GDP-biased compatibility evidence. The v3 contracts are likewise superseded
+construction-role compatibility artifacts. None may be presented as current v4,
 representative cross-family, independent-sample, or model-quality results.
 
 Do not rewrite historical report bytes to use current role names.
