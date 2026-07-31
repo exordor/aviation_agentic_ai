@@ -32,6 +32,34 @@ def load_default_config() -> dict[str, Any]:
     return load_yaml("configs/default.yaml")
 
 
+def configured_dataset_id(config: dict[str, Any]) -> str:
+    """Return the persistent evidence-store dataset identity."""
+
+    agent_system = config.get("agent_system")
+    configured = agent_system if isinstance(agent_system, dict) else {}
+    dataset_id = configured.get("dataset_id")
+    if not isinstance(dataset_id, str) or not dataset_id:
+        raise ValueError(
+            "config.agent_system.dataset_id must be a non-empty string"
+        )
+    return dataset_id
+
+
+def configured_store_root(config: dict[str, Any]) -> Path:
+    """Return the configured project-local evidence-store root."""
+
+    agent_system = config.get("agent_system")
+    configured = agent_system if isinstance(agent_system, dict) else {}
+    storage = configured.get("storage")
+    storage_config = storage if isinstance(storage, dict) else {}
+    store_root = storage_config.get("root")
+    if not isinstance(store_root, str) or not store_root:
+        raise ValueError(
+            "config.agent_system.storage.root must be a non-empty path"
+        )
+    return resolve_project_path(store_root)
+
+
 def load_environment(*, force: bool = False) -> bool:
     """Load `.env` once from the configuration layer.
 

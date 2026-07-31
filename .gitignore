@@ -9,6 +9,7 @@ __pycache__/
 # Runtime/generated artifacts
 /data/indexes/
 /data/chunks/
+/data/stores/
 /data/kg/*.tmp
 /data/kg/*.cache
 /reports/**/*.tmp

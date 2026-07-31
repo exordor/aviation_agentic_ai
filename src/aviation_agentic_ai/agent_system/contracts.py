@@ -62,6 +62,9 @@ class SourceRecord(StrictModel):
     title: str | None = None
     effective_date: datetime | None = None
     source_url: str | None = None
+    asset_id: str | None = None
+    logical_time: str | None = None
+    metadata: dict[str, object] = Field(default_factory=dict)
 
 
 class EvidenceClaim(StrictModel):

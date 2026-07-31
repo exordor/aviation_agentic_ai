@@ -27,6 +27,10 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceSnapshot,
     SourceSnapshotRegistry,
 )
+from aviation_agentic_ai.agent_system.storage_contracts import (
+    SourceAssetRecord,
+    SourceVersionRecord,
+)
 from aviation_agentic_ai.agent_system.bts_observations import (
     ARCHIVE_SHA256,
     NORMALIZED_SNAPSHOT_SHA256,
@@ -38,6 +42,143 @@ from aviation_agentic_ai.cross_source.alignment.registry import (
 )
 from aviation_agentic_ai.cross_source.artifacts import read_jsonl
 from aviation_agentic_ai.config import resolve_project_path
+from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.cross_source.identifiers import stable_id
+
+
+_SOURCE_ASSET_SPECS: dict[
+    str,
+    tuple[SourceFamily, str, str, str],
+] = {
+    "atcscc_advisories": (
+        SourceFamily.ATCSCC_ADVISORY,
+        "application/x-ndjson",
+        "atcscc_advisories",
+        "faa_atcscc",
+    ),
+    "stationinfo": (
+        SourceFamily.NASR_FACILITY,
+        "application/x-ndjson",
+        "aviationweather",
+        "aviationweather",
+    ),
+    "metar": (
+        SourceFamily.METAR,
+        "application/x-ndjson",
+        "aviationweather",
+        "aviationweather",
+    ),
+    "taf": (
+        SourceFamily.TAF,
+        "application/x-ndjson",
+        "aviationweather",
+        "aviationweather",
+    ),
+    "nasr_zip": (
+        SourceFamily.NASR_FACILITY,
+        "application/zip",
+        "faa_nasr",
+        "faa_nasr",
+    ),
+    "nasr_manifest": (
+        SourceFamily.NASR_FACILITY,
+        "application/json",
+        "faa_nasr",
+        "faa_nasr",
+    ),
+    "pilot_controller_glossary": (
+        SourceFamily.FAA_TERM,
+        "application/pdf",
+        "faa_pilot_controller_glossary",
+        "faa_pilot_controller_glossary",
+    ),
+    "term_seed": (
+        SourceFamily.FAA_TERM,
+        "application/yaml",
+        "faa_atcscc_terms",
+        "faa_tmi_glossary",
+    ),
+    "bts_on_time_manifest": (
+        SourceFamily.BTS_ON_TIME,
+        "application/json",
+        "bts_on_time",
+        "bts_on_time_archive",
+    ),
+    "bts_on_time_snapshot": (
+        SourceFamily.BTS_ON_TIME,
+        "application/x-ndjson",
+        "bts_on_time",
+        "bts_on_time_archive",
+    ),
+}
+
+
+def discover_source_assets(
+    config: dict[str, Any],
+) -> tuple[SourceAssetRecord, ...]:
+    """Checksum every configured external source asset without storing bytes."""
+
+    configured_sources = config.get("sources")
+    if not isinstance(configured_sources, dict):
+        raise ValueError("config.sources must be a mapping")
+    unknown = sorted(set(configured_sources) - set(_SOURCE_ASSET_SPECS))
+    if unknown:
+        raise ValueError(
+            "unsupported configured source assets: " + ", ".join(unknown)
+        )
+    metadata = config.get("source_metadata")
+    source_metadata = metadata if isinstance(metadata, dict) else {}
+    urls = config.get("source_urls")
+    source_urls = urls if isinstance(urls, dict) else {}
+    assets: list[SourceAssetRecord] = []
+    for asset_key in sorted(configured_sources):
+        configured_path = configured_sources[asset_key]
+        if not isinstance(configured_path, str) or not configured_path:
+            raise ValueError(
+                f"config.sources.{asset_key} must be a non-empty path"
+            )
+        family, media_type, metadata_key, url_key = _SOURCE_ASSET_SPECS[
+            asset_key
+        ]
+        path = resolve_project_path(configured_path)
+        data = path.read_bytes()
+        content_sha256 = hashlib.sha256(data).hexdigest()
+        family_metadata = source_metadata.get(metadata_key)
+        effective = (
+            family_metadata if isinstance(family_metadata, dict) else {}
+        )
+        source_url = source_urls.get(url_key)
+        assets.append(
+            SourceAssetRecord(
+                asset_id=stable_id(
+                    "source-asset",
+                    asset_key,
+                    content_sha256,
+                ),
+                asset_key=asset_key,
+                family=family,
+                local_path=project_relative_path(path),
+                source_url=(
+                    source_url
+                    if isinstance(source_url, str) and source_url
+                    else None
+                ),
+                media_type=media_type,
+                content_sha256=content_sha256,
+                byte_count=len(data),
+                effective_start=(
+                    str(effective["effective_start"])
+                    if effective.get("effective_start") is not None
+                    else None
+                ),
+                effective_end=(
+                    str(effective["effective_end"])
+                    if effective.get("effective_end") is not None
+                    else None
+                ),
+            )
+        )
+    return tuple(assets)
 
 
 def _cross_source_config(config: dict[str, Any]) -> dict[str, Any]:
@@ -312,6 +453,30 @@ def _content_sha256(content: str) -> str:
     """SHA-256 of the exact source content (UTF-8)."""
 
     return hashlib.sha256(content.encode("utf-8")).hexdigest()
+
+
+def build_source_version(record: SourceRecord) -> SourceVersionRecord:
+    """Build an immutable persistent version from one exact logical record."""
+
+    content_sha256 = _content_sha256(record.content)
+    metadata = dict(record.metadata)
+    if record.title is not None:
+        metadata.setdefault("title", record.title)
+    return SourceVersionRecord(
+        source_version_id=stable_id(
+            "source-version",
+            record.source_id,
+            content_sha256,
+        ),
+        source_id=record.source_id,
+        family=record.family,
+        asset_id=record.asset_id,
+        content=record.content,
+        content_sha256=content_sha256,
+        source_url=record.source_url,
+        logical_time=record.logical_time,
+        metadata=metadata,
+    )
 
 
 def build_source_snapshot(record: SourceRecord) -> SourceSnapshot:
