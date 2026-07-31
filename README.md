@@ -31,6 +31,13 @@ research story and running example. The
 [normative design](docs/multi_agent_kg_system_design.md) documents the complete
 runtime and evidence contracts.
 
+The [GDP 138 flagship walkthrough](docs/flagship_gdp138_walkthrough.md) follows
+one natural-language question through persistent ingestion, real
+`deepseek-v4-pro` tool selection, exact source verification, cross-source
+context retrieval, and statement-level support validation. Its observed
+[execution trace](docs/figures/flagship_gdp138_live_trace.png) is a passing
+`live_smoke / system walkthrough`, not a benchmark.
+
 ## Quick Start
 
 Install the active system:

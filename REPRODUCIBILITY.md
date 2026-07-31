@@ -291,6 +291,84 @@ rationale, effectiveness, or caused outcomes.
 Offline fake/scripted tests validate software behavior only. They must not be
 reported as LLM or Agent performance.
 
+### GDP 138 Flagship Live Walkthrough
+
+The flagship walkthrough uses one natural-language cross-source question to
+exercise the current persistent-store Query Agent with the real configured
+DeepSeek provider. Build its bounded evidence store and both rebuildable
+indexes with:
+
+```bash
+uv run --extra agent-system aviation-ai agent-system ingest \
+  --config configs/aviation_knowledge_v1.yaml \
+  --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
+  --source-id 2026-05-19:138
+
+uv run --extra agent-system aviation-ai agent-system reindex \
+  --config configs/aviation_knowledge_v1.yaml \
+  --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
+  --model-name sentence-transformers/all-MiniLM-L6-v2 \
+  --allow-model-download
+```
+
+Then execute exactly one real-provider walkthrough:
+
+```bash
+uv run python -m aviation_agentic_ai.agent_system.live_agent_evaluation \
+  --config configs/aviation_knowledge_v1.yaml \
+  --suite data/evaluation/agent_system/live_flagship_gdp138_walkthrough_v1.yaml \
+  --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
+  --output-dir data/corpus/agent_system/flagship-gdp138-walkthrough-v1 \
+  --report-dir reports/stages \
+  --allow-live-model \
+  --repetitions 1
+```
+
+The verified run completed and passed. It used
+`deepseek/deepseek-v4-pro`, temperature `0`, thinking disabled, and zero
+retries. It recorded 3 attempted, 3 successful, and 0 failed real calls; 5
+bound read-only tool executions; 72,409 input and 4,447 output tokens; and
+74,354.468 ms provider plus 82.551 ms tool latency. The observed tool order
+was:
+
+```text
+read_tmi_event_facts
+search_source_text
+read_source
+read_tmi_operational_context
+read_public_observations
+```
+
+Runtime artifact integrity:
+
+```text
+raw provider responses:
+  data/corpus/agent_system/flagship-gdp138-walkthrough-v1/raw_responses_v4.jsonl
+  sha256 469f3343fee058431814cd931a5e2ba196fdf9fbf45833bb0c1585787c9c0f51
+parsed trial outputs:
+  data/corpus/agent_system/flagship-gdp138-walkthrough-v1/live_evaluation_results_v4.jsonl
+  sha256 c6ab95d8051b94c4164238885c77c9431985cf0f848b5fe046754d27a7c99dff
+sanitized query run:
+  data/corpus/agent_system/flagship-gdp138-walkthrough-v1/hybrid_query_runs/flagship-cross-source-gdp138/hybrid_query_run.json
+  sha256 b6124bf1058c12f63a6b330c504ecde9dd18b762076ab32878c1b3fea921d923
+raw / parsed binding: valid
+evaluation data binding:
+  data/corpus/agent_system/flagship-gdp138-walkthrough-v1/evaluation_data_binding.json
+  sha256 677341ac4f59024459a96ee2279a08e3cc9a1e2dd91348a85cf2927acd1b5a8b
+```
+
+See the reader-facing
+[walkthrough](docs/flagship_gdp138_walkthrough.md), the tracked sanitized
+[Markdown report](reports/stages/agent_system_live_flagship_gdp138_walkthrough_v1.md),
+and the tracked sanitized
+[JSON report](reports/stages/agent_system_live_flagship_gdp138_walkthrough_v1.json).
+This is a `live_smoke / system walkthrough`, not a frozen holdout or a
+statistical benchmark. Weather associations remain non-causal, and BTS public
+observations are not FAA demand, capacity, AAR, EDCT, decision-input,
+effectiveness, or recommendation evidence.
+
+### Persistent-Store Compatibility Smoke
+
 After building and indexing the bounded store, run the ingestion-first
 Query Agent compatibility smoke only with explicit authorization:
 

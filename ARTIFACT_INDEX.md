@@ -19,6 +19,8 @@ rebuildable outputs, optional evaluation material, and historical artifacts.
 | `docs/figures/cross_source_evidence_motivated_example.{drawio,png}` | Flagship Figure 1: cross-source motivated example. |
 | `docs/figures/aviation_hybridrag_system_architecture.{drawio,png}` | Flagship Figure 2: five-plane system architecture. |
 | `docs/figures/bounded_query_agent_workflow.{drawio,png}` | Flagship Figure 3: Query Agent action-observation-evidence loop. |
+| `docs/flagship_gdp138_walkthrough.md` | Reader-facing real-provider walkthrough for the GDP 138 running example. |
+| `docs/figures/flagship_gdp138_live_trace.{drawio,png}` | Observed GDP 138 Query Agent execution trace; not a hypothetical route. |
 | `docs/figures/heterogeneous_source_formats.{drawio,png}` | Supporting source-format and normalization figure. |
 | `src/aviation_agentic_ai/agent_system/` | Active implementation. |
 | `tests/test_agent_system*.py`, `tests/test_cli_agent_system.py` | Focused acceptance surface. |
@@ -29,6 +31,8 @@ rebuildable outputs, optional evaluation material, and historical artifacts.
 | `data/ontology/curated/public_observation_slice.json` | Source-qualified BTS public-observation profile. |
 | `data/evaluation/agent_system/live_ingestion_hybridrag_smoke_v1.yaml` | Ingestion-first Query Agent compatibility-smoke contract; no result implied. |
 | `reports/stages/agent_system_live_ingestion_hybridrag_smoke_v1.{json,md}` | Verified persistent-store smoke: 6/6 returned real calls, 1/3 tasks accepted, and two answer-contract/evidence failures; not a benchmark. |
+| `data/evaluation/agent_system/live_flagship_gdp138_walkthrough_v1.yaml` | One-question, natural-language GDP 138 system-walkthrough contract; no result implied by the suite alone. |
+| `reports/stages/agent_system_live_flagship_gdp138_walkthrough_v1.{json,md}` | Verified current walkthrough: 3/3 real calls succeeded, the one task passed, and raw/parsed binding was valid; `live_smoke`, not a benchmark. |
 | `data/evaluation/agent_system/tmi_event_retrieval_smoke_v1.yaml` | Development metadata-ranking smoke set. |
 
 ## Canonical Runtime Artifacts
@@ -84,9 +88,10 @@ bindings belong under ignored local evaluation paths. Sanitized reports should
 be tracked only after a completed run is independently verified.
 
 No suite file is itself evidence that an experiment ran. The tracked
-ingestion-first smoke report is bound to ignored raw and parsed artifacts with
-checksums. Its three familiar records are development/regression fixtures only;
-no frozen post-cutover evaluation set currently exists.
+ingestion-first compatibility and flagship walkthrough reports are bound to
+ignored raw and parsed artifacts with checksums. Their familiar records are
+development/regression fixtures only; no frozen post-cutover evaluation set
+currently exists.
 
 ## Historical Compatibility Evidence
 
