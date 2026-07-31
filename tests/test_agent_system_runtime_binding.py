@@ -33,7 +33,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceFamily,
     SourceRecord,
 )
-from aviation_agentic_ai.agent_system.decision_case_contracts import (
+from aviation_agentic_ai.agent_system.construction_contracts import (
     ConstraintCheckStatus,
     ResolutionDecision,
     stable_contract_id,
@@ -287,7 +287,7 @@ def test_run_binding_samples_one_utc_timestamp(tmp_path):
 
 def test_manifest_created_at_uses_frozen_run_started_at(tmp_path):
     failed_call = ModelCallRecord(
-        agent="decision_case_assembly",
+        agent="event_evidence_integration",
         raw_response="",
         attempt=1,
         error="provider unavailable",
@@ -308,7 +308,7 @@ def test_manifest_created_at_uses_frozen_run_started_at(tmp_path):
 
     payload = json.loads(path.read_text())
     assert payload["created_at"] == STARTED.isoformat()
-    assert payload["manifest_version"] == "decision-case-run-v1"
+    assert payload["manifest_version"] == "tmi-event-run-v1"
     assert payload["provider_attempts"] == 1
     assert payload["provider_successes"] == 0
 
@@ -622,12 +622,12 @@ def test_required_blocked_domain_stops_assembly_and_preserves_blocked_status(
 
     assert calls == []
     assert state["resolution_preflight_status"] == "blocked"
-    assert state["assembly_graph_patch"] is None
+    assert state["integration_graph_patch"] is None
     assert state["formal_layers"]["decision"]["status"] == "blocked"
 
 
-def test_case_assembly_complexity_gate_uses_only_dedicated_factory() -> None:
-    """Only the dedicated Assembly factory can activate an unresolved task."""
+def test_event_evidence_integration_complexity_gate_uses_only_dedicated_factory() -> None:
+    """Only the dedicated integration factory can activate an unresolved task."""
 
     from types import SimpleNamespace
 
@@ -641,7 +641,7 @@ def test_case_assembly_complexity_gate_uses_only_dedicated_factory() -> None:
 
     complete = SimpleNamespace(
         missing_slots=(),
-        required_case_slots=("controlled_facility",),
+        required_event_slots=("controlled_facility",),
         available_evidence_layer_ids=(
             "layer:advisory",
             "layer:bts",
@@ -650,7 +650,7 @@ def test_case_assembly_complexity_gate_uses_only_dedicated_factory() -> None:
     )
     unresolved = SimpleNamespace(
         missing_slots=("controlled_facility",),
-        required_case_slots=("controlled_facility",),
+        required_event_slots=("controlled_facility",),
         available_evidence_layer_ids=("layer:advisory",),
     )
 
@@ -659,25 +659,25 @@ def test_case_assembly_complexity_gate_uses_only_dedicated_factory() -> None:
         "2026-05-19:138",
         "2026-05-20:020",
     ):
-        assert workflow_module._should_activate_case_assembly_agent(
+        assert workflow_module._should_activate_event_evidence_integration_agent(
             source_id=source_id,
             task=unresolved,
-            case_assembly_model_factory=dedicated_factory,
+            event_evidence_integration_model_factory=dedicated_factory,
         )
-    assert not workflow_module._should_activate_case_assembly_agent(
+    assert not workflow_module._should_activate_event_evidence_integration_agent(
         source_id="fixture:unresolved",
         task=unresolved,
-        case_assembly_model_factory=None,
+        event_evidence_integration_model_factory=None,
     )
-    assert not workflow_module._should_activate_case_assembly_agent(
+    assert not workflow_module._should_activate_event_evidence_integration_agent(
         source_id="fixture:unresolved",
         task=complete,
-        case_assembly_model_factory=dedicated_factory,
+        event_evidence_integration_model_factory=dedicated_factory,
     )
-    assert workflow_module._should_activate_case_assembly_agent(
+    assert workflow_module._should_activate_event_evidence_integration_agent(
         source_id="fixture:unresolved",
         task=unresolved,
-        case_assembly_model_factory=dedicated_factory,
+        event_evidence_integration_model_factory=dedicated_factory,
     )
     # An unrelated factory cannot change the Assembly activation result.
     assert unrelated_factory is not dedicated_factory
@@ -686,8 +686,8 @@ def test_case_assembly_complexity_gate_uses_only_dedicated_factory() -> None:
 def test_blocked_assembly_stops_before_kernel_and_materialization(tmp_path, monkeypatch):
     """A sealed blocked Assembly result cannot enter the publication path."""
 
-    from aviation_agentic_ai.agent_system.case_assembly import CaseAssemblyResult
-    from aviation_agentic_ai.agent_system.decision_case_contracts import AssemblyStatus
+    from aviation_agentic_ai.agent_system.event_evidence_integration import EventEvidenceIntegrationResult
+    from aviation_agentic_ai.agent_system.construction_contracts import EventEvidenceIntegrationStatus
     from aviation_agentic_ai.agent_system.sources import load_advisory_source
 
     config, _ = _test_inputs(tmp_path)
@@ -708,30 +708,30 @@ def test_blocked_assembly_stops_before_kernel_and_materialization(tmp_path, monk
         task,
         binding,
         tool_model_factory,
-        assembly_status,
-        component_layer_results,
+        integration_status,
+        evidence_layer_results,
         limitations,
     ):
         del (
             tool_model_factory,
-            assembly_status,
-            component_layer_results,
+            integration_status,
+            evidence_layer_results,
             limitations,
         )
-        proposal = workflow_module.compile_case_assembly_proposal(
+        proposal = workflow_module.compile_event_evidence_integration_proposal(
             task=task,
-            assembly_status=AssemblyStatus.BLOCKED,
+            integration_status=EventEvidenceIntegrationStatus.BLOCKED,
             limitations=("scripted hard semantic violation",),
             binding=binding,
         )
-        return CaseAssemblyResult(
+        return EventEvidenceIntegrationResult(
             proposal=proposal,
             model_calls=(),
             tool_traces=(),
             failure_reason="scripted hard semantic violation",
         )
 
-    monkeypatch.setattr(workflow_module, "run_case_assembly_agent", blocked_assembly)
+    monkeypatch.setattr(workflow_module, "run_event_evidence_integration_agent", blocked_assembly)
 
     state = run_ingest(
         IngestContext(
@@ -743,12 +743,12 @@ def test_blocked_assembly_stops_before_kernel_and_materialization(tmp_path, monk
             run_id="run:blocked-assembly",
             run_started_at=STARTED,
             output_dir=str(tmp_path / "blocked-assembly"),
-            case_assembly_model_factory=lambda tools: object(),
+            event_evidence_integration_model_factory=lambda tools: object(),
         )
     )
 
-    assert state["case_assembly_proposal"].assembly_status is AssemblyStatus.BLOCKED
-    assert state["assembly_graph_patch"] is None
+    assert state["event_evidence_integration_proposal"].integration_status is EventEvidenceIntegrationStatus.BLOCKED
+    assert state["integration_graph_patch"] is None
     assert state["validation"] is None
     assert state["materialization"] is None
     assert state["formal_layers"]["decision"]["status"] == "blocked"
@@ -757,7 +757,7 @@ def test_blocked_assembly_stops_before_kernel_and_materialization(tmp_path, monk
 def test_missing_ground_stop_extension_is_insufficient_and_unpublished(tmp_path):
     """A Ground Stop without its required extension field cannot publish."""
 
-    from aviation_agentic_ai.agent_system.decision_case_contracts import AssemblyStatus
+    from aviation_agentic_ai.agent_system.construction_contracts import EventEvidenceIntegrationStatus
     from aviation_agentic_ai.agent_system.sources import load_advisory_source
 
     config, _ = _test_inputs(tmp_path)
@@ -785,9 +785,9 @@ def test_missing_ground_stop_extension_is_insufficient_and_unpublished(tmp_path)
         )
     )
 
-    assert "extension_probability" in state["case_assembly_task"].missing_slots
-    assert state["case_assembly_proposal"].assembly_status is AssemblyStatus.INSUFFICIENT
-    assert state["assembly_graph_patch"] is None
+    assert "extension_probability" in state["event_evidence_integration_task"].missing_slots
+    assert state["event_evidence_integration_proposal"].integration_status is EventEvidenceIntegrationStatus.INSUFFICIENT
+    assert state["integration_graph_patch"] is None
     assert state["validation"] is None
     assert state["materialization"] is None
     assert state["formal_layers"]["decision"]["status"] == "insufficient"
@@ -796,8 +796,8 @@ def test_missing_ground_stop_extension_is_insufficient_and_unpublished(tmp_path)
 def test_explicit_ok_cannot_override_missing_required_slot(tmp_path, monkeypatch):
     """A caller cannot force publication by explicitly selecting Assembly OK."""
 
-    from aviation_agentic_ai.agent_system.case_assembly import CaseAssemblyResult
-    from aviation_agentic_ai.agent_system.decision_case_contracts import AssemblyStatus
+    from aviation_agentic_ai.agent_system.event_evidence_integration import EventEvidenceIntegrationResult
+    from aviation_agentic_ai.agent_system.construction_contracts import EventEvidenceIntegrationStatus
     from aviation_agentic_ai.agent_system.sources import load_advisory_source
 
     config, _ = _test_inputs(tmp_path)
@@ -817,28 +817,28 @@ def test_explicit_ok_cannot_override_missing_required_slot(tmp_path, monkeypatch
         task,
         binding,
         tool_model_factory,
-        assembly_status,
-        component_layer_results,
+        integration_status,
+        evidence_layer_results,
         limitations,
     ):
         del (
             tool_model_factory,
-            assembly_status,
-            component_layer_results,
+            integration_status,
+            evidence_layer_results,
             limitations,
         )
-        proposal = workflow_module.compile_case_assembly_proposal(
+        proposal = workflow_module.compile_event_evidence_integration_proposal(
             task=task,
-            assembly_status=AssemblyStatus.OK,
+            integration_status=EventEvidenceIntegrationStatus.OK,
             binding=binding,
         )
-        return CaseAssemblyResult(
+        return EventEvidenceIntegrationResult(
             proposal=proposal,
             model_calls=(),
             tool_traces=(),
         )
 
-    monkeypatch.setattr(workflow_module, "run_case_assembly_agent", explicit_ok_assembly)
+    monkeypatch.setattr(workflow_module, "run_event_evidence_integration_agent", explicit_ok_assembly)
 
     state = run_ingest(
         IngestContext(
@@ -850,12 +850,12 @@ def test_explicit_ok_cannot_override_missing_required_slot(tmp_path, monkeypatch
             run_id="run:explicit-ok-missing-required",
             run_started_at=STARTED,
             output_dir=str(tmp_path / "explicit-ok-missing-required"),
-            case_assembly_model_factory=lambda tools: object(),
+            event_evidence_integration_model_factory=lambda tools: object(),
         )
     )
 
-    assert state["case_assembly_proposal"].assembly_status is AssemblyStatus.INSUFFICIENT
-    assert state["assembly_graph_patch"] is None
+    assert state["event_evidence_integration_proposal"].integration_status is EventEvidenceIntegrationStatus.INSUFFICIENT
+    assert state["integration_graph_patch"] is None
     assert state["validation"] is None
     assert state["materialization"] is None
 
@@ -863,8 +863,8 @@ def test_explicit_ok_cannot_override_missing_required_slot(tmp_path, monkeypatch
 def test_hard_preflight_feedback_blocks_publication(tmp_path, monkeypatch):
     """A hard preflight violation blocks before the Formal Graph Kernel."""
 
-    from aviation_agentic_ai.agent_system.case_assembly import CaseAssemblyResult
-    from aviation_agentic_ai.agent_system.decision_case_contracts import AssemblyStatus
+    from aviation_agentic_ai.agent_system.event_evidence_integration import EventEvidenceIntegrationResult
+    from aviation_agentic_ai.agent_system.construction_contracts import EventEvidenceIntegrationStatus
     from aviation_agentic_ai.agent_system.sources import load_advisory_source
 
     config, _ = _test_inputs(tmp_path)
@@ -881,14 +881,14 @@ def test_hard_preflight_feedback_blocks_publication(tmp_path, monkeypatch):
         task,
         binding,
         tool_model_factory,
-        assembly_status,
-        component_layer_results,
+        integration_status,
+        evidence_layer_results,
         limitations,
     ):
         del (
             tool_model_factory,
-            assembly_status,
-            component_layer_results,
+            integration_status,
+            evidence_layer_results,
             limitations,
         )
         forbidden_fact = task.proposed_facts[0].model_copy(
@@ -898,22 +898,22 @@ def test_hard_preflight_feedback_blocks_publication(tmp_path, monkeypatch):
                 "object_value": "atm:Thunderstorm",
             }
         )
-        proposal = workflow_module.compile_case_assembly_proposal(
+        proposal = workflow_module.compile_event_evidence_integration_proposal(
             task=task,
-            assembly_status=AssemblyStatus.OK,
+            integration_status=EventEvidenceIntegrationStatus.OK,
             proposed_facts=(*task.proposed_facts, forbidden_fact),
             binding=binding,
         )
-        return CaseAssemblyResult(
+        return EventEvidenceIntegrationResult(
             proposal=proposal,
             model_calls=(),
             tool_traces=(),
         )
 
-    monkeypatch.setattr(workflow_module, "run_case_assembly_agent", hard_violation_assembly)
+    monkeypatch.setattr(workflow_module, "run_event_evidence_integration_agent", hard_violation_assembly)
     monkeypatch.setattr(
         workflow_module,
-        "_should_activate_case_assembly_agent",
+        "_should_activate_event_evidence_integration_agent",
         lambda **_: True,
     )
 
@@ -927,14 +927,14 @@ def test_hard_preflight_feedback_blocks_publication(tmp_path, monkeypatch):
             run_id="run:hard-preflight-violation",
             run_started_at=STARTED,
             output_dir=str(tmp_path / "hard-preflight-violation"),
-            case_assembly_model_factory=lambda tools: object(),
+            event_evidence_integration_model_factory=lambda tools: object(),
         )
     )
 
-    assert state["case_assembly_feedback"] is not None
-    assert state["case_assembly_feedback"].repairable is False
-    assert state["case_assembly_proposal"].assembly_status is AssemblyStatus.BLOCKED
-    assert state["assembly_graph_patch"] is None
+    assert state["event_evidence_integration_feedback"] is not None
+    assert state["event_evidence_integration_feedback"].repairable is False
+    assert state["event_evidence_integration_proposal"].integration_status is EventEvidenceIntegrationStatus.BLOCKED
+    assert state["integration_graph_patch"] is None
     assert state["validation"] is None
     assert state["materialization"] is None
 
@@ -945,11 +945,11 @@ def test_hard_preflight_block_preserves_component_layer_audit_rows(
 ):
     """Preflight blocking retains the Assembly component-layer audit record."""
 
-    from aviation_agentic_ai.agent_system.case_assembly import CaseAssemblyResult
-    from aviation_agentic_ai.agent_system.decision_case_contracts import (
-        AssemblyStatus,
-        ComponentLayerResult,
-        ComponentLayerStatus,
+    from aviation_agentic_ai.agent_system.event_evidence_integration import EventEvidenceIntegrationResult
+    from aviation_agentic_ai.agent_system.construction_contracts import (
+        EventEvidenceIntegrationStatus,
+        EvidenceLayerResult,
+        EvidenceLayerStatus,
     )
     from aviation_agentic_ai.agent_system.sources import load_advisory_source
 
@@ -967,26 +967,26 @@ def test_hard_preflight_block_preserves_component_layer_audit_rows(
         task,
         binding,
         tool_model_factory,
-        assembly_status,
-        component_layer_results,
+        integration_status,
+        evidence_layer_results,
         limitations,
     ):
         del (
             tool_model_factory,
-            assembly_status,
-            component_layer_results,
+            integration_status,
+            evidence_layer_results,
             limitations,
         )
         component_layers = (
-            ComponentLayerResult(
+            EvidenceLayerResult(
                 layer_id="core",
-                status=ComponentLayerStatus.OK,
+                status=EvidenceLayerStatus.OK,
                 required_for_task=True,
                 artifact_ids=task.core_event_fact_ids,
             ),
-            ComponentLayerResult(
+            EvidenceLayerResult(
                 layer_id="optional-context",
-                status=ComponentLayerStatus.INSUFFICIENT,
+                status=EvidenceLayerStatus.INSUFFICIENT,
                 required_for_task=False,
                 missing_reason_code="optional_context_unavailable",
             ),
@@ -998,23 +998,23 @@ def test_hard_preflight_block_preserves_component_layer_audit_rows(
                 "object_value": "atm:Thunderstorm",
             }
         )
-        proposal = workflow_module.compile_case_assembly_proposal(
+        proposal = workflow_module.compile_event_evidence_integration_proposal(
             task=task,
-            assembly_status=AssemblyStatus.OK,
-            component_layer_results=component_layers,
+            integration_status=EventEvidenceIntegrationStatus.OK,
+            evidence_layer_results=component_layers,
             proposed_facts=(*task.proposed_facts, forbidden_fact),
             binding=binding,
         )
-        return CaseAssemblyResult(
+        return EventEvidenceIntegrationResult(
             proposal=proposal,
             model_calls=(),
             tool_traces=(),
         )
 
-    monkeypatch.setattr(workflow_module, "run_case_assembly_agent", hard_violation_assembly)
+    monkeypatch.setattr(workflow_module, "run_event_evidence_integration_agent", hard_violation_assembly)
     monkeypatch.setattr(
         workflow_module,
-        "_should_activate_case_assembly_agent",
+        "_should_activate_event_evidence_integration_agent",
         lambda **_: True,
     )
 
@@ -1028,26 +1028,26 @@ def test_hard_preflight_block_preserves_component_layer_audit_rows(
             run_id="run:hard-preflight-preserve-layers",
             run_started_at=STARTED,
             output_dir=str(tmp_path / "hard-preflight-preserve-layers"),
-            case_assembly_model_factory=lambda tools: object(),
+            event_evidence_integration_model_factory=lambda tools: object(),
         )
     )
 
-    assert state["case_assembly_proposal"].assembly_status is AssemblyStatus.BLOCKED
-    assert tuple(state["case_assembly_proposal"].component_layer_results) == (
-        ComponentLayerResult(
+    assert state["event_evidence_integration_proposal"].integration_status is EventEvidenceIntegrationStatus.BLOCKED
+    assert tuple(state["event_evidence_integration_proposal"].evidence_layer_results) == (
+        EvidenceLayerResult(
             layer_id="core",
-            status=ComponentLayerStatus.OK,
+            status=EvidenceLayerStatus.OK,
             required_for_task=True,
-            artifact_ids=state["case_assembly_task"].core_event_fact_ids,
+            artifact_ids=state["event_evidence_integration_task"].core_event_fact_ids,
         ),
-        ComponentLayerResult(
+        EvidenceLayerResult(
             layer_id="optional-context",
-            status=ComponentLayerStatus.INSUFFICIENT,
+            status=EvidenceLayerStatus.INSUFFICIENT,
             required_for_task=False,
             missing_reason_code="optional_context_unavailable",
         ),
     )
-    assert state["assembly_graph_patch"] is None
+    assert state["integration_graph_patch"] is None
     assert state["validation"] is None
     assert state["materialization"] is None
 
@@ -1119,8 +1119,8 @@ def test_exact_tmi_profile_does_not_depend_on_optional_term_definition(tmp_path)
 
     assert calls == []
     assert state["resolution_preflight_status"] == "resolved"
-    assert "extension_probability" in state["case_assembly_task"].missing_slots
-    assert state["assembly_graph_patch"] is None
+    assert "extension_probability" in state["event_evidence_integration_task"].missing_slots
+    assert state["integration_graph_patch"] is None
     assert state["formal_layers"]["decision"]["status"] == "insufficient"
 
 
@@ -1164,7 +1164,7 @@ def test_event_class_hint_mismatch_blocks_before_assembly_factory(tmp_path, monk
         ],
     )
 
-    result = workflow_module._decision_case_assembly_node(
+    result = workflow_module._event_evidence_integration_node(
         {
             "resolution_preflight_status": "resolved",
             "advisory_evidence": advisory_card,
@@ -1185,7 +1185,7 @@ def test_event_class_hint_mismatch_blocks_before_assembly_factory(tmp_path, monk
         }
     )
 
-    assert result["assembly_graph_patch"] is None
+    assert result["integration_graph_patch"] is None
     assert calls == []
 
     context_result = workflow_module._publish_case_node(
@@ -1219,7 +1219,7 @@ def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
             guide=guide,
             run_id="run:test",
             output_dir=str(tmp_path),
-            case_assembly_model_factory=lambda tools: object(),
+            event_evidence_integration_model_factory=lambda tools: object(),
         ),
     )
 
@@ -1228,27 +1228,27 @@ def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
         task,
         binding,
         tool_model_factory,
-        assembly_status,
-        component_layer_results,
+        integration_status,
+        evidence_layer_results,
         limitations,
     ):
         del (
             binding,
             tool_model_factory,
-            assembly_status,
-            component_layer_results,
+            integration_status,
+            evidence_layer_results,
             limitations,
         )
         captured["allowed_source_ids"] = {b.source_id for b in task.source_snapshot_bindings}
-        proposal = workflow_module.compile_case_assembly_proposal(
+        proposal = workflow_module.compile_event_evidence_integration_proposal(
             task=task,
             binding=workflow_module.ContractExecutionBinding(
                 run_id="run:test",
                 created_at=datetime.now(UTC),
-                tool_version="deterministic-assembly-v1",
+                tool_version="deterministic-event-evidence-integration-v1",
             ),
         )
-        return workflow_module.CaseAssemblyResult(
+        return workflow_module.EventEvidenceIntegrationResult(
             proposal=proposal,
             model_calls=(),
             tool_traces=(),
@@ -1257,7 +1257,7 @@ def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
 
     monkeypatch.setattr(
         workflow_module,
-        "run_case_assembly_agent",
+        "run_event_evidence_integration_agent",
         capture_inputs,
     )
     authority_source = "authority:pcg:gdp"
@@ -1310,7 +1310,7 @@ def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
         source_ids=[advisory.source_id, authority_source],
     )
 
-    workflow_module._decision_case_assembly_node(
+    workflow_module._event_evidence_integration_node(
         {
             "resolution_preflight_status": "resolved",
             "advisory_evidence": advisory_card,
@@ -1432,7 +1432,7 @@ def test_materialization_excludes_authority_only_canonical_entities(
 
     workflow_module._validate_event_patch_node(
         {
-            "assembly_graph_patch": GraphPatchBlock(
+            "integration_graph_patch": GraphPatchBlock(
                 patch_lines=[
                     GraphPatchLine(
                         subject=event_uri,

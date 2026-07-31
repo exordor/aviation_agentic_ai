@@ -8,7 +8,7 @@ The Workflow Coordinator is a deterministic LangGraph controller:
            facility authority service
            terminology authority service
       -> evidence-card join
-      -> Decision Case Assembly
+      -> Event Evidence Integration
       -> Graph Patch parser + schema validator + RDF/Neo4j materializer
       -> END
 
@@ -54,31 +54,31 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceFamily,
     SourceRecord,
 )
-from aviation_agentic_ai.agent_system.decision_case_contracts import (
-    AssemblyStatus,
-    CaseAssemblyEvidenceRecord,
-    CaseAssemblyPublicObservation,
-    CaseAssemblyResolutionRecord,
-    CaseAssemblyProposal,
-    CaseAssemblyTask,
-    CaseFactProposal,
-    CaseProfileGapProposal,
-    ComponentLayerResult,
-    ComponentLayerStatus,
+from aviation_agentic_ai.agent_system.construction_contracts import (
+    EventEvidenceIntegrationStatus,
+    EventEvidenceIntegrationEvidenceRecord,
+    EventEvidenceIntegrationPublicObservation,
+    EventEvidenceIntegrationResolutionRecord,
+    EventEvidenceIntegrationProposal,
+    EventEvidenceIntegrationTask,
+    EventEvidenceFactProposal,
+    EventEvidenceProfileGapProposal,
+    EvidenceLayerResult,
+    EvidenceLayerStatus,
     ContractExecutionBinding,
     FrozenContractModel,
     ResolutionDecision,
     SourceSnapshotBinding,
     stable_contract_id,
 )
-from aviation_agentic_ai.agent_system.case_assembly import (
-    CaseAssemblyResult,
-    run_case_assembly_agent,
+from aviation_agentic_ai.agent_system.event_evidence_integration import (
+    EventEvidenceIntegrationResult,
+    run_event_evidence_integration_agent,
 )
-from aviation_agentic_ai.agent_system.case_assembly_tools import (
-    build_case_assembly_task,
-    compile_case_assembly_proposal,
-    preflight_validate_case_assembly_proposal,
+from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+    build_event_evidence_integration_task,
+    compile_event_evidence_integration_proposal,
+    preflight_validate_event_evidence_proposal,
 )
 from aviation_agentic_ai.agent_system.context_artifacts import (
     integrate_decision_context,
@@ -224,7 +224,7 @@ class IngestContext:
     bts_failure_reason: str = ""
     guide: SchemaGuide | None = None
     semantic_resolution_tool_model_factory: ToolModelFactory | None = None
-    case_assembly_model_factory: ToolModelFactory | None = None
+    event_evidence_integration_model_factory: ToolModelFactory | None = None
     authority_catalog: LoadedAuthorityCatalog | None = None
     run_started_at: datetime | None = None
     run_id: str = "agent-system"
@@ -255,12 +255,12 @@ class IngestState(TypedDict):
     resolution_preflight_status: str
     resolution_preflight_reason: str
     joined: bool
-    case_assembly_task: Any
-    case_assembly_proposal: Any
-    case_assembly_feedback: Any
-    case_assembly_result: Any
-    assembly_graph_patch: GraphPatchBlock | None
-    assembly_failure_reason: str | None
+    event_evidence_integration_task: Any
+    event_evidence_integration_proposal: Any
+    event_evidence_integration_feedback: Any
+    event_evidence_integration_result: Any
+    integration_graph_patch: GraphPatchBlock | None
+    integration_failure_reason: str | None
     event_uri: str
     event_class: str
     materialization: Any
@@ -289,7 +289,7 @@ def build_ingest_graph() -> Any:
     sg.add_node("terminology_authority", _terminology_authority_node)
     sg.add_node("join", _join_node)
     sg.add_node("prepare_context", _prepare_context_node)
-    sg.add_node("decision_case_assembly", _decision_case_assembly_node)
+    sg.add_node("event_evidence_integration", _event_evidence_integration_node)
     sg.add_node("validate_event_patch", _validate_event_patch_node)
     sg.add_node("publish_case", _publish_case_node)
     sg.add_edge(START, "advisory")
@@ -300,8 +300,8 @@ def build_ingest_graph() -> Any:
     sg.add_edge("facility_authority", "join")
     sg.add_edge("terminology_authority", "join")
     sg.add_edge("join", "prepare_context")
-    sg.add_edge("prepare_context", "decision_case_assembly")
-    sg.add_edge("decision_case_assembly", "validate_event_patch")
+    sg.add_edge("prepare_context", "event_evidence_integration")
+    sg.add_edge("event_evidence_integration", "validate_event_patch")
     sg.add_edge("validate_event_patch", "publish_case")
     sg.add_edge("publish_case", END)
     return sg.compile()
@@ -701,7 +701,7 @@ def _join_node(state: dict) -> dict:
 
 
 def _prepare_context_node(state: dict) -> dict:
-    """Prepare validated optional context in memory before Case Assembly."""
+    """Prepare validated optional context in memory before Event Evidence Integration."""
 
     return prepare_decision_context(_ctx(), state)
 
@@ -723,7 +723,7 @@ def _accepted_event_source_ids(
 
 
 def _proposal_to_graph_patch_block(
-    proposal: CaseAssemblyProposal,
+    proposal: EventEvidenceIntegrationProposal,
     *,
     evidence_spans: dict[str, str],
 ) -> GraphPatchBlock:
@@ -754,18 +754,18 @@ def _proposal_to_graph_patch_block(
     )
 
 
-def _build_case_assembly_task_from_state(
+def _build_event_evidence_integration_task_from_state(
     ctx: IngestContext,
     state: dict,
     *,
     event_uri: str,
     event_class: str,
-) -> CaseAssemblyTask:
+) -> EventEvidenceIntegrationTask:
     guide = ctx.guide or load_schema_guide()
     facility_authority_result: AuthorityResolutionResult = state["facility_authority_result"]
 
     evidence_records = (
-        CaseAssemblyEvidenceRecord(
+        EventEvidenceIntegrationEvidenceRecord(
             evidence_id=ctx.advisory.source_id,
             field_name="advisory_record",
             value=ctx.advisory.source_id,
@@ -780,7 +780,7 @@ def _build_case_assembly_task_from_state(
     resolution_records = tuple(
         sorted(
             (
-                CaseAssemblyResolutionRecord(
+                EventEvidenceIntegrationResolutionRecord(
                     resolution_proposal_id=proposal.resolution_proposal_id,
                     decision=proposal.decision,
                     selected_candidate_id=proposal.selected_candidate_id,
@@ -805,15 +805,15 @@ def _build_case_assembly_task_from_state(
         f"profile-{event_class.split(':')[-1].lower() if ':' in event_class else 'default'}"
     )
 
-    proposed_facts: list[CaseFactProposal] = []
-    profile_gaps: list[CaseProfileGapProposal] = []
+    proposed_facts: list[EventEvidenceFactProposal] = []
+    profile_gaps: list[EventEvidenceProfileGapProposal] = []
 
     def append_literal(field_name: str, value: str) -> None:
         predicate = event_profile.prefixed_property(field_name)
         if not value or predicate is None:
             return
         proposed_facts.append(
-            CaseFactProposal(
+            EventEvidenceFactProposal(
                 proposal_item_id=stable_contract_id(
                     "proposal-fact",
                     ctx.run_id,
@@ -831,7 +831,7 @@ def _build_case_assembly_task_from_state(
         )
 
     proposed_facts.append(
-        CaseFactProposal(
+        EventEvidenceFactProposal(
             proposal_item_id=stable_contract_id(
                 "proposal-fact", ctx.run_id, event_uri, "rdf:type", event_class
             ),
@@ -871,7 +871,7 @@ def _build_case_assembly_task_from_state(
             )
         ):
             proposed_facts.append(
-                CaseFactProposal(
+                EventEvidenceFactProposal(
                     proposal_item_id=stable_contract_id(
                         "proposal-fact",
                         ctx.run_id,
@@ -889,7 +889,7 @@ def _build_case_assembly_task_from_state(
             )
         elif getattr(mentions, "constrained_area", None):
             profile_gaps.append(
-                CaseProfileGapProposal(
+                EventEvidenceProfileGapProposal(
                     proposal_item_id=stable_contract_id(
                         "proposal-gap",
                         ctx.run_id,
@@ -910,7 +910,7 @@ def _build_case_assembly_task_from_state(
         and not any(gap.field == "constrained_area" for gap in profile_gaps)
     ):
         profile_gaps.append(
-            CaseProfileGapProposal(
+            EventEvidenceProfileGapProposal(
                 proposal_item_id=stable_contract_id(
                     "proposal-gap",
                     ctx.run_id,
@@ -944,7 +944,7 @@ def _build_case_assembly_task_from_state(
     if impacting:
         if event_profile.code == "GS":
             profile_gaps.append(
-                CaseProfileGapProposal(
+                EventEvidenceProfileGapProposal(
                     proposal_item_id=stable_contract_id(
                         "proposal-gap",
                         ctx.run_id,
@@ -1033,7 +1033,7 @@ def _build_case_assembly_task_from_state(
     public_observations = tuple(
         sorted(
             (
-                CaseAssemblyPublicObservation(
+                EventEvidenceIntegrationPublicObservation(
                     observation_id=trace.observation_id,
                     run_id=summaries_by_id[trace.summary_id].run_id,
                     event_id=summaries_by_id[trace.summary_id].event_id,
@@ -1102,7 +1102,7 @@ def _build_case_assembly_task_from_state(
     missing_source_ids = selected_source_ids - set(selected_snapshots_by_id)
     if missing_source_ids:
         raise ValueError(
-            f"case assembly source snapshots are unavailable: {sorted(missing_source_ids)!r}"
+            f"event evidence integration source snapshots are unavailable: {sorted(missing_source_ids)!r}"
         )
     source_bindings = tuple(
         SourceSnapshotBinding(
@@ -1121,20 +1121,20 @@ def _build_case_assembly_task_from_state(
     binding = ContractExecutionBinding(
         run_id=ctx.run_id,
         created_at=ctx.run_started_at or datetime.now(UTC),
-        tool_version="deterministic-assembly-v1",
+        tool_version="deterministic-event-evidence-integration-v1",
     )
 
     sorted_proposed_facts = tuple(sorted(proposed_facts, key=lambda f: f.proposal_item_id))
     sorted_profile_gaps = tuple(sorted(profile_gaps, key=lambda g: g.proposal_item_id))
 
-    return build_case_assembly_task(
+    return build_event_evidence_integration_task(
         run_id=ctx.run_id,
-        case_id=f"case:{ctx.advisory.source_id}",
+        event_id=event_uri,
         core_event_fact_ids=tuple(f.proposal_item_id for f in sorted_proposed_facts),
         resolution_proposal_ids=res_prop_ids,
         available_evidence_layer_ids=available_layers,
-        required_case_slots=required_slots,
-        optional_case_slots=optional_slots,
+        required_event_slots=required_slots,
+        optional_event_slots=optional_slots,
         missing_slots=missing_slots,
         schema_profile_id=profile_id,
         schema_context_id=guide.schema_slice_id,
@@ -1153,34 +1153,34 @@ def _build_case_assembly_task_from_state(
     )
 
 
-def _should_activate_case_assembly_agent(
+def _should_activate_event_evidence_integration_agent(
     *,
     source_id: str,
     task: Any,
-    case_assembly_model_factory: ToolModelFactory | None,
+    event_evidence_integration_model_factory: ToolModelFactory | None,
 ) -> bool:
-    """Escalate only when a required case slot remains unresolved.
+    """Escalate only when a required event slot remains unresolved.
 
     Missing optional Weather/BTS context is evidence absence, not a schema
     choice for an LLM to repair. Source identifiers never decide activation.
     """
 
     del source_id
-    missing_required = set(task.missing_slots) & set(task.required_case_slots)
-    return case_assembly_model_factory is not None and bool(missing_required)
+    missing_required = set(task.missing_slots) & set(task.required_event_slots)
+    return event_evidence_integration_model_factory is not None and bool(missing_required)
 
 
-def _decision_case_assembly_node(state: dict) -> dict:
+def _event_evidence_integration_node(state: dict) -> dict:
     ctx: IngestContext = _ctx()
     preflight = state.get("resolution_preflight_status", "blocked")
     if preflight != "resolved":
         return {
-            "case_assembly_task": None,
-            "case_assembly_proposal": None,
-            "case_assembly_feedback": None,
-            "case_assembly_result": None,
-            "assembly_graph_patch": None,
-            "assembly_failure_reason": state.get(
+            "event_evidence_integration_task": None,
+            "event_evidence_integration_proposal": None,
+            "event_evidence_integration_feedback": None,
+            "event_evidence_integration_result": None,
+            "integration_graph_patch": None,
+            "integration_failure_reason": state.get(
                 "resolution_preflight_reason",
                 "required resolution preflight did not pass",
             ),
@@ -1213,37 +1213,37 @@ def _decision_case_assembly_node(state: dict) -> dict:
         formal_event_uri_hint and event_uri != formal_event_uri_hint
     ):
         return {
-            "case_assembly_task": None,
-            "case_assembly_proposal": None,
-            "case_assembly_feedback": None,
-            "case_assembly_result": None,
-            "assembly_graph_patch": None,
-            "assembly_failure_reason": "resolved event class differs from upstream schema binding",
+            "event_evidence_integration_task": None,
+            "event_evidence_integration_proposal": None,
+            "event_evidence_integration_feedback": None,
+            "event_evidence_integration_result": None,
+            "integration_graph_patch": None,
+            "integration_failure_reason": "resolved event class differs from upstream schema binding",
             "event_uri": event_uri,
             "event_class": event_class,
         }
 
-    # Construct CaseAssemblyTask
-    assembly_task = _build_case_assembly_task_from_state(
+    # Construct EventEvidenceIntegrationTask
+    integration_task = _build_event_evidence_integration_task_from_state(
         ctx, state, event_uri=event_uri, event_class=event_class
     )
     binding = ContractExecutionBinding(
         run_id=ctx.run_id,
         created_at=ctx.run_started_at or datetime.now(UTC),
-        tool_version="deterministic-assembly-v1",
+        tool_version="deterministic-event-evidence-integration-v1",
     )
 
-    activate_agent = _should_activate_case_assembly_agent(
+    activate_agent = _should_activate_event_evidence_integration_agent(
         source_id=ctx.advisory.source_id,
-        task=assembly_task,
-        case_assembly_model_factory=ctx.case_assembly_model_factory,
+        task=integration_task,
+        event_evidence_integration_model_factory=ctx.event_evidence_integration_model_factory,
     )
-    optional_layer_results: list[ComponentLayerResult] = [
-        ComponentLayerResult(
+    optional_layer_results: list[EvidenceLayerResult] = [
+        EvidenceLayerResult(
             layer_id="core",
-            status=ComponentLayerStatus.OK,
+            status=EvidenceLayerStatus.OK,
             required_for_task=True,
-            artifact_ids=assembly_task.core_event_fact_ids,
+            artifact_ids=integration_task.core_event_fact_ids,
         )
     ]
     optional_limitations: list[str] = []
@@ -1251,12 +1251,12 @@ def _decision_case_assembly_node(state: dict) -> dict:
         (
             "layer:weather",
             state.get("weather_context"),
-            assembly_task.context_association_ids,
+            integration_task.context_association_ids,
         ),
         (
             "layer:bts",
             state.get("observation_context"),
-            assembly_task.public_observation_ids,
+            integration_task.public_observation_ids,
         ),
     ):
         status = getattr(bundle, "status", "insufficient")
@@ -1265,21 +1265,21 @@ def _decision_case_assembly_node(state: dict) -> dict:
         )
         if status == "ok" and artifact_ids:
             optional_layer_results.append(
-                ComponentLayerResult(
+                EvidenceLayerResult(
                     layer_id=layer_id,
-                    status=ComponentLayerStatus.OK,
+                    status=EvidenceLayerStatus.OK,
                     required_for_task=False,
                     artifact_ids=artifact_ids,
                 )
             )
         elif status == "blocked":
             optional_layer_results.append(
-                ComponentLayerResult(
+                EvidenceLayerResult(
                     layer_id=layer_id,
-                    status=ComponentLayerStatus.BLOCKED,
+                    status=EvidenceLayerStatus.BLOCKED,
                     required_for_task=False,
                     blocking_error_id=stable_contract_id(
-                        "case-assembly-layer-error",
+                        "event-evidence-integration-layer-error",
                         ctx.run_id,
                         layer_id,
                         failure_reason,
@@ -1289,9 +1289,9 @@ def _decision_case_assembly_node(state: dict) -> dict:
             optional_limitations.append(f"{layer_id}: {failure_reason}")
         else:
             optional_layer_results.append(
-                ComponentLayerResult(
+                EvidenceLayerResult(
                     layer_id=layer_id,
-                    status=ComponentLayerStatus.INSUFFICIENT,
+                    status=EvidenceLayerStatus.INSUFFICIENT,
                     required_for_task=False,
                     missing_reason_code=failure_reason,
                 )
@@ -1299,41 +1299,41 @@ def _decision_case_assembly_node(state: dict) -> dict:
             optional_limitations.append(f"{layer_id}: {failure_reason}")
 
     if not activate_agent:
-        # Deterministic assembly compiler (0 model calls)
-        proposal = compile_case_assembly_proposal(
-            task=assembly_task,
-            assembly_status=(AssemblyStatus.PARTIAL if optional_limitations else None),
-            component_layer_results=optional_layer_results,
+        # Deterministic event evidence compiler (0 model calls)
+        proposal = compile_event_evidence_integration_proposal(
+            task=integration_task,
+            integration_status=(EventEvidenceIntegrationStatus.PARTIAL if optional_limitations else None),
+            evidence_layer_results=optional_layer_results,
             limitations=optional_limitations,
             binding=binding,
         )
-        assembly_result = CaseAssemblyResult(
+        integration_result = EventEvidenceIntegrationResult(
             proposal=proposal,
             model_calls=(),
             tool_traces=(),
             feedback=None,
         )
     else:
-        assembly_result = run_case_assembly_agent(
-            task=assembly_task,
+        integration_result = run_event_evidence_integration_agent(
+            task=integration_task,
             binding=binding,
-            tool_model_factory=ctx.case_assembly_model_factory,
-            assembly_status=(AssemblyStatus.PARTIAL if optional_limitations else None),
-            component_layer_results=optional_layer_results,
+            tool_model_factory=ctx.event_evidence_integration_model_factory,
+            integration_status=(EventEvidenceIntegrationStatus.PARTIAL if optional_limitations else None),
+            evidence_layer_results=optional_layer_results,
             limitations=optional_limitations,
         )
-        proposal = assembly_result.proposal
+        proposal = integration_result.proposal
 
-    feedback = preflight_validate_case_assembly_proposal(
-        task=assembly_task,
+    feedback = preflight_validate_event_evidence_proposal(
+        task=integration_task,
         proposal=proposal,
         binding=binding,
     )
     if feedback is not None and not feedback.repairable:
-        proposal = compile_case_assembly_proposal(
-            task=assembly_task,
-            assembly_status=AssemblyStatus.BLOCKED,
-            component_layer_results=proposal.component_layer_results,
+        proposal = compile_event_evidence_integration_proposal(
+            task=integration_task,
+            integration_status=EventEvidenceIntegrationStatus.BLOCKED,
+            evidence_layer_results=proposal.evidence_layer_results,
             proposed_facts=proposal.proposed_facts,
             evidence_bindings=proposal.evidence_bindings,
             resolution_proposal_ids=proposal.resolution_proposal_ids,
@@ -1346,17 +1346,17 @@ def _decision_case_assembly_node(state: dict) -> dict:
             revision_count=proposal.revision_count,
             binding=binding,
         )
-        assembly_result = CaseAssemblyResult(
+        integration_result = EventEvidenceIntegrationResult(
             proposal=proposal,
-            model_calls=assembly_result.model_calls,
-            tool_traces=assembly_result.tool_traces,
+            model_calls=integration_result.model_calls,
+            tool_traces=integration_result.tool_traces,
             feedback=feedback,
             failure_reason=feedback.violation_code,
         )
 
-    publishable_assembly = proposal.assembly_status in {
-        AssemblyStatus.OK,
-        AssemblyStatus.PARTIAL,
+    publishable_integration = proposal.integration_status in {
+        EventEvidenceIntegrationStatus.OK,
+        EventEvidenceIntegrationStatus.PARTIAL,
     }
     mentions = state.get("mentions") or parse_structured_fields(ctx.advisory.content)
     block = (
@@ -1364,26 +1364,26 @@ def _decision_case_assembly_node(state: dict) -> dict:
             proposal,
             evidence_spans=mentions.evidence_spans,
         )
-        if publishable_assembly
+        if publishable_integration
         else None
     )
     return {
-        "case_assembly_task": assembly_task,
-        "case_assembly_proposal": proposal,
-        "case_assembly_feedback": feedback,
-        "case_assembly_result": assembly_result,
-        "assembly_graph_patch": block,
-        "assembly_failure_reason": assembly_result.failure_reason,
+        "event_evidence_integration_task": integration_task,
+        "event_evidence_integration_proposal": proposal,
+        "event_evidence_integration_feedback": feedback,
+        "event_evidence_integration_result": integration_result,
+        "integration_graph_patch": block,
+        "integration_failure_reason": integration_result.failure_reason,
         "event_uri": event_uri,
         "event_class": event_class,
-        "model_calls": list(assembly_result.model_calls),
+        "model_calls": list(integration_result.model_calls),
     }
 
 
 def _validate_event_patch_node(state: dict) -> dict:
     ctx: IngestContext = _ctx()
-    assembly_graph_patch: GraphPatchBlock | None = state.get("assembly_graph_patch")
-    if assembly_graph_patch is None:
+    integration_graph_patch: GraphPatchBlock | None = state.get("integration_graph_patch")
+    if integration_graph_patch is None:
         return {"materialization": None, "validation": None}
     # No resolved event class -> the system abstained; do not materialize.
     event_class = state.get("event_class", "")
@@ -1434,7 +1434,7 @@ def _validate_event_patch_node(state: dict) -> dict:
         ctx.run_id, ctx.advisory.source_id, event_class
     )
     validation: GraphValidationResult = validate_graph_patch(
-        block=assembly_graph_patch,
+        block=integration_graph_patch,
         event_iri=event_uri,
         event_class=event_class,
         schema_guide=guide,
@@ -1447,7 +1447,7 @@ def _validate_event_patch_node(state: dict) -> dict:
     # publishability so rejected/blocked runs still leave an audit trail.
     write_fact_trace(
         result=validation,
-        block=assembly_graph_patch,
+        block=integration_graph_patch,
         evidence_cards=evidence_cards,
         source_snapshot=snapshot_registry,
         output_dir=ctx.output_dir,

@@ -1,4 +1,4 @@
-"""Tests for bounded Case Assembly tools, preflight validator, and agent loop."""
+"""Tests for bounded event-evidence tools, preflight validation, and agent loop."""
 
 from __future__ import annotations
 
@@ -8,50 +8,51 @@ from pathlib import Path
 import pytest
 
 from aviation_agentic_ai.agent_system.contracts import SourceFamily
-from aviation_agentic_ai.agent_system.decision_case_contracts import (
-    CaseAssemblyTask,
-    CaseAssemblyTaskFields,
-    CaseFactProposal,
-    CaseProfileGapProposal,
+from aviation_agentic_ai.agent_system.construction_contracts import (
+    EventEvidenceIntegrationTask,
+    EventEvidenceIntegrationTaskFields,
+    EventEvidenceFactProposal,
+    EventEvidenceProfileGapProposal,
     ContractExecutionBinding,
     ResolutionDecision,
     SourceSnapshotBinding,
     canonical_id_tuple_token,
-    seal_case_assembly_task,
+    seal_event_evidence_integration_task,
     stable_contract_id,
 )
-from aviation_agentic_ai.agent_system.case_assembly_tools import (
-    CaseAssemblyToolError,
-    CaseAssemblyToolGateway,
-    build_case_assembly_tools,
+from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+    EventEvidenceIntegrationToolError,
+    EventEvidenceIntegrationToolGateway,
+    build_event_evidence_integration_tools,
 )
 
 SHA_A = "a" * 64
 SHA_B = "b" * 64
 STARTED = datetime(2026, 5, 19, 20, 15, tzinfo=UTC)
+EVENT_ID = "urn:aviation-agentic-ai:event:test:1"
 
 
 def _binding(run_id: str = "run-1") -> ContractExecutionBinding:
     return ContractExecutionBinding(
         run_id=run_id,
         created_at=STARTED,
-        tool_version="deterministic-assembly-v1",
+        tool_version="deterministic-event-evidence-integration-v1",
     )
 
 
 def _assembly_task(
     *,
-    case_id: str = "case-1",
+    event_id: str = EVENT_ID,
     resolution_proposal_id: str = "res-prop-1",
-    proposed_facts: tuple[CaseFactProposal, ...] | None = None,
-    profile_gaps: tuple[CaseProfileGapProposal, ...] | None = None,
+    proposed_facts: tuple[EventEvidenceFactProposal, ...] | None = None,
+    profile_gaps: tuple[EventEvidenceProfileGapProposal, ...] | None = None,
     event_source_family: SourceFamily = SourceFamily.ATCSCC_ADVISORY,
-) -> CaseAssemblyTask:
+) -> EventEvidenceIntegrationTask:
     facts = (
         (
-            CaseFactProposal(
+            EventEvidenceFactProposal(
                 proposal_item_id="proposal-fact-1",
-                subject_id="event-1",
+                subject_id=event_id,
                 predicate_iri="rdf:type",
                 object_kind="iri",
                 object_value="atm:GroundStopTMI",
@@ -64,9 +65,9 @@ def _assembly_task(
     )
     gaps = (
         (
-            CaseProfileGapProposal(
+            EventEvidenceProfileGapProposal(
                 proposal_item_id="proposal-gap-1",
-                event_id="event-1",
+                event_id=event_id,
                 field="impacting_condition",
                 normalized_value="weather",
                 evidence_claim_ids=("evidence:event:weather",),
@@ -82,9 +83,9 @@ def _assembly_task(
         sorted(fact.proposal_item_id for fact in facts)
     )
     task_id = stable_contract_id(
-        "case-assembly-task",
+        "event-evidence-integration-task",
         "run-1",
-        case_id,
+        event_id,
         canonical_id_tuple_token(core_event_fact_ids, sort_values=True),
         canonical_id_tuple_token((resolution_proposal_id,), sort_values=True),
         canonical_id_tuple_token(selected, sort_values=True),
@@ -92,15 +93,15 @@ def _assembly_task(
         "context-1",
         SHA_A,
     )
-    fields = CaseAssemblyTaskFields(
+    fields = EventEvidenceIntegrationTaskFields(
         task_id=task_id,
         run_id="run-1",
-        case_id=case_id,
+        event_id=event_id,
         core_event_fact_ids=core_event_fact_ids,
         resolution_proposal_ids=(resolution_proposal_id,),
         available_evidence_layer_ids=("layer:advisory", "layer:weather"),
-        required_case_slots=("controlled_facility", "event_type"),
-        optional_case_slots=("impacting_condition",),
+        required_event_slots=("controlled_facility", "event_type"),
+        optional_event_slots=("impacting_condition",),
         missing_slots=(),
         schema_profile_id="profile-1",
         schema_context_id="context-1",
@@ -138,7 +139,7 @@ def _assembly_task(
             {
                 "association_id": "assoc-weather-1",
                 "run_id": "run-1",
-                "event_id": "event-1",
+                "event_id": event_id,
                 "report_id": "weather-report-1",
                 "facility_id": "facility-1",
                 "relation_type": "observation_during_operation",
@@ -154,7 +155,7 @@ def _assembly_task(
             {
                 "observation_id": "obs-bts-1",
                 "run_id": "run-1",
-                "event_id": "event-1",
+                "event_id": event_id,
                 "phase": "active",
                 "metric_key": "cancelled_count",
                 "value": 2,
@@ -186,26 +187,26 @@ def _assembly_task(
         ),
         remaining_tool_budget=6,
     )
-    return seal_case_assembly_task(fields=fields, binding=_binding())
+    return seal_event_evidence_integration_task(fields=fields, binding=_binding())
 
 
-def test_case_assembly_gateway_get_case_requirements() -> None:
+def test_event_evidence_integration_gateway_get_event_requirements() -> None:
     task = _assembly_task()
-    gateway = CaseAssemblyToolGateway(task=task)
-    result = gateway.get_case_requirements()
+    gateway = EventEvidenceIntegrationToolGateway(task=task)
+    result = gateway.get_event_requirements()
 
     assert result.status == "ok"
-    assert result.case_id == "case-1"
-    assert result.required_case_slots == ["controlled_facility", "event_type"]
-    assert result.optional_case_slots == ["impacting_condition"]
+    assert result.event_id == "urn:aviation-agentic-ai:event:test:1"
+    assert result.required_event_slots == ["controlled_facility", "event_type"]
+    assert result.optional_event_slots == ["impacting_condition"]
     assert result.schema_profile_id == "profile-1"
     assert result.available_evidence_layer_ids == ["layer:advisory", "layer:weather"]
     assert result.remaining_tool_budget == 6
 
 
-def test_case_assembly_gateway_gets_compact_candidate_bundle() -> None:
+def test_event_evidence_integration_gateway_gets_compact_candidate_bundle() -> None:
     task = _assembly_task()
-    gateway = CaseAssemblyToolGateway(task=task)
+    gateway = EventEvidenceIntegrationToolGateway(task=task)
 
     first = gateway.get_candidate_bundle()
     second = gateway.get_candidate_bundle()
@@ -213,7 +214,7 @@ def test_case_assembly_gateway_gets_compact_candidate_bundle() -> None:
     assert first.status == "ok"
     assert first.candidate_bundle_id == second.candidate_bundle_id
     assert first.candidate_bundle_id == stable_contract_id(
-        "case-assembly-candidate-bundle",
+        "event-evidence-integration-candidate-bundle",
         task.task_id,
         task.payload_checksum,
     )
@@ -243,9 +244,9 @@ def test_case_assembly_gateway_gets_compact_candidate_bundle() -> None:
     } == {"source:event"}
 
 
-def test_case_assembly_gateway_get_schema_context() -> None:
+def test_event_evidence_integration_gateway_get_schema_context() -> None:
     task = _assembly_task()
-    gateway = CaseAssemblyToolGateway(task=task)
+    gateway = EventEvidenceIntegrationToolGateway(task=task)
     result = gateway.get_schema_context()
 
     assert result.status == "ok"
@@ -254,9 +255,9 @@ def test_case_assembly_gateway_get_schema_context() -> None:
     assert result.schema_snapshot_sha256 == SHA_A
 
 
-def test_case_assembly_gateway_get_source_evidence() -> None:
+def test_event_evidence_integration_gateway_get_source_evidence() -> None:
     task = _assembly_task()
-    gateway = CaseAssemblyToolGateway(task=task)
+    gateway = EventEvidenceIntegrationToolGateway(task=task)
     result = gateway.get_source_evidence(evidence_ids=["evidence:event:type"])
 
     assert result.status == "ok"
@@ -268,13 +269,13 @@ def test_case_assembly_gateway_get_source_evidence() -> None:
     assert result.evidence_records[0].evidence_text == "GROUND STOP"
 
     # Foreign evidence ID must fail closed
-    with pytest.raises(CaseAssemblyToolError):
+    with pytest.raises(EventEvidenceIntegrationToolError):
         gateway.get_source_evidence(evidence_ids=["foreign-evidence"])
 
 
-def test_case_assembly_gateway_get_resolution_result() -> None:
+def test_event_evidence_integration_gateway_get_resolution_result() -> None:
     task = _assembly_task()
-    gateway = CaseAssemblyToolGateway(task=task)
+    gateway = EventEvidenceIntegrationToolGateway(task=task)
     result = gateway.get_resolution_result(resolution_proposal_ids=["res-prop-1"])
 
     assert result.status == "ok"
@@ -284,13 +285,13 @@ def test_case_assembly_gateway_get_resolution_result() -> None:
     ]
     assert result.resolution_records[0].authority_source_ids == ("source:event",)
 
-    with pytest.raises(CaseAssemblyToolError):
+    with pytest.raises(EventEvidenceIntegrationToolError):
         gateway.get_resolution_result(resolution_proposal_ids=["unknown-proposal"])
 
 
-def test_case_assembly_gateway_get_context_associations() -> None:
+def test_event_evidence_integration_gateway_get_context_associations() -> None:
     task = _assembly_task()
-    gateway = CaseAssemblyToolGateway(task=task)
+    gateway = EventEvidenceIntegrationToolGateway(task=task)
     result = gateway.get_context_associations(association_ids=["assoc-weather-1"])
 
     assert result.status == "ok"
@@ -299,7 +300,7 @@ def test_case_assembly_gateway_get_context_associations() -> None:
         "assoc-weather-1"
     ]
     association = result.context_associations[0]
-    assert association.event_id == "event-1"
+    assert association.event_id == EVENT_ID
     assert association.report_id == "weather-report-1"
     assert association.facility_id == "facility-1"
     assert association.relation_type == "observation_during_operation"
@@ -307,13 +308,13 @@ def test_case_assembly_gateway_get_context_associations() -> None:
     assert association.source_snapshot_sha256 == SHA_A
     assert association.causal_claim is False
 
-    with pytest.raises(CaseAssemblyToolError):
+    with pytest.raises(EventEvidenceIntegrationToolError):
         gateway.get_context_associations(association_ids=["unknown-assoc"])
 
 
-def test_case_assembly_gateway_get_public_observations() -> None:
+def test_event_evidence_integration_gateway_get_public_observations() -> None:
     task = _assembly_task()
-    gateway = CaseAssemblyToolGateway(task=task)
+    gateway = EventEvidenceIntegrationToolGateway(task=task)
     result = gateway.get_public_observations(observation_ids=["obs-bts-1"])
 
     assert result.status == "ok"
@@ -330,14 +331,14 @@ def test_case_assembly_gateway_get_public_observations() -> None:
     assert observation.source_id == "source:bts"
     assert observation.source_snapshot_sha256 == SHA_B
 
-    with pytest.raises(CaseAssemblyToolError):
+    with pytest.raises(EventEvidenceIntegrationToolError):
         gateway.get_public_observations(observation_ids=["unknown-obs"])
 
 
-def test_build_case_assembly_tools_exposes_only_compact_candidate_bundle() -> None:
+def test_build_event_evidence_integration_tools_exposes_only_compact_candidate_bundle() -> None:
     task = _assembly_task()
-    gateway = CaseAssemblyToolGateway(task=task)
-    tools = build_case_assembly_tools(gateway)
+    gateway = EventEvidenceIntegrationToolGateway(task=task)
+    tools = build_event_evidence_integration_tools(gateway)
 
     assert [tool.name for tool in tools] == ["get_candidate_bundle"]
 
@@ -350,32 +351,32 @@ def test_build_case_assembly_tools_exposes_only_compact_candidate_bundle() -> No
 
 
 def test_deterministic_compiler_compiles_fixed_proposal() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
     )
 
     task = _assembly_task()
-    proposal = compile_case_assembly_proposal(
+    proposal = compile_event_evidence_integration_proposal(
         task=task,
         binding=_binding(),
     )
 
-    assert proposal.case_id == "case-1"
-    assert proposal.assembly_status.value == "ok"
+    assert proposal.event_id == "urn:aviation-agentic-ai:event:test:1"
+    assert proposal.integration_status.value == "ok"
     assert proposal.task_payload_checksum == task.payload_checksum
     assert len(proposal.proposed_facts) == 1
     assert len(proposal.profile_gaps) == 1
 
 
 def test_preflight_validator_repairable_formatting_defect() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
-        preflight_validate_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
+        preflight_validate_event_evidence_proposal,
     )
 
-    task_fact = CaseFactProposal(
+    task_fact = EventEvidenceFactProposal(
         proposal_item_id="proposal-fact-1",
-        subject_id="event-1",
+        subject_id=EVENT_ID,
         predicate_iri="atm:controlledFacility",
         object_kind="iri",
         object_value="KJFK",
@@ -383,21 +384,21 @@ def test_preflight_validator_repairable_formatting_defect() -> None:
         validation_profile_id="profile-1",
     )
     task = _assembly_task(proposed_facts=(task_fact,), profile_gaps=())
-    repairable_fact = CaseFactProposal(
+    repairable_fact = EventEvidenceFactProposal(
         proposal_item_id="proposal-fact-1",
-        subject_id="event-1",
+        subject_id=EVENT_ID,
         predicate_iri="atm:controlledFacility",
         object_kind="iri",
         object_value="kjfk",
         evidence_claim_ids=("evidence:event:type",),
         validation_profile_id="profile-1",
     )
-    proposal = compile_case_assembly_proposal(
+    proposal = compile_event_evidence_integration_proposal(
         task=task,
         proposed_facts=(repairable_fact,),
         binding=_binding(),
     )
-    feedback = preflight_validate_case_assembly_proposal(
+    feedback = preflight_validate_event_evidence_proposal(
         task=task,
         proposal=proposal,
         binding=_binding(),
@@ -409,14 +410,14 @@ def test_preflight_validator_repairable_formatting_defect() -> None:
 
 
 def test_preflight_rejects_unlisted_non_type_object_value() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
-        preflight_validate_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
+        preflight_validate_event_evidence_proposal,
     )
 
-    task_fact = CaseFactProposal(
+    task_fact = EventEvidenceFactProposal(
         proposal_item_id="proposal-fact-1",
-        subject_id="event-1",
+        subject_id=EVENT_ID,
         predicate_iri="atm:controlledFacility",
         object_kind="iri",
         object_value="KJFK",
@@ -425,14 +426,14 @@ def test_preflight_rejects_unlisted_non_type_object_value() -> None:
     )
     task = _assembly_task(proposed_facts=(task_fact,), profile_gaps=())
     unlisted = task_fact.model_copy(update={"object_value": "KXYZ"})
-    proposal = compile_case_assembly_proposal(
+    proposal = compile_event_evidence_integration_proposal(
         task=task,
         proposed_facts=(unlisted,),
         profile_gaps=(),
         binding=_binding(),
     )
 
-    feedback = preflight_validate_case_assembly_proposal(
+    feedback = preflight_validate_event_evidence_proposal(
         task=task,
         proposal=proposal,
         binding=_binding(),
@@ -443,28 +444,28 @@ def test_preflight_rejects_unlisted_non_type_object_value() -> None:
 
 
 def test_preflight_validator_hard_causal_violation() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
-        preflight_validate_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
+        preflight_validate_event_evidence_proposal,
     )
 
     task = _assembly_task()
     # Fact attempting forbidden causal assertion
-    forbidden_fact = CaseFactProposal(
+    forbidden_fact = EventEvidenceFactProposal(
         proposal_item_id="proposal-fact-1",
-        subject_id="event-1",
+        subject_id=EVENT_ID,
         predicate_iri="atm:causedByWeather",
         object_kind="iri",
         object_value="atm:Thunderstorm",
         evidence_claim_ids=("evidence:event:type",),
         validation_profile_id="profile-1",
     )
-    proposal = compile_case_assembly_proposal(
+    proposal = compile_event_evidence_integration_proposal(
         task=task,
         proposed_facts=(forbidden_fact,),
         binding=_binding(),
     )
-    feedback = preflight_validate_case_assembly_proposal(
+    feedback = preflight_validate_event_evidence_proposal(
         task=task,
         proposal=proposal,
         binding=_binding(),
@@ -476,14 +477,14 @@ def test_preflight_validator_hard_causal_violation() -> None:
 
 
 def test_preflight_rejects_empty_and_missing_core_fact_proposals() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
-        preflight_validate_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
+        preflight_validate_event_evidence_proposal,
     )
 
-    second_fact = CaseFactProposal(
+    second_fact = EventEvidenceFactProposal(
         proposal_item_id="proposal-fact-2",
-        subject_id="event-1",
+        subject_id=EVENT_ID,
         predicate_iri="atm:advisoryNumber",
         object_kind="literal",
         object_value="123",
@@ -495,23 +496,23 @@ def test_preflight_rejects_empty_and_missing_core_fact_proposals() -> None:
         profile_gaps=(),
     )
 
-    empty = compile_case_assembly_proposal(
+    empty = compile_event_evidence_integration_proposal(
         task=task,
         proposed_facts=(),
         profile_gaps=(),
         binding=_binding(),
     )
-    assert empty.assembly_status.value == "insufficient"
+    assert empty.integration_status.value == "insufficient"
     assert empty.proposed_facts == ()
     assert empty.profile_gaps == ()
 
-    missing = compile_case_assembly_proposal(
+    missing = compile_event_evidence_integration_proposal(
         task=task,
         proposed_facts=(task.proposed_facts[0],),
         profile_gaps=(),
         binding=_binding(),
     )
-    missing_feedback = preflight_validate_case_assembly_proposal(
+    missing_feedback = preflight_validate_event_evidence_proposal(
         task=task,
         proposal=missing,
         binding=_binding(),
@@ -521,20 +522,20 @@ def test_preflight_rejects_empty_and_missing_core_fact_proposals() -> None:
 
 
 def test_gap_only_task_compiles_to_empty_insufficient_proposal() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
     )
 
     gap = _assembly_task().profile_gaps[0]
     task = _assembly_task(proposed_facts=(), profile_gaps=(gap,))
-    proposal = compile_case_assembly_proposal(
+    proposal = compile_event_evidence_integration_proposal(
         task=task,
         proposed_facts=(),
         profile_gaps=(gap,),
         binding=_binding(),
     )
 
-    assert proposal.assembly_status.value == "insufficient"
+    assert proposal.integration_status.value == "insufficient"
     assert proposal.proposed_facts == ()
     assert proposal.profile_gaps == ()
     assert proposal.evidence_bindings == ()
@@ -544,19 +545,19 @@ def test_gap_only_task_compiles_to_empty_insufficient_proposal() -> None:
 
 
 def test_preflight_returns_feedback_for_foreign_task_binding() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
-        preflight_validate_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
+        preflight_validate_event_evidence_proposal,
     )
 
     task = _assembly_task(profile_gaps=())
-    foreign_task = _assembly_task(case_id="case-foreign", profile_gaps=())
-    foreign_proposal = compile_case_assembly_proposal(
+    foreign_task = _assembly_task(event_id="urn:aviation-agentic-ai:event:test:foreign", profile_gaps=())
+    foreign_proposal = compile_event_evidence_integration_proposal(
         task=foreign_task,
         binding=_binding(),
     )
 
-    feedback = preflight_validate_case_assembly_proposal(
+    feedback = preflight_validate_event_evidence_proposal(
         task=task,
         proposal=foreign_proposal,
         binding=_binding(),
@@ -569,29 +570,29 @@ def test_preflight_returns_feedback_for_foreign_task_binding() -> None:
 
 
 def test_preflight_rejects_extra_formal_fact() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
-        preflight_validate_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
+        preflight_validate_event_evidence_proposal,
     )
 
     task = _assembly_task(profile_gaps=())
-    extra = CaseFactProposal(
+    extra = EventEvidenceFactProposal(
         proposal_item_id="proposal-fact-extra",
-        subject_id="event-1",
+        subject_id=EVENT_ID,
         predicate_iri="atm:advisoryNumber",
         object_kind="literal",
         object_value="123",
         evidence_claim_ids=("evidence:event:type",),
         validation_profile_id="profile-1",
     )
-    proposal = compile_case_assembly_proposal(
+    proposal = compile_event_evidence_integration_proposal(
         task=task,
         proposed_facts=(*task.proposed_facts, extra),
         profile_gaps=(),
         binding=_binding(),
     )
 
-    feedback = preflight_validate_case_assembly_proposal(
+    feedback = preflight_validate_event_evidence_proposal(
         task=task,
         proposal=proposal,
         binding=_binding(),
@@ -622,13 +623,13 @@ def test_preflight_rejects_formal_fact_signature_mutation(
     replacement: object,
     expected_code: str,
 ) -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
-        preflight_validate_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
+        preflight_validate_event_evidence_proposal,
     )
 
     task = _assembly_task(profile_gaps=())
-    proposal = compile_case_assembly_proposal(
+    proposal = compile_event_evidence_integration_proposal(
         task=task,
         profile_gaps=(),
         binding=_binding(),
@@ -638,7 +639,7 @@ def test_preflight_rejects_formal_fact_signature_mutation(
     )
     mutated = proposal.model_copy(update={"proposed_facts": (mutated_fact,)})
 
-    feedback = preflight_validate_case_assembly_proposal(
+    feedback = preflight_validate_event_evidence_proposal(
         task=task,
         proposal=mutated,
         binding=_binding(),
@@ -667,19 +668,19 @@ def test_preflight_rejects_profile_gap_signature_mutation(
     replacement: object,
     expected_code: str,
 ) -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
-        preflight_validate_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
+        preflight_validate_event_evidence_proposal,
     )
 
     task = _assembly_task()
-    proposal = compile_case_assembly_proposal(task=task, binding=_binding())
+    proposal = compile_event_evidence_integration_proposal(task=task, binding=_binding())
     mutated_gap = proposal.profile_gaps[0].model_copy(
         update={field_name: replacement}
     )
     mutated = proposal.model_copy(update={"profile_gaps": (mutated_gap,)})
 
-    feedback = preflight_validate_case_assembly_proposal(
+    feedback = preflight_validate_event_evidence_proposal(
         task=task,
         proposal=mutated,
         binding=_binding(),
@@ -695,9 +696,9 @@ def test_preflight_rejects_profile_gap_signature_mutation(
         (
             (
                 _assembly_task().profile_gaps[0],
-                CaseProfileGapProposal(
+                EventEvidenceProfileGapProposal(
                     proposal_item_id="proposal-gap-foreign",
-                    event_id="event-1",
+                    event_id=EVENT_ID,
                     field="impacting_condition",
                     normalized_value="weather",
                     evidence_claim_ids=("evidence:event:weather",),
@@ -710,21 +711,21 @@ def test_preflight_rejects_profile_gap_signature_mutation(
     ),
 )
 def test_preflight_requires_exact_profile_gap_item_ids(
-    profile_gaps: tuple[CaseProfileGapProposal, ...],
+    profile_gaps: tuple[EventEvidenceProfileGapProposal, ...],
     expected_code: str,
 ) -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
-        preflight_validate_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
+        preflight_validate_event_evidence_proposal,
     )
 
     task = _assembly_task()
-    proposal = compile_case_assembly_proposal(
+    proposal = compile_event_evidence_integration_proposal(
         task=task,
         profile_gaps=profile_gaps,
         binding=_binding(),
     )
-    feedback = preflight_validate_case_assembly_proposal(
+    feedback = preflight_validate_event_evidence_proposal(
         task=task,
         proposal=proposal,
         binding=_binding(),
@@ -758,16 +759,16 @@ def test_preflight_requires_exact_top_level_task_sets(
     replacement: tuple[str, ...],
     expected_code: str,
 ) -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
-        preflight_validate_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
+        preflight_validate_event_evidence_proposal,
     )
 
     task = _assembly_task()
-    proposal = compile_case_assembly_proposal(task=task, binding=_binding())
+    proposal = compile_event_evidence_integration_proposal(task=task, binding=_binding())
     mutated = proposal.model_copy(update={field_name: replacement})
 
-    feedback = preflight_validate_case_assembly_proposal(
+    feedback = preflight_validate_event_evidence_proposal(
         task=task,
         proposal=mutated,
         binding=_binding(),
@@ -777,13 +778,13 @@ def test_preflight_requires_exact_top_level_task_sets(
 
 
 def test_preflight_requires_exact_source_bindings() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
-        preflight_validate_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
+        preflight_validate_event_evidence_proposal,
     )
 
     task = _assembly_task()
-    proposal = compile_case_assembly_proposal(task=task, binding=_binding())
+    proposal = compile_event_evidence_integration_proposal(task=task, binding=_binding())
     foreign_binding = SourceSnapshotBinding(
         source_id="source:foreign",
         source_family=SourceFamily.METAR,
@@ -793,7 +794,7 @@ def test_preflight_requires_exact_source_bindings() -> None:
         update={"source_snapshot_bindings": (foreign_binding,)}
     )
 
-    feedback = preflight_validate_case_assembly_proposal(
+    feedback = preflight_validate_event_evidence_proposal(
         task=task,
         proposal=mutated,
         binding=_binding(),
@@ -815,28 +816,28 @@ def test_preflight_rejects_foreign_component_artifacts(
     artifact_id: str,
     expected_code: str,
 ) -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
-        preflight_validate_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
+        preflight_validate_event_evidence_proposal,
     )
-    from aviation_agentic_ai.agent_system.decision_case_contracts import (
-        ComponentLayerResult,
-        ComponentLayerStatus,
+    from aviation_agentic_ai.agent_system.construction_contracts import (
+        EvidenceLayerResult,
+        EvidenceLayerStatus,
     )
 
     task = _assembly_task()
-    proposal = compile_case_assembly_proposal(task=task, binding=_binding())
-    foreign_layer = ComponentLayerResult(
+    proposal = compile_event_evidence_integration_proposal(task=task, binding=_binding())
+    foreign_layer = EvidenceLayerResult(
         layer_id=layer_id,
-        status=ComponentLayerStatus.OK,
+        status=EvidenceLayerStatus.OK,
         required_for_task=layer_id == "core",
         artifact_ids=(artifact_id,),
     )
     mutated = proposal.model_copy(
-        update={"component_layer_results": (foreign_layer,)}
+        update={"evidence_layer_results": (foreign_layer,)}
     )
 
-    feedback = preflight_validate_case_assembly_proposal(
+    feedback = preflight_validate_event_evidence_proposal(
         task=task,
         proposal=mutated,
         binding=_binding(),
@@ -846,14 +847,14 @@ def test_preflight_rejects_foreign_component_artifacts(
 
 
 def test_preflight_accepts_advisory_backed_reason_and_ground_stop_gap() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
-        preflight_validate_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
+        preflight_validate_event_evidence_proposal,
     )
 
-    reason_fact = CaseFactProposal(
+    reason_fact = EventEvidenceFactProposal(
         proposal_item_id="proposal-fact-1",
-        subject_id="event-1",
+        subject_id=EVENT_ID,
         predicate_iri="atm:impactingCondition",
         object_kind="literal",
         object_value="weather",
@@ -864,13 +865,13 @@ def test_preflight_accepts_advisory_backed_reason_and_ground_stop_gap() -> None:
         proposed_facts=(reason_fact,),
         profile_gaps=(),
     )
-    gdp_proposal = compile_case_assembly_proposal(
+    gdp_proposal = compile_event_evidence_integration_proposal(
         task=gdp_task,
         profile_gaps=(),
         binding=_binding(),
     )
     assert (
-        preflight_validate_case_assembly_proposal(
+        preflight_validate_event_evidence_proposal(
             task=gdp_task,
             proposal=gdp_proposal,
             binding=_binding(),
@@ -879,12 +880,12 @@ def test_preflight_accepts_advisory_backed_reason_and_ground_stop_gap() -> None:
     )
 
     ground_stop_task = _assembly_task()
-    ground_stop_proposal = compile_case_assembly_proposal(
+    ground_stop_proposal = compile_event_evidence_integration_proposal(
         task=ground_stop_task,
         binding=_binding(),
     )
     assert (
-        preflight_validate_case_assembly_proposal(
+        preflight_validate_event_evidence_proposal(
             task=ground_stop_task,
             proposal=ground_stop_proposal,
             binding=_binding(),
@@ -895,23 +896,23 @@ def test_preflight_accepts_advisory_backed_reason_and_ground_stop_gap() -> None:
 
 @pytest.mark.parametrize("as_gap", (False, True))
 def test_preflight_rejects_weather_backed_declared_reason(as_gap: bool) -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
-        preflight_validate_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
+        preflight_validate_event_evidence_proposal,
     )
 
-    reason_fact = CaseFactProposal(
+    reason_fact = EventEvidenceFactProposal(
         proposal_item_id="proposal-fact-1",
-        subject_id="event-1",
+        subject_id=EVENT_ID,
         predicate_iri="atm:impactingCondition",
         object_kind="literal",
         object_value="weather",
         evidence_claim_ids=("evidence:event:weather",),
         validation_profile_id="profile-1",
     )
-    reason_gap = CaseProfileGapProposal(
+    reason_gap = EventEvidenceProfileGapProposal(
         proposal_item_id="proposal-gap-1",
-        event_id="event-1",
+        event_id=EVENT_ID,
         field="impacting_condition",
         normalized_value="weather",
         evidence_claim_ids=("evidence:event:weather",),
@@ -925,9 +926,9 @@ def test_preflight_rejects_weather_backed_declared_reason(as_gap: bool) -> None:
         profile_gaps=(reason_gap,) if as_gap else (),
         event_source_family=SourceFamily.METAR,
     )
-    proposal = compile_case_assembly_proposal(task=task, binding=_binding())
+    proposal = compile_event_evidence_integration_proposal(task=task, binding=_binding())
 
-    feedback = preflight_validate_case_assembly_proposal(
+    feedback = preflight_validate_event_evidence_proposal(
         task=task,
         proposal=proposal,
         binding=_binding(),
@@ -937,14 +938,14 @@ def test_preflight_rejects_weather_backed_declared_reason(as_gap: bool) -> None:
 
 
 def test_preflight_rejects_bts_derived_declared_reason() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
-        preflight_validate_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
+        preflight_validate_event_evidence_proposal,
     )
 
-    reason_fact = CaseFactProposal(
+    reason_fact = EventEvidenceFactProposal(
         proposal_item_id="proposal-fact-1",
-        subject_id="event-1",
+        subject_id=EVENT_ID,
         predicate_iri="atm:impactingCondition",
         object_kind="literal",
         object_value="weather",
@@ -953,9 +954,9 @@ def test_preflight_rejects_bts_derived_declared_reason() -> None:
         validation_profile_id="profile-1",
     )
     task = _assembly_task(proposed_facts=(reason_fact,), profile_gaps=())
-    proposal = compile_case_assembly_proposal(task=task, binding=_binding())
+    proposal = compile_event_evidence_integration_proposal(task=task, binding=_binding())
 
-    feedback = preflight_validate_case_assembly_proposal(
+    feedback = preflight_validate_event_evidence_proposal(
         task=task,
         proposal=proposal,
         binding=_binding(),
@@ -965,8 +966,8 @@ def test_preflight_rejects_bts_derived_declared_reason() -> None:
 
 
 def test_mutated_bindings_fail_closed() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
     )
 
     task = _assembly_task()
@@ -977,7 +978,7 @@ def test_mutated_bindings_fail_closed() -> None:
     )
 
     with pytest.raises(ValueError, match="source binding differs"):
-        compile_case_assembly_proposal(
+        compile_event_evidence_integration_proposal(
             task=task,
             source_snapshot_bindings=(wrong_binding_source,),
             binding=_binding(),
@@ -985,15 +986,15 @@ def test_mutated_bindings_fail_closed() -> None:
 
 
 def test_repeated_compilation_produces_identical_ids() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        compile_case_assembly_proposal,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        compile_event_evidence_integration_proposal,
     )
 
     task = _assembly_task()
-    p1 = compile_case_assembly_proposal(task=task, binding=_binding())
-    p2 = compile_case_assembly_proposal(task=task, binding=_binding())
+    p1 = compile_event_evidence_integration_proposal(task=task, binding=_binding())
+    p2 = compile_event_evidence_integration_proposal(task=task, binding=_binding())
 
-    assert p1.case_assembly_proposal_id == p2.case_assembly_proposal_id
+    assert p1.event_evidence_integration_proposal_id == p2.event_evidence_integration_proposal_id
     assert p1.payload_checksum == p2.payload_checksum
 
 
@@ -1021,9 +1022,9 @@ def _assembly_tool_turn():
     return ToolModelTurn(
         message=AIMessage(content="", tool_calls=calls),
         record=ModelCallRecord(
-            agent="decision_case_assembly",
+            agent="event_evidence_integration",
             raw_response="",
-            prompt_version="decision-case-assembly-v3",
+            prompt_version="event-evidence-integration-v1",
             tool_calls=[
                 ModelToolCall(
                     call_id="call:candidate-bundle",
@@ -1035,13 +1036,13 @@ def _assembly_tool_turn():
     )
 
 
-def _valid_proposal_text(task: CaseAssemblyTask | None = None) -> str:
+def _valid_proposal_text(task: EventEvidenceIntegrationTask | None = None) -> str:
     task = task or _assembly_task()
     return json.dumps(
         {
             "decision": "accepted",
             "candidate_bundle_id": stable_contract_id(
-                "case-assembly-candidate-bundle",
+                "event-evidence-integration-candidate-bundle",
                 task.task_id,
                 task.payload_checksum,
             ),
@@ -1055,17 +1056,17 @@ def _valid_proposal_text(task: CaseAssemblyTask | None = None) -> str:
     )
 
 
-def test_case_assembly_tool_observation_preserves_compact_serialization() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly import (
+def test_event_evidence_integration_tool_observation_preserves_compact_serialization() -> None:
+    from aviation_agentic_ai.agent_system.event_evidence_integration import (
         _model_tool_observation,
     )
-    from aviation_agentic_ai.agent_system.case_assembly_tools import (
-        CaseAssemblyToolResult,
+    from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+        EventEvidenceIntegrationToolResult,
     )
 
     payload = json.loads(
         _model_tool_observation(
-            CaseAssemblyToolResult(
+            EventEvidenceIntegrationToolResult(
                 tool="get_candidate_bundle",
                 candidate_bundle_id="bundle:1",
             )
@@ -1078,9 +1079,9 @@ def test_case_assembly_tool_observation_preserves_compact_serialization() -> Non
     }
 
 
-def test_case_assembly_reports_provider_truncation_before_tool_call_error() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly import (
-        run_case_assembly_agent,
+def test_event_evidence_integration_reports_provider_truncation_before_tool_call_error() -> None:
+    from aviation_agentic_ai.agent_system.event_evidence_integration import (
+        run_event_evidence_integration_agent,
     )
     from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
     from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
@@ -1090,9 +1091,9 @@ def test_case_assembly_reports_provider_truncation_before_tool_call_error() -> N
             ToolModelTurn(
                 message=None,
                 record=ModelCallRecord(
-                    agent="decision_case_assembly",
+                    agent="event_evidence_integration",
                     raw_response="",
-                    prompt_version="decision-case-assembly-v3",
+                    prompt_version="event-evidence-integration-v1",
                     output_tokens=512,
                     finish_reason="length",
                     error="provider returned an invalid native tool call",
@@ -1101,45 +1102,45 @@ def test_case_assembly_reports_provider_truncation_before_tool_call_error() -> N
         ]
     )
 
-    result = run_case_assembly_agent(
+    result = run_event_evidence_integration_agent(
         task=_assembly_task(),
         binding=_binding(),
         tool_model_factory=lambda tools: scripted_model,
     )
 
     assert result.failure_reason == (
-        "Decision Case Assembly Agent provider output was truncated"
+        "Event Evidence Integration Agent provider output was truncated"
     )
 
 
-def test_case_assembly_agent_evidence_schema_choice_success() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
+def test_event_evidence_integration_agent_evidence_schema_choice_success() -> None:
+    from aviation_agentic_ai.agent_system.event_evidence_integration import run_event_evidence_integration_agent
     from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
-    from aviation_agentic_ai.agent_system.decision_case_contracts import (
-        AssemblyStatus,
-        ComponentLayerResult,
-        ComponentLayerStatus,
+    from aviation_agentic_ai.agent_system.construction_contracts import (
+        EventEvidenceIntegrationStatus,
+        EvidenceLayerResult,
+        EvidenceLayerStatus,
     )
     from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
     from langchain_core.messages import AIMessage
 
     task = _assembly_task()
-    component_layer_results = (
-        ComponentLayerResult(
+    evidence_layer_results = (
+        EvidenceLayerResult(
             layer_id="core",
-            status=ComponentLayerStatus.OK,
+            status=EvidenceLayerStatus.OK,
             required_for_task=True,
             artifact_ids=("proposal-fact-1",),
         ),
-        ComponentLayerResult(
+        EvidenceLayerResult(
             layer_id="weather",
-            status=ComponentLayerStatus.BLOCKED,
+            status=EvidenceLayerStatus.BLOCKED,
             required_for_task=False,
             blocking_error_id="weather:source-unavailable",
         ),
-        ComponentLayerResult(
+        EvidenceLayerResult(
             layer_id="bts",
-            status=ComponentLayerStatus.INSUFFICIENT,
+            status=EvidenceLayerStatus.INSUFFICIENT,
             required_for_task=False,
             missing_reason_code="no_matching_public_observation",
         ),
@@ -1152,30 +1153,30 @@ def test_case_assembly_agent_evidence_schema_choice_success() -> None:
     turn_2 = ToolModelTurn(
         message=AIMessage(content=_valid_proposal_text()),
         record=ModelCallRecord(
-            agent="decision_case_assembly",
+            agent="event_evidence_integration",
             raw_response=_valid_proposal_text(),
-            prompt_version="decision-case-assembly-v3",
+            prompt_version="event-evidence-integration-v1",
         ),
     )
     scripted_model = _ScriptedAssemblyModel([turn_1, turn_2])
 
-    result = run_case_assembly_agent(
+    result = run_event_evidence_integration_agent(
         task=task,
         binding=_binding(),
         tool_model_factory=lambda tools: scripted_model,
-        assembly_status=AssemblyStatus.PARTIAL,
-        component_layer_results=component_layer_results,
+        integration_status=EventEvidenceIntegrationStatus.PARTIAL,
+        evidence_layer_results=evidence_layer_results,
         limitations=limitations,
     )
 
-    assert result.proposal.assembly_status is AssemblyStatus.PARTIAL
-    assert result.proposal.component_layer_results == component_layer_results
+    assert result.proposal.integration_status is EventEvidenceIntegrationStatus.PARTIAL
+    assert result.proposal.evidence_layer_results == evidence_layer_results
     assert result.proposal.limitations == limitations
     assert len(result.model_calls) == 2
     assert len(result.tool_traces) == 1
     assert result.tool_traces[0].result_refs == [
         stable_contract_id(
-            "case-assembly-candidate-bundle",
+            "event-evidence-integration-candidate-bundle",
             task.task_id,
             task.payload_checksum,
         ),
@@ -1188,13 +1189,13 @@ def test_case_assembly_agent_evidence_schema_choice_success() -> None:
     assert result.failure_reason is None
 
 
-def test_case_assembly_agent_abstention_is_honest_insufficient() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
+def test_event_evidence_integration_agent_abstention_is_honest_insufficient() -> None:
+    from aviation_agentic_ai.agent_system.event_evidence_integration import run_event_evidence_integration_agent
     from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
-    from aviation_agentic_ai.agent_system.decision_case_contracts import (
-        AssemblyStatus,
-        ComponentLayerResult,
-        ComponentLayerStatus,
+    from aviation_agentic_ai.agent_system.construction_contracts import (
+        EventEvidenceIntegrationStatus,
+        EvidenceLayerResult,
+        EvidenceLayerStatus,
     )
     from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
     from langchain_core.messages import AIMessage
@@ -1204,7 +1205,7 @@ def test_case_assembly_agent_abstention_is_honest_insufficient() -> None:
         {
             "decision": "abstained",
             "candidate_bundle_id": stable_contract_id(
-                "case-assembly-candidate-bundle",
+                "event-evidence-integration-candidate-bundle",
                 task.task_id,
                 task.payload_checksum,
             ),
@@ -1214,10 +1215,10 @@ def test_case_assembly_agent_abstention_is_honest_insufficient() -> None:
         },
         sort_keys=True,
     )
-    component_layer_results = (
-        ComponentLayerResult(
+    evidence_layer_results = (
+        EvidenceLayerResult(
             layer_id="core",
-            status=ComponentLayerStatus.OK,
+            status=EvidenceLayerStatus.OK,
             required_for_task=True,
             artifact_ids=("proposal-fact-1",),
         ),
@@ -1228,28 +1229,28 @@ def test_case_assembly_agent_abstention_is_honest_insufficient() -> None:
             ToolModelTurn(
                 message=AIMessage(content=selection_text),
                 record=ModelCallRecord(
-                    agent="decision_case_assembly",
+                    agent="event_evidence_integration",
                     raw_response=selection_text,
-                    prompt_version="decision-case-assembly-v3",
+                    prompt_version="event-evidence-integration-v1",
                 ),
             ),
         ]
     )
 
-    result = run_case_assembly_agent(
+    result = run_event_evidence_integration_agent(
         task=task,
         binding=_binding(),
         tool_model_factory=lambda tools: scripted_model,
-        component_layer_results=component_layer_results,
+        evidence_layer_results=evidence_layer_results,
     )
 
-    assert result.proposal.assembly_status is AssemblyStatus.INSUFFICIENT
+    assert result.proposal.integration_status is EventEvidenceIntegrationStatus.INSUFFICIENT
     assert result.proposal.proposed_facts == ()
-    assert result.proposal.component_layer_results[-1].layer_id == (
-        "decision_case_assembly"
+    assert result.proposal.evidence_layer_results[-1].layer_id == (
+        "event_evidence_integration"
     )
-    assert result.proposal.component_layer_results[-1].status is (
-        ComponentLayerStatus.INSUFFICIENT
+    assert result.proposal.evidence_layer_results[-1].status is (
+        EvidenceLayerStatus.INSUFFICIENT
     )
     assert result.failure_reason == "The sealed evidence remains ambiguous."
     assert len(result.model_calls) == 2
@@ -1257,17 +1258,17 @@ def test_case_assembly_agent_abstention_is_honest_insufficient() -> None:
 
 
 @pytest.mark.parametrize("mutation", ("wrong_bundle", "extra_fact"))
-def test_case_assembly_agent_rejects_selection_outside_sealed_bundle(
+def test_event_evidence_integration_agent_rejects_selection_outside_sealed_bundle(
     mutation: str,
 ) -> None:
-    from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
+    from aviation_agentic_ai.agent_system.event_evidence_integration import run_event_evidence_integration_agent
     from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
     from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
     from langchain_core.messages import AIMessage
 
     task = _assembly_task()
     bundle_id = stable_contract_id(
-        "case-assembly-candidate-bundle",
+        "event-evidence-integration-candidate-bundle",
         task.task_id,
         task.payload_checksum,
     )
@@ -1294,31 +1295,31 @@ def test_case_assembly_agent_rejects_selection_outside_sealed_bundle(
             ToolModelTurn(
                 message=AIMessage(content=selection_text),
                 record=ModelCallRecord(
-                    agent="decision_case_assembly",
+                    agent="event_evidence_integration",
                     raw_response=selection_text,
-                    prompt_version="decision-case-assembly-v3",
+                    prompt_version="event-evidence-integration-v1",
                 ),
             ),
         ]
     )
 
-    result = run_case_assembly_agent(
+    result = run_event_evidence_integration_agent(
         task=task,
         binding=_binding(),
         tool_model_factory=lambda tools: scripted_model,
     )
 
-    assert result.proposal.assembly_status.value == "blocked"
+    assert result.proposal.integration_status.value == "blocked"
     assert result.failure_reason is not None
     assert "candidate bundle" in result.failure_reason
     assert len(result.model_calls) == 2
 
 
-def test_case_assembly_initial_prompt_keeps_record_details_in_tool_bundle() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly import _base_messages
+def test_event_evidence_integration_initial_prompt_keeps_record_details_in_tool_bundle() -> None:
+    from aviation_agentic_ai.agent_system.event_evidence_integration import _base_messages
 
     task = _assembly_task()
-    prompt = str(_base_messages(task, catalog_path="configs/prompts/decision_case_agents_v1.yaml")[-1].content)
+    prompt = str(_base_messages(task, catalog_path="configs/prompts/tmi_event_agents_v1.yaml")[-1].content)
 
     assert "evidence:event:type" not in prompt
     assert "evidence:event:weather" not in prompt
@@ -1331,8 +1332,8 @@ def test_case_assembly_initial_prompt_keeps_record_details_in_tool_bundle() -> N
     assert "cancelled_count" not in prompt
 
 
-def test_case_assembly_agent_malformed_output_blocks_without_repair() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
+def test_event_evidence_integration_agent_malformed_output_blocks_without_repair() -> None:
+    from aviation_agentic_ai.agent_system.event_evidence_integration import run_event_evidence_integration_agent
     from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
     from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
     from langchain_core.messages import AIMessage
@@ -1342,21 +1343,21 @@ def test_case_assembly_agent_malformed_output_blocks_without_repair() -> None:
     turn_2 = ToolModelTurn(
         message=AIMessage(content="{not-json"),
         record=ModelCallRecord(
-            agent="decision_case_assembly",
+            agent="event_evidence_integration",
             raw_response="{not-json",
-            prompt_version="decision-case-assembly-v3",
+            prompt_version="event-evidence-integration-v1",
         ),
     )
 
     scripted_model = _ScriptedAssemblyModel([turn_1, turn_2])
 
-    result = run_case_assembly_agent(
+    result = run_event_evidence_integration_agent(
         task=task,
         binding=_binding(),
         tool_model_factory=lambda tools: scripted_model,
     )
 
-    assert result.proposal.assembly_status.value == "blocked"
+    assert result.proposal.integration_status.value == "blocked"
     assert result.proposal.proposed_facts == ()
     assert result.proposal.profile_gaps == ()
     assert result.proposal.evidence_bindings == ()
@@ -1366,8 +1367,8 @@ def test_case_assembly_agent_malformed_output_blocks_without_repair() -> None:
     assert len(result.model_calls) == 2
 
 
-def test_case_assembly_agent_replay_stability() -> None:
-    from aviation_agentic_ai.agent_system.case_assembly import run_case_assembly_agent
+def test_event_evidence_integration_agent_replay_stability() -> None:
+    from aviation_agentic_ai.agent_system.event_evidence_integration import run_event_evidence_integration_agent
     from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
     from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
     from langchain_core.messages import AIMessage
@@ -1379,21 +1380,21 @@ def test_case_assembly_agent_replay_stability() -> None:
         turn_2 = ToolModelTurn(
             message=AIMessage(content=_valid_proposal_text()),
             record=ModelCallRecord(
-                agent="decision_case_assembly",
+                agent="event_evidence_integration",
                 raw_response=_valid_proposal_text(),
-                prompt_version="decision-case-assembly-v3",
+                prompt_version="event-evidence-integration-v1",
             ),
         )
         return _ScriptedAssemblyModel([turn_1, turn_2])
 
-    res1 = run_case_assembly_agent(task=task, binding=_binding(), tool_model_factory=lambda tools: _make_model())
-    res2 = run_case_assembly_agent(task=task, binding=_binding(), tool_model_factory=lambda tools: _make_model())
+    res1 = run_event_evidence_integration_agent(task=task, binding=_binding(), tool_model_factory=lambda tools: _make_model())
+    res2 = run_event_evidence_integration_agent(task=task, binding=_binding(), tool_model_factory=lambda tools: _make_model())
 
-    assert res1.proposal.case_assembly_proposal_id == res2.proposal.case_assembly_proposal_id
+    assert res1.proposal.event_evidence_integration_proposal_id == res2.proposal.event_evidence_integration_proposal_id
     assert res1.proposal.payload_checksum == res2.proposal.payload_checksum
 
 
-def test_workflow_three_cases_decision_case_assembly_regression(tmp_path: Path) -> None:
+def test_workflow_three_cases_event_evidence_integration_regression(tmp_path: Path) -> None:
     from aviation_agentic_ai.agent_system.sources import load_advisory_source
     from aviation_agentic_ai.agent_system.workflow import IngestContext, run_ingest
     from aviation_agentic_ai.cross_source.contracts import CanonicalEntity, CodeValue, EntityType
@@ -1440,13 +1441,13 @@ def test_workflow_three_cases_decision_case_assembly_regression(tmp_path: Path) 
         # 1. Zero Assembly model calls
         assert len(state["model_calls"]) == 0
 
-        # 2. CaseAssemblyTask & Proposal state present
-        task = state.get("case_assembly_task")
-        proposal = state.get("case_assembly_proposal")
+        # 2. EventEvidenceIntegrationTask & Proposal state present
+        task = state.get("event_evidence_integration_task")
+        proposal = state.get("event_evidence_integration_proposal")
         assert task is not None
         assert proposal is not None
-        assert proposal.assembly_status.value == expected_status
-        assert state["assembly_graph_patch"] is not None
+        assert proposal.integration_status.value == expected_status
+        assert state["integration_graph_patch"] is not None
         assert state["validation"].publishable
         assert state["materialization"] is not None
 
@@ -1517,8 +1518,8 @@ def test_workflow_canonical_node_identity_and_idempotency(tmp_path: Path) -> Non
     state1 = run_ingest(ctx1)
     state2 = run_ingest(ctx2)
 
-    prop1 = state1["case_assembly_proposal"]
-    prop2 = state2["case_assembly_proposal"]
+    prop1 = state1["event_evidence_integration_proposal"]
+    prop2 = state2["event_evidence_integration_proposal"]
 
     # Both KJFK records use the exact same canonical facility node ID
     fac1 = [f for f in prop1.proposed_facts if f.predicate_iri == "atm:controlledNASelement"][0]
@@ -1527,6 +1528,6 @@ def test_workflow_canonical_node_identity_and_idempotency(tmp_path: Path) -> Non
 
     # Idempotency check: run state1 again with identical inputs
     state1_repeat = run_ingest(ctx1)
-    prop1_repeat = state1_repeat["case_assembly_proposal"]
-    assert prop1.case_assembly_proposal_id == prop1_repeat.case_assembly_proposal_id
+    prop1_repeat = state1_repeat["event_evidence_integration_proposal"]
+    assert prop1.event_evidence_integration_proposal_id == prop1_repeat.event_evidence_integration_proposal_id
     assert prop1.payload_checksum == prop1_repeat.payload_checksum

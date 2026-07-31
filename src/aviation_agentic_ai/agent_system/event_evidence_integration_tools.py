@@ -1,4 +1,4 @@
-"""Typed, task-bounded read-only tools for decision case assembly."""
+"""Typed, task-bounded read-only tools for TMI event evidence integration."""
 
 from __future__ import annotations
 
@@ -12,60 +12,60 @@ from aviation_agentic_ai.agent_system.contracts import (
     StrictModel,
     WeatherContextAssociation,
 )
-from aviation_agentic_ai.agent_system.decision_case_contracts import (
-    AssemblyStatus,
-    CaseAssemblyEvidenceRecord,
-    CaseAssemblyProposal,
-    CaseAssemblyProposalFields,
-    CaseAssemblyPublicObservation,
-    CaseAssemblyResolutionRecord,
-    CaseAssemblyTask,
-    CaseAssemblyTaskFields,
-    CaseFactProposal,
-    CaseProfileGapProposal,
-    ComponentLayerResult,
-    ComponentLayerStatus,
+from aviation_agentic_ai.agent_system.construction_contracts import (
+    EventEvidenceIntegrationStatus,
+    EventEvidenceIntegrationEvidenceRecord,
+    EventEvidenceIntegrationProposal,
+    EventEvidenceIntegrationProposalFields,
+    EventEvidenceIntegrationPublicObservation,
+    EventEvidenceIntegrationResolutionRecord,
+    EventEvidenceIntegrationTask,
+    EventEvidenceIntegrationTaskFields,
+    EventEvidenceFactProposal,
+    EventEvidenceProfileGapProposal,
+    EvidenceLayerResult,
+    EvidenceLayerStatus,
     ContractExecutionBinding,
     SourceSnapshotBinding,
-    ValidationFeedback,
-    ValidationFeedbackFields,
+    EventEvidenceIntegrationFeedback,
+    EventEvidenceIntegrationFeedbackFields,
     canonical_id_tuple_token,
-    seal_case_assembly_proposal,
-    seal_case_assembly_task,
-    seal_validation_feedback,
+    seal_event_evidence_integration_proposal,
+    seal_event_evidence_integration_task,
+    seal_event_evidence_integration_feedback,
     stable_contract_id,
 )
 
 
-class CaseAssemblyToolError(RuntimeError):
-    """Raised when a case assembly tool request escapes its sealed task."""
+class EventEvidenceIntegrationToolError(RuntimeError):
+    """Raised when a event evidence integration tool request escapes its sealed task."""
 
 
 class GetEvidenceInput(StrictModel):
-    """Selected evidence IDs from the current sealed case assembly task."""
+    """Selected evidence IDs from the current sealed event evidence integration task."""
 
     evidence_ids: list[str] = Field(min_length=1, max_length=10)
 
 
 class GetResolutionResultInput(StrictModel):
-    """Resolution proposal IDs from the current sealed case assembly task."""
+    """Resolution proposal IDs from the current sealed event evidence integration task."""
 
     resolution_proposal_ids: list[str] = Field(min_length=1, max_length=5)
 
 
 class GetContextAssociationsInput(StrictModel):
-    """Context association IDs from the current sealed case assembly task."""
+    """Context association IDs from the current sealed event evidence integration task."""
 
     association_ids: list[str] = Field(min_length=1, max_length=10)
 
 
 class GetPublicObservationsInput(StrictModel):
-    """Public observation IDs from the current sealed case assembly task."""
+    """Public observation IDs from the current sealed event evidence integration task."""
 
     observation_ids: list[str] = Field(min_length=1, max_length=10)
 
 
-class CaseAssemblyCandidateFactSummary(StrictModel):
+class EventEvidenceIntegrationCandidateFactSummary(StrictModel):
     """Compact model-visible projection of one sealed formal-fact candidate."""
 
     proposal_item_id: str
@@ -76,7 +76,7 @@ class CaseAssemblyCandidateFactSummary(StrictModel):
     derivation_ids: tuple[str, ...] = ()
 
 
-class CaseAssemblyCandidateProfileGapSummary(StrictModel):
+class EventEvidenceIntegrationCandidateProfileGapSummary(StrictModel):
     """Compact model-visible projection of one sealed profile-gap candidate."""
 
     proposal_item_id: str
@@ -86,11 +86,11 @@ class CaseAssemblyCandidateProfileGapSummary(StrictModel):
     schema_mapping_reason_code: str
 
 
-class CaseAssemblyToolResult(StrictModel):
-    """One deterministic, JSON-serializable case-assembly tool observation."""
+class EventEvidenceIntegrationToolResult(StrictModel):
+    """One deterministic, JSON-serializable event-evidence-integration tool observation."""
 
     tool: Literal[
-        "get_case_requirements",
+        "get_event_requirements",
         "get_schema_context",
         "get_source_evidence",
         "get_resolution_result",
@@ -99,9 +99,9 @@ class CaseAssemblyToolResult(StrictModel):
         "get_candidate_bundle",
     ]
     status: Literal["ok", "insufficient", "blocked"] = "ok"
-    case_id: str = ""
-    required_case_slots: list[str] = Field(default_factory=list)
-    optional_case_slots: list[str] = Field(default_factory=list)
+    event_id: str = ""
+    required_event_slots: list[str] = Field(default_factory=list)
+    optional_event_slots: list[str] = Field(default_factory=list)
     missing_slots: list[str] = Field(default_factory=list)
     schema_profile_id: str = ""
     schema_context_id: str = ""
@@ -112,21 +112,21 @@ class CaseAssemblyToolResult(StrictModel):
     resolution_proposal_ids: list[str] = Field(default_factory=list)
     association_ids: list[str] = Field(default_factory=list)
     observation_ids: list[str] = Field(default_factory=list)
-    evidence_records: list[CaseAssemblyEvidenceRecord] = Field(default_factory=list)
-    resolution_records: list[CaseAssemblyResolutionRecord] = Field(
+    evidence_records: list[EventEvidenceIntegrationEvidenceRecord] = Field(default_factory=list)
+    resolution_records: list[EventEvidenceIntegrationResolutionRecord] = Field(
         default_factory=list
     )
     context_associations: list[WeatherContextAssociation] = Field(
         default_factory=list
     )
-    public_observations: list[CaseAssemblyPublicObservation] = Field(
+    public_observations: list[EventEvidenceIntegrationPublicObservation] = Field(
         default_factory=list
     )
     candidate_bundle_id: str = ""
-    candidate_facts: list[CaseAssemblyCandidateFactSummary] = Field(
+    candidate_facts: list[EventEvidenceIntegrationCandidateFactSummary] = Field(
         default_factory=list
     )
-    candidate_profile_gaps: list[CaseAssemblyCandidateProfileGapSummary] = Field(
+    candidate_profile_gaps: list[EventEvidenceIntegrationCandidateProfileGapSummary] = Field(
         default_factory=list
     )
     context_association_count: int = Field(default=0, ge=0)
@@ -137,10 +137,10 @@ class CaseAssemblyToolResult(StrictModel):
     failure_reason: str = ""
 
 
-class CaseAssemblyToolGateway:
-    """Read-only view of case assembly material scoped to one ``CaseAssemblyTask``."""
+class EventEvidenceIntegrationToolGateway:
+    """Read-only view of event evidence integration material scoped to one ``EventEvidenceIntegrationTask``."""
 
-    def __init__(self, *, task: CaseAssemblyTask) -> None:
+    def __init__(self, *, task: EventEvidenceIntegrationTask) -> None:
         self.task = task
         self._selected_evidence_claim_ids = set(task.selected_evidence_claim_ids)
         self._resolution_proposal_ids = set(task.resolution_proposal_ids)
@@ -159,25 +159,25 @@ class CaseAssemblyToolGateway:
             row.observation_id: row for row in task.public_observations
         }
 
-    def get_case_requirements(self) -> CaseAssemblyToolResult:
-        """Read required, optional, and missing case slots and available evidence layers."""
+    def get_event_requirements(self) -> EventEvidenceIntegrationToolResult:
+        """Read required, optional, and missing event slots and evidence layers."""
 
-        return CaseAssemblyToolResult(
-            tool="get_case_requirements",
-            case_id=self.task.case_id,
-            required_case_slots=list(self.task.required_case_slots),
-            optional_case_slots=list(self.task.optional_case_slots),
+        return EventEvidenceIntegrationToolResult(
+            tool="get_event_requirements",
+            event_id=self.task.event_id,
+            required_event_slots=list(self.task.required_event_slots),
+            optional_event_slots=list(self.task.optional_event_slots),
             missing_slots=list(self.task.missing_slots),
             schema_profile_id=self.task.schema_profile_id,
             available_evidence_layer_ids=list(self.task.available_evidence_layer_ids),
             remaining_tool_budget=self.task.remaining_tool_budget,
         )
 
-    def get_candidate_bundle(self) -> CaseAssemblyToolResult:
+    def get_candidate_bundle(self) -> EventEvidenceIntegrationToolResult:
         """Read the compact sealed candidates and evidence needed for acceptance."""
 
         candidate_bundle_id = stable_contract_id(
-            "case-assembly-candidate-bundle",
+            "event-evidence-integration-candidate-bundle",
             self.task.task_id,
             self.task.payload_checksum,
         )
@@ -189,9 +189,9 @@ class CaseAssemblyToolGateway:
                 for source_id in record.authority_source_ids
             ),
         }
-        return CaseAssemblyToolResult(
+        return EventEvidenceIntegrationToolResult(
             tool="get_candidate_bundle",
-            case_id=self.task.case_id,
+            event_id=self.task.event_id,
             schema_profile_id=self.task.schema_profile_id,
             schema_context_id=self.task.schema_context_id,
             schema_snapshot_sha256=self.task.schema_snapshot_sha256,
@@ -200,7 +200,7 @@ class CaseAssemblyToolGateway:
             ),
             candidate_bundle_id=candidate_bundle_id,
             candidate_facts=[
-                CaseAssemblyCandidateFactSummary(
+                EventEvidenceIntegrationCandidateFactSummary(
                     proposal_item_id=row.proposal_item_id,
                     predicate_iri=row.predicate_iri,
                     object_kind=row.object_kind,
@@ -211,7 +211,7 @@ class CaseAssemblyToolGateway:
                 for row in self.task.proposed_facts
             ],
             candidate_profile_gaps=[
-                CaseAssemblyCandidateProfileGapSummary(
+                EventEvidenceIntegrationCandidateProfileGapSummary(
                     proposal_item_id=row.proposal_item_id,
                     field=row.field,
                     normalized_value=row.normalized_value,
@@ -232,12 +232,12 @@ class CaseAssemblyToolGateway:
             ],
         )
 
-    def get_schema_context(self) -> CaseAssemblyToolResult:
+    def get_schema_context(self) -> EventEvidenceIntegrationToolResult:
         """Read schema profile, context ID, and snapshot SHA for the task."""
 
-        return CaseAssemblyToolResult(
+        return EventEvidenceIntegrationToolResult(
             tool="get_schema_context",
-            case_id=self.task.case_id,
+            event_id=self.task.event_id,
             schema_profile_id=self.task.schema_profile_id,
             schema_context_id=self.task.schema_context_id,
             schema_snapshot_sha256=self.task.schema_snapshot_sha256,
@@ -247,20 +247,20 @@ class CaseAssemblyToolGateway:
         self,
         *,
         evidence_ids: list[str],
-    ) -> CaseAssemblyToolResult:
+    ) -> EventEvidenceIntegrationToolResult:
         """Read task-bound source evidence claims and snapshot bindings."""
 
         if len(evidence_ids) != len(set(evidence_ids)):
-            raise CaseAssemblyToolError("duplicate evidence IDs are not allowed")
+            raise EventEvidenceIntegrationToolError("duplicate evidence IDs are not allowed")
         unknown = sorted(set(evidence_ids) - self._selected_evidence_claim_ids)
         if unknown:
-            raise CaseAssemblyToolError(
+            raise EventEvidenceIntegrationToolError(
                 f"evidence IDs are outside the sealed task: {unknown}"
             )
         records = [self._evidence_records[row_id] for row_id in sorted(evidence_ids)]
-        return CaseAssemblyToolResult(
+        return EventEvidenceIntegrationToolResult(
             tool="get_source_evidence",
-            case_id=self.task.case_id,
+            event_id=self.task.event_id,
             requested_evidence_ids=sorted(evidence_ids),
             evidence_records=records,
             source_snapshot_bindings=[
@@ -275,19 +275,19 @@ class CaseAssemblyToolGateway:
         self,
         *,
         resolution_proposal_ids: list[str],
-    ) -> CaseAssemblyToolResult:
+    ) -> EventEvidenceIntegrationToolResult:
         """Read resolution proposals bound to the task."""
 
         if len(resolution_proposal_ids) != len(set(resolution_proposal_ids)):
-            raise CaseAssemblyToolError("duplicate resolution proposal IDs not allowed")
+            raise EventEvidenceIntegrationToolError("duplicate resolution proposal IDs not allowed")
         unknown = sorted(set(resolution_proposal_ids) - self._resolution_proposal_ids)
         if unknown:
-            raise CaseAssemblyToolError(
+            raise EventEvidenceIntegrationToolError(
                 f"resolution proposal IDs are outside the sealed task: {unknown}"
             )
-        return CaseAssemblyToolResult(
+        return EventEvidenceIntegrationToolResult(
             tool="get_resolution_result",
-            case_id=self.task.case_id,
+            event_id=self.task.event_id,
             resolution_proposal_ids=sorted(resolution_proposal_ids),
             resolution_records=[
                 self._resolution_records[row_id]
@@ -299,19 +299,19 @@ class CaseAssemblyToolGateway:
         self,
         *,
         association_ids: list[str],
-    ) -> CaseAssemblyToolResult:
+    ) -> EventEvidenceIntegrationToolResult:
         """Read context association IDs bound to the task."""
 
         if len(association_ids) != len(set(association_ids)):
-            raise CaseAssemblyToolError("duplicate context association IDs not allowed")
+            raise EventEvidenceIntegrationToolError("duplicate context association IDs not allowed")
         unknown = sorted(set(association_ids) - self._context_association_ids)
         if unknown:
-            raise CaseAssemblyToolError(
+            raise EventEvidenceIntegrationToolError(
                 f"context association IDs are outside the sealed task: {unknown}"
             )
-        return CaseAssemblyToolResult(
+        return EventEvidenceIntegrationToolResult(
             tool="get_context_associations",
-            case_id=self.task.case_id,
+            event_id=self.task.event_id,
             association_ids=sorted(association_ids),
             context_associations=[
                 self._context_associations[row_id]
@@ -323,19 +323,19 @@ class CaseAssemblyToolGateway:
         self,
         *,
         observation_ids: list[str],
-    ) -> CaseAssemblyToolResult:
+    ) -> EventEvidenceIntegrationToolResult:
         """Read public observation IDs bound to the task."""
 
         if len(observation_ids) != len(set(observation_ids)):
-            raise CaseAssemblyToolError("duplicate public observation IDs not allowed")
+            raise EventEvidenceIntegrationToolError("duplicate public observation IDs not allowed")
         unknown = sorted(set(observation_ids) - self._public_observation_ids)
         if unknown:
-            raise CaseAssemblyToolError(
+            raise EventEvidenceIntegrationToolError(
                 f"public observation IDs are outside the sealed task: {unknown}"
             )
-        return CaseAssemblyToolResult(
+        return EventEvidenceIntegrationToolResult(
             tool="get_public_observations",
-            case_id=self.task.case_id,
+            event_id=self.task.event_id,
             observation_ids=sorted(observation_ids),
             public_observations=[
                 self._public_observations[row_id]
@@ -344,7 +344,7 @@ class CaseAssemblyToolGateway:
         )
 
 
-def build_case_assembly_tools(gateway: CaseAssemblyToolGateway) -> list[BaseTool]:
+def build_event_evidence_integration_tools(gateway: EventEvidenceIntegrationToolGateway) -> list[BaseTool]:
     """Expose the single compact, task-scoped candidate bundle to the Agent."""
 
     @tool("get_candidate_bundle")
@@ -357,41 +357,41 @@ def build_case_assembly_tools(gateway: CaseAssemblyToolGateway) -> list[BaseTool
     return [get_candidate_bundle]
 
 
-def build_case_assembly_task(
+def build_event_evidence_integration_task(
     *,
     run_id: str,
-    case_id: str,
+    event_id: str,
     core_event_fact_ids: Sequence[str],
     resolution_proposal_ids: Sequence[str],
     available_evidence_layer_ids: Sequence[str],
-    required_case_slots: Sequence[str],
-    optional_case_slots: Sequence[str],
+    required_event_slots: Sequence[str],
+    optional_event_slots: Sequence[str],
     missing_slots: Sequence[str] = (),
     schema_profile_id: str,
     schema_context_id: str,
     schema_snapshot_sha256: str,
     selected_evidence_claim_ids: Sequence[str],
-    evidence_records: Sequence[CaseAssemblyEvidenceRecord] = (),
-    resolution_records: Sequence[CaseAssemblyResolutionRecord] = (),
-    proposed_facts: Sequence[CaseFactProposal] = (),
-    profile_gaps: Sequence[CaseProfileGapProposal] = (),
+    evidence_records: Sequence[EventEvidenceIntegrationEvidenceRecord] = (),
+    resolution_records: Sequence[EventEvidenceIntegrationResolutionRecord] = (),
+    proposed_facts: Sequence[EventEvidenceFactProposal] = (),
+    profile_gaps: Sequence[EventEvidenceProfileGapProposal] = (),
     context_association_ids: Sequence[str] = (),
     context_associations: Sequence[WeatherContextAssociation] = (),
     public_observation_ids: Sequence[str] = (),
-    public_observations: Sequence[CaseAssemblyPublicObservation] = (),
+    public_observations: Sequence[EventEvidenceIntegrationPublicObservation] = (),
     omitted_slots: Sequence[str] = (),
-    validation_feedback: Sequence[ValidationFeedback] = (),
+    validation_feedback: Sequence[EventEvidenceIntegrationFeedback] = (),
     source_snapshot_bindings: Sequence[SourceSnapshotBinding] = (),
     remaining_tool_budget: int = 6,
     binding: ContractExecutionBinding,
-) -> CaseAssemblyTask:
-    """Construct and seal one ``CaseAssemblyTask`` deterministically."""
+) -> EventEvidenceIntegrationTask:
+    """Construct and seal one ``EventEvidenceIntegrationTask`` deterministically."""
 
     sorted_core_facts = tuple(sorted(set(core_event_fact_ids)))
     sorted_resolutions = tuple(sorted(set(resolution_proposal_ids)))
     sorted_layers = tuple(sorted(set(available_evidence_layer_ids)))
-    sorted_req = tuple(sorted(set(required_case_slots)))
-    sorted_opt = tuple(sorted(set(optional_case_slots)))
+    sorted_req = tuple(sorted(set(required_event_slots)))
+    sorted_opt = tuple(sorted(set(optional_event_slots)))
     sorted_missing = tuple(sorted(set(missing_slots)))
     sorted_selected_evidence = tuple(sorted(set(selected_evidence_claim_ids)))
     sorted_ctx_assoc = tuple(sorted(set(context_association_ids)))
@@ -399,9 +399,9 @@ def build_case_assembly_task(
     sorted_omitted = tuple(sorted(set(omitted_slots)))
 
     task_id = stable_contract_id(
-        "case-assembly-task",
+        "event-evidence-integration-task",
         run_id,
-        case_id,
+        event_id,
         canonical_id_tuple_token(sorted_core_facts, sort_values=True),
         canonical_id_tuple_token(sorted_resolutions, sort_values=True),
         canonical_id_tuple_token(sorted_selected_evidence, sort_values=True),
@@ -410,15 +410,15 @@ def build_case_assembly_task(
         schema_snapshot_sha256,
     )
 
-    fields = CaseAssemblyTaskFields(
+    fields = EventEvidenceIntegrationTaskFields(
         task_id=task_id,
         run_id=run_id,
-        case_id=case_id,
+        event_id=event_id,
         core_event_fact_ids=sorted_core_facts,
         resolution_proposal_ids=sorted_resolutions,
         available_evidence_layer_ids=sorted_layers,
-        required_case_slots=sorted_req,
-        optional_case_slots=sorted_opt,
+        required_event_slots=sorted_req,
+        optional_event_slots=sorted_opt,
         missing_slots=sorted_missing,
         schema_profile_id=schema_profile_id,
         schema_context_id=schema_context_id,
@@ -455,50 +455,50 @@ def build_case_assembly_task(
         remaining_tool_budget=remaining_tool_budget,
     )
 
-    return seal_case_assembly_task(fields=fields, binding=binding)
+    return seal_event_evidence_integration_task(fields=fields, binding=binding)
 
 
-def compile_case_assembly_proposal(
+def compile_event_evidence_integration_proposal(
     *,
-    task: CaseAssemblyTask,
-    assembly_status: AssemblyStatus | None = None,
-    component_layer_results: Sequence[ComponentLayerResult] = (),
-    proposed_facts: Sequence[CaseFactProposal] | None = None,
+    task: EventEvidenceIntegrationTask,
+    integration_status: EventEvidenceIntegrationStatus | None = None,
+    evidence_layer_results: Sequence[EvidenceLayerResult] = (),
+    proposed_facts: Sequence[EventEvidenceFactProposal] | None = None,
     evidence_bindings: Sequence[str] | None = None,
     resolution_proposal_ids: Sequence[str] | None = None,
     context_association_ids: Sequence[str] | None = None,
-    profile_gaps: Sequence[CaseProfileGapProposal] | None = None,
+    profile_gaps: Sequence[EventEvidenceProfileGapProposal] | None = None,
     omitted_slots: Sequence[str] | None = None,
     limitations: Sequence[str] = (),
     tool_trace_ids: Sequence[str] = (),
     source_snapshot_bindings: Sequence[SourceSnapshotBinding] | None = None,
     revision_count: int = 0,
     binding: ContractExecutionBinding,
-) -> CaseAssemblyProposal:
-    """Compile and seal one ``CaseAssemblyProposal`` deterministically."""
+) -> EventEvidenceIntegrationProposal:
+    """Compile and seal one ``EventEvidenceIntegrationProposal`` deterministically."""
 
-    missing_required_slots = set(task.required_case_slots) & set(task.missing_slots)
-    if missing_required_slots and assembly_status in {
+    missing_required_slots = set(task.required_event_slots) & set(task.missing_slots)
+    if missing_required_slots and integration_status in {
         None,
-        AssemblyStatus.OK,
-        AssemblyStatus.PARTIAL,
+        EventEvidenceIntegrationStatus.OK,
+        EventEvidenceIntegrationStatus.PARTIAL,
     }:
-        assembly_status = AssemblyStatus.INSUFFICIENT
-    elif assembly_status is None:
-        assembly_status = (
-            AssemblyStatus.PARTIAL if task.missing_slots else AssemblyStatus.OK
+        integration_status = EventEvidenceIntegrationStatus.INSUFFICIENT
+    elif integration_status is None:
+        integration_status = (
+            EventEvidenceIntegrationStatus.PARTIAL if task.missing_slots else EventEvidenceIntegrationStatus.OK
         )
 
     facts = tuple(task.proposed_facts if proposed_facts is None else proposed_facts)
     gaps = tuple(task.profile_gaps if profile_gaps is None else profile_gaps)
-    if not facts and assembly_status in {
-        AssemblyStatus.OK,
-        AssemblyStatus.PARTIAL,
+    if not facts and integration_status in {
+        EventEvidenceIntegrationStatus.OK,
+        EventEvidenceIntegrationStatus.PARTIAL,
     }:
-        assembly_status = AssemblyStatus.INSUFFICIENT
-    if assembly_status in {
-        AssemblyStatus.BLOCKED,
-        AssemblyStatus.INSUFFICIENT,
+        integration_status = EventEvidenceIntegrationStatus.INSUFFICIENT
+    if integration_status in {
+        EventEvidenceIntegrationStatus.BLOCKED,
+        EventEvidenceIntegrationStatus.INSUFFICIENT,
     }:
         facts = ()
         gaps = ()
@@ -522,30 +522,30 @@ def compile_case_assembly_proposal(
         task.source_snapshot_bindings if source_snapshot_bindings is None else source_snapshot_bindings
     )
 
-    if not component_layer_results:
+    if not evidence_layer_results:
         layer_status = (
-            ComponentLayerStatus.OK
-            if assembly_status in (AssemblyStatus.OK, AssemblyStatus.PARTIAL)
+            EvidenceLayerStatus.OK
+            if integration_status in (EventEvidenceIntegrationStatus.OK, EventEvidenceIntegrationStatus.PARTIAL)
             else (
-                ComponentLayerStatus.INSUFFICIENT
-                if assembly_status is AssemblyStatus.INSUFFICIENT
-                else ComponentLayerStatus.BLOCKED
+                EvidenceLayerStatus.INSUFFICIENT
+                if integration_status is EventEvidenceIntegrationStatus.INSUFFICIENT
+                else EvidenceLayerStatus.BLOCKED
             )
         )
-        component_layer_results = (
-            ComponentLayerResult(
+        evidence_layer_results = (
+            EvidenceLayerResult(
                 layer_id="core",
                 status=layer_status,
                 required_for_task=True,
-                artifact_ids=task.core_event_fact_ids if layer_status is ComponentLayerStatus.OK else (),
+                artifact_ids=task.core_event_fact_ids if layer_status is EvidenceLayerStatus.OK else (),
                 missing_reason_code=(
-                    "missing_required_case_evidence"
-                    if layer_status is ComponentLayerStatus.INSUFFICIENT
+                    "missing_required_event_evidence"
+                    if layer_status is EvidenceLayerStatus.INSUFFICIENT
                     else None
                 ),
                 blocking_error_id=(
-                    "core_assembly_blocked"
-                    if layer_status is ComponentLayerStatus.BLOCKED
+                    "core_integration_blocked"
+                    if layer_status is EvidenceLayerStatus.BLOCKED
                     else None
                 ),
             ),
@@ -555,23 +555,23 @@ def compile_case_assembly_proposal(
     gap_item_ids = tuple(item.proposal_item_id for item in gaps)
 
     proposal_id = stable_contract_id(
-        "case-assembly-proposal",
+        "event-evidence-integration-proposal",
         task.task_id,
         task.payload_checksum,
-        assembly_status.value,
+        integration_status.value,
         canonical_id_tuple_token(fact_item_ids, sort_values=True),
         canonical_id_tuple_token(gap_item_ids, sort_values=True),
         canonical_id_tuple_token(res_proposal_ids, sort_values=True),
     )
 
-    fields = CaseAssemblyProposalFields(
-        case_assembly_proposal_id=proposal_id,
+    fields = EventEvidenceIntegrationProposalFields(
+        event_evidence_integration_proposal_id=proposal_id,
         run_id=task.run_id,
         task_id=task.task_id,
         task_payload_checksum=task.payload_checksum,
-        case_id=task.case_id,
-        assembly_status=assembly_status,
-        component_layer_results=tuple(component_layer_results),
+        event_id=task.event_id,
+        integration_status=integration_status,
+        evidence_layer_results=tuple(evidence_layer_results),
         proposed_facts=facts,
         evidence_bindings=ev_bindings,
         resolution_proposal_ids=res_proposal_ids,
@@ -584,13 +584,13 @@ def compile_case_assembly_proposal(
         revision_count=revision_count,
     )
 
-    return seal_case_assembly_proposal(task=task, fields=fields, binding=binding)
+    return seal_event_evidence_integration_proposal(task=task, fields=fields, binding=binding)
 
 
 def _make_validation_feedback(
     *,
-    task: CaseAssemblyTask,
-    proposal: CaseAssemblyProposal,
+    task: EventEvidenceIntegrationTask,
+    proposal: EventEvidenceIntegrationProposal,
     affected_item_id: str,
     violation_code: str,
     constraint_id: str,
@@ -598,7 +598,7 @@ def _make_validation_feedback(
     allowed_corrections: Sequence[str],
     evidence_ids: Sequence[str],
     binding: ContractExecutionBinding,
-) -> ValidationFeedback:
+) -> EventEvidenceIntegrationFeedback:
     sorted_corrections = tuple(allowed_corrections)
     sorted_evidence = tuple(sorted(set(evidence_ids)))
 
@@ -613,11 +613,11 @@ def _make_validation_feedback(
         canonical_id_tuple_token(sorted_evidence, sort_values=True),
     )
 
-    fields = ValidationFeedbackFields(
+    fields = EventEvidenceIntegrationFeedbackFields(
         feedback_id=feedback_id,
         run_id=task.run_id,
         task_id=task.task_id,
-        case_id=task.case_id,
+        event_id=task.event_id,
         proposal_payload_checksum=proposal.payload_checksum,
         violation_code=violation_code,
         constraint_id=constraint_id,
@@ -627,7 +627,7 @@ def _make_validation_feedback(
         evidence_ids=sorted_evidence,
     )
 
-    return seal_validation_feedback(
+    return seal_event_evidence_integration_feedback(
         task=task,
         proposal=proposal,
         fields=fields,
@@ -635,18 +635,18 @@ def _make_validation_feedback(
     )
 
 
-def preflight_validate_case_assembly_proposal(
+def preflight_validate_event_evidence_proposal(
     *,
-    task: CaseAssemblyTask,
-    proposal: CaseAssemblyProposal,
+    task: EventEvidenceIntegrationTask,
+    proposal: EventEvidenceIntegrationProposal,
     binding: ContractExecutionBinding,
-) -> ValidationFeedback | None:
-    """Preflight validate one ``CaseAssemblyProposal`` against its task."""
+) -> EventEvidenceIntegrationFeedback | None:
+    """Preflight validate one ``EventEvidenceIntegrationProposal`` against its task."""
 
     if (
         proposal.run_id != task.run_id
         or proposal.task_id != task.task_id
-        or proposal.case_id != task.case_id
+        or proposal.event_id != task.event_id
     ):
         return _make_validation_feedback(
             task=task,
@@ -660,7 +660,7 @@ def preflight_validate_case_assembly_proposal(
             binding=binding,
         )
 
-    if proposal.assembly_status not in (AssemblyStatus.OK, AssemblyStatus.PARTIAL):
+    if proposal.integration_status not in (EventEvidenceIntegrationStatus.OK, EventEvidenceIntegrationStatus.PARTIAL):
         return None
 
     def feedback(
@@ -671,7 +671,7 @@ def preflight_validate_case_assembly_proposal(
         evidence_ids: Sequence[str] = (),
         repairable: bool = False,
         allowed_corrections: Sequence[str] = (),
-    ) -> ValidationFeedback:
+    ) -> EventEvidenceIntegrationFeedback:
         return _make_validation_feedback(
             task=task,
             proposal=proposal,
@@ -796,10 +796,10 @@ def preflight_validate_case_assembly_proposal(
             "OUT_OF_TASK_PUBLIC_OBSERVATION",
         ),
     }
-    for layer in proposal.component_layer_results:
+    for layer in proposal.evidence_layer_results:
         expected_layer = expected_layer_artifacts.get(layer.layer_id)
         if (
-            layer.status is not ComponentLayerStatus.OK
+            layer.status is not EvidenceLayerStatus.OK
             or expected_layer is None
         ):
             continue

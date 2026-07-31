@@ -21,7 +21,7 @@ from aviation_agentic_ai.agent_system.authority_evidence import (
     load_authority_catalog,
     normalize_authority_text,
 )
-from aviation_agentic_ai.agent_system.decision_case_contracts import (
+from aviation_agentic_ai.agent_system.construction_contracts import (
     ConstraintCheckStatus,
 )
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide

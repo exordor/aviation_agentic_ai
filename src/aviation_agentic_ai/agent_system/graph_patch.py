@@ -1,24 +1,24 @@
-"""Strict Decision Case Assembly output parser."""
+"""Strict Event Evidence Integration output parser."""
 
 from __future__ import annotations
 
 import json
 
-from aviation_agentic_ai.agent_system.decision_case_contracts import (
-    CaseFactProposal,
-    CaseProfileGapProposal,
-    ParsedCaseAssemblySections,
+from aviation_agentic_ai.agent_system.construction_contracts import (
+    EventEvidenceFactProposal,
+    EventEvidenceProfileGapProposal,
+    ParsedEventEvidenceIntegrationSections,
 )
 
 _GRAPH_PATCH_HEADER = "GRAPH_PATCH"
 _PROFILE_GAPS_HEADER = "PROFILE_GAPS"
 
 
-def parse_case_assembly_output(
+def parse_event_evidence_integration_output(
     raw: str,
     *,
     allowed_validation_profile_ids: frozenset[str],
-) -> ParsedCaseAssemblySections:
+) -> ParsedEventEvidenceIntegrationSections:
     """Parse strict JSON-object rows under GRAPH_PATCH and PROFILE_GAPS."""
 
     if not isinstance(allowed_validation_profile_ids, frozenset) or not (
@@ -37,8 +37,8 @@ def parse_case_assembly_output(
         _GRAPH_PATCH_HEADER: False,
         _PROFILE_GAPS_HEADER: False,
     }
-    proposed_facts: list[CaseFactProposal] = []
-    profile_gaps: list[CaseProfileGapProposal] = []
+    proposed_facts: list[EventEvidenceFactProposal] = []
+    profile_gaps: list[EventEvidenceProfileGapProposal] = []
     proposal_item_ids: set[str] = set()
 
     for line_number, raw_line in enumerate(raw.splitlines(), start=1):
@@ -75,10 +75,10 @@ def parse_case_assembly_output(
             raise ValueError(f"row on line {line_number} must be a JSON object")
         try:
             if section == _GRAPH_PATCH_HEADER:
-                item = CaseFactProposal.model_validate_json(stripped)
+                item = EventEvidenceFactProposal.model_validate_json(stripped)
                 proposed_facts.append(item)
             else:
-                item = CaseProfileGapProposal.model_validate_json(stripped)
+                item = EventEvidenceProfileGapProposal.model_validate_json(stripped)
                 profile_gaps.append(item)
         except ValueError as exc:
             raise ValueError(f"invalid {section} row on line {line_number}") from exc
@@ -96,7 +96,7 @@ def parse_case_assembly_output(
         raise ValueError("empty GRAPH_PATCH section must contain NONE")
     if not profile_gaps and not saw_none[_PROFILE_GAPS_HEADER]:
         raise ValueError("empty PROFILE_GAPS section must contain NONE")
-    return ParsedCaseAssemblySections(
+    return ParsedEventEvidenceIntegrationSections(
         proposed_facts=tuple(proposed_facts),
         profile_gaps=tuple(profile_gaps),
     )

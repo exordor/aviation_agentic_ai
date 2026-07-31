@@ -1,7 +1,7 @@
 """Shared Agent contracts for the multi-Agent KG system (design §6).
 
 These are the small Pydantic shapes that cross Agent and deterministic
-publication boundaries. Decision Case Assembly emits the only graph
+publication boundaries. Event Evidence Integration emits the only graph
 publication proposal; the Query Agent returns a natural-language answer plus
 source IDs.
 

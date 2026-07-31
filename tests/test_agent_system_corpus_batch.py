@@ -354,14 +354,14 @@ def test_resume_replaces_blocked_usage_rows_without_duplicating_terminal_rows(
                 source_id=source_id,
                 event_id=f"event:{source_id}",
                 task_id=f"task:{scope}:{source_id}",
-                role=("decision_case_assembly" if scope == "decision_case" else "semantic_resolution"),
+                role=("event_evidence_integration" if scope == "tmi_event_evidence" else "semantic_resolution"),
                 task_scope=scope,
                 execution_mode="deterministic_bypass",
                 outcome=outcome,
                 detail_status=("blocked" if outcome == "blocked" else "accepted"),
                 activation_reason="test",
             )
-            for scope in ("facility", "terminology", "decision_case")
+            for scope in ("facility", "terminology", "tmi_event_evidence")
         )
 
     def run_case(advisory, resources, staging_dir, allow_live_model):  # type: ignore[no-untyped-def]
@@ -512,7 +512,7 @@ def test_pending_ok_and_blocked_executions_get_exact_fixed_usage_rows(
     expected = {
         ("semantic_resolution", "facility"),
         ("semantic_resolution", "terminology"),
-        ("decision_case_assembly", "decision_case"),
+        ("event_evidence_integration", "tmi_event_evidence"),
     }
     for source_id in ("ok:empty", "blocked:partial"):
         source_rows = [row for row in rows if row["source_id"] == source_id]

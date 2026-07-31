@@ -172,7 +172,7 @@ def test_reroute_publishes_atmonto_facts_without_model_or_invalid_artcc_edge(
             run_started_at=datetime(2026, 5, 20, tzinfo=UTC),
             output_dir=str(run_dir),
             semantic_resolution_tool_model_factory=NoModel(),
-            case_assembly_model_factory=NoModel(),
+            event_evidence_integration_model_factory=NoModel(),
         )
     )
 
@@ -218,8 +218,8 @@ def test_reroute_publishes_atmonto_facts_without_model_or_invalid_artcc_edge(
                 state["terminology_authority_result"],
             )
         ],
-        graph_patch_raw=state["assembly_graph_patch"].raw,
-        prompt_set_id="aviation-decision-case-agents-v1",
+        graph_patch_raw=state["integration_graph_patch"].raw,
+        prompt_set_id="aviation-tmi-event-agents-v1",
         profile_gap_count=len(state["validation"].profile_gaps),
         context_artifacts=state["context_artifacts"],
         formal_layers=state["formal_layers"],

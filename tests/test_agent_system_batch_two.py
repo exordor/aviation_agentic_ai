@@ -711,7 +711,7 @@ def test_sec13_regression7_no_chinese_interface_text_in_active_paths():
     paths = [
         *sorted(Path("src/aviation_agentic_ai/agent_system").glob("*.py")),
         Path("src/aviation_agentic_ai/cli_agent_system.py"),
-        Path("configs/prompts/decision_case_agents_v1.yaml"),
+        Path("configs/prompts/tmi_event_agents_v1.yaml"),
         *sorted(Path("tests").glob("test_agent_system*.py")),
         Path("tests/test_cli_agent_system.py"),
         Path("docs/multi_agent_kg_system_design.md"),

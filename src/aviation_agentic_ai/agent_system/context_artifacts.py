@@ -32,7 +32,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     WeatherContextBundle,
     WeatherFactTrace,
 )
-from aviation_agentic_ai.agent_system.decision_case_contracts import AssemblyStatus
+from aviation_agentic_ai.agent_system.construction_contracts import EventEvidenceIntegrationStatus
 from aviation_agentic_ai.agent_system.decision_case_graph import (
     build_decision_case_graph,
     prepare_decision_case_reconstruction,
@@ -477,11 +477,11 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
 
     decision_event: DecisionContextEvent | None = None
     facility: CanonicalEntity | None = None
-    assembly_result = state.get("case_assembly_result")
+    integration_result = state.get("event_evidence_integration_result")
     preflight_status = state.get("resolution_preflight_status")
-    if getattr(getattr(assembly_result, "proposal", None), "assembly_status", None) is AssemblyStatus.BLOCKED:
+    if getattr(getattr(integration_result, "proposal", None), "integration_status", None) is EventEvidenceIntegrationStatus.BLOCKED:
         common_status = "blocked"
-        common_reason = state.get("assembly_failure_reason") or "decision case assembly was blocked"
+        common_reason = state.get("integration_failure_reason") or "event evidence integration was blocked"
     elif preflight_status in {"blocked", "insufficient"}:
         common_status = preflight_status
         common_reason = state.get(
@@ -717,18 +717,18 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
     common_reason = ""
     if validation is None:
         preflight_status = state.get("resolution_preflight_status")
-        assembly_result = state.get("case_assembly_result")
-        assembly_status = getattr(
-            getattr(assembly_result, "proposal", None), "assembly_status", None
+        integration_result = state.get("event_evidence_integration_result")
+        integration_status = getattr(
+            getattr(integration_result, "proposal", None), "integration_status", None
         )
-        if assembly_status is AssemblyStatus.BLOCKED:
+        if integration_status is EventEvidenceIntegrationStatus.BLOCKED:
             common_status = "blocked"
-            common_reason = state.get("assembly_failure_reason") or "decision case assembly was blocked"
-        elif assembly_status is AssemblyStatus.INSUFFICIENT:
+            common_reason = state.get("integration_failure_reason") or "event evidence integration was blocked"
+        elif integration_status is EventEvidenceIntegrationStatus.INSUFFICIENT:
             common_status = "insufficient"
             common_reason = (
-                state.get("assembly_failure_reason")
-                or "decision case assembly has insufficient required evidence"
+                state.get("integration_failure_reason")
+                or "event evidence integration has insufficient required evidence"
             )
         elif preflight_status in {"blocked", "insufficient"}:
             common_status = preflight_status

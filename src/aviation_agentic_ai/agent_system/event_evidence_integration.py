@@ -1,4 +1,4 @@
-"""Bounded model -> compact candidate selection -> deterministic case assembly."""
+"""Bounded model -> compact candidate selection -> deterministic event evidence integration."""
 
 from __future__ import annotations
 
@@ -14,51 +14,51 @@ from langchain_core.tools import BaseTool
 
 from aviation_agentic_ai.agent_system.audit import sanitize_json_value, sanitize_text
 from aviation_agentic_ai.agent_system.contracts import ModelCallRecord, ToolTraceEntry
-from aviation_agentic_ai.agent_system.decision_case_contracts import (
-    AssemblyStatus,
-    CaseAssemblyProposal,
-    CaseAssemblySelection,
-    CaseAssemblyTask,
-    ComponentLayerResult,
-    ComponentLayerStatus,
+from aviation_agentic_ai.agent_system.construction_contracts import (
+    EventEvidenceIntegrationStatus,
+    EventEvidenceIntegrationProposal,
+    EventEvidenceIntegrationSelection,
+    EventEvidenceIntegrationTask,
+    EvidenceLayerResult,
+    EvidenceLayerStatus,
     ContractExecutionBinding,
-    ValidationFeedback,
+    EventEvidenceIntegrationFeedback,
     stable_contract_id,
 )
-from aviation_agentic_ai.agent_system.case_assembly_tools import (
-    CaseAssemblyToolGateway,
-    CaseAssemblyToolResult,
-    build_case_assembly_tools,
-    compile_case_assembly_proposal,
-    preflight_validate_case_assembly_proposal,
+from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
+    EventEvidenceIntegrationToolGateway,
+    EventEvidenceIntegrationToolResult,
+    build_event_evidence_integration_tools,
+    compile_event_evidence_integration_proposal,
+    preflight_validate_event_evidence_proposal,
 )
 from aviation_agentic_ai.agent_system.prompts import DEFAULT_PROMPT_CATALOG, assemble_prompt
 from aviation_agentic_ai.agent_system.tool_model import ToolCallingModel
 
-MAX_ASSEMBLY_TOOL_CALLS = 1
-MAX_ASSEMBLY_PROVIDER_TURNS = 2
-MAX_RENDERED_INPUT_TOKENS = 4096
-MAX_OUTPUT_TOKENS = 10_000
+MAX_INTEGRATION_TOOL_CALLS = 1
+MAX_INTEGRATION_PROVIDER_TURNS = 2
+MAX_INTEGRATION_RENDERED_INPUT_TOKENS = 4096
+MAX_INTEGRATION_OUTPUT_TOKENS = 10_000
 
 
 @dataclass(frozen=True)
-class CaseAssemblyResult:
-    """Result of running the Decision Case Assembly Agent."""
+class EventEvidenceIntegrationResult:
+    """Result of running the Event Evidence Integration Agent."""
 
-    proposal: CaseAssemblyProposal
+    proposal: EventEvidenceIntegrationProposal
     model_calls: tuple[ModelCallRecord, ...]
     tool_traces: tuple[ToolTraceEntry, ...]
-    feedback: ValidationFeedback | None = None
+    feedback: EventEvidenceIntegrationFeedback | None = None
     failure_reason: str | None = None
 
 
-def _base_messages(task: CaseAssemblyTask, *, catalog_path: str) -> list[BaseMessage]:
+def _base_messages(task: EventEvidenceIntegrationTask, *, catalog_path: str) -> list[BaseMessage]:
     assembled = assemble_prompt(
-        "decision_case_assembly",
+        "event_evidence_integration",
         {
-            "case_id": task.case_id,
-            "required_case_slots": "\n".join(task.required_case_slots) or "(none)",
-            "optional_case_slots": "\n".join(task.optional_case_slots) or "(none)",
+            "event_id": task.event_id,
+            "required_event_slots": "\n".join(task.required_event_slots) or "(none)",
+            "optional_event_slots": "\n".join(task.optional_event_slots) or "(none)",
             "missing_slots": "\n".join(task.missing_slots) or "(none)",
             "schema_profile_id": task.schema_profile_id,
             "available_evidence_layer_ids": "\n".join(task.available_evidence_layer_ids) or "(none)",
@@ -176,9 +176,9 @@ def _canonical_trace_value(value: Any) -> str:
     )
 
 
-def _case_assembly_trace_id(
+def _event_evidence_integration_trace_id(
     *,
-    task: CaseAssemblyTask,
+    task: EventEvidenceIntegrationTask,
     ordinal: int,
     tool: str,
     parameters: dict[str, str],
@@ -188,7 +188,7 @@ def _case_assembly_trace_id(
     error: str | None,
 ) -> str:
     return stable_contract_id(
-        "case-assembly-tool-trace",
+        "event-evidence-integration-tool-trace",
         task.task_id,
         task.payload_checksum,
         str(ordinal),
@@ -201,9 +201,9 @@ def _case_assembly_trace_id(
     )
 
 
-def _build_case_assembly_trace(
+def _build_event_evidence_integration_trace(
     *,
-    task: CaseAssemblyTask,
+    task: EventEvidenceIntegrationTask,
     ordinal: int,
     tool: str,
     parameters: dict[str, str],
@@ -215,7 +215,7 @@ def _build_case_assembly_trace(
 ) -> ToolTraceEntry:
     bound_result_refs = list(result_refs or [])
     bound_source_ids = list(source_ids or [])
-    trace_id = _case_assembly_trace_id(
+    trace_id = _event_evidence_integration_trace_id(
         task=task,
         ordinal=ordinal,
         tool=tool,
@@ -237,12 +237,12 @@ def _build_case_assembly_trace(
     )
 
 
-def _model_tool_observation(result: CaseAssemblyToolResult) -> str:
+def _model_tool_observation(result: EventEvidenceIntegrationToolResult) -> str:
     return result.model_dump_json(exclude_defaults=True)
 
 
 def _tool_result_bindings(
-    result: CaseAssemblyToolResult,
+    result: EventEvidenceIntegrationToolResult,
 ) -> tuple[list[str], list[str]]:
     """Project exact returned record and source IDs into the audit trace."""
 
@@ -275,7 +275,7 @@ def _tool_result_bindings(
 
 def _execute_tool_batch(
     *,
-    task: CaseAssemblyTask,
+    task: EventEvidenceIntegrationTask,
     calls: list[dict[str, Any]],
     registry: dict[str, BaseTool],
     traces: list[ToolTraceEntry],
@@ -285,7 +285,7 @@ def _execute_tool_batch(
     """Execute one native tool batch within the cumulative sealed-task budget."""
 
     if len(traces) + len(calls) > allowed_tool_count:
-        return [], "Decision Case Assembly Agent tool-call budget exceeded"
+        return [], "Event Evidence Integration Agent tool-call budget exceeded"
 
     tool_messages: list[ToolMessage] = []
     for call in calls:
@@ -295,19 +295,19 @@ def _execute_tool_batch(
         if not call_id or call_id in seen_ids:
             return [], "missing or duplicate native tool-call ID"
         if name not in registry:
-            return [], f"unknown Decision Case Assembly Agent tool: {name}"
+            return [], f"unknown Event Evidence Integration Agent tool: {name}"
         if not isinstance(arguments, dict):
-            return [], f"invalid arguments for assembly tool: {name}"
+            return [], f"invalid arguments for integration tool: {name}"
 
         seen_ids.add(call_id)
         started = time.perf_counter()
         safe_parameters = _safe_parameters(arguments)
         try:
             content = registry[name].invoke(arguments)
-            result = CaseAssemblyToolResult.model_validate_json(str(content))
+            result = EventEvidenceIntegrationToolResult.model_validate_json(str(content))
         except Exception as exc:
             error = sanitize_text(f"{type(exc).__name__}: {exc}")
-            trace = _build_case_assembly_trace(
+            trace = _build_event_evidence_integration_trace(
                 task=task,
                 ordinal=len(traces),
                 tool=name,
@@ -317,12 +317,12 @@ def _execute_tool_batch(
                 error=error,
             )
             traces.append(trace)
-            return [], trace.error or "assembly tool failed"
+            return [], trace.error or "integration tool failed"
 
         duration = (time.perf_counter() - started) * 1000.0
         result_refs, source_ids = _tool_result_bindings(result)
         traces.append(
-            _build_case_assembly_trace(
+            _build_event_evidence_integration_trace(
                 task=task,
                 ordinal=len(traces),
                 tool=name,
@@ -355,43 +355,43 @@ def _output_budget_failure(record: ModelCallRecord) -> str | None:
     """Distinguish provider truncation from a local observed-budget breach."""
 
     if record.finish_reason == "length":
-        return "Decision Case Assembly Agent provider output was truncated"
-    if record.output_tokens > MAX_OUTPUT_TOKENS:
-        return "Decision Case Assembly Agent output budget exceeded"
+        return "Event Evidence Integration Agent provider output was truncated"
+    if record.output_tokens > MAX_INTEGRATION_OUTPUT_TOKENS:
+        return "Event Evidence Integration Agent output budget exceeded"
     return None
 
 
 def _compile_blocked_result(
     *,
-    task: CaseAssemblyTask,
+    task: EventEvidenceIntegrationTask,
     binding: ContractExecutionBinding,
     model_calls: list[ModelCallRecord],
     traces: list[ToolTraceEntry],
     reason: str,
-    feedback: ValidationFeedback | None = None,
-    component_layer_results: Sequence[ComponentLayerResult] = (),
+    feedback: EventEvidenceIntegrationFeedback | None = None,
+    evidence_layer_results: Sequence[EvidenceLayerResult] = (),
     limitations: Sequence[str] = (),
-) -> CaseAssemblyResult:
-    blocked_layers = tuple(component_layer_results)
+) -> EventEvidenceIntegrationResult:
+    blocked_layers = tuple(evidence_layer_results)
     if blocked_layers:
         blocked_layers = (
             *blocked_layers,
-            ComponentLayerResult(
-                layer_id="decision_case_assembly",
-                status=ComponentLayerStatus.BLOCKED,
+            EvidenceLayerResult(
+                layer_id="event_evidence_integration",
+                status=EvidenceLayerStatus.BLOCKED,
                 required_for_task=True,
                 blocking_error_id=stable_contract_id(
-                    "case-assembly-agent-error",
+                    "event-evidence-integration-agent-error",
                     task.task_id,
                     task.payload_checksum,
                     reason,
                 ),
             ),
         )
-    proposal = compile_case_assembly_proposal(
+    proposal = compile_event_evidence_integration_proposal(
         task=task,
-        assembly_status=AssemblyStatus.BLOCKED,
-        component_layer_results=blocked_layers,
+        integration_status=EventEvidenceIntegrationStatus.BLOCKED,
+        evidence_layer_results=blocked_layers,
         proposed_facts=(),
         evidence_bindings=(),
         resolution_proposal_ids=(),
@@ -402,7 +402,7 @@ def _compile_blocked_result(
         tool_trace_ids=[trace.tool_call_id for trace in traces if trace.tool_call_id],
         binding=binding,
     )
-    return CaseAssemblyResult(
+    return EventEvidenceIntegrationResult(
         proposal=proposal,
         model_calls=tuple(model_calls),
         tool_traces=tuple(traces),
@@ -413,33 +413,33 @@ def _compile_blocked_result(
 
 def _compile_insufficient_result(
     *,
-    task: CaseAssemblyTask,
+    task: EventEvidenceIntegrationTask,
     binding: ContractExecutionBinding,
     model_calls: list[ModelCallRecord],
     traces: list[ToolTraceEntry],
     reason: str,
-    component_layer_results: Sequence[ComponentLayerResult] = (),
+    evidence_layer_results: Sequence[EvidenceLayerResult] = (),
     limitations: Sequence[str] = (),
-) -> CaseAssemblyResult:
+) -> EventEvidenceIntegrationResult:
     """Compile an honest non-publishable result after model abstention."""
 
-    agent_layer = ComponentLayerResult(
-        layer_id="decision_case_assembly",
-        status=ComponentLayerStatus.INSUFFICIENT,
+    agent_layer = EvidenceLayerResult(
+        layer_id="event_evidence_integration",
+        status=EvidenceLayerStatus.INSUFFICIENT,
         required_for_task=True,
         missing_reason_code="agent_abstained",
     )
-    proposal = compile_case_assembly_proposal(
+    proposal = compile_event_evidence_integration_proposal(
         task=task,
-        assembly_status=AssemblyStatus.INSUFFICIENT,
-        component_layer_results=(*component_layer_results, agent_layer),
+        integration_status=EventEvidenceIntegrationStatus.INSUFFICIENT,
+        evidence_layer_results=(*evidence_layer_results, agent_layer),
         limitations=(*limitations, reason),
         tool_trace_ids=[
             trace.tool_call_id for trace in traces if trace.tool_call_id
         ],
         binding=binding,
     )
-    return CaseAssemblyResult(
+    return EventEvidenceIntegrationResult(
         proposal=proposal,
         model_calls=tuple(model_calls),
         tool_traces=tuple(traces),
@@ -447,24 +447,24 @@ def _compile_insufficient_result(
     )
 
 
-def run_case_assembly_agent(
+def run_event_evidence_integration_agent(
     *,
-    task: CaseAssemblyTask,
+    task: EventEvidenceIntegrationTask,
     binding: ContractExecutionBinding,
     tool_model_factory: Callable[[list[BaseTool]], ToolCallingModel] | None,
     catalog_path: str = DEFAULT_PROMPT_CATALOG,
-    assembly_status: AssemblyStatus | None = None,
-    component_layer_results: Sequence[ComponentLayerResult] = (),
+    integration_status: EventEvidenceIntegrationStatus | None = None,
+    evidence_layer_results: Sequence[EvidenceLayerResult] = (),
     limitations: Sequence[str] = (),
-) -> CaseAssemblyResult:
-    """Run the bounded Case Assembly Agent loop."""
+) -> EventEvidenceIntegrationResult:
+    """Run the bounded Event Evidence Integration Agent loop."""
 
     model_calls: list[ModelCallRecord] = []
     traces: list[ToolTraceEntry] = []
     messages = _base_messages(task, catalog_path=catalog_path)
     _blocked = partial(
         _compile_blocked_result,
-        component_layer_results=tuple(component_layer_results),
+        evidence_layer_results=tuple(evidence_layer_results),
         limitations=tuple(limitations),
     )
 
@@ -474,17 +474,17 @@ def run_case_assembly_agent(
             binding=binding,
             model_calls=model_calls,
             traces=traces,
-            reason="Decision Case Assembly Agent model factory is unavailable",
+            reason="Event Evidence Integration Agent model factory is unavailable",
         )
 
-    tools = build_case_assembly_tools(CaseAssemblyToolGateway(task=task))
-    if _estimated_input_tokens(messages, bound_tools=tools) > MAX_RENDERED_INPUT_TOKENS:
+    tools = build_event_evidence_integration_tools(EventEvidenceIntegrationToolGateway(task=task))
+    if _estimated_input_tokens(messages, bound_tools=tools) > MAX_INTEGRATION_RENDERED_INPUT_TOKENS:
         return _blocked(
             task=task,
             binding=binding,
             model_calls=model_calls,
             traces=traces,
-            reason="Decision Case Assembly Agent rendered input budget exceeded",
+            reason="Event Evidence Integration Agent rendered input budget exceeded",
         )
 
     registry = {tool.name: tool for tool in tools}
@@ -497,7 +497,7 @@ def run_case_assembly_agent(
             model_calls=model_calls,
             traces=traces,
             reason=sanitize_text(
-                f"Decision Case Assembly Agent model construction failed: {type(exc).__name__}: {exc}"
+                f"Event Evidence Integration Agent model construction failed: {type(exc).__name__}: {exc}"
             ),
         )
 
@@ -509,7 +509,7 @@ def run_case_assembly_agent(
         provider_error = sanitize_text(f"{type(exc).__name__}: {exc}")
         model_calls.append(
             ModelCallRecord(
-                agent="decision_case_assembly",
+                agent="event_evidence_integration",
                 raw_response="",
                 latency_ms=(time.perf_counter() - provider_started) * 1000.0,
                 attempt=1,
@@ -521,7 +521,7 @@ def run_case_assembly_agent(
             binding=binding,
             model_calls=model_calls,
             traces=traces,
-            reason=sanitize_text(f"Decision Case Assembly Agent provider failed: {provider_error}"),
+            reason=sanitize_text(f"Event Evidence Integration Agent provider failed: {provider_error}"),
         )
 
     model_calls.append(first.record)
@@ -551,14 +551,14 @@ def run_case_assembly_agent(
         )
 
     calls = [dict(call) for call in first.message.tool_calls]
-    allowed_tool_count = min(MAX_ASSEMBLY_TOOL_CALLS, task.remaining_tool_budget)
+    allowed_tool_count = min(MAX_INTEGRATION_TOOL_CALLS, task.remaining_tool_budget)
     if not calls:
         return _blocked(
             task=task,
             binding=binding,
             model_calls=model_calls,
             traces=traces,
-            reason="Decision Case Assembly Agent did not select a tool",
+            reason="Event Evidence Integration Agent did not select a tool",
         )
     if len(calls) > allowed_tool_count:
         return _blocked(
@@ -566,7 +566,7 @@ def run_case_assembly_agent(
             binding=binding,
             model_calls=model_calls,
             traces=traces,
-            reason="Decision Case Assembly Agent tool-call budget exceeded",
+            reason="Event Evidence Integration Agent tool-call budget exceeded",
         )
 
     seen_ids: set[str] = set()
@@ -594,7 +594,7 @@ def run_case_assembly_agent(
             model_calls=model_calls,
             traces=traces,
             reason=(
-                "Decision Case Assembly Agent must inspect exactly one "
+                "Event Evidence Integration Agent must inspect exactly one "
                 "candidate bundle"
             ),
         )
@@ -602,13 +602,13 @@ def run_case_assembly_agent(
     # Provider turn 2: emit one compact accept/abstain decision. The full
     # facts remain in the sealed task and are never regenerated by the model.
     turn_2_messages = [messages[0], messages[-1], first.message, *tool_messages]
-    if _estimated_input_tokens(turn_2_messages) > MAX_RENDERED_INPUT_TOKENS:
+    if _estimated_input_tokens(turn_2_messages) > MAX_INTEGRATION_RENDERED_INPUT_TOKENS:
         return _blocked(
             task=task,
             binding=binding,
             model_calls=model_calls,
             traces=traces,
-            reason="Decision Case Assembly Agent rendered input budget exceeded",
+            reason="Event Evidence Integration Agent rendered input budget exceeded",
         )
 
     provider_started = time.perf_counter()
@@ -618,7 +618,7 @@ def run_case_assembly_agent(
         provider_error = sanitize_text(f"{type(exc).__name__}: {exc}")
         model_calls.append(
             ModelCallRecord(
-                agent="decision_case_assembly",
+                agent="event_evidence_integration",
                 raw_response="",
                 latency_ms=(time.perf_counter() - provider_started) * 1000.0,
                 attempt=2,
@@ -630,7 +630,7 @@ def run_case_assembly_agent(
             binding=binding,
             model_calls=model_calls,
             traces=traces,
-            reason=sanitize_text(f"Decision Case Assembly Agent provider failed: {provider_error}"),
+            reason=sanitize_text(f"Event Evidence Integration Agent provider failed: {provider_error}"),
         )
 
     model_calls.append(second.record)
@@ -661,7 +661,7 @@ def run_case_assembly_agent(
 
     selection_text = _message_text(second.message).strip()
     try:
-        selection = CaseAssemblySelection.model_validate_json(selection_text)
+        selection = EventEvidenceIntegrationSelection.model_validate_json(selection_text)
     except Exception as exc:
         return _blocked(
             task=task,
@@ -669,12 +669,12 @@ def run_case_assembly_agent(
             model_calls=model_calls,
             traces=traces,
             reason=sanitize_text(
-                f"malformed case assembly selection output: {exc}"
+                f"malformed event evidence integration selection output: {exc}"
             ),
         )
 
     expected_bundle_id = stable_contract_id(
-        "case-assembly-candidate-bundle",
+        "event-evidence-integration-candidate-bundle",
         task.task_id,
         task.payload_checksum,
     )
@@ -684,7 +684,7 @@ def run_case_assembly_agent(
             binding=binding,
             model_calls=model_calls,
             traces=traces,
-            reason="Decision Case Assembly Agent selected the wrong candidate bundle",
+            reason="Event Evidence Integration Agent selected the wrong candidate bundle",
         )
     if selection.decision == "abstained":
         return _compile_insufficient_result(
@@ -692,8 +692,8 @@ def run_case_assembly_agent(
             binding=binding,
             model_calls=model_calls,
             traces=traces,
-            reason=selection.limitation or "Decision Case Assembly Agent abstained",
-            component_layer_results=component_layer_results,
+            reason=selection.limitation or "Event Evidence Integration Agent abstained",
+            evidence_layer_results=evidence_layer_results,
             limitations=limitations,
         )
 
@@ -711,16 +711,16 @@ def run_case_assembly_agent(
             model_calls=model_calls,
             traces=traces,
             reason=(
-                "Decision Case Assembly Agent selection differs from the "
+                "Event Evidence Integration Agent selection differs from the "
                 "sealed candidate bundle"
             ),
         )
 
     try:
-        proposal = compile_case_assembly_proposal(
+        proposal = compile_event_evidence_integration_proposal(
             task=task,
-            assembly_status=assembly_status,
-            component_layer_results=component_layer_results,
+            integration_status=integration_status,
+            evidence_layer_results=evidence_layer_results,
             limitations=limitations,
             tool_trace_ids=[trace.tool_call_id for trace in traces if trace.tool_call_id],
             binding=binding,
@@ -731,17 +731,17 @@ def run_case_assembly_agent(
             binding=binding,
             model_calls=model_calls,
             traces=traces,
-            reason=sanitize_text(f"case assembly proposal compilation error: {exc}"),
+            reason=sanitize_text(f"event evidence integration proposal compilation error: {exc}"),
         )
 
-    feedback = preflight_validate_case_assembly_proposal(
+    feedback = preflight_validate_event_evidence_proposal(
         task=task,
         proposal=proposal,
         binding=binding,
     )
 
     if feedback is None:
-        return CaseAssemblyResult(
+        return EventEvidenceIntegrationResult(
             proposal=proposal,
             model_calls=tuple(model_calls),
             tool_traces=tuple(traces),

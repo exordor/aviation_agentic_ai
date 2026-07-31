@@ -362,9 +362,9 @@ def run_batch_case(
             role="semantic_resolution",
             catalog_path=DEFAULT_PROMPT_CATALOG,
         ),
-        case_assembly_model_factory=lambda tools: make_live_tool_calling_model(
+        event_evidence_integration_model_factory=lambda tools: make_live_tool_calling_model(
             tools=tools,
-            role="decision_case_assembly",
+            role="event_evidence_integration",
             catalog_path=DEFAULT_PROMPT_CATALOG,
         ),
         authority_catalog=resources.authority_catalog,
@@ -387,9 +387,9 @@ def run_batch_case(
                 source_id=source_id,
                 status="insufficient",
                 reason=str(
-                    state.get("assembly_failure_reason")
+                    state.get("integration_failure_reason")
                     or state.get("resolution_preflight_reason")
-                    or "workflow did not publish a validated decision case"
+                    or "workflow did not publish validated TMI event evidence"
                 ),
                 provider_call_count=len(model_calls),
                 tmi_family=family,
@@ -399,7 +399,7 @@ def run_batch_case(
             model_calls=tuple(model_calls),
         )
     validation = state.get("validation")
-    graph_patch = state.get("assembly_graph_patch")
+    graph_patch = state.get("integration_graph_patch")
     evidence_cards = [
         getattr(result, "evidence_card", result)
         for result in (
@@ -608,7 +608,7 @@ def _normalize_case_usage(
     expected = {
         ("semantic_resolution", "facility"),
         ("semantic_resolution", "terminology"),
-        ("decision_case_assembly", "decision_case"),
+        ("event_evidence_integration", "tmi_event_evidence"),
     }
     keys = {(row.role, row.task_scope) for row in records}
     if (

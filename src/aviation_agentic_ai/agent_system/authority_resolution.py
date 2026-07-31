@@ -31,7 +31,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceRecord,
     ToolTraceEntry,
 )
-from aviation_agentic_ai.agent_system.decision_case_contracts import (
+from aviation_agentic_ai.agent_system.construction_contracts import (
     CandidateBuildStatus,
     ContractExecutionBinding,
     RawResolutionCandidateRef,

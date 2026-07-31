@@ -53,7 +53,7 @@ from aviation_agentic_ai.agent_system.decision_case_graph import (
     PROV_HAD_MEMBER_IRI,
     PROV_SPECIALIZATION_OF_IRI,
 )
-from aviation_agentic_ai.agent_system.decision_case_contracts import stable_contract_id
+from aviation_agentic_ai.agent_system.construction_contracts import stable_contract_id
 from aviation_agentic_ai.agent_system.materialize import (
     FormalPublicationBlocked,
     materialize_validated_facts,
@@ -540,7 +540,7 @@ def test_gdp_138_assembly_sees_only_prepared_validated_multisource_rows(
     output_dir = tmp_path / "gdp-138-prepared-context"
     provider_constructions: list[str] = []
     observed_before_assembly: dict[str, object] = {}
-    original_builder = workflow_module._build_case_assembly_task_from_state
+    original_builder = workflow_module._build_event_evidence_integration_task_from_state
 
     def capture_prepared_task(ctx, state, *, event_uri, event_class):
         observed_before_assembly["weather_status"] = state["weather_context"].status
@@ -562,7 +562,7 @@ def test_gdp_138_assembly_sees_only_prepared_validated_multisource_rows(
 
     monkeypatch.setattr(
         workflow_module,
-        "_build_case_assembly_task_from_state",
+        "_build_event_evidence_integration_task_from_state",
         capture_prepared_task,
     )
     state = run_ingest(
@@ -579,13 +579,13 @@ def test_gdp_138_assembly_sees_only_prepared_validated_multisource_rows(
             run_id="run:gdp-138-prepared-context",
             run_started_at=datetime(2026, 5, 19, 20, 0, tzinfo=UTC),
             output_dir=str(output_dir),
-            case_assembly_model_factory=lambda tools: (
+            event_evidence_integration_model_factory=lambda tools: (
                 provider_constructions.append("assembly") or object()
             ),
         )
     )
 
-    task = state["case_assembly_task"]
+    task = state["event_evidence_integration_task"]
     weather = state["weather_context"]
     observations = state["observation_context"]
     assert observations.status == "ok", observations.failure_reason
@@ -1147,7 +1147,7 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
         bts_manifest_binding=bts_binding,
         authority_catalog=_catalog(tmp_path),
         semantic_resolution_tool_model_factory=semantic_factory,
-        case_assembly_model_factory=assembly_factory,
+        event_evidence_integration_model_factory=assembly_factory,
         run_started_at=datetime(2026, 7, 27, 12, 0, tzinfo=UTC),
         run_id=f"run:{source_id}",
         output_dir=str(tmp_path),
@@ -1173,8 +1173,8 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
         schema_slice_id=guide.schema_slice_id,
         schema_checksum=guide.checksum,
         evidence_cards=evidence_cards,
-        graph_patch_raw=state["assembly_graph_patch"].raw,
-        prompt_set_id="aviation-decision-case-agents-v1",
+        graph_patch_raw=state["integration_graph_patch"].raw,
+        prompt_set_id="aviation-tmi-event-agents-v1",
         profile_gap_count=len(validation.profile_gaps),
         context_artifacts=state["context_artifacts"],
         formal_layers=state["formal_layers"],
@@ -1182,8 +1182,8 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
         created_at=ctx.run_started_at,
     )
 
-    assert state["case_assembly_task"] is not None
-    assert state["case_assembly_proposal"] is not None
+    assert state["event_evidence_integration_task"] is not None
+    assert state["event_evidence_integration_proposal"] is not None
     assert validation.publishable
     assert materialization is not None
     assert state["model_calls"] == []
@@ -1260,7 +1260,7 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
 
     manifest = json.loads((tmp_path / "run_manifest.json").read_text(encoding="utf-8"))
     profile_gap_bytes = (tmp_path / "profile_gaps.jsonl").read_bytes()
-    assert manifest["manifest_version"] == "decision-case-run-v1"
+    assert manifest["manifest_version"] == "tmi-event-run-v1"
     assert manifest["profile_gaps"] == {
         "path": "profile_gaps.jsonl",
         "count": 1 if reason_state == "profile_gap" else 0,
@@ -2011,7 +2011,7 @@ def test_ingest_graph_names_explicit_validation_and_publication_nodes():
     graph = build_ingest_graph()
     graph_json = graph.get_graph().to_json()
     edges = {(edge["source"], edge["target"]) for edge in graph_json["edges"]}
-    assert ("decision_case_assembly", "validate_event_patch") in edges
+    assert ("event_evidence_integration", "validate_event_patch") in edges
     assert ("validate_event_patch", "publish_case") in edges
     assert ("publish_case", "__end__") in edges
     assert not {"materialize", "decision_context"} & {
@@ -2045,7 +2045,7 @@ def test_event_preflight_rejection_does_not_call_final_publication_kernel(
     )
     event_id = "urn:aviation-agentic-ai:event:rejected-event"
     state = {
-        "assembly_graph_patch": GraphPatchBlock(
+        "integration_graph_patch": GraphPatchBlock(
             patch_lines=[
                 GraphPatchLine(
                     subject=event_id,

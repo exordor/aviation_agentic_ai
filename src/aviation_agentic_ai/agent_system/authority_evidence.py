@@ -23,7 +23,7 @@ from pydantic import AwareDatetime, model_validator
 from pypdf import PdfReader
 
 from aviation_agentic_ai.agent_system.contracts import SourceFamily, SourceRecord
-from aviation_agentic_ai.agent_system.decision_case_contracts import (
+from aviation_agentic_ai.agent_system.construction_contracts import (
     AuthorityDefinitionEvidenceClaim,
     AuthorityRecordEvidenceClaim,
     CandidateBuildStatus,

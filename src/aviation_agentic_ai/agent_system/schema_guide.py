@@ -208,7 +208,7 @@ class SchemaGuide:
                 return c.allowed_values
         return frozenset()
 
-    # ---- compact context for Decision Case Assembly ------------------------
+    # ---- compact context for Event Evidence Integration ------------------------
 
     def compact_context_for_event(self, event_class: str) -> str:
         """A compact, prompt-sized schema slice for one event class.

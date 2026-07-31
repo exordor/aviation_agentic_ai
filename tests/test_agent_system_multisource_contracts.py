@@ -236,7 +236,7 @@ def _write_current_query_run(
     (run_dir / "run_manifest.json").write_text(
         json.dumps(
             {
-                "manifest_version": "decision-case-run-v1",
+                "manifest_version": "tmi-event-run-v1",
                 "run_id": run_dir.name,
                 "source_id": snapshot.source_id,
                 "materialization": {

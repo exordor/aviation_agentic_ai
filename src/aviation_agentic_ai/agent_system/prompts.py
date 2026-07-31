@@ -1,6 +1,6 @@
 """Frozen prompt-catalog loader and fixed message assembler (design §16).
 
-The normative role prompts live in ``configs/prompts/decision_case_agents_v1.yaml``.
+The normative role prompts live in ``configs/prompts/tmi_event_agents_v1.yaml``.
 Runtime code LOADS that catalog; it must not rewrite, extend, or silently
 replace the prompt text, and must not add a hidden system prefix or rewrite
 the examples.
@@ -32,12 +32,12 @@ import yaml
 from aviation_agentic_ai.config import resolve_project_path
 
 # Frozen catalog path (design §16). The single source of truth for role prompts.
-DEFAULT_PROMPT_CATALOG = "configs/prompts/decision_case_agents_v1.yaml"
+DEFAULT_PROMPT_CATALOG = "configs/prompts/tmi_event_agents_v1.yaml"
 
 # The frozen role keys the system exercises.
 ROLE_KEYS: tuple[str, ...] = (
     "semantic_resolution",
-    "decision_case_assembly",
+    "event_evidence_integration",
     "query",
 )
 

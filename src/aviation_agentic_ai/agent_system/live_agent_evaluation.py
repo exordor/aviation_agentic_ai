@@ -1,4 +1,4 @@
-"""Explicit real-model smoke evaluation for bounded decision-case Agents."""
+"""Explicit real-model smoke evaluation for bounded TMI-event Agents."""
 
 from __future__ import annotations
 
@@ -18,9 +18,9 @@ from aviation_agentic_ai.agent_system.audit import sanitize_text
 from aviation_agentic_ai.agent_system.authority_evidence import (
     AuthorityBuildStatus,
 )
-from aviation_agentic_ai.agent_system.case_assembly import (
-    MAX_ASSEMBLY_PROVIDER_TURNS,
-    MAX_ASSEMBLY_TOOL_CALLS,
+from aviation_agentic_ai.agent_system.event_evidence_integration import (
+    MAX_INTEGRATION_PROVIDER_TURNS,
+    MAX_INTEGRATION_TOOL_CALLS,
 )
 from aviation_agentic_ai.agent_system.contracts import (
     ModelCallRecord,
@@ -100,13 +100,13 @@ class LiveEvaluationAuthorizationError(RuntimeError):
 
 
 class LiveEvaluationTrial(StrictModel):
-    """One frozen Assembly or Analysis trial."""
+    """One frozen Integration or Analysis trial."""
 
     trial_id: str = Field(min_length=1)
-    kind: Literal["assembly", "analysis"]
+    kind: Literal["integration", "analysis"]
     source_id: str = Field(min_length=1)
     expected_role: Literal[
-        "decision_case_assembly",
+        "event_evidence_integration",
         "query",
     ]
     question: str | None = None
@@ -116,10 +116,10 @@ class LiveEvaluationTrial(StrictModel):
     def _validate_kind(self) -> "LiveEvaluationTrial":
         if self.kind == "analysis" and not self.question:
             raise ValueError("analysis trial requires question")
-        if self.kind == "assembly" and self.question is not None:
-            raise ValueError("assembly trial does not accept question")
+        if self.kind == "integration" and self.question is not None:
+            raise ValueError("integration trial does not accept question")
         expected = {
-            "assembly": "decision_case_assembly",
+            "integration": "event_evidence_integration",
             "analysis": "query",
         }[self.kind]
         if self.expected_role != expected:
@@ -130,7 +130,7 @@ class LiveEvaluationTrial(StrictModel):
 class LiveEvaluationSuite(StrictModel):
     """Frozen smoke-evaluation manifest."""
 
-    version: Literal["live-agent-smoke-v2"]
+    version: Literal["live-agent-smoke-v3"]
     suite_id: str = Field(min_length=1)
     repetitions: int = Field(default=1, ge=1)
     trials: tuple[LiveEvaluationTrial, ...] = Field(min_length=1)
@@ -224,11 +224,11 @@ class LiveEvaluationResult(StrictModel):
 
     trial_id: str = Field(min_length=1)
     repetition: int = Field(ge=1)
-    kind: Literal["assembly", "analysis"]
+    kind: Literal["integration", "analysis"]
     source_id: str = Field(min_length=1)
     event_id: str | None = None
     role: Literal[
-        "decision_case_assembly",
+        "event_evidence_integration",
         "query",
     ]
     live_model: bool
@@ -264,8 +264,8 @@ class LiveEvaluationResult(StrictModel):
 class LiveEvaluationSummary(StrictModel):
     """Aggregate smoke outcome, separate from canonical corpus identity."""
 
-    manifest_version: Literal["decision-case-live-evaluation-v2"] = (
-        "decision-case-live-evaluation-v2"
+    manifest_version: Literal["tmi-event-live-evaluation-v3"] = (
+        "tmi-event-live-evaluation-v3"
     )
     suite_id: str = Field(min_length=1)
     suite_checksum: str = Field(min_length=64, max_length=64)
@@ -374,30 +374,30 @@ def _shared_model_metadata(
     }
 
 
-def _assembly_failure_code(
+def _integration_failure_code(
     *,
     build_result: CorpusBuildResult,
     calls: Sequence[ModelCallRecord],
 ) -> str:
     reason = build_result.reason.lower()
     if "provider output was truncated" in reason:
-        return "assembly_provider_output_truncated"
+        return "integration_provider_output_truncated"
     if "output budget exceeded" in reason:
-        return "assembly_output_budget_exceeded"
+        return "integration_output_budget_exceeded"
     if "output-token cap exceeded" in reason:
-        return "assembly_output_token_cap_exceeded"
-    if "malformed case assembly selection output" in reason:
-        return "assembly_malformed_selection_output"
-    if "malformed case assembly proposal output" in reason:
-        return "assembly_malformed_contract_output"
+        return "integration_output_token_cap_exceeded"
+    if "malformed event evidence integration selection output" in reason:
+        return "integration_malformed_selection_output"
+    if "malformed event evidence integration proposal output" in reason:
+        return "integration_malformed_contract_output"
     if any(call.error for call in calls):
-        return "assembly_provider_or_model_call_error"
+        return "integration_provider_or_model_call_error"
     if build_result.status == "blocked":
-        return "assembly_execution_blocked"
-    return "assembly_acceptance_failed"
+        return "integration_execution_blocked"
+    return "integration_acceptance_failed"
 
 
-def score_assembly_trial(
+def score_integration_trial(
     *,
     trial: LiveEvaluationTrial,
     repetition: int,
@@ -409,12 +409,12 @@ def score_assembly_trial(
     context_causal_claims: Sequence[bool],
     observation_profile_layers: Sequence[str],
 ) -> LiveEvaluationResult:
-    """Score one real Assembly execution without retaining model payloads."""
+    """Score one real Integration execution without retaining model payloads."""
 
     calls = tuple(
         call
         for call in model_calls
-        if call.agent == "decision_case_assembly"
+        if call.agent == "event_evidence_integration"
     )
     native_tool_count = sum(len(call.tool_calls) for call in calls)
     forbidden = {
@@ -426,20 +426,20 @@ def score_assembly_trial(
             "agent_activated",
             usage.execution_mode == "activated" and bool(calls),
             passed_code="activated_with_real_provider_calls",
-            failed_code="assembly_agent_not_activated",
+            failed_code="integration_agent_not_activated",
         ),
         _assertion(
             "bounded_execution",
-            1 <= len(calls) <= MAX_ASSEMBLY_PROVIDER_TURNS
-            and native_tool_count <= MAX_ASSEMBLY_TOOL_CALLS,
+            1 <= len(calls) <= MAX_INTEGRATION_PROVIDER_TURNS
+            and native_tool_count <= MAX_INTEGRATION_TOOL_CALLS,
             passed_code="within_existing_model_and_tool_budgets",
-            failed_code="assembly_budget_not_satisfied",
+            failed_code="integration_budget_not_satisfied",
         ),
         _assertion(
             "frozen_model_contract",
             _model_configuration_ok(
                 calls,
-                role="decision_case_assembly",
+                role="event_evidence_integration",
             ),
             passed_code="frozen_deepseek_configuration_observed",
             failed_code="model_configuration_or_provider_call_failed",
@@ -496,10 +496,10 @@ def score_assembly_trial(
     return LiveEvaluationResult(
         trial_id=trial.trial_id,
         repetition=repetition,
-        kind="assembly",
+        kind="integration",
         source_id=trial.source_id,
         event_id=build_result.event_id or usage.event_id,
-        role="decision_case_assembly",
+        role="event_evidence_integration",
         live_model=live_model,
         workflow_status=build_result.status,
         activation_status=activation,
@@ -511,7 +511,7 @@ def score_assembly_trial(
         failure_code=(
             ""
             if acceptance == "passed"
-            else _assembly_failure_code(
+            else _integration_failure_code(
                 build_result=build_result,
                 calls=calls,
             )
@@ -881,7 +881,7 @@ def _markdown_report(
     results: Sequence[LiveEvaluationResult],
 ) -> str:
     lines = [
-        "# Agent System Live Agent Smoke v2",
+        "# Agent System Live Agent Smoke v3",
         "",
         "## Boundary",
         "",
@@ -950,14 +950,14 @@ def write_live_evaluation_artifacts(
     reports = Path(report_dir)
     runtime.mkdir(parents=True, exist_ok=True)
     reports.mkdir(parents=True, exist_ok=True)
-    result_path = runtime / "live_evaluation_results_v2.jsonl"
+    result_path = runtime / "live_evaluation_results_v3.jsonl"
     result_path.write_bytes(_result_bytes(results))
-    manifest_path = runtime / "live_evaluation_manifest_v2.json"
+    manifest_path = runtime / "live_evaluation_manifest_v3.json"
     manifest_path.write_text(
         summary.model_dump_json(indent=2) + "\n",
         encoding="utf-8",
     )
-    report_json = reports / "agent_system_live_agent_smoke_v2.json"
+    report_json = reports / "agent_system_live_agent_smoke_v3.json"
     report_json.write_text(
         json.dumps(
             {
@@ -972,7 +972,7 @@ def write_live_evaluation_artifacts(
         + "\n",
         encoding="utf-8",
     )
-    report_markdown = reports / "agent_system_live_agent_smoke_v2.md"
+    report_markdown = reports / "agent_system_live_agent_smoke_v3.md"
     report_markdown.write_text(
         _markdown_report(summary, results),
         encoding="utf-8",
@@ -995,7 +995,7 @@ def _live_preflight_failures(
     if FROZEN_TEMPERATURE != 0.0:
         failures.append("temperature_not_zero")
     catalog = get_prompt_catalog()
-    for role in ("decision_case_assembly", "query"):
+    for role in ("event_evidence_integration", "query"):
         prompt = catalog.role(role)
         if prompt.temperature != 0.0:
             failures.append(f"{role}_temperature_not_zero")
@@ -1129,7 +1129,7 @@ def _repetition_matrix_failures(
     return tuple(sorted(set(failures)))
 
 
-def _assembly_usage_from_execution(
+def _integration_usage_from_execution(
     execution: BatchCaseExecution | None,
     *,
     source_id: str,
@@ -1137,16 +1137,16 @@ def _assembly_usage_from_execution(
     if execution is not None:
         for row in execution.agent_usage_records:
             if (
-                row.role == "decision_case_assembly"
-                and row.task_scope == "decision_case"
+                row.role == "event_evidence_integration"
+                and row.task_scope == "tmi_event_evidence"
             ):
                 return row
     return AgentUsageRecord(
         source_id=source_id,
         event_id=None,
         task_id=f"live-evaluation:not-reached:{source_id}",
-        role="decision_case_assembly",
-        task_scope="decision_case",
+        role="event_evidence_integration",
+        task_scope="tmi_event_evidence",
         execution_mode="not_reached",
         outcome="blocked",
         detail_status="workflow_exception",
@@ -1154,7 +1154,7 @@ def _assembly_usage_from_execution(
     )
 
 
-def _score_assembly_results(
+def _score_integration_results(
     *,
     suite: LiveEvaluationSuite,
     repetition: int,
@@ -1164,7 +1164,7 @@ def _score_assembly_results(
 ) -> list[LiveEvaluationResult]:
     scored: list[LiveEvaluationResult] = []
     for trial in suite.trials:
-        if trial.kind != "assembly":
+        if trial.kind != "integration":
             continue
         build_result = build_results.get(
             trial.source_id,
@@ -1175,7 +1175,7 @@ def _score_assembly_results(
             ),
         )
         execution = executions.get(trial.source_id)
-        usage = _assembly_usage_from_execution(
+        usage = _integration_usage_from_execution(
             execution,
             source_id=trial.source_id,
         )
@@ -1202,7 +1202,7 @@ def _score_assembly_results(
             if fact_id in facts_by_id
         )
         scored.append(
-            score_assembly_trial(
+            score_integration_trial(
                 trial=trial,
                 repetition=repetition,
                 live_model=True,
@@ -1289,7 +1289,7 @@ def _run_live_evaluation_repetition(
         if (corpus_dir / "corpus_manifest.json").is_file()
         else None
     )
-    results = _score_assembly_results(
+    results = _score_integration_results(
         suite=suite,
         repetition=repetition,
         build_results=build_results,
@@ -1515,7 +1515,7 @@ __all__ = [
     "main",
     "run_live_agent_evaluation",
     "score_analysis_trial",
-    "score_assembly_trial",
+    "score_integration_trial",
     "summarize_live_evaluation",
     "write_hybrid_query_run_artifact",
     "write_live_evaluation_artifacts",

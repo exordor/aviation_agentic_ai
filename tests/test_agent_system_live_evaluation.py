@@ -30,7 +30,7 @@ from aviation_agentic_ai.agent_system.live_agent_evaluation import (
     load_live_evaluation_suite,
     run_live_agent_evaluation,
     score_analysis_trial,
-    score_assembly_trial,
+    score_integration_trial,
     summarize_live_evaluation,
     write_hybrid_query_run_artifact,
     write_live_evaluation_artifacts,
@@ -41,14 +41,14 @@ def test_load_live_evaluation_suite_seals_frozen_trials(tmp_path: Path) -> None:
     suite_path = tmp_path / "suite.yaml"
     suite_path.write_text(
         """
-version: live-agent-smoke-v2
-suite_id: decision-case-live-agent-smoke-v2
+version: live-agent-smoke-v3
+suite_id: tmi-event-live-agent-smoke-v3
 repetitions: 1
 trials:
-  - trial_id: assembly-025
-    kind: assembly
+  - trial_id: integration-025
+    kind: integration
     source_id: "2026-05-20:025"
-    expected_role: decision_case_assembly
+    expected_role: event_evidence_integration
     forbidden_predicate_iris:
       - https://data.nasa.gov/ontologies/atmonto/ATM#impactingCondition
   - trial_id: analysis-138
@@ -65,7 +65,7 @@ trials:
 
     assert isinstance(suite, LiveEvaluationSuite)
     assert suite.repetitions == 1
-    assert [trial.kind for trial in suite.trials] == ["assembly", "analysis"]
+    assert [trial.kind for trial in suite.trials] == ["integration", "analysis"]
     assert suite.build_source_ids == (
         "2026-05-19:138",
         "2026-05-20:025",
@@ -74,17 +74,17 @@ trials:
 
 def test_tracked_live_suite_contains_exactly_five_frozen_trials() -> None:
     suite = load_live_evaluation_suite(
-        "data/evaluation/agent_system/live_agent_smoke_v2.yaml"
+        "data/evaluation/agent_system/live_agent_smoke_v3.yaml"
     )
 
     assert [
         (trial.kind, trial.source_id, trial.question)
         for trial in suite.trials
     ] == [
-        ("assembly", "2026-05-20:025", None),
-        ("assembly", "2026-05-20:030", None),
-        ("assembly", "2026-05-20:070", None),
-        ("assembly", "2026-05-20:072", None),
+        ("integration", "2026-05-20:025", None),
+        ("integration", "2026-05-20:030", None),
+        ("integration", "2026-05-20:070", None),
+        ("integration", "2026-05-20:072", None),
         (
             "analysis",
             "2026-05-19:138",
@@ -120,9 +120,9 @@ def _result(
     return LiveEvaluationResult(
         trial_id=trial_id,
         repetition=1,
-        kind="assembly",
+        kind="integration",
         source_id=f"source:{trial_id}",
-        role="decision_case_assembly",
+        role="event_evidence_integration",
         live_model=live_model,
         workflow_status="ok",
         activation_status="activated",
@@ -136,7 +136,7 @@ def _result(
         ),
         provider="deepseek",
         model="deepseek-v4-pro",
-        prompt_set_id="decision-case-agents-v1",
+        prompt_set_id="aviation-tmi-event-agents-v1",
         prompt_version="v1",
         temperature=0.0,
         provider_call_count=2,
@@ -209,10 +209,10 @@ def test_report_projection_contains_only_sanitized_metrics(tmp_path: Path) -> No
         path.read_text(encoding="utf-8") for path in paths
     )
 
-    assert paths[0].name == "live_evaluation_results_v2.jsonl"
-    assert paths[1].name == "live_evaluation_manifest_v2.json"
-    assert paths[2].name == "agent_system_live_agent_smoke_v2.json"
-    assert paths[3].name == "agent_system_live_agent_smoke_v2.md"
+    assert paths[0].name == "live_evaluation_results_v3.jsonl"
+    assert paths[1].name == "live_evaluation_manifest_v3.json"
+    assert paths[2].name == "agent_system_live_agent_smoke_v3.json"
+    assert paths[3].name == "agent_system_live_agent_smoke_v3.md"
     assert legacy_report.read_text(encoding="utf-8") == "historical-v1\n"
     assert "deepseek-v4-pro" in serialized
     assert "raw_response" not in serialized
@@ -227,15 +227,15 @@ def _write_frozen_suite(path: Path, *, repetitions: int = 1) -> Path:
     path.write_text(
         yaml.safe_dump(
             {
-                "version": "live-agent-smoke-v2",
-                "suite_id": "decision-case-live-agent-smoke-v2",
+                "version": "live-agent-smoke-v3",
+                "suite_id": "tmi-event-live-agent-smoke-v3",
                 "repetitions": repetitions,
                 "trials": [
                     {
-                        "trial_id": "assembly-025",
-                        "kind": "assembly",
+                        "trial_id": "integration-025",
+                        "kind": "integration",
                         "source_id": "2026-05-20:025",
-                        "expected_role": "decision_case_assembly",
+                        "expected_role": "event_evidence_integration",
                     },
                     {
                         "trial_id": "analysis-138",
@@ -385,7 +385,7 @@ def test_live_runner_executes_every_frozen_repetition(
     results = [
         json.loads(line)
         for line in (
-            tmp_path / "runtime" / "live_evaluation_results_v2.jsonl"
+            tmp_path / "runtime" / "live_evaluation_results_v3.jsonl"
         ).read_text(encoding="utf-8").splitlines()
     ]
     assert {
@@ -460,20 +460,20 @@ def test_live_runner_continues_after_one_repetition_fails(
 
 def test_repetition_matrix_rejects_missing_duplicate_and_mismatched_rows() -> None:
     suite = LiveEvaluationSuite(
-        version="live-agent-smoke-v2",
+        version="live-agent-smoke-v3",
         suite_id="suite",
         repetitions=1,
         trials=(
             LiveEvaluationTrial(
-                trial_id="assembly",
-                kind="assembly",
-                source_id="source:assembly",
-                expected_role="decision_case_assembly",
+                trial_id="integration",
+                kind="integration",
+                source_id="source:integration",
+                expected_role="event_evidence_integration",
             ),
         ),
     )
-    row = _result("assembly", live_model=True).model_copy(
-        update={"source_id": "source:assembly"}
+    row = _result("integration", live_model=True).model_copy(
+        update={"source_id": "source:integration"}
     )
 
     assert live_eval._repetition_matrix_failures(
@@ -559,7 +559,7 @@ def test_missing_required_source_blocks_before_corpus_build(
 
 def test_batch_case_execution_can_return_transient_model_metadata() -> None:
     record = ModelCallRecord(
-        agent="decision_case_assembly",
+        agent="event_evidence_integration",
         raw_response="never persisted by evaluator",
         provider="deepseek",
         model="deepseek-v4-pro",
@@ -577,7 +577,7 @@ def test_batch_case_execution_can_return_transient_model_metadata() -> None:
     assert execution.model_calls == (record,)
 
 
-def _assembly_usage(
+def _integration_usage(
     *,
     outcome: str = "accepted",
     detail_status: str = "partial",
@@ -585,9 +585,9 @@ def _assembly_usage(
     return AgentUsageRecord(
         source_id="2026-05-20:025",
         event_id="urn:event:025",
-        task_id="task:assembly:025",
-        role="decision_case_assembly",
-        task_scope="decision_case",
+        task_id="task:integration:025",
+        role="event_evidence_integration",
+        task_scope="tmi_event_evidence",
         execution_mode="activated",
         outcome=outcome,
         detail_status=detail_status,
@@ -611,7 +611,7 @@ def _live_call(
     return ModelCallRecord(
         agent=agent,
         raw_response=raw_response,
-        prompt_set_id="decision-case-agents-v1",
+        prompt_set_id="aviation-tmi-event-agents-v1",
         prompt_version=f"{agent}-v1",
         provider="deepseek",
         model="deepseek-v4-pro",
@@ -634,18 +634,18 @@ def _live_call(
     )
 
 
-def test_assembly_scoring_requires_agent_activation_partial_publication() -> None:
+def test_integration_scoring_requires_agent_activation_partial_publication() -> None:
     trial = LiveEvaluationTrial(
-        trial_id="assembly-025",
-        kind="assembly",
+        trial_id="integration-025",
+        kind="integration",
         source_id="2026-05-20:025",
-        expected_role="decision_case_assembly",
+        expected_role="event_evidence_integration",
         forbidden_predicate_iris=(
             "https://data.nasa.gov/ontologies/atmonto/ATM#impactingCondition",
         ),
     )
 
-    result = score_assembly_trial(
+    result = score_integration_trial(
         trial=trial,
         repetition=1,
         live_model=False,
@@ -655,13 +655,13 @@ def test_assembly_scoring_requires_agent_activation_partial_publication() -> Non
             event_id="urn:event:025",
             case_id="urn:event:025",
         ),
-        usage=_assembly_usage(),
+        usage=_integration_usage(),
         model_calls=(
             _live_call(
-                agent="decision_case_assembly",
+                agent="event_evidence_integration",
                 tool_name="get_case_evidence",
             ),
-            _live_call(agent="decision_case_assembly"),
+            _live_call(agent="event_evidence_integration"),
         ),
         fact_predicate_iris=(
             "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
@@ -680,15 +680,15 @@ def test_assembly_scoring_requires_agent_activation_partial_publication() -> Non
     assert "provider payload" not in result.model_dump_json()
 
 
-def test_assembly_scoring_records_real_contract_failure_without_passing() -> None:
+def test_integration_scoring_records_real_contract_failure_without_passing() -> None:
     trial = LiveEvaluationTrial(
-        trial_id="assembly-025",
-        kind="assembly",
+        trial_id="integration-025",
+        kind="integration",
         source_id="2026-05-20:025",
-        expected_role="decision_case_assembly",
+        expected_role="event_evidence_integration",
     )
 
-    result = score_assembly_trial(
+    result = score_integration_trial(
         trial=trial,
         repetition=1,
         live_model=False,
@@ -698,13 +698,13 @@ def test_assembly_scoring_records_real_contract_failure_without_passing() -> Non
             reason="model output did not satisfy the contract",
             provider_call_count=2,
         ),
-        usage=_assembly_usage(
+        usage=_integration_usage(
             outcome="abstained",
             detail_status="insufficient",
         ),
         model_calls=(
-            _live_call(agent="decision_case_assembly"),
-            _live_call(agent="decision_case_assembly"),
+            _live_call(agent="event_evidence_integration"),
+            _live_call(agent="event_evidence_integration"),
         ),
         fact_predicate_iris=(),
         context_causal_claims=(),
@@ -714,34 +714,34 @@ def test_assembly_scoring_records_real_contract_failure_without_passing() -> Non
     assert result.workflow_status == "insufficient"
     assert result.activation_status == "activated"
     assert result.model_acceptance_status == "failed"
-    assert result.failure_code == "assembly_acceptance_failed"
+    assert result.failure_code == "integration_acceptance_failed"
 
 
-def test_assembly_scoring_classifies_output_token_cap_as_model_failure() -> None:
+def test_integration_scoring_classifies_output_token_cap_as_model_failure() -> None:
     trial = LiveEvaluationTrial(
-        trial_id="assembly-025",
-        kind="assembly",
+        trial_id="integration-025",
+        kind="integration",
         source_id="2026-05-20:025",
-        expected_role="decision_case_assembly",
+        expected_role="event_evidence_integration",
     )
 
-    result = score_assembly_trial(
+    result = score_integration_trial(
         trial=trial,
         repetition=1,
         live_model=False,
         build_result=CorpusBuildResult(
             source_id=trial.source_id,
             status="insufficient",
-            reason="Decision Case Assembly Agent output-token cap exceeded",
+            reason="Event Evidence Integration Agent output-token cap exceeded",
             provider_call_count=2,
         ),
-        usage=_assembly_usage(
+        usage=_integration_usage(
             outcome="blocked",
             detail_status="blocked",
         ),
         model_calls=(
-            _live_call(agent="decision_case_assembly"),
-            _live_call(agent="decision_case_assembly"),
+            _live_call(agent="event_evidence_integration"),
+            _live_call(agent="event_evidence_integration"),
         ),
         fact_predicate_iris=(),
         context_causal_claims=(),
@@ -749,7 +749,7 @@ def test_assembly_scoring_classifies_output_token_cap_as_model_failure() -> None
     )
 
     assert result.model_acceptance_status == "failed"
-    assert result.failure_code == "assembly_output_token_cap_exceeded"
+    assert result.failure_code == "integration_output_token_cap_exceeded"
 
 
 def _supported_query_outcome(*, statement_text: str) -> QueryToolOutcome:

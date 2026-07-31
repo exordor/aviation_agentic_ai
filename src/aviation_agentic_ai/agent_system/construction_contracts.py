@@ -1,8 +1,4 @@
-"""Dormant strict contracts for the three-Agent decision-case migration.
-
-These models define an auditable interchange surface.  They are deliberately
-not registered with the active workflow or any model prompt in Batch A.
-"""
+"""Strict contracts for bounded TMI-event construction roles."""
 
 from __future__ import annotations
 
@@ -31,12 +27,12 @@ from aviation_agentic_ai.agent_system.contracts import (
 )
 
 
-DECISION_CASE_CONTRACT_VERSION = "decision-case-agent-contracts-v1"
+CONSTRUCTION_CONTRACT_VERSION = "tmi-event-construction-contracts-v1"
 Sha256Hex = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
 _EVENT_IRI_PREFIX = "urn:aviation-agentic-ai:event:"
 
 
-def _canonical_case_event_id(event_id: str) -> str:
+def _canonical_tmi_event_id(event_id: str) -> str:
     if event_id.startswith("evt:"):
         return f"{_EVENT_IRI_PREFIX}{event_id.removeprefix('evt:')}"
     return event_id
@@ -185,8 +181,8 @@ class ContractExecutionBinding(FrozenContractModel):
 
 class ChecksummedContract(FrozenContractModel):
     contract_version: Literal[
-        "decision-case-agent-contracts-v1"
-    ] = DECISION_CASE_CONTRACT_VERSION
+        "tmi-event-construction-contracts-v1"
+    ] = CONSTRUCTION_CONTRACT_VERSION
     payload_checksum: Sha256Hex
     created_at: AwareDatetime
     prompt_version: str | None = None
@@ -223,7 +219,7 @@ def canonical_payload_bytes(
     payload = fields.model_dump(mode="python", exclude_computed_fields=True)
     payload.update(
         {
-            "contract_version": DECISION_CASE_CONTRACT_VERSION,
+            "contract_version": CONSTRUCTION_CONTRACT_VERSION,
             "created_at": binding.created_at,
             "prompt_version": binding.prompt_version,
             "tool_version": binding.tool_version,
@@ -262,7 +258,7 @@ def _seal_contract(
     payload = fields.model_dump(mode="python", exclude_computed_fields=True)
     payload.update(
         {
-            "contract_version": DECISION_CASE_CONTRACT_VERSION,
+            "contract_version": CONSTRUCTION_CONTRACT_VERSION,
             "payload_checksum": hashlib.sha256(payload_bytes).hexdigest(),
             "created_at": binding.created_at,
             "prompt_version": binding.prompt_version,
@@ -838,14 +834,14 @@ def seal_resolution_proposal(
     )
 
 
-class AssemblyStatus(str, Enum):
+class EventEvidenceIntegrationStatus(str, Enum):
     OK = "ok"
     PARTIAL = "partial"
     INSUFFICIENT = "insufficient"
     BLOCKED = "blocked"
 
 
-class ComponentLayerStatus(str, Enum):
+class EvidenceLayerStatus(str, Enum):
     OK = "ok"
     INSUFFICIENT = "insufficient"
     BLOCKED = "blocked"
@@ -857,9 +853,9 @@ class FactDisposition(str, Enum):
     REJECTED = "rejected"
 
 
-class ComponentLayerResult(FrozenContractModel):
+class EvidenceLayerResult(FrozenContractModel):
     layer_id: str
-    status: ComponentLayerStatus
+    status: EvidenceLayerStatus
     required_for_task: bool
     artifact_ids: tuple[str, ...] = ()
     missing_reason_code: str | None = None
@@ -868,14 +864,14 @@ class ComponentLayerResult(FrozenContractModel):
     @model_validator(mode="after")
     def validate_component_status(self) -> Self:
         _validate_set_ids(self.artifact_ids, "artifact_ids")
-        if self.status is ComponentLayerStatus.OK:
+        if self.status is EvidenceLayerStatus.OK:
             if (
                 not self.artifact_ids
                 or self.missing_reason_code
                 or self.blocking_error_id
             ):
                 raise ValueError("ok component requires artifacts and no failure metadata")
-        elif self.status is ComponentLayerStatus.INSUFFICIENT:
+        elif self.status is EvidenceLayerStatus.INSUFFICIENT:
             if (
                 self.artifact_ids
                 or not self.missing_reason_code
@@ -887,8 +883,8 @@ class ComponentLayerResult(FrozenContractModel):
         return self
 
 
-class CaseAssemblySelection(FrozenContractModel):
-    """Compact model decision over one sealed case-assembly candidate bundle."""
+class EventEvidenceIntegrationSelection(FrozenContractModel):
+    """Compact model decision over one sealed event-evidence-integration candidate bundle."""
 
     decision: Literal["accepted", "abstained"]
     candidate_bundle_id: Annotated[str, Field(min_length=1)]
@@ -921,7 +917,7 @@ class CaseAssemblySelection(FrozenContractModel):
         return self
 
 
-class CaseFactProposal(FrozenContractModel):
+class EventEvidenceFactProposal(FrozenContractModel):
     proposal_item_id: str
     subject_id: str
     predicate_iri: str
@@ -940,7 +936,7 @@ class CaseFactProposal(FrozenContractModel):
         return self
 
 
-class CaseProfileGapProposal(FrozenContractModel):
+class EventEvidenceProfileGapProposal(FrozenContractModel):
     proposal_item_id: str
     event_id: str
     field: str
@@ -979,11 +975,11 @@ class FactAssessment(FrozenContractModel):
         return self
 
 
-class ValidationFeedbackFields(FrozenContractModel):
+class EventEvidenceIntegrationFeedbackFields(FrozenContractModel):
     feedback_id: str
     run_id: str
     task_id: str
-    case_id: str
+    event_id: str
     proposal_payload_checksum: Sha256Hex
     violation_code: str
     constraint_id: str
@@ -1014,7 +1010,7 @@ class ValidationFeedbackFields(FrozenContractModel):
         return self
 
 
-class ValidationFeedback(ChecksummedContract, ValidationFeedbackFields):
+class EventEvidenceIntegrationFeedback(ChecksummedContract, EventEvidenceIntegrationFeedbackFields):
     pass
 
 
@@ -1025,8 +1021,8 @@ def _validate_source_bindings(
     _validate_set_ids(source_ids, "source_snapshot_bindings")
 
 
-class CaseAssemblyEvidenceRecord(FrozenContractModel):
-    """One source-bound evidence record exposed through the Assembly gateway."""
+class EventEvidenceIntegrationEvidenceRecord(FrozenContractModel):
+    """One source-bound evidence record exposed through the integration gateway."""
 
     evidence_id: str
     field_name: str
@@ -1036,7 +1032,7 @@ class CaseAssemblyEvidenceRecord(FrozenContractModel):
     canonical_ref: str | None = None
 
 
-class CaseAssemblyResolutionRecord(FrozenContractModel):
+class EventEvidenceIntegrationResolutionRecord(FrozenContractModel):
     """Typed projection of one accepted or abstained resolution proposal."""
 
     resolution_proposal_id: str
@@ -1060,8 +1056,8 @@ class CaseAssemblyResolutionRecord(FrozenContractModel):
         return self
 
 
-class CaseAssemblyPublicObservation(FrozenContractModel):
-    """Profile-validated public observation available to Assembly."""
+class EventEvidenceIntegrationPublicObservation(FrozenContractModel):
+    """Profile-validated public observation available to integration."""
 
     observation_id: str
     run_id: str
@@ -1076,41 +1072,41 @@ class CaseAssemblyPublicObservation(FrozenContractModel):
     source_snapshot_sha256: Sha256Hex
 
 
-class CaseAssemblyTaskFields(FrozenContractModel):
+class EventEvidenceIntegrationTaskFields(FrozenContractModel):
     task_id: str
     run_id: str
-    case_id: str
+    event_id: str
     core_event_fact_ids: tuple[str, ...]
     resolution_proposal_ids: tuple[str, ...]
     available_evidence_layer_ids: tuple[str, ...]
-    required_case_slots: tuple[str, ...]
-    optional_case_slots: tuple[str, ...]
+    required_event_slots: tuple[str, ...]
+    optional_event_slots: tuple[str, ...]
     missing_slots: tuple[str, ...]
     schema_profile_id: str
     schema_context_id: str
     schema_snapshot_sha256: Sha256Hex
     selected_evidence_claim_ids: tuple[str, ...]
-    evidence_records: tuple[CaseAssemblyEvidenceRecord, ...] = ()
-    resolution_records: tuple[CaseAssemblyResolutionRecord, ...] = ()
-    proposed_facts: tuple[CaseFactProposal, ...]
-    profile_gaps: tuple[CaseProfileGapProposal, ...]
+    evidence_records: tuple[EventEvidenceIntegrationEvidenceRecord, ...] = ()
+    resolution_records: tuple[EventEvidenceIntegrationResolutionRecord, ...] = ()
+    proposed_facts: tuple[EventEvidenceFactProposal, ...]
+    profile_gaps: tuple[EventEvidenceProfileGapProposal, ...]
     context_association_ids: tuple[str, ...]
     context_associations: tuple[WeatherContextAssociation, ...] = ()
     public_observation_ids: tuple[str, ...]
-    public_observations: tuple[CaseAssemblyPublicObservation, ...] = ()
+    public_observations: tuple[EventEvidenceIntegrationPublicObservation, ...] = ()
     omitted_slots: tuple[str, ...]
-    validation_feedback: tuple[ValidationFeedback, ...]
+    validation_feedback: tuple[EventEvidenceIntegrationFeedback, ...]
     source_snapshot_bindings: tuple[SourceSnapshotBinding, ...]
     remaining_tool_budget: int = Field(ge=0, le=6)
 
     @model_validator(mode="after")
-    def validate_assembly_task(self) -> Self:
+    def validate_integration_task(self) -> Self:
         for field_name in (
             "core_event_fact_ids",
             "resolution_proposal_ids",
             "available_evidence_layer_ids",
-            "required_case_slots",
-            "optional_case_slots",
+            "required_event_slots",
+            "optional_event_slots",
             "missing_slots",
             "selected_evidence_claim_ids",
             "context_association_ids",
@@ -1130,11 +1126,11 @@ class CaseAssemblyTaskFields(FrozenContractModel):
             raise ValueError("proposal item IDs must be unique across facts and gaps")
         task_event_ids = {
             *(
-                _canonical_case_event_id(row.subject_id)
+                _canonical_tmi_event_id(row.subject_id)
                 for row in self.proposed_facts
             ),
             *(
-                _canonical_case_event_id(row.event_id)
+                _canonical_tmi_event_id(row.event_id)
                 for row in self.profile_gaps
             ),
         }
@@ -1143,6 +1139,10 @@ class CaseAssemblyTaskFields(FrozenContractModel):
                 "task event ownership must resolve to exactly one event"
             )
         task_event_id = next(iter(task_event_ids))
+        if _canonical_tmi_event_id(self.event_id) != task_event_id:
+            raise ValueError(
+                "event evidence integration task_id must name its formal event"
+            )
         feedback_ids = [row.feedback_id for row in self.validation_feedback]
         _validate_ordered_ids(feedback_ids, "validation_feedback")
         _validate_source_bindings(self.source_snapshot_bindings)
@@ -1183,7 +1183,7 @@ class CaseAssemblyTaskFields(FrozenContractModel):
         for row in self.context_associations:
             if (
                 row.run_id != self.run_id
-                or _canonical_case_event_id(row.event_id) != task_event_id
+                or _canonical_tmi_event_id(row.event_id) != task_event_id
             ):
                 raise ValueError("context association task event ownership mismatch")
             binding = binding_by_source.get(row.source_id)
@@ -1196,7 +1196,7 @@ class CaseAssemblyTaskFields(FrozenContractModel):
         for row in self.public_observations:
             if (
                 row.run_id != self.run_id
-                or _canonical_case_event_id(row.event_id) != task_event_id
+                or _canonical_tmi_event_id(row.event_id) != task_event_id
             ):
                 raise ValueError(
                     "public observation task event ownership mismatch"
@@ -1232,13 +1232,13 @@ class CaseAssemblyTaskFields(FrozenContractModel):
             if (
                 feedback.run_id != self.run_id
                 or feedback.task_id != self.task_id
-                or feedback.case_id != self.case_id
+                or feedback.event_id != self.event_id
             ):
                 raise ValueError("validation feedback ownership differs from task")
         expected = stable_contract_id(
-            "case-assembly-task",
+            "event-evidence-integration-task",
             self.run_id,
-            self.case_id,
+            self.event_id,
             canonical_id_tuple_token(self.core_event_fact_ids, sort_values=True),
             canonical_id_tuple_token(
                 self.resolution_proposal_ids,
@@ -1253,27 +1253,27 @@ class CaseAssemblyTaskFields(FrozenContractModel):
             self.schema_snapshot_sha256,
         )
         if self.task_id != expected:
-            raise ValueError("case assembly task_id is not stable")
+            raise ValueError("event evidence integration task_id is not stable")
         return self
 
 
-class CaseAssemblyTask(ChecksummedContract, CaseAssemblyTaskFields):
+class EventEvidenceIntegrationTask(ChecksummedContract, EventEvidenceIntegrationTaskFields):
     pass
 
 
-class CaseAssemblyProposalFields(FrozenContractModel):
-    case_assembly_proposal_id: str
+class EventEvidenceIntegrationProposalFields(FrozenContractModel):
+    event_evidence_integration_proposal_id: str
     run_id: str
     task_id: str
     task_payload_checksum: Sha256Hex
-    case_id: str
-    assembly_status: AssemblyStatus
-    component_layer_results: tuple[ComponentLayerResult, ...]
-    proposed_facts: tuple[CaseFactProposal, ...]
+    event_id: str
+    integration_status: EventEvidenceIntegrationStatus
+    evidence_layer_results: tuple[EvidenceLayerResult, ...]
+    proposed_facts: tuple[EventEvidenceFactProposal, ...]
     evidence_bindings: tuple[str, ...]
     resolution_proposal_ids: tuple[str, ...]
     context_association_ids: tuple[str, ...]
-    profile_gaps: tuple[CaseProfileGapProposal, ...]
+    profile_gaps: tuple[EventEvidenceProfileGapProposal, ...]
     omitted_slots: tuple[str, ...]
     limitations: tuple[str, ...]
     tool_trace_ids: tuple[str, ...]
@@ -1281,9 +1281,9 @@ class CaseAssemblyProposalFields(FrozenContractModel):
     revision_count: int = Field(ge=0, le=1)
 
     @model_validator(mode="after")
-    def validate_assembly_proposal(self) -> Self:
-        component_ids = [row.layer_id for row in self.component_layer_results]
-        _validate_ordered_ids(component_ids, "component_layer_results")
+    def validate_integration_proposal(self) -> Self:
+        component_ids = [row.layer_id for row in self.evidence_layer_results]
+        _validate_ordered_ids(component_ids, "evidence_layer_results")
         fact_item_ids = [row.proposal_item_id for row in self.proposed_facts]
         gap_item_ids = [row.proposal_item_id for row in self.profile_gaps]
         _validate_set_ids(fact_item_ids, "proposed_facts")
@@ -1302,25 +1302,25 @@ class CaseAssemblyProposalFields(FrozenContractModel):
         _validate_source_bindings(self.source_snapshot_bindings)
         required_blocked = any(
             row.required_for_task
-            and row.status is ComponentLayerStatus.BLOCKED
-            for row in self.component_layer_results
+            and row.status is EvidenceLayerStatus.BLOCKED
+            for row in self.evidence_layer_results
         )
         required_missing = any(
             row.required_for_task
-            and row.status is ComponentLayerStatus.INSUFFICIENT
-            for row in self.component_layer_results
+            and row.status is EvidenceLayerStatus.INSUFFICIENT
+            for row in self.evidence_layer_results
         )
         optional_blocked = any(
             not row.required_for_task
-            and row.status is ComponentLayerStatus.BLOCKED
-            for row in self.component_layer_results
+            and row.status is EvidenceLayerStatus.BLOCKED
+            for row in self.evidence_layer_results
         )
-        publishable_status = self.assembly_status in {
-            AssemblyStatus.OK,
-            AssemblyStatus.PARTIAL,
+        publishable_status = self.integration_status in {
+            EventEvidenceIntegrationStatus.OK,
+            EventEvidenceIntegrationStatus.PARTIAL,
         }
         if publishable_status and not self.proposed_facts:
-            raise ValueError("publishable assembly requires formal facts")
+            raise ValueError("publishable integration requires formal facts")
         if not publishable_status and (
             self.proposed_facts
             or self.profile_gaps
@@ -1330,21 +1330,25 @@ class CaseAssemblyProposalFields(FrozenContractModel):
             or self.source_snapshot_bindings
         ):
             raise ValueError(
-                "non-publishable assembly cannot carry selected case content"
+                "non-publishable integration cannot carry selected event evidence"
             )
         if required_blocked:
-            if self.assembly_status is not AssemblyStatus.BLOCKED:
-                raise ValueError("blocked required component requires blocked assembly")
+            if self.integration_status is not EventEvidenceIntegrationStatus.BLOCKED:
+                raise ValueError(
+                    "blocked required layer requires blocked integration"
+                )
         elif required_missing:
-            if self.assembly_status is not AssemblyStatus.INSUFFICIENT:
-                raise ValueError("missing required component requires insufficient assembly")
-        elif optional_blocked and self.assembly_status is not AssemblyStatus.PARTIAL:
-            raise ValueError("blocked optional component requires partial assembly")
+            if self.integration_status is not EventEvidenceIntegrationStatus.INSUFFICIENT:
+                raise ValueError(
+                    "missing required layer requires insufficient integration"
+                )
+        elif optional_blocked and self.integration_status is not EventEvidenceIntegrationStatus.PARTIAL:
+            raise ValueError("blocked optional layer requires partial integration")
         expected = stable_contract_id(
-            "case-assembly-proposal",
+            "event-evidence-integration-proposal",
             self.task_id,
             self.task_payload_checksum,
-            self.assembly_status.value,
+            self.integration_status.value,
             canonical_id_tuple_token(fact_item_ids, sort_values=True),
             canonical_id_tuple_token(gap_item_ids, sort_values=True),
             canonical_id_tuple_token(
@@ -1352,46 +1356,46 @@ class CaseAssemblyProposalFields(FrozenContractModel):
                 sort_values=True,
             ),
         )
-        if self.case_assembly_proposal_id != expected:
-            raise ValueError("case assembly proposal ID is not stable")
+        if self.event_evidence_integration_proposal_id != expected:
+            raise ValueError("event evidence integration proposal ID is not stable")
         return self
 
 
-class CaseAssemblyProposal(ChecksummedContract, CaseAssemblyProposalFields):
+class EventEvidenceIntegrationProposal(ChecksummedContract, EventEvidenceIntegrationProposalFields):
     pass
 
 
-def seal_case_assembly_task(
+def seal_event_evidence_integration_task(
     *,
-    fields: CaseAssemblyTaskFields,
+    fields: EventEvidenceIntegrationTaskFields,
     binding: ContractExecutionBinding,
-) -> CaseAssemblyTask:
+) -> EventEvidenceIntegrationTask:
     return cast(
-        CaseAssemblyTask,
-        _seal_contract(CaseAssemblyTask, fields, binding),
+        EventEvidenceIntegrationTask,
+        _seal_contract(EventEvidenceIntegrationTask, fields, binding),
     )
 
 
-def seal_case_assembly_proposal(
+def seal_event_evidence_integration_proposal(
     *,
-    task: CaseAssemblyTask,
-    fields: CaseAssemblyProposalFields,
+    task: EventEvidenceIntegrationTask,
+    fields: EventEvidenceIntegrationProposalFields,
     binding: ContractExecutionBinding,
-) -> CaseAssemblyProposal:
+) -> EventEvidenceIntegrationProposal:
     if not (binding.run_id == task.run_id == fields.run_id):
         raise ValueError("binding, task, and proposal run IDs must match")
     if fields.task_id != task.task_id:
-        raise ValueError("assembly proposal task_id does not match bound task")
+        raise ValueError("integration proposal task_id does not match bound task")
     if fields.task_payload_checksum != task.payload_checksum:
-        raise ValueError("assembly proposal task checksum does not match bound task")
-    if fields.case_id != task.case_id:
-        raise ValueError("assembly proposal case_id does not match bound task")
+        raise ValueError("integration proposal task checksum does not match bound task")
+    if fields.event_id != task.event_id:
+        raise ValueError("integration proposal event_id does not match bound task")
     if not set(fields.resolution_proposal_ids).issubset(task.resolution_proposal_ids):
-        raise ValueError("assembly proposal cites resolution outside bound task")
+        raise ValueError("integration proposal cites resolution outside bound task")
     if not set(fields.evidence_bindings).issubset(task.selected_evidence_claim_ids):
-        raise ValueError("assembly proposal cites evidence outside bound task")
+        raise ValueError("integration proposal cites evidence outside bound task")
     if not set(fields.context_association_ids).issubset(task.context_association_ids):
-        raise ValueError("assembly proposal cites context outside bound task")
+        raise ValueError("integration proposal cites context outside bound task")
     for item in (*fields.proposed_facts, *fields.profile_gaps):
         if item.validation_profile_id != task.schema_profile_id:
             raise ValueError("proposal validation profile differs from bound task")
@@ -1407,18 +1411,18 @@ def seal_case_assembly_proposal(
         if task_bindings.get(binding_row.source_id) != binding_row:
             raise ValueError("proposal source binding differs from bound task")
     return cast(
-        CaseAssemblyProposal,
-        _seal_contract(CaseAssemblyProposal, fields, binding),
+        EventEvidenceIntegrationProposal,
+        _seal_contract(EventEvidenceIntegrationProposal, fields, binding),
     )
 
 
-def seal_validation_feedback(
+def seal_event_evidence_integration_feedback(
     *,
-    task: CaseAssemblyTask,
-    proposal: CaseAssemblyProposal,
-    fields: ValidationFeedbackFields,
+    task: EventEvidenceIntegrationTask,
+    proposal: EventEvidenceIntegrationProposal,
+    fields: EventEvidenceIntegrationFeedbackFields,
     binding: ContractExecutionBinding,
-) -> ValidationFeedback:
+) -> EventEvidenceIntegrationFeedback:
     task_binding_mismatch = (
         fields.violation_code == "TASK_BINDING_MISMATCH"
         and fields.affected_proposal_item_id == task.task_id
@@ -1428,7 +1432,7 @@ def seal_validation_feedback(
             raise ValueError("feedback binding, task, and fields run IDs must match")
         if (
             fields.task_id != task.task_id
-            or fields.case_id != task.case_id
+            or fields.event_id != task.event_id
             or fields.evidence_ids
         ):
             raise ValueError("binding-mismatch feedback must be task-owned")
@@ -1441,7 +1445,7 @@ def seal_validation_feedback(
             )
         if not (
             fields.task_id == task.task_id == proposal.task_id
-            and fields.case_id == task.case_id == proposal.case_id
+            and fields.event_id == task.event_id == proposal.event_id
         ):
             raise ValueError("feedback task/case ownership mismatch")
     if fields.proposal_payload_checksum != proposal.payload_checksum:
@@ -1469,8 +1473,8 @@ def seal_validation_feedback(
     if not set(fields.evidence_ids).issubset(available_evidence):
         raise ValueError("feedback cites evidence outside bound proposal")
     return cast(
-        ValidationFeedback,
-        _seal_contract(ValidationFeedback, fields, binding),
+        EventEvidenceIntegrationFeedback,
+        _seal_contract(EventEvidenceIntegrationFeedback, fields, binding),
     )
 
 
@@ -1481,6 +1485,6 @@ class QueryStatus(str, Enum):
     UNSUPPORTED = "unsupported"
 
 
-class ParsedCaseAssemblySections(FrozenContractModel):
-    proposed_facts: tuple[CaseFactProposal, ...]
-    profile_gaps: tuple[CaseProfileGapProposal, ...]
+class ParsedEventEvidenceIntegrationSections(FrozenContractModel):
+    proposed_facts: tuple[EventEvidenceFactProposal, ...]
+    profile_gaps: tuple[EventEvidenceProfileGapProposal, ...]

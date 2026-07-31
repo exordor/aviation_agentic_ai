@@ -23,7 +23,7 @@ FROZEN_MAX_OUTPUT_TOKENS = 10_000
 FROZEN_TIMEOUT = 120.0
 MAX_PROVIDER_CALLS = 8
 
-RUN_MANIFEST_VERSION = "decision-case-run-v1"
+RUN_MANIFEST_VERSION = "tmi-event-run-v1"
 
 
 @dataclass(frozen=True)

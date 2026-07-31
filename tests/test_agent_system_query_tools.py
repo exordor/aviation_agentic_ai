@@ -303,7 +303,7 @@ def _write_graph(
     (run_dir / "run_manifest.json").write_text(
         json.dumps(
             {
-                "manifest_version": "decision-case-run-v1",
+                "manifest_version": "tmi-event-run-v1",
                 "run_id": run_dir.name,
                 "source_id": SOURCE_ID,
                 "materialization": {

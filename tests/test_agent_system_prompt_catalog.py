@@ -11,13 +11,13 @@ PROMPT_PATH = (
     Path(__file__).resolve().parents[1]
     / "configs"
     / "prompts"
-    / "decision_case_agents_v1.yaml"
+    / "tmi_event_agents_v1.yaml"
 )
 
 EXPECTED_ROLES = {
     "query",
     "semantic_resolution",
-    "decision_case_assembly",
+    "event_evidence_integration",
 }
 
 EXPECTED_PLACEHOLDERS = {
@@ -34,10 +34,10 @@ EXPECTED_PLACEHOLDERS = {
         "authority_source_ids",
         "schema_slice_id",
     },
-    "decision_case_assembly": {
-        "case_id",
-        "required_case_slots",
-        "optional_case_slots",
+    "event_evidence_integration": {
+        "event_id",
+        "required_event_slots",
+        "optional_event_slots",
         "missing_slots",
         "schema_profile_id",
         "available_evidence_layer_ids",
@@ -56,7 +56,7 @@ def _placeholders(text: str) -> set[str]:
 def test_prompt_catalog_contains_only_activated_model_roles() -> None:
     catalog = _catalog()
     assert catalog["status"] == "frozen"
-    assert catalog["prompt_set_id"] == "aviation-decision-case-agents-v1"
+    assert catalog["prompt_set_id"] == "aviation-tmi-event-agents-v1"
     assert set(catalog["roles"]) == EXPECTED_ROLES
 
 
@@ -64,7 +64,7 @@ def test_every_role_has_version_policy_and_bounded_output() -> None:
     expected_versions = {
         "query": "hybrid-query-agent-v2",
         "semantic_resolution": "semantic-resolution-agent-v1",
-        "decision_case_assembly": "decision-case-assembly-v3",
+        "event_evidence_integration": "event-evidence-integration-v1",
     }
     for role, prompt in _catalog()["roles"].items():
         assert prompt["prompt_version"] == expected_versions[role]
@@ -79,7 +79,7 @@ def test_active_generation_roles_use_the_10k_output_ceiling() -> None:
     roles = _catalog()["roles"]
 
     assert roles["query"]["max_output_tokens"] == 10_000
-    assert roles["decision_case_assembly"]["max_output_tokens"] == 10_000
+    assert roles["event_evidence_integration"]["max_output_tokens"] == 10_000
     assert roles["semantic_resolution"]["max_output_tokens"] == 256
 
 
@@ -87,7 +87,7 @@ def test_every_role_has_two_fictional_contrastive_few_shot_pairs() -> None:
     expected_headers = {
         "query": {"{"},
         "semantic_resolution": {"{"},
-        "decision_case_assembly": {"{"},
+        "event_evidence_integration": {"{"},
     }
     forbidden_real_tokens = re.compile(r"\b(?:DCA|SFO|MIA|CLT)\b")
     for role, prompt in _catalog()["roles"].items():

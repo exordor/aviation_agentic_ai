@@ -7,7 +7,7 @@ from aviation_agentic_ai.agent_system.authority_resolution import (
     resolve_facility_authority,
     resolve_terminology_authority,
 )
-from aviation_agentic_ai.agent_system.case_assembly import AssemblyStatus
+from aviation_agentic_ai.agent_system.event_evidence_integration import EventEvidenceIntegrationStatus
 from aviation_agentic_ai.agent_system.contracts import AgentStatus
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.workflow import IngestContext, run_ingest
@@ -75,11 +75,11 @@ def test_ingest_publishes_assembly_patch_without_legacy_kg_envelope(tmp_path) ->
         )
     )
 
-    assert state["case_assembly_result"].proposal.assembly_status in {
-        AssemblyStatus.OK,
-        AssemblyStatus.PARTIAL,
+    assert state["event_evidence_integration_result"].proposal.integration_status in {
+        EventEvidenceIntegrationStatus.OK,
+        EventEvidenceIntegrationStatus.PARTIAL,
     }
-    assert state["assembly_graph_patch"].patch_lines
+    assert state["integration_graph_patch"].patch_lines
     assert state.get("kg_result") is None
     state = run_ingest(
         IngestContext(

@@ -1,6 +1,6 @@
 """Corpus-bound research metrics for selectively activated bounded Agents.
 
-The usage sidecar is derived after a case workflow finishes.  It records only
+The usage sidecar is derived after a TMI event workflow finishes. It records only
 aggregate execution metadata and never stores prompts, model responses, tool
 arguments, tool results, or reasoning text.
 """
@@ -18,8 +18,8 @@ from aviation_agentic_ai.agent_system.contracts import StrictModel
 from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 
-AgentRole = Literal["semantic_resolution", "decision_case_assembly"]
-AgentTaskScope = Literal["facility", "terminology", "decision_case"]
+AgentRole = Literal["semantic_resolution", "event_evidence_integration"]
+AgentTaskScope = Literal["facility", "terminology", "tmi_event_evidence"]
 AgentExecutionMode = Literal[
     "activated",
     "deterministic_bypass",
@@ -79,8 +79,8 @@ class AgentUsageTotals(StrictModel):
 class AgentUsageManifest(StrictModel):
     """Binding from the non-authoritative usage sidecar to one corpus."""
 
-    manifest_version: Literal["decision-case-agent-usage-v1"] = (
-        "decision-case-agent-usage-v1"
+    manifest_version: Literal["tmi-event-agent-usage-v1"] = (
+        "tmi-event-agent-usage-v1"
     )
     corpus_id: str = Field(min_length=1)
     artifact_path: Literal["agent_usage.jsonl"] = AGENT_USAGE_ROWS
@@ -102,7 +102,7 @@ def build_agent_usage_records(
     source_id: str,
     state: dict[str, Any],
 ) -> tuple[AgentUsageRecord, AgentUsageRecord, AgentUsageRecord]:
-    """Build the fixed facility, terminology, and assembly usage rows."""
+    """Build the fixed facility, terminology, and integration usage rows."""
 
     facility = _semantic_usage_record(
         source_id=source_id,
@@ -116,12 +116,12 @@ def build_agent_usage_records(
         task_scope="terminology",
         result=state.get("terminology_authority_result"),
     )
-    assembly = _assembly_usage_record(
+    integration = _event_evidence_integration_usage_record(
         source_id=source_id,
         event_id=_event_id(state),
         state=state,
     )
-    return facility, terminology, assembly
+    return facility, terminology, integration
 
 
 def build_blocked_agent_usage_records(
@@ -146,7 +146,7 @@ def build_blocked_agent_usage_records(
         for role, task_scope in (
             ("semantic_resolution", "facility"),
             ("semantic_resolution", "terminology"),
-            ("decision_case_assembly", "decision_case"),
+            ("event_evidence_integration", "tmi_event_evidence"),
         )
     )  # type: ignore[return-value]
 
@@ -303,29 +303,29 @@ def _semantic_usage_record(
     )
 
 
-def _assembly_usage_record(
+def _event_evidence_integration_usage_record(
     *,
     source_id: str,
     event_id: str | None,
     state: dict[str, Any],
 ) -> AgentUsageRecord:
-    result = state.get("case_assembly_result")
-    task = state.get("case_assembly_task")
+    result = state.get("event_evidence_integration_result")
+    task = state.get("event_evidence_integration_task")
     if result is None:
         return _not_reached_record(
             source_id=source_id,
             event_id=event_id,
-            role="decision_case_assembly",
-            task_scope="decision_case",
+            role="event_evidence_integration",
+            task_scope="tmi_event_evidence",
             activation_reason=(
                 "required_resolution_unavailable"
                 if state.get("resolution_preflight_status") not in {None, "resolved"}
-                else "decision_case_assembly_not_reached"
+                else "event_evidence_integration_not_reached"
             ),
             task_id=getattr(task, "task_id", None),
         )
     status = _enum_value(
-        getattr(getattr(result, "proposal", None), "assembly_status", "blocked")
+        getattr(getattr(result, "proposal", None), "integration_status", "blocked")
     )
     outcome: AgentUsageOutcome
     if status in {"ok", "partial"}:
@@ -343,18 +343,18 @@ def _assembly_usage_record(
         or stable_id(
             "agent-usage-task",
             source_id,
-            "decision_case_assembly",
-            "decision_case",
+            "event_evidence_integration",
+            "tmi_event_evidence",
         ),
-        role="decision_case_assembly",
-        task_scope="decision_case",
+        role="event_evidence_integration",
+        task_scope="tmi_event_evidence",
         execution_mode=("activated" if model_calls else "deterministic_bypass"),
         outcome=outcome,
         detail_status=status,
         activation_reason=(
             "noncanonical_evidence_or_schema_choice"
             if model_calls
-            else "deterministic_case_compiler"
+            else "deterministic_event_evidence_compiler"
         ),
         model_calls=model_calls,
         tool_traces=tool_traces,

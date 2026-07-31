@@ -10,19 +10,19 @@ import pytest
 from pydantic import ValidationError
 
 from aviation_agentic_ai.agent_system.contracts import SourceFamily
-from aviation_agentic_ai.agent_system.decision_case_contracts import (
-    DECISION_CASE_CONTRACT_VERSION,
-    AssemblyStatus,
+from aviation_agentic_ai.agent_system.construction_contracts import (
+    CONSTRUCTION_CONTRACT_VERSION,
+    EventEvidenceIntegrationStatus,
     AuthorityDefinitionEvidenceClaim,
     AuthorityRecordEvidenceClaim,
     CandidateBuildStatus,
-    CaseAssemblyProposalFields,
-    CaseAssemblySelection,
-    CaseAssemblyTaskFields,
-    CaseFactProposal,
-    CaseProfileGapProposal,
-    ComponentLayerResult,
-    ComponentLayerStatus,
+    EventEvidenceIntegrationProposalFields,
+    EventEvidenceIntegrationSelection,
+    EventEvidenceIntegrationTaskFields,
+    EventEvidenceFactProposal,
+    EventEvidenceProfileGapProposal,
+    EvidenceLayerResult,
+    EvidenceLayerStatus,
     ConstraintCheck,
     ConstraintCheckStatus,
     ContractExecutionBinding,
@@ -36,18 +36,18 @@ from aviation_agentic_ai.agent_system.decision_case_contracts import (
     ResolutionProposalFields,
     ResolutionTaskFields,
     SourceSnapshotBinding,
-    ValidationFeedbackFields,
+    EventEvidenceIntegrationFeedbackFields,
     canonical_id_tuple_token,
     canonical_payload_bytes,
     canonicalize_contract_value,
-    seal_case_assembly_proposal,
-    seal_case_assembly_task,
+    seal_event_evidence_integration_proposal,
+    seal_event_evidence_integration_task,
     seal_resolution_proposal,
     seal_resolution_task,
-    seal_validation_feedback,
+    seal_event_evidence_integration_feedback,
     stable_contract_id,
 )
-from aviation_agentic_ai.agent_system.graph_patch import parse_case_assembly_output
+from aviation_agentic_ai.agent_system.graph_patch import parse_event_evidence_integration_output
 
 
 SHA_A = "a" * 64
@@ -303,20 +303,21 @@ def _proposal_fields(task_id: str, task_checksum: str) -> ResolutionProposalFiel
     )
 
 
-def _assembly_task_fields(resolution_proposal_id: str) -> CaseAssemblyTaskFields:
+def _assembly_task_fields(resolution_proposal_id: str) -> EventEvidenceIntegrationTaskFields:
     authority_claim = _authority_claim()
-    fact = CaseFactProposal(
+    event_id = "urn:aviation-agentic-ai:event:test:1"
+    fact = EventEvidenceFactProposal(
         proposal_item_id="proposal-fact-1",
-        subject_id="event-1",
+        subject_id=event_id,
         predicate_iri="rdf:type",
         object_kind="iri",
         object_value="atm:GroundStopTMI",
         evidence_claim_ids=("evidence:event:type",),
         validation_profile_id="profile-1",
     )
-    gap = CaseProfileGapProposal(
+    gap = EventEvidenceProfileGapProposal(
         proposal_item_id="proposal-gap-1",
-        event_id="event-1",
+        event_id=event_id,
         field="impacting_condition",
         normalized_value="weather",
         evidence_claim_ids=("evidence:event:weather",),
@@ -325,9 +326,9 @@ def _assembly_task_fields(resolution_proposal_id: str) -> CaseAssemblyTaskFields
     )
     selected = ("evidence:event:type", "evidence:event:weather")
     task_id = stable_contract_id(
-        "case-assembly-task",
+        "event-evidence-integration-task",
         "run-1",
-        "case-1",
+        event_id,
         canonical_id_tuple_token(("proposal-fact-1",), sort_values=True),
         canonical_id_tuple_token((resolution_proposal_id,), sort_values=True),
         canonical_id_tuple_token(selected, sort_values=True),
@@ -335,15 +336,15 @@ def _assembly_task_fields(resolution_proposal_id: str) -> CaseAssemblyTaskFields
         "context-1",
         SHA_A,
     )
-    return CaseAssemblyTaskFields(
+    return EventEvidenceIntegrationTaskFields(
         task_id=task_id,
         run_id="run-1",
-        case_id="case-1",
+        event_id=event_id,
         core_event_fact_ids=("proposal-fact-1",),
         resolution_proposal_ids=(resolution_proposal_id,),
         available_evidence_layer_ids=("layer:advisory",),
-        required_case_slots=("event_type",),
-        optional_case_slots=("impacting_condition",),
+        required_event_slots=("event_type",),
+        optional_event_slots=("impacting_condition",),
         missing_slots=(),
         schema_profile_id="profile-1",
         schema_context_id="context-1",
@@ -381,7 +382,7 @@ def _assembly_task_fields(resolution_proposal_id: str) -> CaseAssemblyTaskFields
             {
                 "association_id": "association:weather",
                 "run_id": "run-1",
-                "event_id": "event-1",
+                "event_id": event_id,
                 "report_id": "weather-report-1",
                 "facility_id": "facility:KJFK",
                 "relation_type": "observation_during_operation",
@@ -397,7 +398,7 @@ def _assembly_task_fields(resolution_proposal_id: str) -> CaseAssemblyTaskFields
             {
                 "observation_id": "observation:bts",
                 "run_id": "run-1",
-                "event_id": "event-1",
+                "event_id": event_id,
                 "phase": "active",
                 "metric_key": "cancelled_count",
                 "value": 2,
@@ -461,7 +462,7 @@ def _assembly_task_fields(resolution_proposal_id: str) -> CaseAssemblyTaskFields
         ),
     ),
 )
-def test_case_assembly_task_rejects_advertised_ids_without_typed_records(
+def test_event_evidence_integration_task_rejects_advertised_ids_without_typed_records(
     id_field: str,
     record_field: str,
     error_match: str,
@@ -471,7 +472,7 @@ def test_case_assembly_task_rejects_advertised_ids_without_typed_records(
     missing_records = fields.model_copy(update={record_field: ()})
 
     with pytest.raises(ValueError, match=error_match):
-        seal_case_assembly_task(fields=missing_records, binding=_binding())
+        seal_event_evidence_integration_task(fields=missing_records, binding=_binding())
 
 
 @pytest.mark.parametrize(
@@ -499,7 +500,7 @@ def test_case_assembly_task_rejects_advertised_ids_without_typed_records(
         ),
     ),
 )
-def test_case_assembly_task_rejects_typed_records_without_advertised_ids(
+def test_event_evidence_integration_task_rejects_typed_records_without_advertised_ids(
     id_field: str,
     record_field: str,
     error_match: str,
@@ -509,10 +510,10 @@ def test_case_assembly_task_rejects_typed_records_without_advertised_ids(
     missing_ids = fields.model_copy(update={id_field: ()})
 
     with pytest.raises(ValueError, match=error_match):
-        seal_case_assembly_task(fields=missing_ids, binding=_binding())
+        seal_event_evidence_integration_task(fields=missing_ids, binding=_binding())
 
 
-def test_case_assembly_task_rejects_unbound_authority_and_unrelated_sources() -> None:
+def test_event_evidence_integration_task_rejects_unbound_authority_and_unrelated_sources() -> None:
     fields = _assembly_task_fields("resolution:accepted")
     authority_source_id = fields.resolution_records[0].authority_source_ids[0]
     without_authority = fields.model_copy(
@@ -525,7 +526,7 @@ def test_case_assembly_task_rejects_unbound_authority_and_unrelated_sources() ->
         }
     )
     with pytest.raises(ValueError, match="resolution authority source"):
-        seal_case_assembly_task(fields=without_authority, binding=_binding())
+        seal_event_evidence_integration_task(fields=without_authority, binding=_binding())
 
     unrelated = SourceSnapshotBinding(
         source_id="source:unrelated",
@@ -543,20 +544,20 @@ def test_case_assembly_task_rejects_unbound_authority_and_unrelated_sources() ->
         }
     )
     with pytest.raises(ValueError, match="exactly match referenced record sources"):
-        seal_case_assembly_task(fields=with_unrelated, binding=_binding())
+        seal_event_evidence_integration_task(fields=with_unrelated, binding=_binding())
 
 
 def _assembly_proposal_fields(
     task_id: str,
     task_checksum: str,
     resolution_proposal_id: str,
-) -> CaseAssemblyProposalFields:
+) -> EventEvidenceIntegrationProposalFields:
     task_fields = _assembly_task_fields(resolution_proposal_id)
     proposal_id = stable_contract_id(
-        "case-assembly-proposal",
+        "event-evidence-integration-proposal",
         task_id,
         task_checksum,
-        AssemblyStatus.OK.value,
+        EventEvidenceIntegrationStatus.OK.value,
         canonical_id_tuple_token(
             tuple(item.proposal_item_id for item in task_fields.proposed_facts),
             sort_values=True,
@@ -567,17 +568,17 @@ def _assembly_proposal_fields(
         ),
         canonical_id_tuple_token((resolution_proposal_id,), sort_values=True),
     )
-    return CaseAssemblyProposalFields(
-        case_assembly_proposal_id=proposal_id,
+    return EventEvidenceIntegrationProposalFields(
+        event_evidence_integration_proposal_id=proposal_id,
         run_id="run-1",
         task_id=task_id,
         task_payload_checksum=task_checksum,
-        case_id="case-1",
-        assembly_status=AssemblyStatus.OK,
-        component_layer_results=(
-            ComponentLayerResult(
+        event_id="urn:aviation-agentic-ai:event:test:1",
+        integration_status=EventEvidenceIntegrationStatus.OK,
+        evidence_layer_results=(
+            EvidenceLayerResult(
                 layer_id="core",
-                status=ComponentLayerStatus.OK,
+                status=EvidenceLayerStatus.OK,
                 required_for_task=True,
                 artifact_ids=("proposal-fact-1",),
             ),
@@ -596,14 +597,14 @@ def _assembly_proposal_fields(
 
 
 def test_enum_values_and_strict_frozen_surface() -> None:
-    assert DECISION_CASE_CONTRACT_VERSION == "decision-case-agent-contracts-v1"
+    assert CONSTRUCTION_CONTRACT_VERSION == "tmi-event-construction-contracts-v1"
     assert {item.value for item in ResolutionDecision} == {
         "accepted",
         "abstained",
         "insufficient",
         "blocked",
     }
-    assert {item.value for item in AssemblyStatus} == {
+    assert {item.value for item in EventEvidenceIntegrationStatus} == {
         "ok",
         "partial",
         "insufficient",
@@ -710,7 +711,7 @@ def test_resolution_sealing_binds_checksum_and_preserves_ordered_trace() -> None
         binding=_binding(),
     )
     assert task.created_at == STARTED
-    assert task.contract_version == DECISION_CASE_CONTRACT_VERSION
+    assert task.contract_version == CONSTRUCTION_CONTRACT_VERSION
     assert proposal.task_payload_checksum == task.payload_checksum
     assert proposal.tool_trace_ids == ("trace-2", "trace-1")
     assert hashlib.sha256(
@@ -848,11 +849,11 @@ def test_assembly_sealing_enforces_support_profile_and_status_rollup() -> None:
         ),
         binding=_binding(),
     )
-    task = seal_case_assembly_task(
+    task = seal_event_evidence_integration_task(
         fields=_assembly_task_fields(resolution.resolution_proposal_id),
         binding=_binding(),
     )
-    proposal = seal_case_assembly_proposal(
+    proposal = seal_event_evidence_integration_proposal(
         task=task,
         fields=_assembly_proposal_fields(
             task.task_id,
@@ -862,9 +863,9 @@ def test_assembly_sealing_enforces_support_profile_and_status_rollup() -> None:
         binding=_binding(),
     )
     assert proposal.tool_trace_ids == ("assembly-trace-2", "assembly-trace-1")
-    required_missing = proposal.component_layer_results[0].model_copy(
+    required_missing = proposal.evidence_layer_results[0].model_copy(
         update={
-            "status": ComponentLayerStatus.INSUFFICIENT,
+            "status": EvidenceLayerStatus.INSUFFICIENT,
             "artifact_ids": (),
             "missing_reason_code": "missing",
         }
@@ -873,9 +874,9 @@ def test_assembly_sealing_enforces_support_profile_and_status_rollup() -> None:
         task.task_id,
         task.payload_checksum,
         resolution.resolution_proposal_id,
-    ).model_copy(update={"component_layer_results": (required_missing,)})
+    ).model_copy(update={"evidence_layer_results": (required_missing,)})
     with pytest.raises(ValueError, match="required"):
-        seal_case_assembly_proposal(task=task, fields=bad, binding=_binding())
+        seal_event_evidence_integration_proposal(task=task, fields=bad, binding=_binding())
 
 
 def test_assembly_task_core_ids_must_match_proposed_fact_ids() -> None:
@@ -885,9 +886,9 @@ def test_assembly_task_core_ids_must_match_proposed_fact_ids() -> None:
         update={
             "core_event_fact_ids": mismatched_core_ids,
             "task_id": stable_contract_id(
-                "case-assembly-task",
+                "event-evidence-integration-task",
                 fields.run_id,
-                fields.case_id,
+                fields.event_id,
                 canonical_id_tuple_token(
                     mismatched_core_ids,
                     sort_values=True,
@@ -908,7 +909,40 @@ def test_assembly_task_core_ids_must_match_proposed_fact_ids() -> None:
     )
 
     with pytest.raises(ValueError, match="core event fact IDs"):
-        seal_case_assembly_task(fields=mismatched, binding=_binding())
+        seal_event_evidence_integration_task(fields=mismatched, binding=_binding())
+
+
+def test_event_evidence_integration_task_id_must_name_its_formal_event() -> None:
+    fields = _assembly_task_fields("resolution-proposal-1")
+    foreign_event_id = "urn:aviation-agentic-ai:event:foreign"
+    mismatched = fields.model_copy(
+        update={
+            "event_id": foreign_event_id,
+            "task_id": stable_contract_id(
+                "event-evidence-integration-task",
+                fields.run_id,
+                foreign_event_id,
+                canonical_id_tuple_token(
+                    fields.core_event_fact_ids,
+                    sort_values=True,
+                ),
+                canonical_id_tuple_token(
+                    fields.resolution_proposal_ids,
+                    sort_values=True,
+                ),
+                canonical_id_tuple_token(
+                    fields.selected_evidence_claim_ids,
+                    sort_values=True,
+                ),
+                fields.schema_profile_id,
+                fields.schema_context_id,
+                fields.schema_snapshot_sha256,
+            ),
+        }
+    )
+
+    with pytest.raises(ValueError, match="formal event"):
+        seal_event_evidence_integration_task(fields=mismatched, binding=_binding())
 
 
 def test_assembly_task_binds_context_associations_to_one_task_event() -> None:
@@ -941,12 +975,33 @@ def test_assembly_task_binds_context_associations_to_one_task_event() -> None:
 
     for invalid in invalid_fields:
         with pytest.raises(ValueError, match="task event ownership"):
-            seal_case_assembly_task(fields=invalid, binding=_binding())
+            seal_event_evidence_integration_task(fields=invalid, binding=_binding())
 
     compact_event_id = "evt:canonical-event"
     absolute_event_id = "urn:aviation-agentic-ai:event:canonical-event"
     canonicalized = fields.model_copy(
         update={
+            "event_id": absolute_event_id,
+            "task_id": stable_contract_id(
+                "event-evidence-integration-task",
+                fields.run_id,
+                absolute_event_id,
+                canonical_id_tuple_token(
+                    fields.core_event_fact_ids,
+                    sort_values=True,
+                ),
+                canonical_id_tuple_token(
+                    fields.resolution_proposal_ids,
+                    sort_values=True,
+                ),
+                canonical_id_tuple_token(
+                    fields.selected_evidence_claim_ids,
+                    sort_values=True,
+                ),
+                fields.schema_profile_id,
+                fields.schema_context_id,
+                fields.schema_snapshot_sha256,
+            ),
             "proposed_facts": tuple(
                 fact.model_copy(update={"subject_id": compact_event_id})
                 for fact in fields.proposed_facts
@@ -965,7 +1020,7 @@ def test_assembly_task_binds_context_associations_to_one_task_event() -> None:
         }
     )
 
-    sealed = seal_case_assembly_task(fields=canonicalized, binding=_binding())
+    sealed = seal_event_evidence_integration_task(fields=canonicalized, binding=_binding())
 
     assert sealed.context_associations[0].event_id == absolute_event_id
 
@@ -993,12 +1048,12 @@ def test_assembly_task_binds_public_observations_to_one_task_event() -> None:
 
     for invalid in invalid_fields:
         with pytest.raises(ValueError, match="public observation task event ownership"):
-            seal_case_assembly_task(fields=invalid, binding=_binding())
+            seal_event_evidence_integration_task(fields=invalid, binding=_binding())
 
 
 def test_fact_support_profile_gap_support_and_disposition_are_strict() -> None:
     with pytest.raises(ValidationError):
-        CaseFactProposal(
+        EventEvidenceFactProposal(
             proposal_item_id="fact",
             subject_id="event",
             predicate_iri="rdf:type",
@@ -1007,7 +1062,7 @@ def test_fact_support_profile_gap_support_and_disposition_are_strict() -> None:
             validation_profile_id="profile",
         )
     with pytest.raises(ValidationError):
-        CaseProfileGapProposal(
+        EventEvidenceProfileGapProposal(
             proposal_item_id="gap",
             event_id="event",
             field="reason",
@@ -1036,11 +1091,11 @@ def test_validation_feedback_binds_exact_proposal_and_affected_item() -> None:
         ),
         binding=_binding(),
     )
-    task = seal_case_assembly_task(
+    task = seal_event_evidence_integration_task(
         fields=_assembly_task_fields(resolution.resolution_proposal_id),
         binding=_binding(),
     )
-    proposal = seal_case_assembly_proposal(
+    proposal = seal_event_evidence_integration_proposal(
         task=task,
         fields=_assembly_proposal_fields(
             task.task_id,
@@ -1060,11 +1115,11 @@ def test_validation_feedback_binds_exact_proposal_and_affected_item() -> None:
         canonical_id_tuple_token(corrections, sort_values=False),
         canonical_id_tuple_token(("evidence:event:type",), sort_values=True),
     )
-    fields = ValidationFeedbackFields(
+    fields = EventEvidenceIntegrationFeedbackFields(
         feedback_id=feedback_id,
         run_id="run-1",
         task_id=task.task_id,
-        case_id=task.case_id,
+        event_id=task.event_id,
         proposal_payload_checksum=proposal.payload_checksum,
         violation_code="invalid_object",
         constraint_id="constraint-1",
@@ -1073,7 +1128,7 @@ def test_validation_feedback_binds_exact_proposal_and_affected_item() -> None:
         allowed_corrections=corrections,
         evidence_ids=("evidence:event:type",),
     )
-    feedback = seal_validation_feedback(
+    feedback = seal_event_evidence_integration_feedback(
         task=task,
         proposal=proposal,
         fields=fields,
@@ -1081,7 +1136,7 @@ def test_validation_feedback_binds_exact_proposal_and_affected_item() -> None:
     )
     assert feedback.allowed_corrections == corrections
     with pytest.raises(ValueError, match="affected proposal item"):
-        seal_validation_feedback(
+        seal_event_evidence_integration_feedback(
             task=task,
             proposal=proposal,
             fields=fields.model_copy(
@@ -1091,7 +1146,7 @@ def test_validation_feedback_binds_exact_proposal_and_affected_item() -> None:
         )
 
 
-def test_case_assembly_parser_accepts_only_json_rows_and_none_marker() -> None:
+def test_event_evidence_integration_parser_accepts_only_json_rows_and_none_marker() -> None:
     raw = (
         "GRAPH_PATCH\n"
         '{"proposal_item_id":"f1","subject_id":"event-1",'
@@ -1105,13 +1160,13 @@ def test_case_assembly_parser_accepts_only_json_rows_and_none_marker() -> None:
         '"schema_mapping_reason_code":"not_in_profile",'
         '"validation_profile_id":"profile-1"}'
     )
-    parsed = parse_case_assembly_output(
+    parsed = parse_event_evidence_integration_output(
         raw,
         allowed_validation_profile_ids=frozenset({"profile-1"}),
     )
     assert [item.proposal_item_id for item in parsed.proposed_facts] == ["f1"]
     assert [item.proposal_item_id for item in parsed.profile_gaps] == ["g1"]
-    empty = parse_case_assembly_output(
+    empty = parse_event_evidence_integration_output(
         "GRAPH_PATCH\nNONE\nPROFILE_GAPS\nNONE",
         allowed_validation_profile_ids=frozenset({"profile-1"}),
     )
@@ -1119,8 +1174,8 @@ def test_case_assembly_parser_accepts_only_json_rows_and_none_marker() -> None:
     assert empty.profile_gaps == ()
 
 
-def test_case_assembly_selection_accepts_compact_selected_ids() -> None:
-    selection = CaseAssemblySelection(
+def test_event_evidence_integration_selection_accepts_compact_selected_ids() -> None:
+    selection = EventEvidenceIntegrationSelection(
         decision="accepted",
         candidate_bundle_id="candidate-bundle:1",
         selected_fact_ids=("fact:1", "fact:2"),
@@ -1133,7 +1188,7 @@ def test_case_assembly_selection_accepts_compact_selected_ids() -> None:
     assert selection.limitation is None
 
 
-def test_case_assembly_selection_requires_consistent_terminal_shape() -> None:
+def test_event_evidence_integration_selection_requires_consistent_terminal_shape() -> None:
     accepted_failures = (
         {
             "decision": "accepted",
@@ -1153,9 +1208,9 @@ def test_case_assembly_selection_requires_consistent_terminal_shape() -> None:
     )
     for payload in accepted_failures:
         with pytest.raises(ValidationError):
-            CaseAssemblySelection.model_validate(payload)
+            EventEvidenceIntegrationSelection.model_validate(payload)
 
-    abstained = CaseAssemblySelection(
+    abstained = EventEvidenceIntegrationSelection(
         decision="abstained",
         candidate_bundle_id="candidate-bundle:1",
         limitation="The source evidence does not support the sealed candidate.",
@@ -1164,12 +1219,12 @@ def test_case_assembly_selection_requires_consistent_terminal_shape() -> None:
     assert abstained.selected_profile_gap_ids == ()
 
     with pytest.raises(ValidationError):
-        CaseAssemblySelection(
+        EventEvidenceIntegrationSelection(
             decision="abstained",
             candidate_bundle_id="candidate-bundle:1",
         )
     with pytest.raises(ValidationError):
-        CaseAssemblySelection(
+        EventEvidenceIntegrationSelection(
             decision="abstained",
             candidate_bundle_id="candidate-bundle:1",
             selected_fact_ids=("fact:1",),
@@ -1213,17 +1268,17 @@ def test_case_assembly_selection_requires_consistent_terminal_shape() -> None:
         ),
     ],
 )
-def test_case_assembly_parser_fails_closed(raw: str) -> None:
+def test_event_evidence_integration_parser_fails_closed(raw: str) -> None:
     with pytest.raises(ValueError):
-        parse_case_assembly_output(
+        parse_event_evidence_integration_output(
             raw,
             allowed_validation_profile_ids=frozenset({"profile-1"}),
         )
 
 
-def test_case_assembly_parser_requires_nonempty_profile_allowlist() -> None:
+def test_event_evidence_integration_parser_requires_nonempty_profile_allowlist() -> None:
     with pytest.raises(ValueError, match="allowed_validation_profile_ids"):
-        parse_case_assembly_output(
+        parse_event_evidence_integration_output(
             "GRAPH_PATCH\nNONE\nPROFILE_GAPS\nNONE",
             allowed_validation_profile_ids=frozenset(),
         )

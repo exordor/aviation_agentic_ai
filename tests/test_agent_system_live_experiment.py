@@ -28,16 +28,16 @@ def _call(
     index: int,
     *,
     cycle: int = 1,
-    trial_id: str = "assembly-025",
+    trial_id: str = "integration-025",
     error: str | None = None,
     cache_hit: bool = False,
     model: str = "deepseek-v4-pro",
 ) -> ObservedProviderCall:
     record = ModelCallRecord(
-        agent="decision_case_assembly",
+        agent="event_evidence_integration",
         raw_response=f"real provider response {index}",
-        prompt_set_id="decision-case-agents-v1",
-        prompt_version="decision-case-assembly-v2",
+        prompt_set_id="aviation-tmi-event-agents-v1",
+        prompt_version="event-evidence-integration-v1",
         provider="deepseek",
         model=model,
         temperature=0.0,
@@ -59,7 +59,7 @@ def _call(
         experiment_id="experiment-v1",
         cycle=cycle,
         trial_id=trial_id,
-        kind="assembly",
+        kind="integration",
         source_id="2026-05-20:025",
         phase="select_tool",
         record=record,
@@ -88,7 +88,7 @@ def _call(
 
 def test_tracked_experiment_suite_freezes_real_call_threshold_and_tasks() -> None:
     suite = load_live_agent_experiment_suite(
-        "data/evaluation/agent_system/live_agent_experiment_v2.yaml"
+        "data/evaluation/agent_system/live_agent_experiment_v3.yaml"
     )
 
     assert isinstance(suite, LiveAgentExperimentSuite)
@@ -99,10 +99,10 @@ def test_tracked_experiment_suite_freezes_real_call_threshold_and_tasks() -> Non
         (trial.kind, trial.source_id, trial.question)
         for trial in suite.trials
     ] == [
-        ("assembly", "2026-05-20:025", None),
-        ("assembly", "2026-05-20:030", None),
-        ("assembly", "2026-05-20:070", None),
-        ("assembly", "2026-05-20:072", None),
+        ("integration", "2026-05-20:025", None),
+        ("integration", "2026-05-20:030", None),
+        ("integration", "2026-05-20:070", None),
+        ("integration", "2026-05-20:072", None),
         (
             "analysis",
             "2026-05-19:138",
@@ -177,7 +177,7 @@ def test_call_observer_sees_native_turn_before_workflow_sanitization() -> None:
 def test_call_observer_accepts_all_existing_agent_runtime_phases() -> None:
     observed: list[str] = []
     record = ModelCallRecord(
-        agent="decision_case_assembly",
+        agent="event_evidence_integration",
         raw_response='{"status":"partial"}',
         provider="deepseek",
         model="deepseek-v4-pro",
@@ -203,10 +203,10 @@ def test_summary_counts_real_provider_returns_separately_from_task_results() -> 
         LiveAgentExperimentParsedOutput(
             experiment_id="experiment-v1",
             cycle=cycle,
-            trial_id="assembly-025",
-            kind="assembly",
+            trial_id="integration-025",
+            kind="integration",
             source_id="2026-05-20:025",
-            role="decision_case_assembly",
+            role="event_evidence_integration",
             workflow_status="insufficient",
             model_acceptance_status="failed",
             workflow_provider_call_count=sum(
@@ -229,7 +229,7 @@ def test_summary_counts_real_provider_returns_separately_from_task_results() -> 
         completed_cycles=12,
         calls=calls,
         parsed_outputs=parsed,
-        expected_trial_ids=("assembly-025",),
+        expected_trial_ids=("integration-025",),
         runner_status="completed",
         raw_response_path="raw_responses.jsonl",
         parsed_output_path="parsed_outputs.jsonl",
@@ -246,8 +246,8 @@ def test_summary_counts_real_provider_returns_separately_from_task_results() -> 
     assert summary.prompt_cache_hit_tokens == 6_000
     assert summary.prompt_cache_miss_tokens == 4_000
     assert summary.prompt_cache_usage_mismatch_count == 0
-    assert summary.prompt_set_ids == ("decision-case-agents-v1",)
-    assert summary.prompt_versions == ("decision-case-assembly-v2",)
+    assert summary.prompt_set_ids == ("aviation-tmi-event-agents-v1",)
+    assert summary.prompt_versions == ("event-evidence-integration-v1",)
     assert summary.tool_call_count == 100
     assert summary.invalid_tool_call_count == 0
     assert summary.threshold_satisfied is True
@@ -298,10 +298,10 @@ def test_raw_and_parsed_artifacts_are_separate_and_checksum_bound(
         LiveAgentExperimentParsedOutput(
             experiment_id="experiment-v1",
             cycle=1,
-            trial_id="assembly-025",
-            kind="assembly",
+            trial_id="integration-025",
+            kind="integration",
             source_id="2026-05-20:025",
-            role="decision_case_assembly",
+            role="event_evidence_integration",
             workflow_status="insufficient",
             model_acceptance_status="failed",
             workflow_provider_call_count=1,
@@ -318,7 +318,7 @@ def test_raw_and_parsed_artifacts_are_separate_and_checksum_bound(
         completed_cycles=1,
         calls=calls,
         parsed_outputs=parsed,
-        expected_trial_ids=("assembly-025",),
+        expected_trial_ids=("integration-025",),
         runner_status="threshold_not_reached",
         raw_response_path=str(tmp_path / "raw_responses.jsonl"),
         parsed_output_path=str(tmp_path / "parsed_outputs.jsonl"),
@@ -347,11 +347,11 @@ def test_raw_and_parsed_artifacts_are_separate_and_checksum_bound(
     assert "real provider response 1" not in report_text
     assert manifest["raw_responses_sha256"]
     assert manifest["parsed_outputs_sha256"]
-    assert raw_path.name == "raw_responses_v2.jsonl"
-    assert parsed_path.name == "parsed_outputs_v2.jsonl"
-    assert manifest_path.name == "experiment_manifest_v2.json"
-    assert report_json.name == "agent_system_live_agent_experiment_v2.json"
-    assert report_markdown.name == "agent_system_live_agent_experiment_v2.md"
+    assert raw_path.name == "raw_responses_v3.jsonl"
+    assert parsed_path.name == "parsed_outputs_v3.jsonl"
+    assert manifest_path.name == "experiment_manifest_v3.json"
+    assert report_json.name == "agent_system_live_agent_experiment_v3.json"
+    assert report_markdown.name == "agent_system_live_agent_experiment_v3.md"
     assert legacy_report.read_text(encoding="utf-8") == "historical-v1\n"
     assert report_markdown.is_file()
 
@@ -362,10 +362,10 @@ def test_summary_rejects_missing_raw_call_or_trial_execution() -> None:
         LiveAgentExperimentParsedOutput(
             experiment_id="experiment-v1",
             cycle=1,
-            trial_id="assembly-025",
-            kind="assembly",
+            trial_id="integration-025",
+            kind="integration",
             source_id="2026-05-20:025",
-            role="decision_case_assembly",
+            role="event_evidence_integration",
             workflow_status="insufficient",
             model_acceptance_status="failed",
             workflow_provider_call_count=2,
@@ -382,7 +382,7 @@ def test_summary_rejects_missing_raw_call_or_trial_execution() -> None:
         completed_cycles=2,
         calls=calls,
         parsed_outputs=parsed,
-        expected_trial_ids=("assembly-025",),
+        expected_trial_ids=("integration-025",),
         runner_status="completed",
         raw_response_path="raw_responses.jsonl",
         parsed_output_path="parsed_outputs.jsonl",

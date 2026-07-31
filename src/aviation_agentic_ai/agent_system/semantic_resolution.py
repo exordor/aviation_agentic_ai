@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict
 
 from aviation_agentic_ai.agent_system.audit import sanitize_json_value, sanitize_text
 from aviation_agentic_ai.agent_system.contracts import ModelCallRecord, ToolTraceEntry
-from aviation_agentic_ai.agent_system.decision_case_contracts import (
+from aviation_agentic_ai.agent_system.construction_contracts import (
     ContractExecutionBinding,
     ResolutionDecision,
     ResolutionProposal,

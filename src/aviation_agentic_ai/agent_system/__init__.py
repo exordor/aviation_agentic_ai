@@ -6,7 +6,7 @@ This package implements the runnable system mainline:
     -> deterministic AdvisoryParser and authority services
     -> shared Semantic Resolution Agent only for genuine ambiguity
     -> deterministic Weather/BTS preparation
-    -> zero-call complete-case compiler or bounded Decision Case Assembly Agent
+    -> zero-call complete-event compiler or bounded Event Evidence Integration Agent
     -> event-patch Formal Graph Kernel admissibility check
     -> DecisionCase membership finalization
     -> multi-profile Formal Publication Kernel

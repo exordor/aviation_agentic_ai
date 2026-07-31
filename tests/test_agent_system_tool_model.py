@@ -121,8 +121,8 @@ def test_adapter_records_the_configured_active_agent_role():
         chat_model=_FakeChat(required=[message]),
         tools=[fictional_lookup],
         prompt_set_id="prompt:test",
-        prompt_version="decision-case-assembly-v1",
-        agent="decision_case_assembly",
+        prompt_version="event-evidence-integration-v1",
+        agent="event_evidence_integration",
         provider="deepseek",
         model="deepseek-test",
         temperature=0,
@@ -131,7 +131,7 @@ def test_adapter_records_the_configured_active_agent_role():
         [HumanMessage(content="Inspect the registered context.")],
         phase="select_tool",
     )
-    assert turn.record.agent == "decision_case_assembly"
+    assert turn.record.agent == "event_evidence_integration"
 
 
 def test_adapter_binds_tools_for_construction_and_query_without_strict_schema():
