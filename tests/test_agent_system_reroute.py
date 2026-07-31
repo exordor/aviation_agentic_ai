@@ -24,7 +24,7 @@ from aviation_agentic_ai.agent_system.storage_contracts import (
     IngestionResult,
 )
 from aviation_agentic_ai.agent_system.workflow import IngestContext, run_ingest
-from aviation_agentic_ai.cross_source.contracts import (
+from aviation_agentic_ai.authority.contracts import (
     CanonicalEntity,
     CodeValue,
     EntityType,

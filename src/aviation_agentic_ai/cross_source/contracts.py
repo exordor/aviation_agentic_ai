@@ -6,6 +6,15 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from aviation_agentic_ai.authority.contracts import (
+    CanonicalEntity as CanonicalEntity,
+    CodeValue as CodeValue,
+    EntityType as EntityType,
+    TermCategory as TermCategory,
+    TermConcept as TermConcept,
+    TermDefinition as TermDefinition,
+)
+
 
 class StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -16,28 +25,6 @@ class SnapshotStatus(str, Enum):
     ACTIVE = "active"
     REJECTED = "rejected"
     SUPERSEDED = "superseded"
-
-
-class EntityType(str, Enum):
-    AIRPORT = "airport"
-    WEATHER_STATION = "weather_station"
-    ARTCC = "artcc"
-    TRACON = "tracon"
-    ATCT = "atct"
-    NAVAID = "navaid"
-    FIX = "fix"
-    AIRSPACE = "airspace"
-    UNKNOWN_FACILITY = "unknown_facility"
-
-
-class TermCategory(str, Enum):
-    TRAFFIC_MANAGEMENT_INITIATIVE = "traffic_management_initiative"
-    FLOW_MANAGEMENT = "flow_management"
-    FACILITY_TYPE = "facility_type"
-    ROUTE_OR_AIRSPACE = "route_or_airspace"
-    WEATHER = "weather"
-    STATUS_OR_ACTION = "status_or_action"
-    OPERATIONAL_PROCEDURE = "operational_procedure"
 
 
 class MentionType(str, Enum):
@@ -63,11 +50,6 @@ class EvidenceLayer(str, Enum):
     OBSERVATION = "observation"
     FORECAST = "forecast"
     SYSTEM_ASSOCIATION = "system_association"
-
-
-class CodeValue(StrictModel):
-    scheme: str = Field(min_length=1)
-    value: str = Field(min_length=1)
 
 
 class SourceReference(StrictModel):
@@ -105,36 +87,6 @@ class SnapshotSet(StrictModel):
     created_at: datetime
     snapshots: list[SourceSnapshot]
     status: SnapshotStatus = SnapshotStatus.CANDIDATE
-
-
-class CanonicalEntity(StrictModel):
-    entity_id: str = Field(min_length=1)
-    entity_type: EntityType
-    preferred_label: str = Field(min_length=1)
-    codes: list[CodeValue]
-    aliases: list[str] = Field(default_factory=list)
-    valid_from: datetime | None = None
-    valid_to: datetime | None = None
-    source_refs: list[str] = Field(default_factory=list)
-    metadata: dict[str, Any] = Field(default_factory=dict)
-
-
-class TermDefinition(StrictModel):
-    text: str = Field(min_length=1)
-    source_ref: str = Field(min_length=1)
-
-
-class TermConcept(StrictModel):
-    term_id: str = Field(min_length=1)
-    abbreviation: str = Field(min_length=1)
-    preferred_label: str = Field(min_length=1)
-    term_category: TermCategory
-    aliases: list[str] = Field(default_factory=list)
-    definitions: list[TermDefinition] = Field(default_factory=list)
-    denotes_schema_term: str | None = None
-    valid_from: datetime | None = None
-    valid_to: datetime | None = None
-    source_refs: list[str] = Field(default_factory=list)
 
 
 class Mention(StrictModel):

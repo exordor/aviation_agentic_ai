@@ -28,7 +28,7 @@ from aviation_agentic_ai.agent_system.validation_profiles import (
     LoadedValidationProfile,
     ValidationProfileRegistry,
 )
-from aviation_agentic_ai.cross_source.contracts import CanonicalEntity, EntityType
+from aviation_agentic_ai.authority.contracts import CanonicalEntity, EntityType
 
 RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 XSD_DATETIME = "http://www.w3.org/2001/XMLSchema#dateTimeStamp"

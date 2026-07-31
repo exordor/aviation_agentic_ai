@@ -56,7 +56,7 @@ from aviation_agentic_ai.agent_system.public_observations import (
     build_bts_observation_facts,
 )
 from aviation_agentic_ai.agent_system.weather_context import build_weather_context
-from aviation_agentic_ai.cross_source.contracts import (
+from aviation_agentic_ai.authority.contracts import (
     CanonicalEntity,
     CodeValue,
     EntityType,

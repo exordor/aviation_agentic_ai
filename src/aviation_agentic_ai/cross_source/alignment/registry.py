@@ -3,32 +3,25 @@ from __future__ import annotations
 import io
 import zipfile
 from collections.abc import Iterable
-from datetime import UTC, datetime
 from typing import Any
 
-from aviation_agentic_ai.config import resolve_project_path
-from aviation_agentic_ai.cross_source.artifacts import read_jsonl
-from aviation_agentic_ai.cross_source.contracts import (
+from aviation_agentic_ai.authority.contracts import (
     CanonicalEntity,
     CodeValue,
     EntityType,
-    TermCategory,
     TermConcept,
-    TermDefinition,
 )
-from aviation_agentic_ai.cross_source.identifiers import (
+from aviation_agentic_ai.authority.identifiers import (
     canonical_facility_id,
-    canonical_term_id,
     normalize_code,
 )
-from aviation_agentic_ai.config import load_yaml
-
-
-def _parse_effective_date(value: str) -> datetime | None:
-    text = value.strip()
-    if not text:
-        return None
-    return datetime.strptime(text, "%m/%d/%Y").replace(tzinfo=UTC)
+from aviation_agentic_ai.authority.nasr import (
+    parse_nasr_aff_line,
+    parse_nasr_apt_line,
+)
+from aviation_agentic_ai.authority.terminology import load_term_registry
+from aviation_agentic_ai.config import resolve_project_path
+from aviation_agentic_ai.cross_source.artifacts import read_jsonl
 
 
 def _unique_strings(values: Iterable[object]) -> list[str]:
@@ -71,62 +64,6 @@ def stationinfo_entities(rows: Iterable[dict[str, Any]], source_ref: str) -> lis
             )
         )
     return entities
-
-
-def parse_nasr_apt_line(line: str) -> CanonicalEntity | None:
-    if not line.startswith("APT") or len(line) < 1217:
-        return None
-    faa = normalize_code(line[27:31])
-    icao = normalize_code(line[1210:1217])
-    if not faa or not icao:
-        return None
-    name = line[133:183].strip() or icao
-    boundary_artcc = normalize_code(line[637:641])
-    responsible_artcc = normalize_code(line[674:678])
-    effective = _parse_effective_date(line[31:41])
-    codes = [CodeValue(scheme="FAA", value=faa), CodeValue(scheme="ICAO", value=icao)]
-    return CanonicalEntity(
-        entity_id=canonical_facility_id(EntityType.AIRPORT, icao),
-        entity_type=EntityType.AIRPORT,
-        preferred_label=name,
-        codes=codes,
-        aliases=_unique_strings([faa, icao, name]),
-        valid_from=effective,
-        source_refs=[f"faa_nasr:{effective.date().isoformat() if effective else 'unknown'}"],
-        metadata={
-            "boundary_artcc": boundary_artcc or None,
-            "responsible_artcc": responsible_artcc or None,
-            "city": line[93:133].strip() or None,
-            "state": line[48:50].strip() or None,
-        },
-    )
-
-
-def parse_nasr_aff_line(line: str) -> CanonicalEntity | None:
-    if not line.startswith("AFF1") or len(line) < 229:
-        return None
-    facility_type = line[128:133].strip()
-    if facility_type != "ARTCC":
-        return None
-    center_id = normalize_code(line[4:8])
-    if not center_id:
-        return None
-    name = line[8:48].strip() or center_id
-    icao = normalize_code(line[225:229])
-    effective = _parse_effective_date(line[133:143])
-    codes = [CodeValue(scheme="FAA_ARTCC", value=center_id)]
-    if icao:
-        codes.append(CodeValue(scheme="ICAO_ARTCC", value=icao))
-    return CanonicalEntity(
-        entity_id=canonical_facility_id(EntityType.ARTCC, center_id),
-        entity_type=EntityType.ARTCC,
-        preferred_label=f"{name} ARTCC",
-        codes=codes,
-        aliases=_unique_strings([center_id, icao, name, f"{name} Center"]),
-        valid_from=effective,
-        source_refs=[f"faa_nasr:{effective.date().isoformat() if effective else 'unknown'}"],
-        metadata={"state": line[143:173].strip() or None},
-    )
 
 
 def _merge_entities(entities: Iterable[CanonicalEntity]) -> list[CanonicalEntity]:
@@ -181,24 +118,4 @@ def build_facility_registry(config: dict[str, Any]) -> list[CanonicalEntity]:
 
 def build_term_registry(config: dict[str, Any]) -> list[TermConcept]:
     seed_path = resolve_project_path(config["sources"]["term_seed"])
-    payload = load_yaml(seed_path)
-    terms: list[TermConcept] = []
-    for item in payload.get("terms", []):
-        category = TermCategory(str(item["category"]))
-        abbreviation = normalize_code(item["abbreviation"])
-        terms.append(
-            TermConcept(
-                term_id=canonical_term_id(category, abbreviation),
-                abbreviation=abbreviation,
-                preferred_label=str(item["preferred_label"]),
-                term_category=category,
-                aliases=_unique_strings(item.get("aliases", [])),
-                definitions=[
-                    TermDefinition(text=str(definition["text"]), source_ref=str(definition["source_ref"]))
-                    for definition in item.get("definitions", [])
-                ],
-                denotes_schema_term=item.get("denotes_schema_term"),
-                source_refs=_unique_strings(item.get("source_refs", [])),
-            )
-        )
-    return sorted(terms, key=lambda item: (item.abbreviation, item.term_id))
+    return load_term_registry(seed_path)

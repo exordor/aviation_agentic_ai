@@ -6,7 +6,11 @@ from typing import Any, Iterable
 
 from pydantic import BaseModel
 
-from aviation_agentic_ai.utils.io import read_json_document, write_json_document
+from aviation_agentic_ai.utils.io import (
+    read_json_document,
+    read_jsonl_objects,
+    write_json_document,
+)
 
 
 def _jsonable(value: Any) -> Any:
@@ -16,21 +20,7 @@ def _jsonable(value: Any) -> Any:
 
 
 def read_jsonl(path: str | Path) -> list[dict[str, Any]]:
-    source = Path(path)
-    rows: list[dict[str, Any]] = []
-    with source.open(encoding="utf-8") as stream:
-        for line_number, raw_line in enumerate(stream, start=1):
-            line = raw_line.strip()
-            if not line:
-                continue
-            try:
-                row = json.loads(line)
-            except json.JSONDecodeError as exc:
-                raise ValueError(f"Invalid JSONL at {source}:{line_number}: {exc.msg}") from exc
-            if not isinstance(row, dict):
-                raise ValueError(f"Expected JSON object at {source}:{line_number}")
-            rows.append(row)
-    return rows
+    return read_jsonl_objects(path)
 
 
 def write_jsonl(path: str | Path, rows: Iterable[Any]) -> Path:

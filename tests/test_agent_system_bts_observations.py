@@ -31,7 +31,11 @@ from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
 )
-from aviation_agentic_ai.cross_source.contracts import CanonicalEntity, CodeValue, EntityType
+from aviation_agentic_ai.authority.contracts import (
+    CanonicalEntity,
+    CodeValue,
+    EntityType,
+)
 
 
 ARCHIVE = Path("/tmp/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2026_5.zip")

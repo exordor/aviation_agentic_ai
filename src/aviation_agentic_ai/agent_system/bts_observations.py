@@ -24,7 +24,7 @@ from aviation_agentic_ai.agent_system.contracts import (
 from aviation_agentic_ai.agent_system.validation_profiles import (
     AggregationProcedureDescriptor,
 )
-from aviation_agentic_ai.cross_source.contracts import CanonicalEntity, EntityType
+from aviation_agentic_ai.authority.contracts import CanonicalEntity, EntityType
 
 
 ARCHIVE_URL = (

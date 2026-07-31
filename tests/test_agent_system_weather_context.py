@@ -20,7 +20,7 @@ from aviation_agentic_ai.agent_system.weather_context import (
     METEOROLOGICAL_CONDITION_STATUS,
     build_weather_context,
 )
-from aviation_agentic_ai.cross_source.contracts import (
+from aviation_agentic_ai.authority.contracts import (
     CanonicalEntity,
     CodeValue,
     EntityType,

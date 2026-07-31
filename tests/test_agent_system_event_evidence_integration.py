@@ -834,7 +834,11 @@ def test_repeated_compilation_produces_identical_ids() -> None:
 def test_workflow_three_cases_event_evidence_integration_regression(tmp_path: Path) -> None:
     from aviation_agentic_ai.agent_system.sources import load_advisory_source
     from aviation_agentic_ai.agent_system.workflow import IngestContext, run_ingest
-    from aviation_agentic_ai.cross_source.contracts import CanonicalEntity, CodeValue, EntityType
+    from aviation_agentic_ai.authority.contracts import (
+        CanonicalEntity,
+        CodeValue,
+        EntityType,
+    )
     from test_agent_system_authority_evidence import _catalog, _test_inputs
 
     config, _ = _test_inputs(tmp_path)
@@ -949,7 +953,11 @@ def test_workflow_three_cases_event_evidence_integration_regression(tmp_path: Pa
 def test_workflow_canonical_node_identity_and_idempotency(tmp_path: Path) -> None:
     from aviation_agentic_ai.agent_system.sources import load_advisory_source
     from aviation_agentic_ai.agent_system.workflow import IngestContext, run_ingest
-    from aviation_agentic_ai.cross_source.contracts import CanonicalEntity, CodeValue, EntityType
+    from aviation_agentic_ai.authority.contracts import (
+        CanonicalEntity,
+        CodeValue,
+        EntityType,
+    )
     from test_agent_system_authority_evidence import _catalog, _test_inputs
 
     config, _ = _test_inputs(tmp_path)

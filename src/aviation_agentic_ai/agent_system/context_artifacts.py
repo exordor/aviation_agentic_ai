@@ -58,7 +58,7 @@ from aviation_agentic_ai.agent_system.weather_context_validation import (
 from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
 )
-from aviation_agentic_ai.cross_source.contracts import CanonicalEntity
+from aviation_agentic_ai.authority.contracts import CanonicalEntity
 from aviation_agentic_ai.utils.identifiers import stable_id
 
 

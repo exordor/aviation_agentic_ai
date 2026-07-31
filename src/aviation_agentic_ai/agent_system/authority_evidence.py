@@ -22,6 +22,17 @@ from typing import Any, Literal
 from pydantic import AwareDatetime, model_validator
 from pypdf import PdfReader
 
+from aviation_agentic_ai.authority.contracts import (
+    CanonicalEntity,
+    EntityType,
+    TermCategory,
+    TermConcept,
+)
+from aviation_agentic_ai.authority.nasr import (
+    parse_nasr_aff_line,
+    parse_nasr_apt_line,
+)
+from aviation_agentic_ai.authority.terminology import load_term_registry
 from aviation_agentic_ai.agent_system.contracts import SourceFamily, SourceRecord
 from aviation_agentic_ai.agent_system.construction_contracts import (
     AuthorityDefinitionEvidenceClaim,
@@ -36,17 +47,6 @@ from aviation_agentic_ai.agent_system.construction_contracts import (
 )
 from aviation_agentic_ai.agent_system.schema_guide import SchemaGuide
 from aviation_agentic_ai.config import load_yaml, resolve_project_path
-from aviation_agentic_ai.cross_source.alignment.registry import (
-    build_term_registry,
-    parse_nasr_aff_line,
-    parse_nasr_apt_line,
-)
-from aviation_agentic_ai.cross_source.contracts import (
-    CanonicalEntity,
-    EntityType,
-    TermCategory,
-    TermConcept,
-)
 
 
 DEFAULT_AUTHORITY_DEFINITION_SEED = (
@@ -653,7 +653,11 @@ def _load_term_catalog(
             error_id=blocked[1],
         )
     try:
-        registry_terms = tuple(build_term_registry(dict(config)))
+        registry_terms = tuple(
+            load_term_registry(
+                resolve_project_path(config["sources"]["term_seed"])
+            )
+        )
         seed = load_yaml(definition_seed_path)
         pcg_binding = _binding(snapshots, "pilot_controller_glossary")
         assert pcg_binding

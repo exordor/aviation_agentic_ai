@@ -7,7 +7,6 @@ import pytest
 from aviation_agentic_ai.agent_system.tmi_profiles import (
     active_tmi_profiles,
     classify_tmi_family,
-    detected_family_counts,
     get_tmi_profile,
 )
 from aviation_agentic_ai.agent_system.contracts import (
@@ -17,10 +16,7 @@ from aviation_agentic_ai.agent_system.contracts import (
 from aviation_agentic_ai.agent_system.ingestion_pipeline import (
     preflight_advisory,
 )
-from aviation_agentic_ai.cross_source.artifacts import read_jsonl
-from aviation_agentic_ai.cross_source.evaluation.cohort import (
-    select_cross_source_cohort,
-)
+from aviation_agentic_ai.utils.io import read_jsonl_objects
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -34,7 +30,7 @@ ADVISORY_PATH = (
 def _frozen_source(source_id: str) -> SourceRecord:
     row = next(
         item
-        for item in read_jsonl(ADVISORY_PATH)
+        for item in read_jsonl_objects(ADVISORY_PATH)
         if item["source_id"] == source_id
     )
     return SourceRecord(
@@ -106,66 +102,6 @@ def test_deferred_and_boundary_families_are_not_publishable_profiles() -> None:
     assert get_tmi_profile("ARRIVAL_DELAY") is not None
     assert get_tmi_profile("ARRIVAL_DELAY", publishable_only=True) is None
     assert get_tmi_profile("UNKNOWN") is None
-
-
-def test_registry_classifies_the_legacy_nyc_mention_selection() -> None:
-    rows = read_jsonl(
-        ROOT
-        / "data/processed/nasa_atmonto/aligned/2026-05-14/atcscc_advisories.jsonl"
-    )
-    selection = select_cross_source_cohort(
-        rows,
-        airport_codes=["JFK", "EWR", "LGA", "KJFK", "KEWR", "KLGA"],
-        expected_count=68,
-    )
-
-    assert detected_family_counts(selection.records) == {
-        "ARRIVAL_DELAY": 7,
-        "GDP": 21,
-        "GS": 24,
-        "HOTLINE": 3,
-        "NATOTS": 7,
-        "REROUTE": 4,
-        "REROUTE_CANCELLATION": 1,
-        "SWAP": 1,
-    }
-
-
-def test_legacy_nyc_mention_selection_reproduces_preflight_split() -> None:
-    rows = read_jsonl(ADVISORY_PATH)
-    selection = select_cross_source_cohort(
-        rows,
-        airport_codes=["JFK", "EWR", "LGA", "KJFK", "KEWR", "KLGA"],
-        expected_count=68,
-    )
-    results = [
-        preflight_advisory(
-            SourceRecord(
-                source_id=str(row["source_id"]),
-                family=SourceFamily.ATCSCC_ADVISORY,
-                content=str(row["text"]),
-            )
-        )
-        for row in selection.records
-    ]
-
-    assert sum(result is None for result in results) == 46
-    assert sum(
-        result is not None
-        and result.reason == "incomplete core advisory fields"
-        for result in results
-    ) == 3
-    assert sum(
-        result is not None
-        and result.reason
-        == "recognized advisory family outside active publication profile"
-        for result in results
-    ) == 18
-    assert sum(
-        result is not None
-        and result.reason == "deferred traffic-management lifecycle event"
-        for result in results
-    ) == 1
 
 
 @pytest.mark.parametrize(

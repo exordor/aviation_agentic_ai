@@ -1,23 +1,14 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
-
-from pydantic import BaseModel
 
 from aviation_agentic_ai.paths import project_relative_path
 
 
 class JSONDocumentReadError(json.JSONDecodeError):
     """Raised when a JSON document cannot be parsed with file context."""
-
-
-def _jsonable(value: Any) -> Any:
-    if isinstance(value, BaseModel):
-        return value.model_dump(mode="json")
-    return value
 
 
 def read_jsonl_objects(path: str | Path) -> list[dict[str, Any]]:
@@ -42,19 +33,6 @@ def read_jsonl_objects(path: str | Path) -> list[dict[str, Any]]:
                 )
             rows.append(row)
     return rows
-
-
-def write_jsonl_objects(path: str | Path, rows: Iterable[Any]) -> Path:
-    """Write newline-delimited JSON objects using stable key ordering."""
-
-    target = Path(path)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    payload = "".join(
-        json.dumps(_jsonable(row), sort_keys=True, ensure_ascii=False) + "\n"
-        for row in rows
-    )
-    target.write_text(payload, encoding="utf-8")
-    return target
 
 
 def read_json_document(path: str | Path) -> Any:

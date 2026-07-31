@@ -68,7 +68,7 @@ from aviation_agentic_ai.agent_system.workflow import (
     run_ingest,
 )
 from aviation_agentic_ai.config import load_yaml
-from aviation_agentic_ai.cross_source.contracts import (
+from aviation_agentic_ai.authority.contracts import (
     CanonicalEntity,
     CodeValue,
     EntityType,

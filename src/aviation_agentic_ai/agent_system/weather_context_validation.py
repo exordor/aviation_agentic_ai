@@ -35,7 +35,7 @@ from aviation_agentic_ai.agent_system.weather_context import (
     XSD_DATETIME,
     XSD_STRING,
 )
-from aviation_agentic_ai.cross_source.contracts import CanonicalEntity, EntityType
+from aviation_agentic_ai.authority.contracts import CanonicalEntity, EntityType
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.validation_profiles import (
     ValidationProfileRegistry,
