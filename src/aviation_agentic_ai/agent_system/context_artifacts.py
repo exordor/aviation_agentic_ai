@@ -29,9 +29,11 @@ from aviation_agentic_ai.agent_system.contracts import (
     WeatherFactTrace,
 )
 from aviation_agentic_ai.agent_system.construction_contracts import EventEvidenceIntegrationStatus
+from aviation_agentic_ai.agent_system.ingestion_package import (
+    build_event_ingestion_package,
+)
 from aviation_agentic_ai.agent_system.materialize import (
     _absolute_event_iri,
-    materialize_formal_publication,
     run_formal_publication_kernel,
 )
 from aviation_agentic_ai.agent_system.public_observations import (
@@ -39,8 +41,13 @@ from aviation_agentic_ai.agent_system.public_observations import (
 )
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.sources import (
+    build_source_version,
     build_source_snapshot_registry,
-    write_source_snapshot_registry,
+)
+from aviation_agentic_ai.agent_system.storage_contracts import (
+    EventWeatherAssociation,
+    PublicObservationRecord,
+    SourceVersionRecord,
 )
 from aviation_agentic_ai.agent_system.weather_context import (
     build_weather_context,
@@ -52,6 +59,7 @@ from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
 )
 from aviation_agentic_ai.cross_source.contracts import CanonicalEntity
+from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 
 _SIGNATURE_RE = re.compile(r"(?m)^SIGNATURE:\s*\n(?P<stamp>\d{2}/\d{2}/\d{2} \d{2}:\d{2})\s*$")
@@ -591,11 +599,170 @@ def prepare_event_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def integrate_event_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
-    """Publish prepared context after revalidating the Kernel-accepted event."""
+def _source_version_for_snapshot(
+    source_versions: tuple[SourceVersionRecord, ...],
+    *,
+    source_id: str,
+    content_sha256: str,
+) -> SourceVersionRecord:
+    matches = [
+        version
+        for version in source_versions
+        if version.source_id == source_id
+        and version.content_sha256 == content_sha256
+    ]
+    if len(matches) != 1:
+        raise ValueError(
+            f"source version is not uniquely registered: {source_id}"
+        )
+    return matches[0]
 
-    output_dir = Path(ctx.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+
+def _event_weather_associations(
+    associations: list[WeatherContextAssociation],
+    *,
+    source_versions: tuple[SourceVersionRecord, ...],
+) -> tuple[EventWeatherAssociation, ...]:
+    """Bind prepared Weather associations to immutable source versions."""
+
+    rows = []
+    for association in associations:
+        version = _source_version_for_snapshot(
+            source_versions,
+            source_id=association.source_id,
+            content_sha256=association.source_snapshot_sha256,
+        )
+        rows.append(
+            EventWeatherAssociation(
+                association_id=association.association_id,
+                event_id=association.event_id,
+                publication_id="pending-publication",
+                report_id=association.report_id,
+                facility_id=association.facility_id,
+                relation_type=association.relation_type,
+                selection_method=association.selection_method,
+                relevant_times=dict(association.relevant_times),
+                source_version_id=version.source_version_id,
+                causal_claim=False,
+            )
+        )
+    return tuple(sorted(rows, key=lambda row: row.association_id))
+
+
+def _local_name(iri: str) -> str:
+    return iri.rsplit("#", 1)[-1].rsplit("/", 1)[-1]
+
+
+def _public_observation_records(
+    observation_bundle: BTSObservationBundle,
+    *,
+    event_id: str,
+    source_versions: tuple[SourceVersionRecord, ...],
+) -> tuple[PublicObservationRecord, ...]:
+    """Build query-ready BTS rows from Kernel-bound formal observations."""
+
+    facts = observation_bundle.formal_facts
+    facts_by_id = {fact.fact_id: fact for fact in facts}
+    rows: list[PublicObservationRecord] = []
+    for trace in sorted(
+        observation_bundle.fact_traces,
+        key=lambda row: (row.observation_id, row.metric_key, row.fact_id),
+    ):
+        numeric_fact = facts_by_id.get(trace.fact_id)
+        if numeric_fact is None:
+            raise ValueError(
+                "observation trace references a missing formal fact"
+            )
+        observation_facts = [
+            fact
+            for fact in facts
+            if fact.subject_iri == trace.observation_id
+        ]
+        result_id = next(
+            (
+                fact.object_value
+                for fact in observation_facts
+                if _local_name(fact.predicate_iri) == "hasResult"
+            ),
+            None,
+        )
+        interval_id = next(
+            (
+                fact.object_value
+                for fact in observation_facts
+                if _local_name(fact.predicate_iri) == "phenomenonTime"
+            ),
+            None,
+        )
+        related_facts = [
+            fact
+            for fact in facts
+            if fact.subject_iri
+            in {trace.observation_id, result_id, interval_id}
+        ]
+        phase_fact = next(
+            (
+                fact
+                for fact in related_facts
+                if fact.subject_iri == interval_id
+                and fact.object_value.rsplit(":", 1)[-1]
+                in {"baseline", "active", "recovery"}
+            ),
+            None,
+        )
+        if phase_fact is None:
+            raise ValueError("formal observation has no phase")
+        phase = phase_fact.object_value.rsplit(":", 1)[-1]
+        unit_fact = next(
+            (
+                fact
+                for fact in related_facts
+                if fact.subject_iri == result_id
+                and _local_name(fact.predicate_iri) == "unit"
+            ),
+            None,
+        )
+        version = _source_version_for_snapshot(
+            source_versions,
+            source_id=trace.source_id,
+            content_sha256=trace.source_snapshot_sha256,
+        )
+        fact_ids = tuple(
+            sorted({fact.fact_id for fact in related_facts})
+        )
+        rows.append(
+            PublicObservationRecord(
+                observation_id=stable_id(
+                    "public-observation",
+                    event_id,
+                    trace.observation_id,
+                    trace.metric_key,
+                    version.source_version_id,
+                ),
+                event_id=event_id,
+                publication_id="pending-publication",
+                phase=phase,
+                metric_key=trace.metric_key,
+                value=trace.canonical_value,
+                unit_iri=(
+                    unit_fact.object_value
+                    if unit_fact is not None
+                    else None
+                ),
+                fact_ids=fact_ids,
+                profile_id=numeric_fact.validation_profile.profile_id,
+                profile_checksum=(
+                    numeric_fact.validation_profile.profile_checksum
+                ),
+                source_version_id=version.source_version_id,
+            )
+        )
+    return tuple(sorted(rows, key=lambda row: row.observation_id))
+
+
+def integrate_event_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
+    """Build one write-free, transaction-ready event publication package."""
+
     prepared = (
         state
         if state.get("event_context_prepared")
@@ -638,7 +805,12 @@ def integrate_event_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
     elif not validation.publishable:
         common_status = "blocked"
         common_reason = "core event is not publishable"
-    elif event_context is not None:
+    elif event_context is None:
+        common_status = "insufficient"
+        common_reason = (
+            "required event context could not be reconstructed"
+        )
+    else:
         try:
             accepted_event = _build_event(ctx, state)
         except (LookupError, TypeError, ValueError) as exc:
@@ -654,17 +826,18 @@ def integrate_event_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
         weather_bundle = _empty_weather("blocked", common_reason)
         public_observations = _empty_public_observations("blocked", common_reason)
         observation_bundle = _empty_observations("blocked", common_reason)
+    elif weather_bundle.status == "blocked":
+        common_status = "blocked"
+        common_reason = weather_bundle.failure_reason
+    elif observation_bundle.status == "blocked":
+        common_status = "blocked"
+        common_reason = observation_bundle.failure_reason or ""
 
     authority_registry = state.get("authority_source_records")
     authority_status = getattr(
         getattr(authority_registry, "status", None),
         "value",
         getattr(authority_registry, "status", "ok"),
-    )
-    authority_reason = (
-        getattr(authority_registry, "reason_code", None)
-        or getattr(authority_registry, "error_id", None)
-        or ""
     )
     authority_records = (
         list(getattr(authority_registry, "records", ())) if authority_status == "ok" else []
@@ -680,124 +853,82 @@ def integrate_event_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
     if public_observations.status == "ok" and bts_record is not None:
         persisted_records.append(bts_record)
     persisted_registry = build_source_snapshot_registry(persisted_records)
-    snapshots_path = write_source_snapshot_registry(
-        persisted_registry,
-        output_dir,
+    source_versions = tuple(
+        sorted(
+            (build_source_version(record) for record in persisted_records),
+            key=lambda row: row.source_version_id,
+        )
     )
 
     profile_registry = load_validation_profile_registry(
         decision_guide=ctx.guide or load_schema_guide()
     )
 
-    materialization = None
-
     associations = weather_bundle.associations if weather_bundle.status == "ok" else []
     traces = weather_bundle.fact_traces if weather_bundle.status == "ok" else []
-    summaries = public_observations.summaries if public_observations.status == "ok" else []
-    association_path = _write_typed_jsonl(
-        output_dir / "context_associations.jsonl",
-        associations,
-        id_field="association_id",
-    )
-    observation_summary_path = _write_typed_jsonl(
-        output_dir / "bts_observation_summaries.jsonl",
-        summaries,
-        id_field="summary_id",
-    )
-    trace_path = _write_typed_jsonl(
-        output_dir / "weather_fact_trace.jsonl",
-        traces,
-        id_field="fact_id",
-    )
-    observation_derivations = (
-        observation_bundle.derivations if observation_bundle.status == "ok" else []
-    )
     observation_fact_traces = (
         observation_bundle.fact_traces if observation_bundle.status == "ok" else []
     )
-    derivation_path = write_observation_derivations(
-        output_dir,
-        observation_derivations,
-    )
-    observation_trace_path = write_observation_fact_traces(
-        output_dir,
-        observation_fact_traces,
-    )
-    validation = state.get("validation")
-    fact_trace_path = output_dir / "fact_trace.jsonl"
+    direct_traces = tuple(state.get("direct_fact_traces") or ())
+    profile_gaps = tuple(state.get("profile_gap_rows") or ())
+    formal_publication = None
+    ingestion_package = None
     if (
         validation is not None
         and validation.publishable
         and common_status == "ok"
     ):
-        direct_traces = (
-            read_fact_traces(fact_trace_path)
-            if fact_trace_path.exists()
-            else []
-        )
         formal_facts = list(validation.accepted)
         if weather_bundle.status == "ok":
             formal_facts.extend(weather_bundle.formal_facts)
         if observation_bundle.status == "ok":
             formal_facts.extend(observation_bundle.formal_facts)
-        publication = run_formal_publication_kernel(
+        formal_publication = run_formal_publication_kernel(
             facts=formal_facts,
             profile_registry=profile_registry,
             source_snapshot=persisted_registry,
-            fact_traces=direct_traces,
+            fact_traces=list(direct_traces),
             weather_fact_traces=traces,
             observation_fact_traces=observation_fact_traces,
         )
-        materialization = materialize_formal_publication(
-            publication=publication,
-            profile_registry=profile_registry,
-            output_dir=output_dir,
+        event_weather = _event_weather_associations(
+            associations,
+            source_versions=source_versions,
         )
-    if not fact_trace_path.exists():
-        fact_trace_path.write_text("", encoding="utf-8")
+        public_observation_rows = _public_observation_records(
+            observation_bundle,
+            event_id=event_context.event_id,
+            source_versions=source_versions,
+        ) if observation_bundle.status == "ok" else ()
+        advisory_source_version = next(
+            version
+            for version in source_versions
+            if version.source_id == ctx.advisory.source_id
+        )
+        ingestion_package = build_event_ingestion_package(
+            publication=formal_publication,
+            event_context=event_context,
+            advisory_source_version_id=(
+                advisory_source_version.source_version_id
+            ),
+            source_versions=source_versions,
+            direct_fact_traces=direct_traces,
+            weather_fact_traces=tuple(traces),
+            observation_fact_traces=tuple(observation_fact_traces),
+            profile_gaps=profile_gaps,
+            weather_associations=event_weather,
+            public_observations=public_observation_rows,
+        )
 
     decision_status = (
         "ok"
-        if validation is not None and validation.publishable
+        if (
+            validation is not None
+            and validation.publishable
+            and common_status == "ok"
+        )
         else common_status
     )
-    context_artifacts = {
-        "source_snapshots": _artifact_metadata(
-            snapshots_path,
-            status=authority_status,
-            failure_reason=authority_reason,
-        ),
-        "fact_trace": _artifact_metadata(
-            fact_trace_path,
-            status=decision_status,
-            failure_reason=common_reason,
-        ),
-        "context_associations": _artifact_metadata(
-            association_path,
-            status=weather_bundle.status,
-            failure_reason=weather_bundle.failure_reason,
-        ),
-        "bts_observation_summaries": _artifact_metadata(
-            observation_summary_path,
-            status=public_observations.status,
-            failure_reason=public_observations.failure_reason,
-        ),
-        "weather_fact_trace": _artifact_metadata(
-            trace_path,
-            status=weather_bundle.status,
-            failure_reason=weather_bundle.failure_reason,
-        ),
-        "observation_derivations": _artifact_metadata(
-            derivation_path,
-            status=observation_bundle.status,
-            failure_reason=observation_bundle.failure_reason or "",
-        ),
-        "observation_fact_trace": _artifact_metadata(
-            observation_trace_path,
-            status=observation_bundle.status,
-            failure_reason=observation_bundle.failure_reason or "",
-        ),
-    }
     formal_layers = {
         "decision": _formal_layer_metadata(
             profile_registry,
@@ -834,7 +965,6 @@ def integrate_event_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
         "weather_context": weather_bundle,
         "public_observation_context": public_observations,
         "observation_context": observation_bundle,
-        "context_artifacts": context_artifacts,
         "formal_layers": formal_layers,
         "public_observation_publication": _public_observation_publication(
             observation_bundle,
@@ -842,6 +972,10 @@ def integrate_event_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
             snapshot_registry=persisted_registry,
         ),
         "source_snapshot": persisted_registry,
-        "materialization": materialization,
+        "source_versions": source_versions,
+        "formal_publication": formal_publication,
+        "ingestion_package": ingestion_package,
+        "publication_status": common_status,
+        "publication_failure_reason": common_reason,
         "model_calls": [],
     }

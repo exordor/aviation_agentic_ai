@@ -613,7 +613,6 @@ def test_required_blocked_domain_stops_assembly_and_preserves_blocked_status(
             guide=load_schema_guide(str(SCHEMA_PATH)),
             run_id="run:test",
             run_started_at=STARTED,
-            output_dir=str(tmp_path / "run"),
             semantic_resolution_tool_model_factory=lambda tools: (
                 calls.append("semantic-resolution") or None
             ),
@@ -659,7 +658,6 @@ def test_missing_ground_stop_extension_is_insufficient_and_unpublished(tmp_path)
             guide=load_schema_guide(str(SCHEMA_PATH)),
             run_id="run:missing-ground-stop-extension",
             run_started_at=STARTED,
-            output_dir=str(tmp_path / "missing-ground-stop-extension"),
         )
     )
 
@@ -667,7 +665,8 @@ def test_missing_ground_stop_extension_is_insufficient_and_unpublished(tmp_path)
     assert state["event_evidence_integration_proposal"].integration_status is EventEvidenceIntegrationStatus.INSUFFICIENT
     assert state["integration_graph_patch"] is None
     assert state["validation"] is None
-    assert state["materialization"] is None
+    assert state["formal_publication"] is None
+    assert state["ingestion_package"] is None
     assert state["formal_layers"]["decision"]["status"] == "insufficient"
 
 
@@ -729,7 +728,6 @@ def test_exact_tmi_profile_does_not_depend_on_optional_term_definition(tmp_path)
             guide=load_schema_guide(str(SCHEMA_PATH)),
             run_id="run:test",
             run_started_at=STARTED,
-            output_dir=str(tmp_path / "insufficient"),
             semantic_resolution_tool_model_factory=lambda tools: (
                 calls.append("semantic-resolution") or None
             ),
@@ -758,7 +756,6 @@ def test_event_class_hint_mismatch_blocks_before_assembly_factory(tmp_path, monk
             advisory=advisory,
             guide=guide,
             run_id="run:test",
-            output_dir=str(tmp_path),
         ),
     )
     advisory_card = EvidenceCard(
@@ -837,7 +834,6 @@ def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
             advisory=advisory,
             guide=guide,
             run_id="run:test",
-            output_dir=str(tmp_path),
         ),
     )
 
@@ -961,7 +957,6 @@ def test_materialization_excludes_authority_only_canonical_entities(
             advisory=advisory,
             guide=guide,
             run_id="run:test",
-            output_dir=str(tmp_path),
         ),
     )
 
@@ -974,8 +969,16 @@ def test_materialization_excludes_authority_only_canonical_entities(
         "validate_graph_patch",
         capture_validation,
     )
-    monkeypatch.setattr(workflow_module, "write_fact_trace", lambda **kwargs: None)
-    monkeypatch.setattr(workflow_module, "write_profile_gaps", lambda **kwargs: None)
+    monkeypatch.setattr(
+        workflow_module,
+        "build_fact_trace_rows",
+        lambda **kwargs: (),
+    )
+    monkeypatch.setattr(
+        workflow_module,
+        "build_profile_gap_rows",
+        lambda **kwargs: (),
+    )
 
     facility_card = EvidenceCard(
         agent_role="facility",

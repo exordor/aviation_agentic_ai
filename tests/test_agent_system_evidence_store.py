@@ -15,10 +15,17 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceFamily,
     ValidationProfileRef,
 )
+from aviation_agentic_ai.agent_system.ingestion_package import (
+    EventFactMembership,
+    EventIngestionPackage,
+    IngestionAttempt,
+)
 from aviation_agentic_ai.agent_system.storage_contracts import (
     EventEvidenceLink,
-    IngestionAttempt,
+    EventProfileGapRecord,
+    EventWeatherAssociation,
     IngestionResult,
+    PublicObservationRecord,
     SemanticFactRecord,
     SourceChunkRecord,
     SourceVersionRecord,
@@ -142,27 +149,65 @@ def _minimal_ok_attempt(
             tmi_family="ground_stop",
             preflight_eligible=True,
         ),
-        event=TMIEventRecord(
-            event_id=event_id,
-            publication_id=publication_id,
-            advisory_source_id=version.source_id,
-            publication_source_version_id=version.source_version_id,
-            event_type_iris=("atm:GroundStopTMI",),
-            facility_ids=(),
-            effective_start=None,
-            effective_end=None,
-            issued_at=None,
-            reason_status="missing",
-            reason_value=None,
+        package=_event_package(
+            event=TMIEventRecord(
+                event_id=event_id,
+                publication_id=publication_id,
+                advisory_source_id=version.source_id,
+                publication_source_version_id=version.source_version_id,
+                event_type_iris=("atm:GroundStopTMI",),
+                facility_ids=(),
+                effective_start=None,
+                effective_end=None,
+                issued_at=None,
+                reason_status="missing",
+                reason_value=None,
+            ),
+            publication_digest=publication_digest,
+            source_roles=(
+                {version.source_version_id: "advisory"}
+                if source_roles is None
+                else source_roles
+            ),
+            facts=(fact,),
+            evidence_links=links,
         ),
+    )
+
+
+def _event_package(
+    *,
+    event: TMIEventRecord,
+    publication_digest: str,
+    source_roles: dict[str, str],
+    facts: tuple[SemanticFactRecord, ...],
+    evidence_links: tuple[EventEvidenceLink, ...],
+    profile_gaps: tuple[EventProfileGapRecord, ...] = (),
+    weather_associations: tuple[EventWeatherAssociation, ...] = (),
+    public_observations: tuple[PublicObservationRecord, ...] = (),
+) -> EventIngestionPackage:
+    return EventIngestionPackage(
+        event=event,
         formal_publication_digest=publication_digest,
-        source_roles=(
-            {version.source_version_id: "advisory"}
-            if source_roles is None
-            else source_roles
+        source_version_ids=tuple(sorted(source_roles)),
+        source_anchors=(),
+        facts=facts,
+        event_fact_memberships=tuple(
+            EventFactMembership(
+                event_id=event.event_id,
+                publication_id=event.publication_id,
+                fact_id=fact.fact_id,
+            )
+            for fact in facts
         ),
-        facts=(fact,),
-        evidence_links=links,
+        evidence_links=evidence_links,
+        profile_gaps=profile_gaps,
+        weather_associations=weather_associations,
+        public_observations=public_observations,
+        observation_fact_ids={
+            observation.observation_id: observation.fact_ids
+            for observation in public_observations
+        },
     )
 
 
@@ -524,7 +569,6 @@ def test_semantic_publication_rolls_back_when_evidence_anchor_is_invalid(
     )
     from aviation_agentic_ai.agent_system.storage_contracts import (
         EventEvidenceLink,
-        IngestionAttempt,
         IngestionResult,
         SemanticFactRecord,
         TMIEventRecord,
@@ -582,21 +626,23 @@ def test_semantic_publication_rolls_back_when_evidence_anchor_is_invalid(
     )
     attempt = IngestionAttempt(
         result=result,
-        event=event,
-        formal_publication_digest=publication_digest,
-        source_roles={version.source_version_id: "advisory"},
-        facts=(fact,),
-        evidence_links=(
-            EventEvidenceLink(
-                evidence_link_id="evidence:invalid-anchor",
-                event_id=event_id,
-                publication_id=publication_id,
-                owner_kind="fact",
-                owner_id=fact.fact_id,
-                source_version_id=version.source_version_id,
-                source_anchor_id="source-anchor:missing",
-                evidence_text="GROUND STOP",
-                evidence_ref=fact.fact_id,
+        package=_event_package(
+            event=event,
+            publication_digest=publication_digest,
+            source_roles={version.source_version_id: "advisory"},
+            facts=(fact,),
+            evidence_links=(
+                EventEvidenceLink(
+                    evidence_link_id="evidence:invalid-anchor",
+                    event_id=event_id,
+                    publication_id=publication_id,
+                    owner_kind="fact",
+                    owner_id=fact.fact_id,
+                    source_version_id=version.source_version_id,
+                    source_anchor_id="source-anchor:missing",
+                    evidence_text="GROUND STOP",
+                    evidence_ref=fact.fact_id,
+                ),
             ),
         ),
     )
@@ -704,10 +750,13 @@ def test_evidence_link_rejects_unknown_publication_owner(
             publication_digest=digest,
             source_anchor_id=anchor.source_anchor_id,
         )
+        assert base.package is not None
         dangling = EventEvidenceLink(
-            evidence_link_id=f"evidence:{base.event.publication_id}:dangling",
+            evidence_link_id=(
+                f"evidence:{base.package.event.publication_id}:dangling"
+            ),
             event_id=event_id,
-            publication_id=base.event.publication_id,
+            publication_id=base.package.event.publication_id,
             owner_kind=owner_kind,
             owner_id="owner:missing",
             source_version_id=version.source_version_id,
@@ -715,14 +764,16 @@ def test_evidence_link_rejects_unknown_publication_owner(
             evidence_text=version.content,
             evidence_ref="owner:missing",
         )
-        attempt = IngestionAttempt.model_validate(
-            {
-                **base.model_dump(mode="python"),
-                "evidence_links": (*base.evidence_links, dangling),
-            }
-        )
-        with pytest.raises(ValueError, match="owner"):
-            store.apply_ingestion_attempt(attempt)
+        with pytest.raises(ValidationError, match="owner"):
+            EventIngestionPackage.model_validate(
+                {
+                    **base.package.model_dump(mode="python"),
+                    "evidence_links": (
+                        *base.package.evidence_links,
+                        dangling,
+                    ),
+                }
+            )
         assert store.get_event(event_id) is None
     finally:
         store.close()
@@ -767,16 +818,17 @@ def test_profile_gap_is_published_and_read_with_exact_source_binding(
             publication_digest=digest,
             source_anchor_id=fact_anchor.source_anchor_id,
         )
+        assert base.package is not None
         gap = EventProfileGapRecord(
             profile_gap_id=stable_id(
                 "profile-gap",
                 event_id,
                 "impacting_condition",
                 "weather",
-                base.event.publication_id,
+                base.package.event.publication_id,
             ),
             event_id=event_id,
-            publication_id=base.event.publication_id,
+            publication_id=base.package.event.publication_id,
             field="impacting_condition",
             value="weather",
             evidence_text="WEATHER",
@@ -791,9 +843,11 @@ def test_profile_gap_is_published_and_read_with_exact_source_binding(
             ),
         )
         gap_link = EventEvidenceLink(
-            evidence_link_id=f"evidence:{base.event.publication_id}:gap",
+            evidence_link_id=(
+                f"evidence:{base.package.event.publication_id}:gap"
+            ),
             event_id=event_id,
-            publication_id=base.event.publication_id,
+            publication_id=base.package.event.publication_id,
             owner_kind="profile_gap",
             owner_id=gap.profile_gap_id,
             source_version_id=version.source_version_id,
@@ -801,19 +855,23 @@ def test_profile_gap_is_published_and_read_with_exact_source_binding(
             evidence_text="WEATHER",
             evidence_ref=gap.evidence_ref,
         )
-        attempt = IngestionAttempt.model_validate(
+        package = EventIngestionPackage.model_validate(
             {
-                **base.model_dump(mode="python"),
-                "event": base.event.model_copy(
+                **base.package.model_dump(mode="python"),
+                "event": base.package.event.model_copy(
                     update={
                         "reason_status": "profile_gap",
                         "reason_value": None,
                     }
                 ).model_dump(mode="python"),
                 "profile_gaps": (gap,),
-                "evidence_links": (*base.evidence_links, gap_link),
+                "evidence_links": (
+                    *base.package.evidence_links,
+                    gap_link,
+                ),
             }
         )
+        attempt = IngestionAttempt(result=base.result, package=package)
 
         assert store.apply_ingestion_attempt(attempt) == "inserted"
         assert store.get_event_profile_gaps(event_id) == (gap,)
@@ -832,7 +890,6 @@ def test_events_share_semantic_fact_but_keep_evidence_links_disjoint(
     )
     from aviation_agentic_ai.agent_system.storage_contracts import (
         EventEvidenceLink,
-        IngestionAttempt,
         IngestionResult,
         SemanticFactRecord,
         TMIEventRecord,
@@ -889,35 +946,37 @@ def test_events_share_semantic_fact_but_keep_evidence_links_disjoint(
                 tmi_family="ground_stop",
                 preflight_eligible=True,
             ),
-            event=TMIEventRecord(
-                event_id=event_id,
-                publication_id=publication_id,
-                advisory_source_id=version.source_id,
-                publication_source_version_id=version.source_version_id,
-                event_type_iris=("atm:GroundStopTMI",),
-                facility_ids=(
-                    "urn:aviation-agentic-ai:facility:airport:JFK",
-                ),
-                effective_start=None,
-                effective_end=None,
-                issued_at=None,
-                reason_status="missing",
-                reason_value=None,
-            ),
-            formal_publication_digest=publication_digest,
-            source_roles={version.source_version_id: "advisory"},
-            facts=(shared_fact,),
-            evidence_links=(
-                EventEvidenceLink(
-                    evidence_link_id=f"evidence:{event_id}",
+            package=_event_package(
+                event=TMIEventRecord(
                     event_id=event_id,
                     publication_id=publication_id,
-                    owner_kind="fact",
-                    owner_id=shared_fact.fact_id,
-                    source_version_id=version.source_version_id,
-                    source_anchor_id=anchor_id,
-                    evidence_text="JFK",
-                    evidence_ref=shared_fact.fact_id,
+                    advisory_source_id=version.source_id,
+                    publication_source_version_id=version.source_version_id,
+                    event_type_iris=("atm:GroundStopTMI",),
+                    facility_ids=(
+                        "urn:aviation-agentic-ai:facility:airport:JFK",
+                    ),
+                    effective_start=None,
+                    effective_end=None,
+                    issued_at=None,
+                    reason_status="missing",
+                    reason_value=None,
+                ),
+                publication_digest=publication_digest,
+                source_roles={version.source_version_id: "advisory"},
+                facts=(shared_fact,),
+                evidence_links=(
+                    EventEvidenceLink(
+                        evidence_link_id=f"evidence:{event_id}",
+                        event_id=event_id,
+                        publication_id=publication_id,
+                        owner_kind="fact",
+                        owner_id=shared_fact.fact_id,
+                        source_version_id=version.source_version_id,
+                        source_anchor_id=anchor_id,
+                        evidence_text="JFK",
+                        evidence_ref=shared_fact.fact_id,
+                    ),
                 ),
             ),
         )
@@ -1028,13 +1087,15 @@ def test_same_semantics_from_revised_source_activates_new_publication(
 
         assert store.apply_ingestion_attempt(first) == "inserted"
         assert store.apply_ingestion_attempt(revised) == "activated"
-        assert store.get_event(event_id) == revised.event
+        assert revised.package is not None
+        assert first.package is not None
+        assert store.get_event(event_id) == revised.package.event
         assert (
             store.get_event(
                 event_id,
-                publication_id=first.event.publication_id,
+                publication_id=first.package.event.publication_id,
             )
-            == first.event
+            == first.package.event
         )
         assert (
             store._connection.execute(  # noqa: SLF001
@@ -1062,7 +1123,6 @@ def test_accepted_revision_activates_new_immutable_publication(
     )
     from aviation_agentic_ai.agent_system.storage_contracts import (
         EventEvidenceLink,
-        IngestionAttempt,
         IngestionResult,
         SemanticFactRecord,
         TMIEventRecord,
@@ -1124,56 +1184,58 @@ def test_accepted_revision_activates_new_immutable_publication(
                 tmi_family="ground_stop",
                 preflight_eligible=True,
             ),
-            event=TMIEventRecord(
-                event_id=event_id,
-                publication_id=publication_id,
-                advisory_source_id=source_id,
-                publication_source_version_id=version.source_version_id,
-                event_type_iris=("atm:GroundStopTMI",),
-                facility_ids=(
-                    "urn:aviation-agentic-ai:facility:airport:JFK",
-                ),
-                effective_start=datetime(
-                    2026,
-                    5,
-                    19,
-                    21,
-                    0,
-                    tzinfo=UTC,
-                ),
-                effective_end=datetime(
-                    2026,
-                    5,
-                    19,
-                    end_hour,
-                    0,
-                    tzinfo=UTC,
-                ),
-                issued_at=datetime(
-                    2026,
-                    5,
-                    19,
-                    20,
-                    30,
-                    tzinfo=UTC,
-                ),
-                reason_status="missing",
-                reason_value=None,
-            ),
-            formal_publication_digest=publication_digest,
-            source_roles={version.source_version_id: "advisory"},
-            facts=(fact,),
-            evidence_links=(
-                EventEvidenceLink(
-                    evidence_link_id=f"evidence:{publication_id}",
+            package=_event_package(
+                event=TMIEventRecord(
                     event_id=event_id,
                     publication_id=publication_id,
-                    owner_kind="fact",
-                    owner_id=fact.fact_id,
-                    source_version_id=version.source_version_id,
-                    source_anchor_id=anchor_id,
-                    evidence_text="GROUND STOP",
-                    evidence_ref=fact.fact_id,
+                    advisory_source_id=source_id,
+                    publication_source_version_id=version.source_version_id,
+                    event_type_iris=("atm:GroundStopTMI",),
+                    facility_ids=(
+                        "urn:aviation-agentic-ai:facility:airport:JFK",
+                    ),
+                    effective_start=datetime(
+                        2026,
+                        5,
+                        19,
+                        21,
+                        0,
+                        tzinfo=UTC,
+                    ),
+                    effective_end=datetime(
+                        2026,
+                        5,
+                        19,
+                        end_hour,
+                        0,
+                        tzinfo=UTC,
+                    ),
+                    issued_at=datetime(
+                        2026,
+                        5,
+                        19,
+                        20,
+                        30,
+                        tzinfo=UTC,
+                    ),
+                    reason_status="missing",
+                    reason_value=None,
+                ),
+                publication_digest=publication_digest,
+                source_roles={version.source_version_id: "advisory"},
+                facts=(fact,),
+                evidence_links=(
+                    EventEvidenceLink(
+                        evidence_link_id=f"evidence:{publication_id}",
+                        event_id=event_id,
+                        publication_id=publication_id,
+                        owner_kind="fact",
+                        owner_id=fact.fact_id,
+                        source_version_id=version.source_version_id,
+                        source_anchor_id=anchor_id,
+                        evidence_text="GROUND STOP",
+                        evidence_ref=fact.fact_id,
+                    ),
                 ),
             ),
         )
@@ -1206,19 +1268,21 @@ def test_accepted_revision_activates_new_immutable_publication(
 
         assert store.apply_ingestion_attempt(first) == "inserted"
         assert store.apply_ingestion_attempt(second) == "activated"
-        assert store.get_event(event_id) == second.event
+        assert second.package is not None
+        assert first.package is not None
+        assert store.get_event(event_id) == second.package.event
         assert (
             store.get_event(
                 event_id,
-                publication_id=first.event.publication_id,
+                publication_id=first.package.event.publication_id,
             )
-            == first.event
+            == first.package.event
         )
-        assert store.get_event_facts(event_id) == second.facts
+        assert store.get_event_facts(event_id) == second.package.facts
         assert store.get_event_facts(
             event_id,
-            publication_id=first.event.publication_id,
-        ) == first.facts
+            publication_id=first.package.event.publication_id,
+        ) == first.package.facts
     finally:
         store.close()
 
@@ -1234,7 +1298,6 @@ def test_blocked_revision_preserves_prior_accepted_publication(
     )
     from aviation_agentic_ai.agent_system.storage_contracts import (
         EventEvidenceLink,
-        IngestionAttempt,
         IngestionResult,
         SemanticFactRecord,
         TMIEventRecord,
@@ -1303,21 +1366,25 @@ def test_blocked_revision_preserves_prior_accepted_publication(
                 tmi_family="ground_stop",
                 preflight_eligible=True,
             ),
-            event=accepted_event,
-            formal_publication_digest=publication_digest,
-            source_roles={accepted_version.source_version_id: "advisory"},
-            facts=(fact,),
-            evidence_links=(
-                EventEvidenceLink(
-                    evidence_link_id="evidence:accepted",
-                    event_id=event_id,
-                    publication_id=publication_id,
-                    owner_kind="fact",
-                    owner_id=fact.fact_id,
-                    source_version_id=accepted_version.source_version_id,
-                    source_anchor_id=anchor.source_anchor_id,
-                    evidence_text="GROUND STOP",
-                    evidence_ref=fact.fact_id,
+            package=_event_package(
+                event=accepted_event,
+                publication_digest=publication_digest,
+                source_roles={
+                    accepted_version.source_version_id: "advisory"
+                },
+                facts=(fact,),
+                evidence_links=(
+                    EventEvidenceLink(
+                        evidence_link_id="evidence:accepted",
+                        event_id=event_id,
+                        publication_id=publication_id,
+                        owner_kind="fact",
+                        owner_id=fact.fact_id,
+                        source_version_id=accepted_version.source_version_id,
+                        source_anchor_id=anchor.source_anchor_id,
+                        evidence_text="GROUND STOP",
+                        evidence_ref=fact.fact_id,
+                    ),
                 ),
             ),
         )
@@ -1337,7 +1404,7 @@ def test_blocked_revision_preserves_prior_accepted_publication(
         )
         assert (
             store.apply_ingestion_attempt(
-                IngestionAttempt(result=blocked_result)
+                IngestionAttempt(result=blocked_result, package=None)
             )
             == "inserted"
         )
@@ -1518,7 +1585,6 @@ def test_event_listing_and_sources_use_active_bounded_publication(
     )
     from aviation_agentic_ai.agent_system.storage_contracts import (
         EventEvidenceLink,
-        IngestionAttempt,
         IngestionResult,
         SemanticFactRecord,
         TMIEventQuery,
@@ -1589,24 +1655,26 @@ def test_event_listing_and_sources_use_active_bounded_publication(
                     tmi_family="ground_stop",
                     preflight_eligible=True,
                 ),
-                event=event,
-                formal_publication_digest=digest,
-                source_roles={
-                    advisory.source_version_id: "advisory",
-                    authority.source_version_id: "facility_authority",
-                },
-                facts=(fact,),
-                evidence_links=(
-                    EventEvidenceLink(
-                        evidence_link_id="evidence:list",
-                        event_id=event_id,
-                        publication_id=publication_id,
-                        owner_kind="fact",
-                        owner_id=fact.fact_id,
-                        source_version_id=advisory.source_version_id,
-                        source_anchor_id=anchor.source_anchor_id,
-                        evidence_text="GROUND STOP",
-                        evidence_ref=fact.fact_id,
+                package=_event_package(
+                    event=event,
+                    publication_digest=digest,
+                    source_roles={
+                        advisory.source_version_id: "advisory",
+                        authority.source_version_id: "facility_authority",
+                    },
+                    facts=(fact,),
+                    evidence_links=(
+                        EventEvidenceLink(
+                            evidence_link_id="evidence:list",
+                            event_id=event_id,
+                            publication_id=publication_id,
+                            owner_kind="fact",
+                            owner_id=fact.fact_id,
+                            source_version_id=advisory.source_version_id,
+                            source_anchor_id=anchor.source_anchor_id,
+                            evidence_text="GROUND STOP",
+                            evidence_ref=fact.fact_id,
+                        ),
                     ),
                 ),
             )
@@ -1647,7 +1715,6 @@ def test_event_weather_and_observations_read_active_publication(
     from aviation_agentic_ai.agent_system.storage_contracts import (
         EventEvidenceLink,
         EventWeatherAssociation,
-        IngestionAttempt,
         IngestionResult,
         PublicObservationRecord,
         SemanticFactRecord,
@@ -1733,43 +1800,49 @@ def test_event_weather_and_observations_read_active_publication(
                     tmi_family="ground_stop",
                     preflight_eligible=True,
                 ),
-                event=TMIEventRecord(
-                    event_id=event_id,
-                    publication_id=publication_id,
-                    advisory_source_id=advisory.source_id,
-                    publication_source_version_id=advisory.source_version_id,
-                    event_type_iris=("atm:GroundStopTMI",),
-                    facility_ids=(
-                        "urn:aviation-agentic-ai:facility:airport:JFK",
-                    ),
-                    effective_start=None,
-                    effective_end=None,
-                    issued_at=None,
-                    reason_status="missing",
-                    reason_value=None,
-                ),
-                formal_publication_digest=digest,
-                source_roles={
-                    advisory.source_version_id: "advisory",
-                    weather_source.source_version_id: "weather",
-                    observation_source.source_version_id: "public_observation",
-                },
-                facts=(fact,),
-                evidence_links=(
-                    EventEvidenceLink(
-                        evidence_link_id="evidence:context",
+                package=_event_package(
+                    event=TMIEventRecord(
                         event_id=event_id,
                         publication_id=publication_id,
-                        owner_kind="fact",
-                        owner_id=fact.fact_id,
-                        source_version_id=advisory.source_version_id,
-                        source_anchor_id=anchor.source_anchor_id,
-                        evidence_text="GROUND STOP",
-                        evidence_ref=fact.fact_id,
+                        advisory_source_id=advisory.source_id,
+                        publication_source_version_id=(
+                            advisory.source_version_id
+                        ),
+                        event_type_iris=("atm:GroundStopTMI",),
+                        facility_ids=(
+                            "urn:aviation-agentic-ai:facility:airport:JFK",
+                        ),
+                        effective_start=None,
+                        effective_end=None,
+                        issued_at=None,
+                        reason_status="missing",
+                        reason_value=None,
                     ),
+                    publication_digest=digest,
+                    source_roles={
+                        advisory.source_version_id: "advisory",
+                        weather_source.source_version_id: "weather",
+                        observation_source.source_version_id: (
+                            "public_observation"
+                        ),
+                    },
+                    facts=(fact,),
+                    evidence_links=(
+                        EventEvidenceLink(
+                            evidence_link_id="evidence:context",
+                            event_id=event_id,
+                            publication_id=publication_id,
+                            owner_kind="fact",
+                            owner_id=fact.fact_id,
+                            source_version_id=advisory.source_version_id,
+                            source_anchor_id=anchor.source_anchor_id,
+                            evidence_text="GROUND STOP",
+                            evidence_ref=fact.fact_id,
+                        ),
+                    ),
+                    weather_associations=(weather,),
+                    public_observations=(observation,),
                 ),
-                weather_associations=(weather,),
-                public_observations=(observation,),
             )
         )
 

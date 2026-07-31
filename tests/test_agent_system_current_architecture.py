@@ -56,7 +56,7 @@ def test_unique_authority_candidates_resolve_without_semantic_model(tmp_path) ->
 
 
 def test_ingest_publishes_assembly_patch_without_legacy_kg_envelope(tmp_path) -> None:
-    """Catches reintroducing the removed KG-result bridge after Assembly."""
+    """Normal ingest returns a transaction package without a run bundle."""
 
     from aviation_agentic_ai.agent_system.sources import load_advisory_source
     from test_agent_system_authority_evidence import _test_inputs
@@ -64,6 +64,10 @@ def test_ingest_publishes_assembly_patch_without_legacy_kg_envelope(tmp_path) ->
     catalog = _catalog(tmp_path)
     config, _ = _test_inputs(tmp_path)
     advisory = load_advisory_source(config, "2026-05-19:123")
+    paths_before = {
+        path.relative_to(tmp_path)
+        for path in tmp_path.rglob("*")
+    }
     state = run_ingest(
         IngestContext(
             advisory=advisory,
@@ -73,7 +77,6 @@ def test_ingest_publishes_assembly_patch_without_legacy_kg_envelope(tmp_path) ->
             guide=load_schema_guide(),
             run_id="run:direct-assembly",
             run_started_at=STARTED,
-            output_dir=str(tmp_path / "direct-assembly"),
         )
     )
 
@@ -82,6 +85,12 @@ def test_ingest_publishes_assembly_patch_without_legacy_kg_envelope(tmp_path) ->
         EventEvidenceIntegrationStatus.PARTIAL,
     }
     assert state["integration_graph_patch"].patch_lines
+    assert state["formal_publication"] is not None
+    assert state["ingestion_package"] is not None
+    assert {
+        path.relative_to(tmp_path)
+        for path in tmp_path.rglob("*")
+    } == paths_before
     assert state.get("kg_result") is None
     assert state.get("decision_case_graph") is None
     state = run_ingest(
@@ -91,7 +100,6 @@ def test_ingest_publishes_assembly_patch_without_legacy_kg_envelope(tmp_path) ->
             guide=load_schema_guide(),
             run_id="run:test",
             run_started_at=STARTED,
-            output_dir=str(tmp_path / "run"),
         )
     )
 

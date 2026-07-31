@@ -4,16 +4,18 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 
+from aviation_agentic_ai.agent_system.agent_usage import AgentUsageRecord
 from aviation_agentic_ai.agent_system.contracts import SourceFamily
+from aviation_agentic_ai.agent_system.ingestion_package import IngestionAttempt
 from aviation_agentic_ai.agent_system.storage_contracts import (
     EventEvidenceLink,
     EventProfileGapRecord,
     EventWeatherAssociation,
-    IngestionAttempt,
     IngestionResult,
     PublicObservationRecord,
     SemanticFactRecord,
@@ -868,11 +870,12 @@ class AviationEvidenceStore:
                 self._write_ingestion_result(attempt.result)
             return "inserted"
 
-        event = attempt.event
-        publication_digest = attempt.formal_publication_digest
-        if event is None or publication_digest is None:
+        package = attempt.package
+        if package is None:
             raise ValueError("ok ingestion requires a publication")
-        for source_version_id in attempt.source_roles:
+        event = package.event
+        publication_digest = package.formal_publication_digest
+        for source_version_id in package.source_version_ids:
             if self.get_source_version(source_version_id) is None:
                 raise ValueError(
                     f"publication source version does not exist: "
@@ -905,6 +908,34 @@ class AviationEvidenceStore:
         now = datetime.now(UTC).isoformat()
 
         with self._connection:
+            for anchor in sorted(
+                package.source_anchors,
+                key=lambda row: row.source_anchor_id,
+            ):
+                version = self.get_source_version(anchor.source_version_id)
+                if version is None:
+                    raise ValueError("source anchor version does not exist")
+                if anchor.char_end > len(version.content):
+                    raise ValueError("source anchor exceeds source content")
+                self._connection.execute(
+                    """
+                    INSERT OR IGNORE INTO source_anchors(
+                        source_anchor_id,
+                        source_version_id,
+                        char_start,
+                        char_end,
+                        anchor_kind
+                    )
+                    VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (
+                        anchor.source_anchor_id,
+                        anchor.source_version_id,
+                        anchor.char_start,
+                        anchor.char_end,
+                        anchor.anchor_kind,
+                    ),
+                )
             if existing_event is None:
                 self._connection.execute(
                     """
@@ -978,23 +1009,30 @@ class AviationEvidenceStore:
                 VALUES (?, ?, ?)
                 """,
                 (
-                    (event.publication_id, source_version_id, source_role)
-                    for source_version_id, source_role in sorted(
-                        attempt.source_roles.items()
+                    (
+                        event.publication_id,
+                        source_version_id,
+                        (
+                            "advisory"
+                            if source_version_id
+                            == event.publication_source_version_id
+                            else "evidence"
+                        ),
                     )
+                    for source_version_id in sorted(package.source_version_ids)
                 ),
             )
-            publication_fact_ids = {fact.fact_id for fact in attempt.facts}
+            publication_fact_ids = {fact.fact_id for fact in package.facts}
             publication_gap_ids = {
-                gap.profile_gap_id for gap in attempt.profile_gaps
+                gap.profile_gap_id for gap in package.profile_gaps
             }
             publication_association_ids = {
                 association.association_id
-                for association in attempt.weather_associations
+                for association in package.weather_associations
             }
             publication_observation_ids = {
                 observation.observation_id
-                for observation in attempt.public_observations
+                for observation in package.public_observations
             }
             owner_ids = {
                 "fact": publication_fact_ids,
@@ -1005,7 +1043,7 @@ class AviationEvidenceStore:
             fact_links: dict[str, list[EventEvidenceLink]] = {
                 fact_id: [] for fact_id in publication_fact_ids
             }
-            for link in attempt.evidence_links:
+            for link in package.evidence_links:
                 if link.owner_id not in owner_ids[link.owner_kind]:
                     raise ValueError(
                         "evidence link owner is outside publication"
@@ -1030,7 +1068,7 @@ class AviationEvidenceStore:
                         )
                 if link.owner_kind == "fact":
                     fact_links[link.owner_id].append(link)
-            for fact in attempt.facts:
+            for fact in package.facts:
                 if fact.evidence_mode != "source_text":
                     continue
                 if not any(
@@ -1041,7 +1079,7 @@ class AviationEvidenceStore:
                         "source-text evidence requires an exact source anchor"
                     )
 
-            for gap in attempt.profile_gaps:
+            for gap in package.profile_gaps:
                 version = self.get_source_version(gap.source_version_id)
                 if version is None:
                     raise ValueError("profile gap source version does not exist")
@@ -1060,7 +1098,7 @@ class AviationEvidenceStore:
                         "profile gap evidence text does not match source anchor"
                     )
 
-            for fact in sorted(attempt.facts, key=lambda row: row.fact_id):
+            for fact in sorted(package.facts, key=lambda row: row.fact_id):
                 self._upsert_semantic_fact(fact)
                 self._connection.execute(
                     """
@@ -1070,7 +1108,7 @@ class AviationEvidenceStore:
                     (event.publication_id, fact.fact_id),
                 )
             for gap in sorted(
-                attempt.profile_gaps,
+                package.profile_gaps,
                 key=lambda row: row.profile_gap_id,
             ):
                 profile = gap.validation_profile
@@ -1110,7 +1148,7 @@ class AviationEvidenceStore:
                     ),
                 )
             for link in sorted(
-                attempt.evidence_links,
+                package.evidence_links,
                 key=lambda row: row.evidence_link_id,
             ):
                 self._connection.execute(
@@ -1141,7 +1179,7 @@ class AviationEvidenceStore:
                     ),
                 )
             for association in sorted(
-                attempt.weather_associations,
+                package.weather_associations,
                 key=lambda row: row.association_id,
             ):
                 if self.get_source_version(
@@ -1183,7 +1221,7 @@ class AviationEvidenceStore:
                     ),
                 )
             for observation in sorted(
-                attempt.public_observations,
+                package.public_observations,
                 key=lambda row: row.observation_id,
             ):
                 if self.get_source_version(
@@ -1240,7 +1278,13 @@ class AviationEvidenceStore:
                             observation.observation_id,
                             fact_id,
                         )
-                        for fact_id in sorted(set(observation.fact_ids))
+                        for fact_id in sorted(
+                            set(
+                                package.observation_fact_ids[
+                                    observation.observation_id
+                                ]
+                            )
+                        )
                     ),
                 )
             self._connection.execute(
@@ -1251,7 +1295,7 @@ class AviationEvidenceStore:
                 """,
                 (event.publication_id, event.event_id),
             )
-            for source_version_id in sorted(attempt.source_roles):
+            for source_version_id in sorted(package.source_version_ids):
                 self._connection.execute(
                     """
                     UPDATE sources
@@ -1881,6 +1925,164 @@ class AviationEvidenceStore:
         """Return the latest operational outcome for one source version."""
 
         return self._get_ingestion_result(source_version_id)
+
+    def start_ingestion_run(
+        self,
+        ingestion_run_id: str,
+        *,
+        started_at: datetime,
+    ) -> None:
+        """Open one operational ingestion run."""
+
+        with self._connection:
+            self._connection.execute(
+                """
+                INSERT INTO ingestion_runs(
+                    ingestion_run_id,
+                    started_at,
+                    status
+                )
+                VALUES (?, ?, 'running')
+                """,
+                (ingestion_run_id, started_at.isoformat()),
+            )
+
+    def finish_ingestion_run(
+        self,
+        ingestion_run_id: str,
+        *,
+        status: str,
+        attempted_count: int,
+        ok_count: int,
+        insufficient_count: int,
+        blocked_count: int,
+        ended_at: datetime,
+    ) -> None:
+        """Close one ingestion run with its compact outcome counts."""
+
+        with self._connection:
+            self._connection.execute(
+                """
+                UPDATE ingestion_runs
+                SET ended_at = ?,
+                    status = ?,
+                    attempted_count = ?,
+                    ok_count = ?,
+                    insufficient_count = ?,
+                    blocked_count = ?
+                WHERE ingestion_run_id = ?
+                """,
+                (
+                    ended_at.isoformat(),
+                    status,
+                    attempted_count,
+                    ok_count,
+                    insufficient_count,
+                    blocked_count,
+                    ingestion_run_id,
+                ),
+            )
+
+    def replace_agent_usage(
+        self,
+        ingestion_run_id: str,
+        records: Sequence[AgentUsageRecord],
+    ) -> None:
+        """Persist payload-free Agent usage for one ingestion run."""
+
+        if not records:
+            return
+        with self._connection:
+            self._connection.executemany(
+                """
+                INSERT OR REPLACE INTO agent_usage(
+                    ingestion_run_id,
+                    source_id,
+                    event_id,
+                    task_id,
+                    role,
+                    task_scope,
+                    execution_mode,
+                    outcome,
+                    detail_status,
+                    activation_reason,
+                    provider_call_count,
+                    tool_call_count,
+                    input_tokens,
+                    output_tokens,
+                    provider_latency_ms,
+                    tool_latency_ms
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    (
+                        ingestion_run_id,
+                        row.source_id,
+                        row.event_id,
+                        row.task_id,
+                        row.role,
+                        row.task_scope,
+                        row.execution_mode,
+                        row.outcome,
+                        row.detail_status,
+                        row.activation_reason,
+                        row.provider_call_count,
+                        row.tool_call_count,
+                        row.input_tokens,
+                        row.output_tokens,
+                        row.provider_latency_ms,
+                        row.tool_latency_ms,
+                    )
+                    for row in records
+                ),
+            )
+
+    def list_agent_usage(
+        self,
+        *,
+        ingestion_run_id: str | None = None,
+    ) -> tuple[AgentUsageRecord, ...]:
+        """Return payload-free Agent usage in stable order."""
+
+        if ingestion_run_id is None:
+            rows = self._connection.execute(
+                """
+                SELECT *
+                FROM agent_usage
+                ORDER BY ingestion_run_id, source_id, role, task_scope
+                """
+            ).fetchall()
+        else:
+            rows = self._connection.execute(
+                """
+                SELECT *
+                FROM agent_usage
+                WHERE ingestion_run_id = ?
+                ORDER BY source_id, role, task_scope
+                """,
+                (ingestion_run_id,),
+            ).fetchall()
+        return tuple(
+            AgentUsageRecord(
+                source_id=row["source_id"],
+                event_id=row["event_id"],
+                task_id=row["task_id"],
+                role=row["role"],
+                task_scope=row["task_scope"],
+                execution_mode=row["execution_mode"],
+                outcome=row["outcome"],
+                detail_status=row["detail_status"],
+                activation_reason=row["activation_reason"],
+                provider_call_count=row["provider_call_count"],
+                tool_call_count=row["tool_call_count"],
+                input_tokens=row["input_tokens"],
+                output_tokens=row["output_tokens"],
+                provider_latency_ms=row["provider_latency_ms"],
+                tool_latency_ms=row["tool_latency_ms"],
+            )
+            for row in rows
+        )
 
     def _increment_knowledge_revision(self, updated_at: str) -> None:
         self._connection.execute(

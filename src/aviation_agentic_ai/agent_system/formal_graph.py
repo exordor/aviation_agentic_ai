@@ -739,6 +739,8 @@ def _event_exact_cardinality_errors(
 
 
 __all__ = [
+    "build_fact_trace_rows",
+    "build_profile_gap_rows",
     "build_evidence_index",
     "validate_graph_patch",
     "write_fact_trace",
@@ -755,15 +757,14 @@ _ = Any
 # ---------------------------------------------------------------------------
 
 
-def write_fact_trace(
+def build_fact_trace_rows(
     *,
     result: GraphValidationResult,
     block: GraphPatchBlock,
     evidence_cards: list[EvidenceCard],
     source_snapshot: SourceSnapshotRegistry,
-    output_dir: str | Path,
-) -> Path:
-    """Write ``fact_trace.jsonl``, one row per accepted fact (plan §5.5, §11.3).
+) -> tuple[FactTraceRow, ...]:
+    """Build one exact provenance row per traceable accepted fact.
 
     Each row records the fact id, the exact Graph Patch line it came from, the
     source id, the exact source-contained evidence text of the *matched* claim,
@@ -772,9 +773,6 @@ def write_fact_trace(
     §11.3); it must not select an unrelated claim from the source.
     """
 
-    out = Path(output_dir)
-    out.mkdir(parents=True, exist_ok=True)
-    path = out / "fact_trace.jsonl"
     # fact_id -> graph_patch_line lookup from the parsed block.
     line_by_fact: dict[str, str] = {}
     for line in block.patch_lines:
@@ -782,8 +780,7 @@ def write_fact_trace(
         line_by_fact[fact_id] = _line_text(line)
     registry = _validated_snapshot_registry(source_snapshot)
     if registry is None:
-        path.write_text("", encoding="utf-8")
-        return path
+        return ()
     # (evidence_text, source_id) -> agent role lets the trace recover the
     # specific claim binding without conflating identical text across sources.
     evidence_role: dict[tuple[str, str], str] = {}
@@ -798,7 +795,7 @@ def write_fact_trace(
                 evidence_role.setdefault(
                     (claim.evidence_text, claim.source_id), card.agent_role
                 )
-    rows: list[str] = []
+    rows: list[FactTraceRow] = []
     for fact in result.accepted:
         line_text = line_by_fact.get(fact.fact_id, "")
         # The ValidatedFact already carries only the matched claim's evidence
@@ -833,30 +830,52 @@ def write_fact_trace(
             evidence_agent_role=agent_role,
             source_snapshot_sha256=snapshot.content_sha256,
         )
-        rows.append(row.model_dump_json())
-    path.write_text("\n".join(rows) + ("\n" if rows else ""), encoding="utf-8")
+        rows.append(row)
+    return tuple(sorted(rows, key=lambda row: row.fact_id))
+
+
+def write_fact_trace(
+    *,
+    result: GraphValidationResult,
+    block: GraphPatchBlock,
+    evidence_cards: list[EvidenceCard],
+    source_snapshot: SourceSnapshotRegistry,
+    output_dir: str | Path,
+) -> Path:
+    """Write the explicit-export ``fact_trace.jsonl`` artifact."""
+
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    path = out / "fact_trace.jsonl"
+    rows = build_fact_trace_rows(
+        result=result,
+        block=block,
+        evidence_cards=evidence_cards,
+        source_snapshot=source_snapshot,
+    )
+    path.write_text(
+        "\n".join(row.model_dump_json() for row in rows)
+        + ("\n" if rows else ""),
+        encoding="utf-8",
+    )
     return path
 
 
-def write_profile_gaps(
+def build_profile_gap_rows(
     *,
     result: GraphValidationResult,
     event_id: str,
     source_snapshot: SourceSnapshotRegistry,
-    output_dir: str | Path,
-) -> Path:
-    """Persist validated profile gaps without promoting them to graph facts."""
+) -> tuple[PersistedProfileGap, ...]:
+    """Build validated gaps without promoting them to graph facts."""
 
-    out = Path(output_dir)
-    out.mkdir(parents=True, exist_ok=True)
-    path = out / "profile_gaps.jsonl"
     registry = _validated_snapshot_registry(source_snapshot)
     persisted_event_id = (
         f"urn:aviation-agentic-ai:event:{event_id.removeprefix('evt:')}"
         if event_id.startswith("evt:")
         else event_id
     )
-    rows: list[str] = []
+    rows: list[PersistedProfileGap] = []
     for gap in result.profile_gaps:
         snapshot = registry.get(gap.source_id) if registry and gap.source_id else None
         if (
@@ -889,6 +908,30 @@ def write_profile_gaps(
             evidence_ref=gap.evidence_ref,
             validation_profile=gap.validation_profile,
         )
-        rows.append(row.model_dump_json())
-    path.write_text("\n".join(rows) + ("\n" if rows else ""), encoding="utf-8")
+        rows.append(row)
+    return tuple(sorted(rows, key=lambda row: row.profile_gap_id))
+
+
+def write_profile_gaps(
+    *,
+    result: GraphValidationResult,
+    event_id: str,
+    source_snapshot: SourceSnapshotRegistry,
+    output_dir: str | Path,
+) -> Path:
+    """Write the explicit-export ``profile_gaps.jsonl`` artifact."""
+
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    path = out / "profile_gaps.jsonl"
+    rows = build_profile_gap_rows(
+        result=result,
+        event_id=event_id,
+        source_snapshot=source_snapshot,
+    )
+    path.write_text(
+        "\n".join(row.model_dump_json() for row in rows)
+        + ("\n" if rows else ""),
+        encoding="utf-8",
+    )
     return path

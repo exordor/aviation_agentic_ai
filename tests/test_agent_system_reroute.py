@@ -14,16 +14,13 @@ from aviation_agentic_ai.agent_system.agents import parse_structured_fields
 from aviation_agentic_ai.agent_system.authority_evidence import NASRAuthorityRecord
 from aviation_agentic_ai.agent_system.contracts import SourceFamily, SourceRecord
 from aviation_agentic_ai.agent_system.corpus_batch import _preflight
-from aviation_agentic_ai.agent_system.corpus_store import (
-    CorpusQueryStore,
-    build_corpus,
-)
+from aviation_agentic_ai.agent_system.evidence_store import AviationEvidenceStore
+from aviation_agentic_ai.agent_system.ingestion_package import IngestionAttempt
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.sources import load_advisory_source
-from aviation_agentic_ai.agent_system.tmi_event_retrieval_documents import (
-    build_tmi_event_retrieval_documents,
+from aviation_agentic_ai.agent_system.storage_contracts import (
+    IngestionResult,
 )
-from aviation_agentic_ai.agent_system.runtime import write_run_manifest
 from aviation_agentic_ai.agent_system.workflow import IngestContext, run_ingest
 from aviation_agentic_ai.cross_source.contracts import (
     CanonicalEntity,
@@ -160,7 +157,6 @@ def test_reroute_publishes_atmonto_facts_without_model_or_invalid_artcc_edge(
             raise AssertionError(f"unexpected model activation: {len(tools)} tools")
 
     run_id = f"run:test-reroute-{source_id.rsplit(':', 1)[-1]}"
-    run_dir = tmp_path / f"reroute-run-{source_id.rsplit(':', 1)[-1]}"
     state = run_ingest(
         IngestContext(
             advisory=load_advisory_source(config, source_id),
@@ -170,7 +166,6 @@ def test_reroute_publishes_atmonto_facts_without_model_or_invalid_artcc_edge(
             guide=guide,
             run_id=run_id,
             run_started_at=datetime(2026, 5, 20, tzinfo=UTC),
-            output_dir=str(run_dir),
             semantic_resolution_tool_model_factory=NoModel(),
         )
     )
@@ -178,7 +173,9 @@ def test_reroute_publishes_atmonto_facts_without_model_or_invalid_artcc_edge(
     assert state["resolution_preflight_status"] == "resolved"
     assert state["model_calls"] == []
     assert state["validation"].publishable
-    assert state["materialization"] is not None
+    assert state["formal_publication"] is not None
+    package = state["ingestion_package"]
+    assert package is not None
     facts = {
         (fact.predicate_iri, fact.object_value)
         for fact in state["validation"].accepted
@@ -202,47 +199,34 @@ def test_reroute_publishes_atmonto_facts_without_model_or_invalid_artcc_edge(
         for gap in state["validation"].profile_gaps
     ] == [("constrained_area", artcc, "range_not_admitted")]
 
-    write_run_manifest(
-        run_dir=run_dir,
-        source_id=source_id,
-        model_calls=state["model_calls"],
-        materialization=state["materialization"],
-        schema_slice_id=guide.schema_slice_id,
-        schema_checksum=guide.checksum,
-        evidence_cards=[
-            getattr(result, "evidence_card", result)
-            for result in (
-                state["advisory_evidence"],
-                state["facility_authority_result"],
-                state["terminology_authority_result"],
-            )
-        ],
-        graph_patch_raw=state["integration_graph_patch"].raw,
-        prompt_set_id="aviation-tmi-event-agents-v1",
-        profile_gap_count=len(state["validation"].profile_gaps),
-        context_artifacts=state["context_artifacts"],
-        formal_layers=state["formal_layers"],
-        public_observation_publication=state[
-            "public_observation_publication"
-        ],
-        created_at=datetime(2026, 5, 20, tzinfo=UTC),
+    store = AviationEvidenceStore.open(
+        tmp_path / "store",
+        dataset_id="reroute-test",
+        create=True,
     )
-    corpus_dir = tmp_path / f"reroute-corpus-{source_id.rsplit(':', 1)[-1]}"
-    build_corpus([run_dir], corpus_dir)
-    store = CorpusQueryStore(corpus_dir)
-    event = store.events[0]
+    for version in state["source_versions"]:
+        store.register_source_version(version)
+    store.apply_ingestion_attempt(
+        IngestionAttempt(
+            result=IngestionResult(
+                source_version_id=(
+                    package.event.publication_source_version_id
+                ),
+                source_id=source_id,
+                status="ok",
+                event_id=package.event.event_id,
+                publication_id=package.event.publication_id,
+                reason="published",
+                provider_call_count=0,
+                tmi_family="REROUTE",
+                preflight_eligible=True,
+            ),
+            package=package,
+        )
+    )
+    event = store.get_event(package.event.event_id)
+    assert event is not None
     assert event.reason_status == "formal"
     assert event.reason_value == "WEATHER"
-    assert event.facility_ids == []
-
-    document = build_tmi_event_retrieval_documents(store)[0]
-    assert document.tmi_type_iri == atm + "ReRouteTMI"
-    assert document.facility_ids == ()
-    assert document.reason_status == "formal"
-    assert document.reason_value == "WEATHER"
-    assert "Traffic management measure: Required Reroute." in document.text
-    assert (
-        "Controlled scope: not represented by a formal facility edge "
-        "in the active profile."
-        in document.text
-    )
+    assert event.facility_ids == ()
+    store.close()

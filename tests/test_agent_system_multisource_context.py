@@ -16,9 +16,6 @@ from aviation_agentic_ai.agent_system.context_artifacts import (
     integrate_event_context,
     parse_advisory_signature,
     prepare_event_context,
-    read_context_associations,
-    read_bts_observation_summaries,
-    read_weather_fact_traces,
 )
 from aviation_agentic_ai.agent_system.authority_evidence import AuthorityBuildStatus
 from aviation_agentic_ai.agent_system.authority_resolution import (
@@ -41,14 +38,9 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceRecord,
     ValidatedFact,
 )
-from aviation_agentic_ai.agent_system.corpus_store import (
-    CorpusQueryStore,
-    build_corpus,
-)
 from aviation_agentic_ai.agent_system.construction_contracts import stable_contract_id
 from aviation_agentic_ai.agent_system.materialize import (
     FormalPublicationBlocked,
-    materialize_validated_facts,
 )
 from aviation_agentic_ai.agent_system.runtime import write_run_manifest
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
@@ -309,49 +301,25 @@ def _authority_records(facility_code: str, *, ground_stop: bool) -> tuple[Source
     return tuple(sorted(records, key=lambda record: record.source_id))
 
 
-def _write_core_fact_trace(
-    output_dir: Path,
+def _core_fact_traces(
     facts: list[ValidatedFact],
     registry,
-) -> list[FactTraceRow]:
+    *,
+    evidence_text: str,
+) -> tuple[FactTraceRow, ...]:
+    """Build direct advisory traces without creating a run artifact."""
+
     snapshot = registry.snapshots[0]
-    rows = [
+    return tuple(
         FactTraceRow(
             fact_id=fact.fact_id,
             graph_patch_line="fixture graph patch line",
             source_id=snapshot.source_id,
-            evidence_text=fact.evidence_texts[0],
+            evidence_text=evidence_text,
             evidence_agent_role="fixture",
             source_snapshot_sha256=snapshot.content_sha256,
         )
         for fact in facts
-    ]
-    (output_dir / "fact_trace.jsonl").write_text(
-        "".join(row.model_dump_json() + "\n" for row in rows),
-        encoding="utf-8",
-    )
-    return rows
-
-
-def _materialize_core_current(
-    *,
-    facts: list[ValidatedFact],
-    source_snapshot,
-    output_dir: Path,
-):
-    traces = _write_core_fact_trace(
-        output_dir,
-        facts,
-        source_snapshot,
-    )
-    return materialize_validated_facts(
-        facts=facts,
-        profile_registry=load_validation_profile_registry(
-            decision_guide=load_schema_guide()
-        ),
-        source_snapshot=source_snapshot,
-        fact_traces=traces,
-        output_dir=output_dir,
     )
 
 
@@ -437,20 +405,23 @@ def test_missing_or_malformed_signature_fails_the_optional_context_layer(
     source_id = "2026-05-19:138"
     advisory = load_advisory_source(config, source_id).model_copy(update={"content": content})
     facility = FACILITIES["KJFK"]
-    facts = _core_facts(
-        event_id="evt:signature-status",
-        event_class="GroundDelayProgramTMI",
-        facility=facility,
-        start="2026-05-19T22:05:00Z",
-        end="2026-05-20T02:59:00Z",
-        source_id=source_id,
-        reason="weather",
-    )
+    facts = [
+        fact.model_copy(update={"evidence_texts": [content]})
+        for fact in _core_facts(
+            event_id="evt:signature-status",
+            event_class="GroundDelayProgramTMI",
+            facility=facility,
+            start="2026-05-19T22:05:00Z",
+            end="2026-05-20T02:59:00Z",
+            source_id=source_id,
+            reason="weather",
+        )
+    ]
+    registry = build_source_snapshot_registry([advisory])
     ctx = IngestContext(
         advisory=advisory,
         facility_candidates=[facility],
         run_id="run:signature-status",
-        output_dir=str(tmp_path),
     )
     state = {
         "event_uri": "evt:signature-status",
@@ -462,25 +433,22 @@ def test_missing_or_malformed_signature_fails_the_optional_context_layer(
             accepted=facts,
             publishable=True,
         ),
-        "materialization": object(),
+        "direct_fact_traces": _core_fact_traces(
+            facts,
+            registry,
+            evidence_text=content,
+        ),
+        "profile_gap_rows": (),
     }
     prepared = prepare_event_context(ctx, state)
     assert prepared["weather_context"].status == expected_status
     assert prepared["public_observation_context"].status == expected_status
 
-    with pytest.raises(
-        FormalPublicationBlocked,
-        match="source-text evidence reference is absent",
-    ):
-        integrate_event_context(ctx, {**state, **prepared})
-
-    for name in (
-        "kg.jsonl",
-        "kg.ttl",
-        "neo4j_nodes.jsonl",
-        "neo4j_relationships.jsonl",
-    ):
-        assert not (tmp_path / name).exists()
+    result = integrate_event_context(ctx, {**state, **prepared})
+    assert result["publication_status"] == expected_status
+    assert result["formal_publication"] is None
+    assert result["ingestion_package"] is None
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_loaders_preserve_exact_weather_rows_and_the_pinned_bts_snapshot(
@@ -529,20 +497,17 @@ def test_gdp_138_assembly_sees_only_prepared_validated_multisource_rows(
     advisory = load_advisory_source(config, "2026-05-19:138")
     catalog = _catalog(tmp_path)
     bts_source, bts_rows, bts_binding = bts_context
-    output_dir = tmp_path / "gdp-138-prepared-context"
     observed_before_assembly: dict[str, object] = {}
     original_builder = workflow_module._build_event_evidence_integration_task_from_state
 
     def capture_prepared_task(ctx, state, *, event_uri, event_class):
         observed_before_assembly["weather_status"] = state["weather_context"].status
         observed_before_assembly["observation_status"] = state["observation_context"].status
-        observed_before_assembly["artifacts_exist"] = any(
-            (output_dir / name).exists()
-            for name in (
-                "context_associations.jsonl",
-                "bts_observation_summaries.jsonl",
-                "source_snapshots.jsonl",
-            )
+        observed_before_assembly["formal_publication"] = state.get(
+            "formal_publication"
+        )
+        observed_before_assembly["ingestion_package"] = state.get(
+            "ingestion_package"
         )
         return original_builder(
             ctx,
@@ -569,7 +534,6 @@ def test_gdp_138_assembly_sees_only_prepared_validated_multisource_rows(
             guide=load_schema_guide(),
             run_id="run:gdp-138-prepared-context",
             run_started_at=datetime(2026, 5, 19, 20, 0, tzinfo=UTC),
-            output_dir=str(output_dir),
         )
     )
 
@@ -580,7 +544,8 @@ def test_gdp_138_assembly_sees_only_prepared_validated_multisource_rows(
     assert observed_before_assembly == {
         "weather_status": "ok",
         "observation_status": "ok",
-        "artifacts_exist": False,
+        "formal_publication": None,
+        "ingestion_package": None,
     }
     assert task.available_evidence_layer_ids == (
         "layer:advisory",
@@ -613,7 +578,9 @@ def test_gdp_138_assembly_sees_only_prepared_validated_multisource_rows(
     }
     assert {binding.source_id for binding in task.source_snapshot_bindings} == expected_source_ids
     assert state["validation"].publishable
-    assert state["materialization"] is not None
+    assert state["formal_publication"] is not None
+    assert state["ingestion_package"] is not None
+    assert "materialization" not in state
 
 
 def test_prepared_context_is_rejected_when_kernel_accepts_a_different_event(
@@ -639,7 +606,6 @@ def test_prepared_context_is_rejected_when_kernel_accepts_a_different_event(
         weather_sources=weather_sources,
         guide=load_schema_guide(),
         run_id="run:prepared-kernel-recheck",
-        output_dir=str(tmp_path),
     )
     base_state = {
         "event_uri": event_id,
@@ -671,7 +637,10 @@ def test_prepared_context_is_rejected_when_kernel_accepts_a_different_event(
 
     assert result["weather_context"].status == "blocked"
     assert "differs from Formal Graph Kernel" in (result["weather_context"].failure_reason)
-    assert (tmp_path / "context_associations.jsonl").read_bytes() == b""
+    assert result["publication_status"] == "blocked"
+    assert result["formal_publication"] is None
+    assert result["ingestion_package"] is None
+    assert list(tmp_path.iterdir()) == []
 
 
 @pytest.mark.parametrize(
@@ -731,23 +700,26 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     advisory = load_advisory_source(config, source_id)
     facility_entity = FACILITIES[facility]
     event_id = f"evt:{source_id.replace(':', '-')}"
-    facts = _core_facts(
-        event_id=event_id,
-        event_class=event_class,
-        facility=facility_entity,
-        start=start,
-        end=end,
-        source_id=source_id,
-        reason="weather" if reason_state == "formal_weather" else None,
-    )
+    facts = [
+        fact.model_copy(update={"evidence_texts": [advisory.content]})
+        for fact in _core_facts(
+            event_id=event_id,
+            event_class=event_class,
+            facility=facility_entity,
+            start=start,
+            end=end,
+            source_id=source_id,
+            reason="weather" if reason_state == "formal_weather" else None,
+        )
+    ]
     validation = GraphValidationResult(accepted=facts, publishable=True)
     advisory_registry = build_source_snapshot_registry([advisory])
-    core_materialization = _materialize_core_current(
-        facts=facts,
-        source_snapshot=advisory_registry,
-        output_dir=tmp_path,
+    direct_fact_traces = _core_fact_traces(
+        facts,
+        advisory_registry,
+        evidence_text=advisory.content,
     )
-    _write_core_fact_trace(tmp_path, facts, advisory_registry)
+    profile_gap_rows = ()
     if source_id.endswith(":123"):
         evidence = "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
         snapshot = advisory_registry.snapshots[0]
@@ -785,7 +757,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
             evidence_ref=evidence_ref,
             validation_profile=DECISION_PROFILE_REF,
         )
-        (tmp_path / "profile_gaps.jsonl").write_text(gap.model_dump_json() + "\n", encoding="utf-8")
+        profile_gap_rows = (gap,)
 
     bts_source, bts_rows, bts_binding = bts_context
     ctx = IngestContext(
@@ -796,14 +768,14 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         bts_source=bts_source,
         bts_manifest_binding=bts_binding,
         run_id=f"run:{source_id}",
-        output_dir=str(tmp_path),
     )
     state = {
         "event_uri": event_id,
         "event_class": f"atm:{event_class}",
         "facility_authority_result": _facility_authority_result(facility_entity, source_id),
         "validation": validation,
-        "materialization": core_materialization,
+        "direct_fact_traces": direct_fact_traces,
+        "profile_gap_rows": profile_gap_rows,
         "source_snapshot": advisory_registry,
         "authority_source_records": AuthoritySourceRecordRegistry(
             records=_authority_records(
@@ -837,18 +809,12 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         "weather",
         "public_operational_observation",
     }
-    assert (
-        publication_calls[0].layer_fact_counts
-        == result["materialization"].layer_fact_counts
-    )
+    assert publication_calls[0] == result["formal_publication"]
+    package = result["ingestion_package"]
+    assert package is not None
+    assert result["publication_status"] == "ok"
     assert result["model_calls"] == []
-    fact_trace_metadata = result["context_artifacts"]["fact_trace"]
-    assert fact_trace_metadata["path"] == "fact_trace.jsonl"
-    assert fact_trace_metadata["count"] == len(facts)
-    assert fact_trace_metadata["sha256"] == hashlib.sha256(
-        (tmp_path / "fact_trace.jsonl").read_bytes()
-    ).hexdigest()
-    assert fact_trace_metadata["status"] == "ok"
+    assert list(tmp_path.iterdir()) == []
     assert result["event_context_event"].operational_start == datetime.fromisoformat(
         start.replace("Z", "+00:00")
     )
@@ -860,162 +826,101 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     )
     assert result["weather_context"].status == "ok"
     assert result["public_observation_context"].status == "ok"
-    if source_id == "2026-05-19:138":
-        assert result["observation_context"].status == "ok", result[
-            "observation_context"
-        ].failure_reason
-        assert result["materialization"].layer_fact_counts["decision"] == len(facts)
-        assert result["materialization"].layer_fact_counts["weather"] == len(
-            result["weather_context"].formal_facts
-        )
-        assert result["materialization"].layer_fact_counts["public_operational_observation"] > 0
-        for artifact_name in (
-            "observation_derivations",
-            "observation_fact_trace",
-        ):
-            assert result["context_artifacts"][artifact_name]["status"] == "ok"
-            assert result["context_artifacts"][artifact_name]["count"] > 0
-        assert {
-            layer: metadata["status"] for layer, metadata in result["formal_layers"].items()
-        } == {
-            "decision": "ok",
-            "weather": "ok",
-            "public_operational_observation": "ok",
-        }
-        publication = result["public_observation_publication"]
-        assert publication["status"] == "ok"
-        assert publication["bts_source_id"] == bts_source.source_id
-        assert publication["aggregation_procedure_checksum"]
-    active = next(
-        summary for summary in result["public_observation_context"].summaries if summary.phase == "active"
+    assert result["observation_context"].status == "ok", result[
+        "observation_context"
+    ].failure_reason
+    assert {
+        layer: metadata["status"] for layer, metadata in result["formal_layers"].items()
+    } == {
+        "decision": "ok",
+        "weather": "ok",
+        "public_operational_observation": "ok",
+    }
+    assert package.event.reason_status == {
+        "formal_weather": "formal",
+        "profile_gap": "profile_gap",
+        "missing": "missing",
+    }[reason_state]
+    assert package.event.reason_value == (
+        "weather" if reason_state == "formal_weather" else None
     )
-    assert (
-        active.scheduled_arrival_count,
-        active.completed_arrival_count,
-        active.cancelled_count,
-        active.diverted_count,
+    assert package.weather_associations
+    assert all(
+        association.causal_claim is False
+        and association.event_id == package.event.event_id
+        and association.publication_id == package.event.publication_id
+        for association in package.weather_associations
+    )
+    assert package.public_observations
+    active_observations = {
+        observation.metric_key: observation.value
+        for observation in package.public_observations
+        if observation.phase == "active"
+    }
+    assert tuple(
+        active_observations[metric]
+        for metric in (
+            "scheduled_arrival_count",
+            "completed_arrival_count",
+            "cancelled_count",
+            "diverted_count",
+        )
     ) == active_counts
+    assert all(
+        observation.event_id == package.event.event_id
+        and observation.publication_id == package.event.publication_id
+        and observation.source_version_id in package.source_version_ids
+        for observation in package.public_observations
+    )
+    assert {
+        observation.observation_id for observation in package.public_observations
+    } == set(package.observation_fact_ids)
 
-    kg_rows = [
-        json.loads(line)
-        for line in Path(result["materialization"].jsonl_path)
-        .read_text(encoding="utf-8")
-        .splitlines()
+    event_facts = [
+        fact
+        for fact in package.facts
+        if fact.subject_iri in {event_id, package.event.event_id}
     ]
-    event_rows = [row for row in kg_rows if row["subject"].endswith(event_id.removeprefix("evt:"))]
-    reasons = [row["object"] for row in event_rows if row["predicate"] == "atm:impactingCondition"]
+    reasons = [
+        fact.object_value
+        for fact in event_facts
+        if fact.predicate_iri.endswith("impactingCondition")
+    ]
     assert reasons == (["weather"] if reason_state == "formal_weather" else [])
     if reason_state == "profile_gap":
-        assert not reasons
-        persisted_gaps = (tmp_path / "profile_gaps.jsonl").read_text(encoding="utf-8")
-        assert "IMPACTING CONDITION: WEATHER / THUNDERSTORMS" in persisted_gaps
-    if reason_state == "missing":
-        assert not reasons
+        assert len(package.profile_gaps) == 1
+        assert (
+            package.profile_gaps[0].evidence_text
+            == "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
+        )
+    else:
+        assert package.profile_gaps == ()
     assert not any(
-        row["subject"].endswith(event_id.removeprefix("evt:"))
-        and row["predicate"].startswith("data:")
-        for row in kg_rows
+        fact.predicate_iri.startswith(
+            "https://data.nasa.gov/ontologies/atmonto/data#"
+        )
+        for fact in event_facts
     )
     assert not any(
-        "arrivalDemand" in row["predicate"] or "airportArrivalRate" in row["predicate"]
-        for row in kg_rows
+        "arrivalDemand" in fact.predicate_iri
+        or "airportArrivalRate" in fact.predicate_iri
+        for fact in package.facts
     )
-    assert not any("authority:" in json.dumps(row) for row in kg_rows)
-
-    associations = read_context_associations(tmp_path / "context_associations.jsonl")
-    summaries = read_bts_observation_summaries(tmp_path / "bts_observation_summaries.jsonl")
-    traces = read_weather_fact_traces(tmp_path / "weather_fact_trace.jsonl")
-    assert associations and summaries and traces
-    assert all(association.causal_claim is False for association in associations)
-    assert all(
-        association.event_id == result["event_context_event"].event_id
-        for association in associations
-    )
-    assert all(
-        summary.event_id == result["event_context_event"].event_id for summary in summaries
-    )
-    selected_sources = {association.source_id for association in associations}
-    registry_sources = {snapshot.source_id for snapshot in result["source_snapshot"].snapshots}
-    assert selected_sources <= registry_sources
-    assert bts_source.source_id in registry_sources
-    authority_records = state["authority_source_records"].records
-    assert {record.source_id for record in authority_records} <= registry_sources
-    assert len(registry_sources) == len(selected_sources) + 2 + len(authority_records)
-    if source_id.endswith(":123"):
-        assert {
-            "authority:pcg:ground-stop",
-            "authority:pcg:glide-slope",
-        } <= registry_sources
-    assert all(
-        association.source_snapshot_sha256
-        == result["source_snapshot"].get(association.source_id).content_sha256
-        for association in associations
-    )
-
-    ttl = Path(result["materialization"].ttl_path).read_text(encoding="utf-8")
-    nodes = [
-        json.loads(line)
-        for line in Path(result["materialization"].nodes_path)
-        .read_text(encoding="utf-8")
-        .splitlines()
-    ]
-    relationships = [
-        json.loads(line)
-        for line in Path(result["materialization"].relationships_path)
-        .read_text(encoding="utf-8")
-        .splitlines()
-    ]
-    formal_projection_text = json.dumps(
-        [*kg_rows, *nodes, *relationships],
-        sort_keys=True,
-    ) + ttl
     assert not any(
-        predicate in formal_projection_text
-        for predicate in ("causedBy", "motivatedBy", "affectedBy")
+        fact.predicate_iri.endswith(("causedBy", "motivatedBy", "affectedBy"))
+        for fact in package.facts
     )
-    assert "authority:" not in ttl
-    assert not any("authority:" in json.dumps(row) for row in [*nodes, *relationships])
-    assert "@prefix data:" in ttl
-    assert any(node["label"] == "MeteorologicalReport" for node in nodes)
-    assert any(rel["type"] == "FORECASTING_AIRPORT" for rel in relationships)
-    assert not any(
-        rel["type"] == "FORECASTING_AIRPORT"
-        and rel["start_id"] == result["event_context_event"].event_id
-        for rel in relationships
-    )
-
-    if source_id.endswith(":123"):
-        assert gap.profile_gap_id in (
-            tmp_path / "profile_gaps.jsonl"
-        ).read_text(encoding="utf-8")
-    if source_id.endswith(":020"):
-        assert not reasons
-
-    first_associations = (tmp_path / "context_associations.jsonl").read_bytes()
-    first_outcomes = (tmp_path / "bts_observation_summaries.jsonl").read_bytes()
-    first_traces = (tmp_path / "weather_fact_trace.jsonl").read_bytes()
     repeated = integrate_event_context(ctx, state)
-    assert (tmp_path / "context_associations.jsonl").read_bytes() == first_associations
-    assert (tmp_path / "bts_observation_summaries.jsonl").read_bytes() == first_outcomes
-    assert (tmp_path / "weather_fact_trace.jsonl").read_bytes() == first_traces
-    first_authority_bindings = {
-        snapshot.source_id: snapshot.content_sha256
-        for snapshot in result["source_snapshot"].snapshots
-        if snapshot.source_id.startswith("authority:")
-    }
-    assert {
-        snapshot.source_id: snapshot.content_sha256
-        for snapshot in repeated["source_snapshot"].snapshots
-        if snapshot.source_id.startswith("authority:")
-    } == first_authority_bindings
-    repeated_nodes = [
-        json.loads(line)
-        for line in Path(repeated["materialization"].nodes_path)
-        .read_text(encoding="utf-8")
-        .splitlines()
-    ]
-    assert len({node["id"] for node in repeated_nodes}) == len(repeated_nodes)
-    assert sum(node["id"] == facility_entity.entity_id for node in repeated_nodes) == 1
+    assert (
+        repeated["formal_publication"].accepted
+        == result["formal_publication"].accepted
+    )
+    assert (
+        repeated["formal_publication"].layer_fact_counts
+        == result["formal_publication"].layer_fact_counts
+    )
+    assert repeated["ingestion_package"] == package
+    assert list(tmp_path.iterdir()) == []
 
     if source_id == "2026-05-19:138":
         monkeypatch.setattr(
@@ -1028,15 +933,10 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         )
         blocked = integrate_event_context(ctx, state)
         assert blocked["observation_context"].status == "blocked"
-        assert blocked["materialization"].layer_fact_counts == {
-            "decision": len(facts),
-            "weather": len(blocked["weather_context"].formal_facts),
-        }
-        for artifact_name in (
-            "observation_derivations.jsonl",
-            "observation_fact_trace.jsonl",
-        ):
-            assert (tmp_path / artifact_name).read_bytes() == b""
+        assert blocked["publication_status"] == "blocked"
+        assert blocked["formal_publication"] is None
+        assert blocked["ingestion_package"] is None
+        assert list(tmp_path.iterdir()) == []
 
         insufficient = integrate_event_context(
             replace(
@@ -1048,10 +948,15 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
             state,
         )
         assert insufficient["observation_context"].status == "insufficient"
-        assert insufficient["materialization"].layer_fact_counts == {
+        assert insufficient["publication_status"] == "ok"
+        assert insufficient["formal_publication"] is not None
+        assert insufficient["formal_publication"].layer_fact_counts == {
             "decision": len(facts),
             "weather": len(insufficient["weather_context"].formal_facts),
         }
+        assert insufficient["ingestion_package"] is not None
+        assert insufficient["ingestion_package"].public_observations == ()
+        assert list(tmp_path.iterdir()) == []
 
 
 @pytest.mark.parametrize(
@@ -1090,7 +995,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         ),
     ],
 )
-def test_current_authority_to_query_chain_preserves_all_three_cases(
+def test_current_authority_to_write_free_package_preserves_all_three_cases(
     tmp_path,
     config,
     weather_sources,
@@ -1118,42 +1023,19 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
         semantic_resolution_tool_model_factory=semantic_factory,
         run_started_at=datetime(2026, 7, 27, 12, 0, tzinfo=UTC),
         run_id=f"run:{source_id}",
-        output_dir=str(tmp_path),
     )
 
     state = run_ingest(ctx)
-    materialization = state["materialization"]
     validation = state["validation"]
-    evidence_cards = [
-        getattr(result, "evidence_card", result)
-        for result in (
-            state["advisory_evidence"],
-            state["facility_authority_result"],
-            state["terminology_authority_result"],
-        )
-    ]
-    guide = load_schema_guide()
-    write_run_manifest(
-        run_dir=tmp_path,
-        source_id=source_id,
-        model_calls=state["model_calls"],
-        materialization=materialization,
-        schema_slice_id=guide.schema_slice_id,
-        schema_checksum=guide.checksum,
-        evidence_cards=evidence_cards,
-        graph_patch_raw=state["integration_graph_patch"].raw,
-        prompt_set_id="aviation-tmi-event-agents-v1",
-        profile_gap_count=len(validation.profile_gaps),
-        context_artifacts=state["context_artifacts"],
-        formal_layers=state["formal_layers"],
-        public_observation_publication=state["public_observation_publication"],
-        created_at=ctx.run_started_at,
-    )
+    publication = state["formal_publication"]
+    package = state["ingestion_package"]
 
     assert state["event_evidence_integration_task"] is not None
     assert state["event_evidence_integration_proposal"] is not None
     assert validation.publishable
-    assert materialization is not None
+    assert publication is not None
+    assert package is not None
+    assert "materialization" not in state
     assert state["model_calls"] == []
     assert semantic_factory.calls == 0
 
@@ -1187,62 +1069,48 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
     else:
         assert reason_facts == []
     if reason_state == "profile_gap":
-        assert len(validation.profile_gaps) == 1
-        assert validation.profile_gaps[0].field == "impacting_condition"
+        assert len(package.profile_gaps) == 1
+        assert package.profile_gaps[0].field == "impacting_condition"
     else:
-        assert validation.profile_gaps == []
+        assert package.profile_gaps == ()
 
-    active = next(
-        summary
-        for summary in state["public_observation_context"].summaries
-        if summary.phase == "active"
-    )
-    assert (
-        active.scheduled_arrival_count,
-        active.completed_arrival_count,
-        active.cancelled_count,
-        active.diverted_count,
-    ) == active_counts
-
-    manifest = json.loads((tmp_path / "run_manifest.json").read_text(encoding="utf-8"))
-    profile_gap_bytes = (tmp_path / "profile_gaps.jsonl").read_bytes()
-    assert manifest["manifest_version"] == "tmi-event-run-v1"
-    assert manifest["profile_gaps"] == {
-        "path": "profile_gaps.jsonl",
-        "count": 1 if reason_state == "profile_gap" else 0,
-        "sha256": hashlib.sha256(profile_gap_bytes).hexdigest(),
-        "status": "ok",
+    active = {
+        observation.metric_key: observation.value
+        for observation in package.public_observations
+        if observation.phase == "active"
     }
-    assert manifest["formal_layers"]["decision"]["status"] == "ok"
-    assert source_id in {
-        snapshot.source_id for snapshot in state["source_snapshot"].snapshots
-    }
-
-    corpus_dir = tmp_path / "corpus"
-    build_corpus([tmp_path], corpus_dir)
-    corpus_store = CorpusQueryStore(corpus_dir)
-    corpus_event = corpus_store.get_event(state["event_context_event"].event_id)
-    assert corpus_event is not None
-    event_fact_ids = {
-        fact.fact_id
-        for fact in corpus_store.get_event_facts(
-            state["event_context_event"].event_id
+    assert tuple(
+        active[metric]
+        for metric in (
+            "scheduled_arrival_count",
+            "completed_arrival_count",
+            "cancelled_count",
+            "diverted_count",
         )
-    }
-    assert event_fact_ids == set(corpus_event.fact_ids)
-    assert event_fact_ids
-    assert not event_fact_ids.intersection(
-        association.association_id
-        for association in corpus_store.context_associations
-    )
-    assert corpus_event.reason_status == {
+    ) == active_counts
+    assert package.event.reason_status == {
         "formal_weather": "formal",
         "profile_gap": "profile_gap",
         "missing": "missing",
     }[reason_state]
+    assert package.weather_associations
+    assert all(
+        association.causal_claim is False
+        for association in package.weather_associations
+    )
+    assert not any(
+        (tmp_path / name).exists()
+        for name in (
+            "run_manifest.json",
+            "kg.jsonl",
+            "kg.ttl",
+            "neo4j_nodes.jsonl",
+            "neo4j_relationships.jsonl",
+        )
+    )
 
 
-def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_artifacts(
+def test_blocked_optional_context_prevents_write_free_publication(
     tmp_path,
     config,
 ):
@@ -1250,28 +1118,25 @@ def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_a
     advisory = load_advisory_source(config, source_id)
     facility = FACILITIES["KEWR"]
     event_id = "evt:optional-layer-failure"
-    facts = _core_facts(
-        event_id=event_id,
-        event_class="GroundDelayProgramTMI",
-        facility=facility,
-        start="2026-05-20T01:24:00Z",
-        end="2026-05-20T05:46:00Z",
-        source_id=source_id,
-        reason=None,
-    )
+    facts = [
+        fact.model_copy(update={"evidence_texts": [advisory.content]})
+        for fact in _core_facts(
+            event_id=event_id,
+            event_class="GroundDelayProgramTMI",
+            facility=facility,
+            start="2026-05-20T01:24:00Z",
+            end="2026-05-20T05:46:00Z",
+            source_id=source_id,
+            reason=None,
+        )
+    ]
     registry = build_source_snapshot_registry([advisory])
-    core = _materialize_core_current(
-        facts=facts,
-        source_snapshot=registry,
-        output_dir=tmp_path,
-    )
     ctx = IngestContext(
         advisory=advisory,
         facility_candidates=[facility],
         weather_failure_reason="weather loader checksum mismatch",
         bts_failure_reason="BTS manifest checksum mismatch",
         run_id="run:blocked-context",
-        output_dir=str(tmp_path),
     )
 
     result = integrate_event_context(
@@ -1281,7 +1146,12 @@ def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_a
             "event_class": "atm:GroundDelayProgramTMI",
             "facility_authority_result": _facility_authority_result(facility, source_id),
             "validation": GraphValidationResult(accepted=facts, publishable=True),
-            "materialization": core,
+            "direct_fact_traces": _core_fact_traces(
+                facts,
+                registry,
+                evidence_text=advisory.content,
+            ),
+            "profile_gap_rows": (),
             "source_snapshot": registry,
             "authority_source_records": AuthoritySourceRecordRegistry(
                 status=AuthoritySourceRegistryStatus.BLOCKED,
@@ -1293,19 +1163,11 @@ def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_a
 
     assert result["weather_context"].status == "blocked"
     assert result["public_observation_context"].status == "blocked"
-    assert result["materialization"].layer_fact_counts == {
-        "decision": len(facts),
-    }
-    for name in (
-        "context_associations.jsonl",
-        "bts_observation_summaries.jsonl",
-        "weather_fact_trace.jsonl",
-    ):
-        assert (tmp_path / name).read_bytes() == b""
-    assert result["context_artifacts"]["context_associations"]["status"] == "blocked"
-    assert result["context_artifacts"]["bts_observation_summaries"]["status"] == "blocked"
-    assert result["context_artifacts"]["source_snapshots"]["status"] == "blocked"
+    assert result["publication_status"] == "blocked"
+    assert result["formal_publication"] is None
+    assert result["ingestion_package"] is None
     assert {snapshot.source_id for snapshot in result["source_snapshot"].snapshots} == {source_id}
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_duplicate_weather_fact_fails_closed_at_the_optional_layer(
@@ -1318,21 +1180,19 @@ def test_duplicate_weather_fact_fails_closed_at_the_optional_layer(
     advisory = load_advisory_source(config, source_id)
     facility = FACILITIES["KJFK"]
     event_id = "evt:duplicate-weather"
-    facts = _core_facts(
-        event_id=event_id,
-        event_class="GroundDelayProgramTMI",
-        facility=facility,
-        start="2026-05-19T22:05:00Z",
-        end="2026-05-20T02:59:00Z",
-        source_id=source_id,
-        reason="weather",
-    )
+    facts = [
+        fact.model_copy(update={"evidence_texts": [advisory.content]})
+        for fact in _core_facts(
+            event_id=event_id,
+            event_class="GroundDelayProgramTMI",
+            facility=facility,
+            start="2026-05-19T22:05:00Z",
+            end="2026-05-20T02:59:00Z",
+            source_id=source_id,
+            reason="weather",
+        )
+    ]
     registry = build_source_snapshot_registry([advisory])
-    core = _materialize_core_current(
-        facts=facts,
-        source_snapshot=registry,
-        output_dir=tmp_path,
-    )
     event = context_artifacts_module._build_event(
         IngestContext(advisory=advisory, run_id="run:duplicate"),
         {
@@ -1359,7 +1219,6 @@ def test_duplicate_weather_fact_fails_closed_at_the_optional_layer(
         facility_candidates=[facility],
         weather_sources=weather_sources,
         run_id="run:duplicate",
-        output_dir=str(tmp_path),
     )
 
     result = integrate_event_context(
@@ -1368,21 +1227,25 @@ def test_duplicate_weather_fact_fails_closed_at_the_optional_layer(
             "event_uri": event_id,
             "facility_authority_result": _facility_authority_result(facility, source_id),
             "validation": GraphValidationResult(accepted=facts, publishable=True),
-            "materialization": core,
+            "direct_fact_traces": _core_fact_traces(
+                facts,
+                registry,
+                evidence_text=advisory.content,
+            ),
+            "profile_gap_rows": (),
             "source_snapshot": registry,
         },
     )
 
     assert result["weather_context"].status == "blocked"
     assert "duplicate weather fact ID" in result["weather_context"].failure_reason
-    assert (tmp_path / "context_associations.jsonl").read_bytes() == b""
-    assert (
-        Path(result["materialization"].jsonl_path).read_bytes()
-        == Path(core.jsonl_path).read_bytes()
-    )
+    assert result["publication_status"] == "blocked"
+    assert result["formal_publication"] is None
+    assert result["ingestion_package"] is None
+    assert list(tmp_path.iterdir()) == []
 
 
-def test_malformed_admitted_bts_layer_blocks_case_without_projection_fallback(
+def test_malformed_admitted_bts_layer_blocks_write_free_publication(
     tmp_path,
     config,
     weather_sources,
@@ -1392,17 +1255,19 @@ def test_malformed_admitted_bts_layer_blocks_case_without_projection_fallback(
     advisory = load_advisory_source(config, source_id)
     facility = FACILITIES["KJFK"]
     event_id = "evt:malformed-admitted-bts"
-    facts = _core_facts(
-        event_id=event_id,
-        event_class="GroundDelayProgramTMI",
-        facility=facility,
-        start="2026-05-19T22:05:00Z",
-        end="2026-05-20T02:59:00Z",
-        source_id=source_id,
-        reason="weather",
-    )
+    facts = [
+        fact.model_copy(update={"evidence_texts": [advisory.content]})
+        for fact in _core_facts(
+            event_id=event_id,
+            event_class="GroundDelayProgramTMI",
+            facility=facility,
+            start="2026-05-19T22:05:00Z",
+            end="2026-05-20T02:59:00Z",
+            source_id=source_id,
+            reason="weather",
+        )
+    ]
     registry = build_source_snapshot_registry([advisory])
-    _write_core_fact_trace(tmp_path, facts, registry)
     bts_source, bts_rows, bts_binding = bts_context
     ctx = IngestContext(
         advisory=advisory,
@@ -1412,7 +1277,6 @@ def test_malformed_admitted_bts_layer_blocks_case_without_projection_fallback(
         bts_source=bts_source,
         bts_manifest_binding=bts_binding,
         run_id="run:malformed-admitted-bts",
-        output_dir=str(tmp_path),
     )
     state = {
         "event_uri": event_id,
@@ -1425,6 +1289,12 @@ def test_malformed_admitted_bts_layer_blocks_case_without_projection_fallback(
             accepted=facts,
             publishable=True,
         ),
+        "direct_fact_traces": _core_fact_traces(
+            facts,
+            registry,
+            evidence_text=advisory.content,
+        ),
+        "profile_gap_rows": (),
         "source_snapshot": registry,
     }
     prepared = prepare_event_context(ctx, state)
@@ -1457,13 +1327,7 @@ def test_malformed_admitted_bts_layer_blocks_case_without_projection_fallback(
             },
         )
 
-    for name in (
-        "kg.jsonl",
-        "kg.ttl",
-        "neo4j_nodes.jsonl",
-        "neo4j_relationships.jsonl",
-    ):
-        assert not (tmp_path / name).exists()
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_integration_blocks_a_self_consistent_rdf_type_retarget_from_the_builder(
@@ -1476,21 +1340,19 @@ def test_integration_blocks_a_self_consistent_rdf_type_retarget_from_the_builder
     advisory = load_advisory_source(config, source_id)
     facility = FACILITIES["KJFK"]
     event_id = "evt:retargeted-weather-type"
-    facts = _core_facts(
-        event_id=event_id,
-        event_class="GroundDelayProgramTMI",
-        facility=facility,
-        start="2026-05-19T22:05:00Z",
-        end="2026-05-20T02:59:00Z",
-        source_id=source_id,
-        reason="weather",
-    )
+    facts = [
+        fact.model_copy(update={"evidence_texts": [advisory.content]})
+        for fact in _core_facts(
+            event_id=event_id,
+            event_class="GroundDelayProgramTMI",
+            facility=facility,
+            start="2026-05-19T22:05:00Z",
+            end="2026-05-20T02:59:00Z",
+            source_id=source_id,
+            reason="weather",
+        )
+    ]
     registry = build_source_snapshot_registry([advisory])
-    core = _materialize_core_current(
-        facts=facts,
-        source_snapshot=registry,
-        output_dir=tmp_path,
-    )
     event = context_artifacts_module._build_event(
         IngestContext(advisory=advisory, run_id="run:retargeted-type"),
         {
@@ -1531,24 +1393,27 @@ def test_integration_blocks_a_self_consistent_rdf_type_retarget_from_the_builder
             facility_candidates=[facility],
             weather_sources=weather_sources,
             run_id="run:retargeted-type",
-            output_dir=str(tmp_path),
         ),
         {
             "event_uri": event_id,
             "facility_authority_result": _facility_authority_result(facility, source_id),
             "validation": GraphValidationResult(accepted=facts, publishable=True),
-            "materialization": core,
+            "direct_fact_traces": _core_fact_traces(
+                facts,
+                registry,
+                evidence_text=advisory.content,
+            ),
+            "profile_gap_rows": (),
             "source_snapshot": registry,
         },
     )
 
     assert result["weather_context"].status == "blocked"
     assert "rdf:type" in result["weather_context"].failure_reason
-    assert (
-        Path(result["materialization"].jsonl_path).read_bytes()
-        == Path(core.jsonl_path).read_bytes()
-    )
-    assert (tmp_path / "context_associations.jsonl").read_bytes() == b""
+    assert result["publication_status"] == "blocked"
+    assert result["formal_publication"] is None
+    assert result["ingestion_package"] is None
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_integration_blocks_self_consistent_raw_evidence_from_a_regressed_parser(
@@ -1561,21 +1426,19 @@ def test_integration_blocks_self_consistent_raw_evidence_from_a_regressed_parser
     advisory = load_advisory_source(config, source_id)
     facility = FACILITIES["KJFK"]
     event_id = "evt:regressed-weather-parser"
-    facts = _core_facts(
-        event_id=event_id,
-        event_class="GroundDelayProgramTMI",
-        facility=facility,
-        start="2026-05-19T22:05:00Z",
-        end="2026-05-20T02:59:00Z",
-        source_id=source_id,
-        reason="weather",
-    )
+    facts = [
+        fact.model_copy(update={"evidence_texts": [advisory.content]})
+        for fact in _core_facts(
+            event_id=event_id,
+            event_class="GroundDelayProgramTMI",
+            facility=facility,
+            start="2026-05-19T22:05:00Z",
+            end="2026-05-20T02:59:00Z",
+            source_id=source_id,
+            reason="weather",
+        )
+    ]
     registry = build_source_snapshot_registry([advisory])
-    core = _materialize_core_current(
-        facts=facts,
-        source_snapshot=registry,
-        output_dir=tmp_path,
-    )
     original_parse_report = weather_context_module._parse_report
 
     def regressed_parse_report(snapshot):
@@ -1601,7 +1464,6 @@ def test_integration_blocks_self_consistent_raw_evidence_from_a_regressed_parser
             facility_candidates=[facility],
             weather_sources=weather_sources,
             run_id="run:regressed-weather-parser",
-            output_dir=str(tmp_path),
         ),
         {
             "event_uri": event_id,
@@ -1610,18 +1472,22 @@ def test_integration_blocks_self_consistent_raw_evidence_from_a_regressed_parser
                 accepted=facts,
                 publishable=True,
             ),
-            "materialization": core,
+            "direct_fact_traces": _core_fact_traces(
+                facts,
+                registry,
+                evidence_text=advisory.content,
+            ),
+            "profile_gap_rows": (),
             "source_snapshot": registry,
         },
     )
 
     assert result["weather_context"].status == "blocked"
     assert "selected report IDs" in result["weather_context"].failure_reason
-    assert (
-        Path(result["materialization"].jsonl_path).read_bytes()
-        == Path(core.jsonl_path).read_bytes()
-    )
-    assert (tmp_path / "context_associations.jsonl").read_bytes() == b""
+    assert result["publication_status"] == "blocked"
+    assert result["formal_publication"] is None
+    assert result["ingestion_package"] is None
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_weather_bundle_rejects_conflicting_report_source_bindings(
@@ -1963,7 +1829,6 @@ def test_event_preflight_rejection_does_not_call_final_publication_kernel(
         IngestContext(
             advisory=advisory,
             run_id="run:rejected-event",
-            output_dir=str(tmp_path),
         ),
     )
     event_id = "urn:aviation-agentic-ai:event:rejected-event"
@@ -2009,7 +1874,9 @@ def test_event_preflight_rejection_does_not_call_final_publication_kernel(
         }
     )
 
-    assert published["materialization"] is None
+    assert published["formal_publication"] is None
+    assert published["ingestion_package"] is None
+    assert published["publication_status"] == "blocked"
     assert published["formal_layers"]["decision"]["status"] == "blocked"
     assert calls == []
 

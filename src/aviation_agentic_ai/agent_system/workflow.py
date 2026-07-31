@@ -87,9 +87,9 @@ from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
 )
 from aviation_agentic_ai.agent_system.formal_graph import (
+    build_fact_trace_rows,
+    build_profile_gap_rows,
     validate_graph_patch,
-    write_fact_trace,
-    write_profile_gaps,
 )
 from aviation_agentic_ai.agent_system.schema_guide import SchemaGuide, load_schema_guide
 from aviation_agentic_ai.agent_system.sources import (
@@ -226,7 +226,6 @@ class IngestContext:
     authority_catalog: LoadedAuthorityCatalog | None = None
     run_started_at: datetime | None = None
     run_id: str = "agent-system"
-    output_dir: str = ""
 
 
 def _event_uri(run_id: str, source_id: str, event_class: str) -> str:
@@ -261,18 +260,23 @@ class IngestState(TypedDict):
     integration_failure_reason: str | None
     event_uri: str
     event_class: str
-    materialization: Any
     validation: Any
+    direct_fact_traces: Any
+    profile_gap_rows: Any
+    formal_publication: Any
+    ingestion_package: Any
     source_snapshot: Any
+    source_versions: Any
     event_context_event: Any
     event_context_prepared: bool
     prepared_source_snapshot: Any
     weather_context: Any
     public_observation_context: Any
     observation_context: Any
-    context_artifacts: Any
     formal_layers: Any
     public_observation_publication: Any
+    publication_status: str
+    publication_failure_reason: str
     model_calls: Annotated[list, operator.add]
 
 
@@ -1346,11 +1350,23 @@ def _validate_event_patch_node(state: dict) -> dict:
     ctx: IngestContext = _ctx()
     integration_graph_patch: GraphPatchBlock | None = state.get("integration_graph_patch")
     if integration_graph_patch is None:
-        return {"materialization": None, "validation": None}
+        return {
+            "validation": None,
+            "direct_fact_traces": (),
+            "profile_gap_rows": (),
+            "formal_publication": None,
+            "ingestion_package": None,
+        }
     # No resolved event class -> the system abstained; do not materialize.
     event_class = state.get("event_class", "")
     if not event_class:
-        return {"materialization": None, "validation": None}
+        return {
+            "validation": None,
+            "direct_fact_traces": (),
+            "profile_gap_rows": (),
+            "formal_publication": None,
+            "ingestion_package": None,
+        }
     guide = ctx.guide or load_schema_guide()
     facility_authority_result: AuthorityResolutionResult | None = state.get(
         "facility_authority_result"
@@ -1405,37 +1421,35 @@ def _validate_event_patch_node(state: dict) -> dict:
         evidence_cards=evidence_cards,
         source_snapshot=snapshot_registry,
     )
-    # Fact trace: one row per accepted fact (plan §5.5), written regardless of
-    # publishability so rejected/blocked runs still leave an audit trail.
-    write_fact_trace(
+    # Build exact provenance rows in memory. Persistence happens only after the
+    # final publication package is accepted by the evidence-store transaction.
+    direct_fact_traces = build_fact_trace_rows(
         result=validation,
         block=integration_graph_patch,
         evidence_cards=evidence_cards,
         source_snapshot=snapshot_registry,
-        output_dir=ctx.output_dir,
     )
-    write_profile_gaps(
+    profile_gap_rows = build_profile_gap_rows(
         result=validation,
         event_id=event_uri,
         source_snapshot=snapshot_registry,
-        output_dir=ctx.output_dir,
     )
     if not validation.publishable:
-        # Fail-closed: do not produce formal graph artifacts for a rejected or
-        # constraint-violating patch.
         return {
-            "materialization": None,
             "validation": validation,
+            "direct_fact_traces": direct_fact_traces,
+            "profile_gap_rows": profile_gap_rows,
+            "formal_publication": None,
+            "ingestion_package": None,
             "source_snapshot": snapshot_registry,
         }
 
-    # The deterministic context node owns the one canonical publication after
-    # all independently validated layers have been selected. Keeping the core
-    # validation and audit artifacts here prevents optional context failures
-    # from weakening event-patch admissibility without writing a stale KG.
     return {
-        "materialization": None,
         "validation": validation,
+        "direct_fact_traces": direct_fact_traces,
+        "profile_gap_rows": profile_gap_rows,
+        "formal_publication": None,
+        "ingestion_package": None,
         "source_snapshot": snapshot_registry,
     }
 

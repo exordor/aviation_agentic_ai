@@ -863,14 +863,16 @@ def test_workflow_three_cases_event_evidence_integration_regression(tmp_path: Pa
     now = datetime.now(UTC)
     for source_id, fac_code, expected_class, expected_status in test_cases:
         advisory = load_advisory_source(config, source_id)
-        out_dir = tmp_path / source_id.replace(":", "_")
+        paths_before = {
+            path.relative_to(tmp_path)
+            for path in tmp_path.rglob("*")
+        }
         ctx = IngestContext(
             advisory=advisory,
             facility_candidates=[facilities[fac_code]],
             authority_catalog=catalog,
             run_id=f"run:{source_id}",
             run_started_at=now,
-            output_dir=str(out_dir),
         )
 
         state = run_ingest(ctx)
@@ -886,7 +888,12 @@ def test_workflow_three_cases_event_evidence_integration_regression(tmp_path: Pa
         assert proposal.integration_status.value == expected_status
         assert state["integration_graph_patch"] is not None
         assert state["validation"].publishable
-        assert state["materialization"] is not None
+        assert state["formal_publication"] is not None
+        assert state["ingestion_package"] is not None
+        assert {
+            path.relative_to(tmp_path)
+            for path in tmp_path.rglob("*")
+        } == paths_before
 
         # 3. Canonical facility verification
         fac_facts = [f for f in proposal.proposed_facts if f.predicate_iri == "atm:controlledNASelement"]
@@ -928,6 +935,15 @@ def test_workflow_three_cases_event_evidence_integration_regression(tmp_path: Pa
             reason_facts = [f for f in proposal.proposed_facts if f.predicate_iri == "atm:impactingCondition"]
             assert len(reason_facts) == 0
             assert "impacting_condition" in task.missing_slots
+        expected_reason_status = {
+            "2026-05-19:123": "profile_gap",
+            "2026-05-19:138": "formal",
+            "2026-05-20:020": "missing",
+        }[source_id]
+        assert (
+            state["ingestion_package"].event.reason_status
+            == expected_reason_status
+        )
 
 
 def test_workflow_canonical_node_identity_and_idempotency(tmp_path: Path) -> None:
@@ -949,8 +965,20 @@ def test_workflow_canonical_node_identity_and_idempotency(tmp_path: Path) -> Non
     adv138 = load_advisory_source(config, "2026-05-19:138")
 
     now = datetime.now(UTC)
-    ctx1 = IngestContext(advisory=adv123, facility_candidates=[fac_jfk], authority_catalog=catalog, run_id="run:123", run_started_at=now, output_dir=str(tmp_path / "run123"))
-    ctx2 = IngestContext(advisory=adv138, facility_candidates=[fac_jfk], authority_catalog=catalog, run_id="run:138", run_started_at=now, output_dir=str(tmp_path / "run138"))
+    ctx1 = IngestContext(
+        advisory=adv123,
+        facility_candidates=[fac_jfk],
+        authority_catalog=catalog,
+        run_id="run:123",
+        run_started_at=now,
+    )
+    ctx2 = IngestContext(
+        advisory=adv138,
+        facility_candidates=[fac_jfk],
+        authority_catalog=catalog,
+        run_id="run:138",
+        run_started_at=now,
+    )
 
     state1 = run_ingest(ctx1)
     state2 = run_ingest(ctx2)
@@ -968,3 +996,7 @@ def test_workflow_canonical_node_identity_and_idempotency(tmp_path: Path) -> Non
     prop1_repeat = state1_repeat["event_evidence_integration_proposal"]
     assert prop1.event_evidence_integration_proposal_id == prop1_repeat.event_evidence_integration_proposal_id
     assert prop1.payload_checksum == prop1_repeat.payload_checksum
+    assert (
+        state1["ingestion_package"].event.publication_id
+        == state1_repeat["ingestion_package"].event.publication_id
+    )
