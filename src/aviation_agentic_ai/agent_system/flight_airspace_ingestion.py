@@ -563,8 +563,21 @@ def _nasa_source_record(
     trace: NASARDFSourceTrace,
     *,
     asset: SourceAssetRecord,
+    time_basis: str | None = None,
 ) -> SourceRecord:
     """Preserve one canonical subject-level ATMONTO record as evidence."""
+
+    metadata = {
+        "archive_sha256": trace.archive_checksum,
+        "zip_member": trace.zip_member,
+        "record_locator": trace.record_locator,
+        "subject_iri": trace.subject_iri,
+        "related_subject_iris": list(trace.related_subject_iris),
+        "record_checksum": trace.record_checksum,
+        "parser_version": FLIGHT_SOURCE_ADAPTER_VERSION,
+    }
+    if time_basis is not None:
+        metadata["time_basis"] = time_basis
 
     return SourceRecord(
         source_id=trace.source_record_id,
@@ -573,15 +586,7 @@ def _nasa_source_record(
         title=f"NASA ATMONTO {trace.subject_iri}",
         source_url=asset.source_url,
         asset_id=asset.asset_id,
-        metadata={
-            "archive_sha256": trace.archive_checksum,
-            "zip_member": trace.zip_member,
-            "record_locator": trace.record_locator,
-            "subject_iri": trace.subject_iri,
-            "related_subject_iris": list(trace.related_subject_iris),
-            "record_checksum": trace.record_checksum,
-            "parser_version": FLIGHT_SOURCE_ADAPTER_VERSION,
-        },
+        metadata=metadata,
     )
 
 
@@ -937,7 +942,11 @@ def _nasa_flight_publication(
         raise ValueError("NASA Flight has no departure or arrival airport")
 
     primary_source = _record_with_domain(
-        _nasa_source_record(record.source, asset=asset),
+        _nasa_source_record(
+            record.source,
+            asset=asset,
+            time_basis=record.time_basis,
+        ),
         temporal_domain_id,
     )
     primary_version = build_source_version(primary_source)
@@ -980,9 +989,10 @@ def _nasa_flight_publication(
         *,
         owner_id: str,
         evidence_ref: str,
+        time_basis: str | None = None,
     ) -> tuple[SourceVersionRecord, SourceAnchorRecord]:
         source = _record_with_domain(
-            _nasa_source_record(trace, asset=asset),
+            _nasa_source_record(trace, asset=asset, time_basis=time_basis),
             temporal_domain_id,
         )
         version = build_source_version(source)
@@ -1048,7 +1058,11 @@ def _nasa_flight_publication(
             if point_record.sequence_number is None or point_record.reporting_time is None:
                 raise ValueError("NASA TrackPoint has no sequence number or reporting time")
             point_source = _record_with_domain(
-                _nasa_source_record(point_record.source, asset=asset),
+                _nasa_source_record(
+                    point_record.source,
+                    asset=asset,
+                    time_basis=point_record.time_basis,
+                ),
                 temporal_domain_id,
             )
             point_version = build_source_version(point_source)
@@ -1064,6 +1078,7 @@ def _nasa_flight_publication(
                 point_record.source,
                 owner_id=point_id,
                 evidence_ref="track_point_subject",
+                time_basis=point_record.time_basis,
             )
             sector_ids = tuple(
                 sorted(

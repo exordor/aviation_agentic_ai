@@ -694,5 +694,20 @@ def test_nasa_flight_trajectory_is_published_without_forcing_bts_semantics(
         assert store._connection.execute(
             "SELECT COUNT(*) FROM publication_sources"
         ).fetchone()[0] == 9
+        source_metadata = {
+            json.loads(row["metadata_json"])["subject_iri"]: json.loads(
+                row["metadata_json"]
+            )
+            for row in store._connection.execute(
+                "SELECT metadata_json FROM source_versions"
+            ).fetchall()
+            if "subject_iri" in json.loads(row["metadata_json"])
+        }
+        assert source_metadata["urn:test:flight:1"]["time_basis"] == (
+            "source_naive_interpreted_utc"
+        )
+        assert source_metadata["urn:test:point:1"]["time_basis"] == (
+            "source_naive_interpreted_utc"
+        )
     finally:
         store.close()
