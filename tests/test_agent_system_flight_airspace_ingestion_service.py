@@ -660,7 +660,7 @@ def test_nasa_flight_trajectory_is_published_without_forcing_bts_semantics(
         assert summary.insufficient_count == 0
         assert store._connection.execute(
             "SELECT COUNT(*) FROM source_versions"
-        ).fetchone()[0] == 8
+        ).fetchone()[0] == 9
         sector = store._connection.execute("SELECT * FROM sectors").fetchone()
         assert sector["sector_id"].endswith("#ZTLsector040")
         flight = store._connection.execute(
@@ -693,7 +693,7 @@ def test_nasa_flight_trajectory_is_published_without_forcing_bts_semantics(
         ).fetchone()[0] == 1
         assert store._connection.execute(
             "SELECT COUNT(*) FROM publication_sources"
-        ).fetchone()[0] == 9
+        ).fetchone()[0] == 11
         source_metadata = {
             json.loads(row["metadata_json"])["subject_iri"]: json.loads(
                 row["metadata_json"]
@@ -709,5 +709,60 @@ def test_nasa_flight_trajectory_is_published_without_forcing_bts_semantics(
         assert source_metadata["urn:test:point:1"]["time_basis"] == (
             "source_naive_interpreted_utc"
         )
+        formal_rows = store._connection.execute(
+            """
+            SELECT subject_iri, predicate_iri, object_value
+            FROM semantic_facts
+            ORDER BY subject_iri, predicate_iri, object_value
+            """
+        ).fetchall()
+        formal_triples = {
+            (row["subject_iri"], row["predicate_iri"], row["object_value"])
+            for row in formal_rows
+        }
+        assert {
+            (
+                flight["flight_id"],
+                "https://data.nasa.gov/ontologies/atmonto/ATM#departureAirport",
+                "https://data.nasa.gov/ontologies/atmonto/NAS#KATLairport",
+            ),
+            (
+                flight["flight_id"],
+                "https://data.nasa.gov/ontologies/atmonto/ATM#arrivalAirport",
+                "https://data.nasa.gov/ontologies/atmonto/NAS#KJFKairport",
+            ),
+            (
+                flight["flight_id"],
+                "https://data.nasa.gov/ontologies/atmonto/ATM#hasActualRoute",
+                "urn:test:route:1",
+            ),
+            (
+                "urn:test:route:1",
+                "https://data.nasa.gov/ontologies/atmonto/general#hasSequencedItem",
+                "urn:test:point:1",
+            ),
+            (
+                "urn:test:point:1",
+                "https://data.nasa.gov/ontologies/atmonto/ATM#aircraftFix",
+                "urn:test:fix:1",
+            ),
+            (
+                "urn:test:fix:1",
+                "https://data.nasa.gov/ontologies/atmonto/ATM#locatedInSector",
+                "https://data.nasa.gov/ontologies/atmonto/NAS#ZTLsector040",
+            ),
+        }.issubset(formal_triples)
+        formally_evidenced = store._connection.execute(
+            """
+            SELECT COUNT(DISTINCT membership.fact_id)
+            FROM publication_facts AS membership
+            JOIN publication_evidence_links AS evidence
+              ON evidence.publication_id = membership.publication_id
+             AND evidence.owner_kind = 'fact'
+             AND evidence.owner_id = membership.fact_id
+            WHERE evidence.source_anchor_id IS NOT NULL
+            """
+        ).fetchone()[0]
+        assert formally_evidenced == len(formal_rows)
     finally:
         store.close()

@@ -25,11 +25,23 @@ DEFAULT_WEATHER_PROFILE_PATH = "data/ontology/curated/nasa_atmonto_decision_cont
 DEFAULT_PUBLIC_OBSERVATION_PROFILE_PATH = (
     "data/ontology/curated/public_observation_slice.json"
 )
+DEFAULT_FLIGHT_OPERATION_PROFILE_PATH = (
+    "data/ontology/curated/atmonto_flight_operation_slice.json"
+)
+DEFAULT_AERONAUTICAL_REFERENCE_PROFILE_PATH = (
+    "data/ontology/curated/atmonto_aeronautical_reference_slice.json"
+)
+DEFAULT_TRAJECTORY_PROFILE_PATH = (
+    "data/ontology/curated/atmonto_trajectory_slice.json"
+)
 
 ValidationLayer = Literal[
     "decision",
     "weather",
     "public_operational_observation",
+    "flight_operation",
+    "aeronautical_reference",
+    "trajectory",
 ]
 EvidenceMode = Literal[
     "source_text",
@@ -190,11 +202,20 @@ def _mapping_entry(
     *,
     kind: str | None = None,
 ) -> tuple[str, dict[str, str]]:
-    if not all(
-        isinstance(key, str) and isinstance(value, str)
-        for key, value in entry.items()
-    ):
+    if not all(isinstance(key, str) for key in entry):
         raise ValueError("malformed profile mapping entry")
+    structural_fields = {"domain_iri_set", "range_iri_set"}
+    for field, value in entry.items():
+        if field in structural_fields:
+            if not isinstance(value, list) or not all(
+                isinstance(item, str) and item for item in value
+            ):
+                raise ValueError("malformed profile mapping entry")
+        elif field == "functional":
+            if not isinstance(value, bool):
+                raise ValueError("malformed profile mapping entry")
+        elif not isinstance(value, str):
+            raise ValueError("malformed profile mapping entry")
     name = entry.get("prefixed_name") or entry.get("local_name") or entry.get("iri")
     iri = entry.get("iri")
     if not isinstance(name, str) or not isinstance(iri, str):
@@ -266,11 +287,10 @@ def _load_json_profile(path: Path, layer: ValidationLayer) -> LoadedValidationPr
         )
     else:
         raise ValueError("aggregation_procedure must be a complete string descriptor")
-    class_ancestors = {
-        mapping["iri"]: (mapping["iri"],)
-        for mapping in class_mappings.values()
-        if isinstance(mapping.get("iri"), str) and mapping["iri"]
-    }
+    class_ancestors = _parse_class_ancestors(
+        payload.get("class_ancestors"),
+        class_mappings,
+    )
     property_domains = _property_class_sets(
         property_entries,
         field="domain_iri_set",
@@ -346,6 +366,49 @@ def _property_class_sets(
     return result
 
 
+def _parse_class_ancestors(
+    raw: object,
+    class_mappings: dict[str, dict[str, str]],
+) -> dict[str, tuple[str, ...]]:
+    """Resolve a profile's explicit, closed class ancestry to exact IRIs."""
+
+    names_by_iri = {
+        mapping["iri"]: name
+        for name, mapping in class_mappings.items()
+        if isinstance(mapping.get("iri"), str) and mapping["iri"]
+    }
+    iris_by_name = {
+        **{
+            name: mapping["iri"]
+            for name, mapping in class_mappings.items()
+            if isinstance(mapping.get("iri"), str) and mapping["iri"]
+        },
+        **{iri: iri for iri in names_by_iri},
+    }
+    result = {iri: (iri,) for iri in names_by_iri}
+    if raw is None:
+        return result
+    if not isinstance(raw, dict):
+        raise ValueError("class_ancestors must be a class-to-ancestor mapping")
+    for class_name, ancestor_names in raw.items():
+        if not isinstance(class_name, str) or class_name not in iris_by_name:
+            raise ValueError(f"unknown class ancestry subject: {class_name!r}")
+        if not isinstance(ancestor_names, list) or not all(
+            isinstance(name, str) and name for name in ancestor_names
+        ):
+            raise ValueError(f"malformed class ancestors: {class_name!r}")
+        class_iri = iris_by_name[class_name]
+        resolved = [class_iri]
+        for ancestor_name in ancestor_names:
+            ancestor_iri = iris_by_name.get(ancestor_name)
+            if ancestor_iri is None:
+                raise ValueError(f"unknown class ancestor: {ancestor_name!r}")
+            if ancestor_iri not in resolved:
+                resolved.append(ancestor_iri)
+        result[class_iri] = tuple(resolved)
+    return result
+
+
 def _profile_evidence_policy(
     layer: ValidationLayer,
 ) -> tuple[
@@ -362,16 +425,38 @@ def _profile_evidence_policy(
     if layer == "weather":
         families = (SourceFamily.METAR, SourceFamily.TAF)
         return ("source_text",), {"source_text": families}
-    return (
-        (
-            "deterministic_derivation",
-            "profile_definition",
-        ),
-        {
-            "deterministic_derivation": (SourceFamily.BTS_ON_TIME,),
-            "profile_definition": (),
-        },
-    )
+    if layer == "public_operational_observation":
+        return (
+            (
+                "deterministic_derivation",
+                "profile_definition",
+            ),
+            {
+                "deterministic_derivation": (SourceFamily.BTS_ON_TIME,),
+                "profile_definition": (),
+            },
+        )
+    if layer == "flight_operation":
+        families = (
+            SourceFamily.NASA_ATMONTO_INSTANCE,
+            SourceFamily.BTS_FLIGHT_OPERATION,
+        )
+        return ("source_text",), {"source_text": families}
+    if layer == "aeronautical_reference":
+        families = (
+            SourceFamily.NASA_ATMONTO_INSTANCE,
+            SourceFamily.NASR_AIRSPACE,
+            SourceFamily.NASR_FACILITY,
+            SourceFamily.FAA_AIRCRAFT_REGISTRY,
+        )
+        return ("source_text",), {"source_text": families}
+    if layer == "trajectory":
+        families = (
+            SourceFamily.NASA_ATMONTO_INSTANCE,
+            SourceFamily.NASR_AIRSPACE,
+        )
+        return ("source_text",), {"source_text": families}
+    raise ValueError(f"unsupported validation layer: {layer}")
 
 
 def _decision_profile(decision_guide: SchemaGuide) -> LoadedValidationProfile:
@@ -440,23 +525,46 @@ def load_validation_profile_registry(
     decision_guide: SchemaGuide,
     weather_profile_path: str | Path = DEFAULT_WEATHER_PROFILE_PATH,
     public_observation_profile_path: str | Path = DEFAULT_PUBLIC_OBSERVATION_PROFILE_PATH,
+    include_flight_airspace: bool = False,
+    flight_operation_profile_path: str | Path = DEFAULT_FLIGHT_OPERATION_PROFILE_PATH,
+    aeronautical_reference_profile_path: str | Path = DEFAULT_AERONAUTICAL_REFERENCE_PROFILE_PATH,
+    trajectory_profile_path: str | Path = DEFAULT_TRAJECTORY_PROFILE_PATH,
 ) -> ValidationProfileRegistry:
-    """Load the independent profiles and pin each file's SHA-256."""
+    """Load checksum-pinned profiles, optionally adding Flight/Airspace layers."""
 
     weather_path = resolve_project_path(weather_profile_path)
     observation_path = resolve_project_path(public_observation_profile_path)
-    return ValidationProfileRegistry(
-        profiles=(
-            _decision_profile(decision_guide),
-            _load_json_profile(weather_path, "weather"),
-            _load_json_profile(observation_path, "public_operational_observation"),
+    profiles = [
+        _decision_profile(decision_guide),
+        _load_json_profile(weather_path, "weather"),
+        _load_json_profile(observation_path, "public_operational_observation"),
+    ]
+    if include_flight_airspace:
+        profiles.extend(
+            (
+                _load_json_profile(
+                    resolve_project_path(flight_operation_profile_path),
+                    "flight_operation",
+                ),
+                _load_json_profile(
+                    resolve_project_path(aeronautical_reference_profile_path),
+                    "aeronautical_reference",
+                ),
+                _load_json_profile(
+                    resolve_project_path(trajectory_profile_path),
+                    "trajectory",
+                ),
+            )
         )
-    )
+    return ValidationProfileRegistry(profiles=tuple(profiles))
 
 
 __all__ = [
     "AggregationProcedureDescriptor",
+    "DEFAULT_AERONAUTICAL_REFERENCE_PROFILE_PATH",
+    "DEFAULT_FLIGHT_OPERATION_PROFILE_PATH",
     "DEFAULT_PUBLIC_OBSERVATION_PROFILE_PATH",
+    "DEFAULT_TRAJECTORY_PROFILE_PATH",
     "DEFAULT_WEATHER_PROFILE_PATH",
     "LoadedValidationProfile",
     "ValidationProfileRef",

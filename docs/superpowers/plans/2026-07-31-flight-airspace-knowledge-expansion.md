@@ -309,9 +309,13 @@ versioned deterministic procedure checksum.
 - Modify: `src/aviation_agentic_ai/agent_system/validation_profiles.py`
 - Modify: `src/aviation_agentic_ai/agent_system/materialize.py`
 - Create: `src/aviation_agentic_ai/agent_system/flight_airspace_publication.py`
+- Modify: `src/aviation_agentic_ai/agent_system/airspace_sources.py`
+- Modify: `src/aviation_agentic_ai/agent_system/flight_airspace_ingestion.py`
 - Modify: `tests/test_agent_system_graph_kernel.py`
 - Create: `tests/test_agent_system_flight_airspace_profiles.py`
 - Create: `tests/test_agent_system_flight_airspace_publication.py`
+- Modify: `tests/test_agent_system_airspace_sources.py`
+- Modify: `tests/test_agent_system_flight_airspace_ingestion_service.py`
 
 **Admitted semantic core:**
 
@@ -351,14 +355,14 @@ records retain the exact `data:METARreport`, `data:TAFreport`, and
 `data:AirportData` classes from the bundle; no project-defined Weather or
 operational-metric subclass is introduced.
 
-- [ ] **Step 1:** Write failing profile tests that derive expected IRIs, domains, and ranges independently from the implementation.
-- [ ] **Step 2:** Build three small checksum-pinned profiles from the existing ATMONTO schema catalog; do not import the entire ontology as the application profile.
-- [ ] **Step 3:** Extend profile loading to preserve admitted class ancestry needed for `ActualFlightRoute -> Sequence` and `AircraftTrackPoint -> SequencedItem` validation.
-- [ ] **Step 4:** Compile source-qualified normalized records into `ValidatedFact` proposals with exact source traces.
-- [ ] **Step 5:** Route Flight operation, aeronautical reference, and trajectory layers through `run_formal_publication_kernel()`.
-- [ ] **Step 6:** Keep reporting-carrier, snapshot-match, temporal-association, and applicability semantics outside stronger ATMONTO relations when their sources do not support those relations.
-- [ ] **Step 7:** Run profile/Kernel/publication tests, including rejected wrong-domain, wrong-source-family, and causal predicates.
-- [ ] **Step 8:** Commit as `feat(agent-system): add ATMONTO flight and airspace profiles`.
+- [x] **Step 1:** Write failing profile tests that derive expected IRIs, domains, and ranges independently from the implementation.
+- [x] **Step 2:** Build three small checksum-pinned profiles from the existing ATMONTO schema catalog; do not import the entire ontology as the application profile.
+- [x] **Step 3:** Extend profile loading to preserve admitted class ancestry needed for `ActualFlightRoute -> Sequence` and `AircraftTrackPoint -> SequencedItem` validation.
+- [x] **Step 4:** Compile source-qualified normalized records into `ValidatedFact` proposals with exact source traces.
+- [x] **Step 5:** Route Flight operation, aeronautical reference, and trajectory layers through `run_formal_publication_kernel()`.
+- [x] **Step 6:** Keep reporting-carrier, snapshot-match, temporal-association, and applicability semantics outside stronger ATMONTO relations when their sources do not support those relations.
+- [x] **Step 7:** Run profile/Kernel/publication tests, including rejected wrong-domain, wrong-source-family, and causal predicates.
+- [x] **Step 8:** Commit as `feat(agent-system): add ATMONTO flight and airspace profiles`.
 
 ---
 

@@ -2,8 +2,9 @@
 
 The service is deliberately source-adapter driven: it registers immutable
 record versions, creates exact full-record anchors, and publishes typed
-structured rows through the general knowledge-publication spine.  Formal graph
-facts remain empty until a reviewed ATMONTO application profile admits them.
+structured rows through the general knowledge-publication spine. Reviewed
+NASA Flight/Airspace relations are additionally admitted by checksum-pinned
+ATMONTO application profiles and the shared Formal Publication Kernel.
 """
 
 from __future__ import annotations
@@ -37,7 +38,11 @@ from aviation_agentic_ai.agent_system.atmonto_sample_sources import (
     ATMONTOTMISourceRecord,
     iter_atmonto_public_sample_records,
 )
-from aviation_agentic_ai.agent_system.contracts import SourceFamily, SourceRecord
+from aviation_agentic_ai.agent_system.contracts import (
+    FactTraceRow,
+    SourceFamily,
+    SourceRecord,
+)
 from aviation_agentic_ai.agent_system.evidence_store import AviationEvidenceStore
 from aviation_agentic_ai.agent_system.flight_airspace_contracts import (
     AirCarrierRecord,
@@ -68,24 +73,37 @@ from aviation_agentic_ai.agent_system.flight_sources import (
     iter_faa_registry_technical_sources,
     iter_iem_weather_sources,
 )
+from aviation_agentic_ai.agent_system.flight_airspace_publication import (
+    compile_nasa_flight_airspace_facts,
+    run_nasa_flight_airspace_publication_kernel,
+)
 from aviation_agentic_ai.agent_system.knowledge_publication import (
     KnowledgePublicationPackage,
     KnowledgePublicationRecord,
     KnowledgeRootRecord,
     PublicationEvidenceLink,
+    PublicationFactMembership,
     PublicationSourceMembership,
     stable_knowledge_publication_id,
 )
+from aviation_agentic_ai.agent_system.materialize import FormalPublication
+from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.source_path_resolver import resolve_source_path
 from aviation_agentic_ai.agent_system.sources import (
+    build_source_snapshot_registry,
     build_source_version,
     discover_source_assets,
 )
 from aviation_agentic_ai.agent_system.storage_contracts import (
     KnowledgeIngestionResult,
+    SemanticFactRecord,
     SourceAnchorRecord,
     SourceAssetRecord,
     SourceVersionRecord,
+)
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    ValidationProfileRegistry,
+    load_validation_profile_registry,
 )
 from aviation_agentic_ai.paths import PROJECT_ROOT
 from aviation_agentic_ai.utils.identifiers import stable_id
@@ -241,22 +259,93 @@ def _publication_package(
     temporal_domain_id: str,
     source_version: SourceVersionRecord,
     structured_payload: object,
+    supporting_source_versions: tuple[SourceVersionRecord, ...] = (),
+    formal_publication: FormalPublication | None = None,
+    fact_traces: tuple[FactTraceRow, ...] = (),
 ) -> KnowledgePublicationPackage:
-    digest = _canonical_digest(
-        {
-            "adapter_version": FLIGHT_SOURCE_ADAPTER_VERSION,
-            "root_id": root_id,
-            "root_kind": root_kind,
-            "structured_payload": structured_payload,
-        }
-    )
+    digest_payload: dict[str, object] = {
+        "adapter_version": FLIGHT_SOURCE_ADAPTER_VERSION,
+        "root_id": root_id,
+        "root_kind": root_kind,
+        "structured_payload": structured_payload,
+    }
+    if supporting_source_versions or formal_publication is not None:
+        digest_payload["supporting_source_version_ids"] = sorted(
+            version.source_version_id for version in supporting_source_versions
+        )
+        digest_payload["formal_facts"] = (
+            [
+                fact.model_dump(mode="json")
+                for fact in formal_publication.accepted
+            ]
+            if formal_publication is not None
+            else []
+        )
+    digest = _canonical_digest(digest_payload)
     publication_id = stable_knowledge_publication_id(
         root_id,
         source_version.source_version_id,
         digest,
     )
+    source_versions = (source_version, *supporting_source_versions)
+    versions_by_source_id = {version.source_id: version for version in source_versions}
+    if len(versions_by_source_id) != len(source_versions):
+        raise ValueError("publication source IDs must be unique")
+    anchors_by_id = {
+        anchor.source_anchor_id: anchor
+        for anchor in (_full_record_anchor(version) for version in source_versions)
+    }
     anchor = _full_record_anchor(source_version)
     evidence_ref = "full_record"
+    facts = tuple(formal_publication.accepted) if formal_publication is not None else ()
+    traces_by_fact_id = {trace.fact_id: trace for trace in fact_traces}
+    if len(traces_by_fact_id) != len(fact_traces):
+        raise ValueError("formal fact traces must be unique")
+    if set(traces_by_fact_id) != {fact.fact_id for fact in facts}:
+        raise ValueError("formal facts and traces do not match")
+
+    fact_evidence_links: list[PublicationEvidenceLink] = []
+    for fact in facts:
+        trace = traces_by_fact_id[fact.fact_id]
+        version = versions_by_source_id.get(trace.source_id)
+        if version is None:
+            raise ValueError("formal fact source is outside the publication")
+        char_start = version.content.find(trace.evidence_text)
+        if char_start < 0:
+            raise ValueError("formal fact evidence is absent from source version")
+        fact_anchor = SourceAnchorRecord(
+            source_anchor_id=stable_id(
+                "source-anchor",
+                version.source_version_id,
+                char_start,
+                char_start + len(trace.evidence_text),
+            ),
+            source_version_id=version.source_version_id,
+            char_start=char_start,
+            char_end=char_start + len(trace.evidence_text),
+            anchor_kind="text_span",
+        )
+        anchors_by_id.setdefault(fact_anchor.source_anchor_id, fact_anchor)
+        fact_evidence_links.append(
+            PublicationEvidenceLink(
+                evidence_link_id=stable_id(
+                    "publication-evidence",
+                    publication_id,
+                    "fact",
+                    fact.fact_id,
+                    version.source_version_id,
+                    fact_anchor.source_anchor_id,
+                    fact.evidence_ref,
+                ),
+                publication_id=publication_id,
+                owner_kind="fact",
+                owner_id=fact.fact_id,
+                source_version_id=version.source_version_id,
+                source_anchor_id=fact_anchor.source_anchor_id,
+                evidence_text=trace.evidence_text,
+                evidence_ref=fact.evidence_ref,
+            )
+        )
     return KnowledgePublicationPackage(
         root=KnowledgeRootRecord(
             root_id=root_id,
@@ -271,22 +360,48 @@ def _publication_package(
             primary_source_version_id=source_version.source_version_id,
             formal_publication_digest=digest,
         ),
-        publication_sources=(
+        publication_sources=tuple(
             PublicationSourceMembership(
                 membership_id=stable_id(
                     "publication-source",
                     publication_id,
-                    source_version.source_version_id,
-                    "primary",
+                    version.source_version_id,
+                    "primary" if index == 0 else "supporting",
                 ),
                 publication_id=publication_id,
-                source_version_id=source_version.source_version_id,
-                source_role="primary",
-            ),
+                source_version_id=version.source_version_id,
+                source_role="primary" if index == 0 else "supporting",
+            )
+            for index, version in enumerate(source_versions)
         ),
-        source_anchors=(anchor,),
-        facts=(),
-        fact_memberships=(),
+        source_anchors=tuple(anchors_by_id[key] for key in sorted(anchors_by_id)),
+        facts=tuple(
+            SemanticFactRecord(
+                fact_id=fact.fact_id,
+                subject_iri=fact.subject_iri,
+                subject_class_iri=fact.subject_class_iri,
+                predicate_iri=fact.predicate_iri,
+                object_kind=fact.object_kind,
+                object_value=fact.object_value,
+                object_class_iri=fact.object_class_iri,
+                datatype_iri=fact.datatype_iri,
+                validation_profile=fact.validation_profile,
+                evidence_mode=fact.evidence_mode,
+            )
+            for fact in facts
+        ),
+        fact_memberships=tuple(
+            PublicationFactMembership(
+                membership_id=stable_id(
+                    "publication-fact",
+                    publication_id,
+                    fact.fact_id,
+                ),
+                publication_id=publication_id,
+                fact_id=fact.fact_id,
+            )
+            for fact in facts
+        ),
         evidence_links=(
             PublicationEvidenceLink(
                 evidence_link_id=stable_id(
@@ -306,6 +421,7 @@ def _publication_package(
                 evidence_text=source_version.content,
                 evidence_ref=evidence_ref,
             ),
+            *fact_evidence_links,
         ),
     )
 
@@ -931,8 +1047,12 @@ def _nasa_flight_publication(
     routes_by_flight: dict[str, tuple[NASAActualRouteSourceRecord, ...]],
     points_by_route: dict[str, tuple[NASATrackPointSourceRecord, ...]],
     sector_ids_by_fix: dict[str, tuple[str, ...]],
-    known_fix_ids: set[str],
-    known_sector_ids: set[str],
+    fix_records_by_id: dict[
+        str,
+        tuple[NASANavigationFixSourceRecord, ...],
+    ],
+    sectors_by_id: dict[str, NASASectorSourceRecord],
+    profile_registry: ValidationProfileRegistry,
     asset: SourceAssetRecord,
     temporal_domain_id: str,
 ) -> _PendingPublication:
@@ -967,19 +1087,98 @@ def _nasa_flight_publication(
         "aircraft_type_iri": record.aircraft_type_iri,
         "actual_route_iris": record.actual_route_iris,
     }
+    route_records = routes_by_flight.get(record.subject_iri, ())
+    point_records = tuple(
+        point
+        for route in route_records
+        for point in points_by_route.get(route.subject_iri, ())
+    )
+    referenced_fix_ids = {
+        point.fix_iri for point in point_records if point.fix_iri is not None
+    }
+    fix_records = tuple(
+        fix_record
+        for fix_id in sorted(referenced_fix_ids)
+        for fix_record in fix_records_by_id.get(fix_id, ())
+    )
+    referenced_sector_ids = {
+        sector_id
+        for point in point_records
+        for sector_id in (
+            *point.sector_iris,
+            *sector_ids_by_fix.get(point.fix_iri or "", ()),
+        )
+    }
+    sector_records = tuple(
+        sectors_by_id[sector_id]
+        for sector_id in sorted(referenced_sector_ids)
+        if sector_id in sectors_by_id
+    )
+
+    supporting_records_by_id: dict[str, SourceRecord] = {}
+
+    def register_supporting_record(
+        trace: NASARDFSourceTrace,
+        *,
+        time_basis: str | None = None,
+    ) -> None:
+        source = _record_with_domain(
+            _nasa_source_record(trace, asset=asset, time_basis=time_basis),
+            temporal_domain_id,
+        )
+        previous = supporting_records_by_id.setdefault(source.source_id, source)
+        if previous != source:
+            raise ValueError("conflicting NASA source records share identity")
+
+    for route in route_records:
+        register_supporting_record(route.source)
+    for point in point_records:
+        register_supporting_record(point.source, time_basis=point.time_basis)
+    for fix in fix_records:
+        register_supporting_record(fix.source)
+    for sector in sector_records:
+        register_supporting_record(sector.source)
+    supporting_records_by_id.pop(primary_source.source_id, None)
+    supporting_records = tuple(
+        supporting_records_by_id[source_id]
+        for source_id in sorted(supporting_records_by_id)
+    )
+    supporting_versions = tuple(
+        build_source_version(source) for source in supporting_records
+    )
+
+    compilation = compile_nasa_flight_airspace_facts(
+        flights=(record,),
+        routes=route_records,
+        track_points=point_records,
+        navigation_fixes=fix_records,
+        sectors=sector_records,
+        flight_root_ids={record.subject_iri: flight_id},
+        profile_registry=profile_registry,
+    )
+    formal_publication = run_nasa_flight_airspace_publication_kernel(
+        compilation=compilation,
+        profile_registry=profile_registry,
+        source_snapshot=build_source_snapshot_registry(
+            [primary_source, *supporting_records]
+        ),
+    )
     package = _publication_package(
         root_id=flight_id,
         root_kind="flight",
         temporal_domain_id=temporal_domain_id,
         source_version=primary_version,
+        supporting_source_versions=supporting_versions,
         structured_payload=structured,
+        formal_publication=formal_publication,
+        fact_traces=compilation.fact_traces,
     )
     publication_id = package.publication.publication_id
 
     route_rows: list[RouteRecord] = []
     point_rows: list[TrackPointRecord] = []
     passage_rows: list[SectorPassageRecord] = []
-    supporting_versions: list[SourceVersionRecord] = []
+    mutable_supporting_versions = list(supporting_versions)
     memberships = list(package.publication_sources)
     anchors = list(package.source_anchors)
     evidence_links = list(package.evidence_links)
@@ -998,9 +1197,9 @@ def _nasa_flight_publication(
         version = build_source_version(source)
         anchor = _full_record_anchor(version)
         if version.source_version_id not in {
-            item.source_version_id for item in supporting_versions
+            item.source_version_id for item in mutable_supporting_versions
         }:
-            supporting_versions.append(version)
+            mutable_supporting_versions.append(version)
             memberships.append(
                 PublicationSourceMembership(
                     membership_id=stable_id(
@@ -1037,7 +1236,6 @@ def _nasa_flight_publication(
         )
         return version, anchor
 
-    route_records = routes_by_flight.get(record.subject_iri, ())
     for route_record in route_records:
         route_id = stable_id("route", publication_id, route_record.subject_iri)
         route_rows.append(
@@ -1085,7 +1283,7 @@ def _nasa_flight_publication(
                     {
                         *point_record.sector_iris,
                         *sector_ids_by_fix.get(point_record.fix_iri or "", ()),
-                    }.intersection(known_sector_ids)
+                    }.intersection(sectors_by_id)
                 )
             )
             point_rows.append(
@@ -1100,7 +1298,7 @@ def _nasa_flight_publication(
                     ground_speed=point_record.ground_speed,
                     navigation_fix_id=(
                         point_record.fix_iri
-                        if point_record.fix_iri in known_fix_ids
+                        if point_record.fix_iri in fix_records_by_id
                         else None
                     ),
                     sector_ids=sector_ids,
@@ -1158,7 +1356,7 @@ def _nasa_flight_publication(
     )
     return _PendingPublication(
         source_version=primary_version,
-        supporting_source_versions=tuple(supporting_versions),
+        supporting_source_versions=tuple(mutable_supporting_versions),
         adapter_id="flight-airspace:nasa-flight",
         root_kind="flight",
         materialization=FlightAirspaceMaterialization(
@@ -1958,6 +2156,10 @@ def run_flight_airspace_ingestion(
     nasa_asset = assets_by_key.get("nasa_atmonto_instances")
     if nasa_asset is not None:
         domain = _required_domain(config, "nasa_atmonto_instances")
+        flight_airspace_profiles = load_validation_profile_registry(
+            decision_guide=load_schema_guide(),
+            include_flight_airspace=True,
+        )
         nasa_records = tuple(
             iter_nasa_atmonto_airspace_records(
                 _asset_path(
@@ -1986,15 +2188,20 @@ def run_flight_airspace_ingestion(
             row.fix_iri for row in points if row.fix_iri is not None
         }
         fixes_by_id: dict[str, NASANavigationFixSourceRecord] = {}
+        fix_records_by_id: dict[str, list[NASANavigationFixSourceRecord]] = {}
         sector_ids_by_fix: dict[str, set[str]] = {}
+        referenced_sector_sources: dict[str, NASARDFSourceTrace] = {}
         for row in nasa_records:
             if not isinstance(row, NASANavigationFixSourceRecord):
                 continue
             if row.subject_iri not in referenced_fix_ids:
                 continue
+            fix_records_by_id.setdefault(row.subject_iri, []).append(row)
             sector_ids_by_fix.setdefault(row.subject_iri, set()).update(
                 row.sector_iris
             )
+            for sector_id in row.sector_iris:
+                referenced_sector_sources.setdefault(sector_id, row.source)
             prior = fixes_by_id.get(row.subject_iri)
             if prior is None or len(row.source.canonical_triples) > len(
                 prior.source.canonical_triples
@@ -2002,12 +2209,8 @@ def run_flight_airspace_ingestion(
                 fixes_by_id[row.subject_iri] = row
 
         sectors_by_id = {row.subject_iri: row for row in sectors}
-        referenced_sector_sources: dict[str, NASARDFSourceTrace] = {}
         for row in points:
             for sector_id in row.sector_iris:
-                referenced_sector_sources.setdefault(sector_id, row.source)
-        for row in fixes_by_id.values():
-            for sector_id in sector_ids_by_fix.get(row.subject_iri, set()):
                 referenced_sector_sources.setdefault(sector_id, row.source)
         for sector_id, trace in referenced_sector_sources.items():
             sectors_by_id.setdefault(
@@ -2077,8 +2280,12 @@ def run_flight_airspace_ingestion(
                             key: tuple(sorted(value))
                             for key, value in sector_ids_by_fix.items()
                         },
-                        known_fix_ids=set(fixes_by_id),
-                        known_sector_ids={row.subject_iri for row in sectors},
+                        fix_records_by_id={
+                            key: tuple(value)
+                            for key, value in fix_records_by_id.items()
+                        },
+                        sectors_by_id=sectors_by_id,
+                        profile_registry=flight_airspace_profiles,
                         asset=nasa_asset,
                         temporal_domain_id=domain,
                     )

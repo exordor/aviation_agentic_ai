@@ -105,6 +105,7 @@ def test_nasa_adapter_preserves_route_sequence_track_seconds_and_all_sectors(
     from aviation_agentic_ai.agent_system.airspace_sources import (
         NASAActualRouteSourceRecord,
         NASAFlightSourceRecord,
+        NASANavigationFixSourceRecord,
         NASATrackPointSourceRecord,
         iter_nasa_atmonto_airspace_records,
     )
@@ -149,10 +150,16 @@ def test_nasa_adapter_preserves_route_sequence_track_seconds_and_all_sectors(
         )
         archive.writestr("allFilesTTL/not-allowlisted.ttl", "not valid turtle")
 
-    records = list(iter_nasa_atmonto_airspace_records(archive_path))
+    records = list(
+        iter_nasa_atmonto_airspace_records(
+            archive_path,
+            include_global_fixes=False,
+        )
+    )
     flight = next(row for row in records if isinstance(row, NASAFlightSourceRecord))
     route = next(row for row in records if isinstance(row, NASAActualRouteSourceRecord))
     points = [row for row in records if isinstance(row, NASATrackPointSourceRecord)]
+    fixes = [row for row in records if isinstance(row, NASANavigationFixSourceRecord)]
 
     assert flight.subject_iri == "urn:test:flight:F1"
     assert flight.call_sign == "DAL1"
@@ -179,6 +186,8 @@ def test_nasa_adapter_preserves_route_sequence_track_seconds_and_all_sectors(
         "https://data.nasa.gov/ontologies/atmonto/NAS#ZTLsector042",
     )
     assert points[0].source.related_subject_iris == ("urn:test:fix:P1",)
+    assert len(fixes) == 2
+    assert all(row.source.canonical_triples for row in fixes)
 
 
 def test_nasa_adapter_keeps_canonical_subject_triples_and_checksum(

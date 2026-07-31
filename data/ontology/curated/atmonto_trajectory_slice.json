@@ -1,0 +1,108 @@
+{
+  "profile_id": "nasa_atmonto_trajectory_slice_v1",
+  "source_catalog": "nasa_atmonto_schema_catalog",
+  "selection_policy": {
+    "primary_source": "NASA ATMONTO schema catalog",
+    "source_layer": "trajectory",
+    "boundary": "closed trajectory profile; sequencing and fix ancestry are explicit"
+  },
+  "namespace_prefixes": {
+    "atm": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+    "nas": "https://data.nasa.gov/ontologies/atmonto/NAS#",
+    "gen": "https://data.nasa.gov/ontologies/atmonto/general#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "classes": [
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ActualFlightRoute",
+      "prefixed_name": "atm:ActualFlightRoute",
+      "local_name": "ActualFlightRoute",
+      "label": "Actual Flight Route"
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#AircraftTrackPoint",
+      "prefixed_name": "atm:AircraftTrackPoint",
+      "local_name": "AircraftTrackPoint",
+      "label": "Aircraft Track Point"
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#NavigationFix",
+      "prefixed_name": "atm:NavigationFix",
+      "local_name": "NavigationFix",
+      "label": "Navigation fix"
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/NAS#Sector",
+      "prefixed_name": "nas:Sector",
+      "local_name": "Sector",
+      "label": "Sector"
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/general#Sequence",
+      "prefixed_name": "gen:Sequence",
+      "local_name": "Sequence",
+      "label": "Sequence"
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/general#SequencedItem",
+      "prefixed_name": "gen:SequencedItem",
+      "local_name": "SequencedItem",
+      "label": "Sequenced item"
+    }
+  ],
+  "class_ancestors": {
+    "atm:ActualFlightRoute": ["gen:Sequence"],
+    "atm:AircraftTrackPoint": ["gen:SequencedItem"]
+  },
+  "object_properties": [
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/general#hasSequencedItem",
+      "prefixed_name": "gen:hasSequencedItem",
+      "local_name": "hasSequencedItem",
+      "label": "has sequenced item",
+      "domain_iri_set": ["https://data.nasa.gov/ontologies/atmonto/general#Sequence"],
+      "range_iri_set": ["https://data.nasa.gov/ontologies/atmonto/general#SequencedItem"],
+      "functional": false
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#aircraftFix",
+      "prefixed_name": "atm:aircraftFix",
+      "local_name": "aircraftFix",
+      "label": "aircraft fix",
+      "domain_iri_set": ["https://data.nasa.gov/ontologies/atmonto/ATM#AircraftTrackPoint"],
+      "range_iri_set": ["https://data.nasa.gov/ontologies/atmonto/ATM#NavigationFix"],
+      "functional": true
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#locatedInSector",
+      "prefixed_name": "atm:locatedInSector",
+      "local_name": "locatedInSector",
+      "label": "located in sector",
+      "domain_iri_set": ["https://data.nasa.gov/ontologies/atmonto/ATM#NavigationFix"],
+      "range_iri_set": ["https://data.nasa.gov/ontologies/atmonto/NAS#Sector"],
+      "functional": false
+    }
+  ],
+  "datatype_properties": [
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#reportingTime",
+      "prefixed_name": "atm:reportingTime",
+      "local_name": "reportingTime",
+      "label": "reporting time",
+      "domain_iri_set": ["https://data.nasa.gov/ontologies/atmonto/ATM#AircraftTrackPoint"],
+      "functional": true
+    }
+  ],
+  "forbidden_predicates": [
+    "https://data.nasa.gov/ontologies/atmonto/data#arrivalDemand",
+    "https://data.nasa.gov/ontologies/atmonto/data#airportArrivalRate",
+    "http://www.w3.org/2002/07/owl#equivalentProperty",
+    "http://www.w3.org/2000/01/rdf-schema#subPropertyOf",
+    "http://www.w3.org/2004/02/skos/core#exactMatch",
+    "http://www.w3.org/2004/02/skos/core#closeMatch",
+    "urn:aviation-agentic-ai:causedBy",
+    "urn:aviation-agentic-ai:motivatedBy",
+    "urn:aviation-agentic-ai:affectedBy"
+  ]
+}

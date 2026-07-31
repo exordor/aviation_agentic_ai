@@ -605,13 +605,16 @@ def _iter_fix_records(
     else:
         candidates = subjects
     for subject in sorted(candidates, key=str):
+        trace = _rdf_trace(
+            archive_checksum=archive_checksum,
+            member_name=member_name,
+            subject=subject,
+            graph=graph,
+        )
+        if not trace.canonical_triples:
+            continue
         yield NASANavigationFixSourceRecord(
-            source=_rdf_trace(
-                archive_checksum=archive_checksum,
-                member_name=member_name,
-                subject=subject,
-                graph=graph,
-            ),
+            source=trace,
             subject_iri=str(subject),
             fix_identifier=_text_value(graph, subject, ATM.fixId)
             or _subject_fragment(subject),

@@ -1,0 +1,124 @@
+{
+  "profile_id": "nasa_atmonto_flight_operation_slice_v1",
+  "source_catalog": "nasa_atmonto_schema_catalog",
+  "selection_policy": {
+    "primary_source": "NASA ATMONTO schema catalog",
+    "source_layer": "flight_operation",
+    "boundary": "closed application profile; source-qualified Flight facts only"
+  },
+  "namespace_prefixes": {
+    "atm": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+    "nas": "https://data.nasa.gov/ontologies/atmonto/NAS#",
+    "eqp": "https://data.nasa.gov/ontologies/atmonto/equipment#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "classes": [
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#Flight",
+      "prefixed_name": "atm:Flight",
+      "local_name": "Flight",
+      "label": "Flight"
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ActualFlightRoute",
+      "prefixed_name": "atm:ActualFlightRoute",
+      "local_name": "ActualFlightRoute",
+      "label": "Actual Flight Route"
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/NAS#Airport",
+      "prefixed_name": "nas:Airport",
+      "local_name": "Airport",
+      "label": "Airport"
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirCarrier",
+      "prefixed_name": "nas:AirCarrier",
+      "local_name": "AirCarrier",
+      "label": "Air carrier"
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/equipment#Aircraft",
+      "prefixed_name": "eqp:Aircraft",
+      "local_name": "Aircraft",
+      "label": "Aircraft"
+    }
+  ],
+  "object_properties": [
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#departureAirport",
+      "prefixed_name": "atm:departureAirport",
+      "local_name": "departureAirport",
+      "label": "departure airport",
+      "domain_iri_set": ["https://data.nasa.gov/ontologies/atmonto/ATM#Flight"],
+      "range_iri_set": ["https://data.nasa.gov/ontologies/atmonto/NAS#Airport"],
+      "functional": true
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#arrivalAirport",
+      "prefixed_name": "atm:arrivalAirport",
+      "local_name": "arrivalAirport",
+      "label": "arrival airport",
+      "domain_iri_set": ["https://data.nasa.gov/ontologies/atmonto/ATM#Flight"],
+      "range_iri_set": ["https://data.nasa.gov/ontologies/atmonto/NAS#Airport"],
+      "functional": true
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#aircraftFlown",
+      "prefixed_name": "atm:aircraftFlown",
+      "local_name": "aircraftFlown",
+      "label": "aircraft flown",
+      "domain_iri_set": ["https://data.nasa.gov/ontologies/atmonto/ATM#Flight"],
+      "range_iri_set": ["https://data.nasa.gov/ontologies/atmonto/equipment#Aircraft"],
+      "functional": true
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#operatedBy",
+      "prefixed_name": "atm:operatedBy",
+      "local_name": "operatedBy",
+      "label": "operated by",
+      "domain_iri_set": ["https://data.nasa.gov/ontologies/atmonto/ATM#Flight"],
+      "range_iri_set": ["https://data.nasa.gov/ontologies/atmonto/NAS#AirCarrier"],
+      "functional": true
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#hasActualRoute",
+      "prefixed_name": "atm:hasActualRoute",
+      "local_name": "hasActualRoute",
+      "label": "has actual route",
+      "domain_iri_set": ["https://data.nasa.gov/ontologies/atmonto/ATM#Flight"],
+      "range_iri_set": ["https://data.nasa.gov/ontologies/atmonto/ATM#ActualFlightRoute"],
+      "functional": true
+    }
+  ],
+  "datatype_properties": [
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#actualDepartureTime",
+      "prefixed_name": "atm:actualDepartureTime",
+      "local_name": "actualDepartureTime",
+      "label": "actual departure time",
+      "domain_iri_set": ["https://data.nasa.gov/ontologies/atmonto/ATM#Flight"],
+      "functional": true
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#callSign",
+      "prefixed_name": "atm:callSign",
+      "local_name": "callSign",
+      "label": "call sign",
+      "domain_iri_set": ["https://data.nasa.gov/ontologies/atmonto/ATM#Flight"],
+      "functional": false
+    }
+  ],
+  "forbidden_predicates": [
+    "https://data.nasa.gov/ontologies/atmonto/data#arrivalDemand",
+    "https://data.nasa.gov/ontologies/atmonto/data#airportArrivalRate",
+    "http://www.w3.org/2002/07/owl#equivalentProperty",
+    "http://www.w3.org/2000/01/rdf-schema#subPropertyOf",
+    "http://www.w3.org/2004/02/skos/core#exactMatch",
+    "http://www.w3.org/2004/02/skos/core#closeMatch",
+    "urn:aviation-agentic-ai:causedBy",
+    "urn:aviation-agentic-ai:motivatedBy",
+    "urn:aviation-agentic-ai:affectedBy"
+  ]
+}
