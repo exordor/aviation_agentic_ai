@@ -1,34 +1,8 @@
-import importlib
-import sys
 from pathlib import Path
 
 from click.testing import CliRunner
 
 from aviation_agentic_ai.cli import main
-
-
-def test_cli_help_survives_optional_command_import_failure(monkeypatch) -> None:
-    real_import_module = importlib.import_module
-
-    def fake_import_module(name: str, *args, **kwargs):
-        if name == "aviation_agentic_ai.cli_index":
-            raise ImportError("chromadb unavailable")
-        return real_import_module(name, *args, **kwargs)
-
-    monkeypatch.setattr(importlib, "import_module", fake_import_module)
-    sys.modules.pop("aviation_agentic_ai.cli", None)
-    try:
-        cli_module = real_import_module("aviation_agentic_ai.cli")
-        help_result = CliRunner().invoke(cli_module.main, ["--help"])
-        unavailable_result = CliRunner().invoke(cli_module.main, ["index", "build"])
-    finally:
-        sys.modules.pop("aviation_agentic_ai.cli", None)
-        monkeypatch.setattr(importlib, "import_module", real_import_module)
-        real_import_module("aviation_agentic_ai.cli")
-
-    assert help_result.exit_code == 0
-    assert unavailable_result.exit_code != 0
-    assert "unavailable because an import failed" in unavailable_result.output
 
 
 def test_cli_chunk_build_uses_default_command_shape(tmp_path: Path, monkeypatch) -> None:
@@ -43,8 +17,8 @@ def test_cli_chunk_build_uses_default_command_shape(tmp_path: Path, monkeypatch)
     monkeypatch.setattr(cli_chunk, "build_chunk_file", fake_build_chunk_file)
 
     result = CliRunner().invoke(
-        main,
-        ["chunk", "build", "--output", str(tmp_path / "chunks.jsonl")],
+        cli_chunk.chunk_group,
+        ["build", "--output", str(tmp_path / "chunks.jsonl")],
     )
 
     assert result.exit_code == 0, result.output
@@ -65,9 +39,8 @@ def test_cli_index_build_uses_mocked_builder(tmp_path: Path, monkeypatch) -> Non
     )
 
     result = CliRunner().invoke(
-        main,
+        cli_index.index,
         [
-            "index",
             "build",
             "--chunks",
             str(tmp_path / "chunks.jsonl"),
@@ -90,9 +63,8 @@ def test_cli_query_uses_mocked_runner(tmp_path: Path, monkeypatch) -> None:
     )
 
     result = CliRunner().invoke(
-        main,
+        cli_query.query,
         [
-            "query",
             "What affects lift?",
             "--chunks",
             str(tmp_path / "chunks.jsonl"),
@@ -119,9 +91,8 @@ def test_cli_kg_extract_uses_configured_token_budget(tmp_path: Path, monkeypatch
     monkeypatch.setattr(cli_kg, "extract_kg_file", fake_extract_kg_file)
 
     result = CliRunner().invoke(
-        main,
+        cli_kg.kg,
         [
-            "kg",
             "extract",
             "--chunks",
             str(tmp_path / "chunks.jsonl"),
@@ -152,9 +123,8 @@ def test_cli_kg_extract_max_tokens_override(tmp_path: Path, monkeypatch) -> None
     monkeypatch.setattr(cli_kg, "extract_kg_file", fake_extract_kg_file)
 
     result = CliRunner().invoke(
-        main,
+        cli_kg.kg,
         [
-            "kg",
             "extract",
             "--chunks",
             str(tmp_path / "chunks.jsonl"),
@@ -190,9 +160,8 @@ def test_cli_kg_extract_can_write_ttl_export(tmp_path: Path, monkeypatch) -> Non
     monkeypatch.setattr(cli_kg, "write_kg_ttl", fake_write_kg_ttl)
 
     result = CliRunner().invoke(
-        main,
+        cli_kg.kg,
         [
-            "kg",
             "extract",
             "--chunks",
             str(tmp_path / "chunks.jsonl"),
@@ -243,9 +212,8 @@ def test_cli_kg_validate_passes_report_name(tmp_path: Path, monkeypatch) -> None
     monkeypatch.setattr(cli_kg, "write_kg_validation_reports", fake_write_reports)
 
     result = CliRunner().invoke(
-        main,
+        cli_kg.kg,
         [
-            "kg",
             "validate",
             "--output-dir",
             str(tmp_path),

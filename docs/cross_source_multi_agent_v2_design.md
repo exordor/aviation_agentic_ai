@@ -339,21 +339,13 @@ data/evaluation/cross_source/v1/                      automated regression and m
 Only bounded normalized or evaluation artifacts required by a reproducible V2
 command or evaluation report should enter Git.
 
-## 13. CLI Contract
+## 13. Retired CLI Contract
 
-```bash
-uv run aviation-ai cross-source refresh --config configs/cross_source_v1.yaml --source all --as-of 2026-05-20
-uv run aviation-ai cross-source align --config configs/cross_source_v1.yaml
-uv run aviation-ai cross-source align --config configs/cross_source_v1.yaml --context-mode autonomous
-uv run aviation-ai cross-source build --config configs/cross_source_v1.yaml
-uv run aviation-ai cross-source neo4j-export --config configs/cross_source_v1.yaml
-uv run aviation-ai cross-source neo4j-load --config configs/cross_source_v1.yaml --replace-snapshot
-uv run aviation-ai cross-source answer --config configs/cross_source_v1.yaml --source-id 2026-05-20:089 --question "..."
-uv run aviation-ai cross-source evaluate --config configs/cross_source_v1.yaml --benchmark data/evaluation/cross_source/v1/automated_regression_v1.jsonl
-```
-
-Only `refresh` may use the network. All other commands consume a pinned
-snapshot set and produce reproducible local artifacts.
+The former root group exposed `refresh`, `align`, `build`, `neo4j-export`,
+`neo4j-load`, `answer`, and `evaluate`. That public command surface has been
+removed. The historical Python implementation, focused tests, configuration,
+and recorded outputs remain for code-level inspection; they are not a supported
+or executable runtime path.
 
 ## 14. Automated Policy Regression
 

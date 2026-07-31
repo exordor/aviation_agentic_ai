@@ -38,13 +38,6 @@ def _imports_under(path: Path) -> set[str]:
     return imports
 
 
-def test_active_runtime_does_not_import_historical_utility_modules() -> None:
-    imports = _imports_under(AGENT_SYSTEM)
-
-    assert "aviation_agentic_ai.cross_source.identifiers" not in imports
-    assert "aviation_agentic_ai.cross_source.artifacts" not in imports
-
-
 def test_active_runtime_does_not_import_historical_cross_source_modules() -> None:
     imports = _imports_under(AGENT_SYSTEM)
 

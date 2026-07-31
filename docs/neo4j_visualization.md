@@ -15,31 +15,9 @@ also writes a canonical Neo4j property-graph projection:
 Only accepted alignments enter this projection. Quarantined and rejected
 decisions remain outside the displayed canonical graph.
 
-## Export
-
-```bash
-uv run aviation-ai cross-source neo4j-export \
-  --config configs/cross_source_v1.yaml
-```
-
-## Load into Neo4j
-
-Install the optional official Python driver and set connection details without
-putting credentials in repository files or shell history:
-
-```bash
-uv sync --extra neo4j
-export NEO4J_URI='bolt://localhost:7687'
-export NEO4J_USERNAME='neo4j'
-export NEO4J_PASSWORD='your-local-password'
-export NEO4J_DATABASE='neo4j'
-uv run aviation-ai cross-source neo4j-load \
-  --config configs/cross_source_v1.yaml \
-  --replace-snapshot
-```
-
-`--replace-snapshot` removes only nodes carrying the configured snapshot ID
-before loading. Omit it to idempotently merge the projection.
+The former cross-source export/load commands have been removed. The files and
+queries below document the historical projection only; use the current
+`agent-system neo4j-export` command for an executable export path.
 
 ## Neo4j Browser Queries
 

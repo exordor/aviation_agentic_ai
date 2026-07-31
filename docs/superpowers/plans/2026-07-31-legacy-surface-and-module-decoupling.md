@@ -255,4 +255,3 @@
   git add RESEARCH_AUDIT.md GOALS.md ARTIFACT_INDEX.md docs/multi_agent_kg_system_design.md
   git commit -m "docs(project): clarify active and historical boundaries"
   ```
-

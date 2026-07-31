@@ -2,14 +2,13 @@ from __future__ import annotations
 
 from click.testing import CliRunner
 
-from aviation_agentic_ai.cli import main
+from aviation_agentic_ai.cli_agent import agent
 
 
 def test_cli_agent_demo_runs_l2_agent_with_artifact_replay() -> None:
     result = CliRunner().invoke(
-        main,
+        agent,
         [
-            "agent",
             "demo",
             "--source-id",
             "2026-05-19:032",
@@ -30,9 +29,8 @@ def test_cli_agent_demo_runs_l2_agent_with_artifact_replay() -> None:
 
 def test_cli_agent_demo_abstains_for_live_operational_question() -> None:
     result = CliRunner().invoke(
-        main,
+        agent,
         [
-            "agent",
             "demo",
             "--source-id",
             "2026-05-19:032",
