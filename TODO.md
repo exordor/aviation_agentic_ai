@@ -20,6 +20,11 @@ apparently simple natural-language questions. Deterministic retrieval stays
 inside bounded tools; natural-language interpretation and tool routing remain
 model-mediated.
 
+Do not promote an export, frozen evaluation dataset, or batch snapshot into the
+runtime source of truth. New source families enter through the ingestion
+pipeline and persistent evidence store; lexical, vector, RDF/Turtle, and Neo4j
+representations remain rebuildable views.
+
 ## Explicitly Deferred
 
 - A formal representation of internal decision inputs, alternatives,
@@ -51,7 +56,8 @@ model-mediated.
 - Keep this file short and current.
 - Use descriptive capability names rather than internal batch labels.
 - Do not store changing test counts as durable project claims.
-- Keep generated corpora, provider artifacts, and credentials out of Git.
+- Keep generated stores, vector indexes, exports, provider artifacts, and
+  credentials out of Git.
 - Preserve historical material through the artifact index and Git history.
 - Apply the research-prototype effort boundary in `AGENTS.md`.
 - Require each mainline implementation batch to add or simplify a user-visible

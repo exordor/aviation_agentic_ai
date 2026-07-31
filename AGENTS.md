@@ -13,8 +13,9 @@ vertical slice; they are not the architecture's permanent subject boundary.
 The active pipeline is:
 
 ```text
-718 ATCSCC advisories + bounded FAA authority records
-  -> cohort/all selection or explicit source-ID subset
+configured ATCSCC, FAA authority, Weather, and BTS source artifacts
+  -> immutable source assets, source versions, and anchors
+  -> all advisories or explicit source-ID subset
   -> ATMONTO-aligned TMI classification (GDP, GS, and ReRoute active)
   -> deterministic preflight (boundary/deferred/incomplete -> zero-call insufficient)
   -> deterministic AdvisoryParser
@@ -27,21 +28,22 @@ The active pipeline is:
   -> task-bound validation
   -> write-free Formal Publication Kernel over decision, Weather,
      and public-observation profiles
-  -> canonical tmi-event-corpus-v3 normalization
-  -> rebuildable JSONL + RDF + Neo4j materialization
-  -> rebuildable TMI-event Chroma index for metadata-conditioned ranking
+  -> authoritative SQLite evidence and semantic store
+  -> source chunks and SQLite FTS5
+  -> rebuildable source-record and TMI-event Chroma collections
   -> every valid natural-language ask activates the bounded Query Agent
-     -> model-selected read-only event, Weather, BTS, graph-path, and
-        metadata-ranking tools
+     -> model-selected read-only exact, Weather, BTS, graph, lexical,
+        vector, and source-read tools
      -> per-statement evidence and claim-boundary validation
      -> answer, insufficient, or blocked
 ```
 
-Corpus v3 is the canonical persisted knowledge and evidence layer. The admitted
-ATMONTO TMI instance is the formal root; `events.jsonl` and
-`event_facts.jsonl` organize source-qualified evidence without inventing a
-decision-process object. Formal graph views, RDF/Turtle, Neo4j, and Chroma are
-derived runtime views or rebuildable outputs.
+The dataset-bound SQLite evidence store is the canonical persisted knowledge
+and evidence layer. The admitted ATMONTO TMI instance is the formal root;
+event-publication and event-fact records organize source-qualified evidence
+without inventing a decision-process object. SQLite FTS5 and Chroma are
+rebuildable indexes. RDF/Turtle, JSONL KG, and Neo4j are optional offline
+exports.
 The versioned application profile aligns the active TMI schema with exact
 ATMONTO terms and constrains publication; it is not a separate Agent and is not
 claimed to be a complete aviation ontology. ATMGRAPH is the reference for
@@ -54,15 +56,17 @@ names, not internal alphanumeric labels.
 
 ## Current Status
 
-- The active implementation contains the corpus-first builder, validation,
-  corpus v3 materialization, full-corpus Neo4j projection, deterministic Event
-  Evidence Integration, and the bounded HybridRAG Query Agent.
+- The active implementation contains incremental ingestion, a dataset-bound
+  SQLite evidence store, the Formal Publication Kernel, deterministic Event
+  Evidence Integration, store-backed exact and graph reads, SQLite FTS5,
+  rebuildable Chroma indexes, optional exports, and the bounded HybridRAG Query
+  Agent.
 - The only model-backed roles are the always-on Query Agent and the selectively
   activated Semantic Resolution Agent.
 - The common semantic root is `atm:TrafficManagementInitiative`; the active
   application-profile families are GDP, GS, and ReRoute. Family detection,
   preflight, formal property mapping, and retrieval labels share one registry.
-- The corpus-backed event graph exposes event-scoped formal edges and derived
+- The store-backed event graph exposes event-scoped formal edges and derived
   cross-source evidence paths for Weather context and BTS public observations.
   The paths preserve source-role bindings and do not add causal graph facts.
 - The five tracked cross-family records are development/regression fixtures,
@@ -74,35 +78,45 @@ names, not internal alphanumeric labels.
   path. The Formal Publication Kernel remains the sole final publication
   authority.
 - Every valid public `ask` invokes the Query Agent. The model may select exact
-  event reads, Weather context, BTS observations, event-graph edges, or
-  metadata-conditioned event ranking over multiple bounded turns. There is no
-  fixed question registry or deterministic answer fallback.
-- The event-centered storage cutover is complete. The rebuildable `index-events`
-  sidecar supports deterministic metadata-conditioned ranking. The public
-  commands are `build-corpus`, `index-events`, `ask`, `neo4j-export`, and
-  `export-event`.
-  There is no persistent single-case `ingest`, `ask-corpus`, `--runs-root`,
-  `--run-dir`, old corpus reader, or command compatibility path. Use
-  `build-corpus --source-id` for a bounded debug build.
-- The versioned development cohort is 718 discovered and 68 selected: 46
-  active-family eligible records, 3 incomplete records, 18 boundary notices,
-  and 1 deferred ReRoute cancellation. The 22 preflight insufficiencies use
-  zero model calls. A corpus manifest is published only when blocked is zero;
-  `--resume` retries only blocked entries.
-- Successful corpus builds include compact, rebuildable
-  `alignment_audit.json` and `tmi_coverage.json` summaries. They describe the
-  corpus/profile alignment and family coverage; they are not run ledgers or
-  additional publication authorities.
+  event reads, Weather context, BTS observations, event-graph edges, lexical
+  source search, semantic source search, exact source reads, or
+  metadata-conditioned event retrieval over multiple bounded turns. There is
+  no fixed question registry or deterministic answer fallback.
+- Search tools return candidates. A source-record statement requires an exact
+  `read_source` result with immutable source-version and anchor support.
+- The ingestion-first storage cutover is complete. The public commands are
+  `ingest`, `reindex`, `ask`, `neo4j-export`, and `export-event`. There is no
+  run-directory query path, mandatory batch snapshot, old reader, or command
+  compatibility path.
+- `ingest` registers configured immutable source versions, skips terminal
+  `ok/insufficient` versions, retries blocked versions, and commits each
+  accepted event independently. Queryability does not depend on finishing a
+  batch manifest.
+- The configured advisory source has 718 rows. A reviewed 68-record inventory
+  contains 46 active-family eligible records, 3 incomplete records, 18
+  boundary notices, and 1 deferred ReRoute cancellation. These counts describe
+  the versioned source inventory, not a required runtime cohort.
+- SQLite FTS5 indexes exact source chunks. Chroma has separately rebuildable
+  source-record and TMI-event collections; a collection is usable only when
+  its indexed knowledge revision matches the store.
+- RDF/Turtle, JSONL KG, and Neo4j are optional current-store exports and are
+  never Query Agent prerequisites.
 - The system output ceiling is 10,000 tokens for the Query Agent; the compact
   Semantic Resolution decision remains capped at 256 tokens. Event Evidence
   Integration is deterministic and makes no provider call.
 - The tracked v1-v3 DeepSeek contracts/results and later compact-selection runs
   are historical compatibility artifacts. They must not be relabeled as
-  current role, corpus, or cross-family performance.
-- `live_smoke` v4 completed with DeepSeek `deepseek-v4-pro`: 11 real provider
+  current role, persistent-store, or cross-family performance.
+- The pre-cutover `live_smoke` v4 completed with DeepSeek `deepseek-v4-pro`: 11 real provider
   calls, 5/5 Query Agent tasks accepted, and the required cross-source Weather
-  graph path observed. This is compatibility evidence over versioned
-  development/regression tasks, not a frozen holdout or model benchmark.
+  graph path observed. This is historical compatibility evidence, not a frozen
+  holdout, model benchmark, or ingestion-first result.
+- The ingestion-first `live_smoke` v1 completed against the persistent store
+  with 6/6 returned real `deepseek-v4-pro` calls and no provider errors. One of
+  three Query Agent tasks passed; two failed the answer-contract/evidence
+  acceptance checks. Raw provider responses and parsed trial outputs are
+  retained separately in ignored runtime artifacts. This negative result is
+  compatibility evidence, not a benchmark.
 - The five familiar records are development/regression fixtures only. No frozen
   post-cutover evaluation set currently exists; `future_frozen_evaluation` is
   `NOT CONSTRUCTED`. Historical suites remain compatibility artifacts and
@@ -124,7 +138,7 @@ For a new task:
    that layer.
 
 Do not preload `RESEARCH_QUESTIONS.md`, `HYPOTHESES.md`, `EXPERIMENTS.md`,
-`RESULTS.md`, stage-report directories, ignored corpus outputs, or archived
+`RESULTS.md`, stage-report directories, ignored stores/exports, or archived
 PHAK/web-demo material. They describe optional evaluation or historical work,
 not the default system scope.
 
@@ -191,7 +205,7 @@ supported workflow or an explicit user request.
 - Use `rg` and `rg --files` for repository search.
 - Use `git grep` for tracked-file context-hygiene scans.
 - Preserve unrelated user changes and generated research artifacts.
-- Do not load ignored archives, `outputs/`, local corpus outputs, or figure
+- Do not load ignored archives, `outputs/`, local stores/exports, or figure
   galleries unless the task explicitly requires them.
 - Use subagents primarily for read-only review or non-overlapping work.
 
@@ -251,13 +265,13 @@ The following rules apply to `live_experiment`:
   do not establish model, Agent, extraction, reasoning, or end-to-end semantic
   performance.
 - `--allow-live-model` is execution authorization, not evidence of a real call
-  or a successful result. The `agent_usage/` sidecar is operational telemetry,
-  not model evaluation.
+  or a successful result. The payload-free `agent_usage` store table is
+  operational telemetry, not model evaluation.
 - A live smoke must report the configured provider result as observed.
   Temperature `0` reduces sampling variance but does not make provider output
   deterministic, and a single five-task run is not a statistical benchmark.
-- Do not report synthetic ambiguity fixtures as development-cohort Semantic
-  Resolution performance. The current cohort has no natural ambiguity that
+- Do not report synthetic ambiguity fixtures as development-inventory Semantic
+  Resolution performance. The reviewed inventory has no natural ambiguity that
   activates that role.
 - Report changes: run the relevant command in `REPRODUCIBILITY.md` and inspect
   the generated diff.

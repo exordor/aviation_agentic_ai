@@ -1,4 +1,4 @@
-# ATMONTO-Centered Aviation Knowledge Integration And HybridRAG
+# ATMONTO-Centered Ingestion-First Aviation HybridRAG
 
 Status: normative current architecture
 
@@ -6,13 +6,14 @@ Date: 2026-07-31
 
 ## 1. Purpose
 
-This document defines the runnable system for converting retrospective FAA
+This document defines the runnable system for ingesting retrospective FAA
 ATCSCC records and bounded cross-source evidence into ATMONTO-aligned TMI event
-knowledge and evidence-supported natural-language answers.
+knowledge, then answering free-form natural-language questions with explicit
+source support.
 
-The current vertical slice covers GDP, GS, and ReRoute. It is a validation
-vehicle for a reusable aviation knowledge-integration architecture, not a claim
-of complete ATM coverage.
+The current vertical slice covers GDP, GS, and ReRoute. It validates a reusable
+aviation knowledge-integration architecture; it is not a claim of complete ATM
+coverage.
 
 The system does not provide:
 
@@ -35,43 +36,77 @@ Editable source:
 Editable source:
 [tmi_event_retrieval_architecture.drawio](figures/tmi_event_retrieval_architecture.drawio).
 
+Construction:
+
 ```text
-718 ATCSCC records + bounded FAA/Weather/BTS sources
+ATCSCC + FAA authority + METAR/TAF + BTS source artifacts
   -> source-specific deterministic adapters
+  -> immutable source assets, versions, and anchors
   -> ATMONTO-aligned TMI classification and preflight
   -> FAA facility and terminology authority services
      -> Semantic Resolution Agent only for genuine ambiguity
   -> Weather and BTS evidence preparation
-  -> deterministic Event Evidence Integration service
-     -> sealed evidence task
-     -> source-supported proposal or honest insufficient
+  -> deterministic Event Evidence Integration
   -> task-bound admissibility validation
-  -> Formal Publication Kernel
-  -> canonical TMI Event Corpus v3
-     -> exact corpus read view
-     -> event graph view with cross-source evidence paths
-     -> metadata-conditioned TMI event ranking index
-     -> offline RDF/Turtle and Neo4j exports
+  -> write-free Formal Publication Kernel
+  -> authoritative SQLite evidence and semantic store
+  -> source chunks and SQLite FTS5
+  -> rebuildable source and TMI-event Chroma collections
+```
+
+Retrieval:
+
+```text
+free-form question + immutable user scope
   -> bounded LLM Query Agent
-  -> evidence support validation
+  -> exact store | semantic graph | FTS | Chroma | exact source read
+  -> structured evidence and support records
+  -> LLM answer formation
+  -> statement-support and claim-boundary validation
   -> answer / insufficient / blocked
 ```
 
+RDF/Turtle, JSONL KG, and Neo4j are optional offline exports from SQLite, not
+mandatory runtime databases.
+
 The coordinator, adapters, parsers, authority services, profile loaders,
-validators, materializers, and search implementations are deterministic. They
-are not Agents.
+validators, materializers, SQLite queries, graph views, and index
+implementations are deterministic. They are not Agents.
 
 Only two roles make bounded model-mediated choices:
 
 1. Semantic Resolution Agent;
 2. Query Agent.
 
-Event Evidence Integration is a deterministic construction service, not an
-Agent.
+Event Evidence Integration is a deterministic construction service.
 
-## 3. Semantic Alignment
+## 3. Relationship To The Six RAG Stages
 
-### 3.1 ATMONTO
+The implementation preserves the standard separation between offline
+ingestion and online inference:
+
+```text
+Offline/background
+source record -> chunk -> embedding -> index
+
+Online
+question -> retrieval -> evidence augmentation -> LLM generation
+         -> deterministic support validation
+```
+
+HybridRAG changes retrieval, not this separation. Exact SQLite reads,
+store-backed graph traversal, SQLite FTS5, Chroma source retrieval, and Chroma
+TMI-event retrieval are alternative bounded retrieval channels selected by the
+Query Agent.
+
+The authoritative store is not an experiment snapshot. It is the normalized
+persistent knowledge layer from which retrieval indexes and exports can be
+rebuilt. A frozen evaluation dataset may bind to a store revision, but it is
+not a required runtime read backend.
+
+## 4. Semantic Alignment
+
+### 4.1 ATMONTO
 
 ATMONTO is the schema/TBox target. The formal root is:
 
@@ -87,32 +122,21 @@ atm:GroundStopTMI
 atm:ReRouteTMI
 ```
 
-One registry drives:
+One registry drives source-family detection, required-field preflight,
+admitted predicates and values, publication-profile selection, and retrieval
+labels. The versioned profile constrains publication; an LLM cannot extend it.
 
-- source-family detection;
-- required-field preflight;
-- admitted predicates and values;
-- publication-profile selection;
-- retrieval labels.
+### 4.2 ATMGRAPH
 
-The profile is versioned and checksum-pinned. It constrains publication; it is
-not a complete aviation ontology and cannot be extended implicitly by an LLM.
-
-### 3.2 ATMGRAPH
-
-ATMGRAPH is the ABox construction and query reference. The implementation adopts
-these principles:
-
-- source-specific translation;
-- stable cross-source identities;
-- explicit event and report time;
-- provenance-preserving links;
-- graph patterns for cross-source queries.
+ATMGRAPH is the ABox-construction and query reference. The implementation
+adopts source-specific translation, stable cross-source identities, explicit
+time, provenance-preserving links, and graph patterns for cross-source
+queries.
 
 No ATMGRAPH dataset is imported, and the project does not claim an exact
 replica of the historical system.
 
-## 4. Source And Evidence Roles
+## 5. Source And Evidence Roles
 
 The source families remain distinct:
 
@@ -124,51 +148,38 @@ The source families remain distinct:
 | METAR / TAF | Time-bounded Weather report facts and non-causal context. |
 | BTS On-Time | Source-qualified public operational observations. |
 
-Authority evidence can resolve an identity but cannot authorize a TMI event
-fact. A Weather report can provide context but cannot fill a missing declared
-reason. A BTS row cannot become an FAA demand or capacity record.
+Authority evidence can resolve an identity but cannot authorize a TMI fact. A
+Weather report can provide context but cannot fill a missing declared reason.
+A BTS row cannot become an FAA demand or capacity record.
 
-Every accepted fact carries:
+Every accepted fact carries an owning profile and checksum, semantic identity,
+source-version binding, and evidence link or deterministic derivation trace.
 
-- an owning profile identifier and checksum;
-- source identity;
-- source snapshot binding;
-- evidence text or evidence reference;
-- an auditable fact trace.
+## 6. Incremental Ingestion
 
-## 5. Deterministic Intake
+`ingest` is the public write path. It registers immutable configured source
+versions before processing selected advisories. One or more `--source-id`
+values bound semantic event construction; omitting them processes all
+configured advisory records.
 
-`AdvisoryParser` extracts source-supported structured fields and mentions. It
-does not canonicalize facilities, choose ontology terms, call a provider, or
-write a graph.
+One invocation loads schema, authority, Weather, and BTS resources once, then
+processes advisories sequentially. For each source version:
 
-The facility and terminology authority services:
+1. a previous terminal `ok` or `insufficient` result is skipped;
+2. unsupported or incomplete input becomes zero-call `insufficient`;
+3. eligible input follows parsing, authority resolution, evidence integration,
+   validation, and publication;
+4. an accepted event publication is committed independently;
+5. a blocked version is retained for a later retry.
 
-- build candidates from their own source family;
-- validate candidate evidence and task scope;
-- accept a unique supported candidate deterministically;
-- return `insufficient` or `blocked` when evidence or dependencies fail;
-- activate Semantic Resolution only when more than one eligible candidate
-  remains.
+There is no requirement to complete a batch or publish a batch manifest before
+accepted knowledge becomes queryable.
 
-The versioned development intake has 718 discovered and 68 selected records:
+## 7. Semantic Resolution Agent
 
-| State | Count |
-| --- | ---: |
-| Active GDP/GS/ReRoute eligible | 46 |
-| Incomplete fields | 3 |
-| Boundary notices | 18 |
-| Deferred ReRoute cancellation | 1 |
-| Zero-call preflight `insufficient` | 22 |
-
-## 6. Semantic Resolution Agent
-
-The Semantic Resolution Agent receives a sealed task with:
-
-- a closed authority candidate set;
-- source-qualified evidence;
-- ontology constraints;
-- a fixed tool/model budget.
+The Semantic Resolution Agent receives a sealed task with a closed authority
+candidate set, source-qualified evidence, ontology constraints, and fixed
+tool/model budgets.
 
 It may accept an eligible candidate or abstain. It cannot create a candidate,
 canonical ID, source, class, predicate, or definition.
@@ -184,11 +195,10 @@ compare_candidate_evidence
 ```
 
 A blocked, insufficient, zero-candidate, or unique-candidate path uses no
-provider. Synthetic ambiguity fixtures validate this orchestration offline;
-the development cohort currently contains no natural ambiguity suitable for a
-model-performance claim.
+provider. The reviewed development inventory currently contains no natural
+ambiguity suitable for a model-performance claim.
 
-## 7. Weather And Public Observations
+## 8. Weather And Public Observations
 
 Weather and BTS preparation is deterministic and precedes evidence integration.
 
@@ -196,10 +206,9 @@ Weather rules:
 
 - a TAF must be issued no later than the advisory signature time and overlap
   the operational period;
-- METAR selection uses the permitted pre-issue and half-open operational
-  windows;
-- Weather report facts enter the graph only through the Weather profile;
-- event-to-Weather associations remain outside the formal graph and carry
+- METAR selection uses permitted pre-issue and half-open operational windows;
+- Weather report facts enter formal knowledge only through the Weather profile;
+- event-to-Weather associations remain non-formal and carry
   `causal_claim=false`.
 
 BTS rules:
@@ -209,179 +218,95 @@ BTS rules:
 - the public-observation profile owns quantities, units, derivations, and
   source traces;
 - numeric zero remains zero;
-- missing source values do not become numeric zero;
+- a missing source value never becomes numeric zero;
 - observations never become FAA demand, AAR, capacity, EDCT, decision
   rationale, effectiveness, or proof of a caused outcome.
 
-Neither evidence role changes the source-declared TMI reason.
+Neither source family changes the ATCSCC-declared reason.
 
-## 8. Deterministic Event Evidence Integration
+## 9. Event Evidence Integration And Publication
 
 After deterministic parsing, authority resolution, and optional-layer
-preparation, the runtime seals an `EventEvidenceIntegrationTask`. The task
-binds:
+preparation, the runtime seals an `EventEvidenceIntegrationTask`. It binds the
+TMI event identity, admitted core facts, source and evidence references,
+profile gaps, authority resolutions, Weather associations and report facts,
+public observations, and required/optional slots.
 
-- TMI event identity;
-- admitted core event facts;
-- source and evidence references;
-- profile gaps;
-- authority resolutions;
-- Weather associations and report facts;
-- public observations;
-- component states and source snapshots;
-- required and optional event slots.
-
-The deterministic compiler produces the proposal with zero provider calls when
-all required slots are source-supported. Source identifiers never select a
-special path.
-
-If required evidence is absent, the service returns `insufficient`; it does not
-ask a model to invent or choose evidence that is not present. Malformed or
-out-of-task evidence is `blocked`. The task-bound check is an admissibility
-gate, not publication.
-
-## 9. Formal Publication Kernel
+The deterministic compiler returns a source-supported proposal or honest
+`insufficient`. Source identifiers never select special behavior. Malformed or
+out-of-task evidence is `blocked`.
 
 The Formal Publication Kernel is write-free and is the sole final publication
-authority. It validates the complete admitted formal set once before any
-projection is written.
+authority. It validates the complete admitted formal set before a transaction
+writes accepted semantics.
 
-It accepts only these profile layers:
+It accepts:
 
-1. `decision`: ATCSCC TMI event facts under the ATMONTO profile;
-2. `weather`: admitted METAR/TAF report facts;
-3. `public_operational_observation`: admitted BTS public-observation facts.
+1. ATCSCC TMI event facts under the ATMONTO profile;
+2. admitted METAR/TAF Weather report facts;
+3. admitted BTS public-observation facts.
 
-The Kernel checks:
+It checks profile identity, source-version bindings, evidence and fact traces,
+datatypes, domain/range, graph constraints, and layer-specific boundaries.
+Normal optional insufficiency is omitted before publication. A malformed layer
+already admitted to the final set blocks that event publication.
 
-- profile and checksum identity;
-- source-snapshot bindings;
-- evidence and fact traces;
-- datatype and domain/range constraints;
-- graph constraints;
-- layer-specific semantic boundaries.
+No model writes directly to SQLite, JSONL, RDF/Turtle, Neo4j, FTS, or Chroma.
 
-Normal optional-layer insufficiency is omitted before final publication. A
-malformed layer already admitted to the final set blocks the event and produces
-no formal projection. The system does not silently discard it and retry a
-smaller publication.
+## 10. Authoritative SQLite Store
 
-No model writes directly to JSONL, RDF/Turtle, Neo4j, or Chroma.
-
-## 10. Canonical TMI Event Corpus v3
-
-`build-corpus` is the only persistent evidence writer. The manifest version is:
+The dataset-bound store uses schema version
+`aviation-evidence-store-v1` and file:
 
 ```text
-tmi-event-corpus-v3
+aviation_evidence.sqlite3
 ```
 
-The canonical layout is:
+Its main logical groups are:
 
-```text
-corpus_manifest.json
-build_results.jsonl
-artifacts.jsonl
-source_objects/<sha256>.txt
-source_bindings.jsonl
-events.jsonl
-facts.jsonl
-event_facts.jsonl
-evidence_links.jsonl
-profile_gaps.jsonl
-context_associations.jsonl
-observations.jsonl
-alignment_audit.json
-tmi_coverage.json
-kg.jsonl
-kg.ttl
-neo4j_nodes.jsonl
-neo4j_relationships.jsonl
-```
+| Group | Stored records |
+| --- | --- |
+| Source | assets, logical sources, immutable versions, exact anchors |
+| Ingestion | source-version results, ingestion runs, compact Agent usage |
+| Event | TMI identities, active/historical publications, type/facility/source bindings |
+| Semantics | facts, event membership, evidence links |
+| Qualified evidence | profile gaps, Weather associations, public observations |
+| Retrieval | source chunks, FTS5 table, vector-index state |
 
-`CorpusTMIEvent` is the event catalog record. Its identity is the admitted
-ATMONTO TMI event IRI. It stores event type, facility, effective interval,
-issue time, declared-reason state/value, fact IDs, and source IDs.
+Semantic facts are deduplicated independently of provenance. Evidence links
+preserve one-to-many support. Active-publication pointers allow a newer source
+version to supersede an earlier publication without erasing history.
 
-`CorpusEventFact` connects one event ID to one accepted semantic fact ID for
-storage and retrieval. It is not a formal decision-process or causal relation.
+The store maintains a monotonically increasing knowledge revision. Vector
+indexes and evaluation bindings must match that revision before use.
 
-Source content is globally deduplicated by SHA-256. Semantic facts are
-deduplicated independently of provenance. Evidence links preserve all
-supporting artifacts.
+## 11. Chunking, FTS, And Chroma
 
-Corpus v3 is authoritative. These are derived:
+The current source representation is
+`aviation-source-chunk-v1`. It creates one bounded full-record chunk for each
+admitted textual source version and binds the chunk to an exact source anchor.
+This is a deliberately simple first chunking strategy, not a claim that one
+strategy fits future PDF, table, or long-document sources.
 
-- checksum-verified exact corpus views;
-- corpus-backed event graph with derived cross-source evidence paths;
-- RDF/Turtle export;
-- Neo4j property-graph export;
-- metadata-conditioned Chroma ranking index.
+SQLite FTS5 indexes source-chunk text and follows SQLite inserts, updates, and
+deletes through triggers.
 
-Derived stores do not write back into the corpus.
+Chroma contains two rebuildable collections:
 
-The graph view can derive two event-scoped evidence patterns at read time:
+| Collection | Purpose |
+| --- | --- |
+| `aviation_source_chunks_v1` | Semantic discovery of source-record chunks. |
+| `tmi_events_v1` | Metadata-conditioned retrieval of TMI event publications. |
 
-```text
-TMI event -> controlled airport <- Weather report
-TMI event -> controlled airport <- BTS public observation
-```
+Ingestion attempts an incremental update after semantic publication.
+`reindex` recreates both collections from all current store rows. A failed or
+missing vector index does not roll back accepted semantic publication.
 
-Each path carries its formal fact IDs, context-association or observation IDs,
-and source IDs. Weather paths remain `causal_claim=false`; public-observation
-paths do not become FAA demand, capacity, rationale, or effectiveness facts.
+The Query runtime attaches a Chroma collection only when dataset identity,
+schema/representation version, embedding model, vector dimension, record
+counts, and indexed knowledge revision are current.
 
-## 11. Agent Usage Sidecar
-
-A successful build can publish:
-
-```text
-agent_usage/
-  agent_usage.jsonl
-  agent_usage_manifest.json
-```
-
-Eligible records contribute facility and terminology Semantic Resolution usage
-rows when those scopes are reached. Deterministic
-Event Evidence Integration does not create an Agent usage row. The sidecar
-distinguishes:
-
-- actual model activation;
-- deterministic bypass;
-- role not reached;
-- accepted, abstained, blocked, or not-applicable result;
-- provider/tool calls, tokens, and recorded latency.
-
-It stores no prompt, raw response, tool arguments, tool results, or model
-reasoning. It is bound to the corpus ID but excluded from canonical corpus
-identity. It is operational telemetry, not model-quality evaluation.
-
-## 12. Metadata-Conditioned TMI Event Ranking Index
-
-`index-events` creates a rebuildable `tmi_event_index/` sidecar with:
-
-```text
-tmi_event_index_manifest.json
-tmi_event_documents.jsonl
-chroma/
-```
-
-The `tmi_events` collection uses one compact document per accepted event:
-
-- TMI type;
-- canonical facility;
-- declared-reason state/value;
-- UTC time-of-day;
-- duration bucket.
-
-Exact metadata filters run before cosine ranking. The anchor event is excluded.
-Weather, BTS observations, operational effectiveness, outcome quality, and
-recommended actions are not encoded. The index does not represent operational
-situation similarity.
-
-The index is bound to `corpus_id` and must be rebuilt after corpus changes.
-
-## 13. Always-On Hybrid Query Agent
+## 12. Always-On Hybrid Query Agent
 
 The public `ask` command accepts free natural language. There is no exact
 question registry, keyword classifier, or deterministic answer bypass.
@@ -390,80 +315,121 @@ question registry, keyword classifier, or deterministic answer bypass.
 question + immutable CLI scope
   -> LLM selects bounded read-only tool(s)
   -> typed tool observations
-  -> continue retrieval or emit typed answer
+  -> continue retrieval or emit typed statements
   -> statement-support and claim-boundary validation
   -> answer / insufficient / blocked
 ```
 
-The loop permits:
+The loop permits at most four provider turns, three tool calls in one turn, and
+six tool calls in total.
 
-- at most four provider turns;
-- at most three tool calls in one turn;
-- at most six tool calls in total.
-
-The six tools are:
+The nine tools are:
 
 | Tool | Capability |
 | --- | --- |
 | `find_tmi_events` | Exact event filters and bounded paging. |
 | `read_tmi_event_facts` | Formal facts, profile gaps, and reason state. |
-| `read_weather_context` | Non-causal Weather associations and admitted report facts. |
+| `read_tmi_operational_context` | Non-causal Weather associations and report facts. |
 | `read_public_observations` | Source-qualified BTS public observations. |
-| `read_tmi_event_graph` | Event-scoped formal edges and source-bound cross-source evidence paths. |
-| `rank_tmi_events_by_metadata` | Exact-filtered metadata-conditioned vector ranking. |
+| `read_tmi_event_graph` | Bounded formal edges or reviewed non-causal paths. |
+| `find_similar_tmi_events` | Metadata-conditioned TMI event candidates. |
+| `search_source_text` | SQLite FTS lexical candidate discovery. |
+| `semantic_search_sources` | Chroma source candidate discovery. |
+| `read_source` | Exact bounded source-version and anchor read. |
 
-The CLI event ID, exact filters, paging window, and archive/prior candidate
-scope form an immutable upper bound. The model may narrow but cannot widen it.
-No arbitrary SPARQL, Cypher, graph write, external web access, or long-term
-Agent memory is available.
+CLI source IDs/families, event ID, exact filters, paging, and archive/prior
+candidate scope form an immutable upper bound. The model may narrow but cannot
+widen them. There is no arbitrary SPARQL, Cypher, graph write, external web
+access, or long-term Agent memory.
 
-Each answer statement declares a semantic kind and cites the retrieved support
-IDs appropriate to that kind. The validator rejects:
+## 13. Retrieval, Augmentation, And Support
 
-- unknown support IDs;
-- unsupported factual statements;
-- causal language over Weather associations;
-- reinterpretation of BTS observations as FAA operational metrics or decision
-  rationale;
-- recommendation, optimality, or effectiveness claims over metadata ranking.
+Tool observations separate model-visible content from structured
+`HybridQueryEvidence`, support records, graph paths, similarity matches, and
+limitations. Together these contracts form the query evidence bundle used for
+augmentation and final validation.
 
-Answer prose is never written back into the corpus or its projections.
+Lexical and semantic search tools return candidates with source-version,
+anchor, and chunk identifiers, but no source-record support record. A source
+statement becomes supportable only after `read_source` returns the exact
+version and anchor.
 
-## 14. Public Commands
+Each model-generated statement declares one of:
 
 ```text
-aviation-ai agent-system build-corpus \
-  --config <config> \
-  --output-dir <corpus-dir> \
-  --selection cohort|all \
-  [--source-id <id> ...] \
-  --allow-live-model \
-  [--resume]
+source_fact
+source_record
+non_causal_context
+public_observation
+similarity
+```
 
-aviation-ai agent-system index-events \
-  --corpus-dir <corpus-dir> \
+The validator rejects unknown support IDs, unsupported factual statements,
+causal language over Weather associations, reinterpretation of BTS
+observations as FAA operational metrics or rationale, and recommendation,
+optimality, or effectiveness claims over event retrieval.
+
+Answer prose is never written back into the knowledge store or its indexes.
+
+## 14. Optional Exports
+
+`export-event` emits one active event, its accepted facts, evidence links,
+profile gaps, Weather associations, public observations, exact referenced
+source versions and anchors, and bounded KG projections.
+
+The full store can be projected to:
+
+```text
+kg.jsonl
+kg.ttl
+neo4j_nodes.jsonl
+neo4j_relationships.jsonl
+```
+
+`neo4j-export` builds that current projection and loads it into Neo4j. Export
+manifests record dataset identity, store revision, counts, and checksums for
+inspection and interchange. They are not query-runtime manifests and do not
+become publication authorities.
+
+## 15. Public Commands
+
+```text
+aviation-ai agent-system ingest \
+  --config <config> \
+  [--store-dir <store-dir>] \
+  [--source-id <id> ...] \
+  [--allow-live-model] \
+  [--allow-model-download]
+
+aviation-ai agent-system reindex \
+  --config <config> \
+  [--store-dir <store-dir>] \
   [--model-name <model>] \
   [--allow-model-download]
 
 aviation-ai agent-system ask \
-  --corpus-dir <corpus-dir> \
+  --config <config> \
+  [--store-dir <store-dir>] \
   --question "<question>" \
   [--event-id <event-id>] \
-  [exact filters and paging]
+  [source, exact-filter, candidate-scope, and paging options]
 
 aviation-ai agent-system neo4j-export \
-  --corpus-dir <corpus-dir>
+  --config <config> \
+  [--store-dir <store-dir>] \
+  [Neo4j connection options]
 
 aviation-ai agent-system export-event \
-  --corpus-dir <corpus-dir> \
+  --config <config> \
+  [--store-dir <store-dir>] \
   --event-id <event-id> \
   --output-dir <export-dir>
 ```
 
-The cutover is intentionally breaking. There is no migration reader, command
-alias, or run-directory persistence path.
+The cutover is intentionally breaking. There is no legacy command alias,
+run-directory persistence path, or mandatory snapshot reader.
 
-## 15. Regression Contracts
+## 16. Regression Contracts
 
 | Source ID | Required semantic state |
 | --- | --- |
@@ -473,30 +439,30 @@ alias, or run-directory persistence path.
 | `2026-05-19:108` | Formal ReRoute with unsupported ARTCC scope retained as a profile gap. |
 | `2026-05-20:137` | Formal ReRoute with unsupported ARTCC scope retained as a profile gap. |
 
-All five use the general zero-call integration path when their required slots
-are complete. They are development/regression fixtures, not evaluation samples,
-representative coverage, or special source-ID routes.
+They use the general processing path and are development/regression fixtures,
+not evaluation samples, representative coverage, or special source-ID routes.
 
-## 16. Evaluation Boundary
+## 17. Evaluation Boundary
 
 Offline fake/scripted providers validate software contracts only. They do not
 establish extraction, reasoning, tool-selection, or Agent quality.
 
-Tracked v1-v3 reports and later compact-selection runs are historical
-compatibility artifacts for their named contracts and must not be relabeled as
-current performance.
+A live evaluation binds directly to an existing store revision, source
+versions, active event publications, and current vector state. It does not copy
+the knowledge base into a temporary query store.
 
-The v4 query-only compatibility smoke recorded 11 real `deepseek-v4-pro`
-calls and accepted 5/5 development/regression tasks, including a required
-source-bound Weather graph path. It is not a frozen holdout or model benchmark.
+Historical reports remain frozen under their named runtimes. They cannot
+establish ingestion-first performance. Any new live claim must use the
+configured real provider, record provider-call success separately from task
+acceptance, and verify its raw/parsed artifacts and binding.
 
-No frozen post-cutover evaluation set currently exists:
-`future_frozen_evaluation` is `NOT CONSTRUCTED`. A future model claim requires
-an independently designed suite and an explicitly authorized real-provider run
-with verified raw responses, parsed outputs, call bindings, tokens, and
-manifest checksums.
+The first ingestion-first compatibility smoke satisfied those capture
+requirements: 6/6 real `deepseek-v4-pro` calls returned, but only 1/3
+development/regression tasks passed. The two failed answer-contract/evidence
+checks are retained as observed behavior and are not converted into offline
+successes.
 
-## 17. Deferred Work
+## 18. Deferred Work
 
 - Formal decision-state inputs, alternatives, constraints, rationale, and
   trade-offs.
@@ -511,7 +477,7 @@ manifest checksums.
 - Automatic ontology expansion.
 - Production deployment and production-only hardening.
 
-## 18. Verification
+## 19. Verification
 
 The final repository gate is:
 

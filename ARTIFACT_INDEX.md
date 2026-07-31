@@ -19,89 +19,76 @@ rebuildable outputs, optional evaluation material, and historical artifacts.
 | `docs/figures/tmi_event_retrieval_architecture.{drawio,png}` | Editable and rendered retrieval architecture. |
 | `src/aviation_agentic_ai/agent_system/` | Active implementation. |
 | `tests/test_agent_system*.py`, `tests/test_cli_agent_system.py` | Focused acceptance surface. |
-| `configs/cross_source_v1.yaml` | ATCSCC, FAA authority, Weather, and BTS source configuration. |
+| `configs/cross_source_v1.yaml` | Dataset identity, persistent-store paths, source files, and retrieval model configuration. |
 | `configs/prompts/tmi_event_agents_v1.yaml` | Current Query and Semantic Resolution prompt catalog. |
 | `data/ontology/curated/atmonto_application_profile_v1.json` | Active ATMONTO TMI application profile. |
 | `data/ontology/curated/nasa_atmonto_decision_context_weather_slice.json` | Curated Weather report profile. |
 | `data/ontology/curated/public_observation_slice.json` | Source-qualified BTS public-observation profile. |
-| `data/evaluation/agent_system/live_agent_smoke_v4.yaml` | Query-only compatibility-smoke contract; no result implied. |
-| `reports/stages/agent_system_live_agent_smoke_v4.{json,md}` | Verified v4 compatibility smoke: 11 real calls and 5/5 accepted Query Agent tasks; not a frozen holdout. |
-| `data/evaluation/agent_system/live_agent_experiment_v4.yaml` | Query-only repeated-measurement contract; no result implied. |
+| `data/evaluation/agent_system/live_ingestion_hybridrag_smoke_v1.yaml` | Ingestion-first Query Agent compatibility-smoke contract; no result implied. |
+| `reports/stages/agent_system_live_ingestion_hybridrag_smoke_v1.{json,md}` | Verified persistent-store smoke: 6/6 returned real calls, 1/3 tasks accepted, and two answer-contract/evidence failures; not a benchmark. |
 | `data/evaluation/agent_system/tmi_event_retrieval_smoke_v1.yaml` | Development metadata-ranking smoke set. |
 
 ## Canonical Runtime Artifacts
 
-`agent-system build-corpus` is the only persistent evidence writer. A
-successfully published `tmi-event-corpus-v3` directory contains:
+`agent-system ingest` is the persistent evidence writer. The configured store
+root contains:
 
-- `corpus_manifest.json`;
-- `build_results.jsonl`;
-- `artifacts.jsonl`;
-- content-addressed `source_objects/<sha256>.txt`;
-- `source_bindings.jsonl`;
-- `events.jsonl`;
-- canonical `facts.jsonl`;
-- `event_facts.jsonl`;
-- `evidence_links.jsonl`;
-- `profile_gaps.jsonl`;
-- non-causal `context_associations.jsonl`;
-- source-qualified `observations.jsonl`;
-- `alignment_audit.json`;
-- `tmi_coverage.json`;
-- rebuildable `kg.jsonl` and `kg.ttl`;
-- rebuildable `neo4j_nodes.jsonl` and `neo4j_relationships.jsonl`.
+```text
+aviation_evidence.sqlite3
+chroma/
+exports/
+```
 
-The manifest registers counts and checksums and is written only when no selected
-record is blocked. Corpus v3 is the canonical persisted knowledge and read
-contract.
+`aviation_evidence.sqlite3` is the authoritative runtime artifact. It contains:
 
-The ATMONTO TMI event is the formal root. `event_facts.jsonl` is a corpus
-membership table for accepted knowledge; it does not assert a reconstructed
-decision process. Weather context associations are non-causal and stay outside
-the formal KG. Admitted BTS observations remain source-bound formal facts under
-their own profile.
+- store metadata and a monotonically increasing knowledge revision;
+- immutable source assets, logical sources, source versions, and anchors;
+- ingestion results and ingestion-run summaries;
+- active and historical TMI event publications;
+- semantic facts, event membership, and evidence links;
+- profile gaps, non-causal Weather associations, and public observations;
+- source chunks and an FTS5 lexical index;
+- vector-index state and payload-free Agent usage telemetry.
 
-Temporary `.staging/` packages support resumable construction and are removed
-after successful normalization. They are not a public query backend.
+The ATMONTO TMI event is the formal root. Event membership is an organization
+relation for accepted knowledge; it does not assert a reconstructed decision
+process. Weather associations are non-causal and remain outside formal graph
+facts. Admitted BTS observations remain source-bound formal facts under their
+own profile.
 
-## Rebuildable Sidecars
+## Rebuildable Indexes And Exports
 
-Two ignored sidecars remain outside canonical corpus identity:
+The `chroma/` directory contains two derived collections:
 
-- `agent_usage/agent_usage.jsonl` and
-  `agent_usage/agent_usage_manifest.json` contain payload-free activation,
-  bypass, outcome, call, token, and latency telemetry;
-- `tmi_event_index/` contains
-  `tmi_event_index_manifest.json`, `tmi_event_documents.jsonl`, and the
-  rebuildable Chroma `tmi_events` collection.
+- `aviation_source_chunks_v1` for semantic source discovery;
+- `tmi_events_v1` for metadata-conditioned TMI event retrieval.
 
-Neither sidecar is formal evidence or an additional publication authority.
-Agent usage is operational telemetry, not model-quality evaluation. The vector
-index must be rebuilt when the bound corpus ID changes.
+SQLite FTS5 supplies lexical source search. Both Chroma collections are
+rebuildable from SQLite and are usable only when their recorded knowledge
+revision matches the store. They do not publish semantic facts.
+
+`export-event` creates a bounded event package with exact referenced source
+versions and anchors. `neo4j-export` first builds current JSONL, RDF/Turtle, and
+property-graph files under `exports/`, then loads the Neo4j projection.
+Export manifests record checksums for interchange and inspection only; the
+Query Agent does not require them.
 
 ## Current Evaluation Contracts
 
-The v4 live-suite configurations use:
-
-- the always-on `query` role only;
-- TMI event identities;
-- the six current read-only HybridRAG tool names, including cross-source graph
-  paths and metadata-conditioned ranking;
-- real-provider capture rules when live execution is explicitly authorized.
-
-Their detailed raw responses, parsed outputs, manifests, and local corpora
-belong under ignored `data/corpus/agent_system/` paths. Sanitized reports should
+Live-evaluation suites bind directly to an existing store revision and current
+vector-index state. Their detailed provider responses, parsed outputs, and
+bindings belong under ignored local evaluation paths. Sanitized reports should
 be tracked only after a completed run is independently verified.
 
-No suite file is itself evidence that an experiment ran. The five familiar
-records are development/regression fixtures only. No frozen post-cutover
-evaluation set currently exists; `future_frozen_evaluation` is
-`NOT CONSTRUCTED`.
+No suite file is itself evidence that an experiment ran. The tracked
+ingestion-first smoke report is bound to ignored raw and parsed artifacts with
+checksums. Its three familiar records are development/regression fixtures only;
+no frozen post-cutover evaluation set currently exists.
 
 ## Historical Compatibility Evidence
 
 The following tracked artifacts are frozen historical evidence and are not
-current role, corpus, or cross-family results:
+current role, persistent-store, or cross-family results:
 
 | Artifact | Safe interpretation |
 | --- | --- |
@@ -115,6 +102,9 @@ current role, corpus, or cross-family results:
 | `reports/stages/agent_system_live_agent_experiment_v2.{json,md}` | Historical 120-call result; repeated GDP query passed, former construction tasks failed. |
 | `data/evaluation/agent_system/live_agent_smoke_v3.yaml` | Superseded event-centered construction/query contract. |
 | `data/evaluation/agent_system/live_agent_experiment_v3.yaml` | Superseded repeated construction/query contract. |
+| `data/evaluation/agent_system/live_agent_smoke_v4.yaml` | Superseded pre-ingestion-first Query Agent compatibility contract. |
+| `reports/stages/agent_system_live_agent_smoke_v4.{json,md}` | Historical 11-call, 5/5 compatibility result; not evidence for the persistent-store runtime. |
+| `data/evaluation/agent_system/live_agent_experiment_v4.yaml` | Superseded pre-ingestion-first repeated-measurement contract. |
 
 Later compact-selection and 10,000-token runs are also pre-cutover,
 GDP-biased compatibility evidence. The v3 contracts are likewise superseded
@@ -157,7 +147,9 @@ performance or external expert certification.
 | Path | Policy |
 | --- | --- |
 | `data/runs/agent_system/` | Legacy/internal run and debug packages. |
-| `data/corpus/agent_system/` | Current local corpora, staging, indexes, exports, and provider artifacts. |
+| `data/corpus/agent_system/` | Historical local snapshots and provider artifacts; never a current query backend. |
+| `data/stores/aviation/` | Current ignored SQLite stores, Chroma indexes, and optional exports. |
+| local live-evaluation output directories | Raw provider responses, parsed outputs, and binding artifacts; keep ignored. |
 | `outputs/` | Scratch and mixed-branch outputs. |
 | vector/model caches | Rebuild locally; do not commit. |
 | `.env` and credentials | Never commit or print. |

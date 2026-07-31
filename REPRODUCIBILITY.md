@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-31
 
-This is the current corpus-first TMI-event workflow. Historical experiments
+This is the current ingestion-first TMI-event workflow. Historical experiments
 remain discoverable through `ARTIFACT_INDEX.md`; they are not the default
 execution path.
 
@@ -18,15 +18,15 @@ uv sync --extra dev --extra ontology-generation --extra neo4j \
 uv run aviation-ai agent-system --help
 ```
 
-`ontology-generation` supplies the LangChain/LangGraph runtime. `neo4j` is
-needed only for database loading. `tmi-event-retrieval` supplies Chroma and the
+`ontology-generation` supplies the model/tool runtime. `neo4j` is needed only
+for optional database loading. `tmi-event-retrieval` supplies Chroma and the
 Sentence Transformers encoder.
 
 ## Source Snapshot Preflight
 
 The advisory JSONL, terminology seed, Weather inputs, and BTS snapshot are
 tracked. The pinned FAA NASR ZIP is intentionally ignored because of its size.
-Obtain and verify it before building eligible events:
+Obtain and verify it before ingesting eligible events:
 
 ```bash
 NASR_DIR=data/raw/nasa_atmonto/2026-05-14/faa_nasr
@@ -49,193 +49,183 @@ data/sources/bts_on_time_2026_05_manifest.json
 data/sources/bts_on_time_2026_05_nyc.jsonl
 ```
 
-Do not replace a pinned source snapshot implicitly during an ordinary build.
+Do not replace a pinned source implicitly during an ordinary ingestion run.
 
-## Build A Corpus
+## Persistent Store
 
-`build-corpus` is the only persistent evidence writer. It selects advisory
-records, performs deterministic preflight, runs eligible records sequentially,
-and publishes a checksum-verified `tmi-event-corpus-v3`.
-
-The versioned development cohort has:
-
-| State | Count |
-| --- | ---: |
-| Discovered | 718 |
-| Selected | 68 |
-| Active GDP/GS/ReRoute eligible | 46 |
-| Incomplete core fields | 3 |
-| Boundary notices | 18 |
-| Deferred ReRoute cancellation | 1 |
-| Deterministic preflight `insufficient` | 22 |
-
-Build the five cross-family development/regression records:
-
-```bash
-uv run aviation-ai agent-system build-corpus \
-  --config configs/cross_source_v1.yaml \
-  --output-dir data/corpus/agent_system/smoke-v3 \
-  --selection cohort \
-  --source-id 2026-05-19:123 \
-  --source-id 2026-05-19:138 \
-  --source-id 2026-05-19:108 \
-  --source-id 2026-05-20:020 \
-  --source-id 2026-05-20:137
-```
-
-Build or resume the versioned development cohort:
-
-```bash
-uv run aviation-ai agent-system build-corpus \
-  --config configs/cross_source_v1.yaml \
-  --output-dir data/corpus/agent_system/cross-source-2026-05-v3 \
-  --selection cohort \
-  --allow-live-model \
-  --resume
-```
-
-Complete source-supported records publish through deterministic Event Evidence
-Integration without `--allow-live-model`. Add that flag only when genuine
-authority ambiguity may activate the Semantic Resolution Agent; otherwise the
-unresolved record remains `insufficient`. Store `DEEPSEEK_API_KEY` and any
-optional `DEEPSEEK_BASE_URL` only in ignored local environment files.
-
-The 22 preflight insufficiencies use zero provider calls. A blocked provider or
-workflow result does not stop later records, but it prevents final-manifest
-publication. Repeating the command with `--resume` retries only blocked rows.
-
-## Corpus v3 Layout
-
-`corpus_manifest.json` has manifest version `tmi-event-corpus-v3` and registers
-path, count, and SHA-256 for every table and projection:
+`configs/cross_source_v1.yaml` declares the dataset identity and default store
+root:
 
 ```text
-build_results.jsonl
-artifacts.jsonl
-source_objects/<sha256>.txt
-source_bindings.jsonl
-events.jsonl
-facts.jsonl
-event_facts.jsonl
-evidence_links.jsonl
-profile_gaps.jsonl
-context_associations.jsonl
-observations.jsonl
-alignment_audit.json
-tmi_coverage.json
-kg.jsonl
-kg.ttl
-neo4j_nodes.jsonl
-neo4j_relationships.jsonl
+data/stores/aviation/cross-source-2026-05-v1/
+  aviation_evidence.sqlite3
+  chroma/
+  exports/
 ```
 
-Important interpretation rules:
+The SQLite database is authoritative. It holds immutable source assets and
+versions, anchors, ingestion results, active and historical event
+publications, accepted semantic facts, provenance, profile gaps, Weather
+associations, public observations, source chunks, FTS5 data, vector-index
+state, and compact Agent usage telemetry.
 
-- `events.jsonl` catalogs admitted ATMONTO TMI instances;
-- `event_facts.jsonl` attaches accepted facts to those events for storage and
-  retrieval;
-- `facts.jsonl` uses semantic identity independent of provenance;
-- `evidence_links.jsonl` preserves one-to-many source support;
-- `profile_gaps.jsonl` stays outside the formal graph;
-- `context_associations.jsonl` is non-causal and excluded from formal graph
-  projections;
-- admitted BTS public-observation facts remain formal and source-bound;
-- `alignment_audit.json` and `tmi_coverage.json` are rebuildable summaries, not
-  additional publication authorities.
+The store uses a knowledge revision to bind rebuildable vector indexes and
+evaluation runs to an exact semantic state. It opens directly from SQLite; no
+batch manifest is required.
 
-Corpus v3 is canonical. RDF/Turtle, Neo4j, the runtime event graph, and Chroma
-are rebuildable projections.
+## Ingest Source Data
 
-## Build The Metadata-Conditioned TMI Event Index
+Ingest the three reason-state regression records:
 
 ```bash
-uv run --extra tmi-event-retrieval aviation-ai agent-system index-events \
-  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v3 \
+uv run aviation-ai agent-system ingest \
+  --config configs/cross_source_v1.yaml \
+  --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
+  --source-id 2026-05-19:123 \
+  --source-id 2026-05-19:138 \
+  --source-id 2026-05-20:020 \
+  --allow-live-model \
+  --allow-model-download
+```
+
+`--source-id` bounds semantic event construction, but ingestion still registers
+configured immutable source versions so source retrieval is not restricted to
+three hand-built records. Omit the option to process all 718 configured
+advisories.
+
+The pipeline:
+
+1. registers source assets and immutable source versions;
+2. loads shared schema, authority, Weather, and BTS resources once;
+3. skips previously terminal `ok` or `insufficient` source versions;
+4. runs deterministic preflight and bounded semantic processing;
+5. sends the complete formal set through the Formal Publication Kernel;
+6. commits each accepted event publication independently;
+7. writes source-record chunks and attempts an incremental Chroma update.
+
+A blocked record does not erase earlier accepted data. Repeating the same
+command skips terminal versions and retries blocked versions. Semantic
+publication remains valid if vector indexing fails.
+
+Complete source-supported records use deterministic Event Evidence Integration.
+`--allow-live-model` authorizes live Semantic Resolution only when genuine
+authority ambiguity remains. It does not prove that a model call occurred.
+Store `DEEPSEEK_API_KEY` and any optional `DEEPSEEK_BASE_URL` only in ignored
+local environment files.
+
+## Rebuild Retrieval Indexes
+
+SQLite FTS5 is maintained from stored source chunks. Rebuild both Chroma
+collections from the authoritative store with:
+
+```bash
+uv run --extra tmi-event-retrieval aviation-ai agent-system reindex \
+  --config configs/cross_source_v1.yaml \
+  --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
   --model-name sentence-transformers/all-MiniLM-L6-v2 \
   --allow-model-download
 ```
 
-The first permitted run may download the embedding model. Later runs may omit
-`--allow-model-download` when it is already local.
-
-The derived `tmi_event_index/` directory contains:
+The collections are:
 
 ```text
-tmi_event_index_manifest.json
-tmi_event_documents.jsonl
-chroma/
+aviation_source_chunks_v1
+tmi_events_v1
 ```
 
-The representation includes TMI type, canonical facility, declared-reason
-state/value, UTC time-of-day, and duration bucket. Exact filters precede cosine
-recall. Weather, BTS observations, effectiveness, and recommendations are not
-encoded.
+The first permitted run may download the embedding model. Later runs can omit
+`--allow-model-download` when the model is local. A collection is attached to
+the Query Agent only when its representation version, embedding model,
+dimension, counts, dataset identity, and indexed knowledge revision match the
+store.
 
-## Ask A Natural-Language Question
+Source vectors discover candidate source versions. TMI event vectors encode a
+compact representation of event type, canonical facility, declared-reason
+state/value, UTC time-of-day, and duration bucket. Neither index represents
+causality, effectiveness, or a recommended action.
+
+## Ask Natural-Language Questions
 
 ```bash
 uv run aviation-ai agent-system ask \
-  --corpus-dir data/corpus/agent_system/smoke-v3 \
-  --event-id <event-id-from-events.jsonl> \
-  --question "What forecast was known when this TMI was issued?"
+  --config configs/cross_source_v1.yaml \
+  --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
+  --event-id <event-id> \
+  --question "What forecast was available when this TMI was issued?" \
+  --allow-model-download
 ```
 
-Every valid request activates the Query Agent. The model must retrieve before
-answering and may select:
+Every valid request activates the configured Query Agent. The model must
+retrieve before answering and may choose:
 
 ```text
 find_tmi_events
 read_tmi_event_facts
-read_weather_context
+read_tmi_operational_context
 read_public_observations
 read_tmi_event_graph
-rank_tmi_events_by_metadata
+find_similar_tmi_events
+search_source_text
+semantic_search_sources
+read_source
 ```
 
-Scope hints such as `--event-type-iri`, `--facility-id`, `--reason-status`,
-`--reason-value`, `--offset`, `--limit`, and candidate scope bound tool access;
-they do not select a hard-coded answer route. The `ask` command has no
-deterministic fallback. If the configured provider cannot be constructed, the
-result is `blocked`.
+Scope hints such as `--source-id`, `--source-family`, `--event-type-iri`,
+`--facility-id`, `--reason-status`, `--reason-value`, `--offset`, `--limit`,
+and `--candidate-scope` bound tool access. They do not select a hard-coded
+answer route.
 
-Example metadata-ranking question:
+Lexical and semantic searches return candidates, not final source support.
+For a source-record statement the Agent must follow discovery with
+`read_source`, which returns an exact immutable version and anchor.
+
+Example metadata-conditioned event question:
 
 ```bash
 uv run --extra tmi-event-retrieval aviation-ai agent-system ask \
-  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v3 \
+  --config configs/cross_source_v1.yaml \
+  --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
   --event-id <reference-event-id> \
-  --question "Which prior TMI records rank closest by the indexed metadata?" \
+  --question "Which prior TMI records are closest under the indexed event representation?" \
   --event-type-iri <exact-tmi-iri> \
   --facility-id <canonical-facility-id> \
   --reason-status formal \
   --reason-value weather \
-  --candidate-scope prior
+  --candidate-scope prior \
+  --allow-model-download
 ```
 
-The result is metadata-conditioned ranking, not operational-situation
-similarity and not a causal, effectiveness, optimality, or recommendation
-result.
+This is metadata-conditioned retrieval, not operational-situation similarity,
+causal explanation, effectiveness, optimality, or recommendation.
 
-## Export
+## Optional Exports
 
-Export one bounded, non-replayable event:
+Export one active event, its accepted facts, and only referenced source
+versions and anchors:
 
 ```bash
 uv run aviation-ai agent-system export-event \
-  --corpus-dir data/corpus/agent_system/smoke-v3 \
-  --event-id <event-id-from-events.jsonl> \
-  --output-dir data/corpus/agent_system/export-selected-event
+  --config configs/cross_source_v1.yaml \
+  --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
+  --event-id <event-id> \
+  --output-dir data/stores/aviation/exports/selected-event
 ```
 
-Load the full property-graph projection:
+The package includes event, fact, evidence, profile-gap, Weather-association,
+public-observation, source-version, source-anchor, JSONL KG, RDF/Turtle, and
+Neo4j projection files plus an export manifest. It is not a replay directory or
+a query dependency.
+
+Load the current formal projection into Neo4j:
 
 ```bash
 uv run aviation-ai agent-system neo4j-export \
-  --corpus-dir data/corpus/agent_system/smoke-v3
+  --config configs/cross_source_v1.yaml \
+  --store-dir data/stores/aviation/ingestion-refactor-smoke-v1
 ```
 
-Neo4j loading uses parameterized `MERGE`, preserves unrelated data, and returns
-`blocked` when credentials or connectivity are unavailable.
+Neo4j loading returns `blocked` when credentials or connectivity are
+unavailable. RDF/Turtle and Neo4j remain rebuildable offline products.
 
 ## Acceptance Semantics
 
@@ -251,59 +241,52 @@ Weather associations remain non-causal. BTS observations are source-qualified
 public observations and are never FAA demand, AAR, capacity, EDCT, decision
 rationale, effectiveness, or caused outcomes.
 
-## Live Compatibility And Evaluation Status
+## Live Compatibility And Evaluation
 
 Offline fake/scripted tests validate software behavior only. They must not be
 reported as LLM or Agent performance.
 
-The five records above are development/regression fixtures, not evaluation
-samples. No frozen post-cutover evaluation set currently exists:
-`future_frozen_evaluation` is `NOT CONSTRUCTED`.
-
-Run the query-only compatibility smoke only with explicit authorization:
+After building and indexing the bounded store, run the ingestion-first
+Query Agent compatibility smoke only with explicit authorization:
 
 ```bash
 uv run python -m aviation_agentic_ai.agent_system.live_agent_evaluation \
   --config configs/cross_source_v1.yaml \
-  --suite data/evaluation/agent_system/live_agent_smoke_v4.yaml \
-  --output-dir data/corpus/agent_system/live-agent-smoke-v4 \
+  --suite data/evaluation/agent_system/live_ingestion_hybridrag_smoke_v1.yaml \
+  --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
+  --output-dir data/corpus/agent_system/live-ingestion-hybridrag-smoke-v1 \
   --report-dir reports/stages \
   --allow-live-model \
   --repetitions 1
 ```
 
-The smoke retains sanitized trial results, model-call totals, and
-`HybridQueryRunArtifact` records. It does not retain native provider payloads
-and therefore supports compatibility claims only.
+Every smoke trial must use the configured real provider. Verify provider/model,
+attempted/successful/failed calls, token use, tool calls, latency, store/index
+binding, raw artifact location, parsed artifact location, and task acceptance
+before reporting a result. A smoke is a compatibility check, not a statistical
+benchmark.
 
-The verified v4 run recorded 11 real `deepseek-v4-pro` calls, 190,604 input
-tokens, 13,547 output tokens, and 5/5 accepted tasks. See
-`reports/stages/agent_system_live_agent_smoke_v4.{json,md}`. These are
-development/regression compatibility measurements, not frozen-holdout
-performance.
+The verified run recorded:
 
-The v4 repeated runner is query-only and records repeated measurements; it is
-not a frozen benchmark or an independent-sample model-quality evaluation:
-
-```bash
-uv run python -m aviation_agentic_ai.agent_system.live_agent_experiment \
-  --config configs/cross_source_v1.yaml \
-  --suite data/evaluation/agent_system/live_agent_experiment_v4.yaml \
-  --output-dir data/corpus/agent_system/live-agent-experiment-v4 \
-  --report-dir reports/stages \
-  --allow-live-model
+```text
+provider / model: deepseek / deepseek-v4-pro
+attempted / returned / provider-error calls: 6 / 6 / 0
+task acceptance: 1 passed / 2 failed / 0 blocked
+input / output tokens: 113806 / 5774
+raw responses:
+  data/corpus/agent_system/live-ingestion-hybridrag-smoke-v1/raw_responses_v4.jsonl
+parsed outputs:
+  data/corpus/agent_system/live-ingestion-hybridrag-smoke-v1/live_evaluation_results_v4.jsonl
 ```
 
-The v4 suites use the Query Agent, event identities, cross-source graph-path
-view, and six current tool names. Event Evidence Integration is deterministic
-and has no model trial. A smoke result requires verification of its sanitized
-results, call totals, and query-run artifacts. A repeated-experiment result
-additionally requires verification of its raw responses, parsed outputs, call
-bindings, token usage, and manifest checksums.
+The tracked sanitized report records both artifact checksums. The two task
+failures are preserved; successful provider calls are not counted as accepted
+answers. The report also records `raw_parsed_binding_status=valid`.
 
-Tracked v1-v3 reports and later compact-selection compatibility runs are
-historical artifacts. They must not be relabeled as current architecture,
-cross-family performance, or frozen-evaluation evidence.
+Historical v1-v4 reports remain frozen under their recorded runtimes and must
+not be relabeled as ingestion-first performance. A `live_experiment` additionally
+requires the approved minimum successful real-provider calls and its captured
+raw/parsed artifact integrity; it cannot substitute cached or fake responses.
 
 ## Verification
 
@@ -311,18 +294,20 @@ Focused current-path checks:
 
 ```bash
 uv run --extra tmi-event-retrieval pytest -q \
-  tests/test_agent_system_corpus_store.py \
-  tests/test_agent_system_corpus_batch.py \
-  tests/test_agent_system_corpus_projection.py \
-  tests/test_agent_system_corpus_event_graph.py \
+  tests/test_agent_system_evidence_store.py \
+  tests/test_agent_system_ingestion_pipeline.py \
+  tests/test_agent_system_query_runtime.py \
+  tests/test_agent_system_tmi_event_graph.py \
   tests/test_agent_system_tmi_event_retrieval_documents.py \
   tests/test_agent_system_tmi_event_retrieval_index.py \
   tests/test_agent_system_tmi_event_retrieval_search.py \
-  tests/test_agent_system_tmi_event_retrieval_evaluation.py \
   tests/test_agent_system_hybrid_query_agent.py \
   tests/test_agent_system_hybrid_query_tools.py \
   tests/test_agent_system_hybrid_query_public.py \
-  tests/test_cli_agent_system.py
+  tests/test_agent_system_evidence_export.py \
+  tests/test_agent_system_evaluation_binding.py \
+  tests/test_cli_agent_system.py \
+  tests/test_readme_commands.py
 ```
 
 Final repository verification:
@@ -334,6 +319,7 @@ uv build
 git diff --check
 ```
 
-Generated corpora, `.staging/`, indexes, provider output, and event exports are
-ignored and must remain uncommitted. Report commands, commit, environment, and
-artifact checksums rather than a changing test count as a durable result.
+Generated stores, Chroma indexes, exports, provider outputs, and evaluation
+bindings are ignored and must remain uncommitted. Report commands, commit,
+environment, store revision, and artifact checksums rather than a changing test
+count as a durable result.
