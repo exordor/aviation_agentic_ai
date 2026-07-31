@@ -89,7 +89,7 @@ def _ok_attempt(record: SourceRecord) -> IngestionAttempt:
     )
     digest = ("a" * 63) + ("b" if record.content.endswith("REVISED") else "a")
     publication_id = stable_id(
-        "event-publication",
+        "knowledge-publication",
         event_id,
         version.source_version_id,
         digest,

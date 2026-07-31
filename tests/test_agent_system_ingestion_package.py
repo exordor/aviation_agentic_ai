@@ -95,7 +95,7 @@ def _package() -> EventIngestionPackage:
     )
     publication_digest = hashlib.sha256(b"formal-publication").hexdigest()
     publication_id = stable_id(
-        "event-publication",
+        "knowledge-publication",
         event_id,
         version.source_version_id,
         publication_digest,

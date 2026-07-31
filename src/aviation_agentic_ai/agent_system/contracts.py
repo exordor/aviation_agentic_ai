@@ -37,6 +37,11 @@ class SourceFamily(str, Enum):
     METAR = "metar"
     TAF = "taf"
     BTS_ON_TIME = "bts_on_time"
+    BTS_FLIGHT_OPERATION = "bts_flight_operation"
+    FAA_AIRCRAFT_REGISTRY = "faa_aircraft_registry"
+    NASA_ATMONTO_INSTANCE = "nasa_atmonto_instance"
+    NASR_AIRSPACE = "nasr_airspace"
+    HISTORICAL_METAR_SPECI = "historical_metar_speci"
 
 
 class AgentStatus(str, Enum):
@@ -120,6 +125,9 @@ class ValidationProfileRef(StrictModel):
         "decision",
         "weather",
         "public_operational_observation",
+        "flight_operation",
+        "aeronautical_reference",
+        "trajectory",
     ]
 
 

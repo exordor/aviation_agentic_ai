@@ -187,7 +187,7 @@ def _event(
     return TMIEventRecord(
         event_id=event_id,
         publication_id=stable_id(
-            "event-publication",
+            "knowledge-publication",
             event_id,
             advisory.source_version_id,
             digest,

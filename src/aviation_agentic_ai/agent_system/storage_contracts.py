@@ -109,6 +109,27 @@ class IngestionResult(StrictModel):
     preflight_eligible: bool | None
 
 
+class KnowledgeIngestionResult(StrictModel):
+    """Operational outcome for one domain-neutral knowledge publication."""
+
+    source_version_id: str = Field(min_length=1)
+    adapter_id: str = Field(min_length=1)
+    adapter_version: str = Field(min_length=1)
+    profile_checksum: str | None = Field(default=None, min_length=64, max_length=64)
+    status: Literal["ok", "insufficient", "blocked"]
+    root_id: str | None = Field(default=None, min_length=1)
+    publication_id: str | None = Field(default=None, min_length=1)
+    reason: str = Field(min_length=1)
+    recorded_at: datetime
+
+    @field_validator("recorded_at")
+    @classmethod
+    def _require_recorded_at_timezone(cls, value: datetime) -> datetime:
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("knowledge ingestion timestamp must be timezone-aware")
+        return value
+
+
 class TMIEventRecord(StrictModel):
     """One immutable publication view of a stable TMI event."""
 

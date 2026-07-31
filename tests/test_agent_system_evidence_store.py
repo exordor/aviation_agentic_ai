@@ -35,20 +35,38 @@ from aviation_agentic_ai.agent_system.storage_contracts import (
 from aviation_agentic_ai.utils.identifiers import stable_id
 
 
-SCHEMA_VERSION = "aviation-evidence-store-v1"
+SCHEMA_VERSION = "aviation-evidence-store-v2"
 REQUIRED_STORE_TABLES = {
     "agent_usage",
+    "air_carriers",
+    "aircraft",
+    "aircraft_models",
+    "airport_artcc_assignments",
+    "airports",
+    "artccs",
+    "deterministic_derivations",
     "event_facilities",
-    "event_facts",
-    "event_publications",
-    "event_sources",
     "event_types",
-    "evidence_links",
+    "flight_aircraft_snapshot_matches",
+    "flight_publications",
+    "flight_tmi_applicability",
+    "flight_weather_associations",
+    "flights",
     "ingestion_results",
     "ingestion_runs",
+    "knowledge_ingestion_results",
+    "knowledge_publications",
+    "knowledge_roots",
+    "navigation_fixes",
     "observation_facts",
+    "publication_evidence_links",
+    "publication_facts",
+    "publication_sources",
     "profile_gaps",
     "public_observations",
+    "routes",
+    "sector_passages",
+    "sectors",
     "semantic_facts",
     "source_anchors",
     "source_assets",
@@ -57,9 +75,18 @@ REQUIRED_STORE_TABLES = {
     "source_versions",
     "sources",
     "store_metadata",
+    "tmi_publication_details",
     "tmi_events",
+    "track_points",
     "vector_index_state",
     "weather_associations",
+    "weather_observations",
+}
+RETIRED_EVENT_AUTHORITY_TABLES = {
+    "event_publications",
+    "event_sources",
+    "event_facts",
+    "evidence_links",
 }
 
 
@@ -99,7 +126,7 @@ def _minimal_ok_attempt(
     evidence_links: tuple[EventEvidenceLink, ...] | None = None,
 ) -> IngestionAttempt:
     publication_id = stable_id(
-        "event-publication",
+        "knowledge-publication",
         event_id,
         version.source_version_id,
         publication_digest,
@@ -244,8 +271,8 @@ def test_store_creation_persists_schema_version(tmp_path: Path) -> None:
         store.close()
 
 
-def test_store_creation_installs_the_v1_schema_tables(tmp_path: Path) -> None:
-    """Omitting a contract table makes the v1 store incomplete."""
+def test_store_creation_installs_the_v2_schema_tables(tmp_path: Path) -> None:
+    """Omitting a contract table makes the v2 store incomplete."""
 
     from aviation_agentic_ai.agent_system.evidence_store import (
         AviationEvidenceStore,
@@ -270,8 +297,50 @@ def test_store_creation_installs_the_v1_schema_tables(tmp_path: Path) -> None:
             ).fetchall()
         }
         assert REQUIRED_STORE_TABLES <= table_names
+        assert RETIRED_EVENT_AUTHORITY_TABLES.isdisjoint(table_names)
     finally:
         store.close()
+
+
+def test_store_rejects_v1_before_creating_v2_tables(tmp_path: Path) -> None:
+    """Opening a v1 store must not partially mutate it before rejection."""
+
+    from aviation_agentic_ai.agent_system.evidence_store import (
+        AviationEvidenceStore,
+    )
+
+    root = tmp_path / "legacy-store"
+    root.mkdir()
+    database_path = root / "aviation_evidence.sqlite3"
+    with sqlite3.connect(database_path) as connection:
+        connection.execute(
+            "CREATE TABLE store_metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL)"
+        )
+        connection.executemany(
+            "INSERT INTO store_metadata(key, value) VALUES (?, ?)",
+            (
+                ("schema_version", "aviation-evidence-store-v1"),
+                ("dataset_id", "dataset:test"),
+            ),
+        )
+        connection.execute("CREATE TABLE legacy_marker (value TEXT)")
+
+    with pytest.raises(ValueError, match="schema version mismatch"):
+        AviationEvidenceStore.open(
+            root,
+            dataset_id="dataset:test",
+            create=True,
+        )
+
+    with sqlite3.connect(database_path) as connection:
+        tables = {
+            row[0]
+            for row in connection.execute(
+                "SELECT name FROM sqlite_master WHERE type = 'table'"
+            ).fetchall()
+        }
+    assert "legacy_marker" in tables
+    assert "knowledge_roots" not in tables
 
 
 def test_project_has_no_formal_decision_case_profile() -> None:
@@ -648,7 +717,7 @@ def test_semantic_publication_rolls_back_when_evidence_anchor_is_invalid(
     event_id = "urn:aviation-agentic-ai:event:test"
     publication_digest = hashlib.sha256(b"publication:test").hexdigest()
     publication_id = stable_id(
-        "event-publication",
+        "knowledge-publication",
         event_id,
         version.source_version_id,
         publication_digest,
@@ -999,7 +1068,7 @@ def test_events_share_semantic_fact_but_keep_evidence_links_disjoint(
             f"publication:{event_id}".encode("utf-8")
         ).hexdigest()
         publication_id = stable_id(
-            "event-publication",
+            "knowledge-publication",
             event_id,
             version.source_version_id,
             publication_digest,
@@ -1169,11 +1238,11 @@ def test_same_semantics_from_revised_source_activates_new_publication(
         )
         assert (
             store._connection.execute(  # noqa: SLF001
-                """
-                SELECT COUNT(*)
-                FROM event_publications
-                WHERE event_id = ?
-                """,
+                    """
+                    SELECT COUNT(*)
+                    FROM tmi_publication_details
+                    WHERE event_id = ?
+                    """,
                 (event_id,),
             ).fetchone()[0]
             == 2
@@ -1225,7 +1294,7 @@ def test_accepted_revision_activates_new_immutable_publication(
             f"{version.source_version_id}:{fact_value}".encode("utf-8")
         ).hexdigest()
         publication_id = stable_id(
-            "event-publication",
+            "knowledge-publication",
             event_id,
             version.source_version_id,
             publication_digest,
@@ -1379,7 +1448,7 @@ def test_blocked_revision_preserves_prior_accepted_publication(
     event_id = "urn:aviation-agentic-ai:event:blocked-revision"
     publication_digest = hashlib.sha256(b"accepted").hexdigest()
     publication_id = stable_id(
-        "event-publication",
+        "knowledge-publication",
         event_id,
         accepted_version.source_version_id,
         publication_digest,
@@ -1822,7 +1891,7 @@ def test_event_listing_and_sources_use_active_bounded_publication(
     event_id = "urn:aviation-agentic-ai:event:list"
     digest = hashlib.sha256(b"publication:list").hexdigest()
     publication_id = stable_id(
-        "event-publication",
+        "knowledge-publication",
         event_id,
         advisory.source_version_id,
         digest,
@@ -1957,7 +2026,7 @@ def test_event_weather_and_observations_read_active_publication(
     event_id = "urn:aviation-agentic-ai:event:context"
     digest = hashlib.sha256(b"publication:context").hexdigest()
     publication_id = stable_id(
-        "event-publication",
+        "knowledge-publication",
         event_id,
         advisory.source_version_id,
         digest,

@@ -60,7 +60,7 @@ class EventIngestionPackage(StrictModel):
     def _validate_publication_scope(self) -> EventIngestionPackage:
         event = self.event
         expected_publication_id = stable_id(
-            "event-publication",
+            "knowledge-publication",
             event.event_id,
             event.publication_source_version_id,
             self.formal_publication_digest,
@@ -300,7 +300,7 @@ def build_event_ingestion_package(
 
     publication_digest = _formal_publication_digest(publication)
     publication_id = stable_id(
-        "event-publication",
+        "knowledge-publication",
         event_context.event_id,
         advisory_source_version_id,
         publication_digest,

@@ -121,7 +121,7 @@ def _publish_event(
         f"{event_id}:{advisory.source_version_id}".encode()
     ).hexdigest()
     publication_id = stable_id(
-        "event-publication",
+        "knowledge-publication",
         event_id,
         advisory.source_version_id,
         publication_digest,

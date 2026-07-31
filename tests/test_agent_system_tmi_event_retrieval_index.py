@@ -12,6 +12,7 @@ import pytest
 from aviation_agentic_ai.agent_system.contracts import SourceFamily
 from aviation_agentic_ai.agent_system.evidence_store import (
     AviationEvidenceStore,
+    SCHEMA_VERSION,
 )
 from aviation_agentic_ai.agent_system.ingestion_package import (
     EventIngestionPackage,
@@ -111,7 +112,7 @@ def _publish_event(
     store.register_source_version(version)
     publication_digest = hashlib.sha256(content.encode("utf-8")).hexdigest()
     publication_id = stable_id(
-        "event-publication",
+        "knowledge-publication",
         event_id,
         version.source_version_id,
         publication_digest,
@@ -237,7 +238,7 @@ def test_incremental_update_persists_both_indexes_and_skips_reencoding(
     assert event_collection.metadata["dataset_id"] == "dataset:index"
     assert (
         event_collection.metadata["evidence_store_schema_version"]
-        == "aviation-evidence-store-v1"
+        == SCHEMA_VERSION
     )
     assert next(iter(_metadata_by_id(event_collection).values()))[
         "active"

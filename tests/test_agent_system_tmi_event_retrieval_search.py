@@ -69,7 +69,7 @@ def _event(
         event_id.encode("utf-8")
     ).hexdigest()
     publication_id = stable_id(
-        "event-publication",
+        "knowledge-publication",
         event_id,
         version.source_version_id,
         publication_digest,

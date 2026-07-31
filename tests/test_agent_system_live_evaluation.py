@@ -38,6 +38,7 @@ from aviation_agentic_ai.agent_system.evaluation_binding import (
     EvaluationDataBinding,
     EvaluationVectorBinding,
 )
+from aviation_agentic_ai.agent_system.evidence_store import SCHEMA_VERSION
 from aviation_agentic_ai.agent_system.query_runtime import QueryRuntime
 
 
@@ -812,7 +813,7 @@ def test_live_runner_reads_existing_store_without_building_a_corpus(
         document_ids=(),
     )
     binding = EvaluationDataBinding(
-        store_schema_version="aviation-evidence-store-v1",
+        store_schema_version=SCHEMA_VERSION,
         dataset_id=store.dataset_id,
         knowledge_revision=7,
         required_source_versions={},

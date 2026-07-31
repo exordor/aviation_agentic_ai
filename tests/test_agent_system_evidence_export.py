@@ -133,7 +133,7 @@ def _publish(
         ).encode("utf-8")
     ).hexdigest()
     publication_id = stable_id(
-        "event-publication",
+        "knowledge-publication",
         event_id,
         advisory.source_version_id,
         digest,

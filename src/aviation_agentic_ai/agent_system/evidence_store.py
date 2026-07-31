@@ -12,11 +12,16 @@ from pathlib import Path
 from aviation_agentic_ai.agent_system.agent_usage import AgentUsageRecord
 from aviation_agentic_ai.agent_system.contracts import SourceFamily
 from aviation_agentic_ai.agent_system.ingestion_package import IngestionAttempt
+from aviation_agentic_ai.agent_system.knowledge_publication import (
+    KnowledgePublicationBatch,
+    KnowledgePublicationPackage,
+)
 from aviation_agentic_ai.agent_system.storage_contracts import (
     EventEvidenceLink,
     EventProfileGapRecord,
     EventWeatherAssociation,
     IngestionResult,
+    KnowledgeIngestionResult,
     PublicObservationRecord,
     SemanticFactRecord,
     SourceAnchorRecord,
@@ -31,7 +36,7 @@ from aviation_agentic_ai.agent_system.storage_contracts import (
 from aviation_agentic_ai.utils.identifiers import stable_id
 
 
-SCHEMA_VERSION = "aviation-evidence-store-v1"
+SCHEMA_VERSION = "aviation-evidence-store-v2"
 DATABASE_FILENAME = "aviation_evidence.sqlite3"
 
 
@@ -58,13 +63,30 @@ class AviationEvidenceStore:
     ) -> AviationEvidenceStore:
         store_root = Path(root)
         database_path = store_root / DATABASE_FILENAME
-        if not database_path.exists() and not create:
+        database_exists = database_path.exists()
+        if not database_exists and not create:
             raise FileNotFoundError(f"evidence store does not exist: {database_path}")
         store_root.mkdir(parents=True, exist_ok=True)
         connection = sqlite3.connect(database_path)
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys = ON")
-        if create:
+        if database_exists:
+            try:
+                metadata = dict(
+                    connection.execute(
+                        "SELECT key, value FROM store_metadata ORDER BY key"
+                    ).fetchall()
+                )
+            except sqlite3.DatabaseError as exc:
+                connection.close()
+                raise ValueError("invalid evidence store schema") from exc
+            if metadata.get("schema_version") != SCHEMA_VERSION:
+                connection.close()
+                raise ValueError("evidence store schema version mismatch")
+            if metadata.get("dataset_id") != dataset_id:
+                connection.close()
+                raise ValueError("evidence store dataset does not match")
+        if create and not database_exists:
             now = datetime.now(UTC).isoformat()
             with connection:
                 connection.execute(
@@ -168,34 +190,145 @@ class AviationEvidenceStore:
                     CREATE INDEX IF NOT EXISTS idx_ingestion_results_status
                     ON ingestion_results(status, source_version_id);
 
-                    CREATE TABLE IF NOT EXISTS tmi_events (
-                        event_id TEXT PRIMARY KEY,
-                        advisory_source_id TEXT NOT NULL
-                            REFERENCES sources(source_id),
+                    CREATE TABLE IF NOT EXISTS knowledge_roots (
+                        root_id TEXT PRIMARY KEY,
+                        root_kind TEXT NOT NULL,
+                        temporal_domain_id TEXT NOT NULL,
                         active_publication_id TEXT
+                            REFERENCES knowledge_publications(publication_id)
                     );
 
-                    CREATE INDEX IF NOT EXISTS idx_tmi_events_active_publication
-                    ON tmi_events(active_publication_id, event_id);
+                    CREATE INDEX IF NOT EXISTS idx_knowledge_roots_kind
+                    ON knowledge_roots(
+                        root_kind,
+                        temporal_domain_id,
+                        root_id
+                    );
 
-                    CREATE TABLE IF NOT EXISTS event_publications (
+                    CREATE TABLE IF NOT EXISTS knowledge_publications (
                         publication_id TEXT PRIMARY KEY,
-                        event_id TEXT NOT NULL
-                            REFERENCES tmi_events(event_id),
-                        publication_source_version_id TEXT NOT NULL
+                        root_id TEXT NOT NULL
+                            REFERENCES knowledge_roots(root_id),
+                        primary_source_version_id TEXT NOT NULL
                             REFERENCES source_versions(source_version_id),
-                        formal_publication_digest TEXT NOT NULL,
+                        publication_digest TEXT NOT NULL,
+                        temporal_domain_id TEXT NOT NULL,
+                        published_at TEXT NOT NULL,
+                        UNIQUE(
+                            root_id,
+                            primary_source_version_id,
+                            publication_digest
+                        )
+                    );
+
+                    CREATE INDEX IF NOT EXISTS idx_knowledge_publications_root
+                    ON knowledge_publications(root_id, publication_id);
+
+                    CREATE TABLE IF NOT EXISTS publication_sources (
+                        membership_id TEXT PRIMARY KEY,
+                        publication_id TEXT NOT NULL
+                            REFERENCES knowledge_publications(publication_id)
+                            ON DELETE CASCADE,
+                        source_version_id TEXT NOT NULL
+                            REFERENCES source_versions(source_version_id),
+                        source_role TEXT NOT NULL,
+                        UNIQUE(publication_id, source_version_id)
+                    );
+
+                    CREATE INDEX IF NOT EXISTS idx_publication_sources_version
+                    ON publication_sources(source_version_id, publication_id);
+
+                    CREATE TABLE IF NOT EXISTS publication_facts (
+                        membership_id TEXT PRIMARY KEY,
+                        publication_id TEXT NOT NULL
+                            REFERENCES knowledge_publications(publication_id)
+                            ON DELETE CASCADE,
+                        fact_id TEXT NOT NULL
+                            REFERENCES semantic_facts(fact_id),
+                        UNIQUE(publication_id, fact_id)
+                    );
+
+                    CREATE INDEX IF NOT EXISTS idx_publication_facts_fact
+                    ON publication_facts(fact_id, publication_id);
+
+                    CREATE TABLE IF NOT EXISTS publication_evidence_links (
+                        evidence_link_id TEXT PRIMARY KEY,
+                        publication_id TEXT NOT NULL
+                            REFERENCES knowledge_publications(publication_id)
+                            ON DELETE CASCADE,
+                        owner_kind TEXT NOT NULL,
+                        owner_id TEXT NOT NULL,
+                        source_version_id TEXT NOT NULL
+                            REFERENCES source_versions(source_version_id),
+                        source_anchor_id TEXT
+                            REFERENCES source_anchors(source_anchor_id),
+                        evidence_text TEXT,
+                        evidence_ref TEXT NOT NULL
+                    );
+
+                    CREATE INDEX IF NOT EXISTS
+                        idx_publication_evidence_links_publication
+                    ON publication_evidence_links(
+                        publication_id,
+                        evidence_link_id
+                    );
+
+                    CREATE TABLE IF NOT EXISTS deterministic_derivations (
+                        derivation_id TEXT PRIMARY KEY,
+                        publication_id TEXT NOT NULL
+                            REFERENCES knowledge_publications(publication_id)
+                            ON DELETE CASCADE,
+                        temporal_domain_id TEXT NOT NULL,
+                        procedure_id TEXT NOT NULL,
+                        procedure_checksum TEXT NOT NULL,
+                        normalized_parameters_json TEXT NOT NULL,
+                        input_publication_ids_json TEXT NOT NULL,
+                        input_source_version_ids_json TEXT NOT NULL,
+                        input_entity_ids_json TEXT NOT NULL,
+                        result_checksum TEXT NOT NULL,
+                        result_summary TEXT NOT NULL
+                    );
+
+                    CREATE INDEX IF NOT EXISTS idx_derivations_publication
+                    ON deterministic_derivations(
+                        publication_id,
+                        derivation_id
+                    );
+
+                    CREATE TABLE IF NOT EXISTS knowledge_ingestion_results (
+                        source_version_id TEXT NOT NULL
+                            REFERENCES source_versions(source_version_id),
+                        adapter_id TEXT NOT NULL,
+                        adapter_version TEXT NOT NULL,
+                        profile_checksum TEXT,
+                        status TEXT NOT NULL,
+                        root_id TEXT REFERENCES knowledge_roots(root_id),
+                        publication_id TEXT
+                            REFERENCES knowledge_publications(publication_id),
+                        reason TEXT NOT NULL,
+                        recorded_at TEXT NOT NULL,
+                        PRIMARY KEY(
+                            source_version_id,
+                            adapter_id,
+                            adapter_version
+                        ),
+                        CHECK(status IN ('ok', 'insufficient', 'blocked'))
+                    );
+
+                    CREATE INDEX IF NOT EXISTS
+                        idx_knowledge_ingestion_results_status
+                    ON knowledge_ingestion_results(status, source_version_id);
+
+                    CREATE TABLE IF NOT EXISTS tmi_publication_details (
+                        publication_id TEXT PRIMARY KEY
+                            REFERENCES knowledge_publications(publication_id)
+                            ON DELETE CASCADE,
+                        event_id TEXT NOT NULL,
                         effective_start TEXT,
                         effective_end TEXT,
                         issued_at TEXT,
                         reason_status TEXT NOT NULL,
                         reason_value TEXT,
-                        published_at TEXT NOT NULL,
-                        UNIQUE(
-                            event_id,
-                            publication_source_version_id,
-                            formal_publication_digest
-                        ),
                         CHECK(
                             reason_status IN (
                                 'formal',
@@ -205,16 +338,217 @@ class AviationEvidenceStore:
                         )
                     );
 
-                    CREATE INDEX IF NOT EXISTS idx_event_publications_time
-                    ON event_publications(
+                    CREATE TABLE IF NOT EXISTS flights (
+                        flight_id TEXT PRIMARY KEY,
+                        temporal_domain_id TEXT NOT NULL
+                    );
+
+                    CREATE TABLE IF NOT EXISTS flight_publications (
+                        publication_id TEXT PRIMARY KEY
+                            REFERENCES knowledge_publications(publication_id)
+                            ON DELETE CASCADE,
+                        flight_id TEXT NOT NULL REFERENCES flights(flight_id),
+                        service_date TEXT,
+                        reporting_carrier TEXT,
+                        flight_number TEXT,
+                        tail_number TEXT,
+                        origin_airport_id TEXT,
+                        destination_airport_id TEXT,
+                        scheduled_departure_time TEXT,
+                        actual_departure_time TEXT,
+                        time_basis TEXT NOT NULL,
+                        cancelled INTEGER NOT NULL DEFAULT 0,
+                        diverted INTEGER NOT NULL DEFAULT 0,
+                        CHECK(cancelled IN (0, 1)),
+                        CHECK(diverted IN (0, 1))
+                    );
+
+                    CREATE INDEX IF NOT EXISTS idx_flight_publications_filters
+                    ON flight_publications(
+                        service_date,
+                        origin_airport_id,
+                        destination_airport_id,
+                        reporting_carrier,
+                        tail_number
+                    );
+
+                    CREATE TABLE IF NOT EXISTS air_carriers (
+                        carrier_id TEXT PRIMARY KEY,
+                        code TEXT NOT NULL,
+                        name TEXT
+                    );
+
+                    CREATE TABLE IF NOT EXISTS aircraft_models (
+                        aircraft_model_id TEXT PRIMARY KEY,
+                        manufacturer_name TEXT,
+                        model_name TEXT
+                    );
+
+                    CREATE TABLE IF NOT EXISTS aircraft (
+                        aircraft_id TEXT PRIMARY KEY,
+                        registration_mark TEXT
+                    );
+
+                    CREATE TABLE IF NOT EXISTS flight_aircraft_snapshot_matches (
+                        snapshot_match_id TEXT PRIMARY KEY,
+                        flight_publication_id TEXT NOT NULL
+                            REFERENCES flight_publications(publication_id),
+                        aircraft_publication_id TEXT NOT NULL
+                            REFERENCES knowledge_publications(publication_id),
+                        model_publication_id TEXT
+                            REFERENCES knowledge_publications(publication_id),
+                        procedure_id TEXT NOT NULL,
+                        procedure_checksum TEXT NOT NULL,
+                        temporal_domain_id TEXT NOT NULL,
+                        limitation TEXT NOT NULL
+                    );
+
+                    CREATE TABLE IF NOT EXISTS airports (
+                        airport_id TEXT PRIMARY KEY,
+                        identifier TEXT NOT NULL
+                    );
+
+                    CREATE TABLE IF NOT EXISTS artccs (
+                        artcc_id TEXT PRIMARY KEY,
+                        identifier TEXT NOT NULL
+                    );
+
+                    CREATE TABLE IF NOT EXISTS airport_artcc_assignments (
+                        assignment_id TEXT PRIMARY KEY,
+                        airport_publication_id TEXT NOT NULL
+                            REFERENCES knowledge_publications(publication_id),
+                        artcc_publication_id TEXT NOT NULL
+                            REFERENCES knowledge_publications(publication_id),
+                        assignment_role TEXT NOT NULL,
+                        effective_start TEXT,
+                        effective_end TEXT,
+                        procedure_id TEXT NOT NULL,
+                        procedure_checksum TEXT NOT NULL
+                    );
+
+                    CREATE INDEX IF NOT EXISTS idx_airport_artcc_lookup
+                    ON airport_artcc_assignments(
+                        artcc_publication_id,
+                        assignment_role,
                         effective_start,
-                        effective_end,
-                        publication_id
+                        effective_end
+                    );
+
+                    CREATE TABLE IF NOT EXISTS navigation_fixes (
+                        fix_id TEXT PRIMARY KEY,
+                        identifier TEXT NOT NULL
+                    );
+
+                    CREATE TABLE IF NOT EXISTS sectors (
+                        sector_id TEXT PRIMARY KEY,
+                        identifier TEXT NOT NULL
+                    );
+
+                    CREATE TABLE IF NOT EXISTS routes (
+                        route_id TEXT PRIMARY KEY,
+                        flight_publication_id TEXT NOT NULL
+                            REFERENCES flight_publications(publication_id)
+                    );
+
+                    CREATE TABLE IF NOT EXISTS track_points (
+                        track_point_id TEXT PRIMARY KEY,
+                        route_id TEXT NOT NULL REFERENCES routes(route_id),
+                        sequence_number INTEGER NOT NULL,
+                        reporting_time TEXT,
+                        fix_id TEXT REFERENCES navigation_fixes(fix_id),
+                        latitude REAL,
+                        longitude REAL,
+                        ground_speed REAL,
+                        UNIQUE(route_id, sequence_number)
+                    );
+
+                    CREATE INDEX IF NOT EXISTS idx_track_points_route_sequence
+                    ON track_points(route_id, sequence_number, reporting_time);
+
+                    CREATE TABLE IF NOT EXISTS sector_passages (
+                        sector_passage_id TEXT PRIMARY KEY,
+                        sector_id TEXT NOT NULL REFERENCES sectors(sector_id),
+                        flight_publication_id TEXT NOT NULL
+                            REFERENCES flight_publications(publication_id),
+                        track_point_id TEXT NOT NULL
+                            REFERENCES track_points(track_point_id),
+                        passage_time TEXT NOT NULL,
+                        procedure_id TEXT NOT NULL,
+                        procedure_checksum TEXT NOT NULL
+                    );
+
+                    CREATE INDEX IF NOT EXISTS idx_sector_passages_lookup
+                    ON sector_passages(
+                        sector_id,
+                        passage_time,
+                        flight_publication_id
+                    );
+
+                    CREATE TABLE IF NOT EXISTS weather_observations (
+                        weather_observation_id TEXT PRIMARY KEY,
+                        publication_id TEXT NOT NULL
+                            REFERENCES knowledge_publications(publication_id),
+                        station_id TEXT NOT NULL,
+                        observed_at TEXT NOT NULL,
+                        report_type TEXT NOT NULL,
+                        raw_report TEXT NOT NULL,
+                        time_basis TEXT NOT NULL
+                    );
+
+                    CREATE INDEX IF NOT EXISTS idx_weather_observations_lookup
+                    ON weather_observations(station_id, observed_at);
+
+                    CREATE TABLE IF NOT EXISTS flight_weather_associations (
+                        association_id TEXT PRIMARY KEY,
+                        flight_publication_id TEXT NOT NULL
+                            REFERENCES flight_publications(publication_id),
+                        weather_publication_id TEXT NOT NULL
+                            REFERENCES knowledge_publications(publication_id),
+                        delta_seconds INTEGER NOT NULL,
+                        procedure_id TEXT NOT NULL,
+                        procedure_checksum TEXT NOT NULL,
+                        temporal_domain_id TEXT NOT NULL,
+                        causal_claim INTEGER NOT NULL DEFAULT 0,
+                        CHECK(causal_claim = 0)
+                    );
+
+                    CREATE TABLE IF NOT EXISTS flight_tmi_applicability (
+                        applicability_id TEXT PRIMARY KEY,
+                        flight_publication_id TEXT NOT NULL
+                            REFERENCES flight_publications(publication_id),
+                        tmi_publication_id TEXT NOT NULL
+                            REFERENCES knowledge_publications(publication_id),
+                        status TEXT NOT NULL,
+                        rule_id TEXT NOT NULL,
+                        rule_version TEXT NOT NULL,
+                        input_checksum TEXT NOT NULL,
+                        temporal_domain_id TEXT NOT NULL,
+                        limitation TEXT NOT NULL,
+                        CHECK(
+                            status IN (
+                                'candidate',
+                                'unknown',
+                                'not_applicable'
+                            )
+                        )
+                    );
+
+                    CREATE INDEX IF NOT EXISTS idx_flight_tmi_applicability
+                    ON flight_tmi_applicability(
+                        tmi_publication_id,
+                        flight_publication_id,
+                        status
+                    );
+
+                    CREATE TABLE IF NOT EXISTS tmi_events (
+                        event_id TEXT PRIMARY KEY,
+                        advisory_source_id TEXT NOT NULL
+                            REFERENCES sources(source_id)
                     );
 
                     CREATE TABLE IF NOT EXISTS event_types (
                         publication_id TEXT NOT NULL
-                            REFERENCES event_publications(publication_id)
+                            REFERENCES knowledge_publications(publication_id)
                             ON DELETE CASCADE,
                         event_type_iri TEXT NOT NULL,
                         PRIMARY KEY(publication_id, event_type_iri)
@@ -225,7 +559,7 @@ class AviationEvidenceStore:
 
                     CREATE TABLE IF NOT EXISTS event_facilities (
                         publication_id TEXT NOT NULL
-                            REFERENCES event_publications(publication_id)
+                            REFERENCES knowledge_publications(publication_id)
                             ON DELETE CASCADE,
                         facility_id TEXT NOT NULL,
                         PRIMARY KEY(publication_id, facility_id)
@@ -233,19 +567,6 @@ class AviationEvidenceStore:
 
                     CREATE INDEX IF NOT EXISTS idx_event_facilities_facility
                     ON event_facilities(facility_id, publication_id);
-
-                    CREATE TABLE IF NOT EXISTS event_sources (
-                        publication_id TEXT NOT NULL
-                            REFERENCES event_publications(publication_id)
-                            ON DELETE CASCADE,
-                        source_version_id TEXT NOT NULL
-                            REFERENCES source_versions(source_version_id),
-                        source_role TEXT NOT NULL,
-                        PRIMARY KEY(publication_id, source_version_id)
-                    );
-
-                    CREATE INDEX IF NOT EXISTS idx_event_sources_version
-                    ON event_sources(source_version_id, publication_id);
 
                     CREATE TABLE IF NOT EXISTS semantic_facts (
                         fact_id TEXT PRIMARY KEY,
@@ -278,42 +599,6 @@ class AviationEvidenceStore:
                         fact_id
                     );
 
-                    CREATE TABLE IF NOT EXISTS event_facts (
-                        publication_id TEXT NOT NULL
-                            REFERENCES event_publications(publication_id)
-                            ON DELETE CASCADE,
-                        fact_id TEXT NOT NULL
-                            REFERENCES semantic_facts(fact_id),
-                        PRIMARY KEY(publication_id, fact_id)
-                    );
-
-                    CREATE INDEX IF NOT EXISTS idx_event_facts_fact
-                    ON event_facts(fact_id, publication_id);
-
-                    CREATE TABLE IF NOT EXISTS evidence_links (
-                        evidence_link_id TEXT PRIMARY KEY,
-                        event_id TEXT NOT NULL
-                            REFERENCES tmi_events(event_id),
-                        publication_id TEXT NOT NULL
-                            REFERENCES event_publications(publication_id)
-                            ON DELETE CASCADE,
-                        owner_kind TEXT NOT NULL,
-                        owner_id TEXT NOT NULL,
-                        source_version_id TEXT NOT NULL
-                            REFERENCES source_versions(source_version_id),
-                        source_anchor_id TEXT
-                            REFERENCES source_anchors(source_anchor_id),
-                        evidence_text TEXT,
-                        evidence_ref TEXT NOT NULL
-                    );
-
-                    CREATE INDEX IF NOT EXISTS idx_evidence_links_event
-                    ON evidence_links(
-                        event_id,
-                        publication_id,
-                        evidence_link_id
-                    );
-
                     CREATE TABLE IF NOT EXISTS ingestion_runs (
                         ingestion_run_id TEXT PRIMARY KEY,
                         started_at TEXT NOT NULL,
@@ -327,7 +612,7 @@ class AviationEvidenceStore:
 
                     CREATE TABLE IF NOT EXISTS profile_gaps (
                         publication_id TEXT NOT NULL
-                            REFERENCES event_publications(publication_id)
+                            REFERENCES knowledge_publications(publication_id)
                             ON DELETE CASCADE,
                         gap_id TEXT NOT NULL,
                         event_id TEXT NOT NULL
@@ -349,7 +634,7 @@ class AviationEvidenceStore:
 
                     CREATE TABLE IF NOT EXISTS weather_associations (
                         publication_id TEXT NOT NULL
-                            REFERENCES event_publications(publication_id)
+                            REFERENCES knowledge_publications(publication_id)
                             ON DELETE CASCADE,
                         association_id TEXT NOT NULL,
                         event_id TEXT NOT NULL
@@ -368,7 +653,7 @@ class AviationEvidenceStore:
 
                     CREATE TABLE IF NOT EXISTS public_observations (
                         publication_id TEXT NOT NULL
-                            REFERENCES event_publications(publication_id)
+                            REFERENCES knowledge_publications(publication_id)
                             ON DELETE CASCADE,
                         observation_id TEXT NOT NULL,
                         event_id TEXT NOT NULL
@@ -887,6 +1172,350 @@ class AviationEvidenceStore:
             char_end=char_start + len(evidence_text),
         )
 
+    def apply_knowledge_publication(
+        self,
+        package: KnowledgePublicationPackage,
+    ) -> str:
+        """Atomically publish one semantic root through the common spine."""
+
+        publication = package.publication
+        if package.root.root_kind == "tmi_event":
+            raise ValueError(
+                "TMI publications require the atomic event publication path"
+            )
+        if self._connection.execute(
+            "SELECT 1 FROM knowledge_publications WHERE publication_id = ?",
+            (publication.publication_id,),
+        ).fetchone() is not None:
+            return "unchanged"
+        versions = {
+            membership.source_version_id: self.get_source_version(
+                membership.source_version_id
+            )
+            for membership in package.publication_sources
+        }
+        missing = sorted(
+            source_version_id
+            for source_version_id, version in versions.items()
+            if version is None
+        )
+        if missing:
+            raise ValueError(
+                f"publication source version does not exist: {missing[0]}"
+            )
+        existing_root = self._connection.execute(
+            "SELECT * FROM knowledge_roots WHERE root_id = ?",
+            (package.root.root_id,),
+        ).fetchone()
+        if existing_root is not None:
+            if existing_root["root_kind"] != package.root.root_kind:
+                raise ValueError("knowledge root kind cannot change")
+            if (
+                existing_root["temporal_domain_id"]
+                != package.root.temporal_domain_id
+            ):
+                raise ValueError("knowledge root temporal domain cannot change")
+        outcome = (
+            "activated"
+            if existing_root is not None
+            and existing_root["active_publication_id"] is not None
+            else "inserted"
+        )
+        now = datetime.now(UTC).isoformat()
+        with self._connection:
+            for anchor in package.source_anchors:
+                version = versions[anchor.source_version_id]
+                if version is None or anchor.char_end > len(version.content):
+                    raise ValueError("source anchor exceeds source content")
+                self._connection.execute(
+                    """
+                    INSERT OR IGNORE INTO source_anchors(
+                        source_anchor_id,
+                        source_version_id,
+                        char_start,
+                        char_end,
+                        anchor_kind
+                    ) VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (
+                        anchor.source_anchor_id,
+                        anchor.source_version_id,
+                        anchor.char_start,
+                        anchor.char_end,
+                        anchor.anchor_kind,
+                    ),
+                )
+            for link in package.evidence_links:
+                if link.source_anchor_id is None:
+                    continue
+                anchor = self.get_source_anchor(link.source_anchor_id)
+                version = versions[link.source_version_id]
+                if anchor is None or version is None:
+                    raise ValueError("evidence source anchor does not exist")
+                anchored = version.content[anchor.char_start : anchor.char_end]
+                if link.evidence_text != anchored:
+                    raise ValueError(
+                        "evidence text does not match source anchor"
+                    )
+            if existing_root is None:
+                self._connection.execute(
+                    """
+                    INSERT INTO knowledge_roots(
+                        root_id,
+                        root_kind,
+                        temporal_domain_id,
+                        active_publication_id
+                    ) VALUES (?, ?, ?, NULL)
+                    """,
+                    (
+                        package.root.root_id,
+                        package.root.root_kind,
+                        package.root.temporal_domain_id,
+                    ),
+                )
+            self._connection.execute(
+                """
+                INSERT INTO knowledge_publications(
+                    publication_id,
+                    root_id,
+                    primary_source_version_id,
+                    publication_digest,
+                    temporal_domain_id,
+                    published_at
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    publication.publication_id,
+                    publication.root_id,
+                    publication.primary_source_version_id,
+                    publication.formal_publication_digest,
+                    publication.temporal_domain_id,
+                    now,
+                ),
+            )
+            self._connection.executemany(
+                """
+                INSERT INTO publication_sources(
+                    membership_id,
+                    publication_id,
+                    source_version_id,
+                    source_role
+                ) VALUES (?, ?, ?, ?)
+                """,
+                (
+                    (
+                        membership.membership_id,
+                        membership.publication_id,
+                        membership.source_version_id,
+                        membership.source_role,
+                    )
+                    for membership in package.publication_sources
+                ),
+            )
+            for fact in package.facts:
+                self._upsert_semantic_fact(fact)
+            self._connection.executemany(
+                """
+                INSERT INTO publication_facts(
+                    membership_id,
+                    publication_id,
+                    fact_id
+                )
+                VALUES (?, ?, ?)
+                """,
+                (
+                    (
+                        membership.membership_id,
+                        membership.publication_id,
+                        membership.fact_id,
+                    )
+                    for membership in package.fact_memberships
+                ),
+            )
+            self._connection.executemany(
+                """
+                INSERT INTO deterministic_derivations(
+                    derivation_id,
+                    publication_id,
+                    temporal_domain_id,
+                    procedure_id,
+                    procedure_checksum,
+                    normalized_parameters_json,
+                    input_publication_ids_json,
+                    input_source_version_ids_json,
+                    input_entity_ids_json,
+                    result_checksum,
+                    result_summary
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    (
+                        row.derivation_id,
+                        row.publication_id,
+                        row.temporal_domain_id,
+                        row.procedure_id,
+                        row.procedure_checksum,
+                        json.dumps(
+                            row.normalized_parameters,
+                            sort_keys=True,
+                            separators=(",", ":"),
+                        ),
+                        json.dumps(row.input_publication_ids),
+                        json.dumps(row.input_source_version_ids),
+                        json.dumps(row.input_entity_ids),
+                        row.result_checksum,
+                        row.result_summary,
+                    )
+                    for row in package.derivations
+                ),
+            )
+            self._connection.executemany(
+                """
+                INSERT INTO publication_evidence_links(
+                    evidence_link_id,
+                    publication_id,
+                    owner_kind,
+                    owner_id,
+                    source_version_id,
+                    source_anchor_id,
+                    evidence_text,
+                    evidence_ref
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    (
+                        row.evidence_link_id,
+                        row.publication_id,
+                        row.owner_kind,
+                        row.owner_id,
+                        row.source_version_id,
+                        row.source_anchor_id,
+                        row.evidence_text,
+                        row.evidence_ref,
+                    )
+                    for row in package.evidence_links
+                ),
+            )
+            self._connection.execute(
+                """
+                UPDATE knowledge_roots
+                SET active_publication_id = ?
+                WHERE root_id = ?
+                """,
+                (publication.publication_id, publication.root_id),
+            )
+            for source_version_id in sorted(versions):
+                self._connection.execute(
+                    """
+                    UPDATE sources
+                    SET latest_accepted_version_id = ?
+                    WHERE source_id = (
+                        SELECT source_id FROM source_versions
+                        WHERE source_version_id = ?
+                    )
+                    """,
+                    (source_version_id, source_version_id),
+                )
+            self._increment_knowledge_revision(now)
+        return outcome
+
+    def apply_knowledge_publication_batch(
+        self,
+        batch: KnowledgePublicationBatch,
+    ) -> dict[str, str]:
+        """Apply independent semantic-root partitions with failure isolation."""
+
+        outcomes: dict[str, str] = {}
+        for package in batch.packages:
+            publication_id = package.publication.publication_id
+            try:
+                outcomes[publication_id] = self.apply_knowledge_publication(
+                    package
+                )
+            except (ValueError, sqlite3.IntegrityError):
+                outcomes[publication_id] = "blocked"
+        return outcomes
+
+    def record_knowledge_ingestion_result(
+        self,
+        result: KnowledgeIngestionResult,
+    ) -> None:
+        """Record one deterministic adapter outcome for resumable ingestion."""
+
+        if self.get_source_version(result.source_version_id) is None:
+            raise ValueError("ingestion source version does not exist")
+        with self._connection:
+            self._connection.execute(
+                """
+                INSERT INTO knowledge_ingestion_results(
+                    source_version_id,
+                    adapter_id,
+                    adapter_version,
+                    profile_checksum,
+                    status,
+                    root_id,
+                    publication_id,
+                    reason,
+                    recorded_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(
+                    source_version_id,
+                    adapter_id,
+                    adapter_version
+                ) DO UPDATE SET
+                    profile_checksum = excluded.profile_checksum,
+                    status = excluded.status,
+                    root_id = excluded.root_id,
+                    publication_id = excluded.publication_id,
+                    reason = excluded.reason,
+                    recorded_at = excluded.recorded_at
+                """,
+                (
+                    result.source_version_id,
+                    result.adapter_id,
+                    result.adapter_version,
+                    result.profile_checksum,
+                    result.status,
+                    result.root_id,
+                    result.publication_id,
+                    result.reason,
+                    result.recorded_at.isoformat(),
+                ),
+            )
+
+    def get_knowledge_ingestion_result(
+        self,
+        *,
+        source_version_id: str,
+        adapter_id: str,
+        adapter_version: str,
+    ) -> KnowledgeIngestionResult | None:
+        """Return one generic adapter outcome used by resume logic."""
+
+        row = self._connection.execute(
+            """
+            SELECT *
+            FROM knowledge_ingestion_results
+            WHERE source_version_id = ?
+              AND adapter_id = ?
+              AND adapter_version = ?
+            """,
+            (source_version_id, adapter_id, adapter_version),
+        ).fetchone()
+        if row is None:
+            return None
+        return KnowledgeIngestionResult(
+            source_version_id=row["source_version_id"],
+            adapter_id=row["adapter_id"],
+            adapter_version=row["adapter_version"],
+            profile_checksum=row["profile_checksum"],
+            status=row["status"],
+            root_id=row["root_id"],
+            publication_id=row["publication_id"],
+            reason=row["reason"],
+            recorded_at=datetime.fromisoformat(row["recorded_at"]),
+        )
+
     def apply_ingestion_attempt(
         self,
         attempt: IngestionAttempt,
@@ -914,6 +1543,17 @@ class AviationEvidenceStore:
         if package is None:
             raise ValueError("ok ingestion requires a publication")
         event = package.event
+        if (
+            event.publication_source_version_id
+            != attempt.result.source_version_id
+        ):
+            raise ValueError(
+                "event publication source must match the ingestion source"
+            )
+        if primary_version.source_id != event.advisory_source_id:
+            raise ValueError(
+                "event advisory source must own the publication source version"
+            )
         publication_digest = package.formal_publication_digest
         for source_version_id in package.source_version_ids:
             if self.get_source_version(source_version_id) is None:
@@ -924,7 +1564,7 @@ class AviationEvidenceStore:
         existing_publication = self._connection.execute(
             """
             SELECT publication_id
-            FROM event_publications
+            FROM knowledge_publications
             WHERE publication_id = ?
             """,
             (event.publication_id,),
@@ -933,9 +1573,14 @@ class AviationEvidenceStore:
             return "unchanged"
         existing_event = self._connection.execute(
             """
-            SELECT advisory_source_id, active_publication_id
-            FROM tmi_events
-            WHERE event_id = ?
+            SELECT
+                event.advisory_source_id,
+                root.active_publication_id,
+                root.temporal_domain_id
+            FROM tmi_events AS event
+            JOIN knowledge_roots AS root
+              ON root.root_id = event.event_id
+            WHERE event.event_id = ?
             """,
             (event.event_id,),
         ).fetchone()
@@ -946,6 +1591,10 @@ class AviationEvidenceStore:
             else "inserted"
         )
         now = datetime.now(UTC).isoformat()
+        temporal_domain_id = self._event_temporal_domain_id(
+            event,
+            primary_version,
+        )
 
         with self._connection:
             for anchor in sorted(
@@ -979,44 +1628,69 @@ class AviationEvidenceStore:
             if existing_event is None:
                 self._connection.execute(
                     """
-                    INSERT INTO tmi_events(
-                        event_id,
-                        advisory_source_id,
+                    INSERT INTO knowledge_roots(
+                        root_id,
+                        root_kind,
+                        temporal_domain_id,
                         active_publication_id
                     )
-                    VALUES (?, ?, NULL)
+                    VALUES (?, 'tmi_event', ?, NULL)
+                    """,
+                    (event.event_id, temporal_domain_id),
+                )
+                self._connection.execute(
+                    """
+                    INSERT INTO tmi_events(event_id, advisory_source_id)
+                    VALUES (?, ?)
                     """,
                     (event.event_id, event.advisory_source_id),
                 )
             elif existing_event["advisory_source_id"] != event.advisory_source_id:
                 raise ValueError("event advisory source identity cannot change")
+            elif existing_event["temporal_domain_id"] != temporal_domain_id:
+                raise ValueError("event temporal domain cannot change")
             self._connection.execute(
                 """
-                INSERT INTO event_publications(
+                INSERT INTO knowledge_publications(
                     publication_id,
-                    event_id,
-                    publication_source_version_id,
-                    formal_publication_digest,
-                    effective_start,
-                    effective_end,
-                    issued_at,
-                    reason_status,
-                    reason_value,
+                    root_id,
+                    primary_source_version_id,
+                    publication_digest,
+                    temporal_domain_id,
                     published_at
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """,
                 (
                     event.publication_id,
                     event.event_id,
                     event.publication_source_version_id,
                     publication_digest,
+                    temporal_domain_id,
+                    now,
+                ),
+            )
+            self._connection.execute(
+                """
+                INSERT INTO tmi_publication_details(
+                    publication_id,
+                    event_id,
+                    effective_start,
+                    effective_end,
+                    issued_at,
+                    reason_status,
+                    reason_value
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    event.publication_id,
+                    event.event_id,
                     self._datetime_text(event.effective_start),
                     self._datetime_text(event.effective_end),
                     self._datetime_text(event.issued_at),
                     event.reason_status,
                     event.reason_value,
-                    now,
                 ),
             )
             self._connection.executemany(
@@ -1041,22 +1715,34 @@ class AviationEvidenceStore:
             )
             self._connection.executemany(
                 """
-                INSERT INTO event_sources(
+                INSERT INTO publication_sources(
+                    membership_id,
                     publication_id,
                     source_version_id,
                     source_role
                 )
-                VALUES (?, ?, ?)
+                VALUES (?, ?, ?, ?)
                 """,
                 (
                     (
+                        stable_id(
+                            "publication-source",
+                            event.publication_id,
+                            source_version_id,
+                            (
+                                "primary"
+                                if source_version_id
+                                == event.publication_source_version_id
+                                else "supporting"
+                            ),
+                        ),
                         event.publication_id,
                         source_version_id,
                         (
-                            "advisory"
+                            "primary"
                             if source_version_id
                             == event.publication_source_version_id
-                            else "evidence"
+                            else "supporting"
                         ),
                     )
                     for source_version_id in sorted(package.source_version_ids)
@@ -1142,10 +1828,22 @@ class AviationEvidenceStore:
                 self._upsert_semantic_fact(fact)
                 self._connection.execute(
                     """
-                    INSERT INTO event_facts(publication_id, fact_id)
-                    VALUES (?, ?)
+                    INSERT INTO publication_facts(
+                        membership_id,
+                        publication_id,
+                        fact_id
+                    )
+                    VALUES (?, ?, ?)
                     """,
-                    (event.publication_id, fact.fact_id),
+                    (
+                        stable_id(
+                            "publication-fact",
+                            event.publication_id,
+                            fact.fact_id,
+                        ),
+                        event.publication_id,
+                        fact.fact_id,
+                    ),
                 )
             for gap in sorted(
                 package.profile_gaps,
@@ -1193,9 +1891,8 @@ class AviationEvidenceStore:
             ):
                 self._connection.execute(
                     """
-                    INSERT INTO evidence_links(
+                    INSERT INTO publication_evidence_links(
                         evidence_link_id,
-                        event_id,
                         publication_id,
                         owner_kind,
                         owner_id,
@@ -1204,11 +1901,10 @@ class AviationEvidenceStore:
                         evidence_text,
                         evidence_ref
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         link.evidence_link_id,
-                        link.event_id,
                         link.publication_id,
                         link.owner_kind,
                         link.owner_id,
@@ -1329,9 +2025,9 @@ class AviationEvidenceStore:
                 )
             self._connection.execute(
                 """
-                UPDATE tmi_events
+                UPDATE knowledge_roots
                 SET active_publication_id = ?
-                WHERE event_id = ?
+                WHERE root_id = ?
                 """,
                 (event.publication_id, event.event_id),
             )
@@ -1369,13 +2065,23 @@ class AviationEvidenceStore:
         row = self._connection.execute(
             """
             SELECT
-                publication.*,
+                publication.publication_id,
+                publication.primary_source_version_id
+                    AS publication_source_version_id,
+                detail.event_id,
+                detail.effective_start,
+                detail.effective_end,
+                detail.issued_at,
+                detail.reason_status,
+                detail.reason_value,
                 event.advisory_source_id
-            FROM event_publications AS publication
+            FROM knowledge_publications AS publication
+            JOIN tmi_publication_details AS detail
+              ON detail.publication_id = publication.publication_id
             JOIN tmi_events AS event
-              ON event.event_id = publication.event_id
+              ON event.event_id = detail.event_id
             WHERE publication.publication_id = ?
-              AND publication.event_id = ?
+              AND detail.event_id = ?
             """,
             (selected_publication_id, event_id),
         ).fetchone()
@@ -1433,18 +2139,20 @@ class AviationEvidenceStore:
                 """
                 SELECT
                     event.event_id,
-                    event.active_publication_id AS publication_id
+                    root.active_publication_id AS publication_id
                 FROM tmi_events AS event
-                WHERE event.active_publication_id IS NOT NULL
+                JOIN knowledge_roots AS root
+                  ON root.root_id = event.event_id
+                WHERE root.active_publication_id IS NOT NULL
                 ORDER BY event.event_id
                 """
             ).fetchall()
         else:
             rows = self._connection.execute(
                 """
-                SELECT publication.event_id, publication.publication_id
-                FROM event_publications AS publication
-                ORDER BY publication.event_id, publication.publication_id
+                SELECT detail.event_id, detail.publication_id
+                FROM tmi_publication_details AS detail
+                ORDER BY detail.event_id, detail.publication_id
                 """
             ).fetchall()
         return tuple(
@@ -1474,7 +2182,7 @@ class AviationEvidenceStore:
                     SELECT 1
                     FROM event_types AS type
                     WHERE type.publication_id =
-                          event.active_publication_id
+                          root.active_publication_id
                       AND type.event_type_iri = ?
                 )
                 """
@@ -1487,17 +2195,17 @@ class AviationEvidenceStore:
                     SELECT 1
                     FROM event_facilities AS facility
                     WHERE facility.publication_id =
-                          event.active_publication_id
+                          root.active_publication_id
                       AND facility.facility_id = ?
                 )
                 """
             )
             parameters.append(query.facility_id)
         if query.reason_status is not None:
-            predicates.append("publication.reason_status = ?")
+            predicates.append("detail.reason_status = ?")
             parameters.append(query.reason_status)
         if query.reason_value is not None:
-            predicates.append("publication.reason_value = ?")
+            predicates.append("detail.reason_value = ?")
             parameters.append(query.reason_value)
         where_clause = (
             "WHERE " + " AND ".join(predicates)
@@ -1506,9 +2214,10 @@ class AviationEvidenceStore:
         )
         base_query = f"""
             FROM tmi_events AS event
-            JOIN event_publications AS publication
-              ON publication.publication_id =
-                 event.active_publication_id
+            JOIN knowledge_roots AS root
+              ON root.root_id = event.event_id
+            JOIN tmi_publication_details AS detail
+              ON detail.publication_id = root.active_publication_id
             {where_clause}
         """
         total_matches = self._connection.execute(
@@ -1517,7 +2226,7 @@ class AviationEvidenceStore:
         ).fetchone()[0]
         selected = self._connection.execute(
             f"""
-            SELECT event.event_id, event.active_publication_id
+            SELECT event.event_id, root.active_publication_id
             {base_query}
             ORDER BY event.event_id
             LIMIT ? OFFSET ?
@@ -1560,7 +2269,7 @@ class AviationEvidenceStore:
         rows = self._connection.execute(
             """
             SELECT fact.*
-            FROM event_facts AS membership
+            FROM publication_facts AS membership
             JOIN semantic_facts AS fact
               ON fact.fact_id = membership.fact_id
             WHERE membership.publication_id = ?
@@ -1587,17 +2296,16 @@ class AviationEvidenceStore:
         rows = self._connection.execute(
             """
             SELECT *
-            FROM evidence_links
-            WHERE event_id = ?
-              AND publication_id = ?
+            FROM publication_evidence_links
+            WHERE publication_id = ?
             ORDER BY evidence_link_id
             """,
-            (event_id, selected_publication_id),
+            (selected_publication_id,),
         ).fetchall()
         return tuple(
             EventEvidenceLink(
                 evidence_link_id=row["evidence_link_id"],
-                event_id=row["event_id"],
+                event_id=event_id,
                 publication_id=row["publication_id"],
                 owner_kind=row["owner_kind"],
                 owner_id=row["owner_id"],
@@ -1626,7 +2334,7 @@ class AviationEvidenceStore:
         rows = self._connection.execute(
             """
             SELECT version.*
-            FROM event_sources AS binding
+            FROM publication_sources AS binding
             JOIN source_versions AS version
               ON version.source_version_id = binding.source_version_id
             WHERE binding.publication_id = ?
@@ -1650,15 +2358,15 @@ class AviationEvidenceStore:
             f"""
             SELECT
                 binding.source_version_id,
-                publication.event_id
-            FROM event_sources AS binding
-            JOIN event_publications AS publication
-              ON publication.publication_id = binding.publication_id
-            JOIN tmi_events AS event
-              ON event.event_id = publication.event_id
-             AND event.active_publication_id = publication.publication_id
+                detail.event_id
+            FROM publication_sources AS binding
+            JOIN tmi_publication_details AS detail
+              ON detail.publication_id = binding.publication_id
+            JOIN knowledge_roots AS root
+              ON root.root_id = detail.event_id
+             AND root.active_publication_id = detail.publication_id
             WHERE binding.source_version_id IN ({placeholders})
-            ORDER BY binding.source_version_id, publication.event_id
+            ORDER BY binding.source_version_id, detail.event_id
             """,
             selected,
         ).fetchall()
@@ -2144,9 +2852,12 @@ class AviationEvidenceStore:
         if publication_id is not None:
             row = self._connection.execute(
                 """
-                SELECT publication_id
-                FROM event_publications
-                WHERE event_id = ? AND publication_id = ?
+                SELECT publication.publication_id
+                FROM knowledge_publications AS publication
+                JOIN tmi_publication_details AS detail
+                  ON detail.publication_id = publication.publication_id
+                WHERE detail.event_id = ?
+                  AND publication.publication_id = ?
                 """,
                 (event_id, publication_id),
             ).fetchone()
@@ -2154,14 +2865,37 @@ class AviationEvidenceStore:
             row = self._connection.execute(
                 """
                 SELECT active_publication_id AS publication_id
-                FROM tmi_events
-                WHERE event_id = ?
+                FROM knowledge_roots
+                WHERE root_id = ? AND root_kind = 'tmi_event'
                 """,
                 (event_id,),
             ).fetchone()
         if row is None:
             return None
         return row["publication_id"]
+
+    @staticmethod
+    def _event_temporal_domain_id(
+        event: TMIEventRecord,
+        primary_version: SourceVersionRecord,
+    ) -> str:
+        configured = primary_version.metadata.get("temporal_domain_id")
+        if isinstance(configured, str) and configured:
+            return configured
+        timestamp = event.effective_start or event.issued_at
+        if timestamp is not None:
+            return f"atcscc:{timestamp.astimezone(UTC):%Y-%m}"
+        if primary_version.logical_time:
+            try:
+                logical_time = datetime.fromisoformat(
+                    primary_version.logical_time.replace("Z", "+00:00")
+                )
+            except ValueError:
+                pass
+            else:
+                if logical_time.tzinfo is not None:
+                    return f"atcscc:{logical_time.astimezone(UTC):%Y-%m}"
+        return "atcscc:undated"
 
     def _upsert_semantic_fact(self, fact: SemanticFactRecord) -> None:
         row = self._connection.execute(
