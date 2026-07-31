@@ -13,6 +13,10 @@ from aviation_agentic_ai.agent_system.contracts import (
 from aviation_agentic_ai.agent_system.hybrid_query_agent import (
     run_hybrid_query_agent,
 )
+from aviation_agentic_ai.agent_system.flight_airspace_query_tools import (
+    FlightAirspaceQueryGateway,
+    build_flight_airspace_query_tools,
+)
 from aviation_agentic_ai.agent_system.hybrid_query_tools import (
     HybridQueryGateway,
     build_hybrid_query_tools,
@@ -39,10 +43,17 @@ def answer_question(
             failure_reason="Hybrid Query Agent model factory is unavailable",
         )
     gateway = HybridQueryGateway(runtime=runtime, scope=scope)
+    flight_airspace_gateway = FlightAirspaceQueryGateway(
+        runtime=runtime,
+        scope=scope,
+    )
     return run_hybrid_query_agent(
         question=question,
         scope=scope,
-        tools=build_hybrid_query_tools(gateway),
+        tools=[
+            *build_hybrid_query_tools(gateway),
+            *build_flight_airspace_query_tools(flight_airspace_gateway),
+        ],
         model_factory=model_factory,
     )
 

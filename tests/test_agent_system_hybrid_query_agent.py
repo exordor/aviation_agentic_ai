@@ -230,6 +230,77 @@ def test_every_natural_language_question_activates_the_model() -> None:
         assert outcome.support_records
 
 
+def test_flight_and_aggregate_evidence_ids_survive_the_agent_loop() -> None:
+    class _SectorInput(BaseModel):
+        sector_id: str = Field(min_length=1)
+
+    @tool("analyze_sector_traffic", args_schema=_SectorInput)
+    def analyze_sector_traffic(sector_id: str) -> dict[str, object]:
+        """Return one source-bound sector aggregation."""
+
+        assert sector_id == "urn:sector:ZTL040"
+        return HybridQueryToolObservation(
+            status="ok",
+            content="Two distinct flights have accepted passages in the interval.",
+            details=HybridQueryEvidence(
+                flight_ids=("urn:flight:1", "urn:flight:2"),
+                publication_ids=("urn:publication:1", "urn:publication:2"),
+                sector_passage_ids=("urn:passage:1", "urn:passage:2"),
+                derivation_ids=("urn:query-derivation:1",),
+                source_ids=("source:nasa:flight",),
+            ),
+            support_records=(
+                HybridQuerySupportRecord(
+                    kind="aggregate_result",
+                    flight_ids=("urn:flight:1", "urn:flight:2"),
+                    publication_ids=("urn:publication:1", "urn:publication:2"),
+                    sector_passage_ids=("urn:passage:1", "urn:passage:2"),
+                    derivation_ids=("urn:query-derivation:1",),
+                    source_ids=("source:nasa:flight",),
+                ),
+            ),
+        ).model_dump(mode="json")
+
+    answer = HybridQueryAnswer(
+        status="ok",
+        statements=(
+            HybridQueryStatement(
+                kind="aggregate_result",
+                text="Two distinct flights are recorded in the selected sector interval.",
+                support_flight_ids=("urn:flight:1", "urn:flight:2"),
+                support_publication_ids=(
+                    "urn:publication:1",
+                    "urn:publication:2",
+                ),
+                support_sector_passage_ids=("urn:passage:1", "urn:passage:2"),
+                support_derivation_ids=("urn:query-derivation:1",),
+                support_source_ids=("source:nasa:flight",),
+            ),
+        ),
+    ).model_dump_json()
+    model = _LoopModel(
+        calls=[
+            {
+                "id": "call-sector",
+                "name": "analyze_sector_traffic",
+                "args": {"sector_id": "urn:sector:ZTL040"},
+            }
+        ],
+        final_content=answer,
+    )
+
+    outcome = _run(model, tools=[analyze_sector_traffic])
+
+    assert outcome.status == "ok"
+    assert outcome.retrieved_flight_ids == ["urn:flight:1", "urn:flight:2"]
+    assert outcome.retrieved_sector_passage_ids == [
+        "urn:passage:1",
+        "urn:passage:2",
+    ]
+    assert outcome.retrieved_derivation_ids == ["urn:query-derivation:1"]
+    assert outcome.tool_calls[0].derivation_ids == ["urn:query-derivation:1"]
+
+
 def test_multiple_model_selected_tools_feed_the_answer_turn() -> None:
     model = _LoopModel(
         calls=[

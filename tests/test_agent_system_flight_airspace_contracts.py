@@ -148,24 +148,25 @@ def test_route_track_point_and_sector_passage_preserve_sequence_and_seconds() ->
         route_kind="actual",
     )
     point = TrackPointRecord(
-        track_point_id="track-point:664de8dd269f340f",
-        route_publication_id="publication:route:1",
+        track_point_id="track-point:195ebdb84e0c6a16",
+        route_id=route.route_id,
         temporal_domain_id="nasa-atmonto-2014",
         sequence_number=7,
         reporting_time=datetime(2014, 7, 15, 2, 12, 25, tzinfo=UTC),
         latitude=33.63,
         longitude=-84.44,
-        navigation_fix_publication_id="publication:fix:foo",
-        sector_publication_ids=("publication:sector:040",),
+        ground_speed=420.0,
+        navigation_fix_id=fix.fix_id,
+        sector_ids=(sector.sector_id,),
         source_version_id="source-version:track",
         source_anchor_id="source-anchor:track",
     )
     passage = SectorPassageRecord(
-        passage_id="sector-passage:6f8939dc51450d8e",
+        passage_id="sector-passage:2e1684d111a83f50",
         flight_publication_id="publication:flight:1",
-        route_publication_id="publication:route:1",
+        route_id=route.route_id,
         track_point_id=point.track_point_id,
-        sector_publication_id="publication:sector:040",
+        sector_id=sector.sector_id,
         temporal_domain_id="nasa-atmonto-2014",
         reporting_time=point.reporting_time,
         derivation_id="derivation:sector-passage",
@@ -186,6 +187,7 @@ def test_route_track_point_and_sector_passage_preserve_sequence_and_seconds() ->
 def test_weather_association_is_non_causal_and_temporal_domain_bound() -> None:
     observation = WeatherObservationRecord(
         observation_id="weather-observation:881e0dea6c49d7af",
+        publication_id="publication:weather:1",
         temporal_domain_id="proxy-2026-05",
         source_family=SourceFamily.HISTORICAL_METAR_SPECI,
         station_id="KATL",

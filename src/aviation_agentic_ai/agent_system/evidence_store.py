@@ -5,12 +5,16 @@ from __future__ import annotations
 import json
 import sqlite3
 from collections.abc import Sequence
+from contextlib import nullcontext
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 
 from aviation_agentic_ai.agent_system.agent_usage import AgentUsageRecord
 from aviation_agentic_ai.agent_system.contracts import SourceFamily
+from aviation_agentic_ai.agent_system.flight_airspace_contracts import (
+    FlightAirspaceMaterialization,
+)
 from aviation_agentic_ai.agent_system.ingestion_package import IngestionAttempt
 from aviation_agentic_ai.agent_system.knowledge_publication import (
     KnowledgePublicationBatch,
@@ -340,7 +344,8 @@ class AviationEvidenceStore:
 
                     CREATE TABLE IF NOT EXISTS flights (
                         flight_id TEXT PRIMARY KEY,
-                        temporal_domain_id TEXT NOT NULL
+                        temporal_domain_id TEXT NOT NULL,
+                        source_family TEXT NOT NULL
                     );
 
                     CREATE TABLE IF NOT EXISTS flight_publications (
@@ -348,14 +353,15 @@ class AviationEvidenceStore:
                             REFERENCES knowledge_publications(publication_id)
                             ON DELETE CASCADE,
                         flight_id TEXT NOT NULL REFERENCES flights(flight_id),
-                        service_date TEXT,
-                        reporting_carrier TEXT,
-                        flight_number TEXT,
+                        service_date TEXT NOT NULL,
+                        reporting_carrier TEXT NOT NULL,
+                        flight_number TEXT NOT NULL,
                         tail_number TEXT,
-                        origin_airport_id TEXT,
-                        destination_airport_id TEXT,
+                        origin_airport_id TEXT NOT NULL,
+                        destination_airport_id TEXT NOT NULL,
+                        scheduled_departure_key TEXT NOT NULL,
                         scheduled_departure_time TEXT,
-                        actual_departure_time TEXT,
+                        actual_wheels_off_time TEXT,
                         time_basis TEXT NOT NULL,
                         cancelled INTEGER NOT NULL DEFAULT 0,
                         diverted INTEGER NOT NULL DEFAULT 0,
@@ -374,19 +380,26 @@ class AviationEvidenceStore:
 
                     CREATE TABLE IF NOT EXISTS air_carriers (
                         carrier_id TEXT PRIMARY KEY,
+                        temporal_domain_id TEXT NOT NULL,
+                        source_family TEXT NOT NULL,
                         code TEXT NOT NULL,
                         name TEXT
                     );
 
                     CREATE TABLE IF NOT EXISTS aircraft_models (
                         aircraft_model_id TEXT PRIMARY KEY,
-                        manufacturer_name TEXT,
-                        model_name TEXT
+                        temporal_domain_id TEXT NOT NULL,
+                        source_family TEXT NOT NULL,
+                        manufacturer_code TEXT NOT NULL,
+                        model_code TEXT NOT NULL,
+                        display_name TEXT
                     );
 
                     CREATE TABLE IF NOT EXISTS aircraft (
                         aircraft_id TEXT PRIMARY KEY,
-                        registration_mark TEXT
+                        temporal_domain_id TEXT NOT NULL,
+                        source_family TEXT NOT NULL,
+                        registration_mark TEXT NOT NULL
                     );
 
                     CREATE TABLE IF NOT EXISTS flight_aircraft_snapshot_matches (
@@ -397,20 +410,31 @@ class AviationEvidenceStore:
                             REFERENCES knowledge_publications(publication_id),
                         model_publication_id TEXT
                             REFERENCES knowledge_publications(publication_id),
+                        registry_snapshot_at TEXT NOT NULL,
+                        matched_registration_number TEXT NOT NULL,
+                        match_status TEXT NOT NULL,
                         procedure_id TEXT NOT NULL,
                         procedure_checksum TEXT NOT NULL,
                         temporal_domain_id TEXT NOT NULL,
-                        limitation TEXT NOT NULL
+                        derivation_id TEXT NOT NULL,
+                        historical_model_claim INTEGER NOT NULL DEFAULT 0,
+                        CHECK(historical_model_claim = 0)
                     );
 
                     CREATE TABLE IF NOT EXISTS airports (
                         airport_id TEXT PRIMARY KEY,
-                        identifier TEXT NOT NULL
+                        temporal_domain_id TEXT NOT NULL,
+                        source_family TEXT NOT NULL,
+                        identifier TEXT NOT NULL,
+                        display_name TEXT
                     );
 
                     CREATE TABLE IF NOT EXISTS artccs (
                         artcc_id TEXT PRIMARY KEY,
-                        identifier TEXT NOT NULL
+                        temporal_domain_id TEXT NOT NULL,
+                        source_family TEXT NOT NULL,
+                        identifier TEXT NOT NULL,
+                        display_name TEXT
                     );
 
                     CREATE TABLE IF NOT EXISTS airport_artcc_assignments (
@@ -422,8 +446,10 @@ class AviationEvidenceStore:
                         assignment_role TEXT NOT NULL,
                         effective_start TEXT,
                         effective_end TEXT,
+                        temporal_domain_id TEXT NOT NULL,
                         procedure_id TEXT NOT NULL,
-                        procedure_checksum TEXT NOT NULL
+                        procedure_checksum TEXT NOT NULL,
+                        derivation_id TEXT NOT NULL
                     );
 
                     CREATE INDEX IF NOT EXISTS idx_airport_artcc_lookup
@@ -436,30 +462,52 @@ class AviationEvidenceStore:
 
                     CREATE TABLE IF NOT EXISTS navigation_fixes (
                         fix_id TEXT PRIMARY KEY,
-                        identifier TEXT NOT NULL
+                        temporal_domain_id TEXT NOT NULL,
+                        source_family TEXT NOT NULL,
+                        identifier TEXT NOT NULL,
+                        latitude REAL,
+                        longitude REAL
                     );
 
                     CREATE TABLE IF NOT EXISTS sectors (
                         sector_id TEXT PRIMARY KEY,
+                        temporal_domain_id TEXT NOT NULL,
+                        source_family TEXT NOT NULL,
                         identifier TEXT NOT NULL
                     );
 
                     CREATE TABLE IF NOT EXISTS routes (
                         route_id TEXT PRIMARY KEY,
                         flight_publication_id TEXT NOT NULL
-                            REFERENCES flight_publications(publication_id)
+                            REFERENCES flight_publications(publication_id),
+                        temporal_domain_id TEXT NOT NULL,
+                        source_route_key TEXT NOT NULL,
+                        route_kind TEXT NOT NULL
                     );
 
                     CREATE TABLE IF NOT EXISTS track_points (
                         track_point_id TEXT PRIMARY KEY,
                         route_id TEXT NOT NULL REFERENCES routes(route_id),
+                        temporal_domain_id TEXT NOT NULL,
                         sequence_number INTEGER NOT NULL,
-                        reporting_time TEXT,
+                        reporting_time TEXT NOT NULL,
                         fix_id TEXT REFERENCES navigation_fixes(fix_id),
                         latitude REAL,
                         longitude REAL,
                         ground_speed REAL,
+                        source_version_id TEXT NOT NULL
+                            REFERENCES source_versions(source_version_id),
+                        source_anchor_id TEXT NOT NULL
+                            REFERENCES source_anchors(source_anchor_id),
                         UNIQUE(route_id, sequence_number)
+                    );
+
+                    CREATE TABLE IF NOT EXISTS track_point_sectors (
+                        track_point_id TEXT NOT NULL
+                            REFERENCES track_points(track_point_id)
+                            ON DELETE CASCADE,
+                        sector_id TEXT NOT NULL REFERENCES sectors(sector_id),
+                        PRIMARY KEY(track_point_id, sector_id)
                     );
 
                     CREATE INDEX IF NOT EXISTS idx_track_points_route_sequence
@@ -470,11 +518,12 @@ class AviationEvidenceStore:
                         sector_id TEXT NOT NULL REFERENCES sectors(sector_id),
                         flight_publication_id TEXT NOT NULL
                             REFERENCES flight_publications(publication_id),
+                        route_id TEXT NOT NULL REFERENCES routes(route_id),
                         track_point_id TEXT NOT NULL
                             REFERENCES track_points(track_point_id),
                         passage_time TEXT NOT NULL,
-                        procedure_id TEXT NOT NULL,
-                        procedure_checksum TEXT NOT NULL
+                        temporal_domain_id TEXT NOT NULL,
+                        derivation_id TEXT NOT NULL
                     );
 
                     CREATE INDEX IF NOT EXISTS idx_sector_passages_lookup
@@ -488,10 +537,15 @@ class AviationEvidenceStore:
                         weather_observation_id TEXT PRIMARY KEY,
                         publication_id TEXT NOT NULL
                             REFERENCES knowledge_publications(publication_id),
+                        temporal_domain_id TEXT NOT NULL,
+                        source_family TEXT NOT NULL,
                         station_id TEXT NOT NULL,
                         observed_at TEXT NOT NULL,
                         report_type TEXT NOT NULL,
                         raw_report TEXT NOT NULL,
+                        phenomenon_tokens_json TEXT NOT NULL,
+                        source_version_id TEXT NOT NULL
+                            REFERENCES source_versions(source_version_id),
                         time_basis TEXT NOT NULL
                     );
 
@@ -504,10 +558,14 @@ class AviationEvidenceStore:
                             REFERENCES flight_publications(publication_id),
                         weather_publication_id TEXT NOT NULL
                             REFERENCES knowledge_publications(publication_id),
+                        flight_time_field TEXT NOT NULL,
+                        flight_time TEXT NOT NULL,
+                        observation_time TEXT NOT NULL,
                         delta_seconds INTEGER NOT NULL,
                         procedure_id TEXT NOT NULL,
                         procedure_checksum TEXT NOT NULL,
                         temporal_domain_id TEXT NOT NULL,
+                        derivation_id TEXT NOT NULL,
                         causal_claim INTEGER NOT NULL DEFAULT 0,
                         CHECK(causal_claim = 0)
                     );
@@ -518,15 +576,19 @@ class AviationEvidenceStore:
                             REFERENCES flight_publications(publication_id),
                         tmi_publication_id TEXT NOT NULL
                             REFERENCES knowledge_publications(publication_id),
+                        tmi_family TEXT NOT NULL,
                         status TEXT NOT NULL,
                         rule_id TEXT NOT NULL,
-                        rule_version TEXT NOT NULL,
-                        input_checksum TEXT NOT NULL,
+                        rule_checksum TEXT NOT NULL,
+                        normalized_inputs_json TEXT NOT NULL,
                         temporal_domain_id TEXT NOT NULL,
                         limitation TEXT NOT NULL,
+                        derivation_id TEXT NOT NULL,
+                        actual_control_claim INTEGER NOT NULL DEFAULT 0,
+                        CHECK(actual_control_claim = 0),
                         CHECK(
                             status IN (
-                                'candidate',
+                                'applicability_candidate',
                                 'unknown',
                                 'not_applicable'
                             )
@@ -1175,6 +1237,9 @@ class AviationEvidenceStore:
     def apply_knowledge_publication(
         self,
         package: KnowledgePublicationPackage,
+        *,
+        _manage_transaction: bool = True,
+        _increment_revision: bool = True,
     ) -> str:
         """Atomically publish one semantic root through the common spine."""
 
@@ -1222,7 +1287,8 @@ class AviationEvidenceStore:
             else "inserted"
         )
         now = datetime.now(UTC).isoformat()
-        with self._connection:
+        transaction = self._connection if _manage_transaction else nullcontext()
+        with transaction:
             for anchor in package.source_anchors:
                 version = versions[anchor.source_version_id]
                 if version is None or anchor.char_end > len(version.content):
@@ -1416,8 +1482,449 @@ class AviationEvidenceStore:
                     """,
                     (source_version_id, source_version_id),
                 )
+            if _increment_revision:
+                self._increment_knowledge_revision(now)
+        return outcome
+
+    def apply_flight_airspace_publication(
+        self,
+        materialization: FlightAirspaceMaterialization,
+    ) -> str:
+        """Atomically publish one common root and its structured domain rows."""
+
+        package = materialization.publication
+        publication_id = package.publication.publication_id
+        existing = self._connection.execute(
+            "SELECT 1 FROM knowledge_publications WHERE publication_id = ?",
+            (publication_id,),
+        ).fetchone()
+        if existing is not None:
+            if materialization.flight_publication is not None:
+                detail = self._connection.execute(
+                    "SELECT 1 FROM flight_publications WHERE publication_id = ?",
+                    (publication_id,),
+                ).fetchone()
+            elif materialization.weather_observations:
+                detail = self._connection.execute(
+                    "SELECT 1 FROM weather_observations WHERE publication_id = ?",
+                    (publication_id,),
+                ).fetchone()
+            elif materialization.sectors:
+                detail = self._connection.execute(
+                    "SELECT 1 FROM sectors WHERE sector_id = ?",
+                    (package.root.root_id,),
+                ).fetchone()
+            else:
+                detail = existing
+            if detail is None:
+                raise ValueError(
+                    "publication exists without its domain materialization"
+                )
+            return "unchanged"
+
+        now = datetime.now(UTC).isoformat()
+        with self._connection:
+            outcome = self.apply_knowledge_publication(
+                package,
+                _manage_transaction=False,
+                _increment_revision=False,
+            )
+            self._insert_flight_airspace_rows(materialization)
             self._increment_knowledge_revision(now)
         return outcome
+
+    def _insert_flight_airspace_rows(
+        self,
+        materialization: FlightAirspaceMaterialization,
+    ) -> None:
+        flight = materialization.flight
+        detail = materialization.flight_publication
+        if flight is not None and detail is not None:
+            self._connection.execute(
+                """
+                INSERT INTO flights(flight_id, temporal_domain_id, source_family)
+                VALUES (?, ?, ?)
+                ON CONFLICT(flight_id) DO NOTHING
+                """,
+                (flight.flight_id, flight.temporal_domain_id, flight.source_family.value),
+            )
+            identity = self._connection.execute(
+                """
+                SELECT temporal_domain_id, source_family
+                FROM flights WHERE flight_id = ?
+                """,
+                (flight.flight_id,),
+            ).fetchone()
+            if identity is None or (
+                identity["temporal_domain_id"] != flight.temporal_domain_id
+                or identity["source_family"] != flight.source_family.value
+            ):
+                raise ValueError("stable Flight identity conflicts with stored metadata")
+            self._connection.execute(
+                """
+                INSERT INTO flight_publications(
+                    publication_id, flight_id, service_date, reporting_carrier,
+                    flight_number, tail_number, origin_airport_id,
+                    destination_airport_id, scheduled_departure_key,
+                    scheduled_departure_time, actual_wheels_off_time, time_basis,
+                    cancelled, diverted
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    detail.publication_id,
+                    flight.flight_id,
+                    flight.service_date.isoformat(),
+                    flight.reporting_carrier,
+                    flight.flight_number,
+                    flight.tail_number,
+                    flight.origin_airport_id,
+                    flight.destination_airport_id,
+                    flight.scheduled_departure_key,
+                    self._datetime_text(flight.scheduled_departure),
+                    self._datetime_text(flight.actual_wheels_off),
+                    flight.time_basis,
+                    int(flight.cancelled),
+                    int(flight.diverted),
+                ),
+            )
+        self._connection.executemany(
+            """
+            INSERT INTO air_carriers(
+                carrier_id, temporal_domain_id, source_family, code, name
+            ) VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.carrier_id,
+                    row.temporal_domain_id,
+                    row.source_family.value,
+                    row.carrier_code,
+                    row.display_name,
+                )
+                for row in materialization.air_carriers
+            ),
+        )
+        self._connection.executemany(
+            """
+            INSERT INTO aircraft_models(
+                aircraft_model_id, temporal_domain_id, source_family,
+                manufacturer_code, model_code, display_name
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.aircraft_model_id,
+                    row.temporal_domain_id,
+                    row.source_family.value,
+                    row.manufacturer_code,
+                    row.model_code,
+                    row.display_name,
+                )
+                for row in materialization.aircraft_models
+            ),
+        )
+        self._connection.executemany(
+            """
+            INSERT INTO aircraft(
+                aircraft_id, temporal_domain_id, source_family, registration_mark
+            ) VALUES (?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.aircraft_id,
+                    row.temporal_domain_id,
+                    row.source_family.value,
+                    row.registration_number,
+                )
+                for row in materialization.aircraft
+            ),
+        )
+        self._connection.executemany(
+            """
+            INSERT INTO airports(
+                airport_id, temporal_domain_id, source_family, identifier,
+                display_name
+            ) VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.airport_id,
+                    row.temporal_domain_id,
+                    row.source_family.value,
+                    row.airport_code,
+                    row.display_name,
+                )
+                for row in materialization.airports
+            ),
+        )
+        self._connection.executemany(
+            """
+            INSERT INTO artccs(
+                artcc_id, temporal_domain_id, source_family, identifier,
+                display_name
+            ) VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.artcc_id,
+                    row.temporal_domain_id,
+                    row.source_family.value,
+                    row.artcc_code,
+                    row.display_name,
+                )
+                for row in materialization.artccs
+            ),
+        )
+        self._connection.executemany(
+            """
+            INSERT INTO airport_artcc_assignments(
+                assignment_id, airport_publication_id, artcc_publication_id,
+                assignment_role, effective_start, effective_end,
+                temporal_domain_id, procedure_id, procedure_checksum,
+                derivation_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.assignment_id,
+                    row.airport_publication_id,
+                    row.artcc_publication_id,
+                    row.assignment_role,
+                    self._datetime_text(row.effective_start),
+                    self._datetime_text(row.effective_end),
+                    row.temporal_domain_id,
+                    row.procedure_id,
+                    row.procedure_checksum,
+                    row.derivation_id,
+                )
+                for row in materialization.airport_artcc_assignments
+            ),
+        )
+        self._connection.executemany(
+            """
+            INSERT INTO navigation_fixes(
+                fix_id, temporal_domain_id, source_family, identifier,
+                latitude, longitude
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.fix_id,
+                    row.temporal_domain_id,
+                    row.source_family.value,
+                    row.fix_identifier,
+                    row.latitude,
+                    row.longitude,
+                )
+                for row in materialization.navigation_fixes
+            ),
+        )
+        self._connection.executemany(
+            """
+            INSERT INTO sectors(
+                sector_id, temporal_domain_id, source_family, identifier
+            ) VALUES (?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.sector_id,
+                    row.temporal_domain_id,
+                    row.source_family.value,
+                    row.sector_identifier,
+                )
+                for row in materialization.sectors
+            ),
+        )
+        self._connection.executemany(
+            """
+            INSERT INTO routes(
+                route_id, flight_publication_id, temporal_domain_id,
+                source_route_key, route_kind
+            ) VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.route_id,
+                    row.flight_publication_id,
+                    row.temporal_domain_id,
+                    row.source_route_key,
+                    row.route_kind,
+                )
+                for row in materialization.routes
+            ),
+        )
+        self._connection.executemany(
+            """
+            INSERT INTO track_points(
+                track_point_id, route_id, temporal_domain_id, sequence_number,
+                reporting_time, fix_id, latitude, longitude, ground_speed,
+                source_version_id, source_anchor_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.track_point_id,
+                    row.route_id,
+                    row.temporal_domain_id,
+                    row.sequence_number,
+                    row.reporting_time.isoformat(),
+                    row.navigation_fix_id,
+                    row.latitude,
+                    row.longitude,
+                    row.ground_speed,
+                    row.source_version_id,
+                    row.source_anchor_id,
+                )
+                for row in materialization.track_points
+            ),
+        )
+        self._connection.executemany(
+            """
+            INSERT INTO track_point_sectors(track_point_id, sector_id)
+            VALUES (?, ?)
+            """,
+            (
+                (point.track_point_id, sector_id)
+                for point in materialization.track_points
+                for sector_id in point.sector_ids
+            ),
+        )
+        self._connection.executemany(
+            """
+            INSERT INTO sector_passages(
+                sector_passage_id, sector_id, flight_publication_id, route_id,
+                track_point_id, passage_time, temporal_domain_id, derivation_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.passage_id,
+                    row.sector_id,
+                    row.flight_publication_id,
+                    row.route_id,
+                    row.track_point_id,
+                    row.reporting_time.isoformat(),
+                    row.temporal_domain_id,
+                    row.derivation_id,
+                )
+                for row in materialization.sector_passages
+            ),
+        )
+        self._connection.executemany(
+            """
+            INSERT INTO weather_observations(
+                weather_observation_id, publication_id, temporal_domain_id,
+                source_family, station_id, observed_at, report_type, raw_report,
+                phenomenon_tokens_json, source_version_id, time_basis
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.observation_id,
+                    row.publication_id,
+                    row.temporal_domain_id,
+                    row.source_family.value,
+                    row.station_id,
+                    row.observed_at.isoformat(),
+                    row.report_type,
+                    row.raw_report,
+                    json.dumps(row.phenomenon_tokens),
+                    row.source_version_id,
+                    row.time_basis,
+                )
+                for row in materialization.weather_observations
+            ),
+        )
+        self._connection.executemany(
+            """
+            INSERT INTO flight_weather_associations(
+                association_id, flight_publication_id, weather_publication_id,
+                flight_time_field, flight_time, observation_time, delta_seconds,
+                procedure_id, procedure_checksum, temporal_domain_id,
+                derivation_id, causal_claim
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.association_id,
+                    row.flight_publication_id,
+                    row.weather_publication_id,
+                    row.flight_time_field,
+                    row.flight_time.isoformat(),
+                    row.observation_time.isoformat(),
+                    row.delta_seconds,
+                    row.procedure_id,
+                    row.procedure_checksum,
+                    row.temporal_domain_id,
+                    row.derivation_id,
+                    int(row.causal_claim),
+                )
+                for row in materialization.flight_weather_associations
+            ),
+        )
+        self._connection.executemany(
+            """
+            INSERT INTO flight_aircraft_snapshot_matches(
+                snapshot_match_id, flight_publication_id,
+                aircraft_publication_id, model_publication_id,
+                registry_snapshot_at, matched_registration_number,
+                match_status, procedure_id, procedure_checksum,
+                temporal_domain_id, derivation_id, historical_model_claim
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.match_id,
+                    row.flight_publication_id,
+                    row.aircraft_publication_id,
+                    row.aircraft_model_publication_id,
+                    row.registry_snapshot_at.isoformat(),
+                    row.matched_registration_number,
+                    row.match_status,
+                    row.procedure_id,
+                    row.procedure_checksum,
+                    row.temporal_domain_id,
+                    row.derivation_id,
+                    int(row.historical_model_claim),
+                )
+                for row in materialization.aircraft_snapshot_matches
+            ),
+        )
+        self._connection.executemany(
+            """
+            INSERT INTO flight_tmi_applicability(
+                applicability_id, flight_publication_id, tmi_publication_id,
+                tmi_family, status, rule_id, rule_checksum,
+                normalized_inputs_json, temporal_domain_id, limitation,
+                derivation_id, actual_control_claim
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                (
+                    row.applicability_id,
+                    row.flight_publication_id,
+                    row.tmi_publication_id,
+                    row.tmi_family,
+                    row.status,
+                    row.rule_id,
+                    row.rule_checksum,
+                    json.dumps(
+                        row.normalized_inputs,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ),
+                    row.temporal_domain_id,
+                    row.limitation,
+                    row.derivation_id,
+                    int(row.actual_control_claim),
+                )
+                for row in materialization.tmi_applicability
+            ),
+        )
+
+    @staticmethod
+    def _datetime_text(value: datetime | None) -> str | None:
+        return value.isoformat() if value is not None else None
 
     def apply_knowledge_publication_batch(
         self,

@@ -53,7 +53,7 @@ def test_prompt_catalog_contains_only_activated_model_roles() -> None:
 
 def test_every_role_has_version_policy_and_bounded_output() -> None:
     expected_versions = {
-        "query": "hybrid-query-agent-v6",
+        "query": "hybrid-query-agent-v7",
         "semantic_resolution": "semantic-resolution-agent-v1",
     }
     for role, prompt in _catalog()["roles"].items():
@@ -162,7 +162,7 @@ def test_query_prompt_requires_sequential_exact_source_verification() -> None:
     role = _catalog()["roles"]["query"]
     normalized = " ".join(role["system"].split())
 
-    assert role["prompt_version"] == "hybrid-query-agent-v6"
+    assert role["prompt_version"] == "hybrid-query-agent-v7"
     assert (
         "Call read_source only after a completed tool observation supplies "
         "both the source-version ID and source-anchor ID."
@@ -174,6 +174,10 @@ def test_query_prompt_requires_sequential_exact_source_verification() -> None:
         "continue with the relevant event tools."
         in normalized
     )
+    assert "find_flights / read_flight" in normalized
+    assert "analyze_sector_traffic" in normalized
+    assert "temporal evidence only, never causality" in normalized
+    assert "rule-derived candidate" in normalized
 
 
 def test_semantic_resolution_prompt_requires_a_bounded_tool_then_strict_decision() -> None:

@@ -245,9 +245,20 @@ class QueryToolTrace(StrictModel):
     tool: str = Field(min_length=1)
     arguments: dict[str, Any] = Field(default_factory=dict)
     result_refs: list[str] = Field(default_factory=list)
+    root_ids: list[str] = Field(default_factory=list)
+    publication_ids: list[str] = Field(default_factory=list)
+    flight_ids: list[str] = Field(default_factory=list)
+    aircraft_ids: list[str] = Field(default_factory=list)
+    airport_artcc_assignment_ids: list[str] = Field(default_factory=list)
+    snapshot_match_ids: list[str] = Field(default_factory=list)
+    route_ids: list[str] = Field(default_factory=list)
+    track_point_ids: list[str] = Field(default_factory=list)
+    sector_passage_ids: list[str] = Field(default_factory=list)
     context_association_ids: list[str] = Field(default_factory=list)
     observation_ids: list[str] = Field(default_factory=list)
     derivation_ids: list[str] = Field(default_factory=list)
+    temporal_association_ids: list[str] = Field(default_factory=list)
+    tmi_applicability_ids: list[str] = Field(default_factory=list)
     source_ids: list[str] = Field(default_factory=list)
     source_version_ids: list[str] = Field(default_factory=list)
     source_anchor_ids: list[str] = Field(default_factory=list)
@@ -295,6 +306,11 @@ class HybridQueryScope(StrictModel):
     """User-supplied bounds passed to every HybridRAG query tool."""
 
     event_id: str | None = Field(default=None, min_length=1)
+    root_id: str | None = Field(default=None, min_length=1)
+    flight_id: str | None = Field(default=None, min_length=1)
+    temporal_domain_id: str | None = Field(default=None, min_length=1)
+    start: datetime | None = None
+    end: datetime | None = None
     event_type_iri: str | None = Field(default=None, min_length=1)
     facility_id: str | None = Field(default=None, min_length=1)
     reason_status: Literal["formal", "profile_gap", "missing"] | None = None
@@ -305,11 +321,34 @@ class HybridQueryScope(StrictModel):
     offset: int = Field(default=0, ge=0)
     limit: int = Field(default=20, ge=1, le=100)
 
+    @model_validator(mode="after")
+    def _validate_interval(self) -> HybridQueryScope:
+        for label, value in (("start", self.start), ("end", self.end)):
+            if value is not None and (
+                value.tzinfo is None or value.utcoffset() is None
+            ):
+                raise ValueError(f"query {label} must be timezone-aware")
+        if self.start is not None and self.end is not None and self.end <= self.start:
+            raise ValueError("query end must be after start")
+        return self
+
 
 class HybridQueryEvidence(StrictModel):
     """Structured evidence retained outside model-visible answer prose."""
 
     event_ids: tuple[str, ...] = ()
+    root_ids: tuple[str, ...] = ()
+    publication_ids: tuple[str, ...] = ()
+    flight_ids: tuple[str, ...] = ()
+    aircraft_ids: tuple[str, ...] = ()
+    airport_artcc_assignment_ids: tuple[str, ...] = ()
+    snapshot_match_ids: tuple[str, ...] = ()
+    route_ids: tuple[str, ...] = ()
+    track_point_ids: tuple[str, ...] = ()
+    sector_passage_ids: tuple[str, ...] = ()
+    derivation_ids: tuple[str, ...] = ()
+    temporal_association_ids: tuple[str, ...] = ()
+    tmi_applicability_ids: tuple[str, ...] = ()
     fact_ids: tuple[str, ...] = ()
     profile_gap_ids: tuple[str, ...] = ()
     context_association_ids: tuple[str, ...] = ()
@@ -330,8 +369,29 @@ class HybridQuerySupportRecord(StrictModel):
         "non_causal_context",
         "public_observation",
         "similarity",
+        "flight_fact",
+        "aircraft_fact",
+        "reference_association",
+        "snapshot_association",
+        "trajectory_fact",
+        "sector_passage",
+        "aggregate_result",
+        "temporal_association",
+        "tmi_applicability",
     ]
     event_ids: tuple[str, ...] = ()
+    root_ids: tuple[str, ...] = ()
+    publication_ids: tuple[str, ...] = ()
+    flight_ids: tuple[str, ...] = ()
+    aircraft_ids: tuple[str, ...] = ()
+    airport_artcc_assignment_ids: tuple[str, ...] = ()
+    snapshot_match_ids: tuple[str, ...] = ()
+    route_ids: tuple[str, ...] = ()
+    track_point_ids: tuple[str, ...] = ()
+    sector_passage_ids: tuple[str, ...] = ()
+    derivation_ids: tuple[str, ...] = ()
+    temporal_association_ids: tuple[str, ...] = ()
+    tmi_applicability_ids: tuple[str, ...] = ()
     fact_ids: tuple[str, ...] = ()
     profile_gap_ids: tuple[str, ...] = ()
     context_association_ids: tuple[str, ...] = ()
@@ -364,9 +424,30 @@ class HybridQueryStatement(StrictModel):
         "non_causal_context",
         "public_observation",
         "similarity",
+        "flight_fact",
+        "aircraft_fact",
+        "reference_association",
+        "snapshot_association",
+        "trajectory_fact",
+        "sector_passage",
+        "aggregate_result",
+        "temporal_association",
+        "tmi_applicability",
     ]
     text: str = Field(min_length=1)
     support_event_ids: tuple[str, ...] = ()
+    support_root_ids: tuple[str, ...] = ()
+    support_publication_ids: tuple[str, ...] = ()
+    support_flight_ids: tuple[str, ...] = ()
+    support_aircraft_ids: tuple[str, ...] = ()
+    support_airport_artcc_assignment_ids: tuple[str, ...] = ()
+    support_snapshot_match_ids: tuple[str, ...] = ()
+    support_route_ids: tuple[str, ...] = ()
+    support_track_point_ids: tuple[str, ...] = ()
+    support_sector_passage_ids: tuple[str, ...] = ()
+    support_derivation_ids: tuple[str, ...] = ()
+    support_temporal_association_ids: tuple[str, ...] = ()
+    support_tmi_applicability_ids: tuple[str, ...] = ()
     support_fact_ids: tuple[str, ...] = ()
     support_profile_gap_ids: tuple[str, ...] = ()
     support_context_association_ids: tuple[str, ...] = ()
@@ -393,12 +474,23 @@ class QueryToolOutcome(StrictModel):
     answer: str = ""
     match_count: int = Field(default=0, ge=0)
     retrieved_event_ids: list[str] = Field(default_factory=list)
+    retrieved_root_ids: list[str] = Field(default_factory=list)
+    retrieved_publication_ids: list[str] = Field(default_factory=list)
+    retrieved_flight_ids: list[str] = Field(default_factory=list)
+    retrieved_aircraft_ids: list[str] = Field(default_factory=list)
+    retrieved_airport_artcc_assignment_ids: list[str] = Field(default_factory=list)
+    retrieved_snapshot_match_ids: list[str] = Field(default_factory=list)
+    retrieved_route_ids: list[str] = Field(default_factory=list)
+    retrieved_track_point_ids: list[str] = Field(default_factory=list)
+    retrieved_sector_passage_ids: list[str] = Field(default_factory=list)
     source_ids: list[str] = Field(default_factory=list)
     retrieved_fact_ids: list[str] = Field(default_factory=list)
     retrieved_profile_gap_ids: list[str] = Field(default_factory=list)
     retrieved_context_association_ids: list[str] = Field(default_factory=list)
     retrieved_observation_ids: list[str] = Field(default_factory=list)
     retrieved_derivation_ids: list[str] = Field(default_factory=list)
+    retrieved_temporal_association_ids: list[str] = Field(default_factory=list)
+    retrieved_tmi_applicability_ids: list[str] = Field(default_factory=list)
     retrieved_graph_path_ids: list[str] = Field(default_factory=list)
     retrieved_source_version_ids: list[str] = Field(default_factory=list)
     retrieved_source_anchor_ids: list[str] = Field(default_factory=list)

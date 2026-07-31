@@ -117,6 +117,18 @@ def _result_refs(evidence: HybridQueryEvidence) -> list[str]:
     return sorted(
         {
             *evidence.event_ids,
+            *evidence.root_ids,
+            *evidence.publication_ids,
+            *evidence.flight_ids,
+            *evidence.aircraft_ids,
+            *evidence.airport_artcc_assignment_ids,
+            *evidence.snapshot_match_ids,
+            *evidence.route_ids,
+            *evidence.track_point_ids,
+            *evidence.sector_passage_ids,
+            *evidence.derivation_ids,
+            *evidence.temporal_association_ids,
+            *evidence.tmi_applicability_ids,
             *evidence.fact_ids,
             *evidence.profile_gap_ids,
             *evidence.context_association_ids,
@@ -132,73 +144,40 @@ def _result_refs(evidence: HybridQueryEvidence) -> list[str]:
 def _merge_evidence(
     observations: list[HybridQueryToolObservation],
 ) -> HybridQueryEvidence:
+    def values(field: str) -> tuple[str, ...]:
+        return tuple(
+            sorted(
+                {
+                    value
+                    for row in observations
+                    for value in getattr(row.details, field)
+                }
+            )
+        )
+
     return HybridQueryEvidence(
-        event_ids=tuple(
-            sorted({value for row in observations for value in row.details.event_ids})
-        ),
-        fact_ids=tuple(
-            sorted({value for row in observations for value in row.details.fact_ids})
-        ),
-        profile_gap_ids=tuple(
-            sorted(
-                {
-                    value
-                    for row in observations
-                    for value in row.details.profile_gap_ids
-                }
-            )
-        ),
-        context_association_ids=tuple(
-            sorted(
-                {
-                    value
-                    for row in observations
-                    for value in row.details.context_association_ids
-                }
-            )
-        ),
-        observation_ids=tuple(
-            sorted(
-                {
-                    value
-                    for row in observations
-                    for value in row.details.observation_ids
-                }
-            )
-        ),
-        graph_path_ids=tuple(
-            sorted(
-                {
-                    value
-                    for row in observations
-                    for value in row.details.graph_path_ids
-                }
-            )
-        ),
-        source_ids=tuple(
-            sorted({value for row in observations for value in row.details.source_ids})
-        ),
-        source_version_ids=tuple(
-            sorted(
-                {
-                    value
-                    for row in observations
-                    for value in row.details.source_version_ids
-                }
-            )
-        ),
-        source_anchor_ids=tuple(
-            sorted(
-                {
-                    value
-                    for row in observations
-                    for value in row.details.source_anchor_ids
-                }
-            )
-        ),
-        chunk_ids=tuple(
-            sorted({value for row in observations for value in row.details.chunk_ids})
-        ),
+        event_ids=values("event_ids"),
+        root_ids=values("root_ids"),
+        publication_ids=values("publication_ids"),
+        flight_ids=values("flight_ids"),
+        aircraft_ids=values("aircraft_ids"),
+        airport_artcc_assignment_ids=values("airport_artcc_assignment_ids"),
+        snapshot_match_ids=values("snapshot_match_ids"),
+        route_ids=values("route_ids"),
+        track_point_ids=values("track_point_ids"),
+        sector_passage_ids=values("sector_passage_ids"),
+        derivation_ids=values("derivation_ids"),
+        temporal_association_ids=values("temporal_association_ids"),
+        tmi_applicability_ids=values("tmi_applicability_ids"),
+        fact_ids=values("fact_ids"),
+        profile_gap_ids=values("profile_gap_ids"),
+        context_association_ids=values("context_association_ids"),
+        observation_ids=values("observation_ids"),
+        graph_path_ids=values("graph_path_ids"),
+        source_ids=values("source_ids"),
+        source_version_ids=values("source_version_ids"),
+        source_anchor_ids=values("source_anchor_ids"),
+        chunk_ids=values("chunk_ids"),
     )
 
 
@@ -208,6 +187,27 @@ def _unsupported_ids(
 ) -> set[str]:
     checks = (
         (statement.support_event_ids, evidence.event_ids),
+        (statement.support_root_ids, evidence.root_ids),
+        (statement.support_publication_ids, evidence.publication_ids),
+        (statement.support_flight_ids, evidence.flight_ids),
+        (statement.support_aircraft_ids, evidence.aircraft_ids),
+        (
+            statement.support_airport_artcc_assignment_ids,
+            evidence.airport_artcc_assignment_ids,
+        ),
+        (statement.support_snapshot_match_ids, evidence.snapshot_match_ids),
+        (statement.support_route_ids, evidence.route_ids),
+        (statement.support_track_point_ids, evidence.track_point_ids),
+        (statement.support_sector_passage_ids, evidence.sector_passage_ids),
+        (statement.support_derivation_ids, evidence.derivation_ids),
+        (
+            statement.support_temporal_association_ids,
+            evidence.temporal_association_ids,
+        ),
+        (
+            statement.support_tmi_applicability_ids,
+            evidence.tmi_applicability_ids,
+        ),
         (statement.support_fact_ids, evidence.fact_ids),
         (statement.support_profile_gap_ids, evidence.profile_gap_ids),
         (
@@ -234,6 +234,21 @@ def _unsupported_ids(
 
 _SUPPORT_ID_FIELDS = (
     ("support_event_ids", "event_ids"),
+    ("support_root_ids", "root_ids"),
+    ("support_publication_ids", "publication_ids"),
+    ("support_flight_ids", "flight_ids"),
+    ("support_aircraft_ids", "aircraft_ids"),
+    (
+        "support_airport_artcc_assignment_ids",
+        "airport_artcc_assignment_ids",
+    ),
+    ("support_snapshot_match_ids", "snapshot_match_ids"),
+    ("support_route_ids", "route_ids"),
+    ("support_track_point_ids", "track_point_ids"),
+    ("support_sector_passage_ids", "sector_passage_ids"),
+    ("support_derivation_ids", "derivation_ids"),
+    ("support_temporal_association_ids", "temporal_association_ids"),
+    ("support_tmi_applicability_ids", "tmi_applicability_ids"),
     ("support_fact_ids", "fact_ids"),
     ("support_profile_gap_ids", "profile_gap_ids"),
     ("support_context_association_ids", "context_association_ids"),
@@ -421,17 +436,63 @@ def _claim_boundary_error(statement: HybridQueryStatement) -> str | None:
 def _statement_support_error(statement: HybridQueryStatement) -> str | None:
     if not statement.support_source_ids:
         return "statement has no supporting source ID"
-    if statement.kind == "non_causal_context" and not (
-        statement.support_context_association_ids
-    ):
-        return "non-causal context statement has no context association"
-    if (
-        statement.kind == "public_observation"
-        and not statement.support_observation_ids
-    ):
-        return "public observation statement has no observation"
-    if statement.kind == "similarity" and not statement.support_event_ids:
-        return "similarity statement has no event support"
+    required_fields = {
+        "non_causal_context": (
+            "support_context_association_ids",
+            "non-causal context statement has no context association",
+        ),
+        "public_observation": (
+            "support_observation_ids",
+            "public observation statement has no observation",
+        ),
+        "similarity": (
+            "support_event_ids",
+            "similarity statement has no event support",
+        ),
+        "flight_fact": (
+            "support_flight_ids",
+            "flight statement has no Flight support",
+        ),
+        "aircraft_fact": (
+            "support_aircraft_ids",
+            "aircraft statement has no Aircraft support",
+        ),
+        "reference_association": (
+            "support_airport_artcc_assignment_ids",
+            "reference statement has no Airport-ARTCC assignment",
+        ),
+        "snapshot_association": (
+            "support_snapshot_match_ids",
+            "snapshot statement has no snapshot-match support",
+        ),
+        "trajectory_fact": (
+            "support_route_ids",
+            "trajectory statement has no Route support",
+        ),
+        "sector_passage": (
+            "support_sector_passage_ids",
+            "sector-passage statement has no passage support",
+        ),
+        "aggregate_result": (
+            "support_derivation_ids",
+            "aggregate statement has no deterministic derivation",
+        ),
+        "temporal_association": (
+            "support_temporal_association_ids",
+            "temporal statement has no association support",
+        ),
+        "tmi_applicability": (
+            "support_tmi_applicability_ids",
+            "TMI-applicability statement has no candidate support",
+        ),
+    }
+    required = required_fields.get(statement.kind)
+    if required is not None and not getattr(statement, required[0]):
+        return required[1]
+    if statement.kind == "flight_fact" and not statement.support_publication_ids:
+        return "flight statement has no accepted publication support"
+    if statement.kind == "trajectory_fact" and not statement.support_track_point_ids:
+        return "trajectory statement has no TrackPoint support"
     if statement.kind == "source_fact" and not (
         statement.support_fact_ids
         or statement.support_profile_gap_ids
@@ -627,10 +688,30 @@ def run_hybrid_query_agent(
                     tool=name,
                     arguments=sanitize_json_value(arguments),
                     result_refs=_result_refs(observation.details),
+                    root_ids=list(observation.details.root_ids),
+                    publication_ids=list(observation.details.publication_ids),
+                    flight_ids=list(observation.details.flight_ids),
+                    aircraft_ids=list(observation.details.aircraft_ids),
+                    airport_artcc_assignment_ids=list(
+                        observation.details.airport_artcc_assignment_ids
+                    ),
+                    snapshot_match_ids=list(observation.details.snapshot_match_ids),
+                    route_ids=list(observation.details.route_ids),
+                    track_point_ids=list(observation.details.track_point_ids),
+                    sector_passage_ids=list(
+                        observation.details.sector_passage_ids
+                    ),
                     context_association_ids=list(
                         observation.details.context_association_ids
                     ),
                     observation_ids=list(observation.details.observation_ids),
+                    derivation_ids=list(observation.details.derivation_ids),
+                    temporal_association_ids=list(
+                        observation.details.temporal_association_ids
+                    ),
+                    tmi_applicability_ids=list(
+                        observation.details.tmi_applicability_ids
+                    ),
                     source_ids=list(observation.details.source_ids),
                     source_version_ids=list(
                         observation.details.source_version_ids
@@ -734,8 +815,23 @@ def run_hybrid_query_agent(
     return QueryToolOutcome(
         status=answer.status,
         answer=_answer_text(answer),
-        match_count=len(evidence.event_ids),
+        match_count=max(
+            len(evidence.event_ids),
+            len(evidence.root_ids),
+            len(evidence.flight_ids),
+        ),
         retrieved_event_ids=list(evidence.event_ids),
+        retrieved_root_ids=list(evidence.root_ids),
+        retrieved_publication_ids=list(evidence.publication_ids),
+        retrieved_flight_ids=list(evidence.flight_ids),
+        retrieved_aircraft_ids=list(evidence.aircraft_ids),
+        retrieved_airport_artcc_assignment_ids=list(
+            evidence.airport_artcc_assignment_ids
+        ),
+        retrieved_snapshot_match_ids=list(evidence.snapshot_match_ids),
+        retrieved_route_ids=list(evidence.route_ids),
+        retrieved_track_point_ids=list(evidence.track_point_ids),
+        retrieved_sector_passage_ids=list(evidence.sector_passage_ids),
         source_ids=list(evidence.source_ids),
         retrieved_fact_ids=list(evidence.fact_ids),
         retrieved_profile_gap_ids=list(evidence.profile_gap_ids),
@@ -743,6 +839,11 @@ def run_hybrid_query_agent(
             evidence.context_association_ids
         ),
         retrieved_observation_ids=list(evidence.observation_ids),
+        retrieved_derivation_ids=list(evidence.derivation_ids),
+        retrieved_temporal_association_ids=list(
+            evidence.temporal_association_ids
+        ),
+        retrieved_tmi_applicability_ids=list(evidence.tmi_applicability_ids),
         retrieved_graph_path_ids=list(evidence.graph_path_ids),
         retrieved_source_version_ids=list(evidence.source_version_ids),
         retrieved_source_anchor_ids=list(evidence.source_anchor_ids),

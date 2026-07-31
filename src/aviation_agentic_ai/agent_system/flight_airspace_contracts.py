@@ -12,6 +12,9 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceFamily,
     StrictModel,
 )
+from aviation_agentic_ai.agent_system.knowledge_publication import (
+    KnowledgePublicationPackage,
+)
 from aviation_agentic_ai.utils.identifiers import stable_id
 
 
@@ -236,6 +239,11 @@ class SectorRecord(StrictModel):
 
     @model_validator(mode="after")
     def _validate_stable_identity(self) -> SectorRecord:
+        if (
+            self.source_family is SourceFamily.NASA_ATMONTO_INSTANCE
+            and self.sector_id.startswith(("http://", "https://", "urn:"))
+        ):
+            return self
         expected_id = stable_id(
             "sector",
             _source_family_value(self.source_family),
@@ -265,14 +273,15 @@ class RouteRecord(StrictModel):
 
 class TrackPointRecord(StrictModel):
     track_point_id: str = Field(min_length=1)
-    route_publication_id: str = Field(min_length=1)
+    route_id: str = Field(min_length=1)
     temporal_domain_id: str = Field(min_length=1)
     sequence_number: int = Field(ge=0)
     reporting_time: datetime
     latitude: float | None = Field(default=None, ge=-90, le=90)
     longitude: float | None = Field(default=None, ge=-180, le=180)
-    navigation_fix_publication_id: str | None = Field(default=None, min_length=1)
-    sector_publication_ids: tuple[str, ...] = ()
+    ground_speed: float | None = Field(default=None, ge=0)
+    navigation_fix_id: str | None = Field(default=None, min_length=1)
+    sector_ids: tuple[str, ...] = ()
     source_version_id: str = Field(min_length=1)
     source_anchor_id: str = Field(min_length=1)
 
@@ -285,24 +294,24 @@ class TrackPointRecord(StrictModel):
     def _validate_stable_identity(self) -> TrackPointRecord:
         expected_id = stable_id(
             "track-point",
-            self.route_publication_id,
+            self.route_id,
             self.sequence_number,
             self.source_version_id,
             self.source_anchor_id,
         )
         if self.track_point_id != expected_id:
             raise ValueError("track-point identity does not match source record")
-        if len(set(self.sector_publication_ids)) != len(self.sector_publication_ids):
-            raise ValueError("track-point sector publications must be unique")
+        if len(set(self.sector_ids)) != len(self.sector_ids):
+            raise ValueError("track-point sectors must be unique")
         return self
 
 
 class SectorPassageRecord(StrictModel):
     passage_id: str = Field(min_length=1)
     flight_publication_id: str = Field(min_length=1)
-    route_publication_id: str = Field(min_length=1)
+    route_id: str = Field(min_length=1)
     track_point_id: str = Field(min_length=1)
-    sector_publication_id: str = Field(min_length=1)
+    sector_id: str = Field(min_length=1)
     temporal_domain_id: str = Field(min_length=1)
     reporting_time: datetime
     derivation_id: str = Field(min_length=1)
@@ -318,7 +327,7 @@ class SectorPassageRecord(StrictModel):
             "sector-passage",
             self.flight_publication_id,
             self.track_point_id,
-            self.sector_publication_id,
+            self.sector_id,
             self.derivation_id,
         )
         if self.passage_id != expected_id:
@@ -328,6 +337,7 @@ class SectorPassageRecord(StrictModel):
 
 class WeatherObservationRecord(StrictModel):
     observation_id: str = Field(min_length=1)
+    publication_id: str = Field(min_length=1)
     temporal_domain_id: str = Field(min_length=1)
     source_family: SourceFamily
     station_id: str = Field(min_length=1)
@@ -336,6 +346,7 @@ class WeatherObservationRecord(StrictModel):
     raw_report: str = Field(min_length=1)
     phenomenon_tokens: tuple[str, ...] = ()
     source_version_id: str = Field(min_length=1)
+    time_basis: Literal["utc"] = "utc"
 
     @field_validator("observed_at")
     @classmethod
@@ -458,3 +469,109 @@ class FlightTMIApplicabilityRecord(StrictModel):
             raise ValueError("TMI applicability identity does not match rule inputs")
         return self
 
+
+class FlightAirspaceMaterialization(StrictModel):
+    """Domain rows atomically materialized with one accepted publication.
+
+    High-frequency Route, TrackPoint, and SectorPassage records are structured
+    children of an immutable Flight publication; they are not promoted to
+    independent generic publications.
+    """
+
+    publication: KnowledgePublicationPackage
+    flight: FlightRecord | None = None
+    flight_publication: FlightPublicationRecord | None = None
+    air_carriers: tuple[AirCarrierRecord, ...] = ()
+    aircraft: tuple[AircraftRecord, ...] = ()
+    aircraft_models: tuple[AircraftModelRecord, ...] = ()
+    airports: tuple[AirportRecord, ...] = ()
+    artccs: tuple[ARTCCRecord, ...] = ()
+    airport_artcc_assignments: tuple[AirportARTCCAssignmentRecord, ...] = ()
+    navigation_fixes: tuple[NavigationFixRecord, ...] = ()
+    sectors: tuple[SectorRecord, ...] = ()
+    routes: tuple[RouteRecord, ...] = ()
+    track_points: tuple[TrackPointRecord, ...] = ()
+    sector_passages: tuple[SectorPassageRecord, ...] = ()
+    weather_observations: tuple[WeatherObservationRecord, ...] = ()
+    flight_weather_associations: tuple[FlightWeatherAssociationRecord, ...] = ()
+    aircraft_snapshot_matches: tuple[FlightAircraftSnapshotMatchRecord, ...] = ()
+    tmi_applicability: tuple[FlightTMIApplicabilityRecord, ...] = ()
+
+    @model_validator(mode="after")
+    def _validate_domain_scope(self) -> FlightAirspaceMaterialization:
+        package = self.publication
+        publication_id = package.publication.publication_id
+        temporal_domain_id = package.publication.temporal_domain_id
+        if (self.flight is None) != (self.flight_publication is None):
+            raise ValueError("flight root and publication detail must occur together")
+        if self.flight is not None and self.flight_publication is not None:
+            if package.root.root_kind != "flight":
+                raise ValueError("flight detail requires a flight publication")
+            if self.flight.flight_id != package.root.root_id:
+                raise ValueError("flight detail differs from publication root")
+            if self.flight_publication.publication_id != publication_id:
+                raise ValueError("flight detail references another publication")
+            if self.flight_publication.flight_id != self.flight.flight_id:
+                raise ValueError("flight publication references another flight")
+        for collection in (
+            self.air_carriers,
+            self.aircraft,
+            self.aircraft_models,
+            self.airports,
+            self.artccs,
+            self.airport_artcc_assignments,
+            self.navigation_fixes,
+            self.sectors,
+            self.routes,
+            self.track_points,
+            self.sector_passages,
+            self.weather_observations,
+            self.flight_weather_associations,
+            self.aircraft_snapshot_matches,
+            self.tmi_applicability,
+        ):
+            for record in collection:
+                if record.temporal_domain_id != temporal_domain_id:
+                    raise ValueError("domain row differs from publication temporal domain")
+        if self.sectors and package.root.root_kind == "sector":
+            if len(self.sectors) != 1 or self.sectors[0].sector_id != package.root.root_id:
+                raise ValueError("sector detail differs from publication root")
+        if self.weather_observations:
+            if package.root.root_kind != "weather_observation":
+                raise ValueError("weather detail requires a weather publication")
+            for observation in self.weather_observations:
+                if observation.observation_id != package.root.root_id:
+                    raise ValueError("weather detail differs from publication root")
+                if observation.publication_id != publication_id:
+                    raise ValueError("weather detail references another publication")
+        route_ids = {route.route_id for route in self.routes}
+        point_ids = {point.track_point_id for point in self.track_points}
+        for route in self.routes:
+            if self.flight_publication is None or (
+                route.flight_publication_id != self.flight_publication.publication_id
+            ):
+                raise ValueError("route is outside the flight publication")
+        for point in self.track_points:
+            if point.route_id not in route_ids:
+                raise ValueError("track point references an unknown route")
+        for passage in self.sector_passages:
+            if passage.route_id not in route_ids or passage.track_point_id not in point_ids:
+                raise ValueError("sector passage references an unknown route or point")
+        structured_owner_ids = {
+            package.root.root_id,
+            *(route.route_id for route in self.routes),
+            *(point.track_point_id for point in self.track_points),
+            *(passage.passage_id for passage in self.sector_passages),
+            *(observation.observation_id for observation in self.weather_observations),
+            *(row.assignment_id for row in self.airport_artcc_assignments),
+            *(row.association_id for row in self.flight_weather_associations),
+            *(row.match_id for row in self.aircraft_snapshot_matches),
+            *(row.applicability_id for row in self.tmi_applicability),
+        }
+        for link in package.evidence_links:
+            if (
+                link.owner_kind == "structured_record"
+                and link.owner_id not in structured_owner_ids
+            ):
+                raise ValueError("structured evidence owner is not materialized")
+        return self
