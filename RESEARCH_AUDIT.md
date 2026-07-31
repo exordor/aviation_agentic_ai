@@ -8,23 +8,23 @@ context.
 
 ## Current Project Snapshot
 
-Aviation Agentic AI is a runnable, ontology-grounded aviation
-knowledge-integration and HybridRAG system. Retrospective FAA ATCSCC TMI events
-are the current vertical slice.
+Aviation Agentic AI is a runnable **ATMONTO-Grounded Agentic HybridRAG for
+Heterogeneous Aviation Knowledge Integration**. Retrospective FAA ATCSCC TMI
+events are the current architecture demonstrator and reusable vertical slice,
+not the permanent subject boundary.
 
 ```text
-Configured source artifacts
-  -> deterministic parsing, normalization, and immutable source versions
-  -> selective Semantic Resolution for genuine authority ambiguity
-  -> deterministic Event Evidence Integration
-  -> Formal Publication Kernel
-  -> persistent SQLite evidence and semantic store
-  -> SQLite FTS5 + rebuildable Chroma collections
-  -> always-on bounded LLM Query Agent
-  -> exact / graph / lexical / vector / source-read tools
-  -> per-statement evidence validation
-  -> answer / insufficient / blocked
+Evidence Plane
+  -> Deterministic Ingestion Orchestration
+  -> Semantic and Trust Plane
+  -> Knowledge and Retrieval Plane
+  -> Agent Interaction Plane
 ```
+
+The Query Agent is invoked for every valid natural-language question and may
+select exact, graph, lexical, vector, context, and source-read tools across a
+bounded action-observation loop. Deterministic support validation checks the
+result before release.
 
 The admitted ATMONTO `TrafficManagementInitiative` instance is the formal root.
 Store membership organizes accepted facts without asserting that the system
@@ -53,8 +53,9 @@ or compatibility alias.
 
 ## Verified Implementation Capabilities
 
-- The only model-backed roles are the always-on Query Agent and the selectively
-  activated Semantic Resolution Agent.
+- The only model-backed roles are the Query Agent invoked for every valid
+  natural-language question and the selectively activated Semantic Resolution
+  Agent.
 - One registry rooted at `atm:TrafficManagementInitiative` drives GDP, GS, and
   ReRoute detection, required-field preflight, formal property mapping, and
   retrieval labels.

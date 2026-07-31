@@ -1,28 +1,35 @@
 # Aviation Agentic AI
 
-Aviation Agentic AI is an ontology-grounded aviation knowledge-integration and
-HybridRAG system. Its current vertical slice ingests retrospective FAA ATCSCC
-records and bounded FAA, Weather, and BTS evidence into persistent,
-ATMONTO-aligned Traffic Management Initiative (TMI) event knowledge. Users ask
-free-form natural-language questions through an evidence-bound LLM Query
-Agent.
+**ATMONTO-Grounded Agentic HybridRAG for Heterogeneous Aviation Knowledge
+Integration**
+
+Aviation Agentic AI integrates ATCSCC publication records, FAA authority data,
+Weather reports, and BTS public observations into a shared semantic knowledge
+layer. Deterministic ingestion preserves source roles and evidence anchors;
+ATMONTO constrains formal publication; an LLM Query Agent dynamically combines
+exact, graph, lexical, vector, and source retrieval to answer free-form
+questions with verifiable support.
 
 ```text
-Source artifacts
-  -> parse, normalize, and version
-  -> bounded semantic processing
-  -> Formal Publication Kernel
-  -> authoritative SQLite evidence store
-  -> SQLite FTS5 and Chroma indexes
-  -> LLM Query Agent over exact, graph, vector, and source tools
-  -> supported answer / insufficient / blocked
+Evidence Plane
+  -> Deterministic Ingestion Orchestration
+  -> Semantic and Trust Plane
+  -> Knowledge and Retrieval Plane
+  -> Agent Interaction Plane
 ```
 
-The admitted ATMONTO `atm:TrafficManagementInitiative` instance is the formal
-root. GDP, GS, and ReRoute are the active application-profile families.
-ATMONTO supplies admitted schema terms. ATMGRAPH supplies ABox-construction and
-cross-source-query principles; the project does not import an ATMGRAPH dataset
-or claim an exact replica.
+![ATMONTO-grounded Agentic HybridRAG architecture](docs/figures/aviation_hybridrag_system_architecture.png)
+
+The current GDP, Ground Stop, and ReRoute implementation is a reusable
+end-to-end vertical slice, not the permanent topic boundary of the framework.
+The admitted ATMONTO `atm:TrafficManagementInitiative` instance is its formal
+root. ATMONTO supplies admitted schema terms; ATMGRAPH supplies
+ABox-construction and cross-source-query principles.
+
+The [architecture narrative](docs/architecture_narrative.md) explains the
+research story and running example. The
+[normative design](docs/multi_agent_kg_system_design.md) documents the complete
+runtime and evidence contracts.
 
 ## Quick Start
 
@@ -232,7 +239,7 @@ must use the configured real provider and report provider-call success
 separately from task acceptance. Historical reports remain frozen under their
 recorded architecture and are not evidence for the ingestion-first runtime.
 
-The tracked ingestion-first compatibility smoke used the persistent store and
+The tracked persistent-store compatibility smoke used the persistent store and
 6 real `deepseek-v4-pro` calls. All calls returned, but only 1/3 Query Agent
 tasks passed the answer-contract and evidence checks. See the sanitized
 [JSON report](reports/stages/agent_system_live_ingestion_hybridrag_smoke_v1.json)

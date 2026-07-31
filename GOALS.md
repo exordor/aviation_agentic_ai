@@ -7,8 +7,10 @@ historical evaluations are routed through `ARTIFACT_INDEX.md`.
 
 ## Primary Goal
 
-Build a useful, extensible, ontology-grounded aviation knowledge-integration
-and HybridRAG system that:
+Build a useful, extensible **ATMONTO-Grounded Agentic HybridRAG for
+Heterogeneous Aviation Knowledge Integration**. It combines
+deterministic heterogeneous-data integration with model-directed HybridRAG
+retrieval. The system:
 
 1. maps heterogeneous aviation sources to a shared ATMONTO-aligned semantic
    layer;
@@ -77,8 +79,8 @@ The current system provides:
   summaries;
 - optional JSONL, RDF/Turtle, and Neo4j exports;
 - nine bounded read-only Query Agent tools;
-- an always-on Query Agent action-observation loop with statement-level support
-  validation;
+- a Query Agent invoked for every valid natural-language question, with a
+  bounded action-observation loop and statement-level support validation;
 - a checksum-bound flight-competency supplement that executes the F1, F3S,
   S4, and S1S query shapes over pinned NASA and modern FAA/BTS/Weather sources
   without changing the authoritative TMI-event store or public Query Agent
