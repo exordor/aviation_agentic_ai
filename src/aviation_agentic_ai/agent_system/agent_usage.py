@@ -1,15 +1,12 @@
-"""Corpus-bound research metrics for selectively activated bounded Agents.
+"""Payload-free research metrics for selectively activated bounded Agents.
 
-The usage sidecar is derived after a TMI event workflow finishes. It records only
-aggregate execution metadata and never stores prompts, model responses, tool
-arguments, tool results, or reasoning text.
+Records are stored with the ingestion run. They contain aggregate execution
+metadata and never store prompts, model responses, tool arguments, tool results,
+or reasoning text.
 """
 
 from __future__ import annotations
 
-import hashlib
-import json
-from pathlib import Path
 from typing import Any, Literal, Sequence
 
 from pydantic import Field
@@ -32,12 +29,6 @@ AgentUsageOutcome = Literal[
     "not_applicable",
 ]
 
-AGENT_USAGE_DIRECTORY = "agent_usage"
-AGENT_USAGE_ROWS = "agent_usage.jsonl"
-AGENT_USAGE_MANIFEST = "agent_usage_manifest.json"
-STAGING_AGENT_USAGE_ROWS = "agent_usage.jsonl"
-
-
 class AgentUsageRecord(StrictModel):
     """One aggregate, payload-free execution record for one bounded role."""
 
@@ -56,45 +47,6 @@ class AgentUsageRecord(StrictModel):
     output_tokens: int = Field(default=0, ge=0)
     provider_latency_ms: float = Field(default=0.0, ge=0.0)
     tool_latency_ms: float = Field(default=0.0, ge=0.0)
-
-
-class AgentUsageTotals(StrictModel):
-    """Compact aggregate shown after a corpus build."""
-
-    activated_count: int = Field(default=0, ge=0)
-    deterministic_bypass_count: int = Field(default=0, ge=0)
-    not_reached_count: int = Field(default=0, ge=0)
-    accepted_count: int = Field(default=0, ge=0)
-    abstained_count: int = Field(default=0, ge=0)
-    blocked_count: int = Field(default=0, ge=0)
-    not_applicable_count: int = Field(default=0, ge=0)
-    provider_call_count: int = Field(default=0, ge=0)
-    tool_call_count: int = Field(default=0, ge=0)
-    input_tokens: int = Field(default=0, ge=0)
-    output_tokens: int = Field(default=0, ge=0)
-    provider_latency_ms: float = Field(default=0.0, ge=0.0)
-    tool_latency_ms: float = Field(default=0.0, ge=0.0)
-
-
-class AgentUsageManifest(StrictModel):
-    """Binding from the non-authoritative usage sidecar to one corpus."""
-
-    manifest_version: Literal["tmi-event-agent-usage-v1"] = (
-        "tmi-event-agent-usage-v1"
-    )
-    corpus_id: str = Field(min_length=1)
-    artifact_path: Literal["agent_usage.jsonl"] = AGENT_USAGE_ROWS
-    artifact_sha256: str = Field(min_length=64, max_length=64)
-    record_count: int = Field(ge=0)
-    totals: AgentUsageTotals
-
-
-def agent_usage_key(
-    record: AgentUsageRecord,
-) -> tuple[str, AgentRole, AgentTaskScope]:
-    """Stable overwrite key for staging and resume."""
-
-    return record.source_id, record.role, record.task_scope
 
 
 def build_agent_usage_records(
@@ -143,101 +95,6 @@ def build_blocked_agent_usage_records(
             ("semantic_resolution", "terminology"),
         )
     )  # type: ignore[return-value]
-
-
-def summarize_agent_usage(records: Sequence[AgentUsageRecord]) -> AgentUsageTotals:
-    """Aggregate the small set of metrics exposed by the sidecar."""
-
-    return AgentUsageTotals(
-        activated_count=sum(row.execution_mode == "activated" for row in records),
-        deterministic_bypass_count=sum(
-            row.execution_mode == "deterministic_bypass" for row in records
-        ),
-        not_reached_count=sum(row.execution_mode == "not_reached" for row in records),
-        accepted_count=sum(row.outcome == "accepted" for row in records),
-        abstained_count=sum(row.outcome == "abstained" for row in records),
-        blocked_count=sum(row.outcome == "blocked" for row in records),
-        not_applicable_count=sum(row.outcome == "not_applicable" for row in records),
-        provider_call_count=sum(row.provider_call_count for row in records),
-        tool_call_count=sum(row.tool_call_count for row in records),
-        input_tokens=sum(row.input_tokens for row in records),
-        output_tokens=sum(row.output_tokens for row in records),
-        provider_latency_ms=sum(row.provider_latency_ms for row in records),
-        tool_latency_ms=sum(row.tool_latency_ms for row in records),
-    )
-
-
-def write_agent_usage_records(
-    path: str | Path,
-    records: Sequence[AgentUsageRecord],
-) -> str:
-    """Write stable JSONL and return its SHA-256 checksum."""
-
-    ordered = sorted(records, key=agent_usage_key)
-    data = "".join(
-        _canonical_json(row.model_dump(mode="json")) + "\n" for row in ordered
-    ).encode("utf-8")
-    target = Path(path)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_bytes(data)
-    return hashlib.sha256(data).hexdigest()
-
-
-def read_agent_usage_records(path: str | Path) -> tuple[AgentUsageRecord, ...]:
-    """Read a staging or published usage JSONL file."""
-
-    target = Path(path)
-    if not target.is_file():
-        return ()
-    return tuple(
-        AgentUsageRecord.model_validate_json(line)
-        for line in target.read_text(encoding="utf-8").splitlines()
-        if line.strip()
-    )
-
-
-def write_agent_usage_sidecar(
-    corpus_dir: str | Path,
-    *,
-    corpus_id: str,
-    records: Sequence[AgentUsageRecord],
-) -> AgentUsageManifest:
-    """Publish a rebuildable usage sidecar outside the canonical manifest."""
-
-    root = Path(corpus_dir) / AGENT_USAGE_DIRECTORY
-    root.mkdir(parents=True, exist_ok=True)
-    manifest_path = root / AGENT_USAGE_MANIFEST
-    manifest_path.unlink(missing_ok=True)
-    ordered = tuple(sorted(records, key=agent_usage_key))
-    checksum = write_agent_usage_records(root / AGENT_USAGE_ROWS, ordered)
-    manifest = AgentUsageManifest(
-        corpus_id=corpus_id,
-        artifact_sha256=checksum,
-        record_count=len(ordered),
-        totals=summarize_agent_usage(ordered),
-    )
-    manifest_path.write_text(
-        manifest.model_dump_json(indent=2) + "\n",
-        encoding="utf-8",
-    )
-    return manifest
-
-
-def read_agent_usage_manifest(
-    corpus_dir: str | Path,
-) -> AgentUsageManifest | None:
-    """Read a published sidecar manifest when present and valid."""
-
-    try:
-        return AgentUsageManifest.model_validate_json(
-            (
-                Path(corpus_dir)
-                / AGENT_USAGE_DIRECTORY
-                / AGENT_USAGE_MANIFEST
-            ).read_text(encoding="utf-8")
-        )
-    except (OSError, ValueError):
-        return None
 
 
 def _semantic_usage_record(
@@ -366,13 +223,3 @@ def _event_id(state: dict[str, Any]) -> str | None:
 
 def _enum_value(value: Any) -> str:
     return str(getattr(value, "value", value)).lower()
-
-
-def _canonical_json(value: Any) -> str:
-    return json.dumps(
-        value,
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=False,
-        allow_nan=False,
-    )

@@ -104,7 +104,7 @@ def test_tracked_experiment_suite_freezes_real_call_threshold_and_tasks() -> Non
     assert {trial.kind for trial in suite.trials} == {"query"}
     assert {trial.expected_role for trial in suite.trials} == {"query"}
     assert {trial.partition for trial in suite.trials} == {"regression"}
-    assert suite.build_source_ids == (
+    assert suite.required_source_ids == (
         "2026-05-20:084",
         "2026-05-20:115",
         "2026-05-20:159",
@@ -396,72 +396,82 @@ def test_summary_rejects_missing_raw_call_or_trial_execution() -> None:
 def test_public_real_experiment_runner_has_no_model_substitute_injection() -> None:
     parameters = inspect.signature(run_live_agent_experiment).parameters
 
+    assert "store_dir" in parameters
     assert "model_factory" not in parameters
     assert "case_runner" not in parameters
     assert "response_fixture" not in parameters
     assert "replay_path" not in parameters
 
 
-def test_runner_builds_one_corpus_then_executes_every_query_each_cycle(
+def test_runner_queries_one_existing_store_without_copying_query_data(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A per-cycle corpus rebuild or skipped query would invalidate v4."""
+    """Repeated trials bind one live store instead of copying query data."""
 
-    build_calls: list[tuple[str, ...]] = []
     query_calls: list[tuple[str, str]] = []
+    binding_verifications: list[int] = []
     suite_path = Path(
         "data/evaluation/agent_system/live_agent_experiment_v4.yaml"
     )
     config_path = tmp_path / "config.yaml"
     config_path.write_text("{}\n", encoding="utf-8")
+    store_dir = tmp_path / "aviation-store"
+    store_dir.mkdir()
+    store_close_calls: list[str] = []
 
     monkeypatch.setattr(
         experiment_module,
         "_live_preflight_failures",
         lambda _config, environ: (),
     )
-    monkeypatch.setattr(
-        experiment_module,
-        "_resource_preflight_failures",
-        lambda _resources: (),
+    store = SimpleNamespace(
+        get_knowledge_revision=lambda: 7,
+        close=lambda: store_close_calls.append("closed"),
     )
-    resources = SimpleNamespace()
-    monkeypatch.setattr(
-        experiment_module,
-        "load_batch_resources",
-        lambda _config: resources,
+    runtime = SimpleNamespace(
+        store=store,
+        source_index=SimpleNamespace(),
+        event_index=SimpleNamespace(),
     )
+    open_calls: list[Path] = []
 
-    def build_once(
+    def open_runtime(
         _config: object,
-        _output_dir: Path,
         *,
-        source_ids: tuple[str, ...],
-        allow_live_model: bool,
+        store_dir: Path,
         **_kwargs: object,
     ) -> SimpleNamespace:
-        assert allow_live_model is False
-        build_calls.append(source_ids)
-        return SimpleNamespace(
-            results=tuple(
-                SimpleNamespace(
-                    source_id=source_id,
-                    event_id=f"urn:event:{source_id}",
-                )
-                for source_id in source_ids
-            )
-        )
+        open_calls.append(store_dir)
+        return runtime
 
-    monkeypatch.setattr(
-        experiment_module,
-        "build_corpus_batch",
-        build_once,
+    monkeypatch.setattr(experiment_module, "open_query_runtime", open_runtime)
+    binding = SimpleNamespace(
+        knowledge_revision=7,
+        model_dump_json=lambda **_kwargs: json.dumps(
+            {"knowledge_revision": 7}
+        ),
     )
     monkeypatch.setattr(
         experiment_module,
-        "CorpusQueryStore",
-        lambda _path: SimpleNamespace(),
+        "_bind_live_query_runtime",
+        lambda *, runtime, suite: binding,
+    )
+
+    def verify_binding(_binding: object, _runtime: object) -> None:
+        binding_verifications.append(store.get_knowledge_revision())
+
+    monkeypatch.setattr(
+        experiment_module,
+        "_verify_live_evaluation_binding",
+        verify_binding,
+    )
+    monkeypatch.setattr(
+        experiment_module,
+        "verify_evaluation_revision_unchanged",
+        lambda _binding, _store: binding_verifications.append(
+            store.get_knowledge_revision()
+        ),
     )
     monkeypatch.setattr(
         experiment_module,
@@ -471,10 +481,13 @@ def test_runner_builds_one_corpus_then_executes_every_query_each_cycle(
 
     def answer_query(
         *,
+        runtime: object,
         question: str,
-        event_id: str,
+        scope: object,
         **_kwargs: object,
     ) -> SimpleNamespace:
+        assert runtime is not None
+        event_id = scope.event_id
         query_calls.append((event_id, question))
         record = ModelCallRecord(
             agent="query",
@@ -503,7 +516,7 @@ def test_runner_builds_one_corpus_then_executes_every_query_each_cycle(
 
     monkeypatch.setattr(
         experiment_module,
-        "answer_corpus_question",
+        "answer_question",
         answer_query,
     )
     monkeypatch.setattr(
@@ -560,20 +573,24 @@ def test_runner_builds_one_corpus_then_executes_every_query_each_cycle(
     summary = run_live_agent_experiment(
         config_path=config_path,
         suite_path=suite_path,
+        store_dir=store_dir,
         output_dir=tmp_path / "runtime",
         report_dir=tmp_path / "reports",
         allow_live_model=True,
     )
 
-    assert build_calls == [
-        (
-            "2026-05-20:084",
-            "2026-05-20:115",
-            "2026-05-20:159",
-        )
-    ]
+    assert open_calls == [store_dir]
+    assert binding_verifications
     assert len(query_calls) == 100
     assert summary.completed_cycles == 20
     assert summary.trial_count == 100
     assert summary.successful_real_calls == 100
     assert summary.threshold_satisfied is True
+    assert store_close_calls == ["closed"]
+    assert json.loads(
+        (
+            tmp_path
+            / "runtime"
+            / "evaluation_data_binding.json"
+        ).read_text(encoding="utf-8")
+    )["knowledge_revision"] == 7

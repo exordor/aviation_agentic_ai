@@ -1,15 +1,11 @@
-"""Research-only usage sidecar for selectively activated bounded Agents."""
+"""Payload-free usage records for selectively activated bounded Agents."""
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
 from types import SimpleNamespace
 
 from aviation_agentic_ai.agent_system.agent_usage import (
-    AgentUsageRecord,
     build_agent_usage_records,
-    write_agent_usage_sidecar,
 )
 from aviation_agentic_ai.agent_system.contracts import (
     ModelCallRecord,
@@ -102,7 +98,7 @@ def test_usage_records_distinguish_activation_bypass_and_not_reached() -> None:
     assert terminology.tool_call_count == 0
 
 
-def test_final_corpus_event_id_applies_to_both_resolution_usage_records() -> None:
+def test_final_event_id_applies_to_both_resolution_usage_records() -> None:
     state = {
         "event_uri": "event:final-corpus-id",
         "resolution_event_id": "event:resolution-only",
@@ -125,81 +121,3 @@ def test_final_corpus_event_id_applies_to_both_resolution_usage_records() -> Non
         "task:facility",
         "task:terminology",
     ]
-
-
-def test_sidecar_is_corpus_bound_but_excludes_raw_model_and_tool_payloads(
-    tmp_path: Path,
-) -> None:
-    record = AgentUsageRecord(
-        source_id="source:1",
-        event_id="event:1",
-        task_id="task:1",
-        role="semantic_resolution",
-        task_scope="facility",
-        execution_mode="activated",
-        outcome="accepted",
-        detail_status="accepted",
-        activation_reason="multiple_eligible_authority_candidates",
-        provider_call_count=1,
-        tool_call_count=1,
-        input_tokens=10,
-        output_tokens=2,
-        provider_latency_ms=7.5,
-        tool_latency_ms=1.5,
-    )
-
-    manifest = write_agent_usage_sidecar(
-        tmp_path,
-        corpus_id="corpus:stable",
-        records=(record,),
-    )
-
-    sidecar = tmp_path / "agent_usage"
-    payload = (sidecar / "agent_usage.jsonl").read_text(encoding="utf-8")
-    persisted = json.loads(payload)
-    assert manifest.corpus_id == "corpus:stable"
-    assert manifest.record_count == 1
-    assert manifest.totals.activated_count == 1
-    assert manifest.totals.provider_call_count == 1
-    assert manifest.totals.tool_call_count == 1
-    for forbidden in (
-        "raw_response",
-        "prompt",
-        "arguments",
-        "parameters",
-        "result_refs",
-        "reasoning",
-    ):
-        assert forbidden not in persisted
-
-
-def test_latency_changes_only_the_sidecar_checksum(tmp_path: Path) -> None:
-    base = {
-        "source_id": "source:1",
-        "event_id": "event:1",
-        "task_id": "task:1",
-        "role": "semantic_resolution",
-        "task_scope": "facility",
-        "execution_mode": "activated",
-        "outcome": "accepted",
-        "detail_status": "accepted",
-        "activation_reason": "multiple_eligible_authority_candidates",
-        "provider_call_count": 1,
-        "tool_call_count": 0,
-        "input_tokens": 10,
-        "output_tokens": 2,
-        "tool_latency_ms": 0.0,
-    }
-    first = write_agent_usage_sidecar(
-        tmp_path,
-        corpus_id="corpus:unchanged",
-        records=(AgentUsageRecord(**base, provider_latency_ms=5.0),),
-    )
-    second = write_agent_usage_sidecar(
-        tmp_path,
-        corpus_id="corpus:unchanged",
-        records=(AgentUsageRecord(**base, provider_latency_ms=8.0),),
-    )
-
-    assert first.corpus_id == second.corpus_id == "corpus:unchanged"
-    assert first.artifact_sha256 != second.artifact_sha256

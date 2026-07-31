@@ -16,27 +16,26 @@ from pydantic import Field, model_validator
 import yaml
 
 from aviation_agentic_ai.agent_system.contracts import (
+    HybridQueryScope,
     ModelCallRecord,
     StrictModel,
 )
-from aviation_agentic_ai.agent_system.corpus_batch import (
-    BatchResources,
-    build_corpus_batch,
-    load_batch_resources,
+from aviation_agentic_ai.agent_system.evaluation_binding import (
+    EvaluationBindingBlocked,
+    verify_evaluation_revision_unchanged,
 )
-from aviation_agentic_ai.agent_system.corpus_query import (
-    answer_corpus_question,
-)
-from aviation_agentic_ai.agent_system.corpus_store import CorpusQueryStore
+from aviation_agentic_ai.agent_system.knowledge_query import answer_question
 from aviation_agentic_ai.agent_system.live_agent_evaluation import (
     LiveEvaluationTrial,
+    _bind_live_query_runtime,
     _live_preflight_failures,
-    _resource_preflight_failures,
     _resolve_query_event_id,
+    _verify_live_evaluation_binding,
     build_hybrid_query_run_artifact,
     score_query_trial,
     write_hybrid_query_run_artifact,
 )
+from aviation_agentic_ai.agent_system.query_runtime import open_query_runtime
 from aviation_agentic_ai.agent_system.runtime import (
     FROZEN_MODEL,
     FROZEN_PROVIDER,
@@ -75,7 +74,7 @@ class LiveAgentExperimentSuite(StrictModel):
         return self
 
     @property
-    def build_source_ids(self) -> tuple[str, ...]:
+    def required_source_ids(self) -> tuple[str, ...]:
         return tuple(sorted({trial.source_id for trial in self.trials}))
 
 
@@ -218,6 +217,7 @@ class LiveAgentExperimentSummary(StrictModel):
         "completed",
         "threshold_not_reached",
         "blocked_before_run",
+        "invalidated_after_run",
         "runner_failed",
     ]
     model_identifier: str = FROZEN_MODEL
@@ -366,6 +366,7 @@ def summarize_live_agent_experiment(
         "completed",
         "threshold_not_reached",
         "blocked_before_run",
+        "invalidated_after_run",
         "runner_failed",
     ],
     raw_response_path: str,
@@ -789,6 +790,7 @@ def _current_summary(
         "completed",
         "threshold_not_reached",
         "blocked_before_run",
+        "invalidated_after_run",
         "runner_failed",
     ],
     runtime_root: Path,
@@ -813,10 +815,19 @@ def _current_summary(
     )
 
 
+def _close_query_runtime(runtime: Any | None) -> None:
+    if runtime is None:
+        return
+    close = getattr(runtime.store, "close", None)
+    if callable(close):
+        close()
+
+
 def run_live_agent_experiment(
     *,
     config_path: str | Path,
     suite_path: str | Path,
+    store_dir: str | Path,
     output_dir: str | Path,
     report_dir: str | Path,
     allow_live_model: bool,
@@ -833,14 +844,20 @@ def run_live_agent_experiment(
     config = load_yaml(config_path)
     load_environment()
     failures = _live_preflight_failures(config, environ=os.environ)
-    resources: BatchResources | None = None
+    runtime = None
+    binding = None
     if not failures:
         try:
-            resources = load_batch_resources(config)
+            runtime = open_query_runtime(config, store_dir=store_dir)
+            binding = _bind_live_query_runtime(
+                runtime=runtime,
+                suite=suite,
+            )
+            _verify_live_evaluation_binding(binding, runtime)
+        except EvaluationBindingBlocked as exc:
+            failures = (exc.detail_code,)
         except (OSError, RuntimeError, TypeError, ValueError):
-            failures = ("resource_preflight_failed",)
-        else:
-            failures = _resource_preflight_failures(resources)
+            failures = ("query_runtime_preflight_failed",)
     runtime_root = Path(output_dir)
     if failures:
         summary = _current_summary(
@@ -860,12 +877,18 @@ def run_live_agent_experiment(
             parsed_outputs=(),
             summary=summary,
         )
+        _close_query_runtime(runtime)
         return LiveAgentExperimentSummary.model_validate_json(
             paths[2].read_text(encoding="utf-8")
         )
-    assert resources is not None
+    assert runtime is not None
+    assert binding is not None
     shutil.rmtree(runtime_root, ignore_errors=True)
     runtime_root.mkdir(parents=True, exist_ok=True)
+    (runtime_root / "evaluation_data_binding.json").write_text(
+        binding.model_dump_json(indent=2) + "\n",
+        encoding="utf-8",
+    )
     set_llm_cache(None)
     if get_llm_cache() is not None:
         summary = _current_summary(
@@ -885,6 +908,7 @@ def run_live_agent_experiment(
             parsed_outputs=(),
             summary=summary,
         )
+        _close_query_runtime(runtime)
         return LiveAgentExperimentSummary.model_validate_json(
             paths[2].read_text(encoding="utf-8")
         )
@@ -896,36 +920,23 @@ def run_live_agent_experiment(
     parsed_outputs: list[LiveAgentExperimentParsedOutput] = []
     completed_cycles = 0
 
+    detail_codes: tuple[str, ...] = ()
     try:
-        query_corpus = runtime_root / "query_corpus"
-        query_batch = build_corpus_batch(
-            config,
-            query_corpus,
-            selection="cohort",
-            source_ids=suite.build_source_ids,
-            allow_live_model=False,
-            resume=False,
-            resource_loader=lambda _config: resources,
-        )
-        query_store = CorpusQueryStore(query_corpus)
-        query_build_results = {
-            row.source_id: row for row in query_batch.results
-        }
         query_event_ids: dict[str, str] = {}
-        for source_id in suite.build_source_ids:
+        for source_id in suite.required_source_ids:
             event_id = _resolve_query_event_id(
                 source_id=source_id,
-                build_results=query_build_results,
-                store=query_store,
+                store=runtime.store,
             )
             if event_id is None:
-                raise RuntimeError(
-                    f"query dependency event missing: {source_id}"
+                raise EvaluationBindingBlocked(
+                    "query_dependency_event_not_found"
                 )
             query_event_ids[source_id] = event_id
 
         for cycle in range(1, suite.maximum_cycles + 1):
             for trial in suite.trials:
+                _verify_live_evaluation_binding(binding, runtime)
                 observer = _recording_observer(
                     experiment_id=suite.suite_id,
                     cycle=cycle,
@@ -934,10 +945,12 @@ def run_live_agent_experiment(
                     calls_by_trial=calls_by_trial,
                 )
                 with capture_tool_model_calls(observer):
-                    outcome = answer_corpus_question(
-                        corpus_dir=query_corpus,
+                    outcome = answer_question(
+                        runtime=runtime,
                         question=trial.question,
-                        event_id=query_event_ids[trial.source_id],
+                        scope=HybridQueryScope(
+                            event_id=query_event_ids[trial.source_id]
+                        ),
                         model_factory=lambda tools: (
                             make_live_tool_calling_model(
                                 tools=tools,
@@ -978,6 +991,10 @@ def run_live_agent_experiment(
                 )
 
             completed_cycles = cycle
+            verify_evaluation_revision_unchanged(
+                binding,
+                runtime.store,
+            )
             provisional = _current_summary(
                 suite=suite,
                 suite_checksum=suite_checksum,
@@ -1012,8 +1029,17 @@ def run_live_agent_experiment(
                 break
         else:
             status = "threshold_not_reached"
+        verify_evaluation_revision_unchanged(binding, runtime.store)
+    except EvaluationBindingBlocked as exc:
+        status = (
+            "invalidated_after_run"
+            if calls or exc.runner_status == "invalidated_after_run"
+            else "blocked_before_run"
+        )
+        detail_codes = (exc.detail_code,)
     except (OSError, RuntimeError, TypeError, ValueError, KeyError):
         status = "runner_failed"
+        detail_codes = ("experiment_runner_exception",)
 
     final_summary = _current_summary(
         suite=suite,
@@ -1023,11 +1049,7 @@ def run_live_agent_experiment(
         parsed_outputs=parsed_outputs,
         runner_status=status,
         runtime_root=runtime_root,
-        detail_codes=(
-            ("experiment_runner_exception",)
-            if status == "runner_failed"
-            else ()
-        ),
+        detail_codes=detail_codes,
     )
     paths = write_live_agent_experiment_artifacts(
         output_dir=runtime_root,
@@ -1036,6 +1058,7 @@ def run_live_agent_experiment(
         parsed_outputs=parsed_outputs,
         summary=final_summary,
     )
+    _close_query_runtime(runtime)
     return LiveAgentExperimentSummary.model_validate_json(
         paths[2].read_text(encoding="utf-8")
     )
@@ -1050,6 +1073,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     parser.add_argument("--config", required=True)
     parser.add_argument("--suite", required=True)
+    parser.add_argument("--store-dir", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--report-dir", required=True)
     parser.add_argument("--allow-live-model", action="store_true")
@@ -1058,6 +1082,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         summary = run_live_agent_experiment(
             config_path=args.config,
             suite_path=args.suite,
+            store_dir=args.store_dir,
             output_dir=args.output_dir,
             report_dir=args.report_dir,
             allow_live_model=args.allow_live_model,

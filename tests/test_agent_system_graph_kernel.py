@@ -19,7 +19,6 @@ exercised against real source text, not synthetic phrases.
 
 from __future__ import annotations
 
-import hashlib
 import json
 from dataclasses import dataclass
 from enum import Enum
@@ -50,7 +49,6 @@ from aviation_agentic_ai.agent_system.formal_graph import (
     write_fact_trace,
     write_profile_gaps,
 )
-from aviation_agentic_ai.agent_system.runtime import write_run_manifest
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.sources import (
     build_source_snapshot,
@@ -204,29 +202,6 @@ def test_source_snapshot_registry_records_content_and_sha256(
     import hashlib
 
     assert payload["content_sha256"] == hashlib.sha256(ADVISORY_CONTENT.encode("utf-8")).hexdigest()
-
-
-def test_run_manifest_registers_profile_gap_artifact(tmp_path):
-    (tmp_path / "profile_gaps.jsonl").write_text("", encoding="utf-8")
-    path = write_run_manifest(
-        run_dir=tmp_path,
-        source_id=SOURCE_ID,
-        model_calls=[],
-        materialization=None,
-        schema_slice_id="slice:test",
-        schema_checksum="checksum:test",
-        evidence_cards=[],
-        graph_patch_raw=None,
-        prompt_set_id="prompt:test",
-        profile_gap_count=0,
-    )
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    assert payload["profile_gaps"] == {
-        "path": "profile_gaps.jsonl",
-        "count": 0,
-        "sha256": hashlib.sha256(b"").hexdigest(),
-        "status": "insufficient",
-    }
 
 
 def test_empty_profile_gap_artifact_is_still_written(snapshot, tmp_path):

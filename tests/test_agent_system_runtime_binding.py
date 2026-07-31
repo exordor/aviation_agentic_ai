@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import replace
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from pathlib import Path
 
 import aviation_agentic_ai.agent_system.authority_resolution as authority_module
@@ -37,10 +37,6 @@ from aviation_agentic_ai.agent_system.construction_contracts import (
     ConstraintCheckStatus,
     ResolutionDecision,
     stable_contract_id,
-)
-from aviation_agentic_ai.agent_system.runtime import (
-    create_run_binding,
-    write_run_manifest,
 )
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
@@ -274,43 +270,6 @@ class _ScriptedResolutionModel:
                 attempt=2,
             ),
         )
-
-
-def test_run_binding_samples_one_utc_timestamp(tmp_path):
-    local = STARTED.astimezone(UTC) + timedelta(0)
-    binding = create_run_binding(tmp_path, "2026-05-19:123", started_at=local)
-
-    assert binding.run_started_at == STARTED
-    assert binding.run_id == binding.run_dir.name
-    assert "20260519T203045123Z" in binding.run_id
-
-
-def test_manifest_created_at_uses_frozen_run_started_at(tmp_path):
-    failed_call = ModelCallRecord(
-        agent="query",
-        raw_response="",
-        attempt=1,
-        error="provider unavailable",
-    )
-    path = write_run_manifest(
-        run_dir=tmp_path,
-        source_id="2026-05-19:123",
-        model_calls=[failed_call],
-        materialization=None,
-        schema_slice_id="slice:test",
-        schema_checksum="a" * 64,
-        evidence_cards=[],
-        graph_patch_raw=None,
-        prompt_set_id="prompt:test",
-        profile_gap_count=0,
-        created_at=STARTED,
-    )
-
-    payload = json.loads(path.read_text())
-    assert payload["created_at"] == STARTED.isoformat()
-    assert payload["manifest_version"] == "tmi-event-run-v1"
-    assert payload["provider_attempts"] == 1
-    assert payload["provider_successes"] == 0
 
 
 def test_internal_helpers_return_typed_unique_resolution_without_authority_leak(

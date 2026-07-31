@@ -81,7 +81,10 @@ def test_real_persistent_collection_reopens_and_filters_candidates(
         "tmi_events",
         embedding_function=None,
         configuration={"hnsw": {"space": "cosine"}},
-        metadata={"corpus_id": "corpus:test"},
+        metadata={
+            "dataset_id": "dataset:test",
+            "indexed_knowledge_revision": 1,
+        },
     )
     upsert_explicit_embeddings(
         collection,

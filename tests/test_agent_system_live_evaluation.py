@@ -4,6 +4,7 @@ import hashlib
 import inspect
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -31,6 +32,11 @@ from aviation_agentic_ai.agent_system.live_agent_evaluation import (
     write_hybrid_query_run_artifact,
     write_live_evaluation_artifacts,
 )
+from aviation_agentic_ai.agent_system.evaluation_binding import (
+    EvaluationDataBinding,
+    EvaluationVectorBinding,
+)
+from aviation_agentic_ai.agent_system.query_runtime import QueryRuntime
 
 
 def _trial(
@@ -212,7 +218,7 @@ def test_tracked_v4_suite_is_query_only_and_has_graph_path_trial() -> None:
     assert len(suite.trials) == 5
     assert {trial.kind for trial in suite.trials} == {"query"}
     assert {trial.expected_role for trial in suite.trials} == {"query"}
-    assert suite.build_source_ids == (
+    assert suite.required_source_ids == (
         "2026-05-20:084",
         "2026-05-20:115",
         "2026-05-20:159",
@@ -248,6 +254,28 @@ def test_active_evaluator_has_no_integration_scorer_or_role() -> None:
     assert "score_integration_trial" not in source
     assert "event_evidence_integration" not in source
     assert "score_analysis_trial" not in source
+    assert "corpus_batch" not in source
+    assert "corpus_query" not in source
+    assert "corpus_store" not in source
+    assert "build_corpus_batch" not in source
+    assert "answer_corpus_question" not in source
+
+
+def test_live_evaluator_uses_the_current_nine_read_tools() -> None:
+    assert live_eval.HYBRID_QUERY_READ_TOOLS == {
+        "find_tmi_events",
+        "read_tmi_event_facts",
+        "read_tmi_operational_context",
+        "read_public_observations",
+        "read_tmi_event_graph",
+        "find_similar_tmi_events",
+        "search_source_text",
+        "semantic_search_sources",
+        "read_source",
+    }
+    assert "store_dir" in inspect.signature(
+        run_live_agent_evaluation
+    ).parameters
 
 
 def test_hybrid_query_run_artifact_is_sanitized_and_records_path_kind(
@@ -284,6 +312,68 @@ def test_hybrid_query_run_artifact_is_sanitized_and_records_path_kind(
     assert "raw_response" not in serialized
     assert "sk-secret" not in serialized
     assert result.model_acceptance_status == "passed"
+
+
+def test_query_run_artifact_preserves_exact_source_record_bindings() -> None:
+    trial = _trial(
+        required_tool_names=("read_source",),
+        required_graph_path_kinds=(),
+    )
+    statement = HybridQueryStatement(
+        kind="source_record",
+        text="The exact advisory source states that the TMI is a GDP.",
+        support_source_ids=("2026-05-20:084",),
+        support_source_version_ids=("source-version:084",),
+        support_source_anchor_ids=("anchor:084:line-1",),
+        support_chunk_ids=("chunk:084:1",),
+    )
+    support = HybridQuerySupportRecord(
+        kind="source_record",
+        source_ids=("2026-05-20:084",),
+        source_version_ids=("source-version:084",),
+        source_anchor_ids=("anchor:084:line-1",),
+        chunk_ids=("chunk:084:1",),
+    )
+    outcome = QueryToolOutcome(
+        status="ok",
+        answer=statement.text,
+        source_ids=["2026-05-20:084"],
+        retrieved_source_version_ids=["source-version:084"],
+        retrieved_source_anchor_ids=["anchor:084:line-1"],
+        retrieved_chunk_ids=["chunk:084:1"],
+        answer_statements=[statement],
+        support_records=[support],
+        model_calls=[
+            _live_call(tool_name="read_source", raw_response=""),
+        ],
+        tool_calls=[
+            QueryToolTrace(
+                tool_call_id="trace:source",
+                tool="read_source",
+                status="ok",
+                result_refs=["source-version:084", "anchor:084:line-1"],
+                source_ids=["2026-05-20:084"],
+                source_version_ids=["source-version:084"],
+                source_anchor_ids=["anchor:084:line-1"],
+                chunk_ids=["chunk:084:1"],
+            )
+        ],
+    )
+
+    artifact = build_hybrid_query_run_artifact(
+        trial=trial,
+        event_id="urn:event:084",
+        outcome=outcome,
+    )
+
+    assert artifact.statements[0].kind == "source_record"
+    assert artifact.statements[0].source_version_ids == (
+        "source-version:084",
+    )
+    assert artifact.support_records[0].source_anchor_ids == (
+        "anchor:084:line-1",
+    )
+    assert artifact.tools[0].chunk_ids == ("chunk:084:1",)
 
 
 @pytest.mark.parametrize(
@@ -403,6 +493,7 @@ def test_missing_authorization_rejects_before_writes(tmp_path: Path) -> None:
             suite_path=(
                 "data/evaluation/agent_system/live_agent_smoke_v4.yaml"
             ),
+            store_dir=tmp_path / "store",
             output_dir=tmp_path / "runtime",
             report_dir=tmp_path / "reports",
             allow_live_model=False,
@@ -420,13 +511,14 @@ def test_missing_credentials_block_before_provider_calls(
     monkeypatch.setattr(live_eval, "load_environment", lambda: None)
     monkeypatch.setattr(
         live_eval,
-        "load_batch_resources",
-        lambda _config: pytest.fail("resources must not load"),
+        "open_query_runtime",
+        lambda *_args, **_kwargs: pytest.fail("store must not open"),
     )
 
     summary = run_live_agent_evaluation(
         config_path="configs/cross_source_v1.yaml",
         suite_path="data/evaluation/agent_system/live_agent_smoke_v4.yaml",
+        store_dir=tmp_path / "store",
         output_dir=tmp_path / "runtime",
         report_dir=tmp_path / "reports",
         allow_live_model=True,
@@ -436,6 +528,196 @@ def test_missing_credentials_block_before_provider_calls(
     assert summary.runner_status == "blocked_before_run"
     assert summary.provider_call_count == 0
     assert "missing_deepseek_credentials" in summary.runner_detail_codes
+
+
+def test_live_runner_reads_existing_store_without_building_a_corpus(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class ExistingStore:
+        dataset_id = "dataset:live-store"
+
+        def __init__(self) -> None:
+            self.closed = False
+
+        def list_tmi_event_publications(self, *, active_only: bool = False):
+            assert active_only
+            return tuple(
+                SimpleNamespace(
+                    event_id=f"urn:event:{source_id.rsplit(':', 1)[-1]}",
+                    advisory_source_id=source_id,
+                )
+                for source_id in (
+                    "2026-05-20:084",
+                    "2026-05-20:115",
+                    "2026-05-20:159",
+                )
+            )
+
+        def get_knowledge_revision(self) -> int:
+            return 7
+
+        def close(self) -> None:
+            self.closed = True
+
+    store = ExistingStore()
+    runtime = QueryRuntime(
+        store=store,  # type: ignore[arg-type]
+        source_index=None,
+        event_index=None,
+    )
+    vector = EvaluationVectorBinding(
+        collection_name="test",
+        representation_version="v1",
+        embedding_model_id="test/model",
+        embedding_dimension=2,
+        indexed_knowledge_revision=7,
+        document_ids=(),
+    )
+    binding = EvaluationDataBinding(
+        store_schema_version="aviation-evidence-store-v1",
+        dataset_id=store.dataset_id,
+        knowledge_revision=7,
+        required_source_versions={},
+        required_source_hashes={},
+        required_event_publication_ids=(),
+        source_candidate_version_ids=(),
+        event_candidate_publication_ids=(),
+        source_vector_index=vector,
+        event_vector_index=vector.model_copy(
+            update={"collection_name": "events"}
+        ),
+        validation_profile_checksums=(),
+    )
+    opened: list[Path] = []
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-only")
+    monkeypatch.setattr(live_eval, "load_environment", lambda: None)
+    monkeypatch.setattr(
+        live_eval,
+        "open_query_runtime",
+        lambda _config, *, store_dir, allow_model_download: (
+            opened.append(Path(store_dir)) or runtime
+        ),
+    )
+    monkeypatch.setattr(
+        live_eval,
+        "_bind_live_query_runtime",
+        lambda **_kwargs: binding,
+    )
+    monkeypatch.setattr(
+        live_eval,
+        "_verify_live_evaluation_binding",
+        lambda *_args, **_kwargs: None,
+    )
+
+    def answer_from_existing_store(*, runtime, question, scope, model_factory):
+        del question, model_factory
+        assert runtime is not None
+        assert scope.event_id is not None
+        trial = next(
+            trial
+            for trial in load_live_evaluation_suite(
+                "data/evaluation/agent_system/live_agent_smoke_v4.yaml"
+            ).trials
+            if trial.source_id.endswith(scope.event_id.rsplit(":", 1)[-1])
+        )
+        return _supported_graph_outcome(
+            tool_name=trial.required_tool_names[0],
+        )
+
+    monkeypatch.setattr(
+        live_eval,
+        "answer_question",
+        answer_from_existing_store,
+    )
+    store_dir = tmp_path / "existing-store"
+    summary = run_live_agent_evaluation(
+        config_path="configs/cross_source_v1.yaml",
+        suite_path="data/evaluation/agent_system/live_agent_smoke_v4.yaml",
+        store_dir=store_dir,
+        output_dir=tmp_path / "runtime",
+        report_dir=tmp_path / "reports",
+        allow_live_model=True,
+        repetitions=1,
+    )
+
+    assert opened == [store_dir]
+    assert summary.runner_status == "completed"
+    assert summary.provider_call_count == 10
+    assert (tmp_path / "runtime" / "evaluation_data_binding.json").is_file()
+    assert not (tmp_path / "runtime" / "corpus").exists()
+    assert store.get_knowledge_revision() == 7
+    assert store.closed
+
+
+def test_later_trial_failure_preserves_completed_real_call_accounting(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A later runner error must not erase an earlier provider-backed result."""
+
+    first = _trial()
+    second = first.model_copy(
+        update={
+            "trial_id": "query-115",
+            "source_id": "2026-05-20:115",
+        }
+    )
+    suite = SimpleNamespace(
+        repetitions=1,
+        trials=(first, second),
+    )
+
+    class Store:
+        def list_tmi_event_publications(self, *, active_only: bool = False):
+            assert active_only
+            return (
+                SimpleNamespace(
+                    event_id="urn:event:084",
+                    advisory_source_id=first.source_id,
+                ),
+                SimpleNamespace(
+                    event_id="urn:event:115",
+                    advisory_source_id=second.source_id,
+                ),
+            )
+
+    runtime = QueryRuntime(
+        store=Store(),  # type: ignore[arg-type]
+        source_index=None,
+        event_index=None,
+    )
+    monkeypatch.setattr(
+        live_eval,
+        "_verify_live_evaluation_binding",
+        lambda *_args, **_kwargs: None,
+    )
+    attempts = 0
+
+    def answer_once(**_kwargs):
+        nonlocal attempts
+        attempts += 1
+        if attempts == 2:
+            raise RuntimeError("later trial failed")
+        return _supported_graph_outcome()
+
+    monkeypatch.setattr(live_eval, "answer_question", answer_once)
+
+    results, details = live_eval._run_live_evaluation_repetition(
+        suite=suite,  # type: ignore[arg-type]
+        runtime=runtime,
+        binding=object(),  # type: ignore[arg-type]
+        runtime_root=tmp_path,
+        repetition=1,
+    )
+
+    assert len(results) == 2
+    assert results[0].trial_id == first.trial_id
+    assert results[0].provider_call_count == 2
+    assert results[0].model_acceptance_status == "passed"
+    assert results[1].trial_id == second.trial_id
+    assert results[1].model_acceptance_status == "not_run"
+    assert details == ("repetition_001_query-115_runner_exception",)
 
 
 def test_pre_refactor_v1_live_artifacts_remain_byte_frozen() -> None:

@@ -12,9 +12,6 @@ from pydantic import Field
 from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
     TMIEventSimilarityQuery,
 )
-from aviation_agentic_ai.agent_system.tmi_event_retrieval_index import (
-    ChromaTMIEventRetrievalIndex,
-)
 from aviation_agentic_ai.agent_system.tmi_event_retrieval_search import (
     rank_tmi_events_by_metadata,
 )
@@ -22,7 +19,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     TMIEventSimilarityMatch,
     StrictModel,
 )
-from aviation_agentic_ai.agent_system.corpus_store import CorpusQueryStore
+from aviation_agentic_ai.agent_system.query_runtime import open_query_runtime
 from aviation_agentic_ai.config import load_yaml
 
 
@@ -90,19 +87,28 @@ def _validate_match(
 
 
 def evaluate_tmi_event_retrieval_smoke(
-    corpus_dir: str | Path,
+    store_dir: str | Path,
     gold_path: str | Path,
+    *,
+    config_path: str | Path = "configs/cross_source_v1.yaml",
+    allow_model_download: bool = False,
 ) -> RetrievalSmokeMetrics:
     """Run the reviewed six-query relevance smoke set."""
 
     smoke = _SmokeSet.model_validate(load_yaml(gold_path))
-    store = CorpusQueryStore(corpus_dir)
-    index = ChromaTMIEventRetrievalIndex(
-        store,
-        store.root / "tmi_event_index",
+    runtime = open_query_runtime(
+        load_yaml(config_path),
+        store_dir=store_dir,
+        allow_model_download=allow_model_download,
     )
+    store = runtime.store
+    index = runtime.event_index
+    if index is None:
+        store.close()
+        raise ValueError("TMI-event vector index is unavailable")
     event_by_source = {
-        event.advisory_source_id: event for event in store.events
+        event.advisory_source_id: event
+        for event in store.list_tmi_event_publications(active_only=True)
     }
     for row in smoke.queries:
         if row.query_source_id not in event_by_source:
@@ -115,57 +121,60 @@ def evaluate_tmi_event_retrieval_smoke(
                     f"unknown relevant_source_id: {source_id}"
                 )
 
-    ranked_query_count = 0
-    hit_count_at_1 = 0
-    hit_count_at_3 = 0
-    reciprocal_rank_sum = 0.0
-    expected_insufficient_count = 0
-    expected_insufficient_pass_count = 0
-    for row in smoke.queries:
-        anchor = event_by_source[row.query_source_id]
-        query = TMIEventSimilarityQuery(
-            reference_event_id=anchor.event_id,
-            event_type_iri=row.filters.event_type_iri,
-            facility_id=row.filters.facility_id,
-            reason_status=row.filters.reason_status,
-            reason_value=row.filters.reason_value,
-            limit=20,
-        )
-        result = rank_tmi_events_by_metadata(store, index, query)
-        if result.status == "blocked":
-            raise ValueError(
-                f"retrieval blocked for {row.query_source_id}: "
-                f"{result.limitation}"
+    try:
+        ranked_query_count = 0
+        hit_count_at_1 = 0
+        hit_count_at_3 = 0
+        reciprocal_rank_sum = 0.0
+        expected_insufficient_count = 0
+        expected_insufficient_pass_count = 0
+        for row in smoke.queries:
+            anchor = event_by_source[row.query_source_id]
+            query = TMIEventSimilarityQuery(
+                reference_event_id=anchor.event_id,
+                event_type_iri=row.filters.event_type_iri,
+                facility_id=row.filters.facility_id,
+                reason_status=row.filters.reason_status,
+                reason_value=row.filters.reason_value,
+                limit=20,
             )
-        for match in result.matches:
-            _validate_match(
-                match,
-                anchor_event_id=anchor.event_id,
-                filters=row.filters,
-            )
-        if row.expected_status == "insufficient":
-            expected_insufficient_count += 1
-            if result.status == "insufficient":
-                expected_insufficient_pass_count += 1
-            continue
+            result = rank_tmi_events_by_metadata(store, index, query)
+            if result.status == "blocked":
+                raise ValueError(
+                    f"retrieval blocked for {row.query_source_id}: "
+                    f"{result.limitation}"
+                )
+            for match in result.matches:
+                _validate_match(
+                    match,
+                    anchor_event_id=anchor.event_id,
+                    filters=row.filters,
+                )
+            if row.expected_status == "insufficient":
+                expected_insufficient_count += 1
+                if result.status == "insufficient":
+                    expected_insufficient_pass_count += 1
+                continue
 
-        ranked_query_count += 1
-        relevant = set(row.relevant_source_ids)
-        relevant_rank = next(
-            (
-                match.rank
-                for match in result.matches
-                if match.advisory_source_id in relevant
-            ),
-            None,
-        )
-        if relevant_rank is None:
-            continue
-        if relevant_rank <= 1:
-            hit_count_at_1 += 1
-        if relevant_rank <= 3:
-            hit_count_at_3 += 1
-        reciprocal_rank_sum += 1.0 / relevant_rank
+            ranked_query_count += 1
+            relevant = set(row.relevant_source_ids)
+            relevant_rank = next(
+                (
+                    match.rank
+                    for match in result.matches
+                    if match.advisory_source_id in relevant
+                ),
+                None,
+            )
+            if relevant_rank is None:
+                continue
+            if relevant_rank <= 1:
+                hit_count_at_1 += 1
+            if relevant_rank <= 3:
+                hit_count_at_3 += 1
+            reciprocal_rank_sum += 1.0 / relevant_rank
+    finally:
+        store.close()
 
     return RetrievalSmokeMetrics(
         query_count=len(smoke.queries),
@@ -200,12 +209,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Evaluate historical TMI-event retrieval."
     )
-    parser.add_argument("--corpus-dir", required=True)
+    parser.add_argument("--config", default="configs/cross_source_v1.yaml")
+    parser.add_argument("--store-dir", required=True)
     parser.add_argument("--gold", required=True)
+    parser.add_argument("--allow-model-download", action="store_true")
     args = parser.parse_args(argv)
     metrics = evaluate_tmi_event_retrieval_smoke(
-        corpus_dir=args.corpus_dir,
+        store_dir=args.store_dir,
         gold_path=args.gold,
+        config_path=args.config,
+        allow_model_download=args.allow_model_download,
     )
     print(
         json.dumps(

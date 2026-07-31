@@ -122,7 +122,7 @@ class _EvidenceModel:
         )
 
 
-def test_public_query_uses_model_routing_without_a_corpus_manifest(
+def test_public_query_uses_model_routing_over_the_live_store(
     tmp_path: Path,
 ) -> None:
     scenario = _fixture._live_store(tmp_path)
@@ -148,7 +148,6 @@ def test_public_query_uses_model_routing_without_a_corpus_manifest(
         assert len(outcome.model_calls) == 2
         assert outcome.tool_calls[0].tool == "read_tmi_event_facts"
         assert question in model.questions[0]
-    assert not (scenario.store.root / "corpus_manifest.json").exists()
     scenario.store.close()
 
 

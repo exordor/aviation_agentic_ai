@@ -1,18 +1,33 @@
-"""Small public-surface checks for the corpus-first Agent CLI."""
+"""Public-surface tests for the ingestion-first Agent-system CLI."""
 
 from __future__ import annotations
+
+from pathlib import Path
+from types import SimpleNamespace
 
 from click.testing import CliRunner
 
 import aviation_agentic_ai.cli as top_cli
 import aviation_agentic_ai.cli_agent_system as cli_module
+from aviation_agentic_ai.agent_system.contracts import QueryToolOutcome
 
 
-def test_public_agent_system_surface_is_corpus_first() -> None:
+class _Store:
+    root = Path("/tmp/test-store")
+    dataset_id = "dataset:test"
+
+    def get_knowledge_revision(self) -> int:
+        return 7
+
+    def close(self) -> None:
+        pass
+
+
+def test_public_agent_system_surface_is_ingestion_first() -> None:
     assert set(cli_module.agent_system.commands) == {
-        "build-corpus",
+        "ingest",
+        "reindex",
         "ask",
-        "index-events",
         "neo4j-export",
         "export-event",
     }
@@ -22,100 +37,220 @@ def test_public_agent_system_surface_is_corpus_first() -> None:
         if row["name"] == "agent-system"
     )
     assert specification["subcommands"] == (
-        "build-corpus",
+        "ingest",
+        "reindex",
         "ask",
-        "index-events",
         "neo4j-export",
         "export-event",
     )
 
 
-def test_retired_case_commands_are_unknown() -> None:
-    runner = CliRunner()
-
-    for command in ("index-cases", "export-case"):
-        result = runner.invoke(cli_module.agent_system, [command])
-        assert result.exit_code == 2
-        assert f"No such command '{command}'" in result.output
-
-
-def test_removed_single_run_options_stay_out_of_the_public_cli() -> None:
-    runner = CliRunner()
-    ask = runner.invoke(
-        cli_module.agent_system,
-        [
-            "ask",
-            "--run-dir",
-            "obsolete",
-            "--question",
-            "What happened?",
-        ],
-    )
-    neo4j = runner.invoke(
-        cli_module.agent_system,
-        ["neo4j-export", "--run-dir", "obsolete"],
-    )
-
-    assert ask.exit_code == 2
-    assert "No such option '--run-dir'" in ask.output
-    assert neo4j.exit_code == 2
-    assert "No such option '--run-dir'" in neo4j.output
-
-
-def test_neo4j_export_requires_a_published_tmi_event_corpus(tmp_path) -> None:
-    runner = CliRunner()
-
-    result = runner.invoke(
-        cli_module.agent_system,
-        ["neo4j-export", "--corpus-dir", str(tmp_path)],
-    )
-
-    assert result.exit_code == 1
-    assert "a published tmi-event-corpus-v3 manifest is required" in result.output
-
-
-def test_build_corpus_allows_zero_call_deterministic_event_without_live_authorization(
-    tmp_path,
+def test_ingest_uses_store_and_has_no_selection_or_resume(
+    monkeypatch,
+    tmp_path: Path,
 ) -> None:
-    runner = CliRunner()
-    output_dir = tmp_path / "corpus"
+    observed: dict[str, object] = {}
+    store = _Store()
+    summary = SimpleNamespace(
+        discovered_count=718,
+        selected_count=1,
+        attempted_count=1,
+        skipped_count=0,
+        ok_count=1,
+        insufficient_count=0,
+        blocked_count=0,
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "_load_config",
+        lambda _path: {"agent_system": {}},
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "_open_store",
+        lambda config, store_dir, create: store,
+    )
 
-    result = runner.invoke(
+    def run(config, selected_store, **kwargs):
+        observed.update(kwargs)
+        assert selected_store is store
+        return summary
+
+    monkeypatch.setattr(cli_module, "run_ingestion_pipeline", run)
+    result = CliRunner().invoke(
         cli_module.agent_system,
         [
-            "build-corpus",
+            "ingest",
             "--config",
             "configs/cross_source_v1.yaml",
-            "--output-dir",
-            str(output_dir),
-            "--selection",
-            "cohort",
+            "--store-dir",
+            str(tmp_path / "store"),
             "--source-id",
             "2026-05-19:123",
+            "--allow-live-model",
         ],
     )
 
     assert result.exit_code == 0, result.output
+    assert observed["source_ids"] == ("2026-05-19:123",)
+    assert observed["allow_live_model"] is True
     assert "selected: 1" in result.output
-    assert "ok: 1" in result.output
-    assert "agent_calls: provider=0 tool=0" in result.output
+    assert "knowledge_revision: 7" in result.output
+    assert "--selection" not in result.output
+    assert "--resume" not in result.output
 
 
-def test_build_corpus_requires_explicit_selection(tmp_path) -> None:
-    runner = CliRunner()
+def test_ask_always_uses_query_agent_and_preserves_source_scope(
+    monkeypatch,
+) -> None:
+    store = _Store()
+    runtime = SimpleNamespace(
+        store=store,
+        source_index=None,
+        event_index=None,
+    )
+    observed: dict[str, object] = {}
+    monkeypatch.setattr(
+        cli_module,
+        "_load_config",
+        lambda _path: {"agent_system": {}},
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "open_query_runtime",
+        lambda *args, **kwargs: runtime,
+    )
+    monkeypatch.setattr(cli_module, "load_environment", lambda: None)
 
-    result = runner.invoke(
+    def answer(*, runtime, question, scope, model_factory):
+        observed.update(
+            runtime=runtime,
+            question=question,
+            scope=scope,
+            model_factory=model_factory,
+        )
+        return QueryToolOutcome(
+            status="ok",
+            answer="Source-backed answer.",
+            retrieved_event_ids=["urn:event:123"],
+            source_ids=["2026-05-19:123"],
+        )
+
+    monkeypatch.setattr(cli_module, "answer_question", answer)
+    result = CliRunner().invoke(
         cli_module.agent_system,
         [
-            "build-corpus",
+            "ask",
             "--config",
             "configs/cross_source_v1.yaml",
-            "--output-dir",
-            str(tmp_path / "corpus"),
-            "--source-id",
-            "2026-05-19:123",
+            "--question",
+            "What did the advisory say?",
+            "--event-id",
+            "urn:event:123",
+            "--source-family",
+            "atcscc_advisory",
         ],
     )
 
-    assert result.exit_code == 2
-    assert "Missing option '--selection'" in result.output
+    assert result.exit_code == 0, result.output
+    assert observed["runtime"] is runtime
+    assert observed["model_factory"] is not None
+    scope = observed["scope"]
+    assert scope.event_id == "urn:event:123"
+    assert tuple(family.value for family in scope.source_families) == (
+        "atcscc_advisory",
+    )
+    assert "answer: Source-backed answer." in result.output
+
+
+def test_reindex_rebuilds_both_derived_indexes(monkeypatch) -> None:
+    store = _Store()
+    monkeypatch.setattr(
+        cli_module,
+        "_load_config",
+        lambda _path: {
+            "agent_system": {
+                "storage": {
+                    "embedding_model": "test/encoder",
+                    "chroma": "chroma",
+                }
+            }
+        },
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "_open_store",
+        lambda config, store_dir, create: store,
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "SentenceTransformerTMIEventEncoder",
+        lambda model, allow_download: SimpleNamespace(model_id=model),
+    )
+    states = (
+        SimpleNamespace(
+            collection_name="tmi_events_v1",
+            status="current",
+            document_count=2,
+            vector_count=2,
+        ),
+        SimpleNamespace(
+            collection_name="aviation_source_chunks_v1",
+            status="current",
+            document_count=5,
+            vector_count=5,
+        ),
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "reindex_store",
+        lambda *args, **kwargs: states,
+    )
+
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        ["reindex", "--config", "configs/cross_source_v1.yaml"],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "tmi_events_v1" in result.output
+    assert "aviation_source_chunks_v1" in result.output
+
+
+def test_export_event_reads_store_not_a_corpus(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    store = _Store()
+    manifest = tmp_path / "event_export_manifest.json"
+    monkeypatch.setattr(
+        cli_module,
+        "_load_config",
+        lambda _path: {"agent_system": {}},
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "_open_store",
+        lambda config, store_dir, create: store,
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "export_event",
+        lambda selected_store, event_id, output_dir: manifest,
+    )
+
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "export-event",
+            "--config",
+            "configs/cross_source_v1.yaml",
+            "--event-id",
+            "urn:event:123",
+            "--output-dir",
+            str(tmp_path),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert str(manifest) in result.output

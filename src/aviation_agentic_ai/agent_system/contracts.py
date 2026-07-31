@@ -263,7 +263,7 @@ class TMIEventSimilarityMatch(StrictModel):
 
 
 class QueryGraphEdge(StrictModel):
-    """One formal fact carried by a bounded corpus graph path."""
+    """One formal fact carried by a bounded event-graph path."""
 
     fact_id: str = Field(min_length=1)
     subject_iri: str = Field(min_length=1)

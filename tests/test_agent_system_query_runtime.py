@@ -47,7 +47,6 @@ def test_runtime_opens_store_without_manifest_or_vector_indexes(
         assert runtime.store.dataset_id == "dataset:query-runtime"
         assert runtime.source_index is None
         assert runtime.event_index is None
-        assert not (store_root / "corpus_manifest.json").exists()
     finally:
         runtime.store.close()
 

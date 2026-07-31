@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -14,7 +15,7 @@ from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
     TMIEventSimilarityResult,
 )
 from aviation_agentic_ai.agent_system.contracts import TMIEventSimilarityMatch
-from aviation_agentic_ai.agent_system.corpus_store import CorpusTMIEvent
+from aviation_agentic_ai.agent_system.storage_contracts import TMIEventRecord
 
 
 ATM = "https://data.nasa.gov/ontologies/atmonto/ATM#"
@@ -22,14 +23,17 @@ GDP = f"{ATM}GroundDelayProgramTMI"
 KJFK = "urn:aviation-agentic-ai:facility:airport:KJFK"
 
 
-def _event(name: str, source_id: str) -> CorpusTMIEvent:
-    return CorpusTMIEvent(
+def _event(name: str, source_id: str) -> TMIEventRecord:
+    return TMIEventRecord(
         event_id=f"event:{name}",
+        publication_id=f"publication:{name}",
         advisory_source_id=source_id,
-        event_type_iris=[GDP],
-        facility_ids=[KJFK],
-        effective_start="2026-05-19T10:00:00+00:00",
-        effective_end="2026-05-19T11:00:00+00:00",
+        publication_source_version_id=f"source-version:{name}",
+        event_type_iris=(GDP,),
+        facility_ids=(KJFK,),
+        effective_start=datetime(2026, 5, 19, 10, tzinfo=UTC),
+        effective_end=datetime(2026, 5, 19, 11, tzinfo=UTC),
+        issued_at=datetime(2026, 5, 19, 9, tzinfo=UTC),
         reason_status="formal",
         reason_value="weather",
     )
@@ -82,9 +86,8 @@ def _install_scripted_backend(
         _event("other", "source:other"),
     ]
     store = SimpleNamespace(
-        root=tmp_path / "corpus",
-        events=tuple(events),
-        manifest=SimpleNamespace(corpus_id="corpus:test"),
+        list_tmi_event_publications=lambda active_only: tuple(events),
+        close=lambda: None,
     )
     index = SimpleNamespace(
         manifest=SimpleNamespace(
@@ -94,14 +97,10 @@ def _install_scripted_backend(
     )
     monkeypatch.setattr(
         evaluation,
-        "CorpusQueryStore",
-        lambda _corpus_dir: store,
-    )
-    monkeypatch.setattr(
-        evaluation,
-        "ChromaTMIEventRetrievalIndex",
-        lambda received_store, _index_dir: (
-            index if received_store is store else None
+        "open_query_runtime",
+        lambda *args, **kwargs: SimpleNamespace(
+            store=store,
+            event_index=index,
         ),
     )
     monkeypatch.setattr(
@@ -208,7 +207,7 @@ def test_smoke_metrics_compute_ranked_and_insufficient_cases(
     )
 
     metrics = evaluation.evaluate_tmi_event_retrieval_smoke(
-        corpus_dir=tmp_path / "corpus",
+        store_dir=tmp_path / "store",
         gold_path=gold_path,
     )
 
@@ -241,7 +240,7 @@ def test_unknown_query_source_blocks_evaluation(
 
     with pytest.raises(ValueError, match="unknown query_source_id"):
         evaluation.evaluate_tmi_event_retrieval_smoke(
-            corpus_dir=tmp_path / "corpus",
+            store_dir=tmp_path / "store",
             gold_path=gold_path,
         )
 
@@ -303,7 +302,7 @@ def test_invalid_ranked_result_blocks_evaluation(
 
     with pytest.raises(ValueError, match=violation):
         evaluation.evaluate_tmi_event_retrieval_smoke(
-            corpus_dir=tmp_path / "corpus",
+            store_dir=tmp_path / "store",
             gold_path=gold_path,
         )
 
@@ -332,8 +331,8 @@ def test_module_main_prints_canonical_metrics_json(
 
     result = evaluation.main(
         [
-            "--corpus-dir",
-            str(tmp_path / "corpus"),
+            "--store-dir",
+            str(tmp_path / "store"),
             "--gold",
             str(tmp_path / "gold.yaml"),
         ]

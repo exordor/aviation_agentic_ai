@@ -14,25 +14,24 @@ import yaml
 from pydantic import Field, model_validator
 
 from aviation_agentic_ai.agent_system.audit import sanitize_text
-from aviation_agentic_ai.agent_system.authority_evidence import (
-    AuthorityBuildStatus,
-)
 from aviation_agentic_ai.agent_system.contracts import (
+    HybridQueryScope,
     ModelCallRecord,
     QueryToolOutcome,
     StrictModel,
 )
-from aviation_agentic_ai.agent_system.corpus_batch import build_corpus_batch
-from aviation_agentic_ai.agent_system.corpus_batch import (
-    BatchResources,
-    load_batch_resources,
+from aviation_agentic_ai.agent_system.evaluation_binding import (
+    EvaluationBindingBlocked,
+    EvaluationDataBinding,
+    bind_evaluation_data,
+    verify_evaluation_data_binding,
+    verify_evaluation_revision_unchanged,
 )
-from aviation_agentic_ai.agent_system.corpus_query import (
-    answer_corpus_question,
+from aviation_agentic_ai.agent_system.evidence_store import (
+    AviationEvidenceStore,
 )
-from aviation_agentic_ai.agent_system.corpus_store import (
-    CorpusBuildResult,
-    CorpusQueryStore,
+from aviation_agentic_ai.agent_system.knowledge_query import (
+    answer_question,
 )
 from aviation_agentic_ai.agent_system.hybrid_query_agent import (
     MAX_QUERY_PROVIDER_TURNS,
@@ -40,6 +39,10 @@ from aviation_agentic_ai.agent_system.hybrid_query_agent import (
     validate_hybrid_query_statement,
 )
 from aviation_agentic_ai.agent_system.prompts import get_prompt_catalog
+from aviation_agentic_ai.agent_system.query_runtime import (
+    QueryRuntime,
+    open_query_runtime,
+)
 from aviation_agentic_ai.agent_system.runtime import (
     FROZEN_MODEL,
     FROZEN_PROVIDER,
@@ -51,30 +54,20 @@ from aviation_agentic_ai.agent_system.tool_model import (
 from aviation_agentic_ai.config import (
     load_environment,
     load_yaml,
-    resolve_project_path,
 )
 
 
-REQUIRED_LIVE_SOURCE_KEYS = (
-    "atcscc_advisories",
-    "stationinfo",
-    "metar",
-    "taf",
-    "nasr_zip",
-    "nasr_manifest",
-    "pilot_controller_glossary",
-    "term_seed",
-    "bts_on_time_manifest",
-    "bts_on_time_snapshot",
-)
 HYBRID_QUERY_READ_TOOLS = frozenset(
     {
         "find_tmi_events",
         "read_tmi_event_facts",
-        "read_weather_context",
+        "read_tmi_operational_context",
         "read_public_observations",
         "read_tmi_event_graph",
-        "rank_tmi_events_by_metadata",
+        "find_similar_tmi_events",
+        "search_source_text",
+        "semantic_search_sources",
+        "read_source",
     }
 )
 
@@ -129,8 +122,8 @@ class LiveEvaluationSuite(StrictModel):
         return self
 
     @property
-    def build_source_ids(self) -> tuple[str, ...]:
-        """All sources needed to build the self-contained smoke corpus."""
+    def required_source_ids(self) -> tuple[str, ...]:
+        """Logical advisory sources that must resolve in the live store."""
 
         return tuple(sorted({trial.source_id for trial in self.trials}))
 
@@ -148,6 +141,7 @@ class HybridQueryRunStatement(StrictModel):
 
     kind: Literal[
         "source_fact",
+        "source_record",
         "non_causal_context",
         "public_observation",
         "similarity",
@@ -160,6 +154,9 @@ class HybridQueryRunStatement(StrictModel):
     observation_ids: tuple[str, ...] = ()
     graph_path_ids: tuple[str, ...] = ()
     source_ids: tuple[str, ...] = ()
+    source_version_ids: tuple[str, ...] = ()
+    source_anchor_ids: tuple[str, ...] = ()
+    chunk_ids: tuple[str, ...] = ()
     citation_valid: bool
     claim_boundary_valid: bool
     validation_error: str = ""
@@ -170,6 +167,7 @@ class HybridQueryRunSupport(StrictModel):
 
     kind: Literal[
         "source_fact",
+        "source_record",
         "non_causal_context",
         "public_observation",
         "similarity",
@@ -181,6 +179,9 @@ class HybridQueryRunSupport(StrictModel):
     observation_ids: tuple[str, ...] = ()
     graph_path_ids: tuple[str, ...] = ()
     source_ids: tuple[str, ...] = ()
+    source_version_ids: tuple[str, ...] = ()
+    source_anchor_ids: tuple[str, ...] = ()
+    chunk_ids: tuple[str, ...] = ()
 
 
 class HybridQueryRunTool(StrictModel):
@@ -190,6 +191,9 @@ class HybridQueryRunTool(StrictModel):
     status: Literal["ok", "insufficient", "blocked"]
     reference_ids: tuple[str, ...] = ()
     source_ids: tuple[str, ...] = ()
+    source_version_ids: tuple[str, ...] = ()
+    source_anchor_ids: tuple[str, ...] = ()
+    chunk_ids: tuple[str, ...] = ()
 
 
 class HybridQueryRunArtifact(StrictModel):
@@ -248,7 +252,7 @@ class LiveEvaluationResult(StrictModel):
 
 
 class LiveEvaluationSummary(StrictModel):
-    """Aggregate smoke outcome, separate from canonical corpus identity."""
+    """Aggregate smoke outcome over one frozen live-store binding."""
 
     manifest_version: Literal["tmi-event-live-evaluation-v4"] = (
         "tmi-event-live-evaluation-v4"
@@ -383,6 +387,9 @@ def build_hybrid_query_run_artifact(
             observation_ids=statement.support_observation_ids,
             graph_path_ids=statement.support_graph_path_ids,
             source_ids=statement.support_source_ids,
+            source_version_ids=statement.support_source_version_ids,
+            source_anchor_ids=statement.support_source_anchor_ids,
+            chunk_ids=statement.support_chunk_ids,
             citation_valid=(
                 validate_hybrid_query_statement(
                     statement.model_copy(
@@ -416,6 +423,9 @@ def build_hybrid_query_run_artifact(
             observation_ids=record.observation_ids,
             graph_path_ids=record.graph_path_ids,
             source_ids=record.source_ids,
+            source_version_ids=record.source_version_ids,
+            source_anchor_ids=record.source_anchor_ids,
+            chunk_ids=record.chunk_ids,
         )
         for record in support_records
     )
@@ -434,6 +444,13 @@ def build_hybrid_query_run_artifact(
                 )
             ),
             source_ids=tuple(sorted(set(trace.source_ids))),
+            source_version_ids=tuple(
+                sorted(set(trace.source_version_ids))
+            ),
+            source_anchor_ids=tuple(
+                sorted(set(trace.source_anchor_ids))
+            ),
+            chunk_ids=tuple(sorted(set(trace.chunk_ids))),
         )
         for trace in outcome.tool_calls
     )
@@ -859,6 +876,7 @@ def _live_preflight_failures(
     *,
     environ: Mapping[str, str],
 ) -> tuple[str, ...]:
+    del config
     failures: list[str] = []
     if not environ.get("DEEPSEEK_API_KEY", "").strip():
         failures.append("missing_deepseek_credentials")
@@ -877,35 +895,6 @@ def _live_preflight_failures(
             failures.append(f"{role}_thinking_not_disabled")
         if prompt.max_retries != 0:
             failures.append(f"{role}_retries_not_zero")
-    sources = config.get("sources")
-    if not isinstance(sources, Mapping):
-        failures.append("missing_sources_mapping")
-        return tuple(failures)
-    for key in REQUIRED_LIVE_SOURCE_KEYS:
-        value = sources.get(key)
-        if not isinstance(value, (str, Path)) or not str(value):
-            failures.append(f"missing_source_config:{key}")
-            continue
-        if not resolve_project_path(value).is_file():
-            failures.append(f"missing_source_file:{key}")
-    return tuple(failures)
-
-
-def _resource_preflight_failures(
-    resources: BatchResources,
-) -> tuple[str, ...]:
-    failures: list[str] = []
-    if resources.authority_catalog.facility.status is not AuthorityBuildStatus.OK:
-        failures.append("facility_authority_snapshot_not_ready")
-    if (
-        resources.authority_catalog.terminology.status
-        is not AuthorityBuildStatus.OK
-    ):
-        failures.append("terminology_authority_snapshot_not_ready")
-    if resources.weather_failure_reason:
-        failures.append("weather_snapshot_not_ready")
-    if resources.bts_failure_reason:
-        failures.append("bts_snapshot_not_ready")
     return tuple(failures)
 
 
@@ -1006,115 +995,275 @@ def _repetition_matrix_failures(
 def _resolve_query_event_id(
     *,
     source_id: str,
-    build_results: Mapping[str, CorpusBuildResult],
-    store: CorpusQueryStore,
+    store: AviationEvidenceStore,
 ) -> str | None:
-    result = build_results.get(source_id)
-    if result is not None and result.event_id and store.get_event(result.event_id):
-        return result.event_id
-    matches = [
+    """Resolve exactly one active TMI event for a logical advisory source."""
+
+    matches = tuple(
         event.event_id
-        for event in store.events
+        for event in store.list_tmi_event_publications(active_only=True)
         if event.advisory_source_id == source_id
-    ]
+    )
     return matches[0] if len(matches) == 1 else None
+
+
+def _active_collection_candidates(
+    runtime: QueryRuntime,
+    *,
+    source_versions: bool,
+) -> tuple[str, ...]:
+    index = runtime.source_index if source_versions else runtime.event_index
+    if index is None:
+        raise EvaluationBindingBlocked(
+            (
+                "source_vector_index_unavailable"
+                if source_versions
+                else "event_vector_index_unavailable"
+            )
+        )
+    identity_field = (
+        "source_version_id" if source_versions else "publication_id"
+    )
+    payload = index.collection.get(include=["metadatas"])
+    candidates = {
+        str(metadata[identity_field])
+        for metadata in payload.get("metadatas") or ()
+        if metadata is not None
+        and metadata.get("active") is True
+        and identity_field in metadata
+    }
+    if not candidates:
+        raise EvaluationBindingBlocked(
+            (
+                "source_vector_candidates_unavailable"
+                if source_versions
+                else "event_vector_candidates_unavailable"
+            )
+        )
+    return tuple(sorted(candidates))
+
+
+def _selected_suite_events(
+    store: AviationEvidenceStore,
+    suite: LiveEvaluationSuite,
+) -> dict[str, str]:
+    selected: dict[str, str] = {}
+    for source_id in suite.required_source_ids:
+        event_id = _resolve_query_event_id(
+            source_id=source_id,
+            store=store,
+        )
+        if event_id is None:
+            raise EvaluationBindingBlocked(
+                "required_active_event_not_found"
+            )
+        selected[source_id] = event_id
+    return selected
+
+
+def _validation_profile_checksums(
+    store: AviationEvidenceStore,
+    event_ids: Sequence[str],
+) -> tuple[str, ...]:
+    checksums: set[str] = set()
+    for event_id in event_ids:
+        checksums.update(
+            fact.validation_profile.profile_checksum
+            for fact in store.get_event_facts(event_id)
+        )
+        checksums.update(
+            gap.validation_profile.profile_checksum
+            for gap in store.get_event_profile_gaps(event_id)
+        )
+        checksums.update(
+            observation.profile_checksum
+            for observation in store.get_event_observations(
+                event_id,
+                ("baseline", "active", "recovery"),
+            )
+        )
+    return tuple(sorted(checksums))
+
+
+def _bind_live_query_runtime(
+    *,
+    runtime: QueryRuntime,
+    suite: LiveEvaluationSuite,
+) -> EvaluationDataBinding:
+    """Freeze the exact store and vector universe before provider calls."""
+
+    if runtime.source_index is None:
+        raise EvaluationBindingBlocked("source_vector_index_unavailable")
+    if runtime.event_index is None:
+        raise EvaluationBindingBlocked("event_vector_index_unavailable")
+    selected = _selected_suite_events(runtime.store, suite)
+    events = tuple(
+        runtime.store.get_event(event_id)
+        for event_id in selected.values()
+    )
+    if any(event is None for event in events):
+        raise EvaluationBindingBlocked("required_active_event_not_found")
+    selected_events = tuple(event for event in events if event is not None)
+    required_source_version_ids = tuple(
+        sorted(
+            {
+                source.source_version_id
+                for event in selected_events
+                for source in runtime.store.get_event_sources(event.event_id)
+            }
+        )
+    )
+    if not required_source_version_ids:
+        raise EvaluationBindingBlocked("required_source_versions_unavailable")
+    source_candidates = set(
+        _active_collection_candidates(runtime, source_versions=True)
+    )
+    source_candidate_version_ids = tuple(
+        sorted(source_candidates.intersection(required_source_version_ids))
+    )
+    required_advisory_versions = {
+        event.publication_source_version_id for event in selected_events
+    }
+    if not required_advisory_versions <= set(source_candidate_version_ids):
+        raise EvaluationBindingBlocked(
+            "required_advisory_source_vector_unavailable"
+        )
+    event_candidate_publication_ids = _active_collection_candidates(
+        runtime,
+        source_versions=False,
+    )
+    required_event_publication_ids = tuple(
+        sorted(event.publication_id for event in selected_events)
+    )
+    if not set(required_event_publication_ids) <= set(
+        event_candidate_publication_ids
+    ):
+        raise EvaluationBindingBlocked(
+            "required_event_vector_unavailable"
+        )
+    return bind_evaluation_data(
+        runtime.store,
+        source_index=runtime.source_index,
+        event_index=runtime.event_index,
+        required_source_version_ids=required_source_version_ids,
+        required_event_publication_ids=required_event_publication_ids,
+        source_candidate_version_ids=source_candidate_version_ids,
+        event_candidate_publication_ids=event_candidate_publication_ids,
+        validation_profile_checksums=_validation_profile_checksums(
+            runtime.store,
+            tuple(selected.values()),
+        ),
+    )
+
+
+def _verify_live_evaluation_binding(
+    binding: EvaluationDataBinding,
+    runtime: QueryRuntime,
+) -> None:
+    if runtime.source_index is None:
+        raise EvaluationBindingBlocked("source_vector_index_unavailable")
+    if runtime.event_index is None:
+        raise EvaluationBindingBlocked("event_vector_index_unavailable")
+    verify_evaluation_data_binding(
+        binding,
+        runtime.store,
+        source_index=runtime.source_index,
+        event_index=runtime.event_index,
+        validation_profile_checksums=binding.validation_profile_checksums,
+    )
 
 
 def _run_live_evaluation_repetition(
     *,
-    config: Mapping[str, Any],
     suite: LiveEvaluationSuite,
-    resources: BatchResources,
+    runtime: QueryRuntime,
+    binding: EvaluationDataBinding,
     runtime_root: Path,
     repetition: int,
-) -> tuple[LiveEvaluationResult, ...]:
-    """Execute one isolated real-provider repetition of the versioned suite."""
+) -> tuple[tuple[LiveEvaluationResult, ...], tuple[str, ...]]:
+    """Execute one real-provider repetition against the frozen live store."""
 
     repetition_root = (
         runtime_root
         if suite.repetitions == 1
         else runtime_root / "repetitions" / f"{repetition:03d}"
     )
-    corpus_dir = repetition_root / "corpus"
-
-    batch = build_corpus_batch(
-        config,
-        corpus_dir,
-        selection="cohort",
-        source_ids=suite.build_source_ids,
-        allow_live_model=False,
-        resume=False,
-        resource_loader=lambda _config: resources,
-    )
-    build_results = {row.source_id: row for row in batch.results}
-    store = (
-        CorpusQueryStore(corpus_dir)
-        if (corpus_dir / "corpus_manifest.json").is_file()
-        else None
-    )
     results: list[LiveEvaluationResult] = []
+    runner_detail_codes: list[str] = []
     for trial in suite.trials:
-        if store is None:
-            results.append(
-                _blocked_query_result(
-                    trial=trial,
-                    repetition=repetition,
-                    failure_code="query_dependency_corpus_not_published",
-                    live_model=True,
-                )
+        try:
+            _verify_live_evaluation_binding(binding, runtime)
+            event_id = _resolve_query_event_id(
+                source_id=trial.source_id,
+                store=runtime.store,
             )
-            continue
-        event_id = _resolve_query_event_id(
-            source_id=trial.source_id,
-            build_results=build_results,
-            store=store,
-        )
-        if event_id is None:
-            results.append(
-                _blocked_query_result(
-                    trial=trial,
-                    repetition=repetition,
-                    failure_code="query_dependency_event_not_found",
-                    live_model=True,
+            if event_id is None:
+                results.append(
+                    _blocked_query_result(
+                        trial=trial,
+                        repetition=repetition,
+                        failure_code="query_dependency_event_not_found",
+                        live_model=True,
+                    )
                 )
+                continue
+            outcome = answer_question(
+                runtime=runtime,
+                question=trial.question,
+                scope=HybridQueryScope(event_id=event_id),
+                model_factory=lambda tools: make_live_tool_calling_model(
+                    tools=tools,
+                    role="query",
+                ),
             )
-            continue
-        outcome = answer_corpus_question(
-            corpus_dir=corpus_dir,
-            question=trial.question,
-            event_id=event_id,
-            model_factory=lambda tools: make_live_tool_calling_model(
-                tools=tools,
-                role="query",
-            ),
-        )
-        query_run = build_hybrid_query_run_artifact(
-            trial=trial,
-            event_id=event_id,
-            outcome=outcome,
-        )
-        query_run_path = write_hybrid_query_run_artifact(
-            repetition_root / "hybrid_query_runs" / trial.trial_id,
-            query_run,
-        )
-        results.append(
-            score_query_trial(
+            query_run = build_hybrid_query_run_artifact(
                 trial=trial,
-                repetition=repetition,
-                live_model=True,
                 event_id=event_id,
                 outcome=outcome,
-                query_run=query_run,
-                query_run_artifact_path=query_run_path,
             )
-        )
-    return tuple(results)
+            query_run_path = write_hybrid_query_run_artifact(
+                repetition_root / "hybrid_query_runs" / trial.trial_id,
+                query_run,
+            )
+            results.append(
+                score_query_trial(
+                    trial=trial,
+                    repetition=repetition,
+                    live_model=True,
+                    event_id=event_id,
+                    outcome=outcome,
+                    query_run=query_run,
+                    query_run_artifact_path=query_run_path,
+                )
+            )
+        except EvaluationBindingBlocked as exc:
+            runner_detail_codes.append(exc.detail_code)
+            results.append(
+                _not_run_trial_result(
+                    trial=trial,
+                    repetition=repetition,
+                    failure_code="evaluation_binding_changed",
+                )
+            )
+        except (OSError, RuntimeError, TypeError, ValueError):
+            runner_detail_codes.append(
+                f"repetition_{repetition:03d}_{trial.trial_id}_runner_exception"
+            )
+            results.append(
+                _not_run_trial_result(
+                    trial=trial,
+                    repetition=repetition,
+                    failure_code="evaluation_trial_not_executed",
+                )
+            )
+    return tuple(results), tuple(runner_detail_codes)
 
 
 def run_live_agent_evaluation(
     *,
     config_path: str | Path,
     suite_path: str | Path,
+    store_dir: str | Path | None,
     output_dir: str | Path,
     report_dir: str | Path,
     allow_live_model: bool,
@@ -1136,14 +1285,24 @@ def run_live_agent_evaluation(
     load_environment()
     failures = _live_preflight_failures(config, environ=os.environ)
     suite_checksum = hashlib.sha256(suite_file.read_bytes()).hexdigest()
-    resources: BatchResources | None = None
+    runtime: QueryRuntime | None = None
+    binding: EvaluationDataBinding | None = None
     if not failures:
         try:
-            resources = load_batch_resources(config)
+            runtime = open_query_runtime(
+                config,
+                store_dir=store_dir,
+                allow_model_download=False,
+            )
+            binding = _bind_live_query_runtime(
+                runtime=runtime,
+                suite=suite,
+            )
+            _verify_live_evaluation_binding(binding, runtime)
+        except EvaluationBindingBlocked as exc:
+            failures = (exc.detail_code,)
         except (OSError, RuntimeError, TypeError, ValueError):
-            failures = ("resource_preflight_failed",)
-        else:
-            failures = _resource_preflight_failures(resources)
+            failures = ("query_runtime_preflight_failed",)
     if failures:
         summary = summarize_live_evaluation(
             suite_id=suite.suite_id,
@@ -1160,35 +1319,36 @@ def run_live_agent_evaluation(
             results=(),
             summary=summary,
         )
+        if runtime is not None:
+            runtime.store.close()
         return summary
-    assert resources is not None
+    assert runtime is not None
+    assert binding is not None
     runtime_root = Path(output_dir)
     shutil.rmtree(runtime_root, ignore_errors=True)
+    runtime_root.mkdir(parents=True, exist_ok=True)
+    (runtime_root / "evaluation_data_binding.json").write_text(
+        binding.model_dump_json(indent=2) + "\n",
+        encoding="utf-8",
+    )
     results: list[LiveEvaluationResult] = []
     runner_detail_codes: list[str] = []
     for repetition in range(1, repetitions + 1):
-        try:
-            results.extend(
-                _run_live_evaluation_repetition(
-                    config=config,
-                    suite=suite,
-                    resources=resources,
-                    runtime_root=runtime_root,
-                    repetition=repetition,
-                )
+        repetition_results, repetition_details = (
+            _run_live_evaluation_repetition(
+                suite=suite,
+                runtime=runtime,
+                binding=binding,
+                runtime_root=runtime_root,
+                repetition=repetition,
             )
-        except (OSError, RuntimeError, TypeError, ValueError):
-            runner_detail_codes.append(
-                f"repetition_{repetition:03d}_runner_exception"
-            )
-            results.extend(
-                _not_run_trial_result(
-                    trial=trial,
-                    repetition=repetition,
-                    failure_code="evaluation_repetition_not_executed",
-                )
-                for trial in suite.trials
-            )
+        )
+        results.extend(repetition_results)
+        runner_detail_codes.extend(repetition_details)
+    try:
+        verify_evaluation_revision_unchanged(binding, runtime.store)
+    except EvaluationBindingBlocked as exc:
+        runner_detail_codes.append(exc.detail_code)
     runner_detail_codes.extend(
         _repetition_matrix_failures(
             suite=suite,
@@ -1213,6 +1373,7 @@ def run_live_agent_evaluation(
         results=results,
         summary=summary,
     )
+    runtime.store.close()
     return summary
 
 
@@ -1224,6 +1385,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     parser.add_argument("--config", required=True)
     parser.add_argument("--suite", required=True)
+    parser.add_argument("--store-dir")
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--report-dir", required=True)
     parser.add_argument("--allow-live-model", action="store_true")
@@ -1233,6 +1395,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         summary = run_live_agent_evaluation(
             config_path=args.config,
             suite_path=args.suite,
+            store_dir=args.store_dir,
             output_dir=args.output_dir,
             report_dir=args.report_dir,
             allow_live_model=args.allow_live_model,

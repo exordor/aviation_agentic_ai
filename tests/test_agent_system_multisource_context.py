@@ -42,7 +42,6 @@ from aviation_agentic_ai.agent_system.construction_contracts import stable_contr
 from aviation_agentic_ai.agent_system.materialize import (
     FormalPublicationBlocked,
 )
-from aviation_agentic_ai.agent_system.runtime import write_run_manifest
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
@@ -1879,33 +1878,3 @@ def test_event_preflight_rejection_does_not_call_final_publication_kernel(
     assert published["publication_status"] == "blocked"
     assert published["formal_layers"]["decision"]["status"] == "blocked"
     assert calls == []
-
-
-def test_run_manifest_registers_exact_context_artifact_metadata(tmp_path):
-    artifact = tmp_path / "context_associations.jsonl"
-    artifact.write_text("", encoding="utf-8")
-    metadata = {
-        "context_associations": {
-            "path": artifact.name,
-            "count": 0,
-            "sha256": hashlib.sha256(b"").hexdigest(),
-            "status": "insufficient",
-        }
-    }
-
-    path = write_run_manifest(
-        run_dir=tmp_path,
-        source_id="2026-05-20:020",
-        model_calls=[],
-        materialization=None,
-        schema_slice_id="slice:test",
-        schema_checksum="checksum:test",
-        evidence_cards=[],
-        graph_patch_raw=None,
-        prompt_set_id="prompt:test",
-        profile_gap_count=0,
-        context_artifacts=metadata,
-    )
-
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    assert payload["context_artifacts"] == metadata

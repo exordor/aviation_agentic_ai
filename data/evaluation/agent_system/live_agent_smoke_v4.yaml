@@ -18,7 +18,7 @@ trials:
     expected_role: query
     question: What non-causal weather context is recorded for this event, separate from the advisory's declared reason?
     required_tool_names:
-      - read_weather_context
+      - read_tmi_operational_context
   - trial_id: regression-public-observations-159
     kind: query
     partition: regression

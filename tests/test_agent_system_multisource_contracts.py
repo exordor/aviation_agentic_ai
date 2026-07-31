@@ -15,7 +15,6 @@ from aviation_agentic_ai.agent_system.contracts import (
     GraphPatchBlock,
     GraphPatchLine,
     GraphValidationResult,
-    PersistedProfileGap,
     SourceFamily,
     SourceRecord,
     ValidatedFact,
@@ -25,10 +24,6 @@ from aviation_agentic_ai.agent_system.formal_graph import (
     write_fact_trace,
 )
 from aviation_agentic_ai.agent_system.materialize import materialize_validated_facts
-from aviation_agentic_ai.agent_system.query_tools import (
-    QueryGraphStore,
-    QueryToolError,
-)
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
@@ -40,7 +35,6 @@ from aviation_agentic_ai.agent_system.workflow import (
     AuthoritySourceRegistryStatus,
     merge_authority_source_records,
 )
-from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 
 def _record(source_id: str, family: SourceFamily, content: str) -> SourceRecord:
@@ -57,16 +51,6 @@ DECISION_PROFILE_REF = next(
 PROFILE_REGISTRY = load_validation_profile_registry(
     decision_guide=load_schema_guide()
 )
-ADVISORY_CONTENT = (
-    "ATCSCC ADVZY 123 JFK/ZNY 05/19/2026 CDM GROUND STOP\n"
-    "MESSAGE:\n"
-    "CTL ELEMENT: JFK ELEMENT TYPE: APT ADL TIME: 2135Z "
-    "GROUND STOP PERIOD: 19/2100Z - 19/2245Z "
-    "PROBABILITY OF EXTENSION: MEDIUM "
-    "IMPACTING CONDITION: WEATHER / THUNDERSTORMS COMMENTS:\n"
-)
-
-
 def _decision_fact(**fields: object) -> ValidatedFact:
     """Build a source-text decision fact with explicit v1 ownership."""
 
@@ -78,231 +62,6 @@ def _decision_fact(**fields: object) -> ValidatedFact:
         evidence_mode="source_text",
         evidence_ref=fact_id,
     )
-
-
-def _artifact_metadata(
-    path,
-    *,
-    status: str = "ok",
-) -> dict[str, object]:
-    data = path.read_bytes()
-    return {
-        "path": path.name,
-        "count": sum(1 for line in data.splitlines() if line.strip()),
-        "sha256": __import__("hashlib").sha256(data).hexdigest(),
-        "status": status,
-    }
-
-
-def _profile_gap(
-    snapshot: contracts.SourceSnapshot,
-    *,
-    event_id: str = "urn:aviation-agentic-ai:event:1",
-) -> PersistedProfileGap:
-    evidence = "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
-    evidence_ref = stable_id(
-        "profile-gap-evidence",
-        snapshot.source_id,
-        snapshot.content_sha256,
-        "impacting_condition",
-        "weather",
-        evidence,
-    )
-    profile_gap_id = stable_id(
-        "profile-gap",
-        event_id,
-        "impacting_condition",
-        "weather",
-        "not_in_profile",
-        evidence_ref,
-        DECISION_PROFILE_REF.profile_id,
-        DECISION_PROFILE_REF.profile_checksum,
-        DECISION_PROFILE_REF.layer,
-    )
-    return PersistedProfileGap(
-        profile_gap_id=profile_gap_id,
-        event_id=event_id,
-        field="impacting_condition",
-        value="weather",
-        evidence_text=evidence,
-        reason="not_in_profile",
-        source_id=snapshot.source_id,
-        source_snapshot_sha256=snapshot.content_sha256,
-        evidence_ref=evidence_ref,
-        validation_profile=DECISION_PROFILE_REF,
-    )
-
-
-def _write_profile_gap(run_dir, snapshot: contracts.SourceSnapshot) -> str:
-    gap = _profile_gap(snapshot)
-    path = run_dir / "profile_gaps.jsonl"
-    path.write_text(gap.model_dump_json() + "\n", encoding="utf-8")
-    manifest_path = run_dir / "run_manifest.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    manifest["profile_gaps"] = _artifact_metadata(path)
-    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-    return gap.profile_gap_id
-
-
-def _write_current_query_run(
-    run_dir,
-    *,
-    write_registry: bool = True,
-) -> contracts.SourceSnapshot:
-    """Write one hand-authored current run without using production manifest code."""
-
-    snapshot = build_source_snapshot(
-        _record(
-            "advisory:1",
-            SourceFamily.ATCSCC_ADVISORY,
-            ADVISORY_CONTENT,
-        )
-    )
-    graph_path = run_dir / "kg.jsonl"
-    graph_path.write_text(
-        json.dumps(
-            {
-                "triple_id": "fact:type",
-                "subject": "urn:aviation-agentic-ai:event:1",
-                "predicate": "rdf:type",
-                "object": "atm:GroundStopTMI",
-                "subject_class": "atm:GroundStopTMI",
-                "object_class": "atm:GroundStopTMI",
-                "object_kind": "iri",
-                "source_document": snapshot.source_id,
-                "evidence_text": "GROUND STOP",
-                "profile_id": DECISION_PROFILE_REF.profile_id,
-                "profile_checksum": DECISION_PROFILE_REF.profile_checksum,
-                "validation_layer": "decision",
-                "evidence_mode": "source_text",
-                "evidence_ref": "fact:type",
-                "source_ids": [snapshot.source_id],
-                "source_snapshot_checksums": {
-                    snapshot.source_id: snapshot.content_sha256,
-                },
-            },
-            sort_keys=True,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
-    context_artifacts: dict[str, dict[str, object]] = {}
-    fact_trace_path = run_dir / "fact_trace.jsonl"
-    fact_trace_path.write_text(
-        json.dumps(
-            {
-                "fact_id": "fact:type",
-                "graph_patch_line": "",
-                "source_id": snapshot.source_id,
-                "evidence_text": "GROUND STOP",
-                "evidence_agent_role": "advisory",
-                "source_snapshot_sha256": snapshot.content_sha256,
-            }
-        )
-        + "\n",
-        encoding="utf-8",
-    )
-    context_artifacts["fact_trace"] = _artifact_metadata(fact_trace_path)
-    for key, filename in (
-        ("weather_fact_trace", "weather_fact_trace.jsonl"),
-        ("observation_fact_trace", "observation_fact_trace.jsonl"),
-    ):
-        path = run_dir / filename
-        path.write_text("", encoding="utf-8")
-        context_artifacts[key] = _artifact_metadata(
-            path,
-            status="insufficient",
-        )
-    if write_registry:
-        registry_path = contracts.SourceSnapshotRegistry(
-            snapshots=[snapshot]
-        ).write_jsonl(run_dir)
-        context_artifacts["source_snapshots"] = _artifact_metadata(registry_path)
-    profile_gap_path = run_dir / "profile_gaps.jsonl"
-    profile_gap_path.write_text("", encoding="utf-8")
-    layers = {}
-    for profile in PROFILE_REGISTRY.profiles:
-        layers[profile.ref.layer] = {
-            "status": (
-                "ok" if profile.ref.layer == "decision" else "insufficient"
-            ),
-            "profile_id": profile.ref.profile_id,
-            "profile_checksum": profile.ref.profile_checksum,
-            "formal_fact_count": (
-                1 if profile.ref.layer == "decision" else 0
-            ),
-        }
-    (run_dir / "run_manifest.json").write_text(
-        json.dumps(
-            {
-                "manifest_version": "tmi-event-run-v1",
-                "run_id": run_dir.name,
-                "source_id": snapshot.source_id,
-                "materialization": {
-                    "materialized": True,
-                    "fact_count": 1,
-                    "profile_refs": [
-                        DECISION_PROFILE_REF.model_dump(mode="json")
-                    ],
-                    "layer_fact_counts": {"decision": 1},
-                    "artifacts": {"kg_jsonl": str(graph_path)},
-                },
-                "formal_layers": layers,
-                "context_artifacts": context_artifacts,
-                "profile_gaps": _artifact_metadata(profile_gap_path),
-            },
-            sort_keys=True,
-        ),
-        encoding="utf-8",
-    )
-    return snapshot
-
-
-def test_query_store_rejects_a_run_without_current_manifest(tmp_path):
-    """A graph file alone cannot be mistaken for a queryable current run."""
-
-    _write_current_query_run(tmp_path)
-    (tmp_path / "run_manifest.json").unlink()
-
-    with pytest.raises(QueryToolError, match="current run manifest"):
-        QueryGraphStore(tmp_path)
-
-
-def test_query_store_rejects_a_run_with_the_wrong_manifest_version(tmp_path):
-    """A versioned but unsupported run is not a current query source."""
-
-    _write_current_query_run(tmp_path)
-    manifest_path = tmp_path / "run_manifest.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    manifest["manifest_version"] = "decision-case-run-v0"
-    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-
-    with pytest.raises(QueryToolError, match="current run manifest version"):
-        QueryGraphStore(tmp_path)
-
-
-def test_profile_gap_requires_registered_jsonl_snapshot(tmp_path):
-    """A current profile gap requires the registered source snapshot."""
-
-    snapshot = _write_current_query_run(tmp_path, write_registry=False)
-    (tmp_path / "profile_gaps.jsonl").write_text(
-        _profile_gap(snapshot).model_dump_json()
-        + "\n",
-        encoding="utf-8",
-    )
-
-    with pytest.raises(QueryToolError, match="source_snapshots.jsonl"):
-        QueryGraphStore(tmp_path)
-
-
-def test_current_profile_owned_run_remains_queryable(tmp_path):
-    """Current manifest, registry, ownership, and checksums authorize graph reads."""
-
-    _write_current_query_run(tmp_path)
-
-    store = QueryGraphStore(tmp_path)
-
-    assert store.event_ids == ["urn:aviation-agentic-ai:event:1"]
 
 
 def test_parallel_authority_record_reducer_deduplicates_identical_rows():
@@ -557,19 +316,6 @@ def test_evidence_index_rejects_a_registry_with_a_bad_snapshot_checksum():
     )
 
     assert build_evidence_index([card], forged_registry) == {}
-
-
-def test_query_store_reads_canonical_multisource_snapshot_artifact(tmp_path):
-    """A new-run profile gap validates against its named JSONL source snapshot."""
-
-    snapshot = _write_current_query_run(tmp_path)
-    profile_gap_id = _write_profile_gap(tmp_path, snapshot)
-
-    store = QueryGraphStore(tmp_path)
-
-    assert [gap.profile_gap_id for gap in store.profile_gaps] == [
-        profile_gap_id
-    ]
 
 
 def test_source_snapshot_registry_builds_from_records_and_writes_new_run_artifact(tmp_path):

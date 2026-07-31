@@ -88,6 +88,16 @@ class IngestionCaseExecution:
 
 
 @dataclass(frozen=True)
+class AdvisoryPreflightResult:
+    """Deterministic admission outcome before any Agent is activated."""
+
+    status: str
+    reason: str
+    tmi_family: str
+    preflight_eligible: bool
+
+
+@dataclass(frozen=True)
 class IngestionSummary:
     """Compact outcome of one incremental ingestion invocation."""
 
@@ -600,6 +610,27 @@ def _preflight_result(
     advisory: SourceRecord,
     version: SourceVersionRecord,
 ) -> IngestionResult | None:
+    preflight = preflight_advisory(advisory)
+    if preflight is None:
+        return None
+    return IngestionResult(
+        source_version_id=version.source_version_id,
+        source_id=advisory.source_id,
+        status="insufficient",
+        event_id=None,
+        publication_id=None,
+        reason=preflight.reason,
+        provider_call_count=0,
+        tmi_family=preflight.tmi_family,
+        preflight_eligible=False,
+    )
+
+
+def preflight_advisory(
+    advisory: SourceRecord,
+) -> AdvisoryPreflightResult | None:
+    """Classify unsupported or incomplete advisories without a model call."""
+
     mentions = parse_structured_fields(advisory.content)
     family = classify_tmi_family(advisory.content)
     profile = get_tmi_profile(family or "")
@@ -619,14 +650,9 @@ def _preflight_result(
         reason = "incomplete core advisory fields"
     if reason is None:
         return None
-    return IngestionResult(
-        source_version_id=version.source_version_id,
-        source_id=advisory.source_id,
+    return AdvisoryPreflightResult(
         status="insufficient",
-        event_id=None,
-        publication_id=None,
         reason=reason,
-        provider_call_count=0,
         tmi_family=family or "UNCLASSIFIED",
         preflight_eligible=False,
     )
@@ -656,10 +682,12 @@ def _summarize(
 
 
 __all__ = [
+    "AdvisoryPreflightResult",
     "IngestionCaseExecution",
     "IngestionResources",
     "IngestionSummary",
     "TMIEventQuery",
     "load_ingestion_resources",
+    "preflight_advisory",
     "run_ingestion_pipeline",
 ]

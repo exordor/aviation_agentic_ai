@@ -13,8 +13,10 @@ import pytest
 from aviation_agentic_ai.agent_system.agents import parse_structured_fields
 from aviation_agentic_ai.agent_system.authority_evidence import NASRAuthorityRecord
 from aviation_agentic_ai.agent_system.contracts import SourceFamily, SourceRecord
-from aviation_agentic_ai.agent_system.corpus_batch import _preflight
 from aviation_agentic_ai.agent_system.evidence_store import AviationEvidenceStore
+from aviation_agentic_ai.agent_system.ingestion_pipeline import (
+    preflight_advisory,
+)
 from aviation_agentic_ai.agent_system.ingestion_package import IngestionAttempt
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.sources import load_advisory_source
@@ -84,12 +86,12 @@ def test_route_rqd_parses_as_reroute_with_atmonto_fields() -> None:
 
 
 def test_active_reroute_passes_family_specific_preflight() -> None:
-    assert _preflight(_source("2026-05-19:108")) is None
-    assert _preflight(_source("2026-05-20:137")) is None
+    assert preflight_advisory(_source("2026-05-19:108")) is None
+    assert preflight_advisory(_source("2026-05-20:137")) is None
 
 
 def test_reroute_cancellation_remains_a_deferred_lifecycle_record() -> None:
-    result = _preflight(_source("2026-05-20:098"))
+    result = preflight_advisory(_source("2026-05-20:098"))
 
     assert result is not None
     assert result.status == "insufficient"
@@ -99,7 +101,7 @@ def test_reroute_cancellation_remains_a_deferred_lifecycle_record() -> None:
 
 
 def test_informational_boundary_is_not_forced_into_tmi_publication() -> None:
-    result = _preflight(_source("2026-05-14:059"))
+    result = preflight_advisory(_source("2026-05-14:059"))
 
     assert result is not None
     assert result.status == "insufficient"

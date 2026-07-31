@@ -14,7 +14,9 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceFamily,
     SourceRecord,
 )
-from aviation_agentic_ai.agent_system.corpus_batch import _preflight
+from aviation_agentic_ai.agent_system.ingestion_pipeline import (
+    preflight_advisory,
+)
 from aviation_agentic_ai.cross_source.artifacts import read_jsonl
 from aviation_agentic_ai.cross_source.evaluation.cohort import (
     select_cross_source_cohort,
@@ -137,7 +139,7 @@ def test_frozen_cohort_preflight_keeps_active_reroutes_on_mainline() -> None:
         expected_count=68,
     )
     results = [
-        _preflight(
+        preflight_advisory(
             SourceRecord(
                 source_id=str(row["source_id"]),
                 family=SourceFamily.ATCSCC_ADVISORY,
@@ -180,7 +182,7 @@ def test_frozen_cohort_preflight_keeps_active_reroutes_on_mainline() -> None:
 def test_cross_family_regression_records_reach_active_preflight(
     source_id: str,
 ) -> None:
-    assert _preflight(_frozen_source(source_id)) is None
+    assert preflight_advisory(_frozen_source(source_id)) is None
 
 
 @pytest.mark.parametrize(
@@ -194,7 +196,7 @@ def test_cross_family_boundary_records_remain_non_publishable(
     source_id: str,
     family: str,
 ) -> None:
-    result = _preflight(_frozen_source(source_id))
+    result = preflight_advisory(_frozen_source(source_id))
 
     assert result is not None
     assert result.status == "insufficient"
@@ -205,7 +207,7 @@ def test_cross_family_boundary_records_remain_non_publishable(
 
 
 def test_active_tmi_without_issued_time_is_incomplete() -> None:
-    result = _preflight(
+    result = preflight_advisory(
         SourceRecord(
             source_id="example:gdp-without-signature",
             family=SourceFamily.ATCSCC_ADVISORY,

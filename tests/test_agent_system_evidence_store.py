@@ -93,6 +93,7 @@ def _minimal_ok_attempt(
     event_id: str,
     publication_digest: str,
     source_anchor_id: str | None,
+    event_type_iri: str = "atm:GroundStopTMI",
     evidence_text: str = "GROUND STOP",
     source_roles: dict[str, str] | None = None,
     evidence_links: tuple[EventEvidenceLink, ...] | None = None,
@@ -106,11 +107,11 @@ def _minimal_ok_attempt(
     fact = SemanticFactRecord(
         fact_id=f"fact:{event_id}:type",
         subject_iri=event_id,
-        subject_class_iri="atm:GroundStopTMI",
+        subject_class_iri=event_type_iri,
         predicate_iri="rdf:type",
         object_kind="iri",
-        object_value="atm:GroundStopTMI",
-        object_class_iri="atm:GroundStopTMI",
+        object_value=event_type_iri,
+        object_class_iri=event_type_iri,
         datatype_iri=None,
         validation_profile=ValidationProfileRef(
             profile_id="profile:decision:test",
@@ -156,7 +157,7 @@ def _minimal_ok_attempt(
                 publication_id=publication_id,
                 advisory_source_id=version.source_id,
                 publication_source_version_id=version.source_version_id,
-                event_type_iris=("atm:GroundStopTMI",),
+                event_type_iris=(event_type_iri,),
                 facility_ids=(),
                 effective_start=None,
                 effective_end=None,
@@ -269,6 +270,74 @@ def test_store_creation_installs_the_v1_schema_tables(tmp_path: Path) -> None:
             ).fetchall()
         }
         assert REQUIRED_STORE_TABLES <= table_names
+    finally:
+        store.close()
+
+
+def test_project_has_no_formal_decision_case_profile() -> None:
+    """The ATMONTO-aligned store must not reintroduce a project wrapper."""
+
+    root = Path(__file__).resolve().parents[1]
+    assert not (
+        root / "data/ontology/curated/decision_case_core_slice.json"
+    ).exists()
+
+
+@pytest.mark.parametrize(
+    "event_type_iri",
+    (
+        "atm:GroundDelayProgramTMI",
+        "atm:GroundStopTMI",
+        "atm:ReRouteTMI",
+    ),
+)
+def test_active_atmonto_tmi_event_is_the_persisted_identity(
+    tmp_path: Path,
+    event_type_iri: str,
+) -> None:
+    """An admitted TMI is stored directly, without a DecisionCase wrapper."""
+
+    from aviation_agentic_ai.agent_system.evidence_store import (
+        AviationEvidenceStore,
+    )
+
+    version = _source_version(
+        f"source:{event_type_iri}",
+        f"GROUND STOP {event_type_iri}",
+    )
+    event_id = f"urn:aviation-agentic-ai:event:{event_type_iri}"
+    store = AviationEvidenceStore.open(
+        tmp_path / "store",
+        dataset_id="dataset:test",
+        create=True,
+    )
+    try:
+        store.register_source_version(version)
+        anchor = store.anchor_source_text(
+            version.source_version_id,
+            "GROUND STOP",
+        )
+        store.apply_ingestion_attempt(
+            _minimal_ok_attempt(
+                version,
+                event_id=event_id,
+                publication_digest=hashlib.sha256(
+                    event_type_iri.encode("utf-8")
+                ).hexdigest(),
+                source_anchor_id=anchor.source_anchor_id,
+                event_type_iri=event_type_iri,
+            )
+        )
+
+        event = store.get_event(event_id)
+        assert event is not None
+        assert event.event_id == event_id
+        assert event.event_type_iris == (event_type_iri,)
+        assert all(
+            "DecisionCase" not in fact.subject_iri
+            and "DecisionCase" not in fact.object_value
+            for fact in store.get_event_facts(event_id)
+        )
     finally:
         store.close()
 
