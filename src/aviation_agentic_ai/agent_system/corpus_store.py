@@ -181,7 +181,6 @@ class CorpusSourceBinding(StrictModel):
     source_id: str = Field(min_length=1)
     source_family: str = Field(min_length=1)
     source_url: str | None = None
-    snapshot_timestamps: list[str] = Field(min_length=1)
     content_sha256: str = Field(min_length=64, max_length=64)
     object_key: str = Field(min_length=64, max_length=64)
 
@@ -312,16 +311,11 @@ class CorpusQueryStore:
             event_id: frozenset(source_artifacts)
             for event_id, source_artifacts in source_artifacts_by_event.items()
         }
-        source_artifacts_by_fact: dict[str, set[tuple[str, str]]] = defaultdict(set)
-        for link in self.evidence_links:
-            if link.owner_kind == "fact":
-                source_artifacts_by_fact[link.owner_id].add(
-                    (link.source_id, link.artifact_id)
-                )
-        self._source_artifacts_by_fact = {
-            fact_id: frozenset(source_artifacts)
-            for fact_id, source_artifacts in source_artifacts_by_fact.items()
-        }
+        self._fact_ids_with_evidence_links = frozenset(
+            link.owner_id
+            for link in self.evidence_links
+            if link.owner_kind == "fact"
+        )
         self._fact_ids_by_event: dict[str, tuple[str, ...]] = {}
         for event in self.events:
             self._fact_ids_by_event[event.event_id] = tuple(
@@ -391,37 +385,72 @@ class CorpusQueryStore:
 
         return self._event_by_id.get(event_id)
 
+    def _event_fact_evidence_links(
+        self,
+        event_id: str,
+    ) -> tuple[EvidenceLink, ...]:
+        fact_ids = set(self._fact_ids_by_event.get(event_id, ()))
+        event_source_artifacts = self._source_artifacts_by_event.get(
+            event_id,
+            frozenset(),
+        )
+        return tuple(
+            row
+            for row in self.evidence_links
+            if row.owner_kind == "fact"
+            and row.owner_id in fact_ids
+            and (row.source_id, row.artifact_id) in event_source_artifacts
+        )
+
     def get_event_facts(self, event_id: str) -> tuple[CorpusFact, ...]:
         """Return all admitted formal facts assigned to one TMI event."""
 
         event = self.get_event(event_id)
         if event is None:
             return ()
-        event_source_artifacts = self._source_artifacts_by_event.get(
-            event.event_id,
-            frozenset(),
-        )
-        return tuple(
-            self._fact_by_id[fact_id].model_copy(
-                update={
-                    "source_ids": sorted(
-                        set(self._fact_by_id[fact_id].source_ids)
-                        & {
-                            source_id
-                            for source_id, artifact_id in (
-                                self._source_artifacts_by_fact.get(
-                                    fact_id,
-                                    frozenset(),
-                                )
-                            )
-                            if (source_id, artifact_id) in event_source_artifacts
-                        }
-                    )
+        links_by_fact: dict[str, list[EvidenceLink]] = defaultdict(list)
+        for link in self._event_fact_evidence_links(event.event_id):
+            links_by_fact[link.owner_id].append(link)
+        facts: list[CorpusFact] = []
+        for fact_id in self._fact_ids_by_event.get(event.event_id, ()):
+            fact = self._fact_by_id.get(fact_id)
+            links = links_by_fact.get(fact_id, [])
+            if fact is None:
+                continue
+            if not links:
+                # Profile-definition facts intentionally have no source-artifact
+                # EvidenceLink. Keep them unchanged; a source-backed fact whose
+                # links all belong to another event must remain excluded.
+                if fact_id not in self._fact_ids_with_evidence_links:
+                    facts.append(fact)
+                continue
+            evidence_refs = sorted(
+                {
+                    link.evidence_ref
+                    for link in links
+                    if link.evidence_ref is not None
                 }
             )
-            for fact_id in self._fact_ids_by_event.get(event.event_id, ())
-            if fact_id in self._fact_by_id
-        )
+            if not evidence_refs:
+                continue
+            facts.append(
+                fact.model_copy(
+                    update={
+                        "source_ids": sorted(
+                            {link.source_id for link in links}
+                        ),
+                        "evidence_texts": sorted(
+                            {
+                                link.evidence_text
+                                for link in links
+                                if link.evidence_text is not None
+                            }
+                        ),
+                        "evidence_ref": evidence_refs[0],
+                    }
+                )
+            )
+        return tuple(facts)
 
     def graph_for_event(self, event_id: str) -> CorpusEventGraphView:
         """Build one read-only graph view over only the selected event."""
@@ -473,15 +502,23 @@ class CorpusQueryStore:
         event = self.get_event(event_id)
         if event is None:
             return ()
-        owner_ids = {
-            *self._fact_ids_by_event.get(event.event_id, ()),
+        non_fact_owner_ids = {
             *(row.profile_gap_id for row in self.profile_gaps if row.event_id == event_id),
             *(row.association_id for row in self.context_associations if row.event_id == event_id),
             *(row.observation_id for row in self.observations if row.event_id == event_id),
         }
+        fact_links = self._event_fact_evidence_links(event.event_id)
         return tuple(
             sorted(
-                (row for row in self.evidence_links if row.owner_id in owner_ids),
+                (
+                    *fact_links,
+                    *(
+                        row
+                        for row in self.evidence_links
+                        if row.owner_kind != "fact"
+                        and row.owner_id in non_fact_owner_ids
+                    ),
+                ),
                 key=lambda row: row.evidence_link_id,
             )
         )
@@ -714,7 +751,6 @@ def build_corpus(
                 source_id=snapshot.source_id,
                 source_family=snapshot.family.value,
                 source_url=snapshot.source_url,
-                snapshot_timestamps=[snapshot.snapshot_timestamp],
                 content_sha256=snapshot.content_sha256,
                 object_key=snapshot.content_sha256,
             )
@@ -724,22 +760,9 @@ def build_corpus(
                 snapshot.content_sha256,
             )
             previous_binding = bindings_by_id.get(binding_key)
-            if previous_binding is not None:
-                previous_payload = previous_binding.model_dump(mode="json")
-                current_payload = binding.model_dump(mode="json")
-                previous_payload.pop("snapshot_timestamps")
-                current_payload.pop("snapshot_timestamps")
-                if previous_payload != current_payload:
-                    raise ValueError(
-                        f"conflicting source binding for event: {event_id}"
-                    )
-                binding = previous_binding.model_copy(
-                    update={
-                        "snapshot_timestamps": sorted(
-                            set(previous_binding.snapshot_timestamps)
-                            | set(binding.snapshot_timestamps)
-                        )
-                    }
+            if previous_binding is not None and previous_binding != binding:
+                raise ValueError(
+                    f"conflicting source binding for event: {event_id}"
                 )
             bindings_by_id[binding_key] = binding
 
@@ -1276,7 +1299,7 @@ def _projection_inputs(
                 source_url=binding.source_url,
                 content=content,
                 content_sha256=artifact_id,
-                snapshot_timestamp=min(binding.snapshot_timestamps),
+                snapshot_timestamp=None,
             )
         )
     projected_facts = []

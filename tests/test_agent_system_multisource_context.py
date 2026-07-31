@@ -13,9 +13,9 @@ import aviation_agentic_ai.agent_system.context_artifacts as context_artifacts_m
 import aviation_agentic_ai.agent_system.weather_context as weather_context_module
 import aviation_agentic_ai.agent_system.workflow as workflow_module
 from aviation_agentic_ai.agent_system.context_artifacts import (
-    integrate_decision_context,
+    integrate_event_context,
     parse_advisory_signature,
-    prepare_decision_context,
+    prepare_event_context,
     read_context_associations,
     read_bts_observation_summaries,
     read_weather_fact_traces,
@@ -464,7 +464,7 @@ def test_missing_or_malformed_signature_fails_the_optional_context_layer(
         ),
         "materialization": object(),
     }
-    prepared = prepare_decision_context(ctx, state)
+    prepared = prepare_event_context(ctx, state)
     assert prepared["weather_context"].status == expected_status
     assert prepared["public_observation_context"].status == expected_status
 
@@ -472,7 +472,7 @@ def test_missing_or_malformed_signature_fails_the_optional_context_layer(
         FormalPublicationBlocked,
         match="source-text evidence reference is absent",
     ):
-        integrate_decision_context(ctx, {**state, **prepared})
+        integrate_event_context(ctx, {**state, **prepared})
 
     for name in (
         "kg.jsonl",
@@ -654,7 +654,7 @@ def test_prepared_context_is_rejected_when_kernel_accepts_a_different_event(
             publishable=True,
         ),
     }
-    prepared = prepare_decision_context(ctx, base_state)
+    prepared = prepare_event_context(ctx, base_state)
     changed_facts = [
         fact.model_copy(update={"object_value": "2026-05-20T03:30:00Z"})
         if fact.predicate_iri == f"{ATM}effectiveEndTime"
@@ -662,7 +662,7 @@ def test_prepared_context_is_rejected_when_kernel_accepts_a_different_event(
         for fact in candidate_facts
     ]
 
-    result = integrate_decision_context(
+    result = integrate_event_context(
         ctx,
         {
             **base_state,
@@ -834,7 +834,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         capture_publication,
     )
 
-    result = integrate_decision_context(ctx, state)
+    result = integrate_event_context(ctx, state)
 
     assert len(publication_calls) == 1
     assert set(publication_calls[0].layer_fact_counts) == {
@@ -854,13 +854,13 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         (tmp_path / "fact_trace.jsonl").read_bytes()
     ).hexdigest()
     assert fact_trace_metadata["status"] == "ok"
-    assert result["decision_context_event"].operational_start == datetime.fromisoformat(
+    assert result["event_context_event"].operational_start == datetime.fromisoformat(
         start.replace("Z", "+00:00")
     )
-    assert result["decision_context_event"].operational_end == datetime.fromisoformat(
+    assert result["event_context_event"].operational_end == datetime.fromisoformat(
         end.replace("Z", "+00:00")
     )
-    assert result["decision_context_event"].advisory_issued_at == parse_advisory_signature(
+    assert result["event_context_event"].advisory_issued_at == parse_advisory_signature(
         advisory.content
     )
     assert result["weather_context"].status == "ok"
@@ -933,11 +933,11 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     assert associations and summaries and traces
     assert all(association.causal_claim is False for association in associations)
     assert all(
-        association.event_id == result["decision_context_event"].event_id
+        association.event_id == result["event_context_event"].event_id
         for association in associations
     )
     assert all(
-        summary.event_id == result["decision_context_event"].event_id for summary in summaries
+        summary.event_id == result["event_context_event"].event_id for summary in summaries
     )
     selected_sources = {association.source_id for association in associations}
     registry_sources = {snapshot.source_id for snapshot in result["source_snapshot"].snapshots}
@@ -985,7 +985,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     assert any(rel["type"] == "FORECASTING_AIRPORT" for rel in relationships)
     assert not any(
         rel["type"] == "FORECASTING_AIRPORT"
-        and rel["start_id"] == result["decision_context_event"].event_id
+        and rel["start_id"] == result["event_context_event"].event_id
         for rel in relationships
     )
 
@@ -999,7 +999,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     first_associations = (tmp_path / "context_associations.jsonl").read_bytes()
     first_outcomes = (tmp_path / "bts_observation_summaries.jsonl").read_bytes()
     first_traces = (tmp_path / "weather_fact_trace.jsonl").read_bytes()
-    repeated = integrate_decision_context(ctx, state)
+    repeated = integrate_event_context(ctx, state)
     assert (tmp_path / "context_associations.jsonl").read_bytes() == first_associations
     assert (tmp_path / "bts_observation_summaries.jsonl").read_bytes() == first_outcomes
     assert (tmp_path / "weather_fact_trace.jsonl").read_bytes() == first_traces
@@ -1031,7 +1031,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
                 failure_reason="injected observation validation failure",
             ),
         )
-        blocked = integrate_decision_context(ctx, state)
+        blocked = integrate_event_context(ctx, state)
         assert blocked["observation_context"].status == "blocked"
         assert blocked["materialization"].layer_fact_counts == {
             "decision": len(facts),
@@ -1043,7 +1043,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         ):
             assert (tmp_path / artifact_name).read_bytes() == b""
 
-        insufficient = integrate_decision_context(
+        insufficient = integrate_event_context(
             replace(
                 ctx,
                 bts_rows=[],
@@ -1229,12 +1229,12 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
     corpus_dir = tmp_path / "corpus"
     build_corpus([tmp_path], corpus_dir)
     corpus_store = CorpusQueryStore(corpus_dir)
-    corpus_event = corpus_store.get_event(state["decision_context_event"].event_id)
+    corpus_event = corpus_store.get_event(state["event_context_event"].event_id)
     assert corpus_event is not None
     event_fact_ids = {
         fact.fact_id
         for fact in corpus_store.get_event_facts(
-            state["decision_context_event"].event_id
+            state["event_context_event"].event_id
         )
     }
     assert event_fact_ids == set(corpus_event.fact_ids)
@@ -1282,7 +1282,7 @@ def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_a
         output_dir=str(tmp_path),
     )
 
-    result = integrate_decision_context(
+    result = integrate_event_context(
         ctx,
         {
             "event_uri": event_id,
@@ -1370,7 +1370,7 @@ def test_duplicate_weather_fact_fails_closed_at_the_optional_layer(
         output_dir=str(tmp_path),
     )
 
-    result = integrate_decision_context(
+    result = integrate_event_context(
         ctx,
         {
             "event_uri": event_id,
@@ -1435,7 +1435,7 @@ def test_malformed_admitted_bts_layer_blocks_case_without_projection_fallback(
         ),
         "source_snapshot": registry,
     }
-    prepared = prepare_decision_context(ctx, state)
+    prepared = prepare_event_context(ctx, state)
     observation_bundle = prepared["observation_context"]
     trace = next(
         item
@@ -1456,7 +1456,7 @@ def test_malformed_admitted_bts_layer_blocks_case_without_projection_fallback(
         FormalPublicationBlocked,
         match="deterministic numeric value mismatch",
     ):
-        integrate_decision_context(
+        integrate_event_context(
             ctx,
             {
                 **state,
@@ -1533,7 +1533,7 @@ def test_integration_blocks_a_self_consistent_rdf_type_retarget_from_the_builder
         lambda *args, **kwargs: corrupted,
     )
 
-    result = integrate_decision_context(
+    result = integrate_event_context(
         IngestContext(
             advisory=advisory,
             facility_candidates=[facility],
@@ -1603,7 +1603,7 @@ def test_integration_blocks_self_consistent_raw_evidence_from_a_regressed_parser
         regressed_parse_report,
     )
 
-    result = integrate_decision_context(
+    result = integrate_event_context(
         IngestContext(
             advisory=advisory,
             facility_candidates=[facility],

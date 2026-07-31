@@ -18,7 +18,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     BTSOnTimeRow,
     BTSPublicObservationBundle,
     BTSPublicObservationSummary,
-    DecisionContextEvent,
+    TMIEventContext,
     ObservationDerivationSeed,
 )
 from aviation_agentic_ai.agent_system.validation_profiles import (
@@ -327,7 +327,7 @@ def resolve_bts_destination(canonical_facility: CanonicalEntity) -> str:
 
 
 def _summary_and_seed(
-    event: DecisionContextEvent,
+    event: TMIEventContext,
     facility: CanonicalEntity,
     phase: str,
     window_start: datetime,
@@ -412,7 +412,7 @@ def _summary_and_seed(
 
 
 def build_bts_public_observation_summaries(
-    event: DecisionContextEvent,
+    event: TMIEventContext,
     canonical_facility: CanonicalEntity,
     rows: Iterable[BTSOnTimeRow],
     *,
@@ -439,7 +439,7 @@ def build_bts_public_observation_summaries(
             raise ValueError("BTS public observation rows do not match the supplied normalized snapshot checksum")
         destination = resolve_bts_destination(canonical_facility)
         if any(clock.tzinfo is None or clock.utcoffset() is None for clock in (event.operational_start, event.operational_end)):
-            raise ValueError("decision context clocks must be timezone-aware")
+            raise ValueError("TMI event context clocks must be timezone-aware")
         if event.operational_end <= event.operational_start:
             raise ValueError("operational end must be after operational start")
         source_rows = [row for row in all_rows if row.Dest == destination]

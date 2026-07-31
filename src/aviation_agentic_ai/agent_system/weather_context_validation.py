@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Literal
 
 from aviation_agentic_ai.agent_system.contracts import (
-    DecisionContextEvent,
+    TMIEventContext,
     SourceFamily,
     SourceSnapshot,
     SourceSnapshotRegistry,
@@ -277,7 +277,7 @@ def _source_weather_reports(
 
 
 def _expected_selections(
-    event: DecisionContextEvent,
+    event: TMIEventContext,
     reports: list[_SourceWeatherReport],
 ) -> list[tuple[_SourceWeatherReport, _RelationType, str]]:
     tafs = [
@@ -448,7 +448,7 @@ def _expected_facts(
 
 
 def _relevant_times(
-    event: DecisionContextEvent,
+    event: TMIEventContext,
     report: _SourceWeatherReport,
 ) -> dict[str, str]:
     values = {
@@ -466,7 +466,7 @@ def _relevant_times(
 
 
 def _expected_association(
-    event: DecisionContextEvent,
+    event: TMIEventContext,
     facility: CanonicalEntity,
     report: _SourceWeatherReport,
     relation_type: _RelationType,
@@ -500,7 +500,7 @@ def _expected_association(
 
 
 def _expected_bundle(
-    event: DecisionContextEvent,
+    event: TMIEventContext,
     facility: CanonicalEntity,
     registry: SourceSnapshotRegistry,
     profile_registry: ValidationProfileRegistry,
@@ -573,7 +573,7 @@ def _unique_map(rows: list[object], id_field: str, label: str) -> dict[str, obje
 def validate_weather_context_bundle(
     bundle: WeatherContextBundle,
     *,
-    event: DecisionContextEvent,
+    event: TMIEventContext,
     facility: CanonicalEntity,
     registry: SourceSnapshotRegistry,
     profile_registry: ValidationProfileRegistry | None = None,

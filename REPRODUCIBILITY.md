@@ -79,8 +79,7 @@ uv run aviation-ai agent-system build-corpus \
   --source-id 2026-05-19:138 \
   --source-id 2026-05-19:108 \
   --source-id 2026-05-20:020 \
-  --source-id 2026-05-20:137 \
-  --allow-live-model
+  --source-id 2026-05-20:137
 ```
 
 Build or resume the frozen cohort:
@@ -94,9 +93,11 @@ uv run aviation-ai agent-system build-corpus \
   --resume
 ```
 
-Eligible records require `--allow-live-model`, even when the complete evidence
-is expected to use the deterministic zero-call path. Store `DEEPSEEK_API_KEY`
-and any optional `DEEPSEEK_BASE_URL` only in ignored local environment files.
+Complete source-supported records can publish through the deterministic
+zero-call path without `--allow-live-model`. Add that flag only when the
+selected set may require bounded Agent escalation; otherwise unresolved
+records remain `insufficient`. Store `DEEPSEEK_API_KEY` and any optional
+`DEEPSEEK_BASE_URL` only in ignored local environment files.
 
 The 22 preflight insufficiencies use zero provider calls. A blocked provider or
 workflow result does not stop later records, but it prevents final-manifest

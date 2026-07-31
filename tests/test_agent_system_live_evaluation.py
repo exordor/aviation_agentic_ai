@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import inspect
 import json
 from pathlib import Path
@@ -19,7 +20,11 @@ from aviation_agentic_ai.agent_system.contracts import (
     QueryToolTrace,
 )
 from aviation_agentic_ai.agent_system.corpus_batch import BatchCaseExecution
-from aviation_agentic_ai.agent_system.corpus_store import CorpusBuildResult
+from aviation_agentic_ai.agent_system.corpus_store import (
+    CorpusBuildResult,
+    CorpusQueryStore,
+    build_corpus,
+)
 from aviation_agentic_ai.agent_system.live_agent_evaluation import (
     LiveEvaluationAssertion,
     LiveEvaluationAuthorizationError,
@@ -35,6 +40,17 @@ from aviation_agentic_ai.agent_system.live_agent_evaluation import (
     write_hybrid_query_run_artifact,
     write_live_evaluation_artifacts,
 )
+
+_CORPUS_FIXTURE_SPEC = importlib.util.spec_from_file_location(
+    "live_evaluation_query_tools_fixture",
+    Path(__file__).with_name("test_agent_system_query_tools.py"),
+)
+assert (
+    _CORPUS_FIXTURE_SPEC is not None
+    and _CORPUS_FIXTURE_SPEC.loader is not None
+)
+_corpus_fixture = importlib.util.module_from_spec(_CORPUS_FIXTURE_SPEC)
+_CORPUS_FIXTURE_SPEC.loader.exec_module(_corpus_fixture)
 
 
 def test_load_live_evaluation_suite_seals_frozen_trials(tmp_path: Path) -> None:
@@ -632,6 +648,99 @@ def _live_call(
             else []
         ),
     )
+
+
+@pytest.fixture
+def v3_live_evaluation_corpus(
+    tmp_path: Path,
+) -> tuple[CorpusQueryStore, str, str]:
+    run_dir = tmp_path / "run"
+    corpus_dir = tmp_path / "corpus"
+    _corpus_fixture._write_graph(run_dir)
+    build_corpus([run_dir], corpus_dir)
+    return (
+        CorpusQueryStore(corpus_dir),
+        _corpus_fixture.SOURCE_ID,
+        _corpus_fixture.EVENT_ID,
+    )
+
+
+def test_integration_scoring_reads_v3_weather_and_observation_views(
+    v3_live_evaluation_corpus: tuple[CorpusQueryStore, str, str],
+) -> None:
+    store, source_id, event_id = v3_live_evaluation_corpus
+    trial = LiveEvaluationTrial(
+        trial_id="integration-v3",
+        kind="integration",
+        source_id=source_id,
+        expected_role="event_evidence_integration",
+    )
+    build_result = CorpusBuildResult(
+        source_id=source_id,
+        status="ok",
+        event_id=event_id,
+    )
+    usage = _integration_usage().model_copy(
+        update={"source_id": source_id, "event_id": event_id}
+    )
+    execution = BatchCaseExecution(
+        result=build_result,
+        agent_usage_records=(usage,),
+        model_calls=(
+            _live_call(agent="event_evidence_integration"),
+        ),
+    )
+
+    results = live_eval._score_integration_results(
+        suite=LiveEvaluationSuite(
+            version="live-agent-smoke-v3",
+            suite_id="v3-corpus-regression",
+            repetitions=1,
+            trials=(trial,),
+        ),
+        repetition=1,
+        build_results={source_id: build_result},
+        executions={source_id: execution},
+        store=store,
+    )
+
+    assert len(results) == 1
+    assert results[0].event_id == event_id
+    assert results[0].model_acceptance_status == "passed"
+
+
+def test_analysis_event_resolution_uses_v3_event_lookup(
+    v3_live_evaluation_corpus: tuple[CorpusQueryStore, str, str],
+) -> None:
+    store, source_id, event_id = v3_live_evaluation_corpus
+
+    resolved = live_eval._resolve_analysis_event_id(
+        source_id=source_id,
+        build_results={
+            source_id: CorpusBuildResult(
+                source_id=source_id,
+                status="ok",
+                event_id=event_id,
+            )
+        },
+        store=store,
+    )
+
+    assert resolved == event_id
+
+
+def test_analysis_event_resolution_falls_back_to_v3_event_catalog(
+    v3_live_evaluation_corpus: tuple[CorpusQueryStore, str, str],
+) -> None:
+    store, source_id, event_id = v3_live_evaluation_corpus
+
+    resolved = live_eval._resolve_analysis_event_id(
+        source_id=source_id,
+        build_results={},
+        store=store,
+    )
+
+    assert resolved == event_id
 
 
 def test_integration_scoring_requires_agent_activation_partial_publication() -> None:

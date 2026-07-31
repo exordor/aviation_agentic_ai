@@ -15,7 +15,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     AgentStatus,
     BTSManifestBinding,
     BTSOnTimeRow,
-    DecisionContextEvent,
+    TMIEventContext,
     EvidenceCard,
     EvidenceClaim,
     GraphPatchBlock,
@@ -153,7 +153,7 @@ def weather_build_input() -> dict[str, object]:
     )
     advisory_content = '{"text":"GS 123"}'
     return {
-        "event": DecisionContextEvent(
+        "event": TMIEventContext(
             run_id="run:profile-test",
             event_id="urn:aviation-agentic-ai:event:profile-test",
             advisory_source_id="advisory:profile-test",
@@ -362,7 +362,7 @@ def test_weather_builder_stamps_weather_profile_and_exact_trace_ref(
 
 
 def _observation_input(*, nasr_airport_codes: bool = False) -> dict[str, object]:
-    event = DecisionContextEvent(
+    event = TMIEventContext(
         run_id="run:observation-test",
         event_id="urn:aviation-agentic-ai:event:observation-test",
         advisory_source_id="advisory:observation-test",

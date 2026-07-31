@@ -17,6 +17,7 @@ from aviation_agentic_ai.agent_system.contracts import (
 from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusObservation,
     CorpusQueryStore,
+    CorpusSourceBinding,
     CorpusTMIEvent,
     build_corpus,
     load_event_catalog,
@@ -43,6 +44,7 @@ def _write_run(
     facility_id: str = _fixture_module.FACILITY_ID,
     formal_reason: str | None = None,
     evidence_text: str | None = None,
+    shared_reference_evidence: str | None = None,
 ) -> None:
     rows = []
     for row in _base_rows():
@@ -76,6 +78,20 @@ def _write_run(
                 "evidence_text": (
                     "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
                 ),
+            }
+        )
+    if shared_reference_evidence is not None:
+        rows.append(
+            {
+                "triple_id": f"fact:shared-airport:{suffix}",
+                "subject": facility_id,
+                "predicate": "rdf:type",
+                "object": "nas:Airport",
+                "subject_class": "nas:Airport",
+                "object_class": "nas:Airport",
+                "object_kind": "iri",
+                "source_document": _fixture_module.SOURCE_ID,
+                "evidence_text": shared_reference_evidence,
             }
         )
     _write_graph(run_dir, rows)
@@ -161,10 +177,18 @@ def _set_snapshot_timestamp(run_dir: Path, timestamp: str) -> None:
     )
 
 
-def _set_snapshot_content(run_dir: Path, content: str) -> str:
+def _set_snapshot_content(
+    run_dir: Path,
+    content: str,
+    *,
+    source_id: str | None = None,
+) -> str:
     content_sha256 = hashlib.sha256(content.encode("utf-8")).hexdigest()
     snapshot_path = run_dir / "source_snapshots.jsonl"
     snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+    previous_source_id = snapshot["source_id"]
+    effective_source_id = source_id or previous_source_id
+    snapshot["source_id"] = effective_source_id
     snapshot["content"] = content
     snapshot["content_sha256"] = content_sha256
     snapshot_path.write_text(
@@ -178,10 +202,19 @@ def _set_snapshot_content(run_dir: Path, content: str) -> str:
         for line in graph_path.read_text(encoding="utf-8").splitlines()
     ]
     for row in graph_rows:
-        if _fixture_module.SOURCE_ID in row["source_ids"]:
-            row["source_snapshot_checksums"][_fixture_module.SOURCE_ID] = (
-                content_sha256
+        if previous_source_id in row["source_ids"]:
+            row["source_ids"] = [
+                effective_source_id
+                if value == previous_source_id
+                else value
+                for value in row["source_ids"]
+            ]
+            row["source_document"] = effective_source_id
+            row["source_snapshot_checksums"].pop(
+                previous_source_id,
+                None,
             )
+            row["source_snapshot_checksums"][effective_source_id] = content_sha256
     graph_path.write_text(
         "".join(json.dumps(row) + "\n" for row in graph_rows),
         encoding="utf-8",
@@ -193,6 +226,8 @@ def _set_snapshot_content(run_dir: Path, content: str) -> str:
         for line in trace_path.read_text(encoding="utf-8").splitlines()
     ]
     for row in trace_rows:
+        if row["source_id"] == previous_source_id:
+            row["source_id"] = effective_source_id
         row["source_snapshot_sha256"] = content_sha256
     trace_path.write_text(
         "".join(json.dumps(row) + "\n" for row in trace_rows),
@@ -200,6 +235,8 @@ def _set_snapshot_content(run_dir: Path, content: str) -> str:
     )
     manifest_path = run_dir / "run_manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if manifest["source_id"] == previous_source_id:
+        manifest["source_id"] = effective_source_id
     manifest["context_artifacts"]["source_snapshots"]["sha256"] = (
         hashlib.sha256(snapshot_path.read_bytes()).hexdigest()
     )
@@ -495,12 +532,8 @@ def test_build_corpus_collapses_repeated_runs_of_the_same_event(
     assert manifest.event_count == 1
     assert len(events) == 1
     assert "run_ids" not in CorpusTMIEvent.model_fields
+    assert "snapshot_timestamps" not in CorpusSourceBinding.model_fields
     assert len(bindings) == 1
-    binding = json.loads(bindings[0])
-    assert binding["snapshot_timestamps"] == [
-        "2026-05-19T20:30:00+00:00",
-        "2026-05-20T20:30:00+00:00",
-    ]
     assert len(memberships) == 4
 
 
@@ -542,11 +575,23 @@ def test_corpus_id_does_not_depend_on_transient_run_identity(
     event_id = "urn:event:stable-identity"
     _write_run(first_run, event_id=event_id, suffix="stable")
     _write_run(second_run, event_id=event_id, suffix="stable")
+    _set_snapshot_timestamp(second_run, "2026-05-20T20:30:00+00:00")
 
     first = build_corpus([first_run], tmp_path / "first-corpus")
     second = build_corpus([second_run], tmp_path / "second-corpus")
 
     assert first.corpus_id == second.corpus_id
+    first_files = {
+        path.relative_to(tmp_path / "first-corpus"): path.read_bytes()
+        for path in (tmp_path / "first-corpus").rglob("*")
+        if path.is_file()
+    }
+    second_files = {
+        path.relative_to(tmp_path / "second-corpus"): path.read_bytes()
+        for path in (tmp_path / "second-corpus").rglob("*")
+        if path.is_file()
+    }
+    assert first_files == second_files
 
 
 def test_tmi_event_catalog_validates_timezone_aware_timestamps() -> None:
@@ -726,6 +771,121 @@ def test_event_graph_filters_globally_merged_sources_to_selected_event(
     assert {edge.source_ids for edge in type_edges} == {
         (_fixture_module.SOURCE_ID,)
     }
+
+
+def test_event_evidence_filters_shared_fact_links_to_event_source_artifacts(
+    tmp_path: Path,
+) -> None:
+    """A shared semantic fact must not expose another event's source artifact."""
+
+    run_a = tmp_path / "run-a"
+    run_b = tmp_path / "run-b"
+    _write_run(
+        run_a,
+        event_id="urn:event:a",
+        suffix="a",
+        shared_reference_evidence="EVENT A SHARED EVIDENCE",
+    )
+    _write_run(
+        run_b,
+        event_id="urn:event:b",
+        suffix="b",
+        shared_reference_evidence="EVENT B SHARED EVIDENCE",
+    )
+    artifact_a = _set_snapshot_content(
+        run_a,
+        _fixture_module.ADVISORY_CONTENT + "EVENT A SHARED EVIDENCE\n",
+        source_id="source:event:a",
+    )
+    artifact_b = _set_snapshot_content(
+        run_b,
+        _fixture_module.ADVISORY_CONTENT + "EVENT B SHARED EVIDENCE\n",
+        source_id="source:event:b",
+    )
+    corpus_dir = tmp_path / "corpus"
+    build_corpus([run_a, run_b], corpus_dir)
+    store = CorpusQueryStore(corpus_dir)
+    shared_fact_a = next(
+        fact
+        for fact in store.get_event_facts("urn:event:a")
+        if fact.subject_iri == _fixture_module.FACILITY_ID
+        and fact.object_value.endswith("Airport")
+    )
+    shared_fact_b = next(
+        fact
+        for fact in store.get_event_facts("urn:event:b")
+        if fact.fact_id == shared_fact_a.fact_id
+    )
+
+    evidence_a = {
+        link.artifact_id
+        for link in store.get_event_evidence("urn:event:a")
+        if link.owner_kind == "fact"
+        and link.owner_id == shared_fact_a.fact_id
+    }
+    evidence_b = {
+        link.artifact_id
+        for link in store.get_event_evidence("urn:event:b")
+        if link.owner_kind == "fact"
+        and link.owner_id == shared_fact_a.fact_id
+    }
+
+    assert shared_fact_a.evidence_texts == ["EVENT A SHARED EVIDENCE"]
+    assert shared_fact_a.evidence_ref == "fact:shared-airport:a"
+    assert shared_fact_a.source_ids == ["source:event:a"]
+    assert shared_fact_b.evidence_texts == ["EVENT B SHARED EVIDENCE"]
+    assert shared_fact_b.evidence_ref == "fact:shared-airport:b"
+    assert shared_fact_b.source_ids == ["source:event:b"]
+    assert evidence_a == {artifact_a}
+    assert evidence_b == {artifact_b}
+
+    from aviation_agentic_ai.agent_system.corpus_store import export_event
+
+    export_dir = tmp_path / "event-a-export"
+    export_event(
+        corpus_dir=corpus_dir,
+        event_id="urn:event:a",
+        output_dir=export_dir,
+    )
+    exported_facts = [
+        json.loads(line)
+        for line in (export_dir / "facts.jsonl").read_text(
+            encoding="utf-8"
+        ).splitlines()
+        if line
+    ]
+    exported_shared_fact = next(
+        row
+        for row in exported_facts
+        if row["fact_id"] == shared_fact_a.fact_id
+    )
+    exported_links = [
+        json.loads(line)
+        for line in (export_dir / "evidence_links.jsonl").read_text(
+            encoding="utf-8"
+        ).splitlines()
+        if line
+    ]
+
+    assert exported_shared_fact["evidence_texts"] == [
+        "EVENT A SHARED EVIDENCE"
+    ]
+    assert exported_shared_fact["evidence_ref"] == "fact:shared-airport:a"
+    assert {
+        row["artifact_id"]
+        for row in exported_links
+        if row["owner_kind"] == "fact"
+        and row["owner_id"] == shared_fact_a.fact_id
+    } == {artifact_a}
+    assert {
+        row["source_id"]
+        for row in exported_links
+        if row["owner_kind"] == "fact"
+        and row["owner_id"] == shared_fact_a.fact_id
+    } == {"source:event:a"}
+    assert {
+        path.stem for path in (export_dir / "source_objects").glob("*.txt")
+    } == {artifact_a}
 
 
 def test_export_event_contains_only_selected_event_artifacts(tmp_path: Path) -> None:

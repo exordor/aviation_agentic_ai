@@ -13,7 +13,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     BTSManifestBinding,
     BTSOnTimeRow,
     BTSPublicObservationSummary,
-    DecisionContextEvent,
+    TMIEventContext,
     SourceFamily,
     SourceSnapshot,
     SourceSnapshotRegistry,
@@ -714,7 +714,7 @@ def _write_formal_observation_layer(run_dir: Path) -> tuple[list[str], list[str]
         if profile.ref.layer == "public_operational_observation"
     )
     assert public_profile.aggregation_procedure is not None
-    event = DecisionContextEvent(
+    event = TMIEventContext(
         run_id=run_dir.name,
         event_id=EVENT_ID,
         advisory_source_id=SOURCE_ID,

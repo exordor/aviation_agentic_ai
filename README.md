@@ -47,14 +47,15 @@ uv run aviation-ai agent-system build-corpus \
   --source-id 2026-05-19:138 \
   --source-id 2026-05-19:108 \
   --source-id 2026-05-20:020 \
-  --source-id 2026-05-20:137 \
-  --allow-live-model
+  --source-id 2026-05-20:137
 ```
 
-`--allow-live-model` authorizes the bounded model path for eligible records.
 Complete source-supported records use the deterministic compiler with zero
-provider calls; source IDs do not select that path. Credentials remain in
-ignored local environment files.
+provider calls; source IDs do not select that path. Add `--allow-live-model`
+only when unresolved evidence genuinely requires bounded Agent escalation.
+Without authorization, such a record remains `insufficient` instead of being
+silently sent to a provider. Credentials remain in ignored local environment
+files.
 
 Build or resume the frozen cohort:
 

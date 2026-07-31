@@ -330,16 +330,6 @@ def run_batch_case(
 
     source_id = advisory.source_id
     family = classify_tmi_family(advisory.content) or "UNCLASSIFIED"
-    if not allow_live_model:
-        return BatchCaseExecution(
-            result=CorpusBuildResult(
-                source_id=source_id,
-                status="blocked",
-                reason="build-corpus requires --allow-live-model for eligible advisories",
-                tmi_family=family,
-                preflight_eligible=True,
-            )
-        )
     binding = create_run_binding(
         staging_dir,
         source_id,
@@ -357,15 +347,27 @@ def run_batch_case(
         weather_failure_reason=resources.weather_failure_reason,
         bts_failure_reason=resources.bts_failure_reason,
         guide=resources.guide,
-        semantic_resolution_tool_model_factory=lambda tools: make_live_tool_calling_model(
-            tools=tools,
-            role="semantic_resolution",
-            catalog_path=DEFAULT_PROMPT_CATALOG,
+        semantic_resolution_tool_model_factory=(
+            (
+                lambda tools: make_live_tool_calling_model(
+                    tools=tools,
+                    role="semantic_resolution",
+                    catalog_path=DEFAULT_PROMPT_CATALOG,
+                )
+            )
+            if allow_live_model
+            else None
         ),
-        event_evidence_integration_model_factory=lambda tools: make_live_tool_calling_model(
-            tools=tools,
-            role="event_evidence_integration",
-            catalog_path=DEFAULT_PROMPT_CATALOG,
+        event_evidence_integration_model_factory=(
+            (
+                lambda tools: make_live_tool_calling_model(
+                    tools=tools,
+                    role="event_evidence_integration",
+                    catalog_path=DEFAULT_PROMPT_CATALOG,
+                )
+            )
+            if allow_live_model
+            else None
         ),
         authority_catalog=resources.authority_catalog,
         run_started_at=binding.run_started_at,

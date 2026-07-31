@@ -346,7 +346,7 @@ def _validated_neo4j_projection(corpus_dir: Path) -> tuple[Path, Path]:
         )
     except (OSError, ValueError) as exc:
         raise ValueError(
-            "a published decision-case-corpus-v2 manifest is required"
+            "a published tmi-event-corpus-v3 manifest is required"
         ) from exc
 
     paths: list[Path] = []

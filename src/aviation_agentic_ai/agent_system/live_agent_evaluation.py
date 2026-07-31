@@ -1186,12 +1186,12 @@ def _score_integration_results(
             else ()
         )
         context = (
-            store.get_decision_context(build_result.event_id)
+            store.get_weather_context(build_result.event_id)
             if store is not None and build_result.event_id
             else ()
         )
         observations = (
-            store.get_outcome_observations(build_result.event_id)
+            store.get_public_observations(build_result.event_id)
             if store is not None and build_result.event_id
             else ()
         )
@@ -1231,12 +1231,12 @@ def _resolve_analysis_event_id(
     store: CorpusQueryStore,
 ) -> str | None:
     result = build_results.get(source_id)
-    if result is not None and result.event_id and store.get_case(result.event_id):
+    if result is not None and result.event_id and store.get_event(result.event_id):
         return result.event_id
     matches = [
-        case.event_id
-        for case in store.cases
-        if case.advisory_source_id == source_id
+        event.event_id
+        for event in store.events
+        if event.advisory_source_id == source_id
     ]
     return matches[0] if len(matches) == 1 else None
 

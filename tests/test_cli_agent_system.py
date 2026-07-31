@@ -60,3 +60,40 @@ def test_removed_single_run_options_stay_out_of_the_public_cli() -> None:
     assert "No such option '--run-dir'" in ask.output
     assert neo4j.exit_code == 2
     assert "No such option '--run-dir'" in neo4j.output
+
+
+def test_neo4j_export_requires_a_published_tmi_event_corpus(tmp_path) -> None:
+    runner = CliRunner()
+
+    result = runner.invoke(
+        cli_module.agent_system,
+        ["neo4j-export", "--corpus-dir", str(tmp_path)],
+    )
+
+    assert result.exit_code == 1
+    assert "a published tmi-event-corpus-v3 manifest is required" in result.output
+
+
+def test_build_corpus_allows_zero_call_deterministic_event_without_live_authorization(
+    tmp_path,
+) -> None:
+    runner = CliRunner()
+    output_dir = tmp_path / "corpus"
+
+    result = runner.invoke(
+        cli_module.agent_system,
+        [
+            "build-corpus",
+            "--config",
+            "configs/cross_source_v1.yaml",
+            "--output-dir",
+            str(output_dir),
+            "--source-id",
+            "2026-05-19:123",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "selected: 1" in result.output
+    assert "ok: 1" in result.output
+    assert "agent_calls: provider=0 tool=0" in result.output

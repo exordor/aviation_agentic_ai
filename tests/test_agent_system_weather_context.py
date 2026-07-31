@@ -16,7 +16,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceSnapshotRegistry,
 )
 from aviation_agentic_ai.agent_system.weather_context import (
-    DecisionContextEvent,
+    TMIEventContext,
     METEOROLOGICAL_CONDITION_STATUS,
     build_weather_context,
 )
@@ -47,8 +47,8 @@ def _snapshot(source_id: str, family: SourceFamily, row: dict[str, object]) -> S
     )
 
 
-def _event() -> DecisionContextEvent:
-    return DecisionContextEvent(
+def _event() -> TMIEventContext:
+    return TMIEventContext(
         run_id="run:gs-123",
         event_id="urn:aviation-agentic-ai:event:ground-stop:123",
         advisory_source_id="advisory:gs-123",
@@ -317,7 +317,7 @@ def test_weather_slice_is_closed_to_the_approved_nasa_atmonto_terms():
     "clock_name",
     ["advisory_issued_at", "operational_start", "operational_end"],
 )
-def test_decision_context_event_rejects_timezone_naive_clocks(clock_name):
+def test_event_context_event_rejects_timezone_naive_clocks(clock_name):
     clocks = {
         "advisory_issued_at": ISSUED_AT,
         "operational_start": OPERATIONAL_START,
@@ -326,7 +326,7 @@ def test_decision_context_event_rejects_timezone_naive_clocks(clock_name):
     clocks[clock_name] = clocks[clock_name].replace(tzinfo=None)
 
     with pytest.raises(ValidationError, match="timezone-aware"):
-        DecisionContextEvent(
+        TMIEventContext(
             run_id="run:naive-clock",
             event_id="urn:test:event:naive-clock",
             advisory_source_id="advisory:naive-clock",
@@ -335,7 +335,7 @@ def test_decision_context_event_rejects_timezone_naive_clocks(clock_name):
 
 
 def test_adapter_blocks_a_bypassed_timezone_naive_event_without_leaking_type_error():
-    bypassed_event = DecisionContextEvent.model_construct(
+    bypassed_event = TMIEventContext.model_construct(
         run_id="run:bypassed-naive-clock",
         event_id="urn:test:event:bypassed-naive-clock",
         advisory_source_id="advisory:bypassed-naive-clock",
@@ -351,7 +351,7 @@ def test_adapter_blocks_a_bypassed_timezone_naive_event_without_leaking_type_err
     )
 
     assert bundle.status == "blocked"
-    assert bundle.failure_reason == "decision context clocks must be timezone-aware"
+    assert bundle.failure_reason == "TMI event context clocks must be timezone-aware"
 
 
 def test_extreme_epoch_returns_blocked_instead_of_leaking_a_platform_exception():

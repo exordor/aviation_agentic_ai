@@ -62,7 +62,7 @@ def test_prompt_catalog_contains_only_activated_model_roles() -> None:
 
 def test_every_role_has_version_policy_and_bounded_output() -> None:
     expected_versions = {
-        "query": "hybrid-query-agent-v2",
+        "query": "hybrid-query-agent-v3",
         "semantic_resolution": "semantic-resolution-agent-v1",
         "event_evidence_integration": "event-evidence-integration-v1",
     }

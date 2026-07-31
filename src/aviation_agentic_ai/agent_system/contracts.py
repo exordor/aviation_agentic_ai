@@ -453,7 +453,7 @@ class SourceSnapshot(StrictModel):
     source_url: str | None = None
     content: str = Field(min_length=1)
     content_sha256: str = Field(min_length=1)
-    snapshot_timestamp: str = Field(min_length=1)
+    snapshot_timestamp: str | None = None
 
 
 class SourceSnapshotRegistry(StrictModel):
@@ -516,8 +516,8 @@ class SourceSnapshotRegistry(StrictModel):
         return cls(snapshots=tuple(rows))
 
 
-class DecisionContextEvent(StrictModel):
-    """Resolved event clock used by deterministic decision-context adapters."""
+class TMIEventContext(StrictModel):
+    """Resolved TMI event clock used by deterministic context adapters."""
 
     run_id: str = Field(min_length=1)
     event_id: str = Field(min_length=1)
@@ -527,14 +527,14 @@ class DecisionContextEvent(StrictModel):
     operational_end: datetime
 
     @model_validator(mode="after")
-    def _require_nonempty_operational_period(self) -> "DecisionContextEvent":
+    def _require_nonempty_operational_period(self) -> "TMIEventContext":
         clocks = (
             self.advisory_issued_at,
             self.operational_start,
             self.operational_end,
         )
         if any(clock.tzinfo is None or clock.utcoffset() is None for clock in clocks):
-            raise ValueError("decision context clocks must be timezone-aware")
+            raise ValueError("TMI event context clocks must be timezone-aware")
         if self.operational_end <= self.operational_start:
             raise ValueError("operational end must be after operational start")
         return self

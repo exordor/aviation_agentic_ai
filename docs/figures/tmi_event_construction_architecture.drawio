@@ -11,7 +11,7 @@
         <mxCell id="title" value="ATMONTO-Aligned TMI Event Knowledge Construction" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fontColor=#17324D;fontSize=26;fontStyle=1;align=left;verticalAlign=middle;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="60" y="30" width="2180" height="55" as="geometry" />
         </mxCell>
-        <mxCell id="semantic" value="Semantic control&#xa;ATMONTO profiles · FAA authority · evidence rules" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F1FB;strokeColor=#8B76B8;fontColor=#1f2937;fontSize=26;fontStyle=1;strokeWidth=2;arcSize=18;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+        <mxCell id="semantic" value="Semantic control &amp; construction reference&#xa;ATMONTO profiles · ATMGRAPH ABox principles · FAA authority" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F1FB;strokeColor=#8B76B8;fontColor=#1f2937;fontSize=26;fontStyle=1;strokeWidth=2;arcSize=18;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="60" y="115" width="2180" height="110" as="geometry" />
         </mxCell>
         <mxCell id="sources" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F7F9FC;strokeColor=#6B7C93;fontColor=#1f2937;strokeWidth=2;arcSize=16;" vertex="1" parent="1">

@@ -17,7 +17,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     BTSObservationBundle,
     BTSPublicObservationBundle,
     BTSPublicObservationSummary,
-    DecisionContextEvent,
+    TMIEventContext,
     FactTraceRow,
     ObservationDerivation,
     ObservationFactTrace,
@@ -109,7 +109,7 @@ def _resolve_facility(ctx: Any, state: dict[str, Any]) -> CanonicalEntity:
     return matches[0]
 
 
-def _build_event(ctx: Any, state: dict[str, Any]) -> DecisionContextEvent:
+def _build_event(ctx: Any, state: dict[str, Any]) -> TMIEventContext:
     validation = state.get("validation")
     if validation is None or not validation.publishable:
         raise LookupError("core event is not publishable")
@@ -121,7 +121,7 @@ def _build_event(ctx: Any, state: dict[str, Any]) -> DecisionContextEvent:
     event_uri = str(state.get("event_uri") or "")
     if not event_uri:
         raise LookupError("accepted event ID is missing")
-    return DecisionContextEvent(
+    return TMIEventContext(
         run_id=ctx.run_id,
         event_id=_absolute_event_iri(event_uri),
         advisory_source_id=ctx.advisory.source_id,
@@ -134,7 +134,7 @@ def _build_event(ctx: Any, state: dict[str, Any]) -> DecisionContextEvent:
 def _validate_public_observations(
     bundle: BTSPublicObservationBundle,
     *,
-    event: DecisionContextEvent,
+    event: TMIEventContext,
     facility: CanonicalEntity,
     registry: SourceSnapshotRegistry,
 ) -> None:
@@ -412,7 +412,7 @@ def _public_observation_publication(
 def _build_candidate_event(
     ctx: Any,
     state: dict[str, Any],
-) -> DecisionContextEvent:
+) -> TMIEventContext:
     """Build the pre-Kernel event candidate from deterministic parse output."""
 
     if state.get("validation") is not None:
@@ -430,7 +430,7 @@ def _build_candidate_event(
     event_uri = str(state.get("formal_event_uri_hint") or state.get("event_uri") or "")
     if not event_uri:
         raise LookupError("candidate event ID is missing")
-    return DecisionContextEvent(
+    return TMIEventContext(
         run_id=ctx.run_id,
         event_id=_absolute_event_iri(event_uri),
         advisory_source_id=ctx.advisory.source_id,
@@ -440,10 +440,10 @@ def _build_candidate_event(
     )
 
 
-def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
-    """Prepare and validate optional context in memory before Assembly."""
+def prepare_event_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
+    """Prepare and validate optional context before event-evidence integration."""
 
-    decision_event: DecisionContextEvent | None = None
+    event_context: TMIEventContext | None = None
     facility: CanonicalEntity | None = None
     integration_result = state.get("event_evidence_integration_result")
     preflight_status = state.get("resolution_preflight_status")
@@ -460,7 +460,7 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
         common_status = "ok"
         common_reason = ""
         try:
-            decision_event = _build_candidate_event(ctx, state)
+            event_context = _build_candidate_event(ctx, state)
             facility = _resolve_facility(ctx, state)
         except LookupError as exc:
             common_status = "insufficient"
@@ -471,7 +471,7 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
 
     weather_bundle = _empty_weather(common_status, common_reason)
     weather_records_by_id: dict[str, SourceRecord] = {}
-    if common_status == "ok" and decision_event is not None and facility is not None:
+    if common_status == "ok" and event_context is not None and facility is not None:
         if ctx.weather_failure_reason:
             weather_bundle = _empty_weather("blocked", ctx.weather_failure_reason)
         elif not ctx.weather_sources:
@@ -486,13 +486,13 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
                     [ctx.advisory, *ctx.weather_sources]
                 )
                 weather_bundle = build_weather_context(
-                    decision_event,
+                    event_context,
                     facility,
                     transient_registry,
                 )
                 validate_weather_context_bundle(
                     weather_bundle,
-                    event=decision_event,
+                    event=event_context,
                     facility=facility,
                     registry=transient_registry,
                 )
@@ -501,7 +501,7 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
 
     public_observations = _empty_public_observations(common_status, common_reason)
     bts_record: SourceRecord | None = None
-    if common_status == "ok" and decision_event is not None and facility is not None:
+    if common_status == "ok" and event_context is not None and facility is not None:
         if ctx.bts_failure_reason:
             public_observations = _empty_public_observations("blocked", ctx.bts_failure_reason)
         elif ctx.bts_source is None or not ctx.bts_rows:
@@ -530,7 +530,7 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
                 if public_profile.aggregation_procedure is None:
                     raise ValueError("public-observation profile has no aggregation procedure")
                 public_observations = build_bts_public_observation_summaries(
-                    decision_event,
+                    event_context,
                     facility,
                     ctx.bts_rows,
                     source_id=bts_record.source_id,
@@ -540,7 +540,7 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
                 )
                 _validate_public_observations(
                     public_observations,
-                    event=decision_event,
+                    event=event_context,
                     facility=facility,
                     registry=bts_registry,
                 )
@@ -567,12 +567,12 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
     )
     if (
         public_observations.status == "ok"
-        and decision_event is not None
+        and event_context is not None
         and facility is not None
     ):
         try:
             observation_bundle = build_bts_observation_facts(
-                decision_event,
+                event_context,
                 facility,
                 public_observations,
                 selected_registry,
@@ -581,8 +581,8 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
         except (TypeError, ValueError) as exc:
             observation_bundle = _empty_observations("blocked", str(exc))
     return {
-        "decision_context_prepared": True,
-        "decision_context_event": decision_event,
+        "event_context_prepared": True,
+        "event_context_event": event_context,
         "weather_context": weather_bundle,
         "public_observation_context": public_observations,
         "observation_context": observation_bundle,
@@ -591,17 +591,17 @@ def prepare_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
+def integrate_event_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
     """Publish prepared context after revalidating the Kernel-accepted event."""
 
     output_dir = Path(ctx.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     prepared = (
         state
-        if state.get("decision_context_prepared")
-        else {**state, **prepare_decision_context(ctx, state)}
+        if state.get("event_context_prepared")
+        else {**state, **prepare_event_context(ctx, state)}
     )
-    decision_event = prepared.get("decision_context_event")
+    event_context = prepared.get("event_context_event")
     weather_bundle = prepared["weather_context"]
     public_observations = prepared["public_observation_context"]
     observation_bundle = prepared["observation_context"]
@@ -638,17 +638,17 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
     elif not validation.publishable:
         common_status = "blocked"
         common_reason = "core event is not publishable"
-    elif decision_event is not None:
+    elif event_context is not None:
         try:
             accepted_event = _build_event(ctx, state)
         except (LookupError, TypeError, ValueError) as exc:
             accepted_event = None
             common_status = "blocked"
             common_reason = str(exc)
-        if accepted_event != decision_event:
+        if accepted_event != event_context:
             common_status = "blocked"
             common_reason = (
-                "prepared decision context event differs from Formal Graph Kernel accepted event"
+                "prepared TMI event context differs from Formal Graph Kernel accepted event"
             )
     if common_status == "blocked":
         weather_bundle = _empty_weather("blocked", common_reason)
@@ -830,7 +830,7 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
         ),
     }
     return {
-        "decision_context_event": decision_event,
+        "event_context_event": event_context,
         "weather_context": weather_bundle,
         "public_observation_context": public_observations,
         "observation_context": observation_bundle,

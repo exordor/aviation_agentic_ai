@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Literal
 
 from aviation_agentic_ai.agent_system.contracts import (
-    DecisionContextEvent,
+    TMIEventContext,
     SourceFamily,
     SourceSnapshot,
     SourceSnapshotRegistry,
@@ -167,14 +167,14 @@ def _canonical_airport_code(facility: CanonicalEntity) -> str:
     return icao_codes[0]
 
 
-def _require_timezone_aware_event_clock(event: DecisionContextEvent) -> None:
+def _require_timezone_aware_event_clock(event: TMIEventContext) -> None:
     clocks = (
         event.advisory_issued_at,
         event.operational_start,
         event.operational_end,
     )
     if any(clock.tzinfo is None or clock.utcoffset() is None for clock in clocks):
-        raise ValueError("decision context clocks must be timezone-aware")
+        raise ValueError("TMI event context clocks must be timezone-aware")
 
 
 def _deduplicate_reports(reports: list[_WeatherReport]) -> list[_WeatherReport]:
@@ -192,7 +192,7 @@ def _deduplicate_reports(reports: list[_WeatherReport]) -> list[_WeatherReport]:
 
 
 def _association(
-    event: DecisionContextEvent,
+    event: TMIEventContext,
     facility: CanonicalEntity,
     report: _WeatherReport,
     relation_type: Literal[
@@ -292,7 +292,7 @@ def _facts_for_report(
 
 
 def build_weather_context(
-    event: DecisionContextEvent,
+    event: TMIEventContext,
     canonical_facility: CanonicalEntity,
     snapshot_registry: SourceSnapshotRegistry,
     profile_registry: ValidationProfileRegistry | None = None,

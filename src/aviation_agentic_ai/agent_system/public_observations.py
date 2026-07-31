@@ -14,7 +14,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     BTSOnTimeRow,
     BTSPublicObservationBundle,
     BTSPublicObservationSummary,
-    DecisionContextEvent,
+    TMIEventContext,
     ObservationDerivation,
     ObservationDerivationSeed,
     ObservationFactTrace,
@@ -229,7 +229,7 @@ def _parse_snapshot_rows(snapshot: SourceSnapshot) -> dict[str, BTSOnTimeRow]:
 
 
 def _validate_bundle(
-    event: DecisionContextEvent,
+    event: TMIEventContext,
     facility: CanonicalEntity,
     public_observations: BTSPublicObservationBundle,
     snapshots: SourceSnapshotRegistry,
@@ -462,7 +462,7 @@ def _profile_definition_facts(
 
 
 def build_bts_observation_facts(
-    event: DecisionContextEvent,
+    event: TMIEventContext,
     canonical_facility: CanonicalEntity,
     observation_bundle: BTSPublicObservationBundle,
     snapshot_registry: SourceSnapshotRegistry,

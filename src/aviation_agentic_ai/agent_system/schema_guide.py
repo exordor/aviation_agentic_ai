@@ -3,12 +3,13 @@
 The system mainline inherits the schema-guided KG construction work already on
 ``main``. This module does NOT create a new ontology, does NOT regenerate any
 schema, and does NOT add an Ontology Agent. It loads the frozen ATCSCC schema
-slice and exposes the classes / properties / constraints Decision Case
-Assembly and the deterministic materializer need.
+slice and exposes the classes, properties, and constraints that event-evidence
+integration and the deterministic materializer need.
 
 The ontology is a shared knowledge-representation contract for all Agents, not
 a new LLM role. Only a compact slice relevant to the current event class is
-available to Assembly; the full OWL is never dumped into a prompt.
+available to event-evidence integration; the full OWL is never dumped into a
+prompt.
 """
 
 from __future__ import annotations

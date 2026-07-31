@@ -81,8 +81,8 @@ from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
     preflight_validate_event_evidence_proposal,
 )
 from aviation_agentic_ai.agent_system.context_artifacts import (
-    integrate_decision_context,
-    prepare_decision_context,
+    integrate_event_context,
+    prepare_event_context,
 )
 from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
@@ -266,8 +266,8 @@ class IngestState(TypedDict):
     materialization: Any
     validation: Any
     source_snapshot: Any
-    decision_context_event: Any
-    decision_context_prepared: bool
+    event_context_event: Any
+    event_context_prepared: bool
     prepared_source_snapshot: Any
     weather_context: Any
     public_observation_context: Any
@@ -701,7 +701,7 @@ def _join_node(state: dict) -> dict:
 def _prepare_context_node(state: dict) -> dict:
     """Prepare validated optional context in memory before Event Evidence Integration."""
 
-    return prepare_decision_context(_ctx(), state)
+    return prepare_event_context(_ctx(), state)
 
 
 def _accepted_event_source_ids(
@@ -1420,7 +1420,7 @@ def _validate_event_patch_node(state: dict) -> dict:
         evidence_cards.append(advisory_evidence)
 
     # Keep the provisional advisory registry in memory for Kernel and trace
-    # validation. ``integrate_decision_context`` owns the one final,
+    # validation. ``integrate_event_context`` owns the one final,
     # multi-source ``source_snapshots.jsonl`` artifact for the run.
     snapshot_registry = build_source_snapshot_registry([ctx.advisory])
 
@@ -1479,7 +1479,7 @@ def _validate_event_patch_node(state: dict) -> dict:
 def _publish_event_node(state: dict) -> dict:
     """Run the final multi-profile publication path without model calls."""
 
-    return integrate_decision_context(_ctx(), state)
+    return integrate_event_context(_ctx(), state)
 
 
 def run_ingest(ctx: IngestContext) -> dict:

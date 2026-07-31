@@ -25,7 +25,7 @@ from aviation_agentic_ai.agent_system.bts_observations import (
 )
 from aviation_agentic_ai.agent_system.contracts import (
     BTSManifestBinding,
-    DecisionContextEvent,
+    TMIEventContext,
 )
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.validation_profiles import (
@@ -46,8 +46,8 @@ def _facility(iata: str, icao: str) -> CanonicalEntity:
     )
 
 
-def _event(event_id: str, start: datetime, end: datetime) -> DecisionContextEvent:
-    return DecisionContextEvent(
+def _event(event_id: str, start: datetime, end: datetime) -> TMIEventContext:
+    return TMIEventContext(
         run_id=f"run:{event_id}",
         event_id=event_id,
         advisory_source_id=f"advisory:{event_id}",
