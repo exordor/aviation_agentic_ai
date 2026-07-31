@@ -1,10 +1,16 @@
 # ATCSCC Decision Record Explorer
 
-Status: query foundation implemented on `main`; browser implementation paused on
-`codex/kg-visualization-research`
+Status: superseded pre-cutover visualization design; browser implementation
+paused on `codex/kg-visualization-research`
 Approved: 2026-07-26
 Language: English
 Primary user goal: understand and verify a published ATCSCC decision record
+
+This document is historical and is not an active architecture or query
+contract. Current behavior is defined by `AGENTS.md`,
+`docs/multi_agent_kg_system_design.md`, and the TMI-event Query Agent. In
+particular, the current public `ask` path has no fixed question registry or
+Decision Case Assembly Agent.
 
 ## Stage Header
 

@@ -19,16 +19,16 @@ records into ATMONTO-aligned TMI-event facts, optional Weather facts, and
 source-qualified BTS public observations.
 
 The admitted ATMONTO `TrafficManagementInitiative` instance is the formal
-knowledge root. A bounded Event Evidence Integration Agent can select only from
-sealed evidence/schema candidates when deterministic integration is
-insufficient. The write-free Formal Publication Kernel is the only publication
-authority and accepts the decision, Weather, and public-observation profiles.
+knowledge root. Event Evidence Integration is a deterministic service that
+compiles source-supported sealed evidence or returns honest `insufficient`.
+The write-free Formal Publication Kernel is the only publication authority and
+accepts the TMI, Weather, and public-observation profiles.
 
 `tmi-event-corpus-v3` is the canonical persisted layer. Event graph views,
 RDF/Turtle, Neo4j, and the metadata-conditioned Chroma index are rebuildable
 projections. Every valid natural-language `ask` activates the Query Agent,
-which selects among six read-only event, Weather, BTS, graph, and similarity
-tools before producing evidence-bound statements.
+which selects among six read-only event, Weather, BTS, graph-path, and
+metadata-ranking tools before producing evidence-bound statements.
 
 The project does not currently claim a formal decision-process model, causal
 explanation, operational effectiveness, historical recommendation, complete

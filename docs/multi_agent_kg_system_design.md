@@ -486,6 +486,10 @@ Tracked v1-v3 reports and later compact-selection runs are historical
 compatibility artifacts for their named contracts and must not be relabeled as
 current performance.
 
+The v4 query-only compatibility smoke recorded 11 real `deepseek-v4-pro`
+calls and accepted 5/5 development/regression tasks, including a required
+source-bound Weather graph path. It is not a frozen holdout or model benchmark.
+
 No frozen post-cutover evaluation set currently exists:
 `future_frozen_evaluation` is `NOT CONSTRUCTED`. A future model claim requires
 an independently designed suite and an explicitly authorized real-provider run

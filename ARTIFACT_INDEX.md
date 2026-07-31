@@ -25,6 +25,7 @@ rebuildable outputs, optional evaluation material, and historical artifacts.
 | `data/ontology/curated/nasa_atmonto_decision_context_weather_slice.json` | Curated Weather report profile. |
 | `data/ontology/curated/public_observation_slice.json` | Source-qualified BTS public-observation profile. |
 | `data/evaluation/agent_system/live_agent_smoke_v4.yaml` | Query-only compatibility-smoke contract; no result implied. |
+| `reports/stages/agent_system_live_agent_smoke_v4.{json,md}` | Verified v4 compatibility smoke: 11 real calls and 5/5 accepted Query Agent tasks; not a frozen holdout. |
 | `data/evaluation/agent_system/live_agent_experiment_v4.yaml` | Query-only repeated-measurement contract; no result implied. |
 | `data/evaluation/agent_system/tmi_event_retrieval_smoke_v1.yaml` | Development metadata-ranking smoke set. |
 

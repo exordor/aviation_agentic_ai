@@ -28,7 +28,8 @@ The project builds an ontology-grounded integration and HybridRAG system:
 ```text
 heterogeneous aviation sources
   -> deterministic adapters and authority services
-  -> selective bounded semantic Agents
+  -> selective bounded Semantic Resolution for genuine ambiguity
+  -> deterministic Event Evidence Integration
   -> Formal Publication Kernel
   -> canonical ATMONTO-aligned TMI Event Corpus v3
   -> exact, graph, and vector read views
@@ -83,20 +84,18 @@ deferred until appropriate sources and semantics exist.
 
 ## Agent Design
 
-The workflow coordinator is deterministic. Only three roles can make bounded
+The workflow coordinator is deterministic. Only two roles can make bounded
 model-mediated choices:
 
 1. the Semantic Resolution Agent selects or abstains among sealed authority
    candidates;
-2. the Event Evidence Integration Agent selects or abstains among sealed
-   evidence/schema candidates when deterministic integration is incomplete;
-3. the Query Agent selects read-only retrieval tools for every valid
+2. the Query Agent selects read-only retrieval tools for every valid
    natural-language question.
 
-Data fetching, parsing, normalization, time alignment, aggregation, profile
-validation, RDF/Neo4j writing, and vector search remain deterministic tools or
-services. No Agent can create a candidate outside its sealed task or write
-directly to the formal graph.
+Event Evidence Integration, data fetching, parsing, normalization, time
+alignment, aggregation, profile validation, RDF/Neo4j writing, and vector
+search remain deterministic tools or services. No Agent can create a candidate
+outside its sealed task or write directly to the formal graph.
 
 ## Evidence Model
 
@@ -125,8 +124,8 @@ before answering and may choose:
 - formal event facts and profile gaps;
 - non-causal Weather context;
 - BTS public observations;
-- event-scoped graph paths;
-- metadata-conditioned similar TMI events.
+- event-scoped formal and cross-source evidence paths;
+- metadata-conditioned TMI event ranking.
 
 Deterministic tools return typed observations and evidence identities. A final
 validator checks each answer statement against those returned IDs and rejects

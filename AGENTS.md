@@ -99,6 +99,10 @@ names, not internal alphanumeric labels.
 - The tracked v1-v3 DeepSeek contracts/results and later compact-selection runs
   are historical compatibility artifacts. They must not be relabeled as
   current role, corpus, or cross-family performance.
+- `live_smoke` v4 completed with DeepSeek `deepseek-v4-pro`: 11 real provider
+  calls, 5/5 Query Agent tasks accepted, and the required cross-source Weather
+  graph path observed. This is compatibility evidence over versioned
+  development/regression tasks, not a frozen holdout or model benchmark.
 - The five familiar records are development/regression fixtures only. No frozen
   post-cutover evaluation set currently exists; `future_frozen_evaluation` is
   `NOT CONSTRUCTED`. Historical suites remain compatibility artifacts and

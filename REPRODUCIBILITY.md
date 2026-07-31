@@ -276,6 +276,12 @@ The smoke retains sanitized trial results, model-call totals, and
 `HybridQueryRunArtifact` records. It does not retain native provider payloads
 and therefore supports compatibility claims only.
 
+The verified v4 run recorded 11 real `deepseek-v4-pro` calls, 190,604 input
+tokens, 13,547 output tokens, and 5/5 accepted tasks. See
+`reports/stages/agent_system_live_agent_smoke_v4.{json,md}`. These are
+development/regression compatibility measurements, not frozen-holdout
+performance.
+
 The v4 repeated runner is query-only and records repeated measurements; it is
 not a frozen benchmark or an independent-sample model-quality evaluation:
 

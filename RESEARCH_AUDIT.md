@@ -159,7 +159,10 @@ separate claims.
 
 The tracked v3 suite files are historical compatibility contracts and still
 reflect the superseded construction role. They are not current evaluation
-designs. No frozen post-cutover evaluation set exists:
+designs. The v4 query-only compatibility smoke recorded 11 real
+`deepseek-v4-pro` calls and accepted 5/5 development/regression tasks,
+including the required source-bound Weather graph path. It is not a frozen
+holdout or model benchmark. No frozen post-cutover evaluation set exists:
 `future_frozen_evaluation` is `NOT CONSTRUCTED`. A future model claim requires
 an independently designed suite and a separately authorized real-provider run
 with verified raw responses, parsed outputs, call bindings, token usage, and

@@ -216,10 +216,12 @@ evaluation samples, or a representative benchmark.
 
 Fake and scripted models verify software contracts only. The tracked v1-v3
 DeepSeek suites and reports predate the capability-centered runtime or remain
-historical compatibility artifacts. No frozen post-cutover evaluation set
-currently exists: `future_frozen_evaluation` is `NOT CONSTRUCTED`. A future
-claim requires an explicitly designed suite and a separately authorized,
-verified real-provider run.
+historical compatibility artifacts. The v4 query-only compatibility smoke
+recorded 11 real `deepseek-v4-pro` calls and accepted 5/5
+development/regression tasks, including a source-bound Weather graph path.
+This is not a frozen holdout or model benchmark. No frozen post-cutover
+evaluation set currently exists: `future_frozen_evaluation` is
+`NOT CONSTRUCTED`.
 
 The system does not provide live ATC support, causal explanation, operational
 effectiveness scoring, TMI recommendation, complete aviation coverage, or a

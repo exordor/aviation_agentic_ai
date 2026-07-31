@@ -11,10 +11,6 @@ decisions. Historical backlogs are routed through `ARTIFACT_INDEX.md`.
   development/regression fixtures. Until the sampling frame, annotations,
   tasks, and acceptance rules are reviewed, record its status as
   `NOT CONSTRUCTED`.
-- [ ] Run a separately approved query-only real-provider compatibility smoke
-  against the current Query Agent, including one cross-source evidence-path
-  task. Historical v1-v3 and compact-selection results remain compatibility
-  evidence only.
 - [ ] Admit any next TMI family only after an explicit ATMONTO mapping and
   reviewed source/evidence boundary. Do not promote informational notices only
   to increase coverage.
