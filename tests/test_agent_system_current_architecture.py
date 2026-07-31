@@ -7,8 +7,10 @@ from aviation_agentic_ai.agent_system.authority_resolution import (
     resolve_facility_authority,
     resolve_terminology_authority,
 )
-from aviation_agentic_ai.agent_system.event_evidence_integration import EventEvidenceIntegrationStatus
 from aviation_agentic_ai.agent_system.contracts import AgentStatus
+from aviation_agentic_ai.agent_system.construction_contracts import (
+    EventEvidenceIntegrationStatus,
+)
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.workflow import IngestContext, run_ingest
 from test_agent_system_runtime_binding import (

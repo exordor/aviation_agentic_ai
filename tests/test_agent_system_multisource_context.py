@@ -530,7 +530,6 @@ def test_gdp_138_assembly_sees_only_prepared_validated_multisource_rows(
     catalog = _catalog(tmp_path)
     bts_source, bts_rows, bts_binding = bts_context
     output_dir = tmp_path / "gdp-138-prepared-context"
-    provider_constructions: list[str] = []
     observed_before_assembly: dict[str, object] = {}
     original_builder = workflow_module._build_event_evidence_integration_task_from_state
 
@@ -571,9 +570,6 @@ def test_gdp_138_assembly_sees_only_prepared_validated_multisource_rows(
             run_id="run:gdp-138-prepared-context",
             run_started_at=datetime(2026, 5, 19, 20, 0, tzinfo=UTC),
             output_dir=str(output_dir),
-            event_evidence_integration_model_factory=lambda tools: (
-                provider_constructions.append("assembly") or object()
-            ),
         )
     )
 
@@ -586,7 +582,6 @@ def test_gdp_138_assembly_sees_only_prepared_validated_multisource_rows(
         "observation_status": "ok",
         "artifacts_exist": False,
     }
-    assert provider_constructions == []
     assert task.available_evidence_layer_ids == (
         "layer:advisory",
         "layer:bts",
@@ -1112,7 +1107,6 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
     advisory = load_advisory_source(config, source_id)
     bts_source, bts_rows, bts_binding = bts_context
     semantic_factory = _NoDeterministicModelFactory()
-    assembly_factory = _NoDeterministicModelFactory()
     ctx = IngestContext(
         advisory=advisory,
         facility_candidates=[FACILITIES[facility_code]],
@@ -1122,7 +1116,6 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
         bts_manifest_binding=bts_binding,
         authority_catalog=_catalog(tmp_path),
         semantic_resolution_tool_model_factory=semantic_factory,
-        event_evidence_integration_model_factory=assembly_factory,
         run_started_at=datetime(2026, 7, 27, 12, 0, tzinfo=UTC),
         run_id=f"run:{source_id}",
         output_dir=str(tmp_path),
@@ -1163,7 +1156,6 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
     assert materialization is not None
     assert state["model_calls"] == []
     assert semantic_factory.calls == 0
-    assert assembly_factory.calls == 0
 
     event_facts = [
         fact
@@ -1942,7 +1934,7 @@ def test_ingest_graph_names_explicit_validation_and_publication_nodes():
     graph = build_ingest_graph()
     graph_json = graph.get_graph().to_json()
     edges = {(edge["source"], edge["target"]) for edge in graph_json["edges"]}
-    assert ("event_evidence_integration", "validate_event_patch") in edges
+    assert ("integrate_event_evidence", "validate_event_patch") in edges
     assert ("validate_event_patch", "publish_event") in edges
     assert ("publish_event", "__end__") in edges
     assert not {"materialize", "decision_context"} & {

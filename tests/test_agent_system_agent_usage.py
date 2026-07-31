@@ -17,7 +17,6 @@ from aviation_agentic_ai.agent_system.contracts import (
     ToolTraceEntry,
 )
 from aviation_agentic_ai.agent_system.construction_contracts import (
-    EventEvidenceIntegrationStatus,
     ResolutionDecision,
 )
 
@@ -74,13 +73,12 @@ def test_usage_records_distinguish_activation_bypass_and_not_reached() -> None:
             event_id="event:123",
             decision=ResolutionDecision.INSUFFICIENT,
         ),
-        "event_evidence_integration_result": None,
     }
 
     records = build_agent_usage_records(source_id="2026-05-19:123", state=state)
 
-    assert len(records) == 3
-    facility, terminology, assembly = records
+    assert len(records) == 2
+    facility, terminology = records
     assert facility.model_dump() == {
         "source_id": "2026-05-19:123",
         "event_id": "event:123",
@@ -102,44 +100,9 @@ def test_usage_records_distinguish_activation_bypass_and_not_reached() -> None:
     assert terminology.outcome == "abstained"
     assert terminology.provider_call_count == 0
     assert terminology.tool_call_count == 0
-    assert assembly.execution_mode == "not_reached"
-    assert assembly.outcome == "not_applicable"
 
 
-def test_canonical_compiler_is_a_zero_call_deterministic_bypass() -> None:
-    accepted = _semantic_result(
-        task_id="task:facility",
-        event_id="event:138",
-        decision=ResolutionDecision.ACCEPTED,
-    )
-    state = {
-        "resolution_event_id": "event:138",
-        "facility_authority_result": accepted,
-        "terminology_authority_result": _semantic_result(
-            task_id="task:terminology",
-            event_id="event:138",
-            decision=ResolutionDecision.ACCEPTED,
-        ),
-        "event_evidence_integration_task": SimpleNamespace(task_id="task:assembly"),
-        "event_evidence_integration_result": SimpleNamespace(
-            proposal=SimpleNamespace(integration_status=EventEvidenceIntegrationStatus.PARTIAL),
-            model_calls=(),
-            tool_traces=(),
-        ),
-    }
-
-    records = build_agent_usage_records(source_id="2026-05-19:138", state=state)
-    assembly = records[2]
-
-    assert assembly.execution_mode == "deterministic_bypass"
-    assert assembly.outcome == "accepted"
-    assert assembly.detail_status == "partial"
-    assert assembly.activation_reason == "deterministic_event_evidence_compiler"
-    assert assembly.provider_call_count == 0
-    assert assembly.tool_call_count == 0
-
-
-def test_final_corpus_event_id_applies_to_all_three_usage_records() -> None:
+def test_final_corpus_event_id_applies_to_both_resolution_usage_records() -> None:
     state = {
         "event_uri": "event:final-corpus-id",
         "resolution_event_id": "event:resolution-only",
@@ -153,12 +116,6 @@ def test_final_corpus_event_id_applies_to_all_three_usage_records() -> None:
             event_id="event:resolution-only",
             decision=ResolutionDecision.ACCEPTED,
         ),
-        "event_evidence_integration_task": SimpleNamespace(task_id="task:assembly"),
-        "event_evidence_integration_result": SimpleNamespace(
-            proposal=SimpleNamespace(integration_status=EventEvidenceIntegrationStatus.OK),
-            model_calls=(),
-            tool_traces=(),
-        ),
     }
 
     records = build_agent_usage_records(source_id="source:final", state=state)
@@ -167,7 +124,6 @@ def test_final_corpus_event_id_applies_to_all_three_usage_records() -> None:
     assert [row.task_id for row in records] == [
         "task:facility",
         "task:terminology",
-        "task:assembly",
     ]
 
 
@@ -222,12 +178,12 @@ def test_latency_changes_only_the_sidecar_checksum(tmp_path: Path) -> None:
         "source_id": "source:1",
         "event_id": "event:1",
         "task_id": "task:1",
-        "role": "event_evidence_integration",
-        "task_scope": "tmi_event_evidence",
+        "role": "semantic_resolution",
+        "task_scope": "facility",
         "execution_mode": "activated",
         "outcome": "accepted",
-        "detail_status": "ok",
-        "activation_reason": "noncanonical_evidence_or_schema_choice",
+        "detail_status": "accepted",
+        "activation_reason": "multiple_eligible_authority_candidates",
         "provider_call_count": 1,
         "tool_call_count": 0,
         "input_tokens": 10,

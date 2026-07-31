@@ -626,132 +626,10 @@ def test_required_blocked_domain_stops_assembly_and_preserves_blocked_status(
     assert state["formal_layers"]["decision"]["status"] == "blocked"
 
 
-def test_event_evidence_integration_complexity_gate_uses_only_dedicated_factory() -> None:
-    """Only the dedicated integration factory can activate an unresolved task."""
+def test_ingest_context_has_no_event_evidence_integration_model_factory() -> None:
+    """Event evidence integration is a deterministic service, not a model role."""
 
-    from types import SimpleNamespace
-
-    def unrelated_factory(tools):
-        del tools
-        return object()
-
-    def dedicated_factory(tools):
-        del tools
-        return object()
-
-    complete = SimpleNamespace(
-        missing_slots=(),
-        required_event_slots=("controlled_facility",),
-        available_evidence_layer_ids=(
-            "layer:advisory",
-            "layer:bts",
-            "layer:weather",
-        ),
-    )
-    unresolved = SimpleNamespace(
-        missing_slots=("controlled_facility",),
-        required_event_slots=("controlled_facility",),
-        available_evidence_layer_ids=("layer:advisory",),
-    )
-
-    for source_id in (
-        "2026-05-19:123",
-        "2026-05-19:138",
-        "2026-05-20:020",
-    ):
-        assert workflow_module._should_activate_event_evidence_integration_agent(
-            source_id=source_id,
-            task=unresolved,
-            event_evidence_integration_model_factory=dedicated_factory,
-        )
-    assert not workflow_module._should_activate_event_evidence_integration_agent(
-        source_id="fixture:unresolved",
-        task=unresolved,
-        event_evidence_integration_model_factory=None,
-    )
-    assert not workflow_module._should_activate_event_evidence_integration_agent(
-        source_id="fixture:unresolved",
-        task=complete,
-        event_evidence_integration_model_factory=dedicated_factory,
-    )
-    assert workflow_module._should_activate_event_evidence_integration_agent(
-        source_id="fixture:unresolved",
-        task=unresolved,
-        event_evidence_integration_model_factory=dedicated_factory,
-    )
-    # An unrelated factory cannot change the Assembly activation result.
-    assert unrelated_factory is not dedicated_factory
-
-
-def test_blocked_assembly_stops_before_kernel_and_materialization(tmp_path, monkeypatch):
-    """A sealed blocked Assembly result cannot enter the publication path."""
-
-    from aviation_agentic_ai.agent_system.event_evidence_integration import EventEvidenceIntegrationResult
-    from aviation_agentic_ai.agent_system.construction_contracts import EventEvidenceIntegrationStatus
-    from aviation_agentic_ai.agent_system.sources import load_advisory_source
-
-    config, _ = _test_inputs(tmp_path)
-    catalog = _catalog(tmp_path)
-    canonical = load_advisory_source(config, "2026-05-19:123")
-    advisory = canonical.model_copy(
-        update={
-            "source_id": "fixture:blocked-assembly",
-            "content": canonical.content.replace(
-                "PROBABILITY OF EXTENSION: MEDIUM ",
-                "",
-            ),
-        }
-    )
-
-    def blocked_assembly(
-        *,
-        task,
-        binding,
-        tool_model_factory,
-        integration_status,
-        evidence_layer_results,
-        limitations,
-    ):
-        del (
-            tool_model_factory,
-            integration_status,
-            evidence_layer_results,
-            limitations,
-        )
-        proposal = workflow_module.compile_event_evidence_integration_proposal(
-            task=task,
-            integration_status=EventEvidenceIntegrationStatus.BLOCKED,
-            limitations=("scripted hard semantic violation",),
-            binding=binding,
-        )
-        return EventEvidenceIntegrationResult(
-            proposal=proposal,
-            model_calls=(),
-            tool_traces=(),
-            failure_reason="scripted hard semantic violation",
-        )
-
-    monkeypatch.setattr(workflow_module, "run_event_evidence_integration_agent", blocked_assembly)
-
-    state = run_ingest(
-        IngestContext(
-            advisory=advisory,
-            facility_candidates=list(catalog.facility.entities),
-            term_candidates=list(catalog.terminology.registry_terms),
-            authority_catalog=catalog,
-            guide=load_schema_guide(str(SCHEMA_PATH)),
-            run_id="run:blocked-assembly",
-            run_started_at=STARTED,
-            output_dir=str(tmp_path / "blocked-assembly"),
-            event_evidence_integration_model_factory=lambda tools: object(),
-        )
-    )
-
-    assert state["event_evidence_integration_proposal"].integration_status is EventEvidenceIntegrationStatus.BLOCKED
-    assert state["integration_graph_patch"] is None
-    assert state["validation"] is None
-    assert state["materialization"] is None
-    assert state["formal_layers"]["decision"]["status"] == "blocked"
+    assert "event_evidence_integration_model_factory" not in IngestContext.__dataclass_fields__
 
 
 def test_missing_ground_stop_extension_is_insufficient_and_unpublished(tmp_path):
@@ -791,265 +669,6 @@ def test_missing_ground_stop_extension_is_insufficient_and_unpublished(tmp_path)
     assert state["validation"] is None
     assert state["materialization"] is None
     assert state["formal_layers"]["decision"]["status"] == "insufficient"
-
-
-def test_explicit_ok_cannot_override_missing_required_slot(tmp_path, monkeypatch):
-    """A caller cannot force publication by explicitly selecting Assembly OK."""
-
-    from aviation_agentic_ai.agent_system.event_evidence_integration import EventEvidenceIntegrationResult
-    from aviation_agentic_ai.agent_system.construction_contracts import EventEvidenceIntegrationStatus
-    from aviation_agentic_ai.agent_system.sources import load_advisory_source
-
-    config, _ = _test_inputs(tmp_path)
-    catalog = _catalog(tmp_path)
-    source = load_advisory_source(config, "2026-05-19:123")
-    advisory = source.model_copy(
-        update={
-            "content": source.content.replace(
-                "PROBABILITY OF EXTENSION: MEDIUM ",
-                "",
-            )
-        }
-    )
-
-    def explicit_ok_assembly(
-        *,
-        task,
-        binding,
-        tool_model_factory,
-        integration_status,
-        evidence_layer_results,
-        limitations,
-    ):
-        del (
-            tool_model_factory,
-            integration_status,
-            evidence_layer_results,
-            limitations,
-        )
-        proposal = workflow_module.compile_event_evidence_integration_proposal(
-            task=task,
-            integration_status=EventEvidenceIntegrationStatus.OK,
-            binding=binding,
-        )
-        return EventEvidenceIntegrationResult(
-            proposal=proposal,
-            model_calls=(),
-            tool_traces=(),
-        )
-
-    monkeypatch.setattr(workflow_module, "run_event_evidence_integration_agent", explicit_ok_assembly)
-
-    state = run_ingest(
-        IngestContext(
-            advisory=advisory,
-            facility_candidates=list(catalog.facility.entities),
-            term_candidates=list(catalog.terminology.registry_terms),
-            authority_catalog=catalog,
-            guide=load_schema_guide(str(SCHEMA_PATH)),
-            run_id="run:explicit-ok-missing-required",
-            run_started_at=STARTED,
-            output_dir=str(tmp_path / "explicit-ok-missing-required"),
-            event_evidence_integration_model_factory=lambda tools: object(),
-        )
-    )
-
-    assert state["event_evidence_integration_proposal"].integration_status is EventEvidenceIntegrationStatus.INSUFFICIENT
-    assert state["integration_graph_patch"] is None
-    assert state["validation"] is None
-    assert state["materialization"] is None
-
-
-def test_hard_preflight_feedback_blocks_publication(tmp_path, monkeypatch):
-    """A hard preflight violation blocks before the Formal Graph Kernel."""
-
-    from aviation_agentic_ai.agent_system.event_evidence_integration import EventEvidenceIntegrationResult
-    from aviation_agentic_ai.agent_system.construction_contracts import EventEvidenceIntegrationStatus
-    from aviation_agentic_ai.agent_system.sources import load_advisory_source
-
-    config, _ = _test_inputs(tmp_path)
-    catalog = _catalog(tmp_path)
-    canonical = load_advisory_source(config, "2026-05-19:123")
-    advisory = canonical.model_copy(
-        update={
-            "source_id": "fixture:hard-preflight-violation",
-        }
-    )
-
-    def hard_violation_assembly(
-        *,
-        task,
-        binding,
-        tool_model_factory,
-        integration_status,
-        evidence_layer_results,
-        limitations,
-    ):
-        del (
-            tool_model_factory,
-            integration_status,
-            evidence_layer_results,
-            limitations,
-        )
-        forbidden_fact = task.proposed_facts[0].model_copy(
-            update={
-                "proposal_item_id": "proposal-fact:forbidden-causal",
-                "predicate_iri": "atm:causedByWeather",
-                "object_value": "atm:Thunderstorm",
-            }
-        )
-        proposal = workflow_module.compile_event_evidence_integration_proposal(
-            task=task,
-            integration_status=EventEvidenceIntegrationStatus.OK,
-            proposed_facts=(*task.proposed_facts, forbidden_fact),
-            binding=binding,
-        )
-        return EventEvidenceIntegrationResult(
-            proposal=proposal,
-            model_calls=(),
-            tool_traces=(),
-        )
-
-    monkeypatch.setattr(workflow_module, "run_event_evidence_integration_agent", hard_violation_assembly)
-    monkeypatch.setattr(
-        workflow_module,
-        "_should_activate_event_evidence_integration_agent",
-        lambda **_: True,
-    )
-
-    state = run_ingest(
-        IngestContext(
-            advisory=advisory,
-            facility_candidates=list(catalog.facility.entities),
-            term_candidates=list(catalog.terminology.registry_terms),
-            authority_catalog=catalog,
-            guide=load_schema_guide(str(SCHEMA_PATH)),
-            run_id="run:hard-preflight-violation",
-            run_started_at=STARTED,
-            output_dir=str(tmp_path / "hard-preflight-violation"),
-            event_evidence_integration_model_factory=lambda tools: object(),
-        )
-    )
-
-    assert state["event_evidence_integration_feedback"] is not None
-    assert state["event_evidence_integration_feedback"].repairable is False
-    assert state["event_evidence_integration_proposal"].integration_status is EventEvidenceIntegrationStatus.BLOCKED
-    assert state["integration_graph_patch"] is None
-    assert state["validation"] is None
-    assert state["materialization"] is None
-
-
-def test_hard_preflight_block_preserves_component_layer_audit_rows(
-    tmp_path,
-    monkeypatch,
-):
-    """Preflight blocking retains the Assembly component-layer audit record."""
-
-    from aviation_agentic_ai.agent_system.event_evidence_integration import EventEvidenceIntegrationResult
-    from aviation_agentic_ai.agent_system.construction_contracts import (
-        EventEvidenceIntegrationStatus,
-        EvidenceLayerResult,
-        EvidenceLayerStatus,
-    )
-    from aviation_agentic_ai.agent_system.sources import load_advisory_source
-
-    config, _ = _test_inputs(tmp_path)
-    catalog = _catalog(tmp_path)
-    canonical = load_advisory_source(config, "2026-05-19:123")
-    advisory = canonical.model_copy(
-        update={
-            "source_id": "fixture:hard-preflight-preserve-layers",
-        }
-    )
-
-    def hard_violation_assembly(
-        *,
-        task,
-        binding,
-        tool_model_factory,
-        integration_status,
-        evidence_layer_results,
-        limitations,
-    ):
-        del (
-            tool_model_factory,
-            integration_status,
-            evidence_layer_results,
-            limitations,
-        )
-        component_layers = (
-            EvidenceLayerResult(
-                layer_id="core",
-                status=EvidenceLayerStatus.OK,
-                required_for_task=True,
-                artifact_ids=task.core_event_fact_ids,
-            ),
-            EvidenceLayerResult(
-                layer_id="optional-context",
-                status=EvidenceLayerStatus.INSUFFICIENT,
-                required_for_task=False,
-                missing_reason_code="optional_context_unavailable",
-            ),
-        )
-        forbidden_fact = task.proposed_facts[0].model_copy(
-            update={
-                "proposal_item_id": "proposal-fact:preserve-layers",
-                "predicate_iri": "atm:causedByWeather",
-                "object_value": "atm:Thunderstorm",
-            }
-        )
-        proposal = workflow_module.compile_event_evidence_integration_proposal(
-            task=task,
-            integration_status=EventEvidenceIntegrationStatus.OK,
-            evidence_layer_results=component_layers,
-            proposed_facts=(*task.proposed_facts, forbidden_fact),
-            binding=binding,
-        )
-        return EventEvidenceIntegrationResult(
-            proposal=proposal,
-            model_calls=(),
-            tool_traces=(),
-        )
-
-    monkeypatch.setattr(workflow_module, "run_event_evidence_integration_agent", hard_violation_assembly)
-    monkeypatch.setattr(
-        workflow_module,
-        "_should_activate_event_evidence_integration_agent",
-        lambda **_: True,
-    )
-
-    state = run_ingest(
-        IngestContext(
-            advisory=advisory,
-            facility_candidates=list(catalog.facility.entities),
-            term_candidates=list(catalog.terminology.registry_terms),
-            authority_catalog=catalog,
-            guide=load_schema_guide(str(SCHEMA_PATH)),
-            run_id="run:hard-preflight-preserve-layers",
-            run_started_at=STARTED,
-            output_dir=str(tmp_path / "hard-preflight-preserve-layers"),
-            event_evidence_integration_model_factory=lambda tools: object(),
-        )
-    )
-
-    assert state["event_evidence_integration_proposal"].integration_status is EventEvidenceIntegrationStatus.BLOCKED
-    assert tuple(state["event_evidence_integration_proposal"].evidence_layer_results) == (
-        EvidenceLayerResult(
-            layer_id="core",
-            status=EvidenceLayerStatus.OK,
-            required_for_task=True,
-            artifact_ids=state["event_evidence_integration_task"].core_event_fact_ids,
-        ),
-        EvidenceLayerResult(
-            layer_id="optional-context",
-            status=EvidenceLayerStatus.INSUFFICIENT,
-            required_for_task=False,
-            missing_reason_code="optional_context_unavailable",
-        ),
-    )
-    assert state["integration_graph_patch"] is None
-    assert state["validation"] is None
-    assert state["materialization"] is None
 
 
 def test_blocked_authority_registry_is_absorbing_at_the_join(tmp_path):
@@ -1164,7 +783,7 @@ def test_event_class_hint_mismatch_blocks_before_assembly_factory(tmp_path, monk
         ],
     )
 
-    result = workflow_module._event_evidence_integration_node(
+    result = workflow_module._integrate_event_evidence_node(
         {
             "resolution_preflight_status": "resolved",
             "advisory_evidence": advisory_card,
@@ -1219,45 +838,24 @@ def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
             guide=guide,
             run_id="run:test",
             output_dir=str(tmp_path),
-            event_evidence_integration_model_factory=lambda tools: object(),
         ),
     )
 
-    def capture_inputs(
-        *,
-        task,
-        binding,
-        tool_model_factory,
-        integration_status,
-        evidence_layer_results,
-        limitations,
-    ):
-        del (
-            binding,
-            tool_model_factory,
-            integration_status,
-            evidence_layer_results,
-            limitations,
+    original_builder = workflow_module._build_event_evidence_integration_task_from_state
+
+    def capture_inputs(ctx, state, *, event_uri, event_class):
+        task = original_builder(
+            ctx,
+            state,
+            event_uri=event_uri,
+            event_class=event_class,
         )
         captured["allowed_source_ids"] = {b.source_id for b in task.source_snapshot_bindings}
-        proposal = workflow_module.compile_event_evidence_integration_proposal(
-            task=task,
-            binding=workflow_module.ContractExecutionBinding(
-                run_id="run:test",
-                created_at=datetime.now(UTC),
-                tool_version="deterministic-event-evidence-integration-v1",
-            ),
-        )
-        return workflow_module.EventEvidenceIntegrationResult(
-            proposal=proposal,
-            model_calls=(),
-            tool_traces=(),
-            feedback=None,
-        )
+        return task
 
     monkeypatch.setattr(
         workflow_module,
-        "run_event_evidence_integration_agent",
+        "_build_event_evidence_integration_task_from_state",
         capture_inputs,
     )
     authority_source = "authority:pcg:gdp"
@@ -1310,7 +908,7 @@ def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
         source_ids=[advisory.source_id, authority_source],
     )
 
-    workflow_module._event_evidence_integration_node(
+    workflow_module._integrate_event_evidence_node(
         {
             "resolution_preflight_status": "resolved",
             "advisory_evidence": advisory_card,

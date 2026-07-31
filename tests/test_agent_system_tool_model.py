@@ -115,14 +115,14 @@ def test_adapter_preserves_native_tool_call_and_metadata():
     }
 
 
-def test_adapter_records_the_configured_active_agent_role():
+def test_adapter_records_the_configured_semantic_resolution_role():
     message = _tool_call_message()
     adapter = LangChainToolCallingModel(
         chat_model=_FakeChat(required=[message]),
         tools=[fictional_lookup],
         prompt_set_id="prompt:test",
-        prompt_version="event-evidence-integration-v1",
-        agent="event_evidence_integration",
+        prompt_version="semantic-resolution-agent-v1",
+        agent="semantic_resolution",
         provider="deepseek",
         model="deepseek-test",
         temperature=0,
@@ -131,7 +131,7 @@ def test_adapter_records_the_configured_active_agent_role():
         [HumanMessage(content="Inspect the registered context.")],
         phase="select_tool",
     )
-    assert turn.record.agent == "event_evidence_integration"
+    assert turn.record.agent == "semantic_resolution"
 
 
 def test_adapter_binds_tools_for_construction_and_query_without_strict_schema():

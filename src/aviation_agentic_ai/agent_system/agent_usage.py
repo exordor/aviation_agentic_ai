@@ -18,8 +18,8 @@ from aviation_agentic_ai.agent_system.contracts import StrictModel
 from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 
-AgentRole = Literal["semantic_resolution", "event_evidence_integration"]
-AgentTaskScope = Literal["facility", "terminology", "tmi_event_evidence"]
+AgentRole = Literal["semantic_resolution"]
+AgentTaskScope = Literal["facility", "terminology"]
 AgentExecutionMode = Literal[
     "activated",
     "deterministic_bypass",
@@ -101,8 +101,8 @@ def build_agent_usage_records(
     *,
     source_id: str,
     state: dict[str, Any],
-) -> tuple[AgentUsageRecord, AgentUsageRecord, AgentUsageRecord]:
-    """Build the fixed facility, terminology, and integration usage rows."""
+) -> tuple[AgentUsageRecord, AgentUsageRecord]:
+    """Build the fixed facility and terminology resolution usage rows."""
 
     facility = _semantic_usage_record(
         source_id=source_id,
@@ -116,19 +116,14 @@ def build_agent_usage_records(
         task_scope="terminology",
         result=state.get("terminology_authority_result"),
     )
-    integration = _event_evidence_integration_usage_record(
-        source_id=source_id,
-        event_id=_event_id(state),
-        state=state,
-    )
-    return facility, terminology, integration
+    return facility, terminology
 
 
 def build_blocked_agent_usage_records(
     *,
     source_id: str,
     activation_reason: str = "workflow_exception_before_usage_capture",
-) -> tuple[AgentUsageRecord, AgentUsageRecord, AgentUsageRecord]:
+) -> tuple[AgentUsageRecord, AgentUsageRecord]:
     """Represent a workflow exception when no finer usage trace was returned."""
 
     return tuple(
@@ -146,7 +141,6 @@ def build_blocked_agent_usage_records(
         for role, task_scope in (
             ("semantic_resolution", "facility"),
             ("semantic_resolution", "terminology"),
-            ("event_evidence_integration", "tmi_event_evidence"),
         )
     )  # type: ignore[return-value]
 
@@ -297,64 +291,6 @@ def _semantic_usage_record(
                 if outcome == "accepted"
                 else "authority_path_terminal_without_model"
             )
-        ),
-        model_calls=model_calls,
-        tool_traces=tool_traces,
-    )
-
-
-def _event_evidence_integration_usage_record(
-    *,
-    source_id: str,
-    event_id: str | None,
-    state: dict[str, Any],
-) -> AgentUsageRecord:
-    result = state.get("event_evidence_integration_result")
-    task = state.get("event_evidence_integration_task")
-    if result is None:
-        return _not_reached_record(
-            source_id=source_id,
-            event_id=event_id,
-            role="event_evidence_integration",
-            task_scope="tmi_event_evidence",
-            activation_reason=(
-                "required_resolution_unavailable"
-                if state.get("resolution_preflight_status") not in {None, "resolved"}
-                else "event_evidence_integration_not_reached"
-            ),
-            task_id=getattr(task, "task_id", None),
-        )
-    status = _enum_value(
-        getattr(getattr(result, "proposal", None), "integration_status", "blocked")
-    )
-    outcome: AgentUsageOutcome
-    if status in {"ok", "partial"}:
-        outcome = "accepted"
-    elif status == "insufficient":
-        outcome = "abstained"
-    else:
-        outcome = "blocked"
-    model_calls = tuple(getattr(result, "model_calls", ()) or ())
-    tool_traces = tuple(getattr(result, "tool_traces", ()) or ())
-    return _usage_record(
-        source_id=source_id,
-        event_id=event_id,
-        task_id=getattr(task, "task_id", None)
-        or stable_id(
-            "agent-usage-task",
-            source_id,
-            "event_evidence_integration",
-            "tmi_event_evidence",
-        ),
-        role="event_evidence_integration",
-        task_scope="tmi_event_evidence",
-        execution_mode=("activated" if model_calls else "deterministic_bypass"),
-        outcome=outcome,
-        detail_status=status,
-        activation_reason=(
-            "noncanonical_evidence_or_schema_choice"
-            if model_calls
-            else "deterministic_event_evidence_compiler"
         ),
         model_calls=model_calls,
         tool_traces=tool_traces,

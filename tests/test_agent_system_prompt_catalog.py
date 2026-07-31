@@ -17,7 +17,6 @@ PROMPT_PATH = (
 EXPECTED_ROLES = {
     "query",
     "semantic_resolution",
-    "event_evidence_integration",
 }
 
 EXPECTED_PLACEHOLDERS = {
@@ -33,14 +32,6 @@ EXPECTED_PLACEHOLDERS = {
         "eligible_candidate_ids",
         "authority_source_ids",
         "schema_slice_id",
-    },
-    "event_evidence_integration": {
-        "event_id",
-        "required_event_slots",
-        "optional_event_slots",
-        "missing_slots",
-        "schema_profile_id",
-        "available_evidence_layer_ids",
     },
 }
 
@@ -64,7 +55,6 @@ def test_every_role_has_version_policy_and_bounded_output() -> None:
     expected_versions = {
         "query": "hybrid-query-agent-v3",
         "semantic_resolution": "semantic-resolution-agent-v1",
-        "event_evidence_integration": "event-evidence-integration-v1",
     }
     for role, prompt in _catalog()["roles"].items():
         assert prompt["prompt_version"] == expected_versions[role]
@@ -79,7 +69,6 @@ def test_active_generation_roles_use_the_10k_output_ceiling() -> None:
     roles = _catalog()["roles"]
 
     assert roles["query"]["max_output_tokens"] == 10_000
-    assert roles["event_evidence_integration"]["max_output_tokens"] == 10_000
     assert roles["semantic_resolution"]["max_output_tokens"] == 256
 
 
@@ -87,7 +76,6 @@ def test_every_role_has_two_fictional_contrastive_few_shot_pairs() -> None:
     expected_headers = {
         "query": {"{"},
         "semantic_resolution": {"{"},
-        "event_evidence_integration": {"{"},
     }
     forbidden_real_tokens = re.compile(r"\b(?:DCA|SFO|MIA|CLT)\b")
     for role, prompt in _catalog()["roles"].items():

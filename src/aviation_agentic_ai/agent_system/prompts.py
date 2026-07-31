@@ -37,7 +37,6 @@ DEFAULT_PROMPT_CATALOG = "configs/prompts/tmi_event_agents_v1.yaml"
 # The frozen role keys the system exercises.
 ROLE_KEYS: tuple[str, ...] = (
     "semantic_resolution",
-    "event_evidence_integration",
     "query",
 )
 

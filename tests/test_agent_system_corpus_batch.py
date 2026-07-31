@@ -353,14 +353,14 @@ def test_resume_replaces_blocked_usage_rows_without_duplicating_terminal_rows(
                 source_id=source_id,
                 event_id=f"event:{source_id}",
                 task_id=f"task:{scope}:{source_id}",
-                role=("event_evidence_integration" if scope == "tmi_event_evidence" else "semantic_resolution"),
+                role="semantic_resolution",
                 task_scope=scope,
                 execution_mode="deterministic_bypass",
                 outcome=outcome,
                 detail_status=("blocked" if outcome == "blocked" else "accepted"),
                 activation_reason="test",
             )
-            for scope in ("facility", "terminology", "tmi_event_evidence")
+            for scope in ("facility", "terminology")
         )
 
     def run_case(advisory, resources, staging_dir, allow_live_model):  # type: ignore[no-untyped-def]
@@ -417,7 +417,7 @@ def test_resume_replaces_blocked_usage_rows_without_duplicating_terminal_rows(
     blocked_rows = [
         row for row in staged_rows if row["source_id"] == "blocked:two"
     ]
-    assert len(blocked_rows) == 3
+    assert len(blocked_rows) == 2
     assert all(row["execution_mode"] == "not_reached" for row in blocked_rows)
     assert all(row["outcome"] == "blocked" for row in blocked_rows)
 
@@ -444,13 +444,13 @@ def test_resume_replaces_blocked_usage_rows_without_duplicating_terminal_rows(
         for line in usage_bytes.decode("utf-8").splitlines()
     ]
     assert resumed.blocked_count == repeated.blocked_count == 0
-    assert len(rows) == 6
+    assert len(rows) == 4
     assert len(
         {
             (row["source_id"], row["role"], row["task_scope"])
             for row in rows
         }
-    ) == 6
+    ) == 4
     assert all(row["outcome"] == "accepted" for row in rows)
     assert (output / "agent_usage" / "agent_usage.jsonl").read_bytes() == usage_bytes
 
@@ -507,11 +507,10 @@ def test_pending_ok_and_blocked_executions_get_exact_fixed_usage_rows(
     ]
     assert summary.ok_count == 1
     assert summary.blocked_count == 1
-    assert len(rows) == 6
+    assert len(rows) == 4
     expected = {
         ("semantic_resolution", "facility"),
         ("semantic_resolution", "terminology"),
-        ("event_evidence_integration", "tmi_event_evidence"),
     }
     for source_id in ("ok:empty", "blocked:partial"):
         source_rows = [row for row in rows if row["source_id"] == source_id]

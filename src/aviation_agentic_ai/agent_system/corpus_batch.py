@@ -358,17 +358,6 @@ def run_batch_case(
             if allow_live_model
             else None
         ),
-        event_evidence_integration_model_factory=(
-            (
-                lambda tools: make_live_tool_calling_model(
-                    tools=tools,
-                    role="event_evidence_integration",
-                    catalog_path=DEFAULT_PROMPT_CATALOG,
-                )
-            )
-            if allow_live_model
-            else None
-        ),
         authority_catalog=resources.authority_catalog,
         run_started_at=binding.run_started_at,
         run_id=binding.run_id,
@@ -609,12 +598,11 @@ def _normalize_case_usage(
     expected = {
         ("semantic_resolution", "facility"),
         ("semantic_resolution", "terminology"),
-        ("event_evidence_integration", "tmi_event_evidence"),
     }
     keys = {(row.role, row.task_scope) for row in records}
     if (
-        len(records) == 3
-        and len(keys) == 3
+        len(records) == 2
+        and len(keys) == 2
         and keys == expected
         and all(row.source_id == source_id for row in records)
     ):

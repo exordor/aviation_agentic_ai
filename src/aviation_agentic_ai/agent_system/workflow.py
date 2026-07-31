@@ -73,7 +73,6 @@ from aviation_agentic_ai.agent_system.construction_contracts import (
 )
 from aviation_agentic_ai.agent_system.event_evidence_integration import (
     EventEvidenceIntegrationResult,
-    run_event_evidence_integration_agent,
 )
 from aviation_agentic_ai.agent_system.event_evidence_integration_tools import (
     build_event_evidence_integration_task,
@@ -224,7 +223,6 @@ class IngestContext:
     bts_failure_reason: str = ""
     guide: SchemaGuide | None = None
     semantic_resolution_tool_model_factory: ToolModelFactory | None = None
-    event_evidence_integration_model_factory: ToolModelFactory | None = None
     authority_catalog: LoadedAuthorityCatalog | None = None
     run_started_at: datetime | None = None
     run_id: str = "agent-system"
@@ -287,7 +285,7 @@ def build_ingest_graph() -> Any:
     sg.add_node("terminology_authority", _terminology_authority_node)
     sg.add_node("join", _join_node)
     sg.add_node("prepare_context", _prepare_context_node)
-    sg.add_node("event_evidence_integration", _event_evidence_integration_node)
+    sg.add_node("integrate_event_evidence", _integrate_event_evidence_node)
     sg.add_node("validate_event_patch", _validate_event_patch_node)
     sg.add_node("publish_event", _publish_event_node)
     sg.add_edge(START, "advisory")
@@ -298,8 +296,8 @@ def build_ingest_graph() -> Any:
     sg.add_edge("facility_authority", "join")
     sg.add_edge("terminology_authority", "join")
     sg.add_edge("join", "prepare_context")
-    sg.add_edge("prepare_context", "event_evidence_integration")
-    sg.add_edge("event_evidence_integration", "validate_event_patch")
+    sg.add_edge("prepare_context", "integrate_event_evidence")
+    sg.add_edge("integrate_event_evidence", "validate_event_patch")
     sg.add_edge("validate_event_patch", "publish_event")
     sg.add_edge("publish_event", END)
     return sg.compile()
@@ -1151,24 +1149,7 @@ def _build_event_evidence_integration_task_from_state(
     )
 
 
-def _should_activate_event_evidence_integration_agent(
-    *,
-    source_id: str,
-    task: Any,
-    event_evidence_integration_model_factory: ToolModelFactory | None,
-) -> bool:
-    """Escalate only when a required event slot remains unresolved.
-
-    Missing optional Weather/BTS context is evidence absence, not a schema
-    choice for an LLM to repair. Source identifiers never decide activation.
-    """
-
-    del source_id
-    missing_required = set(task.missing_slots) & set(task.required_event_slots)
-    return event_evidence_integration_model_factory is not None and bool(missing_required)
-
-
-def _event_evidence_integration_node(state: dict) -> dict:
+def _integrate_event_evidence_node(state: dict) -> dict:
     ctx: IngestContext = _ctx()
     preflight = state.get("resolution_preflight_status", "blocked")
     if preflight != "resolved":
@@ -1231,11 +1212,6 @@ def _event_evidence_integration_node(state: dict) -> dict:
         tool_version="deterministic-event-evidence-integration-v1",
     )
 
-    activate_agent = _should_activate_event_evidence_integration_agent(
-        source_id=ctx.advisory.source_id,
-        task=integration_task,
-        event_evidence_integration_model_factory=ctx.event_evidence_integration_model_factory,
-    )
     optional_layer_results: list[EvidenceLayerResult] = [
         EvidenceLayerResult(
             layer_id="core",
@@ -1296,31 +1272,21 @@ def _event_evidence_integration_node(state: dict) -> dict:
             )
             optional_limitations.append(f"{layer_id}: {failure_reason}")
 
-    if not activate_agent:
-        # Deterministic event evidence compiler (0 model calls)
-        proposal = compile_event_evidence_integration_proposal(
-            task=integration_task,
-            integration_status=(EventEvidenceIntegrationStatus.PARTIAL if optional_limitations else None),
-            evidence_layer_results=optional_layer_results,
-            limitations=optional_limitations,
-            binding=binding,
-        )
-        integration_result = EventEvidenceIntegrationResult(
-            proposal=proposal,
-            model_calls=(),
-            tool_traces=(),
-            feedback=None,
-        )
-    else:
-        integration_result = run_event_evidence_integration_agent(
-            task=integration_task,
-            binding=binding,
-            tool_model_factory=ctx.event_evidence_integration_model_factory,
-            integration_status=(EventEvidenceIntegrationStatus.PARTIAL if optional_limitations else None),
-            evidence_layer_results=optional_layer_results,
-            limitations=optional_limitations,
-        )
-        proposal = integration_result.proposal
+    proposal = compile_event_evidence_integration_proposal(
+        task=integration_task,
+        integration_status=(
+            EventEvidenceIntegrationStatus.PARTIAL
+            if optional_limitations
+            else None
+        ),
+        evidence_layer_results=optional_layer_results,
+        limitations=optional_limitations,
+        binding=binding,
+    )
+    integration_result = EventEvidenceIntegrationResult(
+        proposal=proposal,
+        feedback=None,
+    )
 
     feedback = preflight_validate_event_evidence_proposal(
         task=integration_task,
@@ -1346,8 +1312,6 @@ def _event_evidence_integration_node(state: dict) -> dict:
         )
         integration_result = EventEvidenceIntegrationResult(
             proposal=proposal,
-            model_calls=integration_result.model_calls,
-            tool_traces=integration_result.tool_traces,
             feedback=feedback,
             failure_reason=feedback.violation_code,
         )
@@ -1374,7 +1338,7 @@ def _event_evidence_integration_node(state: dict) -> dict:
         "integration_failure_reason": integration_result.failure_reason,
         "event_uri": event_uri,
         "event_class": event_class,
-        "model_calls": list(integration_result.model_calls),
+        "model_calls": [],
     }
 
 
