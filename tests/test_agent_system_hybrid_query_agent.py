@@ -18,6 +18,8 @@ from aviation_agentic_ai.agent_system.contracts import (
     HybridQueryToolObservation,
     ModelCallRecord,
     ModelToolCall,
+    QueryGraphEdge,
+    QueryGraphPath,
 )
 from aviation_agentic_ai.agent_system.hybrid_query_agent import (
     run_hybrid_query_agent,
@@ -277,6 +279,114 @@ def test_multiple_model_selected_tools_feed_the_answer_turn() -> None:
     ]
     assert "non-causal" in str(tool_messages[1].content)
     assert '"evidence":' not in str(tool_messages[1].content)
+
+
+def test_graph_paths_are_visible_to_and_citable_by_the_answer_turn() -> None:
+    path = QueryGraphPath(
+        path_id="urn:path:weather",
+        path_kind="weather_context_at_controlled_facility",
+        edges=(
+            QueryGraphEdge(
+                fact_id="urn:fact:controlled",
+                subject_iri="urn:event:138",
+                predicate_iri="atm:controlledNASelement",
+                object_kind="iri",
+                object_value="urn:airport:KEWR",
+                source_ids=("atcscc:2026-05-20:138",),
+            ),
+            QueryGraphEdge(
+                fact_id="urn:fact:forecast-airport",
+                subject_iri="urn:weather:taf",
+                predicate_iri="data:forecastingAirport",
+                object_kind="iri",
+                object_value="urn:airport:KEWR",
+                source_ids=("taf:KEWR:2026-05-20T12:00Z",),
+            ),
+        ),
+        source_ids=(
+            "atcscc:2026-05-20:138",
+            "taf:KEWR:2026-05-20T12:00Z",
+        ),
+    )
+
+    @tool("read_tmi_event_graph", args_schema=_EventInput)
+    def graph_tool(event_id: str) -> dict[str, object]:
+        """Return one source-bound Weather context path."""
+
+        assert event_id == "urn:event:138"
+        return HybridQueryToolObservation(
+            status="ok",
+            content="One Weather context path is available.",
+            details=HybridQueryEvidence(
+                event_ids=("urn:event:138",),
+                fact_ids=(
+                    "urn:fact:controlled",
+                    "urn:fact:forecast-airport",
+                ),
+                context_association_ids=("urn:association:taf",),
+                graph_path_ids=(path.path_id,),
+                source_ids=path.source_ids,
+            ),
+            support_records=(
+                HybridQuerySupportRecord(
+                    kind="non_causal_context",
+                    event_ids=("urn:event:138",),
+                    fact_ids=(
+                        "urn:fact:controlled",
+                        "urn:fact:forecast-airport",
+                    ),
+                    context_association_ids=("urn:association:taf",),
+                    graph_path_ids=(path.path_id,),
+                    source_ids=path.source_ids,
+                ),
+            ),
+            graph_paths=(path,),
+        ).model_dump(mode="json")
+
+    model = _LoopModel(
+        calls=[
+            {
+                "id": "graph",
+                "name": "read_tmi_event_graph",
+                "args": {"event_id": "urn:event:138"},
+            }
+        ],
+        final_content=HybridQueryAnswer(
+            status="ok",
+            statements=(
+                HybridQueryStatement(
+                    kind="non_causal_context",
+                    text=(
+                        "The retained TAF and the TMI are connected to KEWR "
+                        "without asserting causation."
+                    ),
+                    support_event_ids=("urn:event:138",),
+                    support_fact_ids=(
+                        "urn:fact:controlled",
+                        "urn:fact:forecast-airport",
+                    ),
+                    support_context_association_ids=(
+                        "urn:association:taf",
+                    ),
+                    support_graph_path_ids=(path.path_id,),
+                    support_source_ids=path.source_ids,
+                ),
+            ),
+        ).model_dump_json(),
+    )
+
+    outcome = _run(model, tools=[graph_tool])
+    tool_message = next(
+        message
+        for message in model.messages[-1]
+        if isinstance(message, ToolMessage)
+    )
+    model_observation = json.loads(str(tool_message.content))
+
+    assert outcome.status == "ok"
+    assert model_observation["graph_paths"][0]["path_id"] == path.path_id
+    assert outcome.retrieved_graph_path_ids == [path.path_id]
+    assert outcome.retrieved_graph_paths == [path]
 
 
 def test_zero_tool_calls_is_blocked() -> None:

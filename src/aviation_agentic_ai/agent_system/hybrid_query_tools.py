@@ -25,6 +25,8 @@ from aviation_agentic_ai.agent_system.contracts import (
     HybridQueryScope,
     HybridQuerySupportRecord,
     HybridQueryToolObservation,
+    QueryGraphEdge,
+    QueryGraphPath,
     StrictModel,
 )
 from aviation_agentic_ai.agent_system.corpus_store import (
@@ -32,10 +34,37 @@ from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusEventQuery,
     CorpusQueryStore,
 )
+from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 
 ReasonStatus = Literal["formal", "profile_gap", "missing"]
 ObservationPhase = Literal["baseline", "active", "recovery"]
+GraphView = Literal["edges", "evidence_paths"]
+
+
+class CorpusEventEvidencePath(StrictModel):
+    """Corpus binding retained behind one model-visible graph path."""
+
+    path: QueryGraphPath
+    support_kind: Literal["non_causal_context", "public_observation"]
+    event_id: str = Field(min_length=1)
+    fact_ids: tuple[str, ...]
+    context_association_ids: tuple[str, ...] = ()
+    observation_ids: tuple[str, ...] = ()
+    source_ids: tuple[str, ...]
+
+    def support_record(self) -> HybridQuerySupportRecord:
+        """Bind the path and every supporting corpus identifier together."""
+
+        return HybridQuerySupportRecord(
+            kind=self.support_kind,
+            event_ids=(self.event_id,),
+            fact_ids=self.fact_ids,
+            context_association_ids=self.context_association_ids,
+            observation_ids=self.observation_ids,
+            graph_path_ids=(self.path.path_id,),
+            source_ids=self.source_ids,
+        )
 
 
 class FindTMIEventsInput(StrictModel):
@@ -60,6 +89,7 @@ class PublicObservationsInput(EventInput):
 
 
 class TMIEventGraphInput(EventInput):
+    view: GraphView = "edges"
     entity_iri: str | None = Field(default=None, min_length=1)
     direction: Literal["out", "in"] = "out"
     predicate_iris: tuple[str, ...] = ()
@@ -88,6 +118,49 @@ def _json(payload: object) -> str:
             if isinstance(value, datetime)
             else str(value)
         ),
+    )
+
+
+def _local_name(iri: str) -> str:
+    return iri.rsplit("#", 1)[-1].rsplit("/", 1)[-1].rsplit(":", 1)[-1]
+
+
+def _formal_report_iri(report_id: str) -> str:
+    if report_id.startswith("urn:"):
+        return report_id
+    return f"urn:aviation-agentic-ai:{report_id}"
+
+
+def _path(
+    *,
+    event_id: str,
+    path_kind: str,
+    binding_id: str,
+    controlled_edge: QueryGraphEdge,
+    related_edge: QueryGraphEdge,
+    additional_source_id: str,
+) -> QueryGraphPath:
+    source_ids = tuple(
+        sorted(
+            {
+                *controlled_edge.source_ids,
+                *related_edge.source_ids,
+                additional_source_id,
+            }
+        )
+    )
+    return QueryGraphPath(
+        path_id=stable_id(
+            "tmi-event-evidence-path",
+            event_id,
+            path_kind,
+            binding_id,
+            controlled_edge.fact_id,
+            related_edge.fact_id,
+        ),
+        path_kind=path_kind,
+        edges=(controlled_edge, related_edge),
+        source_ids=source_ids,
     )
 
 
@@ -550,20 +623,33 @@ class HybridQueryGateway:
         self,
         *,
         event_id: str,
+        view: GraphView = "edges",
         entity_iri: str | None = None,
         direction: Literal["out", "in"] = "out",
         predicate_iris: tuple[str, ...] = (),
         limit: int = 50,
     ) -> HybridQueryToolObservation:
-        """Read formal graph edges from one event-scoped graph view."""
+        """Read formal edges or reviewed cross-source paths for one event."""
 
         event_id = self._event_id(event_id)
         event = self.store.get_event(event_id)
         if event is None:
             return HybridQueryToolObservation(
                 status="insufficient",
-                content=_json({"event_id": event_id, "edges": []}),
+                content=_json(
+                    {
+                        "event_id": event_id,
+                        "view": view,
+                        "edges": [],
+                        "graph_paths": {},
+                    }
+                ),
                 limitation="The requested event is not present in this corpus.",
+            )
+        if view == "evidence_paths":
+            return self._read_tmi_event_evidence_paths(
+                event_id=event.event_id,
+                limit=limit,
             )
         edges = self.store.graph_for_event(event_id).edges(
             entity_iri=entity_iri,
@@ -587,9 +673,11 @@ class HybridQueryGateway:
             content=_json(
                 {
                     "event_id": event_id,
+                    "view": "edges",
                     "edges": [
                         edge.model_dump(mode="json") for edge in edges
                     ],
+                    "graph_paths": {},
                 }
             ),
             details=HybridQueryEvidence(
@@ -611,6 +699,190 @@ class HybridQueryGateway:
                 ""
                 if status == "ok"
                 else "No formal graph edges match the bounded graph filter."
+            ),
+        )
+
+    def _read_tmi_event_evidence_paths(
+        self,
+        *,
+        event_id: str,
+        limit: int,
+    ) -> HybridQueryToolObservation:
+        graph = self.store.graph_for_event(event_id)
+        edges = graph.edges()
+        controlled_edges = tuple(
+            edge
+            for edge in edges
+            if edge.subject_iri == event_id
+            and edge.object_kind == "iri"
+            and _local_name(edge.predicate_iri) == "controlledNASelement"
+        )
+        evidence_paths: list[CorpusEventEvidencePath] = []
+
+        for association in self.store.get_weather_context(event_id):
+            for controlled_edge in controlled_edges:
+                if controlled_edge.object_value != association.facility_id:
+                    continue
+                for report_edge in edges:
+                    if (
+                        report_edge.object_kind != "iri"
+                        or _local_name(report_edge.predicate_iri)
+                        != "forecastingAirport"
+                        or report_edge.subject_iri
+                        != _formal_report_iri(association.report_id)
+                        or report_edge.object_value
+                        != association.facility_id
+                    ):
+                        continue
+                    path = _path(
+                        event_id=event_id,
+                        path_kind=(
+                            "weather_context_at_controlled_facility"
+                        ),
+                        binding_id=association.association_id,
+                        controlled_edge=controlled_edge,
+                        related_edge=report_edge,
+                        additional_source_id=association.source_id,
+                    )
+                    evidence_paths.append(
+                        CorpusEventEvidencePath(
+                            path=path,
+                            support_kind="non_causal_context",
+                            event_id=event_id,
+                            fact_ids=(
+                                controlled_edge.fact_id,
+                                report_edge.fact_id,
+                            ),
+                            context_association_ids=(
+                                association.association_id,
+                            ),
+                            source_ids=path.source_ids,
+                        )
+                    )
+
+        edge_by_fact_id = {edge.fact_id: edge for edge in edges}
+        for observation in self.store.get_public_observations(event_id):
+            observation_edges = tuple(
+                edge_by_fact_id[fact_id]
+                for fact_id in observation.fact_ids
+                if fact_id in edge_by_fact_id
+                and _local_name(edge_by_fact_id[fact_id].predicate_iri)
+                == "hasFeatureOfInterest"
+            )
+            for controlled_edge in controlled_edges:
+                for observation_edge in observation_edges:
+                    if (
+                        observation_edge.object_kind != "iri"
+                        or controlled_edge.object_value
+                        != observation_edge.object_value
+                    ):
+                        continue
+                    path = _path(
+                        event_id=event_id,
+                        path_kind=(
+                            "public_observation_at_controlled_facility"
+                        ),
+                        binding_id=observation.observation_id,
+                        controlled_edge=controlled_edge,
+                        related_edge=observation_edge,
+                        additional_source_id=observation.source_id,
+                    )
+                    evidence_paths.append(
+                        CorpusEventEvidencePath(
+                            path=path,
+                            support_kind="public_observation",
+                            event_id=event_id,
+                            fact_ids=(
+                                controlled_edge.fact_id,
+                                observation_edge.fact_id,
+                            ),
+                            observation_ids=(
+                                observation.observation_id,
+                            ),
+                            source_ids=path.source_ids,
+                        )
+                    )
+
+        selected = sorted(
+            {
+                evidence_path.path.path_id: evidence_path
+                for evidence_path in evidence_paths
+            }.values(),
+            key=lambda item: item.path.path_id,
+        )[:limit]
+        paths = tuple(evidence_path.path for evidence_path in selected)
+        support_records = tuple(
+            evidence_path.support_record() for evidence_path in selected
+        )
+        fact_ids = tuple(
+            sorted(
+                {
+                    fact_id
+                    for support in support_records
+                    for fact_id in support.fact_ids
+                }
+            )
+        )
+        association_ids = tuple(
+            sorted(
+                {
+                    association_id
+                    for support in support_records
+                    for association_id in support.context_association_ids
+                }
+            )
+        )
+        observation_ids = tuple(
+            sorted(
+                {
+                    observation_id
+                    for support in support_records
+                    for observation_id in support.observation_ids
+                }
+            )
+        )
+        source_ids = tuple(
+            sorted(
+                {
+                    source_id
+                    for path in paths
+                    for source_id in path.source_ids
+                }
+            )
+        )
+        status: Literal["ok", "insufficient"] = (
+            "ok" if paths else "insufficient"
+        )
+        return HybridQueryToolObservation(
+            status=status,
+            content=_json(
+                {
+                    "event_id": event_id,
+                    "view": "evidence_paths",
+                    "causal_claim": False,
+                    "graph_paths": {
+                        path.path_id: path.model_dump(mode="json")
+                        for path in paths
+                    },
+                }
+            ),
+            details=HybridQueryEvidence(
+                event_ids=(event_id,),
+                fact_ids=fact_ids,
+                context_association_ids=association_ids,
+                observation_ids=observation_ids,
+                graph_path_ids=tuple(path.path_id for path in paths),
+                source_ids=source_ids,
+            ),
+            support_records=support_records,
+            graph_paths=paths,
+            limitation=(
+                ""
+                if paths
+                else (
+                    "No source-bound Weather or public-observation path "
+                    "shares this event's controlled facility."
+                )
             ),
         )
 
@@ -737,6 +1009,7 @@ def build_hybrid_query_tools(
     @tool("read_tmi_event_graph", args_schema=TMIEventGraphInput)
     def read_tmi_event_graph_tool(
         event_id: str,
+        view: GraphView = "edges",
         entity_iri: str | None = None,
         direction: Literal["out", "in"] = "out",
         predicate_iris: tuple[str, ...] = (),
@@ -746,6 +1019,7 @@ def build_hybrid_query_tools(
 
         return gateway.read_tmi_event_graph(
             event_id=event_id,
+            view=view,
             entity_iri=entity_iri,
             direction=direction,
             predicate_iris=predicate_iris,

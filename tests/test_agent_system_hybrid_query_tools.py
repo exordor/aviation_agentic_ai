@@ -277,6 +277,112 @@ def test_event_graph_is_general_and_event_scoped(tmp_path: Path) -> None:
     )
 
 
+def test_event_graph_evidence_path_binds_weather_association(
+    tmp_path: Path,
+) -> None:
+    """Dropping a Weather path's association, fact, or source is a query bug."""
+
+    gateway = _gateway(_corpus(tmp_path))
+
+    graph = gateway.read_tmi_event_graph(
+        event_id=CONTEXT_EVENT_ID,
+        view="evidence_paths",
+        limit=100,
+    )
+    payload = json.loads(graph.content)
+    paths_by_id = {path.path_id: path for path in graph.graph_paths}
+
+    assert graph.status == "ok"
+    assert payload["view"] == "evidence_paths"
+    assert payload["causal_claim"] is False
+    assert {path.path_kind for path in graph.graph_paths} == {
+        "weather_context_at_controlled_facility"
+    }
+    assert set(graph.details.graph_path_ids) == set(paths_by_id)
+    assert set(payload["graph_paths"]) == set(paths_by_id)
+    assert all(
+        len(path.edges) == 2
+        and path.edges[0].object_value == path.edges[1].object_value
+        for path in graph.graph_paths
+    )
+
+    weather_records = list(graph.support_records)
+    assert weather_records
+    assert all(
+        record.kind == "non_causal_context"
+        and len(record.graph_path_ids) == 1
+        and record.graph_path_ids[0] in paths_by_id
+        and record.context_association_ids
+        and not record.observation_ids
+        and record.fact_ids
+        and len(record.source_ids) >= 2
+        for record in weather_records
+    )
+    assert {
+        fact_id
+        for record in graph.support_records
+        for fact_id in record.fact_ids
+    } == set(graph.details.fact_ids)
+    assert {
+        source_id
+        for record in graph.support_records
+        for source_id in record.source_ids
+    } == set(graph.details.source_ids)
+
+
+def test_event_graph_evidence_path_binds_public_observation(
+    tmp_path: Path,
+) -> None:
+    """Dropping a BTS path's observation, fact, or source is a query bug."""
+
+    gateway = _gateway(_observation_corpus(tmp_path))
+
+    graph = gateway.read_tmi_event_graph(
+        event_id=CONTEXT_EVENT_ID,
+        view="evidence_paths",
+        limit=100,
+    )
+    payload = json.loads(graph.content)
+    paths_by_id = {path.path_id: path for path in graph.graph_paths}
+
+    assert graph.status == "ok"
+    assert payload["view"] == "evidence_paths"
+    assert payload["causal_claim"] is False
+    assert {path.path_kind for path in graph.graph_paths} == {
+        "public_observation_at_controlled_facility"
+    }
+    assert set(graph.details.graph_path_ids) == set(paths_by_id)
+    assert set(payload["graph_paths"]) == set(paths_by_id)
+    assert all(
+        len(path.edges) == 2
+        and path.edges[0].object_value == path.edges[1].object_value
+        for path in graph.graph_paths
+    )
+
+    observation_records = list(graph.support_records)
+    assert observation_records
+    assert all(
+        record.kind == "public_observation"
+        and len(record.graph_path_ids) == 1
+        and record.graph_path_ids[0] in paths_by_id
+        and record.observation_ids
+        and not record.context_association_ids
+        and record.fact_ids
+        and len(record.source_ids) >= 2
+        for record in observation_records
+    )
+    assert {
+        fact_id
+        for record in graph.support_records
+        for fact_id in record.fact_ids
+    } == set(graph.details.fact_ids)
+    assert {
+        source_id
+        for record in graph.support_records
+        for source_id in record.source_ids
+    } == set(graph.details.source_ids)
+
+
 def test_similarity_uses_the_corpus_bound_index(tmp_path: Path) -> None:
     corpus_dir = _corpus(tmp_path, with_index=True)
     gateway = _gateway(corpus_dir)

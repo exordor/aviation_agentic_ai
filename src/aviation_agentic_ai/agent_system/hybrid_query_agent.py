@@ -100,6 +100,10 @@ def _model_observation(observation: HybridQueryToolObservation) -> str:
             record.model_dump(mode="json")
             for record in observation.support_records
         ],
+        "graph_paths": [
+            path.model_dump(mode="json")
+            for path in observation.graph_paths
+        ],
         "similarity_matches": [
             match.model_dump(mode="json")
             for match in observation.similarity_matches
