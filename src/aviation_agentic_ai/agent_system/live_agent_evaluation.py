@@ -765,6 +765,15 @@ def _markdown_report(
         f"- Passed / failed / blocked / not run: "
         f"{summary.passed_count} / {summary.failed_count} / "
         f"{summary.blocked_count} / {summary.not_run_count}",
+        f"- Provider calls: {summary.provider_call_count}",
+        f"- Native / bound tool calls: "
+        f"{summary.native_tool_call_count} / "
+        f"{summary.bound_tool_execution_count}",
+        f"- Input / output tokens: "
+        f"{summary.input_tokens} / {summary.output_tokens}",
+        f"- Provider / tool latency (ms): "
+        f"{summary.provider_latency_ms:.3f} / "
+        f"{summary.tool_latency_ms:.3f}",
         "- Semantic Resolution: "
         f"`{summary.semantic_resolution_status}`",
         (

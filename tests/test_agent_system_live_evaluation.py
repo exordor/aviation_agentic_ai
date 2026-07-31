@@ -391,6 +391,9 @@ def test_summary_and_v4_artifact_names_are_query_specific(
         "agent_system_live_agent_smoke_v4.json",
         "agent_system_live_agent_smoke_v4.md",
     ]
+    report = paths[-1].read_text(encoding="utf-8")
+    assert "- Provider calls: 4" in report
+    assert "- Input / output tokens: 40 / 20" in report
 
 
 def test_missing_authorization_rejects_before_writes(tmp_path: Path) -> None:
