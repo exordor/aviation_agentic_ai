@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="Electron" modified="2026-07-31T00:38:32.806Z" version="30.3.6">
+  <diagram id="page-1" name="Construction">
+    <mxGraphModel dx="1422" dy="762" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2300" pageHeight="1150" math="0" shadow="0" background="#FFFFFF">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="__figure_title__" value="" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fontSize=22;fontStyle=1;fontColor=#111827;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="title" value="ATMONTO-Aligned TMI Event Knowledge Construction" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fontColor=#17324D;fontSize=26;fontStyle=1;align=left;verticalAlign=middle;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="30" width="2180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="semantic" value="Semantic control&#xa;ATMONTO profiles · FAA authority · evidence rules" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F1FB;strokeColor=#8B76B8;fontColor=#1f2937;fontSize=26;fontStyle=1;strokeWidth=2;arcSize=18;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="115" width="2180" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="sources" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F7F9FC;strokeColor=#6B7C93;fontColor=#1f2937;strokeWidth=2;arcSize=16;" vertex="1" parent="1">
+          <mxGeometry x="40" y="315" width="360" height="610" as="geometry" />
+        </mxCell>
+        <mxCell id="sources_label" value="Evidence sources" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fontColor=#253B53;fontSize=26;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="335" width="300" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="src_advisory" value="ATCSCC TMI records" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF2FF;strokeColor=#4776C6;fontColor=#1f2937;fontSize=26;strokeWidth=2;arcSize=12;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="410" width="300" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="src_ref" value="NASR · ARTCC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3F0FA;strokeColor=#8B76B8;fontColor=#1f2937;fontSize=26;strokeWidth=2;arcSize=12;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="525" width="300" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="src_weather" value="METAR · TAF" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF7F8;strokeColor=#278A96;fontColor=#1f2937;fontSize=26;strokeWidth=2;arcSize=12;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="640" width="300" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="src_bts" value="BTS public observations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF4E5;strokeColor=#D97904;fontColor=#1f2937;fontSize=26;strokeWidth=2;arcSize=12;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="755" width="300" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="prepare" value="Deterministic preparation&#xa;parse · resolve · align" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF2FF;strokeColor=#4776C6;fontColor=#1f2937;fontSize=26;fontStyle=1;strokeWidth=3;arcSize=16;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="500" y="450" width="330" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="integrate" value="Event evidence integration&#xa;sealed task → proposal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF4E5;strokeColor=#D97904;fontColor=#1f2937;fontSize=26;fontStyle=1;strokeWidth=3;arcSize=16;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="930" y="450" width="370" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="kernel" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECF8F1;strokeColor=#2E805D;fontColor=#1f2937;strokeWidth=3;arcSize=16;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="315" width="430" height="525" as="geometry" />
+        </mxCell>
+        <mxCell id="kernel_label" value="Formal Publication Kernel" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fontColor=#1F6048;fontSize=26;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1430" y="340" width="370" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="kernel_tmi" value="TMI application profile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#33966D;fontColor=#1f2937;fontSize=26;strokeWidth=2;arcSize=10;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="425" width="350" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="kernel_optional" value="Optional layer admission" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#33966D;fontColor=#1f2937;fontSize=26;strokeWidth=2;arcSize=10;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="565" width="350" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="kernel_validate" value="Multi-profile validation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#33966D;fontColor=#1f2937;fontSize=26;strokeWidth=2;arcSize=10;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="705" width="350" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="corpus" value="Canonical corpus v3&#xa;events · event facts&#xa;evidence" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;whiteSpace=wrap;html=1;fillColor=#E5F3EC;strokeColor=#2E805D;fontColor=#1f2937;fontSize=26;fontStyle=1;strokeWidth=3;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1950" y="450" width="310" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="agent_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9F0;strokeColor=#D97904;fontColor=#1f2937;strokeWidth=2;dashed=1;arcSize=14;dashPattern=8 6;" vertex="1" parent="1">
+          <mxGeometry x="500" y="800" width="800" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="agent_label" value="Bounded Agent Runtime&#xa;gate → tool loop → proposal | abstain" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fontColor=#72400D;fontSize=26;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="530" y="825" width="740" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="agent_resolution" value="Semantic resolution" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D97904;fontColor=#1f2937;fontSize=26;strokeWidth=2;arcSize=10;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="555" y="940" width="300" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="agent_integration" value="Evidence integration" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D97904;fontColor=#1f2937;fontSize=26;strokeWidth=2;arcSize=10;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="945" y="940" width="300" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="e_sources_prepare" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#355F91;strokeWidth=3;exitX=1;exitY=0.4;entryX=0;entryY=0.5;" edge="1" parent="1" source="sources" target="prepare">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="450" y="559" />
+              <mxPoint x="450" y="560" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_prepare_integrate" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#355F91;strokeWidth=3;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="prepare" target="integrate">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="880" y="560" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_integrate_kernel" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#355F91;strokeWidth=3;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="integrate" target="kernel_tmi">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1350" y="560" />
+              <mxPoint x="1350" y="472" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_kernel_1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#2E805D;strokeWidth=3;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="kernel_tmi" target="kernel_optional">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1615" y="545" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_kernel_2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#2E805D;strokeWidth=3;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="kernel_optional" target="kernel_validate">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1615" y="685" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_kernel_corpus" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#2E805D;strokeWidth=3;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="kernel_validate" target="corpus">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1890" y="752" />
+              <mxPoint x="1890" y="565" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_prepare_agent" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=1;strokeColor=#D97904;strokeWidth=2;dashed=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="prepare" target="agent_resolution">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="665" y="760" />
+              <mxPoint x="705" y="760" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_integrate_agent" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=1;strokeColor=#D97904;strokeWidth=2;dashed=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="integrate" target="agent_integration">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1115" y="760" />
+              <mxPoint x="1095" y="760" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
