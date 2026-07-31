@@ -1,0 +1,115 @@
+<mxfile host="Electron" modified="2026-07-31T00:00:00.000Z" agent="Codex" version="24.7.17">
+  <diagram id="cross-source-evidence" name="Page-1">
+    <mxGraphModel dx="2400" dy="1350" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1350" math="0" shadow="0" background="#FFFFFF">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="background" value="" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="2400" height="1350" as="geometry"/>
+        </mxCell>
+        <mxCell id="title" value="&lt;b&gt;Why Aviation Questions Require Cross-Source Evidence&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=26;fontColor=#0F172A;" vertex="1" parent="1">
+          <mxGeometry x="100" y="25" width="2200" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="question" value="&lt;b&gt;User question&lt;/b&gt;&lt;br&gt;“What does GDP Advisory 138 declare, and what Weather and public operational context is recorded for the same period?”" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#64748B;strokeWidth=2;align=center;verticalAlign=middle;spacing=14;fontFamily=Helvetica;fontSize=26;fontColor=#0F172A;" vertex="1" parent="1">
+          <mxGeometry x="100" y="100" width="2200" height="115" as="geometry"/>
+        </mxCell>
+        <mxCell id="source-label" value="&lt;b&gt;Fragmented evidence roles&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Helvetica;fontSize=26;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="80" y="240" width="650" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="atcscc" value="&lt;b&gt;ATCSCC advisory&lt;/b&gt;&lt;br&gt;Ground Delay Program&lt;br&gt;KJFK · 19/2205Z–20/0259Z&lt;br&gt;Source-declared: WEATHER / THUNDERSTORMS&lt;br&gt;&lt;i&gt;Role: TMI publication record&lt;/i&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#E7F3F8;strokeColor=#26758F;strokeWidth=3;align=left;verticalAlign=middle;spacing=18;fontFamily=Helvetica;fontSize=26;fontColor=#123B4A;" vertex="1" parent="1">
+          <mxGeometry x="80" y="295" width="570" height="300" as="geometry"/>
+        </mxCell>
+        <mxCell id="nasr" value="&lt;b&gt;NASR authority&lt;/b&gt;&lt;br&gt;JFK → KJFK&lt;br&gt;Canonical airport identity&lt;br&gt;&lt;i&gt;Role: facility authority&lt;/i&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#E7F3F8;strokeColor=#26758F;strokeWidth=3;align=left;verticalAlign=middle;spacing=18;fontFamily=Helvetica;fontSize=26;fontColor=#123B4A;" vertex="1" parent="1">
+          <mxGeometry x="690" y="295" width="390" height="300" as="geometry"/>
+        </mxCell>
+        <mxCell id="weather" value="&lt;b&gt;METAR / TAF&lt;/b&gt;&lt;br&gt;1 TAF + 5 METAR&lt;br&gt;Time-aligned with the program&lt;br&gt;&lt;i&gt;Role: non-causal context&lt;/i&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#E7F3F8;strokeColor=#26758F;strokeWidth=3;align=left;verticalAlign=middle;spacing=18;fontFamily=Helvetica;fontSize=26;fontColor=#123B4A;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="295" width="500" height="300" as="geometry"/>
+        </mxCell>
+        <mxCell id="bts" value="&lt;b&gt;BTS On-Time&lt;/b&gt;&lt;br&gt;Active-window public observations&lt;br&gt;77 scheduled · 68 completed&lt;br&gt;4 cancelled · 5 diverted&lt;br&gt;&lt;i&gt;Role: public observations&lt;/i&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#E7F3F8;strokeColor=#26758F;strokeWidth=3;align=left;verticalAlign=middle;spacing=18;fontFamily=Helvetica;fontSize=26;fontColor=#123B4A;" vertex="1" parent="1">
+          <mxGeometry x="1660" y="295" width="660" height="300" as="geometry"/>
+        </mxCell>
+        <mxCell id="integration" value="&lt;b&gt;ATMONTO-grounded evidence integration&lt;/b&gt;&lt;br&gt;Canonical identity · temporal alignment · source-role separation&lt;br&gt;Every statement retains a source version and evidence anchor" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#F1ECFB;strokeColor=#7C5AB8;strokeWidth=3;align=center;verticalAlign=middle;spacing=18;fontFamily=Helvetica;fontSize=26;fontColor=#3F2A66;" vertex="1" parent="1">
+          <mxGeometry x="140" y="690" width="2120" height="170" as="geometry"/>
+        </mxCell>
+        <mxCell id="answer" value="&lt;b&gt;Evidence-bound answer&lt;/b&gt;&lt;br&gt;• GDP 138 applies to KJFK from 22:05Z to 02:59Z.&lt;br&gt;• The advisory states WEATHER / THUNDERSTORMS.&lt;br&gt;• Weather records and BTS counts remain separate, source-qualified evidence layers." style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#E9F6EE;strokeColor=#2E7D4F;strokeWidth=3;align=left;verticalAlign=middle;spacing=18;fontFamily=Helvetica;fontSize=26;fontColor=#174A2F;" vertex="1" parent="1">
+          <mxGeometry x="100" y="930" width="1510" height="250" as="geometry"/>
+        </mxCell>
+        <mxCell id="boundary" value="&lt;b&gt;Claim boundary&lt;/b&gt;&lt;br&gt;Weather context ≠ decision cause&lt;br&gt;BTS counts ≠ FAA demand or capacity&lt;br&gt;No effectiveness claim&lt;br&gt;No TMI recommendation" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#FFF8E7;strokeColor=#C99819;strokeWidth=3;align=left;verticalAlign=middle;spacing=18;fontFamily=Helvetica;fontSize=26;fontColor=#694E0A;" vertex="1" parent="1">
+          <mxGeometry x="1650" y="930" width="650" height="250" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-evidence-swatch" value="" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#E7F3F8;strokeColor=#26758F;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="170" y="1245" width="34" height="34" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-evidence" value="Evidence source" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Helvetica;fontSize=26;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="220" y="1230" width="320" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-semantic-swatch" value="" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#F1ECFB;strokeColor=#7C5AB8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="635" y="1245" width="34" height="34" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-semantic" value="Semantic integration" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Helvetica;fontSize=26;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="685" y="1230" width="390" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-answer-swatch" value="" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#E9F6EE;strokeColor=#2E7D4F;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="1245" width="34" height="34" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-answer" value="Supported answer" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Helvetica;fontSize=26;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="1230" width="340" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-boundary-swatch" value="" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#FFF8E7;strokeColor=#C99819;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1655" y="1245" width="34" height="34" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-boundary" value="Explicit limitation" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Helvetica;fontSize=26;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="1705" y="1230" width="360" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-atcscc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#26758F;strokeWidth=3;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.104;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="atcscc" target="integration">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="365" y="640"/>
+              <mxPoint x="360" y="640"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-nasr" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#26758F;strokeWidth=3;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.35;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="nasr" target="integration">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="885" y="630"/>
+              <mxPoint x="882" y="630"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-weather" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#26758F;strokeWidth=3;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.58;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="weather" target="integration">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1370" y="640"/>
+              <mxPoint x="1370" y="640"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-bts" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#26758F;strokeWidth=3;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.873;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="bts" target="integration">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1990" y="630"/>
+              <mxPoint x="1991" y="630"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-answer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2E7D4F;strokeWidth=3;endArrow=block;endFill=1;exitX=0.35;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="integration" target="answer">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="882" y="895"/>
+              <mxPoint x="855" y="895"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-boundary" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#C99819;strokeWidth=3;endArrow=block;endFill=1;exitX=0.87;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="integration" target="boundary">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1984" y="895"/>
+              <mxPoint x="1975" y="895"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
