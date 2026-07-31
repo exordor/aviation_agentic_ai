@@ -6,7 +6,7 @@ This package implements the runnable system mainline:
     -> deterministic AdvisoryParser and authority services
     -> shared Semantic Resolution Agent only for genuine ambiguity
     -> deterministic Weather/BTS preparation
-    -> zero-call complete-event compiler or bounded Event Evidence Integration Agent
+    -> deterministic Event Evidence Integration service
     -> event-patch Formal Graph Kernel admissibility check
     -> multi-profile Formal Publication Kernel
     -> canonical TMI-event corpus v3 and rebuildable retrieval/export views

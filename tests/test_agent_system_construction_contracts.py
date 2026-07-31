@@ -1,4 +1,4 @@
-"""Strict dormant contracts for the three-Agent decision-case migration."""
+"""Strict construction contracts for the active TMI event workflow."""
 
 from __future__ import annotations
 
@@ -17,7 +17,6 @@ from aviation_agentic_ai.agent_system.construction_contracts import (
     AuthorityRecordEvidenceClaim,
     CandidateBuildStatus,
     EventEvidenceIntegrationProposalFields,
-    EventEvidenceIntegrationSelection,
     EventEvidenceIntegrationTaskFields,
     EventEvidenceFactProposal,
     EventEvidenceProfileGapProposal,
@@ -47,7 +46,6 @@ from aviation_agentic_ai.agent_system.construction_contracts import (
     seal_event_evidence_integration_feedback,
     stable_contract_id,
 )
-from aviation_agentic_ai.agent_system.graph_patch import parse_event_evidence_integration_output
 
 
 SHA_A = "a" * 64
@@ -1143,142 +1141,4 @@ def test_validation_feedback_binds_exact_proposal_and_affected_item() -> None:
                 update={"affected_proposal_item_id": "foreign-item"}
             ),
             binding=_binding(),
-        )
-
-
-def test_event_evidence_integration_parser_accepts_only_json_rows_and_none_marker() -> None:
-    raw = (
-        "GRAPH_PATCH\n"
-        '{"proposal_item_id":"f1","subject_id":"event-1",'
-        '"predicate_iri":"rdf:type","object_kind":"iri",'
-        '"object_value":"atm:GroundStopTMI",'
-        '"evidence_claim_ids":["e1"],"derivation_ids":[],'
-        '"validation_profile_id":"profile-1"}\n'
-        "PROFILE_GAPS\n"
-        '{"proposal_item_id":"g1","event_id":"event-1","field":"reason",'
-        '"normalized_value":"weather","evidence_claim_ids":["e2"],'
-        '"schema_mapping_reason_code":"not_in_profile",'
-        '"validation_profile_id":"profile-1"}'
-    )
-    parsed = parse_event_evidence_integration_output(
-        raw,
-        allowed_validation_profile_ids=frozenset({"profile-1"}),
-    )
-    assert [item.proposal_item_id for item in parsed.proposed_facts] == ["f1"]
-    assert [item.proposal_item_id for item in parsed.profile_gaps] == ["g1"]
-    empty = parse_event_evidence_integration_output(
-        "GRAPH_PATCH\nNONE\nPROFILE_GAPS\nNONE",
-        allowed_validation_profile_ids=frozenset({"profile-1"}),
-    )
-    assert empty.proposed_facts == ()
-    assert empty.profile_gaps == ()
-
-
-def test_event_evidence_integration_selection_accepts_compact_selected_ids() -> None:
-    selection = EventEvidenceIntegrationSelection(
-        decision="accepted",
-        candidate_bundle_id="candidate-bundle:1",
-        selected_fact_ids=("fact:1", "fact:2"),
-        selected_profile_gap_ids=("gap:1",),
-    )
-
-    assert selection.decision == "accepted"
-    assert selection.selected_fact_ids == ("fact:1", "fact:2")
-    assert selection.selected_profile_gap_ids == ("gap:1",)
-    assert selection.limitation is None
-
-
-def test_event_evidence_integration_selection_requires_consistent_terminal_shape() -> None:
-    accepted_failures = (
-        {
-            "decision": "accepted",
-            "candidate_bundle_id": "candidate-bundle:1",
-        },
-        {
-            "decision": "accepted",
-            "candidate_bundle_id": "candidate-bundle:1",
-            "selected_fact_ids": ("fact:1",),
-            "limitation": "Unexpected limitation.",
-        },
-        {
-            "decision": "accepted",
-            "candidate_bundle_id": "candidate-bundle:1",
-            "selected_fact_ids": ("fact:1", "fact:1"),
-        },
-    )
-    for payload in accepted_failures:
-        with pytest.raises(ValidationError):
-            EventEvidenceIntegrationSelection.model_validate(payload)
-
-    abstained = EventEvidenceIntegrationSelection(
-        decision="abstained",
-        candidate_bundle_id="candidate-bundle:1",
-        limitation="The source evidence does not support the sealed candidate.",
-    )
-    assert abstained.selected_fact_ids == ()
-    assert abstained.selected_profile_gap_ids == ()
-
-    with pytest.raises(ValidationError):
-        EventEvidenceIntegrationSelection(
-            decision="abstained",
-            candidate_bundle_id="candidate-bundle:1",
-        )
-    with pytest.raises(ValidationError):
-        EventEvidenceIntegrationSelection(
-            decision="abstained",
-            candidate_bundle_id="candidate-bundle:1",
-            selected_fact_ids=("fact:1",),
-            limitation="Cannot accept.",
-        )
-
-
-@pytest.mark.parametrize(
-    "raw",
-    [
-        "GRAPH_PATCH\nevent | rdf:type | atm:TMI | e1\nPROFILE_GAPS\nNONE",
-        "prose before sections\nGRAPH_PATCH\nNONE\nPROFILE_GAPS\nNONE",
-        "GRAPH_PATCH\nPROFILE_GAPS\nNONE",
-        (
-            "GRAPH_PATCH\n"
-            '{"proposal_item_id":"f1","subject_id":"event","predicate_iri":"p",'
-            '"object_kind":"wrong","object_value":"v","evidence_claim_ids":["e1"],'
-            '"validation_profile_id":"profile-1"}\nPROFILE_GAPS\nNONE'
-        ),
-        (
-            "GRAPH_PATCH\n"
-            '{"proposal_item_id":"f1","subject_id":"event","predicate_iri":"p",'
-            '"object_kind":"iri","object_value":"v","evidence_claim_ids":[],'
-            '"validation_profile_id":"profile-1"}\nPROFILE_GAPS\nNONE'
-        ),
-        (
-            "GRAPH_PATCH\n"
-            '{"proposal_item_id":"f1","subject_id":"event","predicate_iri":"p",'
-            '"object_kind":"iri","object_value":"v","evidence_claim_ids":["e1"],'
-            '"validation_profile_id":"foreign"}\nPROFILE_GAPS\nNONE'
-        ),
-        (
-            "GRAPH_PATCH\n"
-            '{"proposal_item_id":"same","subject_id":"event","predicate_iri":"p",'
-            '"object_kind":"iri","object_value":"v","evidence_claim_ids":["e1"],'
-            '"validation_profile_id":"profile-1"}\nPROFILE_GAPS\n'
-            '{"proposal_item_id":"same","event_id":"event","field":"reason",'
-            '"normalized_value":"weather","evidence_claim_ids":["e2"],'
-            '"schema_mapping_reason_code":"gap",'
-            '"validation_profile_id":"profile-1"}'
-        ),
-    ],
-)
-def test_event_evidence_integration_parser_fails_closed(raw: str) -> None:
-    with pytest.raises(ValueError):
-        parse_event_evidence_integration_output(
-            raw,
-            allowed_validation_profile_ids=frozenset({"profile-1"}),
-        )
-
-
-def test_event_evidence_integration_parser_requires_nonempty_profile_allowlist() -> None:
-    with pytest.raises(ValueError, match="allowed_validation_profile_ids"):
-        parse_event_evidence_integration_output(
-            "GRAPH_PATCH\nNONE\nPROFILE_GAPS\nNONE",
-            allowed_validation_profile_ids=frozenset(),
         )

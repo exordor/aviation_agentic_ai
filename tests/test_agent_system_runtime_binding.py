@@ -287,7 +287,7 @@ def test_run_binding_samples_one_utc_timestamp(tmp_path):
 
 def test_manifest_created_at_uses_frozen_run_started_at(tmp_path):
     failed_call = ModelCallRecord(
-        agent="event_evidence_integration",
+        agent="query",
         raw_response="",
         attempt=1,
         error="provider unavailable",

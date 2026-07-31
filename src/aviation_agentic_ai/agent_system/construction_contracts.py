@@ -883,40 +883,6 @@ class EvidenceLayerResult(FrozenContractModel):
         return self
 
 
-class EventEvidenceIntegrationSelection(FrozenContractModel):
-    """Compact model decision over one sealed event-evidence-integration candidate bundle."""
-
-    decision: Literal["accepted", "abstained"]
-    candidate_bundle_id: Annotated[str, Field(min_length=1)]
-    selected_fact_ids: tuple[str, ...] = ()
-    selected_profile_gap_ids: tuple[str, ...] = ()
-    limitation: Annotated[str | None, Field(max_length=500)] = None
-
-    @model_validator(mode="after")
-    def validate_terminal_shape(self) -> Self:
-        _require_nonempty_strings(self.selected_fact_ids, "selected_fact_ids")
-        _require_nonempty_strings(
-            self.selected_profile_gap_ids,
-            "selected_profile_gap_ids",
-        )
-        _require_unique(self.selected_fact_ids, "selected_fact_ids")
-        _require_unique(
-            self.selected_profile_gap_ids,
-            "selected_profile_gap_ids",
-        )
-        if self.decision == "accepted":
-            if not self.selected_fact_ids:
-                raise ValueError("accepted selection requires formal fact IDs")
-            if self.limitation is not None:
-                raise ValueError("accepted selection forbids a limitation")
-        else:
-            if self.selected_fact_ids or self.selected_profile_gap_ids:
-                raise ValueError("abstained selection forbids selected IDs")
-            if self.limitation is None or not self.limitation.strip():
-                raise ValueError("abstained selection requires a limitation")
-        return self
-
-
 class EventEvidenceFactProposal(FrozenContractModel):
     proposal_item_id: str
     subject_id: str
@@ -1483,8 +1449,3 @@ class QueryStatus(str, Enum):
     INSUFFICIENT = "insufficient"
     BLOCKED = "blocked"
     UNSUPPORTED = "unsupported"
-
-
-class ParsedEventEvidenceIntegrationSections(FrozenContractModel):
-    proposed_facts: tuple[EventEvidenceFactProposal, ...]
-    profile_gaps: tuple[EventEvidenceProfileGapProposal, ...]
