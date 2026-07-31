@@ -25,7 +25,7 @@ from aviation_agentic_ai.agent_system.tmi_event_retrieval_documents import (
     build_tmi_event_retrieval_documents,
 )
 from aviation_agentic_ai.agent_system.contracts import SourceFamily
-from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.utils.identifiers import stable_id
 
 
 ATM = "https://data.nasa.gov/ontologies/atmonto/ATM#"

@@ -57,7 +57,7 @@ from aviation_agentic_ai.agent_system.tool_model import (
 )
 from aviation_agentic_ai.agent_system.workflow import IngestContext, run_ingest
 from aviation_agentic_ai.config import resolve_project_path
-from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.utils.identifiers import stable_id
 
 
 @dataclass(frozen=True)

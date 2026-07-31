@@ -10,7 +10,7 @@ from aviation_agentic_ai.agent_system.storage_contracts import (
     SourceChunkRecord,
     SourceVersionRecord,
 )
-from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.utils.identifiers import stable_id
 
 
 SOURCE_CHUNK_REPRESENTATION_VERSION = "aviation-source-chunk-v1"

@@ -27,7 +27,7 @@ from aviation_agentic_ai.agent_system.validation_profiles import (
     ValidationProfileRegistry,
     validate_fact_for_publication,
 )
-from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.utils.identifiers import stable_id
 
 # Predicate that asserts an entity's ontology class.
 RDF_TYPE = "rdf:type"

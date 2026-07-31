@@ -17,7 +17,7 @@ from aviation_agentic_ai.agent_system.storage_contracts import (
     TMIEventRecord,
 )
 from aviation_agentic_ai.agent_system.tmi_profiles import active_tmi_profiles
-from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.utils.identifiers import stable_id
 
 
 _EVENT_PAGE_SIZE = 100

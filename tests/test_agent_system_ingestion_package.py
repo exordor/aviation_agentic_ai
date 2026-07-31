@@ -34,7 +34,7 @@ from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
 )
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
-from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.utils.identifiers import stable_id
 
 
 def _source_version():

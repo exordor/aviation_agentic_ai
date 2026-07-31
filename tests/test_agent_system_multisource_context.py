@@ -73,7 +73,7 @@ from aviation_agentic_ai.cross_source.contracts import (
     CodeValue,
     EntityType,
 )
-from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.utils.identifiers import stable_id
 
 
 ATM = "https://data.nasa.gov/ontologies/atmonto/ATM#"

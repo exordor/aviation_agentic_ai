@@ -33,10 +33,10 @@ from aviation_agentic_ai.agent_system.bts_observations import (
     NORMALIZED_SNAPSHOT_SHA256,
     NORMALIZED_SOURCE_ID,
 )
-from aviation_agentic_ai.cross_source.artifacts import read_jsonl
 from aviation_agentic_ai.config import resolve_project_path
 from aviation_agentic_ai.paths import project_relative_path
-from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.utils.identifiers import stable_id
+from aviation_agentic_ai.utils.io import read_jsonl_objects
 
 
 _SOURCE_ASSET_SPECS: dict[
@@ -178,7 +178,7 @@ def load_advisory_source(config: dict[str, Any], source_id: str) -> SourceRecord
     """Load one ATCSCC advisory by ``source_id`` from the configured JSONL."""
 
     path = resolve_project_path(config["sources"]["atcscc_advisories"])
-    for row in read_jsonl(path):
+    for row in read_jsonl_objects(path):
         if str(row.get("source_id")) == source_id:
             return SourceRecord(
                 source_id=source_id,

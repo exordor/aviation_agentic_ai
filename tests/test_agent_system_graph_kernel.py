@@ -56,7 +56,7 @@ from aviation_agentic_ai.agent_system.sources import (
     write_source_snapshot_registry,
 )
 from aviation_agentic_ai.config import load_yaml
-from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.utils.identifiers import stable_id
 
 # ---------------------------------------------------------------------------
 # Fixed Ground Stop case (plan §2)

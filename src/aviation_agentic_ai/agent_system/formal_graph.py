@@ -53,7 +53,7 @@ from aviation_agentic_ai.agent_system.schema_guide import (
     SchemaGuide,
     TRACE_PREDICATES,
 )
-from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.utils.identifiers import stable_id
 from aviation_agentic_ai.agent_system.validation_profiles import (
     ValidationProfileRegistry,
     load_validation_profile_registry,

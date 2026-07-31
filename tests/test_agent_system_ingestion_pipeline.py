@@ -22,7 +22,7 @@ from aviation_agentic_ai.agent_system.storage_contracts import (
     SourceAssetRecord,
     TMIEventRecord,
 )
-from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.utils.identifiers import stable_id
 
 
 def _pipeline_api():

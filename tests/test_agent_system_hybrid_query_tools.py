@@ -46,7 +46,7 @@ from aviation_agentic_ai.agent_system.storage_contracts import (
 from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
     TMIEventVectorHit,
 )
-from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.utils.identifiers import stable_id
 
 
 FORMAL_EVENT_ID = "urn:event:formal-reason"

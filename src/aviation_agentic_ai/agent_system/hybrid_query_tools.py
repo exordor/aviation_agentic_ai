@@ -38,7 +38,7 @@ from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
 from aviation_agentic_ai.agent_system.tmi_event_retrieval_search import (
     rank_tmi_events_by_metadata as search_ranked_tmi_events,
 )
-from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.utils.identifiers import stable_id
 
 
 ReasonStatus = Literal["formal", "profile_gap", "missing"]

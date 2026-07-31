@@ -24,7 +24,7 @@ from aviation_agentic_ai.agent_system.storage_contracts import (
     SourceVersionRecord,
     TMIEventRecord,
 )
-from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.utils.identifiers import stable_id
 
 
 _RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -683,4 +683,3 @@ def _file_record(path: Path) -> dict[str, Any]:
             else 1
         ),
     }
-

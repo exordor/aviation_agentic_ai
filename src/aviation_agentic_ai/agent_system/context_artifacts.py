@@ -59,7 +59,7 @@ from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
 )
 from aviation_agentic_ai.cross_source.contracts import CanonicalEntity
-from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.utils.identifiers import stable_id
 
 
 _SIGNATURE_RE = re.compile(r"(?m)^SIGNATURE:\s*\n(?P<stamp>\d{2}/\d{2}/\d{2} \d{2}:\d{2})\s*$")

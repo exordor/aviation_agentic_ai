@@ -99,7 +99,7 @@ from aviation_agentic_ai.agent_system.tmi_profiles import (
     active_tmi_profiles,
     get_tmi_profile,
 )
-from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.utils.identifiers import stable_id
 
 ToolModelFactory = Any
 

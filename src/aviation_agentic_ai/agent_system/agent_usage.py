@@ -12,7 +12,7 @@ from typing import Any, Literal, Sequence
 from pydantic import Field
 
 from aviation_agentic_ai.agent_system.contracts import StrictModel
-from aviation_agentic_ai.cross_source.identifiers import stable_id
+from aviation_agentic_ai.utils.identifiers import stable_id
 
 
 AgentRole = Literal["semantic_resolution"]
