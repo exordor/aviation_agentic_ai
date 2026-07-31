@@ -62,7 +62,6 @@ def corpus_dir(tmp_path: Path) -> Path:
     events = [
         CorpusTMIEvent(
             event_id="urn:event:a",
-            run_ids=["run:a"],
             advisory_source_id="2026-05-19:123",
             event_type_iris=[f"{ATM}GroundStopTMI"],
             facility_ids=[KJFK],
@@ -73,7 +72,6 @@ def corpus_dir(tmp_path: Path) -> Path:
         ),
         CorpusTMIEvent(
             event_id="urn:event:b",
-            run_ids=["run:b"],
             advisory_source_id="2026-05-19:138",
             event_type_iris=[f"{ATM}GroundDelayProgramTMI"],
             facility_ids=[KEWR],

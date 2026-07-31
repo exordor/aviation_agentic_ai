@@ -38,7 +38,6 @@ def _event(
 ) -> CorpusTMIEvent:
     return CorpusTMIEvent(
         event_id=f"event:{name}",
-        run_ids=[f"run:{name}"],
         advisory_source_id=f"2026-05-19:{name}",
         event_type_iris=[f"{ATM}GroundDelayProgramTMI"],
         facility_ids=[facility_id],

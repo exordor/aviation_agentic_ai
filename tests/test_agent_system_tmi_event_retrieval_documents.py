@@ -46,7 +46,6 @@ def corpus_store(tmp_path: Path) -> CorpusQueryStore:
     events = [
         CorpusTMIEvent(
             event_id="urn:event:formal",
-            run_ids=["run:formal"],
             advisory_source_id="2026-05-19:138",
             event_type_iris=[
                 PROV_ENTITY,
@@ -60,7 +59,6 @@ def corpus_store(tmp_path: Path) -> CorpusQueryStore:
         ),
         CorpusTMIEvent(
             event_id="urn:event:profile-gap",
-            run_ids=["run:profile-gap"],
             advisory_source_id="2026-05-19:123",
             event_type_iris=[
                 f"{ATM}GroundStopTMI",
@@ -74,7 +72,6 @@ def corpus_store(tmp_path: Path) -> CorpusQueryStore:
         ),
         CorpusTMIEvent(
             event_id="urn:event:missing",
-            run_ids=["run:missing"],
             advisory_source_id="2026-05-20:020",
             event_type_iris=[f"{ATM}GroundDelayProgramTMI"],
             facility_ids=[KEWR],

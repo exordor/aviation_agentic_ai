@@ -7,6 +7,8 @@ import hashlib
 import json
 from pathlib import Path
 
+import pytest
+
 from aviation_agentic_ai.agent_system.contracts import (
     PersistedProfileGap,
     SourceSnapshotRegistry,
@@ -15,6 +17,7 @@ from aviation_agentic_ai.agent_system.contracts import (
 from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusObservation,
     CorpusQueryStore,
+    CorpusTMIEvent,
     build_corpus,
     load_event_catalog,
     load_corpus_facts,
@@ -491,7 +494,7 @@ def test_build_corpus_collapses_repeated_runs_of_the_same_event(
     assert manifest.run_count == 2
     assert manifest.event_count == 1
     assert len(events) == 1
-    assert events[0].run_ids == ["run-a", "run-b"]
+    assert "run_ids" not in CorpusTMIEvent.model_fields
     assert len(bindings) == 1
     binding = json.loads(bindings[0])
     assert binding["snapshot_timestamps"] == [
@@ -499,6 +502,80 @@ def test_build_corpus_collapses_repeated_runs_of_the_same_event(
         "2026-05-20T20:30:00+00:00",
     ]
     assert len(memberships) == 4
+
+
+def test_build_corpus_merges_new_evidence_for_the_same_event(
+    tmp_path: Path,
+) -> None:
+    run_a = tmp_path / "run-a"
+    run_b = tmp_path / "run-b"
+    event_id = _fixture_module.EVENT_ID
+    _write_run(run_a, event_id=event_id, suffix="stable")
+    _write_run(run_b, event_id=event_id, suffix="stable")
+    _write_context_run(run_b)
+
+    manifest = build_corpus([run_a, run_b], tmp_path / "corpus")
+
+    events = load_event_catalog(tmp_path / "corpus")
+    memberships = [
+        json.loads(line)
+        for line in (tmp_path / "corpus" / "event_facts.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    assert manifest.event_count == 1
+    assert len(events) == 1
+    assert len(events[0].fact_ids) > 4
+    assert {row["fact_id"] for row in memberships} == set(events[0].fact_ids)
+    assert _fixture_module.SOURCE_ID in events[0].source_ids
+    assert any(
+        source_id != _fixture_module.SOURCE_ID
+        for source_id in events[0].source_ids
+    )
+
+
+def test_corpus_id_does_not_depend_on_transient_run_identity(
+    tmp_path: Path,
+) -> None:
+    first_run = tmp_path / "first-run-name"
+    second_run = tmp_path / "second-run-name"
+    event_id = "urn:event:stable-identity"
+    _write_run(first_run, event_id=event_id, suffix="stable")
+    _write_run(second_run, event_id=event_id, suffix="stable")
+
+    first = build_corpus([first_run], tmp_path / "first-corpus")
+    second = build_corpus([second_run], tmp_path / "second-corpus")
+
+    assert first.corpus_id == second.corpus_id
+
+
+def test_tmi_event_catalog_validates_timezone_aware_timestamps() -> None:
+    payload = {
+        "event_id": "urn:event:time",
+        "advisory_source_id": "urn:source:advisory",
+        "event_type_iris": ["atm:GroundStopTMI"],
+        "facility_ids": [],
+        "effective_start": "2026-05-20T12:00:00Z",
+        "effective_end": None,
+        "issued_at": None,
+        "reason_status": "missing",
+        "reason_value": None,
+        "fact_ids": [],
+        "source_ids": [],
+    }
+
+    event = CorpusTMIEvent.model_validate(payload)
+
+    assert event.effective_start is not None
+    assert event.effective_start.tzinfo is not None
+    with pytest.raises(ValueError):
+        CorpusTMIEvent.model_validate(
+            {**payload, "effective_start": "not-a-timestamp"}
+        )
+    with pytest.raises(ValueError):
+        CorpusTMIEvent.model_validate(
+            {**payload, "effective_start": "2026-05-20T12:00:00"}
+        )
 
 
 def test_corpus_query_store_filters_and_pages_events(tmp_path: Path) -> None:

@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from datetime import datetime
 import hashlib
 import json
 from pathlib import Path
 from decimal import Decimal
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator
 
 from aviation_agentic_ai.agent_system.contracts import (
     ObservationFactTrace,
@@ -152,17 +153,25 @@ class CorpusTMIEvent(StrictModel):
     """Catalog row whose identity is one admitted ATMONTO TMI instance."""
 
     event_id: str = Field(min_length=1)
-    run_ids: list[str] = Field(min_length=1)
     advisory_source_id: str = Field(min_length=1)
     event_type_iris: list[str] = Field(default_factory=list)
     facility_ids: list[str] = Field(default_factory=list)
-    effective_start: str | None = None
-    effective_end: str | None = None
-    issued_at: str | None = None
+    effective_start: datetime | None = None
+    effective_end: datetime | None = None
+    issued_at: datetime | None = None
     reason_status: Literal["formal", "profile_gap", "missing"]
     reason_value: str | None = None
     fact_ids: list[str] = Field(default_factory=list)
     source_ids: list[str] = Field(default_factory=list)
+
+    @field_validator("effective_start", "effective_end", "issued_at")
+    @classmethod
+    def require_timezone(cls, value: datetime | None) -> datetime | None:
+        """Reject ambiguous local timestamps in the canonical event catalog."""
+
+        if value is not None and value.tzinfo is None:
+            raise ValueError("TMI event timestamps must include a timezone")
+        return value
 
 
 class CorpusSourceBinding(StrictModel):
@@ -814,7 +823,6 @@ def build_corpus(
 
         event = CorpusTMIEvent(
             event_id=event_id,
-            run_ids=[str(store.manifest["run_id"])],
             advisory_source_id=str(store.manifest["source_id"]),
             event_type_iris=sorted(event_type_iris),
             facility_ids=sorted(
@@ -845,15 +853,20 @@ def build_corpus(
         else:
             previous_payload = previous_event.model_dump(mode="json")
             current_payload = event.model_dump(mode="json")
-            previous_payload.pop("run_ids")
-            current_payload.pop("run_ids")
+            previous_payload.pop("fact_ids")
+            previous_payload.pop("source_ids")
+            current_payload.pop("fact_ids")
+            current_payload.pop("source_ids")
             if previous_payload != current_payload:
                 raise ValueError(f"conflicting event content for event ID: {event_id}")
             events_by_id[event_id] = previous_event.model_copy(
                 update={
-                    "run_ids": sorted(
-                        set(previous_event.run_ids) | set(event.run_ids)
-                    )
+                    "fact_ids": sorted(
+                        set(previous_event.fact_ids) | set(event.fact_ids)
+                    ),
+                    "source_ids": sorted(
+                        set(previous_event.source_ids) | set(event.source_ids)
+                    ),
                 }
             )
 

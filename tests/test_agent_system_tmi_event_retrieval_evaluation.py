@@ -25,7 +25,6 @@ KJFK = "urn:aviation-agentic-ai:facility:airport:KJFK"
 def _event(name: str, source_id: str) -> CorpusTMIEvent:
     return CorpusTMIEvent(
         event_id=f"event:{name}",
-        run_ids=[f"run:{name}"],
         advisory_source_id=source_id,
         event_type_iris=[GDP],
         facility_ids=[KJFK],
