@@ -1,0 +1,311 @@
+{
+  "summary": {
+    "manifest_version": "tmi-event-live-evaluation-v4",
+    "suite_id": "ingestion-first-hybridrag-query-agent-smoke-v1",
+    "suite_checksum": "5369e7115ea68f61fcb0a839070aec867328114aadb63c22eff4a7891a35aec6",
+    "results_checksum": "7ddbd5bad9d4c24a9841ac916de1d6c3d78f5dc42df2d11cfd505e0ff51bcf8c",
+    "repetitions": 1,
+    "runner_status": "completed",
+    "model_acceptance_status": "failed",
+    "live_model": true,
+    "provider": "deepseek",
+    "model": "deepseek-v4-pro",
+    "temperature": 0.0,
+    "thinking": "disabled",
+    "automatic_retry_count": 0,
+    "runner_detail_codes": [],
+    "semantic_resolution_status": "not_evaluated_no_natural_ambiguity",
+    "trial_count": 3,
+    "passed_count": 1,
+    "failed_count": 2,
+    "blocked_count": 0,
+    "not_run_count": 0,
+    "provider_call_count": 6,
+    "native_tool_call_count": 9,
+    "bound_tool_execution_count": 8,
+    "input_tokens": 113806,
+    "output_tokens": 5774,
+    "provider_latency_ms": 64624.94920892641,
+    "tool_latency_ms": 660.4391247965395,
+    "claim_boundary": "Provider compatibility and bounded-behavior measurements over a versioned development/regression task suite; repetitions are repeated measurements, not independent samples, a frozen holdout, or a Semantic Resolution evaluation."
+  },
+  "artifacts": {
+    "parsed_output_artifact": "data/corpus/agent_system/live-ingestion-hybridrag-smoke-v1/live_evaluation_results_v4.jsonl",
+    "parsed_outputs_sha256": "7ddbd5bad9d4c24a9841ac916de1d6c3d78f5dc42df2d11cfd505e0ff51bcf8c",
+    "raw_response_artifact": "data/corpus/agent_system/live-ingestion-hybridrag-smoke-v1/raw_responses_v4.jsonl",
+    "raw_responses_sha256": "bffb912e5b149262ce2845b75b42a7d5f2f3e70244a413fbbe742552c49eda75",
+    "raw_response_count": 6,
+    "successful_real_call_count": 6,
+    "failed_real_call_count": 0,
+    "raw_parsed_binding_status": "valid"
+  },
+  "results": [
+    {
+      "trial_id": "semantic-source-grounding-138",
+      "repetition": 1,
+      "kind": "query",
+      "source_id": "2026-05-19:138",
+      "event_id": "urn:aviation-agentic-ai:event:205dd8308f24ff4b",
+      "role": "query",
+      "live_model": true,
+      "workflow_status": "blocked",
+      "activation_status": "activated",
+      "model_acceptance_status": "failed",
+      "detail_status": "",
+      "assertions": [
+        {
+          "check_id": "agent_activated",
+          "passed": true,
+          "detail_code": "activated_with_real_provider_calls"
+        },
+        {
+          "check_id": "bounded_execution",
+          "passed": true,
+          "detail_code": "within_existing_model_and_tool_budgets"
+        },
+        {
+          "check_id": "frozen_model_contract",
+          "passed": true,
+          "detail_code": "frozen_deepseek_configuration_observed"
+        },
+        {
+          "check_id": "read_only_registered_tools",
+          "passed": true,
+          "detail_code": "only_hybrid_query_read_tools_observed"
+        },
+        {
+          "check_id": "query_run_contract",
+          "passed": false,
+          "detail_code": "valid_evaluator_owned_query_run_not_observed"
+        },
+        {
+          "check_id": "statement_citations",
+          "passed": false,
+          "detail_code": "statement_citation_not_supported_by_tool_trace"
+        },
+        {
+          "check_id": "statement_claim_boundaries",
+          "passed": false,
+          "detail_code": "statement_crossed_claim_boundary"
+        },
+        {
+          "check_id": "tool_trace_status",
+          "passed": false,
+          "detail_code": "query_tool_trace_missing_or_unsuccessful"
+        },
+        {
+          "check_id": "required_tools_observed",
+          "passed": false,
+          "detail_code": "required_query_tool_not_observed"
+        },
+        {
+          "check_id": "required_graph_paths_observed",
+          "passed": true,
+          "detail_code": "all_required_graph_path_kinds_observed"
+        }
+      ],
+      "provider": "deepseek",
+      "model": "deepseek-v4-pro",
+      "system_fingerprints": [
+        "fp_9954b31ca7_prod0820_fp8_kvcache_20260402"
+      ],
+      "prompt_set_id": "aviation-tmi-event-agents-v1",
+      "prompt_version": "hybrid-query-agent-v4",
+      "temperature": 0.0,
+      "provider_call_count": 1,
+      "provider_call_ids": [
+        "provider-call:847465f162d0fa51dbbe44f1"
+      ],
+      "native_tool_call_count": 2,
+      "bound_tool_execution_count": 1,
+      "input_tokens": 2466,
+      "output_tokens": 263,
+      "provider_latency_ms": 3628.4092091955245,
+      "tool_latency_ms": 0.42295781895518303,
+      "retrieved_fact_count": 0,
+      "retrieved_source_count": 0,
+      "query_run_artifact": "data/corpus/agent_system/live-ingestion-hybridrag-smoke-v1/hybrid_query_runs/semantic-source-grounding-138/hybrid_query_run.json",
+      "query_run_artifact_sha256": "f6e6329490a7056b66fefa0d06fb8703cfdccd838984a628829a1942ba8bb718",
+      "failure_code": "query_answer_contract_or_support_failed"
+    },
+    {
+      "trial_id": "exact-graph-evidence-123",
+      "repetition": 1,
+      "kind": "query",
+      "source_id": "2026-05-19:123",
+      "event_id": "urn:aviation-agentic-ai:event:3186b6e1817ec346",
+      "role": "query",
+      "live_model": true,
+      "workflow_status": "blocked",
+      "activation_status": "activated",
+      "model_acceptance_status": "failed",
+      "detail_status": "",
+      "assertions": [
+        {
+          "check_id": "agent_activated",
+          "passed": true,
+          "detail_code": "activated_with_real_provider_calls"
+        },
+        {
+          "check_id": "bounded_execution",
+          "passed": true,
+          "detail_code": "within_existing_model_and_tool_budgets"
+        },
+        {
+          "check_id": "frozen_model_contract",
+          "passed": true,
+          "detail_code": "frozen_deepseek_configuration_observed"
+        },
+        {
+          "check_id": "read_only_registered_tools",
+          "passed": true,
+          "detail_code": "only_hybrid_query_read_tools_observed"
+        },
+        {
+          "check_id": "query_run_contract",
+          "passed": false,
+          "detail_code": "valid_evaluator_owned_query_run_not_observed"
+        },
+        {
+          "check_id": "statement_citations",
+          "passed": false,
+          "detail_code": "statement_citation_not_supported_by_tool_trace"
+        },
+        {
+          "check_id": "statement_claim_boundaries",
+          "passed": false,
+          "detail_code": "statement_crossed_claim_boundary"
+        },
+        {
+          "check_id": "tool_trace_status",
+          "passed": true,
+          "detail_code": "query_tool_trace_has_support_without_blocked_tools"
+        },
+        {
+          "check_id": "required_tools_observed",
+          "passed": true,
+          "detail_code": "all_required_query_tools_observed"
+        },
+        {
+          "check_id": "required_graph_paths_observed",
+          "passed": true,
+          "detail_code": "all_required_graph_path_kinds_observed"
+        }
+      ],
+      "provider": "deepseek",
+      "model": "deepseek-v4-pro",
+      "system_fingerprints": [
+        "fp_9954b31ca7_prod0820_fp8_kvcache_20260402"
+      ],
+      "prompt_set_id": "aviation-tmi-event-agents-v1",
+      "prompt_version": "hybrid-query-agent-v4",
+      "temperature": 0.0,
+      "provider_call_count": 3,
+      "provider_call_ids": [
+        "provider-call:b337b2ec571395f7c2f54b5b",
+        "provider-call:97c03db76194fd1586d3ad61",
+        "provider-call:f164ce463d5e15067e1a2610"
+      ],
+      "native_tool_call_count": 4,
+      "bound_tool_execution_count": 4,
+      "input_tokens": 44048,
+      "output_tokens": 1610,
+      "provider_latency_ms": 19717.734165955335,
+      "tool_latency_ms": 580.8232510462403,
+      "retrieved_fact_count": 0,
+      "retrieved_source_count": 0,
+      "query_run_artifact": "data/corpus/agent_system/live-ingestion-hybridrag-smoke-v1/hybrid_query_runs/exact-graph-evidence-123/hybrid_query_run.json",
+      "query_run_artifact_sha256": "a199c8ba83ad0da0c23440bffc8038d2f559ca5980d5468bf07ba78d536dcd3b",
+      "failure_code": "query_answer_contract_or_support_failed"
+    },
+    {
+      "trial_id": "context-observations-138",
+      "repetition": 1,
+      "kind": "query",
+      "source_id": "2026-05-19:138",
+      "event_id": "urn:aviation-agentic-ai:event:205dd8308f24ff4b",
+      "role": "query",
+      "live_model": true,
+      "workflow_status": "ok",
+      "activation_status": "activated",
+      "model_acceptance_status": "passed",
+      "detail_status": "",
+      "assertions": [
+        {
+          "check_id": "agent_activated",
+          "passed": true,
+          "detail_code": "activated_with_real_provider_calls"
+        },
+        {
+          "check_id": "bounded_execution",
+          "passed": true,
+          "detail_code": "within_existing_model_and_tool_budgets"
+        },
+        {
+          "check_id": "frozen_model_contract",
+          "passed": true,
+          "detail_code": "frozen_deepseek_configuration_observed"
+        },
+        {
+          "check_id": "read_only_registered_tools",
+          "passed": true,
+          "detail_code": "only_hybrid_query_read_tools_observed"
+        },
+        {
+          "check_id": "query_run_contract",
+          "passed": true,
+          "detail_code": "evaluator_owned_query_run_is_valid"
+        },
+        {
+          "check_id": "statement_citations",
+          "passed": true,
+          "detail_code": "every_statement_has_trace_bound_citations"
+        },
+        {
+          "check_id": "statement_claim_boundaries",
+          "passed": true,
+          "detail_code": "every_statement_respects_claim_boundaries"
+        },
+        {
+          "check_id": "tool_trace_status",
+          "passed": true,
+          "detail_code": "query_tool_trace_has_support_without_blocked_tools"
+        },
+        {
+          "check_id": "required_tools_observed",
+          "passed": true,
+          "detail_code": "all_required_query_tools_observed"
+        },
+        {
+          "check_id": "required_graph_paths_observed",
+          "passed": true,
+          "detail_code": "all_required_graph_path_kinds_observed"
+        }
+      ],
+      "provider": "deepseek",
+      "model": "deepseek-v4-pro",
+      "system_fingerprints": [
+        "fp_9954b31ca7_prod0820_fp8_kvcache_20260402"
+      ],
+      "prompt_set_id": "aviation-tmi-event-agents-v1",
+      "prompt_version": "hybrid-query-agent-v4",
+      "temperature": 0.0,
+      "provider_call_count": 2,
+      "provider_call_ids": [
+        "provider-call:440540ae82016a4195e84adf",
+        "provider-call:dc28022ad0978180384f72e8"
+      ],
+      "native_tool_call_count": 3,
+      "bound_tool_execution_count": 3,
+      "input_tokens": 67292,
+      "output_tokens": 3901,
+      "provider_latency_ms": 41278.80583377555,
+      "tool_latency_ms": 79.19291593134403,
+      "retrieved_fact_count": 400,
+      "retrieved_source_count": 8,
+      "query_run_artifact": "data/corpus/agent_system/live-ingestion-hybridrag-smoke-v1/hybrid_query_runs/context-observations-138/hybrid_query_run.json",
+      "query_run_artifact_sha256": "98bcabf3db788c312a69efb5e4c69ab25f07bf09cde010936c03a664e3d019e3",
+      "failure_code": ""
+    }
+  ]
+}

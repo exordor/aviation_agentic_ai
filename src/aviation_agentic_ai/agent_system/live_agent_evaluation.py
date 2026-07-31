@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import UTC, datetime
 import hashlib
 import json
 import os
@@ -49,6 +50,8 @@ from aviation_agentic_ai.agent_system.runtime import (
     FROZEN_TEMPERATURE,
 )
 from aviation_agentic_ai.agent_system.tool_model import (
+    ToolPhase,
+    capture_tool_model_calls,
     make_live_tool_calling_model,
 )
 from aviation_agentic_ai.config import (
@@ -70,6 +73,8 @@ HYBRID_QUERY_READ_TOOLS = frozenset(
         "read_source",
     }
 )
+DEFAULT_LIVE_EVALUATION_REPORT_STEM = "agent_system_live_agent_smoke_v4"
+LIVE_EVALUATION_REPORT_STEM_PATTERN = r"^[a-z0-9][a-z0-9_-]*$"
 
 
 class LiveEvaluationAuthorizationError(RuntimeError):
@@ -110,6 +115,12 @@ class LiveEvaluationSuite(StrictModel):
 
     version: Literal["live-agent-smoke-v4"]
     suite_id: str = Field(min_length=1)
+    report_stem: str = Field(
+        default=DEFAULT_LIVE_EVALUATION_REPORT_STEM,
+        min_length=1,
+        max_length=128,
+        pattern=LIVE_EVALUATION_REPORT_STEM_PATTERN,
+    )
     repetitions: int = Field(default=1, ge=1)
     future_frozen_evaluation: Literal["not_constructed"] = "not_constructed"
     trials: tuple[LiveEvaluationTrial, ...] = Field(min_length=1)
@@ -126,6 +137,108 @@ class LiveEvaluationSuite(StrictModel):
         """Logical advisory sources that must resolve in the live store."""
 
         return tuple(sorted({trial.source_id for trial in self.trials}))
+
+
+class LiveEvaluationProviderCall(StrictModel):
+    """One native provider turn retained only in the ignored runtime output."""
+
+    suite_id: str = Field(min_length=1)
+    call_id: str = Field(min_length=1)
+    recorded_at: str = Field(min_length=1)
+    repetition: int = Field(ge=1)
+    trial_id: str = Field(min_length=1)
+    source_id: str = Field(min_length=1)
+    role: str = Field(min_length=1)
+    phase: Literal[
+        "select_tool",
+        "final_answer",
+        "emit_proposal",
+        "revision",
+        "query_step",
+    ]
+    provider: str | None = None
+    model: str | None = None
+    system_fingerprint: str | None = None
+    finish_reason: str | None = None
+    prompt_set_id: str | None = None
+    prompt_version: str | None = None
+    temperature: float | None = None
+    input_tokens: int = Field(default=0, ge=0)
+    output_tokens: int = Field(default=0, ge=0)
+    latency_ms: float = Field(default=0.0, ge=0.0)
+    cache_hit: bool = False
+    attempt: int = Field(default=1, ge=1)
+    error: str | None = None
+    raw_response: str
+    tool_calls: tuple[dict[str, Any], ...] = ()
+    invalid_tool_calls: tuple[dict[str, Any], ...] = ()
+    native_response: dict[str, Any] | None = None
+    response_sha256: str = Field(min_length=64, max_length=64)
+
+    @classmethod
+    def from_model_call(
+        cls,
+        *,
+        suite_id: str,
+        repetition: int,
+        trial: LiveEvaluationTrial,
+        phase: ToolPhase,
+        record: ModelCallRecord,
+        native_response: dict[str, Any] | None,
+    ) -> "LiveEvaluationProviderCall":
+        """Bind one observed provider turn to exactly one evaluation trial."""
+
+        response_sha256 = hashlib.sha256(
+            _canonical_json(
+                {
+                    "native_response": native_response,
+                    "error": record.error,
+                }
+            ).encode("utf-8")
+        ).hexdigest()
+        identity = {
+            "suite_id": suite_id,
+            "repetition": repetition,
+            "trial_id": trial.trial_id,
+            "source_id": trial.source_id,
+            "role": record.agent,
+            "phase": phase,
+            "attempt": record.attempt,
+            "response_sha256": response_sha256,
+        }
+        call_id = "provider-call:" + hashlib.sha256(
+            _canonical_json(identity).encode("utf-8")
+        ).hexdigest()[:24]
+        return cls(
+            suite_id=suite_id,
+            call_id=call_id,
+            recorded_at=datetime.now(UTC).isoformat(),
+            repetition=repetition,
+            trial_id=trial.trial_id,
+            source_id=trial.source_id,
+            role=record.agent,
+            phase=phase,
+            provider=record.provider,
+            model=record.model,
+            system_fingerprint=record.system_fingerprint,
+            finish_reason=record.finish_reason,
+            prompt_set_id=record.prompt_set_id,
+            prompt_version=record.prompt_version,
+            temperature=record.temperature,
+            input_tokens=record.input_tokens,
+            output_tokens=record.output_tokens,
+            latency_ms=record.latency_ms,
+            cache_hit=record.cache_hit,
+            attempt=record.attempt,
+            error=record.error,
+            raw_response=record.raw_response,
+            tool_calls=tuple(
+                call.model_dump(mode="json") for call in record.tool_calls
+            ),
+            invalid_tool_calls=tuple(record.invalid_tool_calls),
+            native_response=native_response,
+            response_sha256=response_sha256,
+        )
 
 
 class LiveEvaluationAssertion(StrictModel):
@@ -234,6 +347,7 @@ class LiveEvaluationResult(StrictModel):
     prompt_version: str | None = None
     temperature: float | None = None
     provider_call_count: int = Field(default=0, ge=0)
+    provider_call_ids: tuple[str, ...] = ()
     native_tool_call_count: int = Field(default=0, ge=0)
     bound_tool_execution_count: int = Field(default=0, ge=0)
     input_tokens: int = Field(default=0, ge=0)
@@ -695,6 +809,73 @@ def _result_bytes(results: Sequence[LiveEvaluationResult]) -> bytes:
     ).encode("utf-8")
 
 
+def _provider_call_bytes(
+    calls: Sequence[LiveEvaluationProviderCall],
+) -> bytes:
+    return "".join(
+        _canonical_json(call.model_dump(mode="json")) + "\n"
+        for call in calls
+    ).encode("utf-8")
+
+
+def _is_successful_real_call(call: LiveEvaluationProviderCall) -> bool:
+    """Require a returned native response under the frozen provider contract."""
+
+    expected_sha256 = hashlib.sha256(
+        _canonical_json(
+            {
+                "native_response": call.native_response,
+                "error": call.error,
+            }
+        ).encode("utf-8")
+    ).hexdigest()
+    return (
+        call.error is None
+        and call.provider == FROZEN_PROVIDER
+        and call.model == FROZEN_MODEL
+        and call.temperature == FROZEN_TEMPERATURE
+        and call.native_response is not None
+        and call.response_sha256 == expected_sha256
+    )
+
+
+def _provider_call_binding_failures(
+    results: Sequence[LiveEvaluationResult],
+    calls: Sequence[LiveEvaluationProviderCall],
+) -> tuple[str, ...]:
+    """Verify one-to-one raw-call binding before reporting live results."""
+
+    failures: list[str] = []
+    call_ids = [call.call_id for call in calls]
+    if len(call_ids) != len(set(call_ids)):
+        failures.append("duplicate_raw_provider_call_id")
+    calls_by_id = {call.call_id: call for call in calls}
+    referenced_ids: list[str] = []
+    for result in results:
+        ids = tuple(result.provider_call_ids)
+        referenced_ids.extend(ids)
+        if result.activation_status == "activated" and not ids:
+            failures.append("activated_trial_missing_raw_provider_call")
+        if result.provider_call_count != len(ids):
+            failures.append("parsed_raw_provider_call_count_mismatch")
+        for call_id in ids:
+            call = calls_by_id.get(call_id)
+            if call is None:
+                failures.append("parsed_trial_references_missing_raw_call")
+                continue
+            if (
+                call.repetition != result.repetition
+                or call.trial_id != result.trial_id
+                or call.source_id != result.source_id
+            ):
+                failures.append("raw_call_bound_to_wrong_parsed_trial")
+    if len(referenced_ids) != len(set(referenced_ids)):
+        failures.append("raw_provider_call_referenced_more_than_once")
+    if set(call_ids) - set(referenced_ids):
+        failures.append("orphan_raw_provider_call")
+    return tuple(sorted(set(failures)))
+
+
 def summarize_live_evaluation(
     *,
     suite_id: str,
@@ -761,9 +942,18 @@ def summarize_live_evaluation(
 def _markdown_report(
     summary: LiveEvaluationSummary,
     results: Sequence[LiveEvaluationResult],
+    *,
+    raw_response_artifact: str | None = None,
+    raw_responses_sha256: str | None = None,
+    raw_response_count: int | None = None,
+    successful_real_call_count: int | None = None,
+    failed_real_call_count: int | None = None,
+    raw_parsed_binding_status: str | None = None,
+    parsed_output_artifact: str | None = None,
+    parsed_outputs_sha256: str | None = None,
 ) -> str:
     lines = [
-        "# Agent System Query Agent Smoke v4",
+        f"# Agent System Live Query Smoke: {summary.suite_id}",
         "",
         "## Boundary",
         "",
@@ -825,6 +1015,26 @@ def _markdown_report(
             "",
         ]
     )
+    if parsed_output_artifact is not None:
+        lines.extend(
+            [
+                "## Runtime artifacts",
+                "",
+                f"- Parsed outputs: `{parsed_output_artifact}`",
+                f"- Parsed outputs SHA-256: `{parsed_outputs_sha256}`",
+                f"- Raw provider responses: `{raw_response_artifact}`",
+                f"- Attempted / successful / failed real calls: "
+                f"{raw_response_count} / {successful_real_call_count} / "
+                f"{failed_real_call_count}",
+                f"- Raw / parsed binding: "
+                f"`{raw_parsed_binding_status}`",
+                f"- Raw responses SHA-256: `{raw_responses_sha256}`",
+                "",
+                "Raw provider responses and parsed outputs are gitignored; "
+                "only this sanitized summary is tracked.",
+                "",
+            ]
+        )
     return "\n".join(lines)
 
 
@@ -834,6 +1044,8 @@ def write_live_evaluation_artifacts(
     report_dir: str | Path,
     results: Sequence[LiveEvaluationResult],
     summary: LiveEvaluationSummary,
+    report_stem: str = DEFAULT_LIVE_EVALUATION_REPORT_STEM,
+    provider_calls: Sequence[LiveEvaluationProviderCall] | None = None,
 ) -> tuple[Path, Path, Path, Path]:
     """Write ignored detailed rows and tracked sanitized summaries."""
 
@@ -842,17 +1054,65 @@ def write_live_evaluation_artifacts(
     runtime.mkdir(parents=True, exist_ok=True)
     reports.mkdir(parents=True, exist_ok=True)
     result_path = runtime / "live_evaluation_results_v4.jsonl"
-    result_path.write_bytes(_result_bytes(results))
+    result_bytes = _result_bytes(results)
+    result_path.write_bytes(result_bytes)
+    raw_path: Path | None = None
+    raw_bytes: bytes | None = None
+    if provider_calls is not None:
+        raw_path = runtime / "raw_responses_v4.jsonl"
+        raw_bytes = _provider_call_bytes(provider_calls)
+        raw_path.write_bytes(raw_bytes)
+    artifact_summary = {
+        "parsed_output_artifact": str(result_path),
+        "parsed_outputs_sha256": hashlib.sha256(result_bytes).hexdigest(),
+        "raw_response_artifact": (
+            str(raw_path) if raw_path is not None else None
+        ),
+        "raw_responses_sha256": (
+            hashlib.sha256(raw_bytes).hexdigest()
+            if raw_bytes is not None
+            else None
+        ),
+        "raw_response_count": (
+            len(provider_calls) if provider_calls is not None else None
+        ),
+        "successful_real_call_count": (
+            sum(_is_successful_real_call(call) for call in provider_calls)
+            if provider_calls is not None
+            else None
+        ),
+        "failed_real_call_count": (
+            sum(
+                not _is_successful_real_call(call)
+                for call in provider_calls
+            )
+            if provider_calls is not None
+            else None
+        ),
+        "raw_parsed_binding_status": (
+            (
+                "valid"
+                if not _provider_call_binding_failures(
+                    results,
+                    provider_calls,
+                )
+                else "invalid"
+            )
+            if provider_calls is not None
+            else None
+        ),
+    }
     manifest_path = runtime / "live_evaluation_manifest_v4.json"
     manifest_path.write_text(
         summary.model_dump_json(indent=2) + "\n",
         encoding="utf-8",
     )
-    report_json = reports / "agent_system_live_agent_smoke_v4.json"
+    report_json = reports / f"{report_stem}.json"
     report_json.write_text(
         json.dumps(
             {
                 "summary": summary.model_dump(mode="json"),
+                "artifacts": artifact_summary,
                 "results": [
                     row.model_dump(mode="json") for row in results
                 ],
@@ -863,9 +1123,34 @@ def write_live_evaluation_artifacts(
         + "\n",
         encoding="utf-8",
     )
-    report_markdown = reports / "agent_system_live_agent_smoke_v4.md"
+    report_markdown = reports / f"{report_stem}.md"
     report_markdown.write_text(
-        _markdown_report(summary, results),
+        _markdown_report(
+            summary,
+            results,
+            raw_response_artifact=artifact_summary[
+                "raw_response_artifact"
+            ],
+            raw_responses_sha256=artifact_summary[
+                "raw_responses_sha256"
+            ],
+            raw_response_count=artifact_summary["raw_response_count"],
+            successful_real_call_count=artifact_summary[
+                "successful_real_call_count"
+            ],
+            failed_real_call_count=artifact_summary[
+                "failed_real_call_count"
+            ],
+            raw_parsed_binding_status=artifact_summary[
+                "raw_parsed_binding_status"
+            ],
+            parsed_output_artifact=artifact_summary[
+                "parsed_output_artifact"
+            ],
+            parsed_outputs_sha256=artifact_summary[
+                "parsed_outputs_sha256"
+            ],
+        ),
         encoding="utf-8",
     )
     return result_path, manifest_path, report_json, report_markdown
@@ -1180,6 +1465,7 @@ def _run_live_evaluation_repetition(
     binding: EvaluationDataBinding,
     runtime_root: Path,
     repetition: int,
+    provider_calls: list[LiveEvaluationProviderCall] | None = None,
 ) -> tuple[tuple[LiveEvaluationResult, ...], tuple[str, ...]]:
     """Execute one real-provider repetition against the frozen live store."""
 
@@ -1191,6 +1477,7 @@ def _run_live_evaluation_repetition(
     results: list[LiveEvaluationResult] = []
     runner_detail_codes: list[str] = []
     for trial in suite.trials:
+        trial_provider_calls: list[LiveEvaluationProviderCall] = []
         try:
             _verify_live_evaluation_binding(binding, runtime)
             event_id = _resolve_query_event_id(
@@ -1207,15 +1494,34 @@ def _run_live_evaluation_repetition(
                     )
                 )
                 continue
-            outcome = answer_question(
-                runtime=runtime,
-                question=trial.question,
-                scope=HybridQueryScope(event_id=event_id),
-                model_factory=lambda tools: make_live_tool_calling_model(
-                    tools=tools,
-                    role="query",
-                ),
-            )
+            def _observe(
+                phase: ToolPhase,
+                record: ModelCallRecord,
+                native_response: dict[str, Any] | None,
+            ) -> None:
+                if provider_calls is None:
+                    return
+                observed = LiveEvaluationProviderCall.from_model_call(
+                    suite_id=suite.suite_id,
+                    repetition=repetition,
+                    trial=trial,
+                    phase=phase,
+                    record=record,
+                    native_response=native_response,
+                )
+                trial_provider_calls.append(observed)
+                provider_calls.append(observed)
+
+            with capture_tool_model_calls(_observe):
+                outcome = answer_question(
+                    runtime=runtime,
+                    question=trial.question,
+                    scope=HybridQueryScope(event_id=event_id),
+                    model_factory=lambda tools: make_live_tool_calling_model(
+                        tools=tools,
+                        role="query",
+                    ),
+                )
             query_run = build_hybrid_query_run_artifact(
                 trial=trial,
                 event_id=event_id,
@@ -1225,35 +1531,79 @@ def _run_live_evaluation_repetition(
                 repetition_root / "hybrid_query_runs" / trial.trial_id,
                 query_run,
             )
+            result = score_query_trial(
+                trial=trial,
+                repetition=repetition,
+                live_model=True,
+                event_id=event_id,
+                outcome=outcome,
+                query_run=query_run,
+                query_run_artifact_path=query_run_path,
+            )
             results.append(
-                score_query_trial(
-                    trial=trial,
-                    repetition=repetition,
-                    live_model=True,
-                    event_id=event_id,
-                    outcome=outcome,
-                    query_run=query_run,
-                    query_run_artifact_path=query_run_path,
+                result.model_copy(
+                    update={
+                        "provider_call_ids": tuple(
+                            call.call_id for call in trial_provider_calls
+                        )
+                    }
                 )
             )
         except EvaluationBindingBlocked as exc:
             runner_detail_codes.append(exc.detail_code)
+            result = _not_run_trial_result(
+                trial=trial,
+                repetition=repetition,
+                failure_code="evaluation_binding_changed",
+            )
             results.append(
-                _not_run_trial_result(
-                    trial=trial,
-                    repetition=repetition,
-                    failure_code="evaluation_binding_changed",
+                result.model_copy(
+                    update={
+                        "provider_call_ids": tuple(
+                            call.call_id for call in trial_provider_calls
+                        ),
+                        "provider_call_count": len(
+                            trial_provider_calls
+                        ),
+                    }
                 )
             )
         except (OSError, RuntimeError, TypeError, ValueError):
             runner_detail_codes.append(
                 f"repetition_{repetition:03d}_{trial.trial_id}_runner_exception"
             )
+            result = _not_run_trial_result(
+                trial=trial,
+                repetition=repetition,
+                failure_code="evaluation_trial_not_executed",
+            )
             results.append(
-                _not_run_trial_result(
-                    trial=trial,
-                    repetition=repetition,
-                    failure_code="evaluation_trial_not_executed",
+                result.model_copy(
+                    update={
+                        "activation_status": (
+                            "activated"
+                            if trial_provider_calls
+                            else "not_reached"
+                        ),
+                        "provider_call_ids": tuple(
+                            call.call_id for call in trial_provider_calls
+                        ),
+                        "provider_call_count": len(
+                            trial_provider_calls
+                        ),
+                        "input_tokens": sum(
+                            call.input_tokens
+                            for call in trial_provider_calls
+                        ),
+                        "output_tokens": sum(
+                            call.output_tokens
+                            for call in trial_provider_calls
+                        ),
+                        "provider_latency_ms": sum(
+                            call.latency_ms
+                            for call in trial_provider_calls
+                        ),
+                    }
                 )
             )
     return tuple(results), tuple(runner_detail_codes)
@@ -1318,6 +1668,8 @@ def run_live_agent_evaluation(
             report_dir=report_dir,
             results=(),
             summary=summary,
+            report_stem=suite.report_stem,
+            provider_calls=(),
         )
         if runtime is not None:
             runtime.store.close()
@@ -1332,6 +1684,7 @@ def run_live_agent_evaluation(
         encoding="utf-8",
     )
     results: list[LiveEvaluationResult] = []
+    provider_calls: list[LiveEvaluationProviderCall] = []
     runner_detail_codes: list[str] = []
     for repetition in range(1, repetitions + 1):
         repetition_results, repetition_details = (
@@ -1341,6 +1694,7 @@ def run_live_agent_evaluation(
                 binding=binding,
                 runtime_root=runtime_root,
                 repetition=repetition,
+                provider_calls=provider_calls,
             )
         )
         results.extend(repetition_results)
@@ -1355,6 +1709,9 @@ def run_live_agent_evaluation(
             repetitions=repetitions,
             results=results,
         )
+    )
+    runner_detail_codes.extend(
+        _provider_call_binding_failures(results, provider_calls)
     )
     summary = summarize_live_evaluation(
         suite_id=suite.suite_id,
@@ -1372,6 +1729,8 @@ def run_live_agent_evaluation(
         report_dir=report_dir,
         results=results,
         summary=summary,
+        report_stem=suite.report_stem,
+        provider_calls=provider_calls,
     )
     runtime.store.close()
     return summary
@@ -1426,6 +1785,7 @@ __all__ = [
     "LiveEvaluationAssertion",
     "LiveEvaluationAuthorizationError",
     "LiveEvaluationResult",
+    "LiveEvaluationProviderCall",
     "LiveEvaluationSummary",
     "LiveEvaluationSuite",
     "LiveEvaluationTrial",

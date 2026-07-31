@@ -22,7 +22,9 @@ from aviation_agentic_ai.agent_system.contracts import (
 from aviation_agentic_ai.agent_system.live_agent_evaluation import (
     LiveEvaluationAssertion,
     LiveEvaluationAuthorizationError,
+    LiveEvaluationProviderCall,
     LiveEvaluationResult,
+    LiveEvaluationSuite,
     LiveEvaluationTrial,
     build_hybrid_query_run_artifact,
     load_live_evaluation_suite,
@@ -214,6 +216,7 @@ def test_tracked_v4_suite_is_query_only_and_has_graph_path_trial() -> None:
     )
 
     assert suite.version == "live-agent-smoke-v4"
+    assert suite.report_stem == "agent_system_live_agent_smoke_v4"
     assert suite.future_frozen_evaluation == "not_constructed"
     assert len(suite.trials) == 5
     assert {trial.kind for trial in suite.trials} == {"query"}
@@ -232,6 +235,41 @@ def test_tracked_v4_suite_is_query_only_and_has_graph_path_trial() -> None:
     assert graph_trials[0].required_tool_names == (
         "read_tmi_event_graph",
     )
+
+
+def test_ingestion_hybridrag_suite_has_three_natural_language_routes() -> None:
+    suite = load_live_evaluation_suite(
+        "data/evaluation/agent_system/"
+        "live_ingestion_hybridrag_smoke_v1.yaml"
+    )
+
+    assert suite.report_stem == (
+        "agent_system_live_ingestion_hybridrag_smoke_v1"
+    )
+    assert suite.required_source_ids == (
+        "2026-05-19:123",
+        "2026-05-19:138",
+    )
+    assert [trial.required_tool_names for trial in suite.trials] == [
+        ("semantic_search_sources", "read_source"),
+        ("read_tmi_event_facts", "read_tmi_event_graph"),
+        ("read_tmi_operational_context", "read_public_observations"),
+    ]
+    assert all(
+        tool_name not in trial.question
+        for trial in suite.trials
+        for tool_name in live_eval.HYBRID_QUERY_READ_TOOLS
+    )
+
+
+def test_suite_rejects_unsafe_report_stem() -> None:
+    with pytest.raises(ValueError):
+        LiveEvaluationSuite(
+            version="live-agent-smoke-v4",
+            suite_id="invalid-report-stem",
+            report_stem="../overwrite-historical-report",
+            trials=(_trial(),),
+        )
 
 
 def test_suite_rejects_graph_requirement_without_graph_tool() -> None:
@@ -486,6 +524,130 @@ def test_summary_and_v4_artifact_names_are_query_specific(
     assert "- Input / output tokens: 40 / 20" in report
 
 
+def test_artifact_writer_accepts_a_suite_specific_report_stem(
+    tmp_path: Path,
+) -> None:
+    results = (_result("passed"),)
+    summary = summarize_live_evaluation(
+        suite_id="suite",
+        suite_checksum="a" * 64,
+        repetitions=1,
+        results=results,
+        runner_status="completed",
+        live_model=False,
+    )
+
+    paths = write_live_evaluation_artifacts(
+        output_dir=tmp_path / "runtime",
+        report_dir=tmp_path / "reports",
+        results=results,
+        summary=summary,
+        report_stem="agent_system_live_ingestion_hybridrag_smoke_v1",
+    )
+
+    assert [path.name for path in paths] == [
+        "live_evaluation_results_v4.jsonl",
+        "live_evaluation_manifest_v4.json",
+        "agent_system_live_ingestion_hybridrag_smoke_v1.json",
+        "agent_system_live_ingestion_hybridrag_smoke_v1.md",
+    ]
+
+
+def test_live_artifacts_separate_raw_provider_and_parsed_outputs(
+    tmp_path: Path,
+) -> None:
+    trial = _trial(required_tool_names=(), required_graph_path_kinds=())
+    provider_call = LiveEvaluationProviderCall.from_model_call(
+        suite_id="suite",
+        repetition=1,
+        trial=trial,
+        phase="query_step",
+        record=_live_call(
+            tool_name="read_source",
+            raw_response="native provider content",
+        ),
+        native_response={
+            "content": "native provider content",
+            "tool_calls": [
+                {
+                    "name": "read_source",
+                    "args": {"source_id": trial.source_id},
+                }
+            ],
+        },
+    )
+    result = _result(trial.trial_id).model_copy(
+        update={
+            "source_id": trial.source_id,
+            "provider_call_count": 1,
+            "provider_call_ids": (provider_call.call_id,),
+            "input_tokens": provider_call.input_tokens,
+            "output_tokens": provider_call.output_tokens,
+        }
+    )
+    results = (result,)
+    summary = summarize_live_evaluation(
+        suite_id="suite",
+        suite_checksum="a" * 64,
+        repetitions=1,
+        results=results,
+        runner_status="completed",
+        live_model=False,
+    )
+
+    paths = write_live_evaluation_artifacts(
+        output_dir=tmp_path / "runtime",
+        report_dir=tmp_path / "reports",
+        results=results,
+        summary=summary,
+        provider_calls=(provider_call,),
+    )
+
+    raw_path = tmp_path / "runtime" / "raw_responses_v4.jsonl"
+    assert raw_path.exists()
+    assert "native provider content" in raw_path.read_text(encoding="utf-8")
+    report_json = json.loads(paths[-2].read_text(encoding="utf-8"))
+    assert report_json["artifacts"]["raw_response_count"] == 1
+    assert report_json["artifacts"]["successful_real_call_count"] == 1
+    assert report_json["artifacts"]["failed_real_call_count"] == 0
+    assert report_json["artifacts"]["raw_parsed_binding_status"] == "valid"
+    assert report_json["artifacts"]["raw_response_artifact"] == str(raw_path)
+    assert (
+        report_json["artifacts"]["parsed_output_artifact"]
+        == str(paths[0])
+    )
+    assert "native provider content" not in paths[-2].read_text(
+        encoding="utf-8"
+    )
+
+
+def test_live_call_binding_rejects_orphan_raw_calls() -> None:
+    trial = _trial(required_tool_names=(), required_graph_path_kinds=())
+    provider_call = LiveEvaluationProviderCall.from_model_call(
+        suite_id="suite",
+        repetition=1,
+        trial=trial,
+        phase="query_step",
+        record=_live_call(),
+        native_response={"content": "returned"},
+    )
+    result = _result(trial.trial_id).model_copy(
+        update={
+            "source_id": trial.source_id,
+            "provider_call_count": 0,
+            "provider_call_ids": (),
+        }
+    )
+
+    failures = live_eval._provider_call_binding_failures(
+        (result,),
+        (provider_call,),
+    )
+
+    assert "activated_trial_missing_raw_provider_call" in failures
+    assert "orphan_raw_provider_call" in failures
+
+
 def test_missing_authorization_rejects_before_writes(tmp_path: Path) -> None:
     with pytest.raises(LiveEvaluationAuthorizationError):
         run_live_agent_evaluation(
@@ -528,6 +690,43 @@ def test_missing_credentials_block_before_provider_calls(
     assert summary.runner_status == "blocked_before_run"
     assert summary.provider_call_count == 0
     assert "missing_deepseek_credentials" in summary.runner_detail_codes
+
+
+def test_blocked_runner_uses_suite_specific_report_stem(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    monkeypatch.setattr(live_eval, "load_environment", lambda: None)
+    monkeypatch.setattr(
+        live_eval,
+        "open_query_runtime",
+        lambda *_args, **_kwargs: pytest.fail("store must not open"),
+    )
+
+    run_live_agent_evaluation(
+        config_path="configs/cross_source_v1.yaml",
+        suite_path=(
+            "data/evaluation/agent_system/"
+            "live_ingestion_hybridrag_smoke_v1.yaml"
+        ),
+        store_dir=tmp_path / "store",
+        output_dir=tmp_path / "runtime",
+        report_dir=tmp_path / "reports",
+        allow_live_model=True,
+        repetitions=1,
+    )
+
+    assert (
+        tmp_path
+        / "reports"
+        / "agent_system_live_ingestion_hybridrag_smoke_v1.json"
+    ).is_file()
+    assert (
+        tmp_path
+        / "reports"
+        / "agent_system_live_ingestion_hybridrag_smoke_v1.md"
+    ).is_file()
 
 
 def test_live_runner_reads_existing_store_without_building_a_corpus(
@@ -609,6 +808,11 @@ def test_live_runner_reads_existing_store_without_building_a_corpus(
         "_verify_live_evaluation_binding",
         lambda *_args, **_kwargs: None,
     )
+    monkeypatch.setattr(
+        live_eval,
+        "_provider_call_binding_failures",
+        lambda *_args, **_kwargs: (),
+    )
 
     def answer_from_existing_store(*, runtime, question, scope, model_factory):
         del question, model_factory
@@ -630,10 +834,23 @@ def test_live_runner_reads_existing_store_without_building_a_corpus(
         "answer_question",
         answer_from_existing_store,
     )
+    suite_path = tmp_path / "custom-report-suite.yaml"
+    suite_path.write_text(
+        Path(
+            "data/evaluation/agent_system/live_agent_smoke_v4.yaml"
+        )
+        .read_text(encoding="utf-8")
+        .replace(
+            "suite_id: tmi-event-query-agent-smoke-v4\n",
+            "suite_id: tmi-event-query-agent-smoke-v4\n"
+            "report_stem: custom_completed_smoke\n",
+        ),
+        encoding="utf-8",
+    )
     store_dir = tmp_path / "existing-store"
     summary = run_live_agent_evaluation(
         config_path="configs/cross_source_v1.yaml",
-        suite_path="data/evaluation/agent_system/live_agent_smoke_v4.yaml",
+        suite_path=suite_path,
         store_dir=store_dir,
         output_dir=tmp_path / "runtime",
         report_dir=tmp_path / "reports",
@@ -646,6 +863,12 @@ def test_live_runner_reads_existing_store_without_building_a_corpus(
     assert summary.provider_call_count == 10
     assert (tmp_path / "runtime" / "evaluation_data_binding.json").is_file()
     assert not (tmp_path / "runtime" / "corpus").exists()
+    assert (
+        tmp_path / "reports" / "custom_completed_smoke.json"
+    ).is_file()
+    assert (
+        tmp_path / "reports" / "custom_completed_smoke.md"
+    ).is_file()
     assert store.get_knowledge_revision() == 7
     assert store.closed
 
