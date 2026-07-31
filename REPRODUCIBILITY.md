@@ -126,17 +126,16 @@ Ingest the three reason-state regression records:
 uv run aviation-ai agent-system ingest \
   --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
-  --source-id 2026-05-19:123 \
-  --source-id 2026-05-19:138 \
-  --source-id 2026-05-20:020 \
+  --advisory-id 2026-05-19:123 \
+  --advisory-id 2026-05-19:138 \
+  --advisory-id 2026-05-20:020 \
   --allow-live-model \
   --allow-model-download
 ```
 
-`--source-id` bounds semantic event construction, but ingestion still registers
-configured immutable source versions so source retrieval is not restricted to
-three hand-built records. Omit the option to process all 718 configured
-advisories.
+`--advisory-id` is an operator-facing targeted construction/backfill selector.
+It registers only the named advisory records plus shared authority and context
+evidence. Omit the option to process all 718 configured advisories.
 
 The pipeline:
 
@@ -195,8 +194,7 @@ causality, effectiveness, or a recommended action.
 uv run aviation-ai agent-system ask \
   --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
-  --event-id <event-id> \
-  --question "What forecast was available when this TMI was issued?" \
+  --question "What forecast was available when ATCSCC Advisory 138 was issued?" \
   --allow-model-download
 ```
 
@@ -215,7 +213,7 @@ semantic_search_sources
 read_source
 ```
 
-Scope hints such as `--source-id`, `--source-family`, `--event-type-iri`,
+Scope hints such as `--source-family`, `--event-type-iri`,
 `--facility-id`, `--reason-status`, `--reason-value`, `--offset`, `--limit`,
 and `--candidate-scope` bound tool access. They do not select a hard-coded
 answer route.
@@ -302,7 +300,7 @@ indexes with:
 uv run --extra agent-system aviation-ai agent-system ingest \
   --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
-  --source-id 2026-05-19:138
+  --advisory-id 2026-05-19:138
 
 uv run --extra agent-system aviation-ai agent-system reindex \
   --config configs/aviation_knowledge_v1.yaml \

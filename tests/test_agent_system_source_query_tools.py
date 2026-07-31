@@ -297,6 +297,26 @@ def test_lexical_search_returns_candidates_from_the_bound_event_version(
     assert "EXTENDED" not in observation.content
 
 
+def test_unscoped_source_search_returns_authoritative_event_identity(
+    source_scenario: SourceQueryScenario,
+) -> None:
+    """Removing this mapping would force users to supply an internal event ID."""
+
+    gateway = _gateway(source_scenario, scope=HybridQueryScope())
+
+    observation = gateway.search_source_text(
+        query='"GROUND STOP B"',
+        limit=10,
+    )
+    payload = json.loads(observation.content)
+
+    assert observation.status == "ok"
+    assert observation.details.event_ids == (source_scenario.event_b.event_id,)
+    assert payload["candidates"][0]["event_ids"] == [
+        source_scenario.event_b.event_id
+    ]
+
+
 def test_event_scoped_lexical_search_uses_source_bindings_not_chunk_ownership(
     source_scenario: SourceQueryScenario,
 ) -> None:
@@ -418,6 +438,28 @@ def test_exact_source_read_returns_version_and_anchor_support(
     assert support.source_version_ids == (version.source_version_id,)
     assert support.source_anchor_ids == (chunk.source_anchor_id,)
     assert support.chunk_ids == (chunk.chunk_id,)
+
+
+def test_unscoped_exact_source_read_preserves_discovered_event_identity(
+    source_scenario: SourceQueryScenario,
+) -> None:
+    """Exact reading must let the Agent continue from a source to event tools."""
+
+    version = source_scenario.advisory_b
+    chunk = source_scenario.chunks[version.source_version_id]
+    gateway = _gateway(source_scenario, scope=HybridQueryScope())
+
+    observation = gateway.read_source(
+        source_version_id=version.source_version_id,
+        source_anchor_id=chunk.source_anchor_id,
+    )
+    payload = json.loads(observation.content)
+
+    assert payload["event_ids"] == [source_scenario.event_b.event_id]
+    assert observation.details.event_ids == (source_scenario.event_b.event_id,)
+    assert observation.support_records[0].event_ids == (
+        source_scenario.event_b.event_id,
+    )
 
 
 @pytest.mark.parametrize("foreign_kind", ("event", "revision", "anchor"))

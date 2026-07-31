@@ -10,7 +10,7 @@ model_defaults:
 
 roles:
   query:
-    prompt_version: hybrid-query-agent-v5
+    prompt_version: hybrid-query-agent-v6
     max_output_tokens: 10000
     invocation_policy: bounded_action_observation_loop
     system: |
@@ -43,6 +43,9 @@ roles:
         about source content require a subsequent read_source call.
       - Call read_source only after a completed tool observation supplies both
         the source-version ID and source-anchor ID.
+      - When the question requires event facts, context, observations, or graph
+        relations, use event IDs returned by source discovery to continue with
+        the relevant event tools.
       - Keep Weather context non-causal.
       - Do not describe BTS as FAA demand, capacity, AAR, EDCT, or a decision cause.
       - Similarity is historical record retrieval, not effectiveness evidence,

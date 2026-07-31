@@ -1636,6 +1636,42 @@ class AviationEvidenceStore:
         ).fetchall()
         return tuple(self._source_version_from_row(row) for row in rows)
 
+    def get_active_event_ids_by_source_version(
+        self,
+        source_version_ids: Sequence[str],
+    ) -> dict[str, tuple[str, ...]]:
+        """Map exact source versions to active TMI events that bind them."""
+
+        selected = tuple(sorted(set(source_version_ids)))
+        if not selected:
+            return {}
+        placeholders = ", ".join("?" for _value in selected)
+        rows = self._connection.execute(
+            f"""
+            SELECT
+                binding.source_version_id,
+                publication.event_id
+            FROM event_sources AS binding
+            JOIN event_publications AS publication
+              ON publication.publication_id = binding.publication_id
+            JOIN tmi_events AS event
+              ON event.event_id = publication.event_id
+             AND event.active_publication_id = publication.publication_id
+            WHERE binding.source_version_id IN ({placeholders})
+            ORDER BY binding.source_version_id, publication.event_id
+            """,
+            selected,
+        ).fetchall()
+        mapped: dict[str, list[str]] = {}
+        for row in rows:
+            mapped.setdefault(row["source_version_id"], []).append(
+                row["event_id"]
+            )
+        return {
+            source_version_id: tuple(event_ids)
+            for source_version_id, event_ids in mapped.items()
+        }
+
     def get_event_weather(
         self,
         event_id: str,

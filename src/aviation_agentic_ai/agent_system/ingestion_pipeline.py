@@ -197,7 +197,7 @@ def run_ingestion_pipeline(
     config: dict[str, object],
     store: AviationEvidenceStore,
     *,
-    source_ids: tuple[str, ...] = (),
+    advisory_ids: tuple[str, ...] = (),
     allow_live_model: bool = False,
     allow_model_download: bool = False,
     resource_loader: ResourceLoader | None = None,
@@ -207,9 +207,9 @@ def run_ingestion_pipeline(
 ) -> IngestionSummary:
     """Register configured evidence, then process selected advisories one by one.
 
-    ``source_ids`` bounds only advisory event construction. The first pass
-    still registers every configured advisory version, and shared logical
-    sources are registered before the first semantic publication.
+    ``advisory_ids`` is an optional targeted construction/backfill selector.
+    A targeted run registers only the selected advisory records plus the
+    shared authority and context evidence required by the construction path.
     """
 
     typed_config = dict(config)
@@ -220,20 +220,26 @@ def run_ingestion_pipeline(
         store.register_source_asset(asset)
     assets_by_key = {asset.asset_key: asset for asset in assets}
 
-    discovered_count = 0
-    available_source_ids: set[str] = set()
-    for advisory in _iter_advisories(typed_config, assets_by_key):
-        discovered_count += 1
-        available_source_ids.add(advisory.source_id)
+    advisories = tuple(_iter_advisories(typed_config, assets_by_key))
+    discovered_count = len(advisories)
+    available_advisory_ids = {advisory.source_id for advisory in advisories}
+    requested = set(advisory_ids)
+    unknown = sorted(requested - available_advisory_ids)
+    if unknown:
+        raise ValueError(
+            f"advisory_id is not in configured advisories: {unknown[0]}"
+        )
+    selected_advisories = tuple(
+        advisory
+        for advisory in advisories
+        if not requested or advisory.source_id in requested
+    )
+    for advisory in selected_advisories:
         advisory_version = build_source_version(advisory)
         if store.register_source_version(advisory_version) == "inserted":
             changed_source_version_ids.add(
                 advisory_version.source_version_id
             )
-    requested = set(source_ids)
-    unknown = sorted(requested - available_source_ids)
-    if unknown:
-        raise ValueError(f"source_id is not in configured advisories: {unknown[0]}")
 
     loader = resource_loader or load_ingestion_resources
     resources = loader(typed_config)
@@ -263,9 +269,7 @@ def run_ingestion_pipeline(
     attempted_count = 0
     skipped_count = 0
     results: list[IngestionResult] = []
-    for advisory in _iter_advisories(typed_config, assets_by_key):
-        if requested and advisory.source_id not in requested:
-            continue
+    for advisory in selected_advisories:
         advisory_version = build_source_version(advisory)
         previous = store.get_ingestion_result(
             advisory_version.source_version_id

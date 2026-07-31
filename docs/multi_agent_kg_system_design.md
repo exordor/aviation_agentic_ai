@@ -191,10 +191,10 @@ source-version binding, and evidence link or deterministic derivation trace.
 
 ## 6. Incremental Ingestion
 
-`ingest` is the public write path. It registers immutable configured source
-versions before processing selected advisories. One or more `--source-id`
-values bound semantic event construction; omitting them processes all
-configured advisory records.
+`ingest` is the public write path. One or more `--advisory-id` values select a
+targeted advisory construction/backfill; omitting them processes all configured
+advisory records. A targeted run registers the selected advisory records plus
+the shared authority and context evidence required by the construction path.
 
 One invocation loads schema, authority, Weather, and BTS resources once, then
 processes advisories sequentially. For each source version:
@@ -371,7 +371,13 @@ The nine tools are:
 | `semantic_search_sources` | Chroma source candidate discovery. |
 | `read_source` | Exact bounded source-version and anchor read. |
 
-CLI source IDs/families, event ID, exact filters, paging, and archive/prior
+Lexical and semantic source candidates carry active event IDs derived from the
+store's publication bindings. `read_source` preserves that mapping, allowing
+the Agent to resolve a user's date, advisory number, airport, or other source
+wording before continuing through event-scoped tools. The user is not expected
+to know an internal source or event ID.
+
+CLI source families, event ID, exact filters, paging, and archive/prior
 candidate scope form an immutable upper bound. The model may narrow but cannot
 widen them. There is no arbitrary SPARQL, Cypher, graph write, external web
 access, or long-term Agent memory.
@@ -431,7 +437,7 @@ become publication authorities.
 aviation-ai agent-system ingest \
   --config <config> \
   [--store-dir <store-dir>] \
-  [--source-id <id> ...] \
+  [--advisory-id <id> ...] \
   [--allow-live-model] \
   [--allow-model-download]
 
@@ -446,7 +452,8 @@ aviation-ai agent-system ask \
   [--store-dir <store-dir>] \
   --question "<question>" \
   [--event-id <event-id>] \
-  [source, exact-filter, candidate-scope, and paging options]
+  [--source-family <family> ...] \
+  [exact-filter, candidate-scope, and paging options]
 
 aviation-ai agent-system neo4j-export \
   --config <config> \

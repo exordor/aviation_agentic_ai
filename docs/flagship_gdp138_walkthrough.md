@@ -152,7 +152,7 @@ After completing the source-snapshot preflight in
 uv run --extra agent-system aviation-ai agent-system ingest \
   --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
-  --source-id 2026-05-19:138
+  --advisory-id 2026-05-19:138
 
 uv run --extra agent-system aviation-ai agent-system reindex \
   --config configs/aviation_knowledge_v1.yaml \

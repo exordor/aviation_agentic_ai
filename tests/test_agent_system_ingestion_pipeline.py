@@ -178,22 +178,22 @@ def _run(
     store: AviationEvidenceStore,
     resources,
     runner: Callable,
-    source_ids: tuple[str, ...] = (),
+    advisory_ids: tuple[str, ...] = (),
 ):
     return api.run_ingestion_pipeline(
         config,
         store,
-        source_ids=source_ids,
+        advisory_ids=advisory_ids,
         resource_loader=lambda _config: resources,
         case_runner=runner,
         retrieval_indexer=lambda *_args, **_kwargs: (),
     )
 
 
-def test_source_filter_limits_construction_but_all_advisories_are_registered(
+def test_advisory_filter_registers_and_constructs_only_selected_advisories(
     tmp_path: Path,
 ) -> None:
-    """Dropping the registration pass would hide the two unselected records."""
+    """Targeted backfill must not silently ingest unrelated advisory records."""
 
     api = _pipeline_api()
     path = tmp_path / "advisories.jsonl"
@@ -217,16 +217,15 @@ def test_source_filter_limits_construction_but_all_advisories_are_registered(
         store=store,
         resources=resources,
         runner=runner,
-        source_ids=("source:1",),
+        advisory_ids=("source:1",),
     )
 
     assert summary.discovered_count == 3
     assert summary.selected_count == 1
     assert calls == ["source:1"]
-    assert all(
-        store.get_latest_source_version(row["source_id"]) is not None
-        for row in rows
-    )
+    assert store.get_latest_source_version("source:1") is not None
+    assert store.get_latest_source_version("source:0") is None
+    assert store.get_latest_source_version("source:2") is None
     store.close()
 
 
@@ -760,7 +759,7 @@ def test_ingestion_indexes_only_new_versions_and_publications(
     first = api.run_ingestion_pipeline(
         config,
         store,
-        source_ids=("source:selected",),
+        advisory_ids=("source:selected",),
         resource_loader=lambda _config: resources,
         case_runner=runner,
         retrieval_indexer=indexer,
@@ -768,7 +767,7 @@ def test_ingestion_indexes_only_new_versions_and_publications(
     second = api.run_ingestion_pipeline(
         config,
         store,
-        source_ids=("source:selected",),
+        advisory_ids=("source:selected",),
         resource_loader=lambda _config: resources,
         case_runner=runner,
         retrieval_indexer=indexer,
@@ -779,18 +778,13 @@ def test_ingestion_indexes_only_new_versions_and_publications(
         "source:registered-only"
     )
     assert selected is not None
-    assert registered_only is not None
+    assert registered_only is None
     assert first.ok_count == 1
     assert second.skipped_count == 1
     assert len(calls) == 1
     assert calls[0]["store"] is store
-    assert calls[0]["source_version_ids"] == tuple(
-        sorted(
-            (
-                selected.source_version_id,
-                registered_only.source_version_id,
-            )
-        )
+    assert calls[0]["source_version_ids"] == (
+        selected.source_version_id,
     )
     assert calls[0]["event_publication_ids"] == (
         _ok_attempt(

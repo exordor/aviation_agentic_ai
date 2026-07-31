@@ -1238,6 +1238,7 @@ class HybridQueryGateway:
         chunk: SourceChunkRecord,
         version: SourceVersionRecord,
         *,
+        event_ids: tuple[str, ...],
         similarity: float | None = None,
     ) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -1245,12 +1246,29 @@ class HybridQueryGateway:
             "source_id": version.source_id,
             "source_version_id": version.source_version_id,
             "source_anchor_id": chunk.source_anchor_id,
+            "event_ids": event_ids,
             "family": version.family.value,
             "text": chunk.text,
         }
         if similarity is not None:
             payload["similarity"] = similarity
         return payload
+
+    def _source_event_ids(
+        self,
+        source_version_ids: tuple[str, ...],
+        *,
+        event_id: str | None = None,
+    ) -> dict[str, tuple[str, ...]]:
+        effective_event_id = event_id or self.scope.event_id
+        if effective_event_id is not None:
+            return {
+                source_version_id: (effective_event_id,)
+                for source_version_id in source_version_ids
+            }
+        return self.store.get_active_event_ids_by_source_version(
+            source_version_ids
+        )
 
     def search_source_text(
         self,
@@ -1278,8 +1296,27 @@ class HybridQueryGateway:
             current_only=False,
             limit=limit,
         )
+        event_ids_by_version = self._source_event_ids(
+            tuple(
+                sorted(
+                    {
+                        chunk.source_version_id
+                        for chunk in chunks
+                        if chunk.source_version_id in version_by_id
+                    }
+                )
+            ),
+            event_id=event_id,
+        )
         payload = [
-            self._candidate_payload(chunk, version_by_id[chunk.source_version_id])
+            self._candidate_payload(
+                chunk,
+                version_by_id[chunk.source_version_id],
+                event_ids=event_ids_by_version.get(
+                    chunk.source_version_id,
+                    (),
+                ),
+            )
             for chunk in chunks
             if chunk.source_version_id in version_by_id
         ]
@@ -1287,6 +1324,7 @@ class HybridQueryGateway:
             payload=payload,
             chunks=chunks,
             version_by_id=version_by_id,
+            event_ids_by_version=event_ids_by_version,
             unavailable_message="No lexical source candidates match the scope.",
         )
 
@@ -1329,10 +1367,25 @@ class HybridQueryGateway:
                 raise ValueError("source vector hit does not match its chunk")
             selected.append((chunk, hit.similarity))
         chunks = tuple(chunk for chunk, _similarity in selected)
+        event_ids_by_version = self._source_event_ids(
+            tuple(
+                sorted(
+                    {
+                        chunk.source_version_id
+                        for chunk in chunks
+                    }
+                )
+            ),
+            event_id=event_id,
+        )
         payload = [
             self._candidate_payload(
                 chunk,
                 version_by_id[chunk.source_version_id],
+                event_ids=event_ids_by_version.get(
+                    chunk.source_version_id,
+                    (),
+                ),
                 similarity=similarity,
             )
             for chunk, similarity in selected
@@ -1341,6 +1394,7 @@ class HybridQueryGateway:
             payload=payload,
             chunks=chunks,
             version_by_id=version_by_id,
+            event_ids_by_version=event_ids_by_version,
             unavailable_message="No semantic source candidates match the scope.",
         )
 
@@ -1350,6 +1404,7 @@ class HybridQueryGateway:
         payload: list[dict[str, object]],
         chunks: tuple[SourceChunkRecord, ...],
         version_by_id: dict[str, SourceVersionRecord],
+        event_ids_by_version: dict[str, tuple[str, ...]],
         unavailable_message: str,
     ) -> HybridQueryToolObservation:
         selected_chunks = tuple(
@@ -1363,9 +1418,19 @@ class HybridQueryGateway:
             details=HybridQueryEvidence(
                 event_ids=_unique(
                     [
-                        chunk.event_id
+                        event_id
                         for chunk in selected_chunks
-                        if chunk.event_id is not None
+                        for event_id in (
+                            event_ids_by_version.get(
+                                chunk.source_version_id,
+                                (),
+                            )
+                            or (
+                                (chunk.event_id,)
+                                if chunk.event_id is not None
+                                else ()
+                            )
+                        )
                     ]
                 ),
                 source_ids=_unique(
@@ -1461,11 +1526,9 @@ class HybridQueryGateway:
             if chunk.source_anchor_id == source_anchor_id
         )
         chunk_ids = tuple(chunk.chunk_id for chunk in matching_chunks)
-        event_ids = (
-            (self.scope.event_id,)
-            if self.scope.event_id is not None
-            else ()
-        )
+        event_ids = self._source_event_ids(
+            (source_version_id,),
+        ).get(source_version_id, ())
         support = HybridQuerySupportRecord(
             kind="source_record",
             event_ids=event_ids,
@@ -1481,6 +1544,7 @@ class HybridQueryGateway:
                     "source_id": version.source_id,
                     "source_version_id": source_version_id,
                     "source_anchor_id": source_anchor_id,
+                    "event_ids": event_ids,
                     "family": version.family.value,
                     "content_sha256": version.content_sha256,
                     "bounded_text": version.content[

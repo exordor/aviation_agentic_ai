@@ -57,16 +57,17 @@ Ingest the five GDP, GS, and ReRoute development/regression records:
 uv run aviation-ai agent-system ingest \
   --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/development-smoke-v1 \
-  --source-id 2026-05-19:123 \
-  --source-id 2026-05-19:138 \
-  --source-id 2026-05-19:108 \
-  --source-id 2026-05-20:020 \
-  --source-id 2026-05-20:137 \
+  --advisory-id 2026-05-19:123 \
+  --advisory-id 2026-05-19:138 \
+  --advisory-id 2026-05-19:108 \
+  --advisory-id 2026-05-20:020 \
+  --advisory-id 2026-05-20:137 \
   --allow-model-download
 ```
 
-Omit `--source-id` to process all configured advisories. The command registers
-immutable versions of configured sources, skips terminal `ok` or
+Omit `--advisory-id` to process all configured advisories. A targeted run
+registers only the named advisory records plus the shared authority and context
+evidence needed by the construction path. The command skips terminal `ok` or
 `insufficient` versions on later runs, retries blocked versions, and commits
 each accepted publication independently. It does not need a completed batch
 manifest before the data can be queried.
@@ -132,8 +133,7 @@ Neither FTS nor Chroma writes semantic facts back into the store.
 uv run aviation-ai agent-system ask \
   --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/development-smoke-v1 \
-  --event-id <event-id> \
-  --question "What was published, what reason did the source declare, and what weather context was retained?" \
+  --question "For ATCSCC Advisory 138 on 19 May 2026, what was published, what reason did the source declare, and what weather context was retained?" \
   --allow-model-download
 ```
 
@@ -151,7 +151,14 @@ selects among nine deterministic, read-only tools:
 - `semantic_search_sources`;
 - `read_source`.
 
-CLI source, event, family, metadata, paging, and candidate-scope filters form
+The default interaction requires only the natural-language question. Lexical
+or semantic discovery returns any active TMI event IDs authoritatively bound to
+the matched source version, so the Agent can continue to event facts, context,
+observations, and graph tools without asking the user for an internal ID.
+CLI answers render human-readable evidence labels, dates, authorities, and
+source links; logical source IDs remain internal provenance metadata.
+
+CLI event, family, metadata, paging, and candidate-scope filters form
 an immutable upper bound around tool access. The Agent can narrow that scope
 but cannot widen it. It may use exact SQLite reads, the store-backed semantic
 graph view, SQLite FTS5, Chroma, and exact source reads in one bounded

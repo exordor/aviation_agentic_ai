@@ -53,7 +53,7 @@ def test_prompt_catalog_contains_only_activated_model_roles() -> None:
 
 def test_every_role_has_version_policy_and_bounded_output() -> None:
     expected_versions = {
-        "query": "hybrid-query-agent-v5",
+        "query": "hybrid-query-agent-v6",
         "semantic_resolution": "semantic-resolution-agent-v1",
     }
     for role, prompt in _catalog()["roles"].items():
@@ -162,10 +162,16 @@ def test_query_prompt_requires_sequential_exact_source_verification() -> None:
     role = _catalog()["roles"]["query"]
     normalized = " ".join(role["system"].split())
 
-    assert role["prompt_version"] == "hybrid-query-agent-v5"
+    assert role["prompt_version"] == "hybrid-query-agent-v6"
     assert (
         "Call read_source only after a completed tool observation supplies "
         "both the source-version ID and source-anchor ID."
+        in normalized
+    )
+    assert (
+        "When the question requires event facts, context, observations, or "
+        "graph relations, use event IDs returned by source discovery to "
+        "continue with the relevant event tools."
         in normalized
     )
 

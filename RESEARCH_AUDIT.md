@@ -88,6 +88,9 @@ or compatibility alias.
   source search, and exact source reading.
 - Search candidates do not support final source-record claims by themselves;
   `read_source` supplies the exact source version and anchor.
+- Source discovery also returns active event identities bound by the
+  authoritative store, allowing an unscoped natural-language question to move
+  from source discovery to event, context, observation, and graph tools.
 - Each final statement is checked against returned event, fact, gap, context,
   observation, graph-path, source-version, anchor, chunk, and similarity
   identifiers as appropriate.
@@ -97,9 +100,9 @@ or compatibility alias.
 ## Current Intake
 
 The active configuration contains 718 advisory records. `ingest` processes all
-configured advisories when no `--source-id` is supplied.
-With one or more source IDs, it still registers configured immutable source
-versions but bounds semantic event construction to the requested advisories.
+configured advisories when no `--advisory-id` is supplied. With one or more
+advisory IDs, it registers and constructs only those advisory records while
+retaining the shared authority and context evidence required by the pipeline.
 Terminal `ok` and `insufficient` versions are skipped on a later run; blocked
 versions can be retried.
 

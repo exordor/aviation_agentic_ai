@@ -16,7 +16,7 @@ The active pipeline is:
 ```text
 configured ATCSCC, FAA authority, Weather, and BTS source artifacts
   -> immutable source assets, source versions, and anchors
-  -> all advisories or explicit source-ID subset
+  -> all advisories or explicit advisory-ID subset
   -> ATMONTO-aligned TMI classification (GDP, GS, and ReRoute active)
   -> deterministic preflight (boundary/deferred/incomplete -> zero-call insufficient)
   -> deterministic AdvisoryParser
@@ -90,12 +90,13 @@ names, not internal alphanumeric labels.
   `ingest`, `reindex`, `ask`, `neo4j-export`, and `export-event`. There is no
   run-directory query path, mandatory batch snapshot, old reader, or command
   compatibility path.
-- `ingest` registers configured immutable source versions, skips terminal
+- `ingest` registers immutable source versions, skips terminal
   `ok/insufficient` versions, retries blocked versions, and commits each
-  accepted event independently. Queryability does not depend on finishing a
-  batch manifest.
+  accepted event independently. A targeted advisory backfill registers only
+  the selected advisory records plus shared authority/context evidence.
+  Queryability does not depend on finishing a batch manifest.
 - The active configuration contains 718 advisory records. `ingest` processes
-  all of them unless the user supplies an explicit `--source-id` subset.
+  all of them unless an operator supplies an explicit `--advisory-id` subset.
 - The legacy cross-source experiment deterministically selected 68 records
   whose full text mentioned JFK, EWR, LGA, KJFK, KEWR, or KLGA. Its 46/3/18/1
   split is automated registry/preflight output, not manual review, a

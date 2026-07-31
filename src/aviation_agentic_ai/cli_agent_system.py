@@ -129,6 +129,40 @@ def _embedding_model(
     return configured
 
 
+def _source_display_label(version: Any) -> str:
+    """Return a human-readable citation label without exposing an internal ID."""
+
+    metadata = version.metadata if isinstance(version.metadata, dict) else {}
+    family = str(version.family.value)
+    authority = {
+        SourceFamily.ATCSCC_ADVISORY.value: "FAA ATCSCC",
+        SourceFamily.NASR_FACILITY.value: "FAA NASR",
+        SourceFamily.FAA_TERM.value: "FAA terminology",
+        SourceFamily.METAR.value: "AviationWeather METAR",
+        SourceFamily.TAF.value: "AviationWeather TAF",
+        SourceFamily.BTS_ON_TIME.value: "BTS On-Time",
+    }.get(family, family.replace("_", " ").title())
+    title = str(metadata.get("title") or authority)
+    if family == SourceFamily.ATCSCC_ADVISORY.value:
+        advisory_number = metadata.get("advisory_number")
+        advisory_date = metadata.get("advisory_date")
+        if advisory_number is None or advisory_date is None:
+            date_part, separator, number_part = version.source_id.partition(":")
+            advisory_date = advisory_date or (date_part if separator else None)
+            advisory_number = advisory_number or (number_part if separator else None)
+        title = "ATCSCC Advisory"
+        if advisory_number is not None:
+            title += f" {advisory_number}"
+        if advisory_date is not None:
+            title += f" ({advisory_date})"
+    elif version.logical_time:
+        title += f" ({version.logical_time})"
+    label = f"{title} — {authority}"
+    if version.source_url:
+        label += f" — {version.source_url}"
+    return label
+
+
 def _config_option(function):
     return click.option(
         "--config",
@@ -151,13 +185,18 @@ def _store_option(function):
 @agent_system.command("ingest")
 @_config_option
 @_store_option
-@click.option("--source-id", "source_ids", multiple=True)
+@click.option(
+    "--advisory-id",
+    "advisory_ids",
+    multiple=True,
+    help="Build or backfill only the named ATCSCC advisory records.",
+)
 @click.option("--allow-live-model", is_flag=True)
 @click.option("--allow-model-download", is_flag=True)
 def ingest_command(
     config_path: Path,
     store_dir: Path | None,
-    source_ids: tuple[str, ...],
+    advisory_ids: tuple[str, ...],
     allow_live_model: bool,
     allow_model_download: bool,
 ) -> None:
@@ -169,7 +208,7 @@ def ingest_command(
         summary = run_ingestion_pipeline(
             config,
             store,
-            source_ids=source_ids,
+            advisory_ids=advisory_ids,
             allow_live_model=allow_live_model,
             allow_model_download=allow_model_download,
         )
@@ -235,7 +274,6 @@ def reindex_command(
 @_config_option
 @_store_option
 @click.option("--question", required=True)
-@click.option("--source-id", "source_ids", multiple=True)
 @click.option(
     "--source-family",
     "source_families",
@@ -264,7 +302,6 @@ def ask_command(
     config_path: Path,
     store_dir: Path | None,
     question: str,
-    source_ids: tuple[str, ...],
     source_families: tuple[str, ...],
     event_id: str | None,
     event_type_iri: str | None,
@@ -285,6 +322,7 @@ def ask_command(
         store_dir=store_dir,
         allow_model_download=allow_model_download,
     )
+    source_labels: list[str] = []
     try:
         outcome = answer_question(
             runtime=runtime,
@@ -295,7 +333,6 @@ def ask_command(
                 facility_id=facility_id,
                 reason_status=reason_status,  # type: ignore[arg-type]
                 reason_value=reason_value,
-                source_ids=source_ids,
                 source_families=tuple(
                     SourceFamily(value) for value in source_families
                 ),
@@ -308,6 +345,15 @@ def ask_command(
                 role="query",
             ),
         )
+        cited_source_version_ids = dict.fromkeys(
+            source_version_id
+            for statement in outcome.answer_statements
+            for source_version_id in statement.support_source_version_ids
+        )
+        for source_version_id in cited_source_version_ids:
+            version = runtime.store.get_source_version(source_version_id)
+            if version is not None:
+                source_labels.append(_source_display_label(version))
     finally:
         runtime.store.close()
     if outcome.status == "blocked":
@@ -316,19 +362,13 @@ def ask_command(
         )
     click.echo(f"status: {outcome.status}")
     click.echo(f"answer: {outcome.answer}")
-    click.echo(f"matching_events: {outcome.match_count}")
-    click.echo(
-        "events_returned: "
-        + (
-            ", ".join(outcome.retrieved_event_ids)
-            if outcome.retrieved_event_ids
-            else "(none)"
-        )
-    )
-    click.echo(
-        "sources: "
-        + (", ".join(outcome.source_ids) if outcome.source_ids else "(none)")
-    )
+    click.echo(f"events_retrieved: {len(outcome.retrieved_event_ids)}")
+    click.echo("evidence_sources:")
+    if source_labels:
+        for label in dict.fromkeys(source_labels):
+            click.echo(f"- {label}")
+    else:
+        click.echo("- (none reported)")
     click.echo(f"model_calls: {len(outcome.model_calls)}")
     click.echo(f"tool_calls: {len(outcome.tool_calls)}")
 

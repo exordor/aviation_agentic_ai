@@ -9,7 +9,10 @@ from click.testing import CliRunner
 
 import aviation_agentic_ai.cli as top_cli
 import aviation_agentic_ai.cli_agent_system as cli_module
-from aviation_agentic_ai.agent_system.contracts import QueryToolOutcome
+from aviation_agentic_ai.agent_system.contracts import (
+    HybridQueryStatement,
+    QueryToolOutcome,
+)
 
 
 class _Store:
@@ -18,6 +21,31 @@ class _Store:
 
     def get_knowledge_revision(self) -> int:
         return 7
+
+    def get_source_version(self, source_version_id: str):  # type: ignore[no-untyped-def]
+        assert source_version_id in {
+            "source-version:123",
+            "source-version:candidate",
+        }
+        if source_version_id == "source-version:candidate":
+            return SimpleNamespace(
+                source_id="candidate:unverified",
+                family=SimpleNamespace(value="faa_term"),
+                metadata={"title": "Unverified Search Candidate"},
+                logical_time=None,
+                source_url=None,
+            )
+        return SimpleNamespace(
+            source_id="2026-05-19:123",
+            family=SimpleNamespace(value="atcscc_advisory"),
+            metadata={
+                "title": "ATCSCC Advisory",
+                "advisory_number": 123,
+                "advisory_date": "2026-05-19",
+            },
+            logical_time=None,
+            source_url="https://www.fly.faa.gov/example/123",
+        )
 
     def close(self) -> None:
         pass
@@ -112,14 +140,14 @@ def test_ingest_uses_store_and_has_no_selection_or_resume(
             "configs/aviation_knowledge_v1.yaml",
             "--store-dir",
             str(tmp_path / "store"),
-            "--source-id",
+            "--advisory-id",
             "2026-05-19:123",
             "--allow-live-model",
         ],
     )
 
     assert result.exit_code == 0, result.output
-    assert observed["source_ids"] == ("2026-05-19:123",)
+    assert observed["advisory_ids"] == ("2026-05-19:123",)
     assert observed["allow_live_model"] is True
     assert "selected: 1" in result.output
     assert "knowledge_revision: 7" in result.output
@@ -161,6 +189,20 @@ def test_ask_always_uses_query_agent_and_preserves_source_scope(
             answer="Source-backed answer.",
             retrieved_event_ids=["urn:event:123"],
             source_ids=["2026-05-19:123"],
+            retrieved_source_version_ids=[
+                "source-version:123",
+                "source-version:candidate",
+            ],
+            answer_statements=[
+                HybridQueryStatement(
+                    kind="source_record",
+                    text="Source-backed answer.",
+                    support_event_ids=("urn:event:123",),
+                    support_source_ids=("2026-05-19:123",),
+                    support_source_version_ids=("source-version:123",),
+                    support_source_anchor_ids=("source-anchor:123",),
+                )
+            ],
         )
 
     monkeypatch.setattr(cli_module, "answer_question", answer)
@@ -184,10 +226,36 @@ def test_ask_always_uses_query_agent_and_preserves_source_scope(
     assert observed["model_factory"] is not None
     scope = observed["scope"]
     assert scope.event_id == "urn:event:123"
+    assert scope.source_ids == ()
     assert tuple(family.value for family in scope.source_families) == (
         "atcscc_advisory",
     )
     assert "answer: Source-backed answer." in result.output
+    assert "evidence_sources:" in result.output
+    assert "ATCSCC Advisory 123 (2026-05-19) — FAA ATCSCC" in result.output
+    assert "Unverified Search Candidate" not in result.output
+    assert "sources: 2026-05-19:123" not in result.output
+    assert "events_retrieved: 1" in result.output
+    assert "urn:event:123" not in result.output
+
+
+def test_ask_does_not_expose_internal_source_id_as_a_user_option() -> None:
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "ask",
+            "--config",
+            "configs/aviation_knowledge_v1.yaml",
+            "--question",
+            "What did Advisory 138 say?",
+            "--source-id",
+            "2026-05-19:138",
+        ],
+    )
+
+    assert result.exit_code == 2
+    assert "No such option" in result.output
+    assert "--source-id" in result.output
 
 
 def test_reindex_rebuilds_both_derived_indexes(monkeypatch) -> None:
