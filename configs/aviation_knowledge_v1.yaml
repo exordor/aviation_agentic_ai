@@ -1,0 +1,51 @@
+snapshot_set_id: aviation-knowledge-2026-05-v1
+
+agent_system:
+  dataset_id: aviation-knowledge-2026-05-v1
+  storage:
+    root: data/stores/aviation/aviation-knowledge-2026-05-v1
+    sqlite: aviation_evidence.sqlite3
+    chroma: chroma
+    exports: exports
+    embedding_model: sentence-transformers/all-MiniLM-L6-v2
+
+sources:
+  atcscc_advisories: data/processed/nasa_atmonto/aligned/2026-05-14/atcscc_advisories.jsonl
+  stationinfo: data/processed/nasa_atmonto/source/2026-05-14/aviationweather_stationinfo.jsonl
+  metar: data/processed/nasa_atmonto/aligned/2026-05-14/aviationweather_metar.jsonl
+  taf: data/processed/nasa_atmonto/aligned/2026-05-14/aviationweather_taf.jsonl
+  nasr_zip: data/raw/nasa_atmonto/2026-05-14/faa_nasr/28DaySubscription_Effective_2026-05-14.zip
+  nasr_manifest: data/raw/nasa_atmonto/2026-05-14/faa_nasr/manifest.json
+  pilot_controller_glossary: data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/PCG_Bsc_w_Chg_1_and_2_dtd_1-22-26.pdf
+  term_seed: data/sources/faa_atcscc_terms_v1.yaml
+  bts_on_time_manifest: data/sources/bts_on_time_2026_05_manifest.json
+  bts_on_time_snapshot: data/sources/bts_on_time_2026_05_nyc.jsonl
+
+source_metadata:
+  atcscc_advisories:
+    effective_start: 2026-05-14
+  aviationweather:
+    effective_start: 2026-05-14
+  faa_nasr:
+    effective_start: 2026-05-14
+  faa_pilot_controller_glossary:
+    effective_start: 2026-01-22
+  faa_atcscc_terms:
+    effective_start: 2026-03-19
+  bts_on_time:
+    effective_start: 2026-05-01
+    source_id: bts_on_time:2026-05:nyc
+    timezone: America/New_York
+    role: public_operational_observation
+  decision_context_weather:
+    role: time_bounded_non_causal_context
+
+source_urls:
+  faa_atcscc: https://www.fly.faa.gov/adv/advADB.jsp
+  faa_contractions: https://www.faa.gov/regulations_policies/orders_notices/index.cfm/go/document.current/documentNumber/7340.2
+  faa_pilot_controller_glossary: https://www.faa.gov/air_traffic/publications/atpubs/pcg_html/
+  faa_tmi_glossary: https://www.fly.faa.gov/fly/FAQ/Acronyms/acronyms.html
+  faa_nasr: https://www.faa.gov/air_traffic/flight_info/aeronav/aero_data/NASR_Subscription/2026-05-14
+  aviationweather: https://connect.aviationweather.gov/data/api/
+  bts_on_time_fields: https://www.transtats.bts.gov/Fields.asp?gnoyr_VQ=FGJ
+  bts_on_time_archive: https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2026_5.zip

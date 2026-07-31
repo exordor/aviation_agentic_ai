@@ -98,11 +98,11 @@ reports/stages/atmonto_competency_query_supplement_v1.md
 
 ## Persistent Store
 
-`configs/cross_source_v1.yaml` declares the dataset identity and default store
-root:
+`configs/aviation_knowledge_v1.yaml` declares the active dataset identity and
+default store root:
 
 ```text
-data/stores/aviation/cross-source-2026-05-v1/
+data/stores/aviation/aviation-knowledge-2026-05-v1/
   aviation_evidence.sqlite3
   chroma/
   exports/
@@ -124,7 +124,7 @@ Ingest the three reason-state regression records:
 
 ```bash
 uv run aviation-ai agent-system ingest \
-  --config configs/cross_source_v1.yaml \
+  --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
   --source-id 2026-05-19:123 \
   --source-id 2026-05-19:138 \
@@ -165,7 +165,7 @@ collections from the authoritative store with:
 
 ```bash
 uv run --extra tmi-event-retrieval aviation-ai agent-system reindex \
-  --config configs/cross_source_v1.yaml \
+  --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
   --model-name sentence-transformers/all-MiniLM-L6-v2 \
   --allow-model-download
@@ -193,7 +193,7 @@ causality, effectiveness, or a recommended action.
 
 ```bash
 uv run aviation-ai agent-system ask \
-  --config configs/cross_source_v1.yaml \
+  --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
   --event-id <event-id> \
   --question "What forecast was available when this TMI was issued?" \
@@ -228,7 +228,7 @@ Example metadata-conditioned event question:
 
 ```bash
 uv run --extra tmi-event-retrieval aviation-ai agent-system ask \
-  --config configs/cross_source_v1.yaml \
+  --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
   --event-id <reference-event-id> \
   --question "Which prior TMI records are closest under the indexed event representation?" \
@@ -250,7 +250,7 @@ versions and anchors:
 
 ```bash
 uv run aviation-ai agent-system export-event \
-  --config configs/cross_source_v1.yaml \
+  --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
   --event-id <event-id> \
   --output-dir data/stores/aviation/exports/selected-event
@@ -265,7 +265,7 @@ Load the current formal projection into Neo4j:
 
 ```bash
 uv run aviation-ai agent-system neo4j-export \
-  --config configs/cross_source_v1.yaml \
+  --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/ingestion-refactor-smoke-v1
 ```
 
@@ -296,7 +296,7 @@ Query Agent compatibility smoke only with explicit authorization:
 
 ```bash
 uv run python -m aviation_agentic_ai.agent_system.live_agent_evaluation \
-  --config configs/cross_source_v1.yaml \
+  --config configs/aviation_knowledge_v1.yaml \
   --suite data/evaluation/agent_system/live_ingestion_hybridrag_smoke_v1.yaml \
   --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
   --output-dir data/corpus/agent_system/live-ingestion-hybridrag-smoke-v1 \

@@ -467,10 +467,6 @@ def _load_facility_catalog(
             reason_code=reason,
             error_id=_stable_error("facility", reason),
         )
-    configured_codes = {
-        str(code).strip().upper()
-        for code in config.get("cohort", {}).get("airport_codes", [])
-    }
     entities: list[CanonicalEntity] = []
     records: list[NASRAuthorityRecord] = []
     try:
@@ -486,13 +482,6 @@ def _load_facility_catalog(
                         if entity is None:
                             continue
                         codes = {code.value.upper() for code in entity.codes}
-                        aliases = {alias.upper() for alias in entity.aliases}
-                        if (
-                            member_name == "APT.txt"
-                            and configured_codes
-                            and not (configured_codes & (codes | aliases))
-                        ):
-                            continue
                         effective = (
                             entity.valid_from.date().isoformat()
                             if entity.valid_from

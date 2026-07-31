@@ -134,7 +134,7 @@ def _config_option(function):
         "--config",
         "config_path",
         type=click.Path(path_type=Path, exists=True, dir_okay=False),
-        default=Path("configs/cross_source_v1.yaml"),
+        default=Path("configs/aviation_knowledge_v1.yaml"),
         show_default=True,
     )(function)
 

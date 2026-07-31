@@ -92,10 +92,12 @@ names, not internal alphanumeric labels.
   `ok/insufficient` versions, retries blocked versions, and commits each
   accepted event independently. Queryability does not depend on finishing a
   batch manifest.
-- The configured advisory source has 718 rows. A reviewed 68-record inventory
-  contains 46 active-family eligible records, 3 incomplete records, 18
-  boundary notices, and 1 deferred ReRoute cancellation. These counts describe
-  the versioned source inventory, not a required runtime cohort.
+- The active configuration contains 718 advisory records. `ingest` processes
+  all of them unless the user supplies an explicit `--source-id` subset.
+- The legacy cross-source experiment deterministically selected 68 records
+  whose full text mentioned JFK, EWR, LGA, KJFK, KEWR, or KLGA. Its 46/3/18/1
+  split is automated registry/preflight output, not manual review, a
+  representative sample, or a current runtime cohort.
 - SQLite FTS5 indexes exact source chunks. Chroma has separately rebuildable
   source-record and TMI-event collections; a collection is usable only when
   its indexed knowledge revision matches the store.

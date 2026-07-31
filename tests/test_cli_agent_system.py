@@ -45,6 +45,14 @@ def test_public_agent_system_surface_is_ingestion_first() -> None:
     )
 
 
+def test_active_commands_default_to_the_cohort_free_configuration() -> None:
+    result = CliRunner().invoke(cli_module.agent_system, ["ingest", "--help"])
+
+    assert result.exit_code == 0, result.output
+    assert "configs/aviation_knowledge_v1.yaml" in result.output
+    assert "configs/cross_source_v1.yaml" not in result.output
+
+
 def test_ingest_uses_store_and_has_no_selection_or_resume(
     monkeypatch,
     tmp_path: Path,

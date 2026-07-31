@@ -89,22 +89,18 @@ or compatibility alias.
 
 ## Current Intake
 
-The configured advisory source contains 718 records. Its reviewed development
-inventory contains:
-
-| State | Count |
-| --- | ---: |
-| Active GDP/GS/ReRoute eligible | 46 |
-| Incomplete core fields | 3 |
-| Boundary notices | 18 |
-| Deferred ReRoute cancellation | 1 |
-| Other records outside the reviewed 68-record inventory | 650 |
-
-`ingest` processes all configured advisories when no `--source-id` is supplied.
+The active configuration contains 718 advisory records. `ingest` processes all
+configured advisories when no `--source-id` is supplied.
 With one or more source IDs, it still registers configured immutable source
 versions but bounds semantic event construction to the requested advisories.
 Terminal `ok` and `insufficient` versions are skipped on a later run; blocked
 versions can be retried.
+
+The legacy cross-source experiment deterministically selected 68 records whose
+full text mentioned JFK, EWR, LGA, KJFK, KEWR, or KLGA. Its 46 active-family
+eligible / 3 incomplete / 18 boundary / 1 deferred split is automated
+registry/preflight output, not manual review, a representative sample, or the
+active runtime scope.
 
 The tracked acceptance fixtures preserve:
 
@@ -163,9 +159,10 @@ raw/parsed binding check passed.
 This is compatibility evidence over development/regression tasks, not a frozen
 holdout or model-quality benchmark.
 
-The development inventory contains no natural ambiguity that activates the
-Semantic Resolution Agent; synthetic ambiguity fixtures remain offline
-orchestration tests.
+No natural ambiguity has been identified in the legacy deterministic NYC
+selection that activates the Semantic Resolution Agent; synthetic ambiguity
+fixtures remain offline orchestration tests and are not current-source
+performance evidence.
 
 ## Context Routing
 

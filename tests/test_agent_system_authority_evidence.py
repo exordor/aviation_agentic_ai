@@ -94,7 +94,7 @@ def _test_inputs(tmp_path: Path) -> tuple[dict, Path]:
         yaml.safe_dump(seed, sort_keys=False, allow_unicode=True),
         encoding="utf-8",
     )
-    config = load_yaml(ROOT / "configs/cross_source_v1.yaml")
+    config = load_yaml(ROOT / "configs/aviation_knowledge_v1.yaml")
     config["sources"].update(
         {
             "nasr_zip": str(nasr_zip),
@@ -120,8 +120,12 @@ def _extract_fixture_pages(_path: Path) -> tuple[ExtractedPDFPage, ...]:
     )
 
 
-def _catalog(tmp_path: Path):
+def _catalog(tmp_path: Path, *, include_legacy_cohort: bool = False):
     config, definition_seed = _test_inputs(tmp_path)
+    if include_legacy_cohort:
+        config["cohort"] = {
+            "airport_codes": ["JFK", "EWR", "LGA", "KJFK", "KEWR", "KLGA"]
+        }
     guide = load_schema_guide(str(SCHEMA_PATH))
     return load_authority_catalog(
         config,
@@ -241,6 +245,31 @@ def test_facility_candidates_bind_distinct_record_authority(tmp_path):
         ewr.evidence_claim.authority_record_locator
     )
     assert jfk.source_record.source_id != ewr.source_record.source_id
+
+
+def test_facility_catalog_loads_source_wide_airports_without_cohort(
+    tmp_path,
+):
+    catalog = _catalog(tmp_path)
+
+    assert catalog.facility.status is AuthorityBuildStatus.OK
+    assert {
+        code.value
+        for entity in catalog.facility.entities
+        for code in entity.codes
+        if code.scheme == "ICAO"
+    } >= {"KJFK", "KEWR", "KDCA"}
+
+
+def test_legacy_cohort_codes_do_not_filter_runtime_facility_authority(
+    tmp_path,
+):
+    catalog = _catalog(tmp_path, include_legacy_cohort=True)
+
+    assert catalog.facility.status is AuthorityBuildStatus.OK
+    assert _facility(catalog, "KDCA").preferred_label == (
+        "RONALD REAGAN WASHINGTON NATIONAL"
+    )
 
 
 def test_gdp_and_ground_stop_use_real_definitions_and_separate_checksums(tmp_path):

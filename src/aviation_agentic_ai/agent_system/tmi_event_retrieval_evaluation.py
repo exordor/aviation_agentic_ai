@@ -90,7 +90,7 @@ def evaluate_tmi_event_retrieval_smoke(
     store_dir: str | Path,
     gold_path: str | Path,
     *,
-    config_path: str | Path = "configs/cross_source_v1.yaml",
+    config_path: str | Path = "configs/aviation_knowledge_v1.yaml",
     allow_model_download: bool = False,
 ) -> RetrievalSmokeMetrics:
     """Run the reviewed six-query relevance smoke set."""
@@ -209,7 +209,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Evaluate historical TMI-event retrieval."
     )
-    parser.add_argument("--config", default="configs/cross_source_v1.yaml")
+    parser.add_argument(
+        "--config",
+        default="configs/aviation_knowledge_v1.yaml",
+    )
     parser.add_argument("--store-dir", required=True)
     parser.add_argument("--gold", required=True)
     parser.add_argument("--allow-model-download", action="store_true")

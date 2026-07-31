@@ -48,8 +48,8 @@ representations remain rebuildable views.
   chat.
 - New Agent roles without an observed need.
 - Multi-model or statistically powered evaluation beyond an approved protocol.
-- Development-cohort Semantic Resolution performance claims until a natural
-  ambiguous task exists.
+- Semantic Resolution performance claims until a reviewed set of naturally
+  ambiguous authority-resolution tasks exists.
 - Merging the paused visualization branch into the system mainline.
 - Production hardening and public deployment.
 - Adversarial path, symlink, concurrency, and cross-run tampering defenses

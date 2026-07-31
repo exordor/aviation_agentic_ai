@@ -20,7 +20,7 @@ rebuildable outputs, optional evaluation material, and historical artifacts.
 | `docs/figures/heterogeneous_source_formats.{drawio,png}` | Editable and rendered source-format and ingestion-normalization figure. |
 | `src/aviation_agentic_ai/agent_system/` | Active implementation. |
 | `tests/test_agent_system*.py`, `tests/test_cli_agent_system.py` | Focused acceptance surface. |
-| `configs/cross_source_v1.yaml` | Dataset identity, persistent-store paths, source files, and retrieval model configuration. |
+| `configs/aviation_knowledge_v1.yaml` | Active dataset identity, persistent-store paths, source files, and retrieval model configuration. |
 | `configs/prompts/tmi_event_agents_v1.yaml` | Current Query and Semantic Resolution prompt catalog. |
 | `data/ontology/curated/atmonto_application_profile_v1.json` | Active ATMONTO TMI application profile. |
 | `data/ontology/curated/nasa_atmonto_decision_context_weather_slice.json` | Curated Weather report profile. |
@@ -123,6 +123,7 @@ Do not rewrite historical report bytes to use current role names.
 | `docs/superpowers/specs/decision-case-*` | Superseded planning/specification history. |
 | former `docs/figures/decision_case_*_architecture.*` | Superseded figures retained through Git history, not current documentation. |
 | `docs/cross_source_multi_agent_v2_design.md` | Superseded cross-source V2 plan and retired CLI. |
+| `configs/cross_source_v1.yaml` | Historical cross-source configuration retaining the deterministic 68-record NYC full-text code-match experiment; not the active `agent-system` configuration. |
 | `docs/atcscc_agent_architecture.md` | Superseded extractor/critic/refiner Agent design. |
 | `docs/thesis_writing_spine.md` | Superseded thesis scaffold for the former extraction pipeline. |
 | `docs/pipeline_authority_model.md` | Historical authority-model framing for the former pipeline. |

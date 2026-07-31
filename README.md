@@ -41,7 +41,7 @@ Ingest the five GDP, GS, and ReRoute development/regression records:
 
 ```bash
 uv run aviation-ai agent-system ingest \
-  --config configs/cross_source_v1.yaml \
+  --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/development-smoke-v1 \
   --source-id 2026-05-19:123 \
   --source-id 2026-05-19:138 \
@@ -103,7 +103,7 @@ with:
 
 ```bash
 uv run --extra tmi-event-retrieval aviation-ai agent-system reindex \
-  --config configs/cross_source_v1.yaml \
+  --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/development-smoke-v1 \
   --model-name sentence-transformers/all-MiniLM-L6-v2 \
   --allow-model-download
@@ -116,7 +116,7 @@ Neither FTS nor Chroma writes semantic facts back into the store.
 
 ```bash
 uv run aviation-ai agent-system ask \
-  --config configs/cross_source_v1.yaml \
+  --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/development-smoke-v1 \
   --event-id <event-id> \
   --question "What was published, what reason did the source declare, and what weather context was retained?" \
@@ -155,7 +155,7 @@ Export one active event and only its referenced evidence:
 
 ```bash
 uv run aviation-ai agent-system export-event \
-  --config configs/cross_source_v1.yaml \
+  --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/development-smoke-v1 \
   --event-id <event-id> \
   --output-dir data/stores/aviation/exports/selected-event
@@ -165,7 +165,7 @@ Load a rebuildable property-graph projection into Neo4j:
 
 ```bash
 uv run aviation-ai agent-system neo4j-export \
-  --config configs/cross_source_v1.yaml \
+  --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/development-smoke-v1
 ```
 

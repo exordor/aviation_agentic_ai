@@ -108,18 +108,18 @@ def test_deferred_and_boundary_families_are_not_publishable_profiles() -> None:
     assert get_tmi_profile("UNKNOWN") is None
 
 
-def test_registry_classifies_the_frozen_68_record_cohort() -> None:
+def test_registry_classifies_the_legacy_nyc_mention_selection() -> None:
     rows = read_jsonl(
         ROOT
         / "data/processed/nasa_atmonto/aligned/2026-05-14/atcscc_advisories.jsonl"
     )
-    cohort = select_cross_source_cohort(
+    selection = select_cross_source_cohort(
         rows,
         airport_codes=["JFK", "EWR", "LGA", "KJFK", "KEWR", "KLGA"],
         expected_count=68,
     )
 
-    assert detected_family_counts(cohort.records) == {
+    assert detected_family_counts(selection.records) == {
         "ARRIVAL_DELAY": 7,
         "GDP": 21,
         "GS": 24,
@@ -131,9 +131,9 @@ def test_registry_classifies_the_frozen_68_record_cohort() -> None:
     }
 
 
-def test_frozen_cohort_preflight_keeps_active_reroutes_on_mainline() -> None:
+def test_legacy_nyc_mention_selection_reproduces_preflight_split() -> None:
     rows = read_jsonl(ADVISORY_PATH)
-    cohort = select_cross_source_cohort(
+    selection = select_cross_source_cohort(
         rows,
         airport_codes=["JFK", "EWR", "LGA", "KJFK", "KEWR", "KLGA"],
         expected_count=68,
@@ -146,7 +146,7 @@ def test_frozen_cohort_preflight_keeps_active_reroutes_on_mainline() -> None:
                 content=str(row["text"]),
             )
         )
-        for row in cohort.records
+        for row in selection.records
     ]
 
     assert sum(result is None for result in results) == 46

@@ -4,7 +4,7 @@ from aviation_agentic_ai.cross_source.config import load_cross_source_config
 from aviation_agentic_ai.cross_source.evaluation.cohort import select_cross_source_cohort
 
 
-def test_frozen_cross_source_cohort_has_68_records() -> None:
+def test_legacy_nyc_mention_selection_has_68_records() -> None:
     config = load_cross_source_config("configs/cross_source_v1.yaml")
     records = read_jsonl(resolve_project_path(config["cohort"]["advisory_input"]))
 
@@ -18,7 +18,7 @@ def test_frozen_cross_source_cohort_has_68_records() -> None:
     assert len(set(cohort.source_ids)) == 68
 
 
-def test_cohort_uses_token_boundaries() -> None:
+def test_legacy_nyc_mention_selection_uses_token_boundaries() -> None:
     records = [
         {"source_id": "yes", "text": "CONSTRAINED FACILITIES: JFK"},
         {"source_id": "no", "text": "NOTJFKTOKEN"},

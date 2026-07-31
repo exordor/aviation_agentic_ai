@@ -1504,15 +1504,18 @@ def test_configured_source_assets_keep_files_external_to_sqlite(
         resolve_project_path,
     )
 
-    config = load_yaml("configs/cross_source_v1.yaml")
-    assert config["snapshot_set_id"] == "cross-source-2026-05-v1"
-    assert config["cohort"]["expected_record_count"] == 68
+    config = load_yaml("configs/aviation_knowledge_v1.yaml")
+    assert config["snapshot_set_id"] == "aviation-knowledge-2026-05-v1"
+    assert "cohort" not in config
+    assert config["sources"]["atcscc_advisories"].endswith(
+        "atcscc_advisories.jsonl"
+    )
     assert config["agent_system"] == {
-        "dataset_id": "cross-source-2026-05-v1",
+        "dataset_id": "aviation-knowledge-2026-05-v1",
         "storage": {
             "root": (
                 "data/stores/aviation/"
-                "cross-source-2026-05-v1"
+                "aviation-knowledge-2026-05-v1"
             ),
             "sqlite": "aviation_evidence.sqlite3",
             "chroma": "chroma",
@@ -1522,9 +1525,9 @@ def test_configured_source_assets_keep_files_external_to_sqlite(
             ),
         },
     }
-    assert configured_dataset_id(config) == "cross-source-2026-05-v1"
+    assert configured_dataset_id(config) == "aviation-knowledge-2026-05-v1"
     assert configured_store_root(config) == resolve_project_path(
-        "data/stores/aviation/cross-source-2026-05-v1"
+        "data/stores/aviation/aviation-knowledge-2026-05-v1"
     )
 
     assets = discover_source_assets(config)
