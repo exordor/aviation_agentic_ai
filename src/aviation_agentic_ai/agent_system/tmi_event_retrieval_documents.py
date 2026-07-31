@@ -22,9 +22,13 @@ from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 _EVENT_PAGE_SIZE = 100
 _TMI_LABELS = {
-    profile.ontology_class: profile.retrieval_label
+    ontology_class: profile.retrieval_label
     for profile in active_tmi_profiles()
-    if profile.ontology_class is not None
+    for ontology_class in (
+        profile.ontology_class,
+        profile.prefixed_ontology_class,
+    )
+    if ontology_class is not None
 }
 _DURATION_LABELS: dict[DurationBucket, str] = {
     "under_1_hour": "under 1 hour",

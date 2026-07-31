@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib
+import hashlib
 import json
 from collections.abc import Callable
 from pathlib import Path
@@ -18,6 +19,7 @@ from aviation_agentic_ai.agent_system.ingestion_package import (
 from aviation_agentic_ai.agent_system.sources import build_source_version
 from aviation_agentic_ai.agent_system.storage_contracts import (
     IngestionResult,
+    SourceAssetRecord,
     TMIEventRecord,
 )
 from aviation_agentic_ai.cross_source.identifiers import stable_id
@@ -276,6 +278,68 @@ def test_shared_resources_load_once_and_are_registered_before_first_case(
     assert summary.ok_count == 2
     assert resource_loads == 1
     assert resource_ids == [id(resources), id(resources)]
+    store.close()
+
+
+def test_case_versions_reuse_configured_asset_binding(
+    tmp_path: Path,
+) -> None:
+    """Workflow records must match versions registered during resource loading."""
+
+    api = _pipeline_api()
+    path = tmp_path / "advisories.jsonl"
+    row = _eligible_advisory("source:asset-binding")
+    _write_advisories(path, [row])
+    store = AviationEvidenceStore.open(
+        tmp_path / "store",
+        dataset_id="test-ingestion",
+        create=True,
+    )
+    weather = SourceRecord(
+        source_id="metar:KJFK:asset-binding",
+        family=SourceFamily.METAR,
+        content="KJFK 192151Z TSRA",
+    )
+    asset_content = b"configured METAR source asset"
+    asset_sha256 = hashlib.sha256(asset_content).hexdigest()
+    asset = SourceAssetRecord(
+        asset_id=stable_id("source-asset", "metar", asset_sha256),
+        asset_key="metar",
+        family=SourceFamily.METAR,
+        local_path=str(tmp_path / "metar.jsonl"),
+        source_url=None,
+        media_type="application/x-ndjson",
+        content_sha256=asset_sha256,
+        byte_count=len(asset_content),
+        effective_start=None,
+        effective_end=None,
+    )
+    resources = _resources(api, logical_sources=(weather,))
+
+    def runner(record, _resources, _allow_live_model):  # type: ignore[no-untyped-def]
+        return api.IngestionCaseExecution(
+            attempt=_ok_attempt(record),
+            source_versions=(
+                build_source_version(record),
+                build_source_version(weather),
+            ),
+            agent_usage_records=(),
+        )
+
+    summary = api.run_ingestion_pipeline(
+        _config(path),
+        store,
+        resource_loader=lambda _config: resources,
+        case_runner=runner,
+        asset_discoverer=lambda _config: (asset,),
+        retrieval_indexer=lambda *_args, **_kwargs: (),
+    )
+    stored_weather = store.get_latest_source_version(weather.source_id)
+
+    assert summary.ok_count == 1
+    assert summary.blocked_count == 0
+    assert stored_weather is not None
+    assert stored_weather.asset_id == asset.asset_id
     store.close()
 
 

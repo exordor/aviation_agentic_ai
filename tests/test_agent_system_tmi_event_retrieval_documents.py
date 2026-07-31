@@ -231,6 +231,22 @@ def test_decision_record_document_excludes_non_record_context(
     assert all(value not in document.text for value in forbidden)
 
 
+def test_runtime_prefixed_atmonto_type_is_retrievable(
+    evidence_store: AviationEvidenceStore,
+) -> None:
+    event = _publish_event(
+        evidence_store,
+        name="prefixed",
+        source_id="2026-05-19:prefixed",
+        event_type_iris=("atm:GroundDelayProgramTMI",),
+    )
+
+    document = build_tmi_event_retrieval_document(evidence_store, event)
+
+    assert document.tmi_type_iri == "atm:GroundDelayProgramTMI"
+    assert "Traffic management measure: Ground Delay Program." in document.text
+
+
 @pytest.mark.parametrize(
     ("start", "end", "expected_bucket", "expected_text"),
     [

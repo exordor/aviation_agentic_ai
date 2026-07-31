@@ -288,9 +288,16 @@ def run_ingestion_pipeline(
             execution = runner(advisory, resources, allow_live_model)
             usage_records = execution.agent_usage_records
             for version in execution.source_versions:
-                if store.register_source_version(version) == "inserted":
+                bound_version = _bind_source_version_asset(
+                    version,
+                    assets_by_key,
+                )
+                if (
+                    store.register_source_version(bound_version)
+                    == "inserted"
+                ):
                     changed_source_version_ids.add(
-                        version.source_version_id
+                        bound_version.source_version_id
                     )
             if (
                 execution.attempt.result.source_version_id
@@ -604,6 +611,28 @@ def _bind_logical_source_asset(
     return record.model_copy(
         update={"asset_id": asset.asset_id if asset is not None else None}
     )
+
+
+def _bind_source_version_asset(
+    version: SourceVersionRecord,
+    assets_by_key: dict[str, SourceAssetRecord],
+) -> SourceVersionRecord:
+    """Apply the configured asset binding before immutable registration."""
+
+    if version.asset_id is not None:
+        return version
+    asset_key = {
+        SourceFamily.METAR: "metar",
+        SourceFamily.TAF: "taf",
+        SourceFamily.BTS_ON_TIME: "bts_on_time_snapshot",
+        SourceFamily.NASR_FACILITY: "nasr_zip",
+        SourceFamily.FAA_TERM: "term_seed",
+        SourceFamily.ATCSCC_ADVISORY: "atcscc_advisories",
+    }[version.family]
+    asset = assets_by_key.get(asset_key)
+    if asset is None:
+        return version
+    return version.model_copy(update={"asset_id": asset.asset_id})
 
 
 def _preflight_result(

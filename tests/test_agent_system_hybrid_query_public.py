@@ -134,7 +134,7 @@ def test_public_query_uses_model_routing_over_the_live_store(
 
     for question in (
         "Could you summarize the reason in this GDP record?",
-        "这份 GDP 通告中记录的原因是什么？",
+        "What stated reason is recorded in this GDP advisory?",
     ):
         model = _EvidenceModel(scenario)
         outcome = answer_question(
