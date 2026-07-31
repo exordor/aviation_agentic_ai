@@ -8,46 +8,6 @@ import click
 
 TOP_LEVEL_COMMANDS: tuple[dict[str, Any], ...] = (
     {
-        "module": "aviation_agentic_ai.cli_chunk",
-        "attribute": "chunk_group",
-        "name": "chunk",
-        "help": "PDF chunking commands.",
-        "subcommands": ("build",),
-    },
-    {
-        "module": "aviation_agentic_ai.cli_index",
-        "attribute": "index",
-        "name": "index",
-        "help": "Chunking and vector-index commands.",
-        "subcommands": ("build",),
-    },
-    {
-        "module": "aviation_agentic_ai.cli_query",
-        "attribute": "query",
-        "name": "query",
-        "help": "Run a hybrid retrieval query.",
-    },
-    {
-        "module": "aviation_agentic_ai.cli_demo",
-        "attribute": "demo",
-        "name": "demo",
-        "help": "Trace one ATCSCC advisory through extraction -> KG -> KG-RAG answer (offline).",
-    },
-    {
-        "module": "aviation_agentic_ai.cli_agent",
-        "attribute": "agent",
-        "name": "agent",
-        "help": "Agent runtime demonstration commands.",
-        "subcommands": ("demo",),
-    },
-    {
-        "module": "aviation_agentic_ai.cli_kg",
-        "attribute": "kg",
-        "name": "kg",
-        "help": "Knowledge graph commands.",
-        "subcommands": ("extract", "validate"),
-    },
-    {
         "module": "aviation_agentic_ai.cli_cqs",
         "attribute": "cqs",
         "name": "cqs",
@@ -75,22 +35,6 @@ TOP_LEVEL_COMMANDS: tuple[dict[str, Any], ...] = (
         "name": "source",
         "help": "Source ingestion commands.",
         "subcommands": ("ingest-nasa",),
-    },
-    {
-        "module": "aviation_agentic_ai.cli_cross_source",
-        "attribute": "cross_source_group",
-        "name": "cross-source",
-        "help": "Versioned abbreviation alignment and retrospective cross-source QA.",
-        "subcommands": (
-            "refresh",
-            "align",
-            "build",
-            "neo4j-export",
-            "neo4j-load",
-            "answer",
-            "evaluate",
-            "evaluate-mainline",
-        ),
     },
     {
         "module": "aviation_agentic_ai.cli_agent_system",

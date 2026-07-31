@@ -149,6 +149,10 @@ interfaces. Their bodies and recorded results remain unchanged.
 These artifacts may support a future task. They do not establish current
 performance or external expert certification.
 
+The retired `cross-source`, PHAK chunk/index/query/demo/agent, and legacy KG
+groups are not registered on the supported root CLI. Their modules remain
+historical implementation material rather than compatibility interfaces.
+
 ## Ignored Local Material
 
 | Path | Policy |

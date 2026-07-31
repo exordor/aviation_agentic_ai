@@ -42,6 +42,12 @@ neo4j-export
 export-event
 ```
 
+The root CLI presents `agent-system` plus the still-supported `ontology`,
+`source`, `cqs`, and `report` research utilities. Retired PHAK demos and the
+historical `cross-source` workflow are not registered as current root commands.
+Their implementations and artifacts remain classified through
+`ARTIFACT_INDEX.md`.
+
 There is no required batch snapshot, run-directory query path, legacy reader,
 or compatibility alias.
 

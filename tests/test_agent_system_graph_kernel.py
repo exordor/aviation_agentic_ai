@@ -1167,7 +1167,7 @@ def test_unanchored_period_abstains_without_guessing():
 
 
 def test_approved_real_records_have_bounded_period_and_reason_semantics():
-    config = load_yaml("configs/cross_source_v1.yaml")
+    config = load_yaml("configs/aviation_knowledge_v1.yaml")
     expected = {
         "2026-05-19:123": (
             "GS",
@@ -1289,7 +1289,7 @@ def test_validated_profile_gap_is_persisted_as_a_source_bound_audit_row(
 def test_gdp_reason_is_a_formal_lowercase_fact_with_exact_evidence(guide):
     source_id = "2026-05-19:138"
     event_class = "atm:GroundDelayProgramTMI"
-    config = load_yaml("configs/cross_source_v1.yaml")
+    config = load_yaml("configs/aviation_knowledge_v1.yaml")
     advisory = load_advisory_source(config, source_id)
     parsed = parse_structured_fields(advisory.content)
     snapshot = build_source_snapshot(advisory)

@@ -1,29 +1,11 @@
 # Final Report Directory
 
-This directory contains final-style deliverables from multiple project phases.
-It is not the canonical entry point for the current thesis story.
+This is a historical and transitional deliverable directory. It is not the
+entry point for the current ingestion-first system or thesis framing.
 
-For the current ATCSCC thesis route, start with:
-
-1. `RESEARCH_AUDIT.md`
-2. `RESEARCH_AUDIT.md`
-3. `RESEARCH_OVERVIEW.md`
-4. `RESEARCH_OVERVIEW.md`
-5. `RESEARCH_AUDIT.md`
-6. `EXPERIMENTS.md`
-7. Retrieval and answer-generation evidence listed in `ARTIFACT_INDEX.md`
-8. `reports/stages/nasa_atmonto_reviewer_defense_audit.md`
-
-## Current Status
-
-The current thesis direction is:
-
-> Schema-constrained, evidence-grounded Agentic KG-RAG over retrospective FAA
-> ATCSCC advisories.
-
-The final deliverables in this directory mostly predate that framing. They
-should be treated as historical or transitional outputs unless a new ATCSCC
-final-report pass explicitly regenerates or replaces them.
+Start with the repository-root `RESEARCH_AUDIT.md`, `GOALS.md`, and
+`ARTIFACT_INDEX.md`. Files below retain their recorded wording and bytes for
+provenance; none is current merely because it is stored under `reports/final/`.
 
 ## File Classification
 

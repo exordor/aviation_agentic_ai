@@ -1,6 +1,11 @@
 # ATCSCC Decision Record Explorer Case Set
 
-Status: validated construction and query-evidence regression set
+> **Historical source audit.** This document records the origin of three
+> regression fixtures from the retired Decision Record Explorer. The active
+> runtime is the ingestion-first ATMONTO TMI-event store documented in
+> `RESEARCH_AUDIT.md`; it does not construct or query a DecisionCase corpus.
+
+Status: historical construction and query-evidence regression set
 Selected: 2026-07-26
 Scope: two positive records and one missing-reason control
 
@@ -8,7 +13,7 @@ Scope: two positive records and one missing-reason control
 
 | Required item | Decision |
 | --- | --- |
-| Current objective | Preserve the smallest source-audited regression case set for the current corpus query surface. |
+| Historical objective | Preserve the smallest source-audited regression set from the former corpus query surface. |
 | Minimum experiment | One Ground Stop, one Ground Delay Program, and one record with no declared reason. |
 | Minimum components | Existing tracked ATCSCC snapshot, active parser, schema guide, and configured facility registry. |
 | Expected evidence | Exact source spans for type, facility, operational period, declared reason, and missing reason. |
@@ -16,16 +21,16 @@ Scope: two positive records and one missing-reason control
 | Failure condition | A required value depends on model knowledge, an untracked raw file, or an expanded facility cohort. |
 | Outside this case-set contract | Episode grouping, context expansion, outcome interpretation, similarity evaluation, and recommendation. |
 
-The case set is a regression contract. It verifies that the current corpus
-query surface preserves the approved source fields and missing-information
-boundary without changing the data scope.
+The case set remains a source-field regression contract. Current tests reuse
+the three records to preserve approved values and missing-information
+boundaries without restoring the former corpus runtime.
 
 ## 1. Selection Rules
 
 The selected records must:
 
 - exist in the tracked aligned advisory snapshot;
-- use facilities already present in the configured JFK/EWR/LGA cohort;
+- use facilities present in the former JFK/EWR/LGA experiment;
 - contain exact source spans for every positive field;
 - exercise Ground Stop and Ground Delay Program records;
 - include one honest missing-reason outcome;

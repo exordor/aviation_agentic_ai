@@ -13,12 +13,12 @@ execution path.
 - Supported development platforms: macOS and Linux.
 
 ```bash
-uv sync --extra dev --extra ontology-generation --extra neo4j \
+uv sync --extra dev --extra agent-system --extra neo4j \
   --extra tmi-event-retrieval
 uv run aviation-ai agent-system --help
 ```
 
-`ontology-generation` supplies the model/tool runtime. `neo4j` is needed only
+`agent-system` supplies the active model/tool runtime. `neo4j` is needed only
 for optional database loading. `tmi-event-retrieval` supplies Chroma and the
 Sentence Transformers encoder.
 
@@ -164,7 +164,7 @@ SQLite FTS5 is maintained from stored source chunks. Rebuild both Chroma
 collections from the authoritative store with:
 
 ```bash
-uv run --extra tmi-event-retrieval aviation-ai agent-system reindex \
+uv run --extra agent-system aviation-ai agent-system reindex \
   --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
   --model-name sentence-transformers/all-MiniLM-L6-v2 \
@@ -227,7 +227,7 @@ For a source-record statement the Agent must follow discovery with
 Example metadata-conditioned event question:
 
 ```bash
-uv run --extra tmi-event-retrieval aviation-ai agent-system ask \
+uv run --extra agent-system aviation-ai agent-system ask \
   --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
   --event-id <reference-event-id> \

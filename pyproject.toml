@@ -25,6 +25,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+agent-system = [
+  "langchain>=0.2",
+  "langchain-openai>=0.1",
+  "langgraph>=0.2",
+]
 ontology-generation = [
   "langchain>=0.2",
   "langchain-openai>=0.1",
@@ -38,10 +43,6 @@ graphrag = [
 tmi-event-retrieval = [
   "chromadb>=1.5,<2",
   "sentence-transformers>=3.0",
-]
-web = [
-  "fastapi>=0.115",
-  "uvicorn>=0.30",
 ]
 ontogpt = [
   "ontogpt>=1.1",

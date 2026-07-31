@@ -313,6 +313,11 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+agent-system = [
+    { name = "langchain" },
+    { name = "langchain-openai" },
+    { name = "langgraph" },
+]
 dev = [
     { name = "pytest" },
     { name = "ruff" },
@@ -338,10 +343,6 @@ tmi-event-retrieval = [
     { name = "chromadb" },
     { name = "sentence-transformers" },
 ]
-web = [
-    { name = "fastapi" },
-    { name = "uvicorn" },
-]
 
 [package.metadata]
 requires-dist = [
@@ -349,10 +350,12 @@ requires-dist = [
     { name = "chromadb", marker = "extra == 'tmi-event-retrieval'", specifier = ">=1.5,<2" },
     { name = "click", specifier = ">=8.1" },
     { name = "docling", specifier = ">=2.96.0" },
-    { name = "fastapi", marker = "extra == 'web'", specifier = ">=0.115" },
     { name = "httpx", specifier = ">=0.28" },
+    { name = "langchain", marker = "extra == 'agent-system'", specifier = ">=0.2" },
     { name = "langchain", marker = "extra == 'ontology-generation'", specifier = ">=0.2" },
+    { name = "langchain-openai", marker = "extra == 'agent-system'", specifier = ">=0.1" },
     { name = "langchain-openai", marker = "extra == 'ontology-generation'", specifier = ">=0.1" },
+    { name = "langgraph", marker = "extra == 'agent-system'", specifier = ">=0.2" },
     { name = "langgraph", marker = "extra == 'ontology-generation'", specifier = ">=0.2" },
     { name = "neo4j", marker = "extra == 'neo4j'", specifier = ">=6.0,<7" },
     { name = "networkx", marker = "extra == 'graphrag'", specifier = ">=3.2" },
@@ -371,9 +374,8 @@ requires-dist = [
     { name = "sentence-transformers", marker = "extra == 'graphrag'", specifier = ">=3.0" },
     { name = "sentence-transformers", marker = "extra == 'tmi-event-retrieval'", specifier = ">=3.0" },
     { name = "tenacity", specifier = ">=9.1" },
-    { name = "uvicorn", marker = "extra == 'web'", specifier = ">=0.30" },
 ]
-provides-extras = ["ontology-generation", "graphrag", "tmi-event-retrieval", "web", "ontogpt", "neo4j", "dev"]
+provides-extras = ["agent-system", "ontology-generation", "graphrag", "tmi-event-retrieval", "ontogpt", "neo4j", "dev"]
 
 [[package]]
 name = "babel"
@@ -1353,22 +1355,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/15/01/28c8ddae8caaf82c929655000963d83e3f01265a9af34e823c2ef2eee8ac/faker-40.19.1.tar.gz", hash = "sha256:76fa71fd3bf320db25e5504eb356f9a76b8a95cd6098524d006f446035b6b89d", size = 1969318, upload-time = "2026-05-22T15:57:37.433Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/49/b4/40a1ec12ec834604f3848143343baf1c67bc9a1096e401907eaa0d25876a/faker-40.19.1-py3-none-any.whl", hash = "sha256:265259b37c013838baaae34940207288170df385d6c5281413fce56a3504d580", size = 2007643, upload-time = "2026-05-22T15:57:35.867Z" },
-]
-
-[[package]]
-name = "fastapi"
-version = "0.136.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "annotated-doc" },
-    { name = "pydantic" },
-    { name = "starlette" },
-    { name = "typing-extensions" },
-    { name = "typing-inspection" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/5d/45/c130091c2dfa061bbfe3150f2a5091ef1adf149f2a8d2ae769ecaf6e99a2/fastapi-0.136.1.tar.gz", hash = "sha256:7af665ad7acfa0a3baf8983d393b6b471b9da10ede59c60045f49fbc89a0fa7f", size = 397448, upload-time = "2026-04-23T16:49:44.046Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/5a/ff/2e4eca3ade2c22fe1dea7043b8ee9dabe47753349eb1b56a202de8af6349/fastapi-0.136.1-py3-none-any.whl", hash = "sha256:a6e9d7eeada96c93a4d69cb03836b44fa34e2854accb7244a1ece36cd4781c3f", size = 117683, upload-time = "2026-04-23T16:49:42.437Z" },
 ]
 
 [[package]]

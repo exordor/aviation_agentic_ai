@@ -324,7 +324,7 @@ def _core_fact_traces(
 
 @pytest.fixture(scope="module")
 def config() -> dict:
-    return load_yaml("configs/cross_source_v1.yaml")
+    return load_yaml("configs/aviation_knowledge_v1.yaml")
 
 
 @pytest.fixture(scope="module")

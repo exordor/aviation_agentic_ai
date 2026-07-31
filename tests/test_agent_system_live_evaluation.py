@@ -651,7 +651,7 @@ def test_live_call_binding_rejects_orphan_raw_calls() -> None:
 def test_missing_authorization_rejects_before_writes(tmp_path: Path) -> None:
     with pytest.raises(LiveEvaluationAuthorizationError):
         run_live_agent_evaluation(
-            config_path="configs/cross_source_v1.yaml",
+            config_path="configs/aviation_knowledge_v1.yaml",
             suite_path=(
                 "data/evaluation/agent_system/live_agent_smoke_v4.yaml"
             ),
@@ -678,7 +678,7 @@ def test_missing_credentials_block_before_provider_calls(
     )
 
     summary = run_live_agent_evaluation(
-        config_path="configs/cross_source_v1.yaml",
+        config_path="configs/aviation_knowledge_v1.yaml",
         suite_path="data/evaluation/agent_system/live_agent_smoke_v4.yaml",
         store_dir=tmp_path / "store",
         output_dir=tmp_path / "runtime",
@@ -705,7 +705,7 @@ def test_blocked_runner_uses_suite_specific_report_stem(
     )
 
     run_live_agent_evaluation(
-        config_path="configs/cross_source_v1.yaml",
+        config_path="configs/aviation_knowledge_v1.yaml",
         suite_path=(
             "data/evaluation/agent_system/"
             "live_ingestion_hybridrag_smoke_v1.yaml"
@@ -849,7 +849,7 @@ def test_live_runner_reads_existing_store_without_building_a_corpus(
     )
     store_dir = tmp_path / "existing-store"
     summary = run_live_agent_evaluation(
-        config_path="configs/cross_source_v1.yaml",
+        config_path="configs/aviation_knowledge_v1.yaml",
         suite_path=suite_path,
         store_dir=store_dir,
         output_dir=tmp_path / "runtime",

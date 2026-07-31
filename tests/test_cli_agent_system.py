@@ -45,6 +45,25 @@ def test_public_agent_system_surface_is_ingestion_first() -> None:
     )
 
 
+def test_root_cli_exposes_only_current_runtime_and_research_utilities() -> None:
+    assert set(top_cli.main.commands) == {
+        "agent-system",
+        "cqs",
+        "ontology",
+        "report",
+        "source",
+    }
+    assert not {
+        "agent",
+        "chunk",
+        "cross-source",
+        "demo",
+        "index",
+        "kg",
+        "query",
+    } & set(top_cli.main.commands)
+
+
 def test_active_commands_default_to_the_cohort_free_configuration() -> None:
     result = CliRunner().invoke(cli_module.agent_system, ["ingest", "--help"])
 
@@ -90,7 +109,7 @@ def test_ingest_uses_store_and_has_no_selection_or_resume(
         [
             "ingest",
             "--config",
-            "configs/cross_source_v1.yaml",
+            "configs/aviation_knowledge_v1.yaml",
             "--store-dir",
             str(tmp_path / "store"),
             "--source-id",
@@ -150,7 +169,7 @@ def test_ask_always_uses_query_agent_and_preserves_source_scope(
         [
             "ask",
             "--config",
-            "configs/cross_source_v1.yaml",
+            "configs/aviation_knowledge_v1.yaml",
             "--question",
             "What did the advisory say?",
             "--event-id",
@@ -217,7 +236,7 @@ def test_reindex_rebuilds_both_derived_indexes(monkeypatch) -> None:
 
     result = CliRunner().invoke(
         cli_module.agent_system,
-        ["reindex", "--config", "configs/cross_source_v1.yaml"],
+        ["reindex", "--config", "configs/aviation_knowledge_v1.yaml"],
     )
 
     assert result.exit_code == 0, result.output
@@ -252,7 +271,7 @@ def test_export_event_reads_store_not_a_corpus(
         [
             "export-event",
             "--config",
-            "configs/cross_source_v1.yaml",
+            "configs/aviation_knowledge_v1.yaml",
             "--event-id",
             "urn:event:123",
             "--output-dir",

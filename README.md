@@ -29,7 +29,7 @@ or claim an exact replica.
 Install the active system:
 
 ```bash
-uv sync --extra dev --extra ontology-generation --extra neo4j \
+uv sync --extra dev --extra agent-system --extra neo4j \
   --extra tmi-event-retrieval
 uv run aviation-ai agent-system --help
 ```
@@ -102,7 +102,7 @@ through exact and lexical paths. Rebuild both vector collections explicitly
 with:
 
 ```bash
-uv run --extra tmi-event-retrieval aviation-ai agent-system reindex \
+uv run --extra agent-system aviation-ai agent-system reindex \
   --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/development-smoke-v1 \
   --model-name sentence-transformers/all-MiniLM-L6-v2 \
@@ -182,6 +182,12 @@ ask
 neo4j-export
 export-event
 ```
+
+At the repository root, `agent-system` is the supported runtime group.
+`ontology`, `source`, `cqs`, and `report` remain research utilities. Retired
+PHAK demos and the historical `cross-source` workflow are no longer registered
+as public root commands; their source and recorded artifacts remain available
+for explicit historical reproduction.
 
 The cutover is intentionally breaking. There is no run-directory query path,
 batch-snapshot query requirement, legacy reader, or command compatibility
