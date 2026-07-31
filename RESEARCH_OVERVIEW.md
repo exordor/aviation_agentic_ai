@@ -31,8 +31,8 @@ heterogeneous aviation sources
   -> selective bounded Semantic Resolution for genuine ambiguity
   -> deterministic Event Evidence Integration
   -> Formal Publication Kernel
-  -> canonical ATMONTO-aligned TMI Event Corpus v3
-  -> exact, graph, and vector read views
+  -> authoritative ATMONTO-aligned SQLite evidence store
+  -> exact, graph, lexical, vector, and source-read views
   -> bounded LLM Query Agent
   -> evidence-supported answer / insufficient / blocked
 ```
@@ -63,20 +63,22 @@ This division is deliberate:
 
 - ATMONTO alignment addresses schema and terminology interoperability;
 - ATMGRAPH alignment addresses populated ABox construction and query use;
-- the project-specific corpus preserves evidence roles and rebuildable
-  projections.
+- the project-specific persistent store preserves source versions, evidence
+  roles, accepted semantics, and rebuildable projections.
 
 ## Formal Knowledge Model
 
-The admitted ATMONTO TMI event is the formal root. The corpus contains:
+The admitted ATMONTO TMI event is the formal root. The authoritative SQLite
+store contains immutable source assets and versions, exact anchors, ingestion
+results, active and historical TMI publications, validated semantic facts,
+event membership, one-to-many evidence support, profile gaps, non-causal
+Weather associations, source-qualified BTS public observations, and compact
+Agent usage telemetry.
 
-- `events.jsonl`: TMI event catalog;
-- `facts.jsonl`: validated semantic facts;
-- `event_facts.jsonl`: event-to-fact membership;
-- `evidence_links.jsonl`: one-to-many source support;
-- `profile_gaps.jsonl`: supported but currently unpublishable source fields;
-- `context_associations.jsonl`: non-causal event-to-Weather associations;
-- `observations.jsonl`: query-ready BTS public observations.
+SQLite FTS5 and two Chroma collections provide lexical source discovery,
+semantic source discovery, and metadata-conditioned TMI-event candidates.
+JSONL, RDF/Turtle, and Neo4j remain optional rebuildable exports; none is a
+second source of truth.
 
 This model does not claim to reconstruct internal decision inputs,
 alternatives, constraints, rationale, or trade-offs. Such a construct is
@@ -125,11 +127,15 @@ before answering and may choose:
 - non-causal Weather context;
 - BTS public observations;
 - event-scoped formal and cross-source evidence paths;
-- metadata-conditioned TMI event ranking.
+- metadata-conditioned TMI event ranking;
+- lexical and semantic source discovery followed by exact `read_source`
+  verification.
 
 Deterministic tools return typed observations and evidence identities. A final
-validator checks each answer statement against those returned IDs and rejects
-unsupported causal, recommendation, or metric reinterpretation claims.
+validator checks each answer statement against those returned IDs. Search hits
+are candidates rather than citable evidence until the Agent retrieves the
+exact immutable source version or anchor. Unsupported causal, recommendation,
+or metric reinterpretation claims are rejected.
 
 ## Research Position
 
@@ -141,12 +147,14 @@ integration path with selective Agent escalation. It does not yet demonstrate:
 - optimal TMI selection;
 - decision effectiveness;
 - general-purpose aviation QA;
-- current post-cutover model performance.
+- broad post-cutover model performance.
 
 Historical real-provider results are useful compatibility evidence for their
 named earlier contracts, but they are GDP-biased and predate the current
-event-centered role and corpus identities. The current v3 live suites require a
-new authorized run before any post-cutover model claim.
+persistent-store runtime. The ingestion-first compatibility smoke recorded six
+successful `deepseek-v4-pro` provider calls and accepted one of three Query
+Agent tasks. This is a compatibility result over development fixtures, not a
+benchmark or general model-quality claim.
 
 See `GOALS.md` for durable outcomes, `TODO.md` for active decisions,
 `RESEARCH_AUDIT.md` for current project truth, and `ARTIFACT_INDEX.md` for

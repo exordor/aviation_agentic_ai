@@ -1,8 +1,11 @@
 # Pipeline Authority Model
 
-Status: design note for thesis writing, architecture figures, and reviewer
-defense. This document records a peer-slide-inspired framing pattern. It is
-not external evidence for experiment results.
+> **Historical framing note — superseded.** The proposal/critic/refiner mapping
+> below belongs to an earlier pipeline. It remains design history, not current
+> architecture. The current publication boundary is deterministic ingestion,
+> Event Evidence Integration, one Formal Publication Kernel, and the
+> authoritative SQLite evidence store; model-backed roles are limited to
+> selective Semantic Resolution and natural-language Query Agent routing.
 
 Source note: the framing pattern was inspired by PPT material shared by Emre
 Cem Elevis, especially the build/verification/schema-boundary pipeline slide.

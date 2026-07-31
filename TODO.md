@@ -14,6 +14,9 @@ decisions. Historical backlogs are routed through `ARTIFACT_INDEX.md`.
 - [ ] Admit any next TMI family only after an explicit ATMONTO mapping and
   reviewed source/evidence boundary. Do not promote informational notices only
   to increase coverage.
+- [ ] Decide whether the checksum-bound F1/F3S/S4/S1S research supplement
+  should remain an offline competency artifact or be ingested into the
+  persistent store and exposed through new bounded Query Agent tools.
 
 Do not reintroduce fixed question registries or bypass the Query Agent for
 apparently simple natural-language questions. Deterministic retrieval stays
@@ -32,10 +35,13 @@ representations remain rebuildable views.
 - Weather-cause claims, operational effectiveness, and decision optimality.
 - ASPM demand, AAR, capacity, EDCT, runway configuration, and flight-level
   impact.
-- TCF, CWA, SIGMET, NOTAM, ADS-B, and single-flight trajectories.
+- TCF, CWA, SIGMET, NOTAM, operational ADS-B, and full-store single-flight
+  trajectories. The bounded NASA/BTS flight-competency sidecar is not a runtime
+  Query Agent capability.
 - Advisory lifecycle or TMI-episode grouping.
 - National Playbook PDF grounding.
-- F1/F3S/S4/S1S flight and sector query coverage.
+- F1/F3S/S4/S1S integration into the persistent store and natural-language
+  query path.
 - Operational-situation and outcome-aware similarity, learned reranking, and
   TMI recommendation.
 - General-purpose planner, long-term Agent memory, and unrestricted aviation

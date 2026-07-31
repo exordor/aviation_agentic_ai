@@ -17,6 +17,7 @@ rebuildable outputs, optional evaluation material, and historical artifacts.
 | `docs/multi_agent_kg_system_design.md` | Normative event-centered system design. |
 | `docs/figures/tmi_event_construction_architecture.{drawio,png}` | Editable and rendered construction architecture. |
 | `docs/figures/tmi_event_retrieval_architecture.{drawio,png}` | Editable and rendered retrieval architecture. |
+| `docs/figures/heterogeneous_source_formats.{drawio,png}` | Editable and rendered source-format and ingestion-normalization figure. |
 | `src/aviation_agentic_ai/agent_system/` | Active implementation. |
 | `tests/test_agent_system*.py`, `tests/test_cli_agent_system.py` | Focused acceptance surface. |
 | `configs/cross_source_v1.yaml` | Dataset identity, persistent-store paths, source files, and retrieval model configuration. |
@@ -121,6 +122,11 @@ Do not rewrite historical report bytes to use current role names.
 | `docs/atcscc_decision_record_explorer_cases.md` | Historical source audit behind three regression fixtures. |
 | `docs/superpowers/specs/decision-case-*` | Superseded planning/specification history. |
 | former `docs/figures/decision_case_*_architecture.*` | Superseded figures retained through Git history, not current documentation. |
+| `docs/cross_source_multi_agent_v2_design.md` | Superseded cross-source V2 plan and retired CLI. |
+| `docs/atcscc_agent_architecture.md` | Superseded extractor/critic/refiner Agent design. |
+| `docs/thesis_writing_spine.md` | Superseded thesis scaffold for the former extraction pipeline. |
+| `docs/pipeline_authority_model.md` | Historical authority-model framing for the former pipeline. |
+| `docs/neo4j_visualization.md` | Historical snapshot-projection guide; current export command is in `REPRODUCIBILITY.md`. |
 | `codex/kg-visualization-research` | Paused read-only browser prototype on a separate branch. |
 
 Historical names in this section are references, not accepted current

@@ -79,6 +79,10 @@ The current system provides:
 - nine bounded read-only Query Agent tools;
 - an always-on Query Agent action-observation loop with statement-level support
   validation;
+- a checksum-bound flight-competency supplement that executes the F1, F3S,
+  S4, and S1S query shapes over pinned NASA and modern FAA/BTS/Weather sources
+  without changing the authoritative TMI-event store or public Query Agent
+  runtime;
 - explicit `ok`, `insufficient`, and `blocked` semantics.
 
 ## Current Semantic Boundary
@@ -116,6 +120,14 @@ views, FTS, and vector search are deterministic tools or services. No Agent can
 invent an ontology term, widen its sealed scope, write directly to the
 knowledge store, or treat model memory as evidence.
 
+The flight-competency supplement is an offline deterministic evaluation
+sidecar, not a public Agent query backend. NASA's published 2014 sample
+supports sector-passage S4/S1S queries. May 2026 BTS departures, NASR ARTCC
+assignments, FAA aircraft technical records, and KATL METAR/SPECI observations
+support explicitly labelled modern F1/F3S proxies. These results do not
+reconstruct the unavailable 2012 KATL prototype database and do not establish
+weather causality or historical aircraft-registration state.
+
 ## Success Criteria
 
 The current mainline succeeds when:
@@ -151,7 +163,8 @@ model-quality claims.
   impact.
 - Initial, revision, extension, and cancellation episode grouping.
 - National Playbook PDF grounding.
-- F1/F3S/S4/S1S flight and sector data.
+- Ingestion of flight/sector evidence and exposure of F1/F3S/S4/S1S through
+  bounded Query Agent tools.
 - Operational-situation or outcome-aware similarity, learned reranking, and
   TMI recommendation.
 - General-purpose aviation QA.

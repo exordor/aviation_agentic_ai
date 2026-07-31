@@ -1,0 +1,66 @@
+schema_version: flight-competency-supplement-config-v1
+
+sources:
+  nasa_atmonto_plus:
+    path: data/raw/nasa_atmonto_prototype/allFilesTTL.zip
+    url: https://data.nasa.gov/docs/ontologies/atmonto/allFilesTTL.zip
+    sha256: 93dc9675772649079bef11fe3519e6d99fe0d549318a6696af888b7f2b74df47
+    role: published_2014_flight_track_and_sector_sample
+    temporal_scope: "2014-07-15; 100 JFK/EWR/LGA flights"
+    license_url: https://data.nasa.gov/docs/ontologies/atmonto/license.html
+    retrieved_on: "2026-07-30"
+
+  bts_on_time_2026_05:
+    path: data/raw/bts/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2026_5.zip
+    url: https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2026_5.zip
+    sha256: 4e7b96999440afec8c92dd23bfbc68a5852e14d9a56c3d0d366f884542ea80b3
+    role: public_flight_operation_records
+    temporal_scope: "2026-05"
+
+  faa_nasr_2026_05_14:
+    path: data/raw/nasa_atmonto/2026-05-14/faa_nasr/28DaySubscription_Effective_2026-05-14.zip
+    url: https://nfdc.faa.gov/webContent/28DaySub/28DaySubscription_Effective_2026-05-14.zip
+    sha256: db4793352229c1fd74e9b3d924762376abfa224fe6388768cad25d084c7aeed3
+    role: airport_to_artcc_reference_snapshot
+    temporal_scope: "effective 2026-05-14 through 2026-06-10"
+    retrieved_on: "2026-06-01"
+
+  faa_aircraft_registry_2026_07_28:
+    path: data/raw/flight_competency/ReleasableAircraft_2026-07-28.zip
+    url: https://registry.faa.gov/database/ReleasableAircraft.zip
+    sha256: 8e42c757a3db24cfcd76638f04d151aa2843bd77d5358f7f847fa661331efe7a
+    role: non_personal_aircraft_manufacturer_model_lookup
+    temporal_scope: "registry files dated 2026-07-28"
+    retrieved_on: "2026-07-30"
+
+  iem_katl_metar_2026_05_14_22:
+    path: data/raw/flight_competency/katl_asos_2026-05-14_2026-05-22.csv
+    url: "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=ATL&data=all&year1=2026&month1=5&day1=14&year2=2026&month2=5&day2=22&tz=UTC&format=onlycomma&latlon=yes&elev=yes&missing=null&trace=0.0001&direct=no&report_type=3&report_type=4"
+    sha256: be6ef673b82cf39779aacaa57008372464f1a81951c692e08a09689223371f85
+    role: historical_katl_metar_routine_and_special_observations
+    temporal_scope: "2026-05-14T00:00Z through 2026-05-22T00:00Z"
+    retrieved_on: "2026-07-30"
+
+queries:
+  F1:
+    artcc: ZTL
+    start_date: "2026-05-01"
+    end_date: "2026-06-01"
+
+  F3S:
+    airport: ATL
+    airport_timezone: America/New_York
+    start: "2026-05-14T00:00:00"
+    end: "2026-05-22T00:00:00"
+    max_minutes: 30
+
+  S4:
+    hour_utc: 2
+
+  S1S:
+    sector_id: https://data.nasa.gov/ontologies/atmonto/NAS#ZTLsector040
+    max_minutes: 30
+
+outputs:
+  json: reports/stages/atmonto_competency_query_supplement_v1.json
+  markdown: reports/stages/atmonto_competency_query_supplement_v1.md

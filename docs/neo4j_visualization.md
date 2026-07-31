@@ -1,5 +1,11 @@
 # Neo4j Visualization
 
+> **Historical visualization guide — superseded.** The commands and projection
+> shapes below describe the former cross-source snapshot pipeline. Neo4j is now
+> an optional rebuildable export from the authoritative SQLite evidence store.
+> Use the current `agent-system neo4j-export --store-dir ...` command documented
+> in `REPRODUCIBILITY.md`.
+
 The cross-source build keeps Turtle as the semantic/audit representation and
 also writes a canonical Neo4j property-graph projection:
 

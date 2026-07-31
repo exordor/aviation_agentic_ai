@@ -1,0 +1,945 @@
+{
+  "authoritative_store_integration": false,
+  "purpose": "Deterministic flight/weather/sector competency-query supplement; not ingested into the authoritative evidence store.",
+  "query_agent_integration": false,
+  "query_results": {
+    "F1": {
+      "actual_origin_counts": {
+        "ATL": 584,
+        "CLT": 31,
+        "GSO": 1
+      },
+      "actual_wheels_off_count": 616,
+      "carrier_semantics": "BTS reporting carrier DL",
+      "execution_variant": "F1_modern_proxy",
+      "limitations": [
+        "This is not the original 2012 LOA/TRACON-based F1 query.",
+        "Aircraft model is a later FAA technical-registry snapshot association."
+      ],
+      "original_query_status": "not_executed_original_2012_data_unavailable",
+      "question": "Delta A319 departures from ZTL-region airports",
+      "record_count": 616,
+      "record_sample_limit": 20,
+      "records": [
+        {
+          "aircraft_manufacturer": "AIRBUS",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "EYW",
+          "flight_date": "2026-05-01",
+          "flight_id": "bts:2026-05-01:DL:1281:ATL:EYW:289966",
+          "flight_number": "1281",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS INDUSTRIE",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "EYW",
+          "flight_date": "2026-05-01",
+          "flight_id": "bts:2026-05-01:DL:1472:ATL:EYW:313168",
+          "flight_number": "1472",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS INDUSTRIE",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "PVD",
+          "flight_date": "2026-05-01",
+          "flight_id": "bts:2026-05-01:DL:2064:ATL:PVD:342185",
+          "flight_number": "2064",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS INDUSTRIE",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "PVD",
+          "flight_date": "2026-05-01",
+          "flight_id": "bts:2026-05-01:DL:2147:ATL:PVD:360521",
+          "flight_number": "2147",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS INDUSTRIE",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "EYW",
+          "flight_date": "2026-05-01",
+          "flight_id": "bts:2026-05-01:DL:2168:ATL:EYW:361283",
+          "flight_number": "2168",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "PVD",
+          "flight_date": "2026-05-01",
+          "flight_id": "bts:2026-05-01:DL:2314:ATL:PVD:366382",
+          "flight_number": "2314",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "ROA",
+          "flight_date": "2026-05-01",
+          "flight_id": "bts:2026-05-01:DL:2372:ATL:ROA:298232",
+          "flight_number": "2372",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "MLB",
+          "flight_date": "2026-05-01",
+          "flight_id": "bts:2026-05-01:DL:2435:ATL:MLB:300330",
+          "flight_number": "2435",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "FSD",
+          "flight_date": "2026-05-01",
+          "flight_id": "bts:2026-05-01:DL:2615:ATL:FSD:322023",
+          "flight_number": "2615",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS INDUSTRIE",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "OMA",
+          "flight_date": "2026-05-01",
+          "flight_id": "bts:2026-05-01:DL:2632:ATL:OMA:322491",
+          "flight_number": "2632",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "CMH",
+          "flight_date": "2026-05-01",
+          "flight_id": "bts:2026-05-01:DL:2786:ATL:CMH:327601",
+          "flight_number": "2786",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS INDUSTRIE",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "EYW",
+          "flight_date": "2026-05-01",
+          "flight_id": "bts:2026-05-01:DL:2815:ATL:EYW:344122",
+          "flight_number": "2815",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "MLB",
+          "flight_date": "2026-05-01",
+          "flight_id": "bts:2026-05-01:DL:3118:ATL:MLB:370773",
+          "flight_number": "3118",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "DCA",
+          "flight_date": "2026-05-01",
+          "flight_id": "bts:2026-05-01:DL:378:ATL:DCA:284098",
+          "flight_number": "378",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS INDUSTRIE",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "EYW",
+          "flight_date": "2026-05-02",
+          "flight_id": "bts:2026-05-02:DL:1472:ATL:EYW:313170",
+          "flight_number": "1472",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "IAD",
+          "flight_date": "2026-05-02",
+          "flight_id": "bts:2026-05-02:DL:1695:ATL:IAD:336591",
+          "flight_number": "1695",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS INDUSTRIE",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "PVD",
+          "flight_date": "2026-05-02",
+          "flight_id": "bts:2026-05-02:DL:2064:ATL:PVD:342186",
+          "flight_number": "2064",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS INDUSTRIE",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "PVD",
+          "flight_date": "2026-05-02",
+          "flight_id": "bts:2026-05-02:DL:2147:ATL:PVD:360523",
+          "flight_number": "2147",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "EYW",
+          "flight_date": "2026-05-02",
+          "flight_id": "bts:2026-05-02:DL:2168:ATL:EYW:361285",
+          "flight_number": "2168",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        },
+        {
+          "aircraft_manufacturer": "AIRBUS INDUSTRIE",
+          "aircraft_model": "A319-114",
+          "carrier_role": "reporting_carrier",
+          "destination": "PVD",
+          "flight_date": "2026-05-02",
+          "flight_id": "bts:2026-05-02:DL:2314:ATL:PVD:366384",
+          "flight_number": "2314",
+          "origin": "ATL",
+          "reporting_carrier": "DL"
+        }
+      ],
+      "records_truncated": true,
+      "scheduled_record_count": 624,
+      "scope": "BTS May 2026 + FAA NASR and aircraft-registry snapshots",
+      "ztl_airport_count": 131,
+      "ztl_assignment_basis": "NASR boundary_or_responsible_artcc"
+    },
+    "F3S": {
+      "causal_claim": false,
+      "execution_variant": "F3S_modern_proxy",
+      "join_rule": "absolute UTC difference < 30 minutes",
+      "limitations": [
+        "The temporal association does not assert weather causality.",
+        "BTS is limited to reporting-carrier on-time performance records."
+      ],
+      "matched_observation_counts": {
+        "2026-05-17T19:52:00": 37,
+        "2026-05-17T19:56:00": 13,
+        "2026-05-17T20:20:00": 9,
+        "2026-05-17T20:52:00": 1,
+        "2026-05-17T20:59:00": 21
+      },
+      "original_query_status": "not_executed_original_2012_data_unavailable",
+      "question": "KATL departures temporally associated with reported rain",
+      "record_count": 81,
+      "record_sample_limit": 20,
+      "records": [
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:3014:ATL:SAV:351244",
+          "flight_number": "3014",
+          "minutes_apart": 29.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:23:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:2128:ATL:ICT:359900",
+          "flight_number": "2128",
+          "minutes_apart": 28.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:24:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:1208:ATL:FLL:357382",
+          "flight_number": "1208",
+          "minutes_apart": 27.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:25:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:1728:ATL:MDW:337846",
+          "flight_number": "1728",
+          "minutes_apart": 26.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:26:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:AA:3330:ATL:MIA:232421",
+          "flight_number": "3330",
+          "minutes_apart": 25.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "AA",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:27:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:526:ATL:SLC:289102",
+          "flight_number": "526",
+          "minutes_apart": 25.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:27:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:1008:ATL:CVG:334581",
+          "flight_number": "1008",
+          "minutes_apart": 24.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:28:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:2595:ATL:BOS:321350",
+          "flight_number": "2595",
+          "minutes_apart": 22.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:30:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:3101:ATL:AVL:370030",
+          "flight_number": "3101",
+          "minutes_apart": 22.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:30:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:2890:ATL:IAH:346831",
+          "flight_number": "2890",
+          "minutes_apart": 21.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:31:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:2599:ATL:MSN:321454",
+          "flight_number": "2599",
+          "minutes_apart": 20.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:32:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:3115:ATL:SRQ:370672",
+          "flight_number": "3115",
+          "minutes_apart": 20.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:32:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:WN:4636:ATL:AUS:475750",
+          "flight_number": "4636",
+          "minutes_apart": 19.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "WN",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:33:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:1169:ATL:PHL:355902",
+          "flight_number": "1169",
+          "minutes_apart": 18.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:34:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:2058:ATL:GRR:342004",
+          "flight_number": "2058",
+          "minutes_apart": 18.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:34:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:2862:ATL:OKC:345860",
+          "flight_number": "2862",
+          "minutes_apart": 17.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:35:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:3095:ATL:GSP:369782",
+          "flight_number": "3095",
+          "minutes_apart": 17.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:35:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:1005:ATL:DTW:334468",
+          "flight_number": "1005",
+          "minutes_apart": 16.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:36:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:1379:ATL:RSW:293670",
+          "flight_number": "1379",
+          "minutes_apart": 15.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:37:00"
+        },
+        {
+          "association_role": "temporal_weather_context",
+          "causal_claim": false,
+          "flight_date": "2026-05-17",
+          "flight_id": "bts:2026-05-17:DL:1013:ATL:PNS:334783",
+          "flight_number": "1013",
+          "minutes_apart": 14.0,
+          "observed_at_utc": "2026-05-17T19:52:00",
+          "origin": "ATL",
+          "reporting_carrier": "DL",
+          "station": "KATL",
+          "weather_codes": [
+            "-RA"
+          ],
+          "weather_raw_text": "KATL 171952Z 13005KT 9SM -RA SCT045CB BKN100 BKN200 29/18 A3011 RMK AO2 WSHFT 1839 RAB44 SLP186 OCNL LTGCG DSNT S CB OHD-W-N DSNT S MOV N TCU ALQDS P0000 T02940183 $",
+          "wheels_off_utc": "2026-05-17T19:38:00"
+        }
+      ],
+      "records_truncated": true,
+      "reporting_carrier_counts": {
+        "AA": 1,
+        "AS": 1,
+        "DL": 65,
+        "F9": 6,
+        "OO": 2,
+        "UA": 3,
+        "WN": 3
+      },
+      "weather_product_scope": "routine_and_special_METAR_reports",
+      "weather_rule": "explicit RA token in METAR weather codes"
+    },
+    "S1S": {
+      "execution_variant": "S1S_published_sample",
+      "join_rule": "same date and closest absolute difference < 30 minutes",
+      "original_query_status": "executed_on_2014_atmonto_plus_sample",
+      "pair_count": 3,
+      "pairs": [
+        {
+          "first_call_sign": "DAL2616",
+          "first_flight_id": "https://data.nasa.gov/ontologies/atmonto/ATM#DAL2616-201407150033",
+          "first_reporting_time": "2014-07-15T02:03:46",
+          "minutes_apart": 0,
+          "passage_date": "2014-07-15",
+          "second_call_sign": "JBU1013",
+          "second_flight_id": "https://data.nasa.gov/ontologies/atmonto/ATM#JBU1013-201407150026",
+          "second_reporting_time": "2014-07-15T02:03:46",
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZTLsector040"
+        },
+        {
+          "first_call_sign": "DAL2616",
+          "first_flight_id": "https://data.nasa.gov/ontologies/atmonto/ATM#DAL2616-201407150033",
+          "first_reporting_time": "2014-07-15T02:03:46",
+          "minutes_apart": 25,
+          "passage_date": "2014-07-15",
+          "second_call_sign": "QFA108",
+          "second_flight_id": "https://data.nasa.gov/ontologies/atmonto/ATM#QFA108-201407150005",
+          "second_reporting_time": "2014-07-15T01:38:21",
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZTLsector040"
+        },
+        {
+          "first_call_sign": "JBU1013",
+          "first_flight_id": "https://data.nasa.gov/ontologies/atmonto/ATM#JBU1013-201407150026",
+          "first_reporting_time": "2014-07-15T02:03:46",
+          "minutes_apart": 25,
+          "passage_date": "2014-07-15",
+          "second_call_sign": "QFA108",
+          "second_flight_id": "https://data.nasa.gov/ontologies/atmonto/ATM#QFA108-201407150005",
+          "second_reporting_time": "2014-07-15T01:38:21",
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZTLsector040"
+        }
+      ],
+      "question": "Flight pairs traversing the same sector within 30 minutes",
+      "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZTLsector040"
+    },
+    "S4": {
+      "counting_note": "The appendix COUNT(?flight) is a track-point binding count; distinct_flight_count implements the English question.",
+      "execution_variant": "S4_published_sample",
+      "original_query_status": "executed_on_2014_atmonto_plus_sample",
+      "question": "Sector with the most sampled flights during UTC hour 02",
+      "ranking": [
+        {
+          "appendix_binding_count": 146,
+          "distinct_flight_count": 12,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#KLGAairportSector",
+          "sector_name": "KLGAairportSector",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 57,
+          "distinct_flight_count": 9,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZDCsector010",
+          "sector_name": "ZDCsector010",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 49,
+          "distinct_flight_count": 9,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZDCsector016",
+          "sector_name": "ZDCsector016",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 86,
+          "distinct_flight_count": 8,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#KEWRairportSector",
+          "sector_name": "KEWRairportSector",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 108,
+          "distinct_flight_count": 7,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZDCsector019",
+          "sector_name": "ZDCsector019",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 61,
+          "distinct_flight_count": 7,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZDCsector036",
+          "sector_name": "ZDCsector036",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 92,
+          "distinct_flight_count": 6,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZMEsector032",
+          "sector_name": "ZMEsector032",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 55,
+          "distinct_flight_count": 6,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZNYsector075",
+          "sector_name": "ZNYsector075",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 41,
+          "distinct_flight_count": 6,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZDCsector012",
+          "sector_name": "ZDCsector012",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 131,
+          "distinct_flight_count": 5,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZIDsector099",
+          "sector_name": "ZIDsector099",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 77,
+          "distinct_flight_count": 5,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZMEsector043",
+          "sector_name": "ZMEsector043",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 74,
+          "distinct_flight_count": 5,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZMEsector033",
+          "sector_name": "ZMEsector033",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 68,
+          "distinct_flight_count": 5,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZIDsector092",
+          "sector_name": "ZIDsector092",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 39,
+          "distinct_flight_count": 5,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZNYsector066",
+          "sector_name": "ZNYsector066",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 105,
+          "distinct_flight_count": 4,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZTLsector002",
+          "sector_name": "ZTLsector002",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 99,
+          "distinct_flight_count": 4,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZAUsector023",
+          "sector_name": "ZAUsector023",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 95,
+          "distinct_flight_count": 4,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZMEsector061",
+          "sector_name": "ZMEsector061",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 94,
+          "distinct_flight_count": 4,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZAUsector076",
+          "sector_name": "ZAUsector076",
+          "source_dates": [
+            "2014-07-15",
+            "2014-07-16"
+          ]
+        },
+        {
+          "appendix_binding_count": 60,
+          "distinct_flight_count": 4,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZDCsector007",
+          "sector_name": "ZDCsector007",
+          "source_dates": [
+            "2014-07-15"
+          ]
+        },
+        {
+          "appendix_binding_count": 37,
+          "distinct_flight_count": 4,
+          "hour_utc": 2,
+          "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#ZMPsector016",
+          "sector_name": "ZMPsector016",
+          "source_dates": [
+            "2014-07-15",
+            "2014-07-16"
+          ]
+        }
+      ],
+      "ranking_count": 154,
+      "ranking_sample_limit": 20,
+      "ranking_truncated": true,
+      "top_sector": {
+        "appendix_binding_count": 146,
+        "distinct_flight_count": 12,
+        "hour_utc": 2,
+        "sector_id": "https://data.nasa.gov/ontologies/atmonto/NAS#KLGAairportSector",
+        "sector_name": "KLGAairportSector",
+        "source_dates": [
+          "2014-07-15"
+        ]
+      }
+    }
+  },
+  "schema_version": "atmonto-competency-query-supplement-v1",
+  "sources": [
+    {
+      "byte_count": 31716693,
+      "path": "data/raw/bts/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2026_5.zip",
+      "role": "public_flight_operation_records",
+      "sha256": "4e7b96999440afec8c92dd23bfbc68a5852e14d9a56c3d0d366f884542ea80b3",
+      "source_id": "bts_on_time_2026_05",
+      "temporal_scope": "2026-05",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2026_5.zip"
+    },
+    {
+      "byte_count": 73016780,
+      "path": "data/raw/flight_competency/ReleasableAircraft_2026-07-28.zip",
+      "retrieved_on": "2026-07-30",
+      "role": "non_personal_aircraft_manufacturer_model_lookup",
+      "sha256": "8e42c757a3db24cfcd76638f04d151aa2843bd77d5358f7f847fa661331efe7a",
+      "source_id": "faa_aircraft_registry_2026_07_28",
+      "temporal_scope": "registry files dated 2026-07-28",
+      "url": "https://registry.faa.gov/database/ReleasableAircraft.zip"
+    },
+    {
+      "byte_count": 249459194,
+      "path": "data/raw/nasa_atmonto/2026-05-14/faa_nasr/28DaySubscription_Effective_2026-05-14.zip",
+      "retrieved_on": "2026-06-01",
+      "role": "airport_to_artcc_reference_snapshot",
+      "sha256": "db4793352229c1fd74e9b3d924762376abfa224fe6388768cad25d084c7aeed3",
+      "source_id": "faa_nasr_2026_05_14",
+      "temporal_scope": "effective 2026-05-14 through 2026-06-10",
+      "url": "https://nfdc.faa.gov/webContent/28DaySub/28DaySubscription_Effective_2026-05-14.zip"
+    },
+    {
+      "byte_count": 58710,
+      "path": "data/raw/flight_competency/katl_asos_2026-05-14_2026-05-22.csv",
+      "retrieved_on": "2026-07-30",
+      "role": "historical_katl_metar_routine_and_special_observations",
+      "sha256": "be6ef673b82cf39779aacaa57008372464f1a81951c692e08a09689223371f85",
+      "source_id": "iem_katl_metar_2026_05_14_22",
+      "temporal_scope": "2026-05-14T00:00Z through 2026-05-22T00:00Z",
+      "url": "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?station=ATL&data=all&year1=2026&month1=5&day1=14&year2=2026&month2=5&day2=22&tz=UTC&format=onlycomma&latlon=yes&elev=yes&missing=null&trace=0.0001&direct=no&report_type=3&report_type=4"
+    },
+    {
+      "byte_count": 10107306,
+      "license_url": "https://data.nasa.gov/docs/ontologies/atmonto/license.html",
+      "path": "data/raw/nasa_atmonto_prototype/allFilesTTL.zip",
+      "retrieved_on": "2026-07-30",
+      "role": "published_2014_flight_track_and_sector_sample",
+      "sha256": "93dc9675772649079bef11fe3519e6d99fe0d549318a6696af888b7f2b74df47",
+      "source_id": "nasa_atmonto_plus",
+      "temporal_scope": "2014-07-15; 100 JFK/EWR/LGA flights",
+      "url": "https://data.nasa.gov/docs/ontologies/atmonto/allFilesTTL.zip"
+    }
+  ]
+}

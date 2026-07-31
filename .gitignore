@@ -64,6 +64,8 @@ models/
 
 # NASA ATMONTO raw snapshots and ad-hoc smoke outputs.
 /data/raw/nasa_atmonto/
+/data/raw/nasa_atmonto_prototype/
+/data/raw/flight_competency/
 /data/experiments/nasa_atmonto/formal/smoke/
 
 # Reproducible cross-source runtime outputs. Keep the config, source registry,

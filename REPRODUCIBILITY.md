@@ -51,6 +51,51 @@ data/sources/bts_on_time_2026_05_nyc.jsonl
 
 Do not replace a pinned source implicitly during an ordinary ingestion run.
 
+## Optional Flight And Sector Competency Supplement
+
+The persistent TMI-event store does not yet ingest individual flights,
+aircraft models, or sector-crossing trajectories. A separate deterministic
+sidecar reconstructs four flight-oriented ATMONTO appendix questions without
+changing the authoritative store or public Query Agent runtime.
+
+The checksum-bound source manifest is
+`configs/flight_competency_v1.yaml`. It pins:
+
+- the published NASA `atmontoPlus` 2014 flight/sector sample;
+- the complete BTS May 2026 on-time archive;
+- the FAA NASR 2026-05-14 cycle;
+- the FAA 2026-07-28 releasable aircraft registry, read only for technical
+  manufacturer/model fields; and
+- KATL routine and special METAR observations for 2026-05-14 through
+  2026-05-22 from the IEM ASOS archive.
+
+Raw files are intentionally ignored. Download them to the paths declared in
+the config; the runner stops on a missing file or checksum mismatch. Then run:
+
+```bash
+uv run python -m aviation_agentic_ai.competency_query_supplement \
+  --config configs/flight_competency_v1.yaml
+```
+
+The pinned run produces:
+
+| Query | Executed form | Result |
+| --- | --- | ---: |
+| F1 | Modern May 2026 proxy | 616 actual DL-reporting A319 departures |
+| F3S | Modern KATL rain-time association | 81 departures |
+| S4 | NASA 2014 sample, hour 02 UTC | KLGA airport sector: 12 distinct flights / 146 track-point bindings |
+| S1S | NASA 2014 sample, `ZTLsector040` | 3 flight pairs |
+
+F1 and F3S are explicitly modern proxies because the recovered NASA archive
+does not contain the original 2012 KATL data. F3S is non-causal. S4 keeps both
+counts because the appendix's `COUNT(?flight)` counts track-point bindings,
+while the English question asks for distinct flights. The tracked reports are:
+
+```text
+reports/stages/atmonto_competency_query_supplement_v1.json
+reports/stages/atmonto_competency_query_supplement_v1.md
+```
+
 ## Persistent Store
 
 `configs/cross_source_v1.yaml` declares the dataset identity and default store

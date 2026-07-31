@@ -1,9 +1,11 @@
 # End-to-End Agentic KG-RAG Architecture
 
-> Status: design plus implementation tracker. The Extraction Loop Agent is now
-> implemented as a bounded thesis-mainline runtime path under
-> `src/aviation_agentic_ai/agents/`; end-to-end orchestration remains planned.
-> The new runtime does not alter the scored extraction-to-answer artifacts.
+> **Historical design — superseded.** This document records the former
+> extractor/critic/refiner architecture. It is not the current runtime. Use
+> `RESEARCH_AUDIT.md` and `docs/multi_agent_kg_system_design.md` for the
+> ingestion-first system with deterministic Event Evidence Integration,
+> selective Semantic Resolution, a Formal Publication Kernel, and the bounded
+> Query Agent.
 
 ## 1. Goals and Non-Goals
 

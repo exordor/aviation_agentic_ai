@@ -198,6 +198,26 @@ alias.
 These are development/regression fixtures, not special runtime routes,
 evaluation samples, or a representative benchmark.
 
+## Flight-Oriented Competency Supplement
+
+Individual-flight and sector-trajectory evidence is not yet ingested into the
+authoritative TMI-event store or exposed through the Query Agent. A separate
+checksum-bound deterministic supplement covers four ATMONTO appendix query
+shapes using the NASA 2014 sample plus a May 2026
+BTS/NASR/METAR/aircraft-registry proxy:
+
+```bash
+uv run python -m aviation_agentic_ai.competency_query_supplement \
+  --config configs/flight_competency_v1.yaml
+```
+
+The pinned result is F1-modern `616`, F3S-modern `81`, S4 `12` distinct
+flights (`146` appendix track-point bindings), and S1S `3` pairs. F1/F3S are
+modern proxies—not reproductions of the unavailable 2012 KATL dataset—and the
+rain join is non-causal. See the
+[sanitized report](reports/stages/atmonto_competency_query_supplement_v1.md)
+and [REPRODUCIBILITY.md](REPRODUCIBILITY.md).
+
 ## Evaluation Boundary
 
 Fake and scripted models verify software contracts only. Live smoke results

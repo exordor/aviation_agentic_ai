@@ -8,8 +8,8 @@ Compatibility instructions for tools that read this file.
 2. `GOALS.md`
 3. the task-specific design or interface document
 
-Do not preload archived experiments, historical stage reports, ignored corpus
-outputs, or the paused browser prototype.
+Do not preload archived experiments, historical stage reports, ignored batch
+snapshots/provider outputs, or the paused browser prototype.
 
 ## Current Scope
 
@@ -24,11 +24,12 @@ compiles source-supported sealed evidence or returns honest `insufficient`.
 The write-free Formal Publication Kernel is the only publication authority and
 accepts the TMI, Weather, and public-observation profiles.
 
-`tmi-event-corpus-v3` is the canonical persisted layer. Event graph views,
-RDF/Turtle, Neo4j, and the metadata-conditioned Chroma index are rebuildable
-projections. Every valid natural-language `ask` activates the Query Agent,
-which selects among six read-only event, Weather, BTS, graph-path, and
-metadata-ranking tools before producing evidence-bound statements.
+The versioned SQLite evidence store is the authoritative persisted layer.
+SQLite FTS5, two Chroma collections, event graph views, RDF/Turtle, and Neo4j
+are rebuildable indexes, views, or exports. Every valid natural-language `ask`
+activates the Query Agent, which selects among nine read-only exact, Weather,
+BTS, graph, lexical, vector, event-ranking, and source-read tools before
+producing evidence-bound statements.
 
 The project does not currently claim a formal decision-process model, causal
 explanation, operational effectiveness, historical recommendation, complete

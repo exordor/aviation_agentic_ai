@@ -1,8 +1,9 @@
 # Thesis Writing Spine
 
-This document turns the current project into a writeable master-project
-structure. It should be used after `DECISION_LOG.md` and
-`RESEARCH_OVERVIEW.md`.
+> **Historical writing scaffold — superseded.** The extractor/validator/
+> refiner/critic narrative below describes an earlier research phase and must
+> not be used as the current method section. Start from `RESEARCH_OVERVIEW.md`,
+> `RESEARCH_AUDIT.md`, and `docs/multi_agent_kg_system_design.md`.
 
 ## Working Title
 

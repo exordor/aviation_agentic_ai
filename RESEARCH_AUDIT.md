@@ -131,6 +131,10 @@ representative coverage, or special execution routes.
 - Weather or BTS evidence never fills a missing declared reason.
 - Profile gaps remain source-supported non-formal records.
 - Lexical and vector hits are candidate discovery, not source verification.
+- A checksum-bound deterministic supplement answers the published
+  F1/F3S/S4/S1S query shapes outside the runtime store: S4/S1S use NASA's 2014
+  sample trajectories; F1/F3S are explicitly labelled May 2026
+  FAA/BTS/Weather proxies.
 
 ## Evaluation Boundary
 
@@ -192,10 +196,16 @@ The project does not provide:
 - lifecycle episode reconstruction;
 - outcome-aware similarity or TMI recommendation;
 - external expert certification;
-- verified post-cutover live-model performance until the new smoke is run.
+- runtime ingestion or Query Agent tools for individual-flight and
+  sector-trajectory evidence.
 
-Flight/sector queries such as F1, F3S, S4, and S1S remain data-source gaps, not
-features to fabricate from the current store.
+Flight-level and sector-level competency queries remain an isolated research
+supplement, not registered `agent-system ask` routes. The original 2012 KATL
+F1/F3S database was not recovered: the modern F1/F3S results are proxy
+reconstructions, and the NASA S4/S1S results cover only the published 2014
+sample rather than national operations. Weather matching is temporal and
+non-causal; current FAA aircraft registry data is a later technical lookup,
+not historical aircraft-state proof.
 
 ## Verification Defaults
 

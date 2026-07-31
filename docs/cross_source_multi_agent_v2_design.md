@@ -1,9 +1,10 @@
 # Cross-Source Multi-Agent V2 Design
 
-> Status: approved design for the cross-source V2 thesis mainline. This design does
-> extends the frozen ATCSCC thesis scope without altering the scored extraction,
-> validation, retrieval, and answer-generation
-> artifacts or reviewed ATCSCC gold set.
+> **Historical design — superseded.** This document records the former
+> cross-source V2 plan and retired CLI. It is not the current architecture or
+> execution guide. Use `RESEARCH_AUDIT.md`, `REPRODUCIBILITY.md`, and
+> `docs/multi_agent_kg_system_design.md` for the ingestion-first persistent-store
+> runtime.
 
 ## 1. Goal
 
