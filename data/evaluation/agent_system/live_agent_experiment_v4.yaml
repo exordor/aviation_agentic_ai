@@ -1,0 +1,49 @@
+version: live-agent-experiment-v4
+suite_id: tmi-event-live-agent-experiment-v4
+minimum_successful_calls: 100
+minimum_cycles: 20
+maximum_cycles: 20
+future_frozen_evaluation: not_constructed
+trials:
+  - trial_id: query-084-facts
+    kind: query
+    partition: regression
+    source_id: "2026-05-20:084"
+    expected_role: query
+    question: What formal TMI facts are retained for Advisory 084?
+    required_tool_names:
+      - read_tmi_event_facts
+  - trial_id: query-115-facts
+    kind: query
+    partition: regression
+    source_id: "2026-05-20:115"
+    expected_role: query
+    question: What formal TMI facts are retained for Advisory 115?
+    required_tool_names:
+      - read_tmi_event_facts
+  - trial_id: query-159-facts
+    kind: query
+    partition: regression
+    source_id: "2026-05-20:159"
+    expected_role: query
+    question: What formal TMI facts are retained for Advisory 159?
+    required_tool_names:
+      - read_tmi_event_facts
+  - trial_id: query-084-graph
+    kind: query
+    partition: regression
+    source_id: "2026-05-20:084"
+    expected_role: query
+    question: How is Advisory 084 connected to its controlled facility in the formal event graph?
+    required_tool_names:
+      - read_tmi_event_graph
+  - trial_id: query-115-evidence-path
+    kind: query
+    partition: regression
+    source_id: "2026-05-20:115"
+    expected_role: query
+    question: Which retained Weather or public operational evidence paths share Advisory 115's controlled facility?
+    required_tool_names:
+      - read_tmi_event_graph
+    required_graph_path_kinds:
+      - weather_context_at_controlled_facility

@@ -1,113 +1,438 @@
 from __future__ import annotations
 
 import hashlib
-import importlib.util
 import inspect
 import json
 from pathlib import Path
 
 import pytest
-import yaml
 
 import aviation_agentic_ai.agent_system.live_agent_evaluation as live_eval
-from aviation_agentic_ai.agent_system.agent_usage import AgentUsageRecord
 from aviation_agentic_ai.agent_system.contracts import (
     HybridQueryStatement,
     HybridQuerySupportRecord,
     ModelCallRecord,
     ModelToolCall,
+    QueryGraphEdge,
+    QueryGraphPath,
     QueryToolOutcome,
     QueryToolTrace,
-)
-from aviation_agentic_ai.agent_system.corpus_batch import BatchCaseExecution
-from aviation_agentic_ai.agent_system.corpus_store import (
-    CorpusBuildResult,
-    CorpusQueryStore,
-    build_corpus,
 )
 from aviation_agentic_ai.agent_system.live_agent_evaluation import (
     LiveEvaluationAssertion,
     LiveEvaluationAuthorizationError,
     LiveEvaluationResult,
-    LiveEvaluationSuite,
     LiveEvaluationTrial,
     build_hybrid_query_run_artifact,
     load_live_evaluation_suite,
     run_live_agent_evaluation,
-    score_analysis_trial,
-    score_integration_trial,
+    score_query_trial,
     summarize_live_evaluation,
     write_hybrid_query_run_artifact,
     write_live_evaluation_artifacts,
 )
 
-_CORPUS_FIXTURE_SPEC = importlib.util.spec_from_file_location(
-    "live_evaluation_query_tools_fixture",
-    Path(__file__).with_name("test_agent_system_query_tools.py"),
-)
-assert (
-    _CORPUS_FIXTURE_SPEC is not None
-    and _CORPUS_FIXTURE_SPEC.loader is not None
-)
-_corpus_fixture = importlib.util.module_from_spec(_CORPUS_FIXTURE_SPEC)
-_CORPUS_FIXTURE_SPEC.loader.exec_module(_corpus_fixture)
 
-
-def test_load_live_evaluation_suite_seals_frozen_trials(tmp_path: Path) -> None:
-    suite_path = tmp_path / "suite.yaml"
-    suite_path.write_text(
-        """
-version: live-agent-smoke-v3
-suite_id: tmi-event-live-agent-smoke-v3
-repetitions: 1
-trials:
-  - trial_id: integration-025
-    kind: integration
-    source_id: "2026-05-20:025"
-    expected_role: event_evidence_integration
-    forbidden_predicate_iris:
-      - https://data.nasa.gov/ontologies/atmonto/ATM#impactingCondition
-  - trial_id: analysis-138
-    kind: analysis
-    source_id: "2026-05-19:138"
-    expected_role: query
-    question: What public operational situation is recorded?
-""".strip()
-        + "\n",
-        encoding="utf-8",
-    )
-
-    suite = load_live_evaluation_suite(suite_path)
-
-    assert isinstance(suite, LiveEvaluationSuite)
-    assert suite.repetitions == 1
-    assert [trial.kind for trial in suite.trials] == ["integration", "analysis"]
-    assert suite.build_source_ids == (
-        "2026-05-19:138",
-        "2026-05-20:025",
+def _trial(
+    *,
+    required_tool_names: tuple[str, ...] = (
+        "read_tmi_event_graph",
+    ),
+    required_graph_path_kinds: tuple[str, ...] = (
+        "weather_context_at_controlled_facility",
+    ),
+) -> LiveEvaluationTrial:
+    return LiveEvaluationTrial(
+        trial_id="query-084",
+        partition="regression",
+        source_id="2026-05-20:084",
+        question="Show the source-backed weather evidence path.",
+        required_tool_names=required_tool_names,
+        required_graph_path_kinds=required_graph_path_kinds,
     )
 
 
-def test_tracked_live_suite_contains_exactly_five_frozen_trials() -> None:
-    suite = load_live_evaluation_suite(
-        "data/evaluation/agent_system/live_agent_smoke_v3.yaml"
-    )
-
-    assert [
-        (trial.kind, trial.source_id, trial.question)
-        for trial in suite.trials
-    ] == [
-        ("integration", "2026-05-20:025", None),
-        ("integration", "2026-05-20:030", None),
-        ("integration", "2026-05-20:070", None),
-        ("integration", "2026-05-20:072", None),
-        (
-            "analysis",
-            "2026-05-19:138",
-            "What public operational situation is recorded?",
+def _live_call(
+    *,
+    tool_name: str | None = None,
+    raw_response: str = "provider payload is not retained",
+    error: str | None = None,
+) -> ModelCallRecord:
+    return ModelCallRecord(
+        agent="query",
+        raw_response=raw_response,
+        prompt_set_id="aviation-tmi-event-agents-v1",
+        prompt_version="query-v1",
+        provider="deepseek",
+        model="deepseek-v4-pro",
+        temperature=0.0,
+        input_tokens=40,
+        output_tokens=20,
+        latency_ms=25,
+        error=error,
+        tool_calls=(
+            [
+                ModelToolCall(
+                    call_id="call:1",
+                    name=tool_name,
+                    arguments={"event_id": "urn:event:084"},
+                )
+            ]
+            if tool_name
+            else []
         ),
+    )
+
+
+def _supported_graph_outcome(
+    *,
+    path_kind: str = "weather_context_at_controlled_facility",
+    tool_name: str = "read_tmi_event_graph",
+    statement_text: str = (
+        "The event and weather report share the controlled facility; "
+        "this is a non-causal context association."
+    ),
+) -> QueryToolOutcome:
+    path = QueryGraphPath(
+        path_id="path:weather",
+        path_kind=path_kind,
+        edges=(
+            QueryGraphEdge(
+                fact_id="fact:controlled",
+                subject_iri="urn:event:084",
+                predicate_iri=(
+                    "https://data.nasa.gov/ontologies/atmonto/ATM#"
+                    "controlledNASelement"
+                ),
+                object_kind="iri",
+                object_value="urn:facility:KEWR",
+                source_ids=("2026-05-20:084",),
+            ),
+        ),
+        source_ids=("2026-05-20:084", "metar:KEWR"),
+    )
+    return QueryToolOutcome(
+        status="ok",
+        answer=statement_text,
+        retrieved_event_ids=["urn:event:084"],
+        source_ids=["2026-05-20:084", "metar:KEWR"],
+        retrieved_fact_ids=["fact:controlled"],
+        retrieved_graph_path_ids=[path.path_id],
+        retrieved_graph_paths=[path],
+        answer_statements=[
+            HybridQueryStatement(
+                kind="non_causal_context",
+                text=statement_text,
+                support_event_ids=("urn:event:084",),
+                support_fact_ids=("fact:controlled",),
+                support_context_association_ids=("association:weather",),
+                support_graph_path_ids=(path.path_id,),
+                support_source_ids=("2026-05-20:084", "metar:KEWR"),
+            )
+        ],
+        support_records=[
+            HybridQuerySupportRecord(
+                kind="non_causal_context",
+                event_ids=("urn:event:084",),
+                fact_ids=("fact:controlled",),
+                context_association_ids=("association:weather",),
+                graph_path_ids=(path.path_id,),
+                source_ids=("2026-05-20:084", "metar:KEWR"),
+            )
+        ],
+        model_calls=[
+            _live_call(tool_name=tool_name, raw_response=""),
+            _live_call(raw_response="sk-secret must not be persisted"),
+        ],
+        tool_calls=[
+            QueryToolTrace(
+                tool_call_id="trace:1",
+                tool=tool_name,
+                arguments={
+                    "event_id": "urn:event:084",
+                    "view": "evidence_paths",
+                },
+                result_refs=[
+                    "fact:controlled",
+                    "path:weather",
+                    "association:weather",
+                ],
+                context_association_ids=["association:weather"],
+                source_ids=["2026-05-20:084", "metar:KEWR"],
+                status="ok",
+            )
+        ],
+    )
+
+
+def _result(
+    trial_id: str,
+    *,
+    status: str = "passed",
+    live_model: bool = False,
+) -> LiveEvaluationResult:
+    return LiveEvaluationResult(
+        trial_id=trial_id,
+        repetition=1,
+        kind="query",
+        source_id=f"source:{trial_id}",
+        role="query",
+        live_model=live_model,
+        workflow_status="ok",
+        activation_status="activated",
+        model_acceptance_status=status,
+        assertions=(
+            LiveEvaluationAssertion(
+                check_id="agent_activated",
+                passed=status == "passed",
+                detail_code="observed",
+            ),
+        ),
+        provider="deepseek",
+        model="deepseek-v4-pro",
+        prompt_set_id="aviation-tmi-event-agents-v1",
+        prompt_version="query-v1",
+        temperature=0.0,
+        provider_call_count=2,
+        native_tool_call_count=1,
+        bound_tool_execution_count=1,
+        input_tokens=20,
+        output_tokens=10,
+        provider_latency_ms=25.0,
+    )
+
+
+def test_tracked_v4_suite_is_query_only_and_has_graph_path_trial() -> None:
+    suite = load_live_evaluation_suite(
+        "data/evaluation/agent_system/live_agent_smoke_v4.yaml"
+    )
+
+    assert suite.version == "live-agent-smoke-v4"
+    assert suite.future_frozen_evaluation == "not_constructed"
+    assert len(suite.trials) == 5
+    assert {trial.kind for trial in suite.trials} == {"query"}
+    assert {trial.expected_role for trial in suite.trials} == {"query"}
+    assert suite.build_source_ids == (
+        "2026-05-20:084",
+        "2026-05-20:115",
+        "2026-05-20:159",
+    )
+    graph_trials = [
+        trial
+        for trial in suite.trials
+        if trial.required_graph_path_kinds
     ]
-    assert suite.repetitions == 1
+    assert len(graph_trials) == 1
+    assert graph_trials[0].required_tool_names == (
+        "read_tmi_event_graph",
+    )
+
+
+def test_suite_rejects_graph_requirement_without_graph_tool() -> None:
+    with pytest.raises(
+        ValueError,
+        match="required graph paths require read_tmi_event_graph",
+    ):
+        LiveEvaluationTrial(
+            trial_id="invalid",
+            partition="regression",
+            source_id="source:invalid",
+            question="Read a graph path.",
+            required_graph_path_kinds=("weather_context_at_controlled_facility",),
+        )
+
+
+def test_active_evaluator_has_no_integration_scorer_or_role() -> None:
+    source = inspect.getsource(live_eval)
+
+    assert "score_integration_trial" not in source
+    assert "event_evidence_integration" not in source
+    assert "score_analysis_trial" not in source
+
+
+def test_hybrid_query_run_artifact_is_sanitized_and_records_path_kind(
+    tmp_path: Path,
+) -> None:
+    trial = _trial()
+    outcome = _supported_graph_outcome()
+    query_run = build_hybrid_query_run_artifact(
+        trial=trial,
+        event_id="urn:event:084",
+        outcome=outcome,
+    )
+    artifact_path = write_hybrid_query_run_artifact(
+        tmp_path / "query",
+        query_run,
+    )
+
+    result = score_query_trial(
+        trial=trial,
+        repetition=1,
+        live_model=False,
+        event_id="urn:event:084",
+        outcome=outcome,
+        query_run=query_run,
+        query_run_artifact_path=artifact_path,
+    )
+
+    payload = json.loads(artifact_path.read_text(encoding="utf-8"))
+    serialized = artifact_path.read_text(encoding="utf-8")
+    assert payload["graph_path_kinds"] == [
+        "weather_context_at_controlled_facility"
+    ]
+    assert "arguments" not in serialized
+    assert "raw_response" not in serialized
+    assert "sk-secret" not in serialized
+    assert result.model_acceptance_status == "passed"
+
+
+@pytest.mark.parametrize(
+    ("tool_name", "path_kind", "failed_check"),
+    [
+        (
+            "read_tmi_event_facts",
+            "weather_context_at_controlled_facility",
+            "required_tools_observed",
+        ),
+        (
+            "read_tmi_event_graph",
+            "unexpected_path",
+            "required_graph_paths_observed",
+        ),
+    ],
+)
+def test_query_scoring_checks_required_tools_and_structured_graph_paths(
+    tool_name: str,
+    path_kind: str,
+    failed_check: str,
+) -> None:
+    trial = _trial()
+    outcome = _supported_graph_outcome(
+        tool_name=tool_name,
+        path_kind=path_kind,
+    )
+    query_run = build_hybrid_query_run_artifact(
+        trial=trial,
+        event_id="urn:event:084",
+        outcome=outcome,
+    )
+
+    result = score_query_trial(
+        trial=trial,
+        repetition=1,
+        live_model=False,
+        event_id="urn:event:084",
+        outcome=outcome,
+        query_run=query_run,
+    )
+
+    assert result.model_acceptance_status == "failed"
+    assert any(
+        assertion.check_id == failed_check and not assertion.passed
+        for assertion in result.assertions
+    )
+
+
+def test_claim_boundary_violation_fails_query_acceptance() -> None:
+    trial = _trial()
+    outcome = _supported_graph_outcome(
+        statement_text=(
+            "The weather report proves that weather caused the TMI decision."
+        )
+    )
+    query_run = build_hybrid_query_run_artifact(
+        trial=trial,
+        event_id="urn:event:084",
+        outcome=outcome,
+    )
+
+    result = score_query_trial(
+        trial=trial,
+        repetition=1,
+        live_model=False,
+        event_id="urn:event:084",
+        outcome=outcome,
+        query_run=query_run,
+    )
+
+    assert result.model_acceptance_status == "failed"
+    assert any(
+        assertion.check_id == "statement_claim_boundaries"
+        and not assertion.passed
+        for assertion in result.assertions
+    )
+
+
+def test_summary_and_v4_artifact_names_are_query_specific(
+    tmp_path: Path,
+) -> None:
+    results = (_result("passed"), _result("failed", status="failed"))
+    summary = summarize_live_evaluation(
+        suite_id="suite",
+        suite_checksum="a" * 64,
+        repetitions=1,
+        results=results,
+        runner_status="completed",
+        live_model=False,
+    )
+
+    paths = write_live_evaluation_artifacts(
+        output_dir=tmp_path / "runtime",
+        report_dir=tmp_path / "reports",
+        results=results,
+        summary=summary,
+    )
+
+    assert summary.manifest_version == "tmi-event-live-evaluation-v4"
+    assert summary.model_acceptance_status == "failed"
+    assert [path.name for path in paths] == [
+        "live_evaluation_results_v4.jsonl",
+        "live_evaluation_manifest_v4.json",
+        "agent_system_live_agent_smoke_v4.json",
+        "agent_system_live_agent_smoke_v4.md",
+    ]
+
+
+def test_missing_authorization_rejects_before_writes(tmp_path: Path) -> None:
+    with pytest.raises(LiveEvaluationAuthorizationError):
+        run_live_agent_evaluation(
+            config_path="configs/cross_source_v1.yaml",
+            suite_path=(
+                "data/evaluation/agent_system/live_agent_smoke_v4.yaml"
+            ),
+            output_dir=tmp_path / "runtime",
+            report_dir=tmp_path / "reports",
+            allow_live_model=False,
+            repetitions=1,
+        )
+
+    assert not (tmp_path / "runtime").exists()
+
+
+def test_missing_credentials_block_before_provider_calls(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    monkeypatch.setattr(live_eval, "load_environment", lambda: None)
+    monkeypatch.setattr(
+        live_eval,
+        "load_batch_resources",
+        lambda _config: pytest.fail("resources must not load"),
+    )
+
+    summary = run_live_agent_evaluation(
+        config_path="configs/cross_source_v1.yaml",
+        suite_path="data/evaluation/agent_system/live_agent_smoke_v4.yaml",
+        output_dir=tmp_path / "runtime",
+        report_dir=tmp_path / "reports",
+        allow_live_model=True,
+        repetitions=1,
+    )
+
+    assert summary.runner_status == "blocked_before_run"
+    assert summary.provider_call_count == 0
+    assert "missing_deepseek_credentials" in summary.runner_detail_codes
 
 
 def test_pre_refactor_v1_live_artifacts_remain_byte_frozen() -> None:
@@ -125,1024 +450,3 @@ def test_pre_refactor_v1_live_artifacts_remain_byte_frozen() -> None:
 
     for path, checksum in expected.items():
         assert hashlib.sha256(Path(path).read_bytes()).hexdigest() == checksum
-
-
-def _result(
-    trial_id: str,
-    *,
-    status: str = "passed",
-    live_model: bool = False,
-) -> LiveEvaluationResult:
-    return LiveEvaluationResult(
-        trial_id=trial_id,
-        repetition=1,
-        kind="integration",
-        source_id=f"source:{trial_id}",
-        role="event_evidence_integration",
-        live_model=live_model,
-        workflow_status="ok",
-        activation_status="activated",
-        model_acceptance_status=status,
-        assertions=(
-            LiveEvaluationAssertion(
-                check_id="agent_activated",
-                passed=status == "passed",
-                detail_code="observed",
-            ),
-        ),
-        provider="deepseek",
-        model="deepseek-v4-pro",
-        prompt_set_id="aviation-tmi-event-agents-v1",
-        prompt_version="v1",
-        temperature=0.0,
-        provider_call_count=2,
-        native_tool_call_count=1,
-        bound_tool_execution_count=0,
-        input_tokens=20,
-        output_tokens=10,
-        provider_latency_ms=25.0,
-    )
-
-
-def test_summary_is_derived_from_trials_and_blocked_never_passes() -> None:
-    results = (
-        *(_result(f"passed-{index}") for index in range(4)),
-        _result("blocked", status="blocked"),
-    )
-
-    summary = summarize_live_evaluation(
-        suite_id="suite",
-        suite_checksum="a" * 64,
-        repetitions=1,
-        results=results,
-        runner_status="completed",
-        live_model=False,
-    )
-
-    assert summary.runner_status == "completed"
-    assert summary.model_acceptance_status == "failed"
-    assert summary.trial_count == 5
-    assert summary.passed_count == 4
-    assert summary.blocked_count == 1
-    assert summary.live_model is False
-    assert summary.provider_call_count == 10
-
-
-def test_summary_rejects_mixed_live_and_offline_trial_labels() -> None:
-    with pytest.raises(ValueError, match="live_model flag"):
-        summarize_live_evaluation(
-            suite_id="suite",
-            suite_checksum="a" * 64,
-            repetitions=1,
-            results=(_result("live", live_model=True),),
-            runner_status="completed",
-            live_model=False,
-        )
-
-
-def test_report_projection_contains_only_sanitized_metrics(tmp_path: Path) -> None:
-    result = _result("safe")
-    summary = summarize_live_evaluation(
-        suite_id="suite",
-        suite_checksum="b" * 64,
-        repetitions=1,
-        results=(result,),
-        runner_status="completed",
-        live_model=False,
-    )
-
-    reports = tmp_path / "reports"
-    reports.mkdir()
-    legacy_report = reports / "agent_system_live_agent_smoke_v1.json"
-    legacy_report.write_text("historical-v1\n", encoding="utf-8")
-    paths = write_live_evaluation_artifacts(
-        output_dir=tmp_path / "runtime",
-        report_dir=reports,
-        results=(result,),
-        summary=summary,
-    )
-    serialized = "\n".join(
-        path.read_text(encoding="utf-8") for path in paths
-    )
-
-    assert paths[0].name == "live_evaluation_results_v3.jsonl"
-    assert paths[1].name == "live_evaluation_manifest_v3.json"
-    assert paths[2].name == "agent_system_live_agent_smoke_v3.json"
-    assert paths[3].name == "agent_system_live_agent_smoke_v3.md"
-    assert legacy_report.read_text(encoding="utf-8") == "historical-v1\n"
-    assert "deepseek-v4-pro" in serialized
-    assert "raw_response" not in serialized
-    assert "tool_arguments" not in serialized
-    assert "tool_result" not in serialized
-    assert "<think>" not in serialized
-    assert "sk-secret" not in serialized
-    assert "| Repetition | Trial |" in paths[3].read_text(encoding="utf-8")
-
-
-def _write_frozen_suite(path: Path, *, repetitions: int = 1) -> Path:
-    path.write_text(
-        yaml.safe_dump(
-            {
-                "version": "live-agent-smoke-v3",
-                "suite_id": "tmi-event-live-agent-smoke-v3",
-                "repetitions": repetitions,
-                "trials": [
-                    {
-                        "trial_id": "integration-025",
-                        "kind": "integration",
-                        "source_id": "2026-05-20:025",
-                        "expected_role": "event_evidence_integration",
-                    },
-                    {
-                        "trial_id": "analysis-138",
-                        "kind": "analysis",
-                        "source_id": "2026-05-19:138",
-                        "expected_role": "query",
-                        "question": (
-                            "What public operational situation is recorded?"
-                        ),
-                    },
-                ],
-            },
-            sort_keys=False,
-        ),
-        encoding="utf-8",
-    )
-    return path
-
-
-def _write_preflight_config(
-    path: Path,
-    source_root: Path,
-    *,
-    missing_key: str | None = None,
-) -> Path:
-    source_keys = (
-        "atcscc_advisories",
-        "stationinfo",
-        "metar",
-        "taf",
-        "nasr_zip",
-        "nasr_manifest",
-        "pilot_controller_glossary",
-        "term_seed",
-        "bts_on_time_manifest",
-        "bts_on_time_snapshot",
-    )
-    sources: dict[str, str] = {}
-    source_root.mkdir(parents=True, exist_ok=True)
-    for key in source_keys:
-        source_path = source_root / f"{key}.dat"
-        if key != missing_key:
-            source_path.write_text("fixture\n", encoding="utf-8")
-        sources[key] = str(source_path)
-    path.write_text(
-        yaml.safe_dump(
-            {
-                "cohort": {
-                    "advisory_input": sources["atcscc_advisories"],
-                    "airport_codes": ["JFK"],
-                    "expected_record_count": 1,
-                },
-                "sources": sources,
-            },
-            sort_keys=False,
-        ),
-        encoding="utf-8",
-    )
-    return path
-
-
-def test_live_runner_requires_explicit_authorization_before_writes(
-    tmp_path: Path,
-) -> None:
-    config_path = _write_preflight_config(
-        tmp_path / "config.yaml",
-        tmp_path / "sources",
-    )
-    suite_path = _write_frozen_suite(tmp_path / "suite.yaml")
-    output_dir = tmp_path / "runtime"
-
-    with pytest.raises(LiveEvaluationAuthorizationError):
-        run_live_agent_evaluation(
-            config_path=config_path,
-            suite_path=suite_path,
-            output_dir=output_dir,
-            report_dir=tmp_path / "reports",
-            allow_live_model=False,
-            repetitions=1,
-        )
-
-    assert not output_dir.exists()
-
-
-def test_public_live_runner_has_no_fake_factory_injection() -> None:
-    parameters = inspect.signature(run_live_agent_evaluation).parameters
-
-    assert "model_factory" not in parameters
-    assert "case_runner" not in parameters
-    assert "resource_loader" not in parameters
-
-
-def test_live_runner_executes_every_frozen_repetition(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    config_path = _write_preflight_config(
-        tmp_path / "config.yaml",
-        tmp_path / "sources",
-    )
-    suite_path = _write_frozen_suite(
-        tmp_path / "suite.yaml",
-        repetitions=3,
-    )
-    monkeypatch.setenv("DEEPSEEK_API_KEY", "fixture-key")
-    monkeypatch.setattr(live_eval, "_live_preflight_failures", lambda *args, **kwargs: ())
-    monkeypatch.setattr(live_eval, "load_batch_resources", lambda config: object())
-    monkeypatch.setattr(live_eval, "_resource_preflight_failures", lambda resources: ())
-    observed: list[int] = []
-
-    suite = load_live_evaluation_suite(suite_path)
-
-    def run_repetition(**kwargs):
-        repetition = kwargs["repetition"]
-        observed.append(repetition)
-        return tuple(
-            _result(trial.trial_id, live_model=True).model_copy(
-                update={
-                    "repetition": repetition,
-                    "kind": trial.kind,
-                    "source_id": trial.source_id,
-                    "role": trial.expected_role,
-                }
-            )
-            for trial in suite.trials
-        )
-
-    monkeypatch.setattr(
-        live_eval,
-        "_run_live_evaluation_repetition",
-        run_repetition,
-    )
-
-    summary = run_live_agent_evaluation(
-        config_path=config_path,
-        suite_path=suite_path,
-        output_dir=tmp_path / "runtime",
-        report_dir=tmp_path / "reports",
-        allow_live_model=True,
-        repetitions=3,
-    )
-
-    assert observed == [1, 2, 3]
-    assert summary.repetitions == 3
-    assert summary.trial_count == 6
-    assert summary.provider_call_count == 12
-    results = [
-        json.loads(line)
-        for line in (
-            tmp_path / "runtime" / "live_evaluation_results_v3.jsonl"
-        ).read_text(encoding="utf-8").splitlines()
-    ]
-    assert {
-        (row["repetition"], row["trial_id"]) for row in results
-    } == {
-        (repetition, trial.trial_id)
-        for repetition in range(1, 4)
-        for trial in suite.trials
-    }
-
-
-def test_live_runner_continues_after_one_repetition_fails(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    config_path = _write_preflight_config(
-        tmp_path / "config.yaml",
-        tmp_path / "sources",
-    )
-    suite_path = _write_frozen_suite(
-        tmp_path / "suite.yaml",
-        repetitions=3,
-    )
-    suite = load_live_evaluation_suite(suite_path)
-    monkeypatch.setenv("DEEPSEEK_API_KEY", "fixture-key")
-    monkeypatch.setattr(live_eval, "_live_preflight_failures", lambda *args, **kwargs: ())
-    monkeypatch.setattr(live_eval, "load_batch_resources", lambda config: object())
-    monkeypatch.setattr(live_eval, "_resource_preflight_failures", lambda resources: ())
-    observed: list[int] = []
-
-    def run_repetition(**kwargs):
-        repetition = kwargs["repetition"]
-        observed.append(repetition)
-        if repetition == 2:
-            raise RuntimeError("simulated repetition failure")
-        return tuple(
-            _result(trial.trial_id, live_model=True).model_copy(
-                update={
-                    "repetition": repetition,
-                    "kind": trial.kind,
-                    "source_id": trial.source_id,
-                    "role": trial.expected_role,
-                }
-            )
-            for trial in suite.trials
-        )
-
-    monkeypatch.setattr(
-        live_eval,
-        "_run_live_evaluation_repetition",
-        run_repetition,
-    )
-
-    summary = run_live_agent_evaluation(
-        config_path=config_path,
-        suite_path=suite_path,
-        output_dir=tmp_path / "runtime",
-        report_dir=tmp_path / "reports",
-        allow_live_model=True,
-        repetitions=3,
-    )
-
-    assert observed == [1, 2, 3]
-    assert summary.runner_status == "runner_failed"
-    assert summary.trial_count == 6
-    assert summary.not_run_count == 2
-    assert summary.provider_call_count == 8
-    assert summary.runner_detail_codes == (
-        "repetition_002_runner_exception",
-    )
-
-
-def test_repetition_matrix_rejects_missing_duplicate_and_mismatched_rows() -> None:
-    suite = LiveEvaluationSuite(
-        version="live-agent-smoke-v3",
-        suite_id="suite",
-        repetitions=1,
-        trials=(
-            LiveEvaluationTrial(
-                trial_id="integration",
-                kind="integration",
-                source_id="source:integration",
-                expected_role="event_evidence_integration",
-            ),
-        ),
-    )
-    row = _result("integration", live_model=True).model_copy(
-        update={"source_id": "source:integration"}
-    )
-
-    assert live_eval._repetition_matrix_failures(
-        suite=suite,
-        repetitions=1,
-        results=(),
-    ) == ("missing_repetition_trial_result",)
-    assert live_eval._repetition_matrix_failures(
-        suite=suite,
-        repetitions=1,
-        results=(row, row),
-    ) == ("duplicate_repetition_trial_result",)
-    assert live_eval._repetition_matrix_failures(
-        suite=suite,
-        repetitions=1,
-        results=(row.model_copy(update={"source_id": "source:wrong"}),),
-    ) == ("repetition_trial_metadata_mismatch",)
-
-
-def test_missing_credentials_blocks_before_corpus_build(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    config_path = _write_preflight_config(
-        tmp_path / "config.yaml",
-        tmp_path / "sources",
-    )
-    suite_path = _write_frozen_suite(tmp_path / "suite.yaml")
-    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
-    monkeypatch.setattr(
-        live_eval,
-        "build_corpus_batch",
-        lambda *args, **kwargs: pytest.fail("corpus build must not run"),
-        raising=False,
-    )
-
-    summary = run_live_agent_evaluation(
-        config_path=config_path,
-        suite_path=suite_path,
-        output_dir=tmp_path / "runtime",
-        report_dir=tmp_path / "reports",
-        allow_live_model=True,
-        repetitions=1,
-    )
-
-    assert summary.runner_status == "blocked_before_run"
-    assert summary.model_acceptance_status == "blocked"
-    assert summary.trial_count == 0
-    assert summary.provider_call_count == 0
-
-
-def test_missing_required_source_blocks_before_corpus_build(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    config_path = _write_preflight_config(
-        tmp_path / "config.yaml",
-        tmp_path / "sources",
-        missing_key="metar",
-    )
-    suite_path = _write_frozen_suite(tmp_path / "suite.yaml")
-    monkeypatch.setenv("DEEPSEEK_API_KEY", "fixture-key")
-    monkeypatch.setattr(
-        live_eval,
-        "build_corpus_batch",
-        lambda *args, **kwargs: pytest.fail("corpus build must not run"),
-        raising=False,
-    )
-
-    summary = run_live_agent_evaluation(
-        config_path=config_path,
-        suite_path=suite_path,
-        output_dir=tmp_path / "runtime",
-        report_dir=tmp_path / "reports",
-        allow_live_model=True,
-        repetitions=1,
-    )
-
-    assert summary.runner_status == "blocked_before_run"
-    assert summary.trial_count == 0
-    assert summary.provider_call_count == 0
-
-
-def test_batch_case_execution_can_return_transient_model_metadata() -> None:
-    record = ModelCallRecord(
-        agent="event_evidence_integration",
-        raw_response="never persisted by evaluator",
-        provider="deepseek",
-        model="deepseek-v4-pro",
-        temperature=0.0,
-    )
-
-    execution = BatchCaseExecution(
-        result=CorpusBuildResult(
-            source_id="2026-05-20:025",
-            status="insufficient",
-        ),
-        model_calls=(record,),
-    )
-
-    assert execution.model_calls == (record,)
-
-
-def _integration_usage(
-    *,
-    outcome: str = "accepted",
-    detail_status: str = "partial",
-) -> AgentUsageRecord:
-    return AgentUsageRecord(
-        source_id="2026-05-20:025",
-        event_id="urn:event:025",
-        task_id="task:integration:025",
-        role="event_evidence_integration",
-        task_scope="tmi_event_evidence",
-        execution_mode="activated",
-        outcome=outcome,
-        detail_status=detail_status,
-        activation_reason="noncanonical_evidence_or_schema_choice",
-        provider_call_count=2,
-        tool_call_count=2,
-        input_tokens=80,
-        output_tokens=40,
-        provider_latency_ms=50,
-        tool_latency_ms=5,
-    )
-
-
-def _live_call(
-    *,
-    agent: str,
-    tool_name: str | None = None,
-    raw_response: str = "provider payload must never enter the report",
-    error: str | None = None,
-) -> ModelCallRecord:
-    return ModelCallRecord(
-        agent=agent,
-        raw_response=raw_response,
-        prompt_set_id="aviation-tmi-event-agents-v1",
-        prompt_version=f"{agent}-v1",
-        provider="deepseek",
-        model="deepseek-v4-pro",
-        temperature=0.0,
-        input_tokens=40,
-        output_tokens=20,
-        latency_ms=25,
-        error=error,
-        tool_calls=(
-            [
-                ModelToolCall(
-                    call_id="call:1",
-                    name=tool_name,
-                    arguments={"step_id": "step:1"},
-                )
-            ]
-            if tool_name
-            else []
-        ),
-    )
-
-
-@pytest.fixture
-def v3_live_evaluation_corpus(
-    tmp_path: Path,
-) -> tuple[CorpusQueryStore, str, str]:
-    run_dir = tmp_path / "run"
-    corpus_dir = tmp_path / "corpus"
-    _corpus_fixture._write_graph(run_dir)
-    build_corpus([run_dir], corpus_dir)
-    return (
-        CorpusQueryStore(corpus_dir),
-        _corpus_fixture.SOURCE_ID,
-        _corpus_fixture.EVENT_ID,
-    )
-
-
-def test_integration_scoring_reads_v3_weather_and_observation_views(
-    v3_live_evaluation_corpus: tuple[CorpusQueryStore, str, str],
-) -> None:
-    store, source_id, event_id = v3_live_evaluation_corpus
-    trial = LiveEvaluationTrial(
-        trial_id="integration-v3",
-        kind="integration",
-        source_id=source_id,
-        expected_role="event_evidence_integration",
-    )
-    build_result = CorpusBuildResult(
-        source_id=source_id,
-        status="ok",
-        event_id=event_id,
-    )
-    usage = _integration_usage().model_copy(
-        update={"source_id": source_id, "event_id": event_id}
-    )
-    execution = BatchCaseExecution(
-        result=build_result,
-        agent_usage_records=(usage,),
-        model_calls=(
-            _live_call(agent="event_evidence_integration"),
-        ),
-    )
-
-    results = live_eval._score_integration_results(
-        suite=LiveEvaluationSuite(
-            version="live-agent-smoke-v3",
-            suite_id="v3-corpus-regression",
-            repetitions=1,
-            trials=(trial,),
-        ),
-        repetition=1,
-        build_results={source_id: build_result},
-        executions={source_id: execution},
-        store=store,
-    )
-
-    assert len(results) == 1
-    assert results[0].event_id == event_id
-    assert results[0].model_acceptance_status == "passed"
-
-
-def test_analysis_event_resolution_uses_v3_event_lookup(
-    v3_live_evaluation_corpus: tuple[CorpusQueryStore, str, str],
-) -> None:
-    store, source_id, event_id = v3_live_evaluation_corpus
-
-    resolved = live_eval._resolve_analysis_event_id(
-        source_id=source_id,
-        build_results={
-            source_id: CorpusBuildResult(
-                source_id=source_id,
-                status="ok",
-                event_id=event_id,
-            )
-        },
-        store=store,
-    )
-
-    assert resolved == event_id
-
-
-def test_analysis_event_resolution_falls_back_to_v3_event_catalog(
-    v3_live_evaluation_corpus: tuple[CorpusQueryStore, str, str],
-) -> None:
-    store, source_id, event_id = v3_live_evaluation_corpus
-
-    resolved = live_eval._resolve_analysis_event_id(
-        source_id=source_id,
-        build_results={},
-        store=store,
-    )
-
-    assert resolved == event_id
-
-
-def test_integration_scoring_requires_agent_activation_partial_publication() -> None:
-    trial = LiveEvaluationTrial(
-        trial_id="integration-025",
-        kind="integration",
-        source_id="2026-05-20:025",
-        expected_role="event_evidence_integration",
-        forbidden_predicate_iris=(
-            "https://data.nasa.gov/ontologies/atmonto/ATM#impactingCondition",
-        ),
-    )
-
-    result = score_integration_trial(
-        trial=trial,
-        repetition=1,
-        live_model=False,
-        build_result=CorpusBuildResult(
-            source_id=trial.source_id,
-            status="ok",
-            event_id="urn:event:025",
-        ),
-        usage=_integration_usage(),
-        model_calls=(
-            _live_call(
-                agent="event_evidence_integration",
-                tool_name="get_candidate_bundle",
-            ),
-            _live_call(agent="event_evidence_integration"),
-        ),
-        fact_predicate_iris=(
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        ),
-        context_causal_claims=(False, False),
-        observation_profile_layers=("public_operational_observation",),
-    )
-
-    assert result.live_model is False
-    assert result.workflow_status == "ok"
-    assert result.activation_status == "activated"
-    assert result.model_acceptance_status == "passed"
-    assert result.provider_call_count == 2
-    assert result.native_tool_call_count == 1
-    assert all(assertion.passed for assertion in result.assertions)
-    assert "provider payload" not in result.model_dump_json()
-
-
-def test_integration_scoring_records_real_contract_failure_without_passing() -> None:
-    trial = LiveEvaluationTrial(
-        trial_id="integration-025",
-        kind="integration",
-        source_id="2026-05-20:025",
-        expected_role="event_evidence_integration",
-    )
-
-    result = score_integration_trial(
-        trial=trial,
-        repetition=1,
-        live_model=False,
-        build_result=CorpusBuildResult(
-            source_id=trial.source_id,
-            status="insufficient",
-            reason="model output did not satisfy the contract",
-            provider_call_count=2,
-        ),
-        usage=_integration_usage(
-            outcome="abstained",
-            detail_status="insufficient",
-        ),
-        model_calls=(
-            _live_call(agent="event_evidence_integration"),
-            _live_call(agent="event_evidence_integration"),
-        ),
-        fact_predicate_iris=(),
-        context_causal_claims=(),
-        observation_profile_layers=(),
-    )
-
-    assert result.workflow_status == "insufficient"
-    assert result.activation_status == "activated"
-    assert result.model_acceptance_status == "failed"
-    assert result.failure_code == "integration_acceptance_failed"
-
-
-def test_integration_scoring_classifies_output_token_cap_as_model_failure() -> None:
-    trial = LiveEvaluationTrial(
-        trial_id="integration-025",
-        kind="integration",
-        source_id="2026-05-20:025",
-        expected_role="event_evidence_integration",
-    )
-
-    result = score_integration_trial(
-        trial=trial,
-        repetition=1,
-        live_model=False,
-        build_result=CorpusBuildResult(
-            source_id=trial.source_id,
-            status="insufficient",
-            reason="Event Evidence Integration Agent output-token cap exceeded",
-            provider_call_count=2,
-        ),
-        usage=_integration_usage(
-            outcome="blocked",
-            detail_status="blocked",
-        ),
-        model_calls=(
-            _live_call(agent="event_evidence_integration"),
-            _live_call(agent="event_evidence_integration"),
-        ),
-        fact_predicate_iris=(),
-        context_causal_claims=(),
-        observation_profile_layers=(),
-    )
-
-    assert result.model_acceptance_status == "failed"
-    assert result.failure_code == "integration_output_token_cap_exceeded"
-
-
-def _supported_query_outcome(*, statement_text: str) -> QueryToolOutcome:
-    return QueryToolOutcome(
-        status="ok",
-        answer=statement_text,
-        source_ids=["bts:on-time:2026-05"],
-        retrieved_fact_ids=["fact:observation"],
-        retrieved_observation_ids=["observation:active"],
-        answer_statements=[
-            HybridQueryStatement(
-                kind="public_observation",
-                text=statement_text,
-                support_fact_ids=("fact:observation",),
-                support_observation_ids=("observation:active",),
-                support_source_ids=("bts:on-time:2026-05",),
-            )
-        ],
-        support_records=[
-            HybridQuerySupportRecord(
-                kind="public_observation",
-                fact_ids=("fact:observation",),
-                observation_ids=("observation:active",),
-                source_ids=("bts:on-time:2026-05",),
-            )
-        ],
-        model_calls=[
-            _live_call(
-                agent="query",
-                tool_name="read_public_observations",
-                raw_response="",
-            ),
-            _live_call(
-                agent="query",
-                raw_response="sk-secret raw model payload must be ignored",
-            ),
-        ],
-        tool_calls=[
-            QueryToolTrace(
-                tool_call_id="trace:1",
-                tool="read_public_observations",
-                arguments={"event_id": "urn:event:gdp-138"},
-                result_refs=[
-                    "fact:observation",
-                    "observation:active",
-                ],
-                observation_ids=["observation:active"],
-                source_ids=["bts:on-time:2026-05"],
-                status="ok",
-            )
-        ],
-    )
-
-
-def test_hybrid_query_run_artifact_is_sanitized_and_drives_scoring(
-    tmp_path: Path,
-) -> None:
-    trial = LiveEvaluationTrial(
-        trial_id="query-gdp-138",
-        kind="analysis",
-        source_id="2026-05-19:138",
-        expected_role="query",
-        question="What public operational situation is recorded?",
-    )
-    outcome = _supported_query_outcome(
-        statement_text=(
-            "BTS reports source-qualified active-period observations."
-        )
-    )
-    query_run = build_hybrid_query_run_artifact(
-        trial=trial,
-        event_id="urn:event:gdp-138",
-        outcome=outcome,
-    )
-    artifact_path = write_hybrid_query_run_artifact(
-        tmp_path / "query",
-        query_run,
-    )
-
-    result = score_analysis_trial(
-        trial=trial,
-        repetition=1,
-        live_model=False,
-        event_id="urn:event:gdp-138",
-        outcome=outcome,
-        query_run=query_run,
-        query_run_artifact_path=artifact_path,
-    )
-
-    payload = json.loads(artifact_path.read_text(encoding="utf-8"))
-    serialized = artifact_path.read_text(encoding="utf-8")
-    assert artifact_path.name == "hybrid_query_run.json"
-    assert payload["statements"][0]["kind"] == "public_observation"
-    assert payload["statements"][0]["observation_ids"] == [
-        "observation:active"
-    ]
-    assert payload["support_records"][0] == {
-        "kind": "public_observation",
-        "event_ids": [],
-        "fact_ids": ["fact:observation"],
-        "profile_gap_ids": [],
-        "context_association_ids": [],
-        "observation_ids": ["observation:active"],
-        "graph_path_ids": [],
-        "source_ids": ["bts:on-time:2026-05"],
-    }
-    assert payload["tools"][0] == {
-        "name": "read_public_observations",
-        "status": "ok",
-        "reference_ids": [
-            "fact:observation",
-            "observation:active",
-        ],
-        "source_ids": ["bts:on-time:2026-05"],
-    }
-    assert "arguments" not in serialized
-    assert "raw_response" not in serialized
-    assert "provider payload" not in serialized
-    assert "sk-secret" not in serialized
-    assert result.workflow_status == "ok"
-    assert result.activation_status == "activated"
-    assert result.model_acceptance_status == "passed"
-    assert result.bound_tool_execution_count == 1
-    assert result.query_run_artifact == str(artifact_path)
-    assert result.query_run_artifact_sha256 == hashlib.sha256(
-        artifact_path.read_bytes()
-    ).hexdigest()
-
-
-@pytest.mark.parametrize(
-    ("statement_text", "expected_failed_check"),
-    [
-        (
-            "BTS observations prove FAA arrival capacity caused the decision.",
-            "statement_claim_boundaries",
-        ),
-    ],
-)
-def test_hybrid_query_scoring_rejects_claim_boundary_violations(
-    statement_text: str,
-    expected_failed_check: str,
-) -> None:
-    trial = LiveEvaluationTrial(
-        trial_id="query-gdp-138",
-        kind="analysis",
-        source_id="2026-05-19:138",
-        expected_role="query",
-        question="What public operational situation is recorded?",
-    )
-    outcome = _supported_query_outcome(statement_text=statement_text)
-    query_run = build_hybrid_query_run_artifact(
-        trial=trial,
-        event_id="urn:event:gdp-138",
-        outcome=outcome,
-    )
-
-    result = score_analysis_trial(
-        trial=trial,
-        repetition=1,
-        live_model=False,
-        event_id="urn:event:gdp-138",
-        outcome=outcome,
-        query_run=query_run,
-    )
-
-    failed_checks = {
-        assertion.check_id
-        for assertion in result.assertions
-        if not assertion.passed
-    }
-    assert expected_failed_check in failed_checks
-    assert result.model_acceptance_status == "failed"
-
-
-def test_hybrid_query_scoring_rejects_statement_citation_not_in_tool_trace() -> None:
-    trial = LiveEvaluationTrial(
-        trial_id="query-gdp-138",
-        kind="analysis",
-        source_id="2026-05-19:138",
-        expected_role="query",
-        question="What public operational situation is recorded?",
-    )
-    outcome = _supported_query_outcome(
-        statement_text="BTS reports an active-period observation."
-    )
-    outcome = outcome.model_copy(
-        update={
-            "answer_statements": [
-                HybridQueryStatement(
-                    kind="public_observation",
-                    text="BTS reports an active-period observation.",
-                    support_fact_ids=("fact:not-returned",),
-                    support_observation_ids=("observation:active",),
-                    support_source_ids=("bts:on-time:2026-05",),
-                )
-            ]
-        }
-    )
-    query_run = build_hybrid_query_run_artifact(
-        trial=trial,
-        event_id="urn:event:gdp-138",
-        outcome=outcome,
-    )
-
-    result = score_analysis_trial(
-        trial=trial,
-        repetition=1,
-        live_model=False,
-        event_id="urn:event:gdp-138",
-        outcome=outcome,
-        query_run=query_run,
-    )
-
-    assert query_run.statements[0].citation_valid is False
-    assert any(
-        assertion.check_id == "statement_citations"
-        and not assertion.passed
-        for assertion in result.assertions
-    )
-    assert result.model_acceptance_status == "failed"
-
-
-def test_analysis_contract_rejection_is_failed_not_runner_blocked() -> None:
-    trial = LiveEvaluationTrial(
-        trial_id="analysis-gdp-138",
-        kind="analysis",
-        source_id="2026-05-19:138",
-        expected_role="query",
-        question="What public operational situation is recorded?",
-    )
-    outcome = QueryToolOutcome(
-        status="blocked",
-        source_ids=["bts:on-time:2026-05"],
-        retrieved_fact_ids=["fact:observation"],
-        model_calls=[
-            _live_call(
-                agent="query",
-                tool_name="read_public_observations",
-            )
-        ],
-        tool_calls=[
-            QueryToolTrace(
-                tool_call_id="trace:1",
-                tool="read_public_observations",
-                arguments={"event_id": "urn:event:gdp-138"},
-                result_refs=["fact:observation"],
-                source_ids=["bts:on-time:2026-05"],
-                status="ok",
-            )
-        ],
-        failure_reason="model answer failed the typed answer contract",
-    )
-
-    result = score_analysis_trial(
-        trial=trial,
-        repetition=1,
-        live_model=False,
-        event_id="urn:event:gdp-138",
-        outcome=outcome,
-    )
-
-    assert result.model_acceptance_status == "failed"
-    assert (
-        result.failure_code
-        == "analysis_answer_contract_or_support_failed"
-    )
-
-
-def test_blocked_corpus_dependency_does_not_activate_analysis() -> None:
-    trial = LiveEvaluationTrial(
-        trial_id="analysis-gdp-138",
-        kind="analysis",
-        source_id="2026-05-19:138",
-        expected_role="query",
-        question="What public operational situation is recorded?",
-    )
-
-    result = live_eval._blocked_analysis_result(
-        trial=trial,
-        repetition=1,
-        failure_code="analysis_dependency_corpus_not_published",
-        live_model=False,
-    )
-
-    assert result.workflow_status == "not_run"
-    assert result.activation_status == "not_reached"
-    assert result.provider_call_count == 0
-    assert result.model_acceptance_status == "not_run"

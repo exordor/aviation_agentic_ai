@@ -1,4 +1,4 @@
-"""Explicit real-model smoke evaluation for bounded TMI-event Agents."""
+"""Explicit real-model smoke evaluation for the bounded TMI Query Agent."""
 
 from __future__ import annotations
 
@@ -13,14 +13,9 @@ from typing import Any, Literal, Mapping, Sequence
 import yaml
 from pydantic import Field, model_validator
 
-from aviation_agentic_ai.agent_system.agent_usage import AgentUsageRecord
 from aviation_agentic_ai.agent_system.audit import sanitize_text
 from aviation_agentic_ai.agent_system.authority_evidence import (
     AuthorityBuildStatus,
-)
-from aviation_agentic_ai.agent_system.event_evidence_integration import (
-    MAX_INTEGRATION_PROVIDER_TURNS,
-    MAX_INTEGRATION_TOOL_CALLS,
 )
 from aviation_agentic_ai.agent_system.contracts import (
     ModelCallRecord,
@@ -29,10 +24,8 @@ from aviation_agentic_ai.agent_system.contracts import (
 )
 from aviation_agentic_ai.agent_system.corpus_batch import build_corpus_batch
 from aviation_agentic_ai.agent_system.corpus_batch import (
-    BatchCaseExecution,
     BatchResources,
     load_batch_resources,
-    run_batch_case,
 )
 from aviation_agentic_ai.agent_system.corpus_query import (
     answer_corpus_question,
@@ -74,15 +67,6 @@ REQUIRED_LIVE_SOURCE_KEYS = (
     "bts_on_time_manifest",
     "bts_on_time_snapshot",
 )
-FORBIDDEN_OPERATIONAL_OR_CAUSAL_PREDICATES = frozenset(
-    {
-        "https://data.nasa.gov/ontologies/atmonto/data#arrivalDemand",
-        "https://data.nasa.gov/ontologies/atmonto/data#airportArrivalRate",
-        "urn:aviation-agentic-ai:causedBy",
-        "urn:aviation-agentic-ai:motivatedBy",
-        "urn:aviation-agentic-ai:affectedBy",
-    }
-)
 HYBRID_QUERY_READ_TOOLS = frozenset(
     {
         "find_tmi_events",
@@ -90,7 +74,7 @@ HYBRID_QUERY_READ_TOOLS = frozenset(
         "read_weather_context",
         "read_public_observations",
         "read_tmi_event_graph",
-        "find_similar_tmi_events",
+        "rank_tmi_events_by_metadata",
     }
 )
 
@@ -100,39 +84,41 @@ class LiveEvaluationAuthorizationError(RuntimeError):
 
 
 class LiveEvaluationTrial(StrictModel):
-    """One frozen Integration or Analysis trial."""
+    """One versioned development or regression Query Agent trial."""
 
     trial_id: str = Field(min_length=1)
-    kind: Literal["integration", "analysis"]
+    kind: Literal["query"] = "query"
+    partition: Literal["development", "regression"]
     source_id: str = Field(min_length=1)
-    expected_role: Literal[
-        "event_evidence_integration",
-        "query",
-    ]
-    question: str | None = None
-    forbidden_predicate_iris: tuple[str, ...] = ()
+    expected_role: Literal["query"] = "query"
+    question: str = Field(min_length=1)
+    required_tool_names: tuple[str, ...] = ()
+    required_graph_path_kinds: tuple[str, ...] = ()
 
     @model_validator(mode="after")
-    def _validate_kind(self) -> "LiveEvaluationTrial":
-        if self.kind == "analysis" and not self.question:
-            raise ValueError("analysis trial requires question")
-        if self.kind == "integration" and self.question is not None:
-            raise ValueError("integration trial does not accept question")
-        expected = {
-            "integration": "event_evidence_integration",
-            "analysis": "query",
-        }[self.kind]
-        if self.expected_role != expected:
-            raise ValueError("trial kind and expected_role disagree")
+    def _validate_requirements(self) -> "LiveEvaluationTrial":
+        unknown = set(self.required_tool_names) - HYBRID_QUERY_READ_TOOLS
+        if unknown:
+            raise ValueError(
+                "required_tool_names contains unknown Query Agent tools"
+            )
+        if (
+            self.required_graph_path_kinds
+            and "read_tmi_event_graph" not in self.required_tool_names
+        ):
+            raise ValueError(
+                "required graph paths require read_tmi_event_graph"
+            )
         return self
 
 
 class LiveEvaluationSuite(StrictModel):
-    """Frozen smoke-evaluation manifest."""
+    """Versioned development/regression smoke-evaluation manifest."""
 
-    version: Literal["live-agent-smoke-v3"]
+    version: Literal["live-agent-smoke-v4"]
     suite_id: str = Field(min_length=1)
     repetitions: int = Field(default=1, ge=1)
+    future_frozen_evaluation: Literal["not_constructed"] = "not_constructed"
     trials: tuple[LiveEvaluationTrial, ...] = Field(min_length=1)
 
     @model_validator(mode="after")
@@ -219,6 +205,7 @@ class HybridQueryRunArtifact(StrictModel):
     statements: tuple[HybridQueryRunStatement, ...] = ()
     support_records: tuple[HybridQueryRunSupport, ...] = ()
     tools: tuple[HybridQueryRunTool, ...] = ()
+    graph_path_kinds: tuple[str, ...] = ()
 
 
 class LiveEvaluationResult(StrictModel):
@@ -226,13 +213,10 @@ class LiveEvaluationResult(StrictModel):
 
     trial_id: str = Field(min_length=1)
     repetition: int = Field(ge=1)
-    kind: Literal["integration", "analysis"]
+    kind: Literal["query"]
     source_id: str = Field(min_length=1)
     event_id: str | None = None
-    role: Literal[
-        "event_evidence_integration",
-        "query",
-    ]
+    role: Literal["query"]
     live_model: bool
     workflow_status: Literal["ok", "insufficient", "blocked", "not_run"]
     activation_status: Literal["activated", "not_activated", "not_reached"]
@@ -266,8 +250,8 @@ class LiveEvaluationResult(StrictModel):
 class LiveEvaluationSummary(StrictModel):
     """Aggregate smoke outcome, separate from canonical corpus identity."""
 
-    manifest_version: Literal["tmi-event-live-evaluation-v3"] = (
-        "tmi-event-live-evaluation-v3"
+    manifest_version: Literal["tmi-event-live-evaluation-v4"] = (
+        "tmi-event-live-evaluation-v4"
     )
     suite_id: str = Field(min_length=1)
     suite_checksum: str = Field(min_length=64, max_length=64)
@@ -308,8 +292,9 @@ class LiveEvaluationSummary(StrictModel):
     tool_latency_ms: float = Field(ge=0.0)
     claim_boundary: str = (
         "Provider compatibility and bounded-behavior measurements over a "
-        "frozen task suite; repetitions are repeated measurements, not "
-        "independent samples or a Semantic Resolution evaluation."
+        "versioned development/regression task suite; repetitions are "
+        "repeated measurements, not independent samples, a frozen holdout, "
+        "or a Semantic Resolution evaluation."
     )
 
 
@@ -374,152 +359,6 @@ def _shared_model_metadata(
         "output_tokens": sum(call.output_tokens for call in calls),
         "provider_latency_ms": sum(call.latency_ms for call in calls),
     }
-
-
-def _integration_failure_code(
-    *,
-    build_result: CorpusBuildResult,
-    calls: Sequence[ModelCallRecord],
-) -> str:
-    reason = build_result.reason.lower()
-    if "provider output was truncated" in reason:
-        return "integration_provider_output_truncated"
-    if "output budget exceeded" in reason:
-        return "integration_output_budget_exceeded"
-    if "output-token cap exceeded" in reason:
-        return "integration_output_token_cap_exceeded"
-    if "malformed event evidence integration selection output" in reason:
-        return "integration_malformed_selection_output"
-    if "malformed event evidence integration proposal output" in reason:
-        return "integration_malformed_contract_output"
-    if any(call.error for call in calls):
-        return "integration_provider_or_model_call_error"
-    if build_result.status == "blocked":
-        return "integration_execution_blocked"
-    return "integration_acceptance_failed"
-
-
-def score_integration_trial(
-    *,
-    trial: LiveEvaluationTrial,
-    repetition: int,
-    live_model: bool,
-    build_result: CorpusBuildResult,
-    usage: AgentUsageRecord,
-    model_calls: Sequence[ModelCallRecord],
-    fact_predicate_iris: Sequence[str],
-    context_causal_claims: Sequence[bool],
-    observation_profile_layers: Sequence[str],
-) -> LiveEvaluationResult:
-    """Score one real Integration execution without retaining model payloads."""
-
-    calls = tuple(
-        call
-        for call in model_calls
-        if call.agent == "event_evidence_integration"
-    )
-    native_tool_count = sum(len(call.tool_calls) for call in calls)
-    forbidden = {
-        *trial.forbidden_predicate_iris,
-        *FORBIDDEN_OPERATIONAL_OR_CAUSAL_PREDICATES,
-    }
-    assertions = (
-        _assertion(
-            "agent_activated",
-            usage.execution_mode == "activated" and bool(calls),
-            passed_code="activated_with_real_provider_calls",
-            failed_code="integration_agent_not_activated",
-        ),
-        _assertion(
-            "bounded_execution",
-            1 <= len(calls) <= MAX_INTEGRATION_PROVIDER_TURNS
-            and native_tool_count <= MAX_INTEGRATION_TOOL_CALLS,
-            passed_code="within_existing_model_and_tool_budgets",
-            failed_code="integration_budget_not_satisfied",
-        ),
-        _assertion(
-            "frozen_model_contract",
-            _model_configuration_ok(
-                calls,
-                role="event_evidence_integration",
-            ),
-            passed_code="frozen_deepseek_configuration_observed",
-            failed_code="model_configuration_or_provider_call_failed",
-        ),
-        _assertion(
-            "publishable_partial_case",
-            build_result.status == "ok"
-            and bool(build_result.event_id)
-            and usage.outcome == "accepted"
-            and usage.detail_status == "partial",
-            passed_code="partial_case_passed_formal_publication",
-            failed_code="partial_case_not_published",
-        ),
-        _assertion(
-            "missing_reason_not_invented",
-            not forbidden.intersection(fact_predicate_iris),
-            passed_code="forbidden_reason_predicates_absent",
-            failed_code="forbidden_reason_predicate_published",
-        ),
-        _assertion(
-            "context_remains_noncausal",
-            not any(context_causal_claims),
-            passed_code="all_context_associations_noncausal",
-            failed_code="causal_context_association_observed",
-        ),
-        _assertion(
-            "public_observation_role_preserved",
-            all(
-                layer == "public_operational_observation"
-                for layer in observation_profile_layers
-            ),
-            passed_code="all_bts_facts_use_public_observation_profile",
-            failed_code="bts_fact_escaped_public_observation_profile",
-        ),
-    )
-    blocked = build_result.status == "blocked"
-    if blocked:
-        acceptance: Literal["passed", "failed", "blocked", "not_run"] = (
-            "blocked"
-        )
-    elif all(assertion.passed for assertion in assertions):
-        acceptance = "passed"
-    else:
-        acceptance = "failed"
-    activation = (
-        "activated"
-        if usage.execution_mode == "activated"
-        else (
-            "not_reached"
-            if usage.execution_mode == "not_reached"
-            else "not_activated"
-        )
-    )
-    return LiveEvaluationResult(
-        trial_id=trial.trial_id,
-        repetition=repetition,
-        kind="integration",
-        source_id=trial.source_id,
-        event_id=build_result.event_id or usage.event_id,
-        role="event_evidence_integration",
-        live_model=live_model,
-        workflow_status=build_result.status,
-        activation_status=activation,
-        model_acceptance_status=acceptance,
-        detail_status=usage.detail_status,
-        assertions=assertions,
-        bound_tool_execution_count=0,
-        tool_latency_ms=usage.tool_latency_ms,
-        failure_code=(
-            ""
-            if acceptance == "passed"
-            else _integration_failure_code(
-                build_result=build_result,
-                calls=calls,
-            )
-        ),
-        **_shared_model_metadata(calls),
-    )
 
 
 def build_hybrid_query_run_artifact(
@@ -610,6 +449,14 @@ def build_hybrid_query_run_artifact(
         statements=statements,
         support_records=support_summaries,
         tools=tools,
+        graph_path_kinds=tuple(
+            sorted(
+                {
+                    path.path_kind
+                    for path in outcome.retrieved_graph_paths
+                }
+            )
+        ),
     )
 
 
@@ -629,7 +476,7 @@ def write_hybrid_query_run_artifact(
     return path
 
 
-def score_analysis_trial(
+def score_query_trial(
     *,
     trial: LiveEvaluationTrial,
     repetition: int,
@@ -655,14 +502,14 @@ def score_analysis_trial(
             "agent_activated",
             bool(calls),
             passed_code="activated_with_real_provider_calls",
-            failed_code="analysis_agent_not_activated",
+            failed_code="query_agent_not_activated",
         ),
         _assertion(
             "bounded_execution",
             1 <= len(calls) <= MAX_QUERY_PROVIDER_TURNS
             and len(outcome.tool_calls) <= MAX_QUERY_TOOL_CALLS,
             passed_code="within_existing_model_and_tool_budgets",
-            failed_code="analysis_budget_not_satisfied",
+            failed_code="query_budget_not_satisfied",
         ),
         _assertion(
             "frozen_model_contract",
@@ -731,6 +578,23 @@ def score_analysis_trial(
             passed_code="query_tool_trace_has_support_without_blocked_tools",
             failed_code="query_tool_trace_missing_or_unsuccessful",
         ),
+        _assertion(
+            "required_tools_observed",
+            set(trial.required_tool_names).issubset(bound_tools),
+            passed_code="all_required_query_tools_observed",
+            failed_code="required_query_tool_not_observed",
+        ),
+        _assertion(
+            "required_graph_paths_observed",
+            set(trial.required_graph_path_kinds).issubset(
+                {
+                    path.path_kind
+                    for path in outcome.retrieved_graph_paths
+                }
+            ),
+            passed_code="all_required_graph_path_kinds_observed",
+            failed_code="required_graph_path_kind_not_observed",
+        ),
     )
     blocked = any(call.error for call in calls)
     if blocked:
@@ -744,7 +608,7 @@ def score_analysis_trial(
     return LiveEvaluationResult(
         trial_id=trial.trial_id,
         repetition=repetition,
-        kind="analysis",
+        kind="query",
         source_id=trial.source_id,
         event_id=event_id,
         role="query",
@@ -776,12 +640,12 @@ def score_analysis_trial(
             ""
             if acceptance == "passed"
             else (
-                "analysis_provider_or_model_call_error"
+                "query_provider_or_model_call_error"
                 if acceptance == "blocked"
                 else (
-                    "analysis_answer_contract_or_support_failed"
+                    "query_answer_contract_or_support_failed"
                     if outcome.status == "blocked"
-                    else "analysis_acceptance_failed"
+                    else "query_acceptance_failed"
                 )
             )
         ),
@@ -882,7 +746,7 @@ def _markdown_report(
     results: Sequence[LiveEvaluationResult],
 ) -> str:
     lines = [
-        "# Agent System Live Agent Smoke v3",
+        "# Agent System Query Agent Smoke v4",
         "",
         "## Boundary",
         "",
@@ -951,14 +815,14 @@ def write_live_evaluation_artifacts(
     reports = Path(report_dir)
     runtime.mkdir(parents=True, exist_ok=True)
     reports.mkdir(parents=True, exist_ok=True)
-    result_path = runtime / "live_evaluation_results_v3.jsonl"
+    result_path = runtime / "live_evaluation_results_v4.jsonl"
     result_path.write_bytes(_result_bytes(results))
-    manifest_path = runtime / "live_evaluation_manifest_v3.json"
+    manifest_path = runtime / "live_evaluation_manifest_v4.json"
     manifest_path.write_text(
         summary.model_dump_json(indent=2) + "\n",
         encoding="utf-8",
     )
-    report_json = reports / "agent_system_live_agent_smoke_v3.json"
+    report_json = reports / "agent_system_live_agent_smoke_v4.json"
     report_json.write_text(
         json.dumps(
             {
@@ -973,7 +837,7 @@ def write_live_evaluation_artifacts(
         + "\n",
         encoding="utf-8",
     )
-    report_markdown = reports / "agent_system_live_agent_smoke_v3.md"
+    report_markdown = reports / "agent_system_live_agent_smoke_v4.md"
     report_markdown.write_text(
         _markdown_report(summary, results),
         encoding="utf-8",
@@ -996,7 +860,7 @@ def _live_preflight_failures(
     if FROZEN_TEMPERATURE != 0.0:
         failures.append("temperature_not_zero")
     catalog = get_prompt_catalog()
-    for role in ("event_evidence_integration", "query"):
+    for role in ("query",):
         prompt = catalog.role(role)
         if prompt.temperature != 0.0:
             failures.append(f"{role}_temperature_not_zero")
@@ -1036,7 +900,7 @@ def _resource_preflight_failures(
     return tuple(failures)
 
 
-def _blocked_analysis_result(
+def _blocked_query_result(
     *,
     trial: LiveEvaluationTrial,
     repetition: int,
@@ -1046,7 +910,7 @@ def _blocked_analysis_result(
     return LiveEvaluationResult(
         trial_id=trial.trial_id,
         repetition=repetition,
-        kind="analysis",
+        kind="query",
         source_id=trial.source_id,
         role="query",
         live_model=live_model,
@@ -1055,7 +919,7 @@ def _blocked_analysis_result(
         model_acceptance_status="not_run",
         assertions=(
             LiveEvaluationAssertion(
-                check_id="analysis_dependency",
+                check_id="query_dependency",
                 passed=False,
                 detail_code=failure_code,
             ),
@@ -1130,101 +994,7 @@ def _repetition_matrix_failures(
     return tuple(sorted(set(failures)))
 
 
-def _integration_usage_from_execution(
-    execution: BatchCaseExecution | None,
-    *,
-    source_id: str,
-) -> AgentUsageRecord:
-    if execution is not None:
-        for row in execution.agent_usage_records:
-            if (
-                row.role == "event_evidence_integration"
-                and row.task_scope == "tmi_event_evidence"
-            ):
-                return row
-    return AgentUsageRecord(
-        source_id=source_id,
-        event_id=None,
-        task_id=f"live-evaluation:not-reached:{source_id}",
-        role="event_evidence_integration",
-        task_scope="tmi_event_evidence",
-        execution_mode="not_reached",
-        outcome="blocked",
-        detail_status="workflow_exception",
-        activation_reason="execution_not_returned_to_recording_runner",
-    )
-
-
-def _score_integration_results(
-    *,
-    suite: LiveEvaluationSuite,
-    repetition: int,
-    build_results: Mapping[str, CorpusBuildResult],
-    executions: Mapping[str, BatchCaseExecution],
-    store: CorpusQueryStore | None,
-) -> list[LiveEvaluationResult]:
-    scored: list[LiveEvaluationResult] = []
-    for trial in suite.trials:
-        if trial.kind != "integration":
-            continue
-        build_result = build_results.get(
-            trial.source_id,
-            CorpusBuildResult(
-                source_id=trial.source_id,
-                status="blocked",
-                reason="missing batch result",
-            ),
-        )
-        execution = executions.get(trial.source_id)
-        usage = _integration_usage_from_execution(
-            execution,
-            source_id=trial.source_id,
-        )
-        facts = (
-            store.get_event_facts(build_result.event_id)
-            if store is not None and build_result.event_id
-            else ()
-        )
-        context = (
-            store.get_weather_context(build_result.event_id)
-            if store is not None and build_result.event_id
-            else ()
-        )
-        observations = (
-            store.get_public_observations(build_result.event_id)
-            if store is not None and build_result.event_id
-            else ()
-        )
-        facts_by_id = {fact.fact_id: fact for fact in facts}
-        observation_layers = tuple(
-            facts_by_id[fact_id].validation_profile.layer
-            for observation in observations
-            for fact_id in observation.fact_ids
-            if fact_id in facts_by_id
-        )
-        scored.append(
-            score_integration_trial(
-                trial=trial,
-                repetition=repetition,
-                live_model=True,
-                build_result=build_result,
-                usage=usage,
-                model_calls=(
-                    execution.model_calls if execution is not None else ()
-                ),
-                fact_predicate_iris=tuple(
-                    fact.predicate_iri for fact in facts
-                ),
-                context_causal_claims=tuple(
-                    row.causal_claim for row in context
-                ),
-                observation_profile_layers=observation_layers,
-            )
-        )
-    return scored
-
-
-def _resolve_analysis_event_id(
+def _resolve_query_event_id(
     *,
     source_id: str,
     build_results: Mapping[str, CorpusBuildResult],
@@ -1249,7 +1019,7 @@ def _run_live_evaluation_repetition(
     runtime_root: Path,
     repetition: int,
 ) -> tuple[LiveEvaluationResult, ...]:
-    """Execute one isolated real-provider repetition of the frozen suite."""
+    """Execute one isolated real-provider repetition of the versioned suite."""
 
     repetition_root = (
         runtime_root
@@ -1257,32 +1027,15 @@ def _run_live_evaluation_repetition(
         else runtime_root / "repetitions" / f"{repetition:03d}"
     )
     corpus_dir = repetition_root / "corpus"
-    executions: dict[str, BatchCaseExecution] = {}
-
-    def recording_runner(
-        advisory: Any,
-        shared_resources: BatchResources,
-        staging_dir: Path,
-        authorized: bool,
-    ) -> BatchCaseExecution:
-        execution = run_batch_case(
-            advisory,
-            shared_resources,
-            staging_dir,
-            authorized,
-        )
-        executions[advisory.source_id] = execution
-        return execution
 
     batch = build_corpus_batch(
         config,
         corpus_dir,
         selection="cohort",
         source_ids=suite.build_source_ids,
-        allow_live_model=True,
+        allow_live_model=False,
         resume=False,
         resource_loader=lambda _config: resources,
-        case_runner=recording_runner,
     )
     build_results = {row.source_id: row for row in batch.results}
     store = (
@@ -1290,40 +1043,33 @@ def _run_live_evaluation_repetition(
         if (corpus_dir / "corpus_manifest.json").is_file()
         else None
     )
-    results = _score_integration_results(
-        suite=suite,
-        repetition=repetition,
-        build_results=build_results,
-        executions=executions,
-        store=store,
-    )
-    for trial in (row for row in suite.trials if row.kind == "analysis"):
+    results: list[LiveEvaluationResult] = []
+    for trial in suite.trials:
         if store is None:
             results.append(
-                _blocked_analysis_result(
+                _blocked_query_result(
                     trial=trial,
                     repetition=repetition,
-                    failure_code="analysis_dependency_corpus_not_published",
+                    failure_code="query_dependency_corpus_not_published",
                     live_model=True,
                 )
             )
             continue
-        event_id = _resolve_analysis_event_id(
+        event_id = _resolve_query_event_id(
             source_id=trial.source_id,
             build_results=build_results,
             store=store,
         )
         if event_id is None:
             results.append(
-                _blocked_analysis_result(
+                _blocked_query_result(
                     trial=trial,
                     repetition=repetition,
-                    failure_code="analysis_dependency_event_not_found",
+                    failure_code="query_dependency_event_not_found",
                     live_model=True,
                 )
             )
             continue
-        assert trial.question is not None
         outcome = answer_corpus_question(
             corpus_dir=corpus_dir,
             question=trial.question,
@@ -1343,7 +1089,7 @@ def _run_live_evaluation_repetition(
             query_run,
         )
         results.append(
-            score_analysis_trial(
+            score_query_trial(
                 trial=trial,
                 repetition=repetition,
                 live_model=True,
@@ -1375,7 +1121,7 @@ def run_live_agent_evaluation(
     suite = load_live_evaluation_suite(suite_file)
     if repetitions != suite.repetitions:
         raise ValueError(
-            "requested repetitions differ from the frozen suite"
+            "requested repetitions differ from the versioned suite"
         )
     config = load_yaml(config_path)
     load_environment()
@@ -1465,7 +1211,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     """Run the explicit frozen live smoke from the command line."""
 
     parser = argparse.ArgumentParser(
-        description="Run the frozen DeepSeek bounded-Agent smoke evaluation."
+        description="Run the frozen DeepSeek Query Agent smoke evaluation."
     )
     parser.add_argument("--config", required=True)
     parser.add_argument("--suite", required=True)
@@ -1486,7 +1232,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     except (LiveEvaluationAuthorizationError, ValueError) as exc:
         parser.error(str(exc))
     print(
-        "Live Agent smoke: "
+        "Query Agent smoke: "
         f"runner={summary.runner_status}, "
         f"acceptance={summary.model_acceptance_status}, "
         f"trials={summary.trial_count}, "
@@ -1515,8 +1261,7 @@ __all__ = [
     "load_live_evaluation_suite",
     "main",
     "run_live_agent_evaluation",
-    "score_analysis_trial",
-    "score_integration_trial",
+    "score_query_trial",
     "summarize_live_evaluation",
     "write_hybrid_query_run_artifact",
     "write_live_evaluation_artifacts",

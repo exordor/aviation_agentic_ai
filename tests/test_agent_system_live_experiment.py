@@ -4,7 +4,11 @@ import hashlib
 import inspect
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
+import pytest
+
+import aviation_agentic_ai.agent_system.live_agent_experiment as experiment_module
 from aviation_agentic_ai.agent_system.contracts import (
     ModelCallRecord,
     ModelToolCall,
@@ -28,16 +32,16 @@ def _call(
     index: int,
     *,
     cycle: int = 1,
-    trial_id: str = "integration-025",
+    trial_id: str = "query-084-facts",
     error: str | None = None,
     cache_hit: bool = False,
     model: str = "deepseek-v4-pro",
 ) -> ObservedProviderCall:
     record = ModelCallRecord(
-        agent="event_evidence_integration",
+        agent="query",
         raw_response=f"real provider response {index}",
-        prompt_set_id="aviation-tmi-event-agents-v1",
-        prompt_version="event-evidence-integration-v1",
+        prompt_set_id="aviation-tmi-query-agent-v1",
+        prompt_version="hybrid-query-agent-v1",
         provider="deepseek",
         model=model,
         temperature=0.0,
@@ -50,8 +54,8 @@ def _call(
         tool_calls=[
             ModelToolCall(
                 call_id=f"provider-call-{index}",
-                name="get_candidate_bundle",
-                arguments={"source_id": "2026-05-20:025"},
+                name="read_tmi_event_facts",
+                arguments={"event_id": "urn:event:084"},
             )
         ],
     )
@@ -59,9 +63,9 @@ def _call(
         experiment_id="experiment-v1",
         cycle=cycle,
         trial_id=trial_id,
-        kind="integration",
-        source_id="2026-05-20:025",
-        phase="select_tool",
+        kind="query",
+        source_id="2026-05-20:084",
+        phase="query_step",
         record=record,
         native_response={
             "type": "ai",
@@ -69,8 +73,8 @@ def _call(
             "tool_calls": [
                 {
                     "id": f"provider-call-{index}",
-                    "name": "get_candidate_bundle",
-                    "args": {"source_id": "2026-05-20:025"},
+                    "name": "read_tmi_event_facts",
+                    "args": {"event_id": "urn:event:084"},
                 }
             ],
             "response_metadata": {
@@ -88,27 +92,24 @@ def _call(
 
 def test_tracked_experiment_suite_freezes_real_call_threshold_and_tasks() -> None:
     suite = load_live_agent_experiment_suite(
-        "data/evaluation/agent_system/live_agent_experiment_v3.yaml"
+        "data/evaluation/agent_system/live_agent_experiment_v4.yaml"
     )
 
     assert isinstance(suite, LiveAgentExperimentSuite)
     assert suite.minimum_successful_calls == 100
-    assert suite.minimum_cycles == 12
+    assert suite.minimum_cycles == 20
     assert suite.maximum_cycles == 20
-    assert [
-        (trial.kind, trial.source_id, trial.question)
-        for trial in suite.trials
-    ] == [
-        ("integration", "2026-05-20:025", None),
-        ("integration", "2026-05-20:030", None),
-        ("integration", "2026-05-20:070", None),
-        ("integration", "2026-05-20:072", None),
-        (
-            "analysis",
-            "2026-05-19:138",
-            "What public operational situation is recorded?",
-        ),
-    ]
+    assert suite.future_frozen_evaluation == "not_constructed"
+    assert len(suite.trials) == 5
+    assert {trial.kind for trial in suite.trials} == {"query"}
+    assert {trial.expected_role for trial in suite.trials} == {"query"}
+    assert {trial.partition for trial in suite.trials} == {"regression"}
+    assert suite.build_source_ids == (
+        "2026-05-20:084",
+        "2026-05-20:115",
+        "2026-05-20:159",
+    )
+    assert all(trial.question for trial in suite.trials)
 
 
 def test_pre_refactor_v1_experiment_artifacts_remain_byte_frozen() -> None:
@@ -174,11 +175,11 @@ def test_call_observer_sees_native_turn_before_workflow_sanitization() -> None:
     assert observed[0][2] == native_response
 
 
-def test_call_observer_accepts_all_existing_agent_runtime_phases() -> None:
+def test_call_observer_accepts_query_runtime_phase() -> None:
     observed: list[str] = []
     record = ModelCallRecord(
-        agent="event_evidence_integration",
-        raw_response='{"status":"partial"}',
+        agent="query",
+        raw_response='{"status":"ok"}',
         provider="deepseek",
         model="deepseek-v4-pro",
         temperature=0.0,
@@ -187,11 +188,9 @@ def test_call_observer_accepts_all_existing_agent_runtime_phases() -> None:
     with capture_tool_model_calls(
         lambda phase, _call, _native: observed.append(phase)
     ):
-        _emit_tool_model_call_observation("emit_proposal", record)
-        _emit_tool_model_call_observation("revision", record)
         _emit_tool_model_call_observation("query_step", record)
 
-    assert observed == ["emit_proposal", "revision", "query_step"]
+    assert observed == ["query_step"]
 
 
 def test_summary_counts_real_provider_returns_separately_from_task_results() -> None:
@@ -203,10 +202,10 @@ def test_summary_counts_real_provider_returns_separately_from_task_results() -> 
         LiveAgentExperimentParsedOutput(
             experiment_id="experiment-v1",
             cycle=cycle,
-            trial_id="integration-025",
-            kind="integration",
-            source_id="2026-05-20:025",
-            role="event_evidence_integration",
+            trial_id="query-084-facts",
+            kind="query",
+            source_id="2026-05-20:084",
+            role="query",
             workflow_status="insufficient",
             model_acceptance_status="failed",
             workflow_provider_call_count=sum(
@@ -229,7 +228,7 @@ def test_summary_counts_real_provider_returns_separately_from_task_results() -> 
         completed_cycles=12,
         calls=calls,
         parsed_outputs=parsed,
-        expected_trial_ids=("integration-025",),
+        expected_trial_ids=("query-084-facts",),
         runner_status="completed",
         raw_response_path="raw_responses.jsonl",
         parsed_output_path="parsed_outputs.jsonl",
@@ -246,8 +245,8 @@ def test_summary_counts_real_provider_returns_separately_from_task_results() -> 
     assert summary.prompt_cache_hit_tokens == 6_000
     assert summary.prompt_cache_miss_tokens == 4_000
     assert summary.prompt_cache_usage_mismatch_count == 0
-    assert summary.prompt_set_ids == ("aviation-tmi-event-agents-v1",)
-    assert summary.prompt_versions == ("event-evidence-integration-v1",)
+    assert summary.prompt_set_ids == ("aviation-tmi-query-agent-v1",)
+    assert summary.prompt_versions == ("hybrid-query-agent-v1",)
     assert summary.tool_call_count == 100
     assert summary.invalid_tool_call_count == 0
     assert summary.threshold_satisfied is True
@@ -298,10 +297,10 @@ def test_raw_and_parsed_artifacts_are_separate_and_checksum_bound(
         LiveAgentExperimentParsedOutput(
             experiment_id="experiment-v1",
             cycle=1,
-            trial_id="integration-025",
-            kind="integration",
-            source_id="2026-05-20:025",
-            role="event_evidence_integration",
+            trial_id="query-084-facts",
+            kind="query",
+            source_id="2026-05-20:084",
+            role="query",
             workflow_status="insufficient",
             model_acceptance_status="failed",
             workflow_provider_call_count=1,
@@ -318,7 +317,7 @@ def test_raw_and_parsed_artifacts_are_separate_and_checksum_bound(
         completed_cycles=1,
         calls=calls,
         parsed_outputs=parsed,
-        expected_trial_ids=("integration-025",),
+        expected_trial_ids=("query-084-facts",),
         runner_status="threshold_not_reached",
         raw_response_path=str(tmp_path / "raw_responses.jsonl"),
         parsed_output_path=str(tmp_path / "parsed_outputs.jsonl"),
@@ -347,11 +346,11 @@ def test_raw_and_parsed_artifacts_are_separate_and_checksum_bound(
     assert "real provider response 1" not in report_text
     assert manifest["raw_responses_sha256"]
     assert manifest["parsed_outputs_sha256"]
-    assert raw_path.name == "raw_responses_v3.jsonl"
-    assert parsed_path.name == "parsed_outputs_v3.jsonl"
-    assert manifest_path.name == "experiment_manifest_v3.json"
-    assert report_json.name == "agent_system_live_agent_experiment_v3.json"
-    assert report_markdown.name == "agent_system_live_agent_experiment_v3.md"
+    assert raw_path.name == "raw_responses_v4.jsonl"
+    assert parsed_path.name == "parsed_outputs_v4.jsonl"
+    assert manifest_path.name == "experiment_manifest_v4.json"
+    assert report_json.name == "agent_system_live_agent_experiment_v4.json"
+    assert report_markdown.name == "agent_system_live_agent_experiment_v4.md"
     assert legacy_report.read_text(encoding="utf-8") == "historical-v1\n"
     assert report_markdown.is_file()
 
@@ -362,10 +361,10 @@ def test_summary_rejects_missing_raw_call_or_trial_execution() -> None:
         LiveAgentExperimentParsedOutput(
             experiment_id="experiment-v1",
             cycle=1,
-            trial_id="integration-025",
-            kind="integration",
-            source_id="2026-05-20:025",
-            role="event_evidence_integration",
+            trial_id="query-084-facts",
+            kind="query",
+            source_id="2026-05-20:084",
+            role="query",
             workflow_status="insufficient",
             model_acceptance_status="failed",
             workflow_provider_call_count=2,
@@ -382,7 +381,7 @@ def test_summary_rejects_missing_raw_call_or_trial_execution() -> None:
         completed_cycles=2,
         calls=calls,
         parsed_outputs=parsed,
-        expected_trial_ids=("integration-025",),
+        expected_trial_ids=("query-084-facts",),
         runner_status="completed",
         raw_response_path="raw_responses.jsonl",
         parsed_output_path="parsed_outputs.jsonl",
@@ -401,3 +400,180 @@ def test_public_real_experiment_runner_has_no_model_substitute_injection() -> No
     assert "case_runner" not in parameters
     assert "response_fixture" not in parameters
     assert "replay_path" not in parameters
+
+
+def test_runner_builds_one_corpus_then_executes_every_query_each_cycle(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A per-cycle corpus rebuild or skipped query would invalidate v4."""
+
+    build_calls: list[tuple[str, ...]] = []
+    query_calls: list[tuple[str, str]] = []
+    suite_path = Path(
+        "data/evaluation/agent_system/live_agent_experiment_v4.yaml"
+    )
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text("{}\n", encoding="utf-8")
+
+    monkeypatch.setattr(
+        experiment_module,
+        "_live_preflight_failures",
+        lambda _config, environ: (),
+    )
+    monkeypatch.setattr(
+        experiment_module,
+        "_resource_preflight_failures",
+        lambda _resources: (),
+    )
+    resources = SimpleNamespace()
+    monkeypatch.setattr(
+        experiment_module,
+        "load_batch_resources",
+        lambda _config: resources,
+    )
+
+    def build_once(
+        _config: object,
+        _output_dir: Path,
+        *,
+        source_ids: tuple[str, ...],
+        allow_live_model: bool,
+        **_kwargs: object,
+    ) -> SimpleNamespace:
+        assert allow_live_model is False
+        build_calls.append(source_ids)
+        return SimpleNamespace(
+            results=tuple(
+                SimpleNamespace(
+                    source_id=source_id,
+                    event_id=f"urn:event:{source_id}",
+                )
+                for source_id in source_ids
+            )
+        )
+
+    monkeypatch.setattr(
+        experiment_module,
+        "build_corpus_batch",
+        build_once,
+    )
+    monkeypatch.setattr(
+        experiment_module,
+        "CorpusQueryStore",
+        lambda _path: SimpleNamespace(),
+    )
+    monkeypatch.setattr(
+        experiment_module,
+        "_resolve_query_event_id",
+        lambda source_id, **_kwargs: f"urn:event:{source_id}",
+    )
+
+    def answer_query(
+        *,
+        question: str,
+        event_id: str,
+        **_kwargs: object,
+    ) -> SimpleNamespace:
+        query_calls.append((event_id, question))
+        record = ModelCallRecord(
+            agent="query",
+            raw_response='{"status":"ok"}',
+            prompt_set_id="aviation-tmi-query-agent-v1",
+            prompt_version="hybrid-query-agent-v1",
+            provider="deepseek",
+            model="deepseek-v4-pro",
+            temperature=0.0,
+            input_tokens=10,
+            output_tokens=5,
+            tool_calls=[
+                ModelToolCall(
+                    call_id="query-call",
+                    name="read_tmi_event_facts",
+                    arguments={"event_id": event_id},
+                )
+            ],
+        )
+        _emit_tool_model_call_observation(
+            "query_step",
+            record,
+            {"content": "", "tool_calls": []},
+        )
+        return SimpleNamespace(status="ok")
+
+    monkeypatch.setattr(
+        experiment_module,
+        "answer_corpus_question",
+        answer_query,
+    )
+    monkeypatch.setattr(
+        experiment_module,
+        "build_hybrid_query_run_artifact",
+        lambda **_kwargs: SimpleNamespace(),
+    )
+
+    def write_query_run(output_dir: Path, _artifact: object) -> Path:
+        output_dir.mkdir(parents=True, exist_ok=True)
+        path = output_dir / "hybrid_query_run.json"
+        path.write_text("{}\n", encoding="utf-8")
+        return path
+
+    monkeypatch.setattr(
+        experiment_module,
+        "write_hybrid_query_run_artifact",
+        write_query_run,
+    )
+
+    def score_query(
+        *,
+        trial: object,
+        repetition: int,
+        event_id: str,
+        query_run_artifact_path: Path,
+        **_kwargs: object,
+    ) -> SimpleNamespace:
+        return SimpleNamespace(
+            trial_id=trial.trial_id,
+            kind="query",
+            source_id=trial.source_id,
+            role="query",
+            event_id=event_id,
+            workflow_status="ok",
+            model_acceptance_status="passed",
+            failure_code="",
+            provider_call_count=1,
+            detail_status="",
+            assertions=(),
+            retrieved_fact_count=1,
+            retrieved_source_count=1,
+            query_run_artifact=str(query_run_artifact_path),
+            query_run_artifact_sha256="a" * 64,
+            repetition=repetition,
+        )
+
+    monkeypatch.setattr(
+        experiment_module,
+        "score_query_trial",
+        score_query,
+    )
+
+    summary = run_live_agent_experiment(
+        config_path=config_path,
+        suite_path=suite_path,
+        output_dir=tmp_path / "runtime",
+        report_dir=tmp_path / "reports",
+        allow_live_model=True,
+    )
+
+    assert build_calls == [
+        (
+            "2026-05-20:084",
+            "2026-05-20:115",
+            "2026-05-20:159",
+        )
+    ]
+    assert len(query_calls) == 100
+    assert summary.completed_cycles == 20
+    assert summary.trial_count == 100
+    assert summary.successful_real_calls == 100
+    assert summary.threshold_satisfied is True

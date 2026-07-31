@@ -1,4 +1,4 @@
-"""Repeated real-provider experiment for the bounded TMI-event Agents."""
+"""Repeated real-provider experiment for the bounded TMI Query Agent."""
 
 from __future__ import annotations
 
@@ -20,11 +20,9 @@ from aviation_agentic_ai.agent_system.contracts import (
     StrictModel,
 )
 from aviation_agentic_ai.agent_system.corpus_batch import (
-    BatchCaseExecution,
     BatchResources,
     build_corpus_batch,
     load_batch_resources,
-    run_batch_case,
 )
 from aviation_agentic_ai.agent_system.corpus_query import (
     answer_corpus_question,
@@ -34,10 +32,9 @@ from aviation_agentic_ai.agent_system.live_agent_evaluation import (
     LiveEvaluationTrial,
     _live_preflight_failures,
     _resource_preflight_failures,
-    _resolve_analysis_event_id,
-    _score_integration_results,
+    _resolve_query_event_id,
     build_hybrid_query_run_artifact,
-    score_analysis_trial,
+    score_query_trial,
     write_hybrid_query_run_artifact,
 )
 from aviation_agentic_ai.agent_system.runtime import (
@@ -58,13 +55,14 @@ class LiveAgentExperimentAuthorizationError(RuntimeError):
 
 
 class LiveAgentExperimentSuite(StrictModel):
-    """Frozen repeated-measures real-provider experiment."""
+    """Versioned repeated-measures real-provider experiment."""
 
-    version: Literal["live-agent-experiment-v3"]
+    version: Literal["live-agent-experiment-v4"]
     suite_id: str = Field(min_length=1)
     minimum_successful_calls: int = Field(ge=100)
     minimum_cycles: int = Field(ge=1)
     maximum_cycles: int = Field(ge=1)
+    future_frozen_evaluation: Literal["not_constructed"] = "not_constructed"
     trials: tuple[LiveEvaluationTrial, ...] = Field(min_length=1)
 
     @model_validator(mode="after")
@@ -74,36 +72,11 @@ class LiveAgentExperimentSuite(StrictModel):
         trial_ids = [trial.trial_id for trial in self.trials]
         if len(trial_ids) != len(set(trial_ids)):
             raise ValueError("experiment trial IDs must be unique")
-        kinds = {trial.kind for trial in self.trials}
-        if kinds != {"integration", "analysis"}:
-            raise ValueError(
-                "experiment requires both Integration and Analysis trials"
-            )
         return self
 
     @property
-    def integration_source_ids(self) -> tuple[str, ...]:
-        return tuple(
-            sorted(
-                {
-                    trial.source_id
-                    for trial in self.trials
-                    if trial.kind == "integration"
-                }
-            )
-        )
-
-    @property
-    def analysis_source_ids(self) -> tuple[str, ...]:
-        return tuple(
-            sorted(
-                {
-                    trial.source_id
-                    for trial in self.trials
-                    if trial.kind == "analysis"
-                }
-            )
-        )
+    def build_source_ids(self) -> tuple[str, ...]:
+        return tuple(sorted({trial.source_id for trial in self.trials}))
 
 
 class ObservedProviderCall(StrictModel):
@@ -114,7 +87,7 @@ class ObservedProviderCall(StrictModel):
     recorded_at: str = Field(min_length=1)
     cycle: int = Field(ge=0)
     trial_id: str = Field(min_length=1)
-    kind: Literal["setup", "integration", "analysis"]
+    kind: Literal["query"]
     source_id: str = Field(min_length=1)
     role: str = Field(min_length=1)
     phase: Literal[
@@ -150,7 +123,7 @@ class ObservedProviderCall(StrictModel):
         experiment_id: str,
         cycle: int,
         trial_id: str,
-        kind: Literal["setup", "integration", "analysis"],
+        kind: Literal["query"],
         source_id: str,
         phase: ToolPhase,
         record: ModelCallRecord,
@@ -215,12 +188,9 @@ class LiveAgentExperimentParsedOutput(StrictModel):
     experiment_id: str = Field(min_length=1)
     cycle: int = Field(ge=1)
     trial_id: str = Field(min_length=1)
-    kind: Literal["integration", "analysis"]
+    kind: Literal["query"]
     source_id: str = Field(min_length=1)
-    role: Literal[
-        "event_evidence_integration",
-        "query",
-    ]
+    role: Literal["query"]
     event_id: str | None = None
     workflow_status: Literal["ok", "insufficient", "blocked", "not_run"]
     model_acceptance_status: Literal[
@@ -239,8 +209,8 @@ class LiveAgentExperimentParsedOutput(StrictModel):
 class LiveAgentExperimentSummary(StrictModel):
     """Aggregate real-provider counts and artifact bindings."""
 
-    manifest_version: Literal["tmi-event-live-agent-experiment-v3"] = (
-        "tmi-event-live-agent-experiment-v3"
+    manifest_version: Literal["tmi-event-live-agent-experiment-v4"] = (
+        "tmi-event-live-agent-experiment-v4"
     )
     suite_id: str = Field(min_length=1)
     suite_checksum: str = Field(min_length=64, max_length=64)
@@ -306,7 +276,8 @@ class LiveAgentExperimentSummary(StrictModel):
     parsed_outputs_sha256: str | None = None
     runner_detail_codes: tuple[str, ...] = ()
     claim_boundary: str = (
-        "Repeated real-provider behavior on five fixed tasks. Provider-call "
+        "Repeated real-provider behavior on five fixed Query Agent tasks. "
+        "Provider-call "
         "success is separate from parsed-contract and task acceptance; calls "
         "are repeated measures, not independent evaluation samples."
     )
@@ -347,8 +318,7 @@ def _is_successful_real_call(call: ObservedProviderCall) -> bool:
         call.raw_response or call.tool_calls or call.invalid_tool_calls
     )
     return (
-        call.kind != "setup"
-        and call.error is None
+        call.error is None
         and not call.cache_hit
         and _configuration_matches(call)
         and has_response
@@ -409,7 +379,7 @@ def summarize_live_agent_experiment(
     mismatches = sum(
         not _configuration_matches(call) for call in call_rows
     )
-    setup_calls = sum(call.kind == "setup" for call in call_rows)
+    setup_calls = 0
     prompt_cache_usage = tuple(
         _provider_prompt_cache_usage(call) for call in call_rows
     )
@@ -431,9 +401,7 @@ def summarize_live_agent_experiment(
         )
     )
     duplicate_ids = len(call_rows) - len({call.call_id for call in call_rows})
-    evaluation_call_ids = {
-        call.call_id for call in call_rows if call.kind != "setup"
-    }
+    evaluation_call_ids = {call.call_id for call in call_rows}
     referenced_call_ids = [
         call_id
         for row in parsed_rows
@@ -599,7 +567,7 @@ def summarize_live_agent_experiment(
 def _markdown_report(summary: LiveAgentExperimentSummary) -> str:
     return "\n".join(
         [
-            "# Agent System Real-Provider Experiment v3",
+            "# Query Agent Real-Provider Experiment v4",
             "",
             "## Result",
             "",
@@ -674,8 +642,8 @@ def write_live_agent_experiment_artifacts(
     reports = Path(report_dir)
     runtime.mkdir(parents=True, exist_ok=True)
     reports.mkdir(parents=True, exist_ok=True)
-    raw_path = runtime / "raw_responses_v3.jsonl"
-    parsed_path = runtime / "parsed_outputs_v3.jsonl"
+    raw_path = runtime / "raw_responses_v4.jsonl"
+    parsed_path = runtime / "parsed_outputs_v4.jsonl"
     raw_bytes = _jsonl_bytes(tuple(calls))
     parsed_bytes = _jsonl_bytes(tuple(parsed_outputs))
     raw_path.write_bytes(raw_bytes)
@@ -690,7 +658,7 @@ def write_live_agent_experiment_artifacts(
             ).hexdigest(),
         }
     )
-    manifest_path = runtime / "experiment_manifest_v3.json"
+    manifest_path = runtime / "experiment_manifest_v4.json"
     manifest_path.write_text(
         final_summary.model_dump_json(indent=2) + "\n",
         encoding="utf-8",
@@ -710,7 +678,7 @@ def write_live_agent_experiment_artifacts(
         for row in parsed_outputs
     ]
     report_json = (
-        reports / "agent_system_live_agent_experiment_v3.json"
+        reports / "agent_system_live_agent_experiment_v4.json"
     )
     report_json.write_text(
         json.dumps(
@@ -725,7 +693,7 @@ def write_live_agent_experiment_artifacts(
         encoding="utf-8",
     )
     report_markdown = (
-        reports / "agent_system_live_agent_experiment_v3.md"
+        reports / "agent_system_live_agent_experiment_v4.md"
     )
     report_markdown.write_text(
         _markdown_report(final_summary),
@@ -786,10 +754,7 @@ def _recording_observer(
     trial: LiveEvaluationTrial,
     calls: list[ObservedProviderCall],
     calls_by_trial: dict[tuple[int, str], list[ObservedProviderCall]],
-    kind: Literal["setup", "integration", "analysis"] | None = None,
 ) -> Any:
-    effective_kind = kind or trial.kind
-
     def _observe(
         phase: ToolPhase,
         record: ModelCallRecord,
@@ -799,7 +764,7 @@ def _recording_observer(
             experiment_id=experiment_id,
             cycle=cycle,
             trial_id=trial.trial_id,
-            kind=effective_kind,
+            kind="query",
             source_id=trial.source_id,
             phase=phase,
             record=record,
@@ -811,26 +776,6 @@ def _recording_observer(
         ).append(observed)
 
     return _observe
-
-
-def _analysis_trial_by_source(
-    suite: LiveAgentExperimentSuite,
-) -> dict[str, LiveEvaluationTrial]:
-    return {
-        trial.source_id: trial
-        for trial in suite.trials
-        if trial.kind == "analysis"
-    }
-
-
-def _integration_trial_by_source(
-    suite: LiveAgentExperimentSuite,
-) -> dict[str, LiveEvaluationTrial]:
-    return {
-        trial.source_id: trial
-        for trial in suite.trials
-        if trial.kind == "integration"
-    }
 
 
 def _current_summary(
@@ -862,8 +807,8 @@ def _current_summary(
             trial.trial_id for trial in suite.trials
         ),
         runner_status=runner_status,
-        raw_response_path=str(runtime_root / "raw_responses_v3.jsonl"),
-        parsed_output_path=str(runtime_root / "parsed_outputs_v3.jsonl"),
+        raw_response_path=str(runtime_root / "raw_responses_v4.jsonl"),
+        parsed_output_path=str(runtime_root / "parsed_outputs_v4.jsonl"),
         runner_detail_codes=detail_codes,
     )
 
@@ -950,132 +895,37 @@ def run_live_agent_experiment(
     ] = {}
     parsed_outputs: list[LiveAgentExperimentParsedOutput] = []
     completed_cycles = 0
-    analysis_trials = _analysis_trial_by_source(suite)
-    integration_trials = _integration_trial_by_source(suite)
 
     try:
-        analysis_corpus = runtime_root / "analysis_corpus"
-
-        def _setup_runner(
-            advisory: Any,
-            shared_resources: BatchResources,
-            staging_dir: Path,
-            authorized: bool,
-        ) -> BatchCaseExecution:
-            trial = analysis_trials[advisory.source_id]
-            observer = _recording_observer(
-                experiment_id=suite.suite_id,
-                cycle=0,
-                trial=trial,
-                calls=calls,
-                calls_by_trial=calls_by_trial,
-                kind="setup",
-            )
-            with capture_tool_model_calls(observer):
-                return run_batch_case(
-                    advisory,
-                    shared_resources,
-                    staging_dir,
-                    authorized,
-                )
-
-        analysis_batch = build_corpus_batch(
+        query_corpus = runtime_root / "query_corpus"
+        query_batch = build_corpus_batch(
             config,
-            analysis_corpus,
+            query_corpus,
             selection="cohort",
-            source_ids=suite.analysis_source_ids,
-            allow_live_model=True,
+            source_ids=suite.build_source_ids,
+            allow_live_model=False,
             resume=False,
             resource_loader=lambda _config: resources,
-            case_runner=_setup_runner,
         )
-        analysis_store = CorpusQueryStore(analysis_corpus)
-        analysis_build_results = {
-            row.source_id: row for row in analysis_batch.results
+        query_store = CorpusQueryStore(query_corpus)
+        query_build_results = {
+            row.source_id: row for row in query_batch.results
         }
-        analysis_event_ids: dict[str, str] = {}
-        for source_id, trial in analysis_trials.items():
-            event_id = _resolve_analysis_event_id(
+        query_event_ids: dict[str, str] = {}
+        for source_id in suite.build_source_ids:
+            event_id = _resolve_query_event_id(
                 source_id=source_id,
-                build_results=analysis_build_results,
-                store=analysis_store,
+                build_results=query_build_results,
+                store=query_store,
             )
             if event_id is None:
                 raise RuntimeError(
-                    f"analysis dependency event missing: {trial.trial_id}"
+                    f"query dependency event missing: {source_id}"
                 )
-            analysis_event_ids[source_id] = event_id
+            query_event_ids[source_id] = event_id
 
         for cycle in range(1, suite.maximum_cycles + 1):
-            executions: dict[str, BatchCaseExecution] = {}
-
-            def _recording_runner(
-                advisory: Any,
-                shared_resources: BatchResources,
-                staging_dir: Path,
-                authorized: bool,
-            ) -> BatchCaseExecution:
-                trial = integration_trials[advisory.source_id]
-                observer = _recording_observer(
-                    experiment_id=suite.suite_id,
-                    cycle=cycle,
-                    trial=trial,
-                    calls=calls,
-                    calls_by_trial=calls_by_trial,
-                )
-                with capture_tool_model_calls(observer):
-                    execution = run_batch_case(
-                        advisory,
-                        shared_resources,
-                        staging_dir,
-                        authorized,
-                    )
-                executions[advisory.source_id] = execution
-                return execution
-
-            cycle_corpus = (
-                runtime_root / "cycles" / f"cycle-{cycle:03d}" / "corpus"
-            )
-            batch = build_corpus_batch(
-                config,
-                cycle_corpus,
-                selection="cohort",
-                source_ids=suite.integration_source_ids,
-                allow_live_model=True,
-                resume=False,
-                resource_loader=lambda _config: resources,
-                case_runner=_recording_runner,
-            )
-            store = (
-                CorpusQueryStore(cycle_corpus)
-                if (cycle_corpus / "corpus_manifest.json").is_file()
-                else None
-            )
-            integration_results = _score_integration_results(
-                suite=suite,  # type: ignore[arg-type]
-                repetition=cycle,
-                build_results={
-                    row.source_id: row for row in batch.results
-                },
-                executions=executions,
-                store=store,
-            )
-            for result in integration_results:
-                parsed_outputs.append(
-                    _parsed_from_live_result(
-                        experiment_id=suite.suite_id,
-                        cycle=cycle,
-                        result=result,
-                        calls=calls_by_trial.get(
-                            (cycle, result.trial_id), ()
-                        ),
-                    )
-                )
-
             for trial in suite.trials:
-                if trial.kind != "analysis":
-                    continue
-                assert trial.question is not None
                 observer = _recording_observer(
                     experiment_id=suite.suite_id,
                     cycle=cycle,
@@ -1085,9 +935,9 @@ def run_live_agent_experiment(
                 )
                 with capture_tool_model_calls(observer):
                     outcome = answer_corpus_question(
-                        corpus_dir=analysis_corpus,
+                        corpus_dir=query_corpus,
                         question=trial.question,
-                        event_id=analysis_event_ids[trial.source_id],
+                        event_id=query_event_ids[trial.source_id],
                         model_factory=lambda tools: (
                             make_live_tool_calling_model(
                                 tools=tools,
@@ -1097,7 +947,7 @@ def run_live_agent_experiment(
                     )
                 query_run = build_hybrid_query_run_artifact(
                     trial=trial,
-                    event_id=analysis_event_ids[trial.source_id],
+                    event_id=query_event_ids[trial.source_id],
                     outcome=outcome,
                 )
                 query_run_path = write_hybrid_query_run_artifact(
@@ -1107,11 +957,11 @@ def run_live_agent_experiment(
                     / trial.trial_id,
                     query_run,
                 )
-                result = score_analysis_trial(
+                result = score_query_trial(
                     trial=trial,
                     repetition=cycle,
                     live_model=True,
-                    event_id=analysis_event_ids[trial.source_id],
+                    event_id=query_event_ids[trial.source_id],
                     outcome=outcome,
                     query_run=query_run,
                     query_run_artifact_path=query_run_path,
@@ -1194,7 +1044,7 @@ def run_live_agent_experiment(
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Run the frozen repeated DeepSeek experiment until at least "
+            "Run the versioned repeated DeepSeek experiment until at least "
             "100 successful real provider calls are recorded."
         )
     )
