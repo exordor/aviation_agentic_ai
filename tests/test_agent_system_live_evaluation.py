@@ -262,6 +262,44 @@ def test_ingestion_hybridrag_suite_has_three_natural_language_routes() -> None:
     )
 
 
+def test_flagship_walkthrough_suite_is_one_natural_cross_source_query() -> None:
+    suite = load_live_evaluation_suite(
+        "data/evaluation/agent_system/"
+        "live_flagship_gdp138_walkthrough_v1.yaml"
+    )
+
+    expected_question = (
+        "What did ATCSCC publish for JFK in Advisory 138? Verify the "
+        "source-declared reason from the original record, then summarize "
+        "the time-aligned Weather reports and BTS public observations "
+        "without inferring causality."
+    )
+    assert suite.version == "live-agent-smoke-v4"
+    assert suite.suite_id == "flagship-gdp138-walkthrough-v1"
+    assert suite.report_stem == (
+        "agent_system_live_flagship_gdp138_walkthrough_v1"
+    )
+    assert suite.future_frozen_evaluation == "not_constructed"
+    assert suite.required_source_ids == ("2026-05-19:138",)
+    assert len(suite.trials) == 1
+
+    trial = suite.trials[0]
+    assert trial.kind == "query"
+    assert trial.expected_role == "query"
+    assert trial.source_id == "2026-05-19:138"
+    assert trial.question == expected_question
+    assert trial.required_tool_names == (
+        "read_tmi_event_facts",
+        "read_source",
+        "read_tmi_operational_context",
+        "read_public_observations",
+    )
+    assert all(
+        tool_name not in trial.question
+        for tool_name in live_eval.HYBRID_QUERY_READ_TOOLS
+    )
+
+
 def test_suite_rejects_unsafe_report_stem() -> None:
     with pytest.raises(ValueError):
         LiveEvaluationSuite(

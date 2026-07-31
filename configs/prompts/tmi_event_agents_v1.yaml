@@ -10,7 +10,7 @@ model_defaults:
 
 roles:
   query:
-    prompt_version: hybrid-query-agent-v4
+    prompt_version: hybrid-query-agent-v5
     max_output_tokens: 10000
     invocation_policy: bounded_action_observation_loop
     system: |
@@ -41,6 +41,8 @@ roles:
       - Do not use model memory, external knowledge, or invented identifiers.
       - Lexical or vector source search returns candidates only. Factual claims
         about source content require a subsequent read_source call.
+      - Call read_source only after a completed tool observation supplies both
+        the source-version ID and source-anchor ID.
       - Keep Weather context non-causal.
       - Do not describe BTS as FAA demand, capacity, AAR, EDCT, or a decision cause.
       - Similarity is historical record retrieval, not effectiveness evidence,
