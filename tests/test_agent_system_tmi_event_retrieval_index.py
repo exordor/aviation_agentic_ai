@@ -1,4 +1,4 @@
-"""Persistent case-vector index bound to one normalized corpus."""
+"""Persistent TMI-event vector index bound to one normalized corpus."""
 
 from __future__ import annotations
 
@@ -8,15 +8,15 @@ from pathlib import Path
 
 import pytest
 
-from aviation_agentic_ai.agent_system.case_retrieval_index import (
-    ChromaCaseRetrievalIndex,
-    build_case_retrieval_index,
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_index import (
+    ChromaTMIEventRetrievalIndex,
+    build_tmi_event_retrieval_index,
 )
 from aviation_agentic_ai.agent_system.contracts import StrictModel
 from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusArtifactMetadata,
     CorpusBuildManifest,
-    CorpusCase,
+    CorpusTMIEvent,
     CorpusQueryStore,
 )
 
@@ -59,40 +59,34 @@ def _write_jsonl(
 
 @pytest.fixture
 def corpus_dir(tmp_path: Path) -> Path:
-    cases = [
-        CorpusCase(
-            case_id="case:a",
-            case_iri="urn:decision-case:a",
-            reconstruction_iri="urn:decision-case-reconstruction:a",
+    events = [
+        CorpusTMIEvent(
             event_id="urn:event:a",
             run_ids=["run:a"],
             advisory_source_id="2026-05-19:123",
             event_type_iris=[f"{ATM}GroundStopTMI"],
             facility_ids=[KJFK],
-            operational_start="2026-05-19T21:00:00+00:00",
-            operational_end="2026-05-19T21:30:00+00:00",
+            effective_start="2026-05-19T21:00:00+00:00",
+            effective_end="2026-05-19T21:30:00+00:00",
             reason_status="profile_gap",
             reason_value="weather",
         ),
-        CorpusCase(
-            case_id="case:b",
-            case_iri="urn:decision-case:b",
-            reconstruction_iri="urn:decision-case-reconstruction:b",
+        CorpusTMIEvent(
             event_id="urn:event:b",
             run_ids=["run:b"],
             advisory_source_id="2026-05-19:138",
             event_type_iris=[f"{ATM}GroundDelayProgramTMI"],
             facility_ids=[KEWR],
-            operational_start="2026-05-19T22:05:00+00:00",
-            operational_end="2026-05-20T02:59:00+00:00",
+            effective_start="2026-05-19T22:05:00+00:00",
+            effective_end="2026-05-20T02:59:00+00:00",
             reason_status="formal",
             reason_value="weather",
         ),
     ]
     artifacts = {
-        "cases": _write_jsonl(tmp_path / "cases.jsonl", cases),
+        "events": _write_jsonl(tmp_path / "events.jsonl", events),
         "facts": _write_jsonl(tmp_path / "facts.jsonl", []),
-        "case_facts": _write_jsonl(tmp_path / "case_facts.jsonl", []),
+        "event_facts": _write_jsonl(tmp_path / "event_facts.jsonl", []),
         "source_bindings": _write_jsonl(
             tmp_path / "source_bindings.jsonl",
             [],
@@ -101,7 +95,7 @@ def corpus_dir(tmp_path: Path) -> Path:
     manifest = CorpusBuildManifest(
         corpus_id="corpus:test",
         run_count=2,
-        case_count=2,
+        event_count=2,
         fact_count=0,
         source_binding_count=0,
         source_object_count=0,
@@ -114,29 +108,37 @@ def corpus_dir(tmp_path: Path) -> Path:
     return tmp_path
 
 
-def test_index_persists_one_normalized_vector_per_case(
+def test_index_persists_one_normalized_vector_per_event(
     corpus_dir: Path,
 ) -> None:
     store = CorpusQueryStore(corpus_dir)
-    manifest = build_case_retrieval_index(
+    manifest = build_tmi_event_retrieval_index(
         corpus_dir,
         encoder=FakeEncoder(),
     )
-    index = ChromaCaseRetrievalIndex(
+    index = ChromaTMIEventRetrievalIndex(
         store,
-        corpus_dir / "case_index",
+        corpus_dir / "tmi_event_index",
     )
 
     assert manifest.corpus_id == store.manifest.corpus_id
-    assert manifest.document_count == len(store.cases)
-    assert manifest.vector_count == len(store.cases)
+    assert manifest.manifest_version == "tmi-event-index-v1"
+    assert manifest.collection_name == "tmi_events"
+    assert manifest.representation_version == "tmi-event-record-v1"
+    assert (
+        corpus_dir
+        / "tmi_event_index"
+        / "tmi_event_index_manifest.json"
+    ).is_file()
+    assert manifest.document_count == len(store.events)
+    assert manifest.vector_count == len(store.events)
     assert manifest.embedding_dimension == 4
-    assert index.collection.count() == len(store.cases)
-    vector = index.get_case_vector(store.cases[0].case_id)
+    assert index.collection.count() == len(store.events)
+    vector = index.get_event_vector(store.events[0].event_id)
     assert sum(value * value for value in vector) == pytest.approx(1.0)
-    documents = (corpus_dir / "case_index" / "case_documents.jsonl").read_text(
-        encoding="utf-8"
-    )
+    documents = (
+        corpus_dir / "tmi_event_index" / "tmi_event_documents.jsonl"
+    ).read_text(encoding="utf-8")
     assert '"embedding"' not in documents
     assert '"vector"' not in documents
 
@@ -144,20 +146,20 @@ def test_index_persists_one_normalized_vector_per_case(
 def test_repeated_build_recreates_stable_ids_without_duplicates(
     corpus_dir: Path,
 ) -> None:
-    first = build_case_retrieval_index(corpus_dir, encoder=FakeEncoder())
+    first = build_tmi_event_retrieval_index(corpus_dir, encoder=FakeEncoder())
     first_documents = (
-        corpus_dir / "case_index" / "case_documents.jsonl"
+        corpus_dir / "tmi_event_index" / "tmi_event_documents.jsonl"
     ).read_bytes()
 
-    second = build_case_retrieval_index(corpus_dir, encoder=FakeEncoder())
-    reopened = ChromaCaseRetrievalIndex(
+    second = build_tmi_event_retrieval_index(corpus_dir, encoder=FakeEncoder())
+    reopened = ChromaTMIEventRetrievalIndex(
         CorpusQueryStore(corpus_dir),
-        corpus_dir / "case_index",
+        corpus_dir / "tmi_event_index",
     )
 
     assert second == first
     assert (
-        corpus_dir / "case_index" / "case_documents.jsonl"
+        corpus_dir / "tmi_event_index" / "tmi_event_documents.jsonl"
     ).read_bytes() == first_documents
     assert reopened.collection.count() == 2
 
@@ -166,11 +168,11 @@ def test_inconsistent_dimensions_do_not_publish_manifest(
     corpus_dir: Path,
 ) -> None:
     manifest_path = (
-        corpus_dir / "case_index" / "case_index_manifest.json"
+        corpus_dir / "tmi_event_index" / "tmi_event_index_manifest.json"
     )
 
     with pytest.raises(ValueError, match="dimension"):
-        build_case_retrieval_index(
+        build_tmi_event_retrieval_index(
             corpus_dir,
             encoder=InconsistentEncoder(),
         )
@@ -192,27 +194,27 @@ def test_reader_rejects_stale_or_corrupt_index_contract(
     value: object,
     message: str,
 ) -> None:
-    build_case_retrieval_index(corpus_dir, encoder=FakeEncoder())
+    build_tmi_event_retrieval_index(corpus_dir, encoder=FakeEncoder())
     manifest_path = (
-        corpus_dir / "case_index" / "case_index_manifest.json"
+        corpus_dir / "tmi_event_index" / "tmi_event_index_manifest.json"
     )
     payload = json.loads(manifest_path.read_text(encoding="utf-8"))
     payload[field] = value
     manifest_path.write_text(json.dumps(payload), encoding="utf-8")
 
     with pytest.raises(ValueError, match=message):
-        ChromaCaseRetrievalIndex(
+        ChromaTMIEventRetrievalIndex(
             CorpusQueryStore(corpus_dir),
-            corpus_dir / "case_index",
+            corpus_dir / "tmi_event_index",
         )
 
 
-def test_reader_rejects_modified_case_documents(
+def test_reader_rejects_modified_event_documents(
     corpus_dir: Path,
 ) -> None:
-    build_case_retrieval_index(corpus_dir, encoder=FakeEncoder())
+    build_tmi_event_retrieval_index(corpus_dir, encoder=FakeEncoder())
     documents_path = (
-        corpus_dir / "case_index" / "case_documents.jsonl"
+        corpus_dir / "tmi_event_index" / "tmi_event_documents.jsonl"
     )
     documents_path.write_text(
         documents_path.read_text(encoding="utf-8") + "\n",
@@ -220,7 +222,7 @@ def test_reader_rejects_modified_case_documents(
     )
 
     with pytest.raises(ValueError, match="checksum"):
-        ChromaCaseRetrievalIndex(
+        ChromaTMIEventRetrievalIndex(
             CorpusQueryStore(corpus_dir),
-            corpus_dir / "case_index",
+            corpus_dir / "tmi_event_index",
         )

@@ -1,4 +1,4 @@
-"""Shared Chroma lifecycle used by chunk and decision-case indexes."""
+"""Shared Chroma lifecycle used by chunk and TMI-event indexes."""
 
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ def test_explicit_embeddings_and_metadata_filter_reach_collection() -> None:
             calls["query"] = kwargs
             return {
                 "ids": [["document:b"]],
-                "metadatas": [[{"case_id": "case:b"}]],
+                "metadatas": [[{"event_id": "event:b"}]],
                 "distances": [[0.25]],
             }
 
@@ -39,14 +39,14 @@ def test_explicit_embeddings_and_metadata_filter_reach_collection() -> None:
         embeddings=[[1.0, 0.0], [0.0, 1.0]],
         documents=["A", "B"],
         metadatas=[
-            {"case_id": "case:a"},
-            {"case_id": "case:b"},
+            {"event_id": "event:a"},
+            {"event_id": "event:b"},
         ],
     )
     result = query_explicit_embeddings(
         collection,
         query_embedding=[0.0, 1.0],
-        where={"case_id": {"$in": ["case:b"]}},
+        where={"event_id": {"$in": ["event:b"]}},
         n_results=1,
     )
 
@@ -55,13 +55,13 @@ def test_explicit_embeddings_and_metadata_filter_reach_collection() -> None:
         "embeddings": [[1.0, 0.0], [0.0, 1.0]],
         "documents": ["A", "B"],
         "metadatas": [
-            {"case_id": "case:a"},
-            {"case_id": "case:b"},
+            {"event_id": "event:a"},
+            {"event_id": "event:b"},
         ],
     }
     assert calls["query"] == {
         "query_embeddings": [[0.0, 1.0]],
-        "where": {"case_id": {"$in": ["case:b"]}},
+        "where": {"event_id": {"$in": ["event:b"]}},
         "n_results": 1,
         "include": ["metadatas", "distances"],
     }
@@ -76,7 +76,7 @@ def test_real_persistent_collection_reopens_and_filters_candidates(
     client = open_persistent_client(path)
     collection = recreate_collection(
         client,
-        "decision_cases",
+        "tmi_events",
         embedding_function=None,
         configuration={"hnsw": {"space": "cosine"}},
         metadata={"corpus_id": "corpus:test"},
@@ -87,20 +87,20 @@ def test_real_persistent_collection_reopens_and_filters_candidates(
         embeddings=[[1.0, 0.0], [0.0, 1.0]],
         documents=["A", "B"],
         metadatas=[
-            {"case_id": "case:a"},
-            {"case_id": "case:b"},
+            {"event_id": "event:a"},
+            {"event_id": "event:b"},
         ],
     )
 
     reopened = get_collection(
         open_persistent_client(path),
-        "decision_cases",
+        "tmi_events",
         embedding_function=None,
     )
     result = query_explicit_embeddings(
         reopened,
         query_embedding=[1.0, 0.0],
-        where={"case_id": {"$in": ["case:b"]}},
+        where={"event_id": {"$in": ["event:b"]}},
         n_results=1,
     )
 

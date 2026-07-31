@@ -3,21 +3,22 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from decimal import Decimal
 from typing import Literal
 
 from langchain_core.tools import BaseTool, tool
 from pydantic import Field
 
-from aviation_agentic_ai.agent_system.case_retrieval_contracts import (
-    CaseSimilarityQuery,
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
+    TMIEventSimilarityQuery,
 )
-from aviation_agentic_ai.agent_system.case_retrieval_index import (
-    CASE_INDEX_MANIFEST,
-    ChromaCaseRetrievalIndex,
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_index import (
+    TMI_EVENT_INDEX_MANIFEST,
+    ChromaTMIEventRetrievalIndex,
 )
-from aviation_agentic_ai.agent_system.case_retrieval_search import (
-    find_similar_cases as search_similar_cases,
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_search import (
+    find_similar_tmi_events as search_similar_tmi_events,
 )
 from aviation_agentic_ai.agent_system.contracts import (
     HybridQueryEvidence,
@@ -27,8 +28,8 @@ from aviation_agentic_ai.agent_system.contracts import (
     StrictModel,
 )
 from aviation_agentic_ai.agent_system.corpus_store import (
-    CorpusCase,
-    CorpusCaseQuery,
+    CorpusTMIEvent,
+    CorpusEventQuery,
     CorpusQueryStore,
 )
 
@@ -37,7 +38,7 @@ ReasonStatus = Literal["formal", "profile_gap", "missing"]
 ObservationPhase = Literal["baseline", "active", "recovery"]
 
 
-class FindCasesInput(StrictModel):
+class FindTMIEventsInput(StrictModel):
     event_type_iri: str | None = Field(default=None, min_length=1)
     facility_id: str | None = Field(default=None, min_length=1)
     reason_status: ReasonStatus | None = None
@@ -58,14 +59,14 @@ class PublicObservationsInput(EventInput):
     )
 
 
-class CaseGraphInput(EventInput):
+class TMIEventGraphInput(EventInput):
     entity_iri: str | None = Field(default=None, min_length=1)
     direction: Literal["out", "in"] = "out"
     predicate_iris: tuple[str, ...] = ()
     limit: int = Field(default=50, ge=1, le=100)
 
 
-class SimilarCasesInput(StrictModel):
+class SimilarTMIEventsInput(StrictModel):
     reference_event_id: str = Field(min_length=1)
     candidate_scope: Literal["archive", "prior"] | None = None
     event_type_iri: str | None = Field(default=None, min_length=1)
@@ -82,6 +83,11 @@ def _json(payload: object) -> str:
         sort_keys=True,
         separators=(",", ":"),
         ensure_ascii=False,
+        default=(
+            lambda value: value.isoformat()
+            if isinstance(value, datetime)
+            else str(value)
+        ),
     )
 
 
@@ -100,22 +106,22 @@ class HybridQueryGateway:
     def _event_id(self, event_id: str) -> str:
         if self.scope.event_id is not None and event_id != self.scope.event_id:
             raise ValueError("event_id is outside the query scope")
-        case = self.store.get_case(event_id)
-        if case is not None and not self._case_matches_scope(case):
+        event = self.store.get_event(event_id)
+        if event is not None and not self._event_matches_scope(event):
             raise ValueError("event_id is outside the query scope")
         return event_id
 
-    def _case_matches_scope(self, case: CorpusCase) -> bool:
+    def _event_matches_scope(self, event: CorpusTMIEvent) -> bool:
         return all(
             (
                 self.scope.event_type_iri is None
-                or self.scope.event_type_iri in case.event_type_iris,
+                or self.scope.event_type_iri in event.event_type_iris,
                 self.scope.facility_id is None
-                or self.scope.facility_id in case.facility_ids,
+                or self.scope.facility_id in event.facility_ids,
                 self.scope.reason_status is None
-                or self.scope.reason_status == case.reason_status,
+                or self.scope.reason_status == event.reason_status,
                 self.scope.reason_value is None
-                or self.scope.reason_value == case.reason_value,
+                or self.scope.reason_value == event.reason_value,
             )
         )
 
@@ -148,7 +154,7 @@ class HybridQueryGateway:
             raise ValueError("limit broadens the query scope")
         return requested
 
-    def find_cases(
+    def find_tmi_events(
         self,
         *,
         event_type_iri: str | None = None,
@@ -158,21 +164,21 @@ class HybridQueryGateway:
         offset: int | None = None,
         limit: int | None = None,
     ) -> HybridQueryToolObservation:
-        """Find corpus cases with exact filters and bounded paging."""
+        """Find corpus TMI events with exact filters and bounded paging."""
 
         if self.scope.event_id is not None:
-            case = self.store.get_case(self.scope.event_id)
-            cases = (
+            event = self.store.get_event(self.scope.event_id)
+            events = (
                 ()
-                if case is None or not self._case_matches_scope(case)
-                else (case,)
+                if event is None or not self._event_matches_scope(event)
+                else (event,)
             )
-            total_matches = len(cases)
+            total_matches = len(events)
             page_offset = 0
             page_limit = 1
         else:
-            page = self.store.find_cases(
-                CorpusCaseQuery(
+            page = self.store.find_events(
+                CorpusEventQuery(
                     event_type_iri=self._filter(
                         "event_type_iri",
                         event_type_iri,
@@ -187,29 +193,34 @@ class HybridQueryGateway:
                     limit=self._limit(limit),
                 )
             )
-            cases = page.cases
+            events = page.events
             total_matches = page.total_matches
             page_offset = page.offset
             page_limit = page.limit
-        case_rows = [
+        event_rows = [
             {
-                "case_id": case.case_id,
-                "event_id": case.event_id,
-                "advisory_source_id": case.advisory_source_id,
-                "event_type_iris": case.event_type_iris,
-                "facility_ids": case.facility_ids,
-                "operational_start": case.operational_start,
-                "operational_end": case.operational_end,
-                "reason_status": case.reason_status,
-                "reason_value": case.reason_value,
+                "event_id": event.event_id,
+                "advisory_source_id": event.advisory_source_id,
+                "event_type_iris": event.event_type_iris,
+                "facility_ids": event.facility_ids,
+                "effective_start": event.effective_start,
+                "effective_end": event.effective_end,
+                "reason_status": event.reason_status,
+                "reason_value": event.reason_value,
             }
-            for case in cases
+            for event in events
         ]
         status: Literal["ok", "insufficient"] = (
-            "ok" if cases else "insufficient"
+            "ok" if events else "insufficient"
         )
         source_ids = tuple(
-            sorted({source_id for case in cases for source_id in case.source_ids})
+            sorted(
+                {
+                    source_id
+                    for event in events
+                    for source_id in event.source_ids
+                }
+            )
         )
         return HybridQueryToolObservation(
             status=status,
@@ -218,32 +229,34 @@ class HybridQueryGateway:
                     "total_matches": total_matches,
                     "offset": page_offset,
                     "limit": page_limit,
-                    "cases": case_rows,
+                    "events": event_rows,
                 }
             ),
             details=HybridQueryEvidence(
-                case_ids=tuple(case.case_id for case in cases),
+                event_ids=tuple(event.event_id for event in events),
                 source_ids=source_ids,
             ),
             support_records=tuple(
                 HybridQuerySupportRecord(
                     kind="source_fact",
-                    case_ids=(case.case_id,),
-                    source_ids=(case.advisory_source_id,),
+                    event_ids=(event.event_id,),
+                    source_ids=(event.advisory_source_id,),
                 )
-                for case in cases
+                for event in events
             ),
             limitation=(
-                "" if cases else "No corpus cases match the bounded filters."
+                ""
+                if events
+                else "No corpus TMI events match the bounded filters."
             ),
         )
 
-    def read_case_facts(self, *, event_id: str) -> HybridQueryToolObservation:
+    def read_tmi_event_facts(self, *, event_id: str) -> HybridQueryToolObservation:
         """Read formal facts and declared-reason state for one event."""
 
         event_id = self._event_id(event_id)
-        case = self.store.get_case(event_id)
-        if case is None:
+        event = self.store.get_event(event_id)
+        if event is None:
             return HybridQueryToolObservation(
                 status="insufficient",
                 content=_json({"event_id": event_id, "facts": []}),
@@ -260,7 +273,7 @@ class HybridQueryGateway:
         source_ids = tuple(
             sorted(
                 {
-                    *case.source_ids,
+                    *event.source_ids,
                     *(source_id for fact in facts for source_id in fact.source_ids),
                     *(gap.source_id for gap in gaps),
                 }
@@ -270,16 +283,15 @@ class HybridQueryGateway:
             status="ok",
             content=_json(
                 {
-                    "case": {
-                        "case_id": case.case_id,
-                        "event_id": case.event_id,
-                        "advisory_source_id": case.advisory_source_id,
-                        "event_type_iris": case.event_type_iris,
-                        "facility_ids": case.facility_ids,
-                        "operational_start": case.operational_start,
-                        "operational_end": case.operational_end,
-                        "reason_status": case.reason_status,
-                        "reason_value": case.reason_value,
+                    "event": {
+                        "event_id": event.event_id,
+                        "advisory_source_id": event.advisory_source_id,
+                        "event_type_iris": event.event_type_iris,
+                        "facility_ids": event.facility_ids,
+                        "effective_start": event.effective_start,
+                        "effective_end": event.effective_end,
+                        "reason_status": event.reason_status,
+                        "reason_value": event.reason_value,
                     },
                     "facts": [
                         {
@@ -307,7 +319,7 @@ class HybridQueryGateway:
                 }
             ),
             details=HybridQueryEvidence(
-                case_ids=(case.case_id,),
+                event_ids=(event.event_id,),
                 fact_ids=tuple(fact.fact_id for fact in facts),
                 profile_gap_ids=tuple(gap.profile_gap_id for gap in gaps),
                 source_ids=source_ids,
@@ -315,13 +327,13 @@ class HybridQueryGateway:
             support_records=(
                 HybridQuerySupportRecord(
                     kind="source_fact",
-                    case_ids=(case.case_id,),
-                    source_ids=(case.advisory_source_id,),
+                    event_ids=(event.event_id,),
+                    source_ids=(event.advisory_source_id,),
                 ),
                 *(
                     HybridQuerySupportRecord(
                         kind="source_fact",
-                        case_ids=(case.case_id,),
+                        event_ids=(event.event_id,),
                         fact_ids=(fact.fact_id,),
                         source_ids=tuple(sorted(fact.source_ids)),
                     )
@@ -331,7 +343,7 @@ class HybridQueryGateway:
                 *(
                     HybridQuerySupportRecord(
                         kind="source_fact",
-                        case_ids=(case.case_id,),
+                        event_ids=(event.event_id,),
                         profile_gap_ids=(gap.profile_gap_id,),
                         source_ids=(gap.source_id,),
                     )
@@ -348,14 +360,14 @@ class HybridQueryGateway:
         """Read retained Weather context without making a causal claim."""
 
         event_id = self._event_id(event_id)
-        case = self.store.get_case(event_id)
-        if case is None:
+        event = self.store.get_event(event_id)
+        if event is None:
             return HybridQueryToolObservation(
                 status="insufficient",
                 content=_json({"event_id": event_id, "associations": []}),
                 limitation="The requested event is not present in this corpus.",
             )
-        associations = self.store.get_decision_context(event_id)
+        associations = self.store.get_weather_context(event_id)
         report_ids = {row.report_id for row in associations}
         report_tokens = {report_id.rsplit(":", 1)[-1] for report_id in report_ids}
         facts = tuple(
@@ -400,7 +412,7 @@ class HybridQueryGateway:
                 }
             ),
             details=HybridQueryEvidence(
-                case_ids=(case.case_id,),
+                event_ids=(event.event_id,),
                 fact_ids=tuple(fact.fact_id for fact in facts),
                 context_association_ids=tuple(
                     row.association_id for row in associations
@@ -410,7 +422,7 @@ class HybridQueryGateway:
             support_records=tuple(
                 HybridQuerySupportRecord(
                     kind="non_causal_context",
-                    case_ids=(case.case_id,),
+                    event_ids=(event.event_id,),
                     fact_ids=tuple(
                         fact.fact_id
                         for fact in facts
@@ -440,7 +452,7 @@ class HybridQueryGateway:
             limitation=(
                 ""
                 if status == "ok"
-                else "No retained Weather context is available for this case."
+                else "No retained Weather context is available for this event."
             ),
         )
 
@@ -457,11 +469,11 @@ class HybridQueryGateway:
         """Read source-qualified BTS public observations."""
 
         event_id = self._event_id(event_id)
-        case = self.store.get_case(event_id)
+        event = self.store.get_event(event_id)
         observations = (
             ()
-            if case is None
-            else self.store.get_outcome_observations(event_id, phases)
+            if event is None
+            else self.store.get_public_observations(event_id, phases)
         )
         status: Literal["ok", "insufficient"] = (
             "ok" if observations else "insufficient"
@@ -501,7 +513,7 @@ class HybridQueryGateway:
                 }
             ),
             details=HybridQueryEvidence(
-                case_ids=(() if case is None else (case.case_id,)),
+                event_ids=(() if event is None else (event.event_id,)),
                 fact_ids=tuple(
                     sorted(
                         {
@@ -519,7 +531,9 @@ class HybridQueryGateway:
             support_records=tuple(
                 HybridQuerySupportRecord(
                     kind="public_observation",
-                    case_ids=(() if case is None else (case.case_id,)),
+                    event_ids=(
+                        () if event is None else (event.event_id,)
+                    ),
                     observation_ids=(row.observation_id,),
                     source_ids=(row.source_id,),
                 )
@@ -528,11 +542,11 @@ class HybridQueryGateway:
             limitation=(
                 ""
                 if status == "ok"
-                else "No BTS public observations are available for this case."
+                else "No BTS public observations are available for this event."
             ),
         )
 
-    def read_case_graph(
+    def read_tmi_event_graph(
         self,
         *,
         event_id: str,
@@ -541,11 +555,11 @@ class HybridQueryGateway:
         predicate_iris: tuple[str, ...] = (),
         limit: int = 50,
     ) -> HybridQueryToolObservation:
-        """Read formal graph edges from one case-scoped graph view."""
+        """Read formal graph edges from one event-scoped graph view."""
 
         event_id = self._event_id(event_id)
-        case = self.store.get_case(event_id)
-        if case is None:
+        event = self.store.get_event(event_id)
+        if event is None:
             return HybridQueryToolObservation(
                 status="insufficient",
                 content=_json({"event_id": event_id, "edges": []}),
@@ -573,21 +587,20 @@ class HybridQueryGateway:
             content=_json(
                 {
                     "event_id": event_id,
-                    "case_id": case.case_id,
                     "edges": [
                         edge.model_dump(mode="json") for edge in edges
                     ],
                 }
             ),
             details=HybridQueryEvidence(
-                case_ids=(case.case_id,),
+                event_ids=(event.event_id,),
                 fact_ids=tuple(edge.fact_id for edge in edges),
                 source_ids=source_ids,
             ),
             support_records=tuple(
                 HybridQuerySupportRecord(
                     kind="source_fact",
-                    case_ids=(case.case_id,),
+                    event_ids=(event.event_id,),
                     fact_ids=(edge.fact_id,),
                     source_ids=tuple(sorted(edge.source_ids)),
                 )
@@ -601,7 +614,7 @@ class HybridQueryGateway:
             ),
         )
 
-    def find_similar_cases(
+    def find_similar_tmi_events(
         self,
         *,
         reference_event_id: str,
@@ -619,7 +632,7 @@ class HybridQueryGateway:
         effective_scope = candidate_scope or self.scope.candidate_scope
         if effective_scope != self.scope.candidate_scope:
             raise ValueError("candidate_scope is outside the query scope")
-        query = CaseSimilarityQuery(
+        query = TMIEventSimilarityQuery(
             reference_event_id=reference_event_id,
             candidate_scope=effective_scope,
             event_type_iri=self._filter("event_type_iri", event_type_iri),
@@ -632,22 +645,25 @@ class HybridQueryGateway:
             offset=self._offset(offset),
             limit=self._limit(limit),
         )
-        index_dir = self.store.root / "case_index"
-        if not (index_dir / CASE_INDEX_MANIFEST).is_file():
+        index_dir = self.store.root / "tmi_event_index"
+        if not (index_dir / TMI_EVENT_INDEX_MANIFEST).is_file():
             return HybridQueryToolObservation(
                 status="insufficient",
                 content=_json({"matches": []}),
-                limitation="The corpus has no case index. Build it with index-cases.",
+                limitation=(
+                    "The corpus has no TMI-event index. "
+                    "Build it with index-events."
+                ),
             )
         try:
-            index = ChromaCaseRetrievalIndex(self.store, index_dir)
+            index = ChromaTMIEventRetrievalIndex(self.store, index_dir)
         except ValueError as exc:
             return HybridQueryToolObservation(
                 status="blocked",
                 content=_json({"matches": []}),
                 limitation=str(exc),
             )
-        result = search_similar_cases(self.store, index, query)
+        result = search_similar_tmi_events(self.store, index, query)
         matches = result.matches
         source_ids = tuple(
             sorted(match.advisory_source_id for match in matches)
@@ -665,13 +681,13 @@ class HybridQueryGateway:
                 }
             ),
             details=HybridQueryEvidence(
-                case_ids=tuple(match.case_id for match in matches),
+                event_ids=tuple(match.event_id for match in matches),
                 source_ids=source_ids,
             ),
             support_records=tuple(
                 HybridQuerySupportRecord(
                     kind="similarity",
-                    case_ids=(match.case_id,),
+                    event_ids=(match.event_id,),
                     source_ids=(match.advisory_source_id,),
                 )
                 for match in matches
@@ -686,17 +702,17 @@ def build_hybrid_query_tools(
 ) -> list[BaseTool]:
     """Expose the fixed read-only HybridRAG registry to the model."""
 
-    @tool("find_cases", args_schema=FindCasesInput)
-    def find_cases_tool(**kwargs: object) -> dict[str, object]:
-        """Find decision cases using exact metadata filters and bounded paging."""
+    @tool("find_tmi_events", args_schema=FindTMIEventsInput)
+    def find_tmi_events_tool(**kwargs: object) -> dict[str, object]:
+        """Find TMI events using exact metadata filters and bounded paging."""
 
-        return gateway.find_cases(**kwargs).model_dump(mode="json")  # type: ignore[arg-type]
+        return gateway.find_tmi_events(**kwargs).model_dump(mode="json")  # type: ignore[arg-type]
 
-    @tool("read_case_facts", args_schema=EventInput)
-    def read_case_facts_tool(event_id: str) -> dict[str, object]:
+    @tool("read_tmi_event_facts", args_schema=EventInput)
+    def read_tmi_event_facts_tool(event_id: str) -> dict[str, object]:
         """Read formal facts and declared-reason state for one event."""
 
-        return gateway.read_case_facts(event_id=event_id).model_dump(mode="json")
+        return gateway.read_tmi_event_facts(event_id=event_id).model_dump(mode="json")
 
     @tool("read_weather_context", args_schema=EventInput)
     def read_weather_context_tool(event_id: str) -> dict[str, object]:
@@ -718,17 +734,17 @@ def build_hybrid_query_tools(
             phases=phases,
         ).model_dump(mode="json")
 
-    @tool("read_case_graph", args_schema=CaseGraphInput)
-    def read_case_graph_tool(
+    @tool("read_tmi_event_graph", args_schema=TMIEventGraphInput)
+    def read_tmi_event_graph_tool(
         event_id: str,
         entity_iri: str | None = None,
         direction: Literal["out", "in"] = "out",
         predicate_iris: tuple[str, ...] = (),
         limit: int = 50,
     ) -> dict[str, object]:
-        """Read bounded formal edges from one case-scoped graph."""
+        """Read bounded formal edges from one event-scoped graph."""
 
-        return gateway.read_case_graph(
+        return gateway.read_tmi_event_graph(
             event_id=event_id,
             entity_iri=entity_iri,
             direction=direction,
@@ -736,19 +752,19 @@ def build_hybrid_query_tools(
             limit=limit,
         ).model_dump(mode="json")
 
-    @tool("find_similar_cases", args_schema=SimilarCasesInput)
-    def find_similar_cases_tool(**kwargs: object) -> dict[str, object]:
-        """Find structurally similar decision records through Chroma."""
+    @tool("find_similar_tmi_events", args_schema=SimilarTMIEventsInput)
+    def find_similar_tmi_events_tool(**kwargs: object) -> dict[str, object]:
+        """Find structurally similar TMI events through Chroma."""
 
-        return gateway.find_similar_cases(**kwargs).model_dump(mode="json")  # type: ignore[arg-type]
+        return gateway.find_similar_tmi_events(**kwargs).model_dump(mode="json")  # type: ignore[arg-type]
 
     return [
-        find_cases_tool,
-        read_case_facts_tool,
+        find_tmi_events_tool,
+        read_tmi_event_facts_tool,
         read_weather_context_tool,
         read_public_observations_tool,
-        read_case_graph_tool,
-        find_similar_cases_tool,
+        read_tmi_event_graph_tool,
+        find_similar_tmi_events_tool,
     ]
 
 

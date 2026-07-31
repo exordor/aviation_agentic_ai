@@ -40,7 +40,7 @@ roles:
       - Return only one JSON object and no Markdown or hidden reasoning.
 
       Final JSON:
-      {"status":"ok|insufficient","statements":[{"kind":"source_fact|non_causal_context|public_observation|similarity","text":"...","support_case_ids":["..."],"support_fact_ids":["..."],"support_profile_gap_ids":["..."],"support_context_association_ids":["..."],"support_observation_ids":["..."],"support_graph_path_ids":["..."],"support_source_ids":["..."]}],"limitations":["..."]}
+      {"status":"ok|insufficient","statements":[{"kind":"source_fact|non_causal_context|public_observation|similarity","text":"...","support_event_ids":["..."],"support_fact_ids":["..."],"support_profile_gap_ids":["..."],"support_context_association_ids":["..."],"support_observation_ids":["..."],"support_graph_path_ids":["..."],"support_source_ids":["..."]}],"limitations":["..."]}
     few_shot:
       - user: |
           USER_QUESTION:
@@ -48,7 +48,7 @@ roles:
           QUERY_SCOPE:
           {"event_id":null,"limit":20,"offset":0}
         assistant: |
-          {"status":"ok","statements":[{"kind":"source_fact","text":"The selected advisory records weather as its source-declared reason.","support_case_ids":["example:case:1"],"support_fact_ids":["example:fact:1"],"support_profile_gap_ids":[],"support_context_association_ids":[],"support_observation_ids":[],"support_graph_path_ids":[],"support_source_ids":["example:source:1"]}],"limitations":[]}
+          {"status":"ok","statements":[{"kind":"source_fact","text":"The selected advisory records weather as its source-declared reason.","support_event_ids":["example:event:1"],"support_fact_ids":["example:fact:1"],"support_profile_gap_ids":[],"support_context_association_ids":[],"support_observation_ids":[],"support_graph_path_ids":[],"support_source_ids":["example:source:1"]}],"limitations":[]}
       - user: |
           USER_QUESTION:
           Should the same measure be used now?

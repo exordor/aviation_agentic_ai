@@ -1,21 +1,23 @@
-"""Filtered case-level vector retrieval over a verified corpus."""
+"""Filtered TMI-event vector retrieval over a verified corpus."""
 
 from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from aviation_agentic_ai.agent_system.case_retrieval_contracts import (
-    CaseSimilarityQuery,
-    CaseSimilarityResult,
+from aviation_agentic_ai.agent_system.contracts import (
+    TMIEventSimilarityMatch,
 )
-from aviation_agentic_ai.agent_system.case_retrieval_index import (
-    ChromaCaseRetrievalIndex,
-)
-from aviation_agentic_ai.agent_system.contracts import CaseSimilarityMatch
 from aviation_agentic_ai.agent_system.corpus_store import (
-    CorpusCase,
-    CorpusCaseQuery,
+    CorpusEventQuery,
     CorpusQueryStore,
+    CorpusTMIEvent,
+)
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
+    TMIEventSimilarityQuery,
+    TMIEventSimilarityResult,
+)
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_index import (
+    ChromaTMIEventRetrievalIndex,
 )
 from aviation_agentic_ai.agent_system.tmi_profiles import active_tmi_profiles
 
@@ -28,21 +30,24 @@ _RETRIEVABLE_TMI_TYPES = {
 _FILTER_PAGE_SIZE = 100
 
 
-def _parse_utc(value: str) -> datetime:
-    return datetime.fromisoformat(
-        value.replace("Z", "+00:00")
-    ).astimezone(UTC)
+def _parse_utc(value: str | datetime) -> datetime:
+    parsed = (
+        value
+        if isinstance(value, datetime)
+        else datetime.fromisoformat(value.replace("Z", "+00:00"))
+    )
+    return parsed.astimezone(UTC)
 
 
 def _exact_candidates(
     store: CorpusQueryStore,
-    query: CaseSimilarityQuery,
-) -> list[CorpusCase]:
-    candidates: list[CorpusCase] = []
+    query: TMIEventSimilarityQuery,
+) -> list[CorpusTMIEvent]:
+    candidates: list[CorpusTMIEvent] = []
     page_offset = 0
     while True:
-        page = store.find_cases(
-            CorpusCaseQuery(
+        page = store.find_events(
+            CorpusEventQuery(
                 event_type_iri=query.event_type_iri,
                 facility_id=query.facility_id,
                 reason_status=query.reason_status,
@@ -51,35 +56,35 @@ def _exact_candidates(
                 limit=_FILTER_PAGE_SIZE,
             )
         )
-        candidates.extend(page.cases)
-        page_offset += len(page.cases)
-        if page_offset >= page.total_matches or not page.cases:
+        candidates.extend(page.events)
+        page_offset += len(page.events)
+        if page_offset >= page.total_matches or not page.events:
             return candidates
 
 
-def _tmi_type(case: CorpusCase) -> str:
+def _tmi_type(event: CorpusTMIEvent) -> str:
     reviewed = sorted(
         iri
-        for iri in case.event_type_iris
+        for iri in event.event_type_iris
         if iri in _RETRIEVABLE_TMI_TYPES
     )
     if len(reviewed) != 1:
         raise ValueError(
-            f"case has no single retrievable TMI type: {case.case_id}"
+            f"event has no single retrievable TMI type: {event.event_id}"
         )
     return reviewed[0]
 
 
-def find_similar_cases(
+def find_similar_tmi_events(
     store: CorpusQueryStore,
-    index: ChromaCaseRetrievalIndex,
-    query: CaseSimilarityQuery,
-) -> CaseSimilarityResult:
+    index: ChromaTMIEventRetrievalIndex,
+    query: TMIEventSimilarityQuery,
+) -> TMIEventSimilarityResult:
     """Apply exact corpus filters before Chroma cosine recall."""
 
-    anchor = store.get_case(query.reference_event_id)
+    anchor = store.get_event(query.reference_event_id)
     if anchor is None:
-        return CaseSimilarityResult(
+        return TMIEventSimilarityResult(
             status="insufficient",
             query=query,
             candidate_count=0,
@@ -89,58 +94,51 @@ def find_similar_cases(
         )
 
     candidates = [
-        case
-        for case in _exact_candidates(store, query)
-        if case.case_id != anchor.case_id
+        event
+        for event in _exact_candidates(store, query)
+        if event.event_id != anchor.event_id
     ]
     if query.candidate_scope == "prior":
-        if anchor.operational_start is None:
-            return CaseSimilarityResult(
+        if anchor.effective_start is None:
+            return TMIEventSimilarityResult(
                 status="blocked",
                 query=query,
                 candidate_count=0,
-                representation_version=(
-                    index.manifest.representation_version
-                ),
+                representation_version=index.manifest.representation_version,
                 embedding_model_id=index.manifest.embedding_model_id,
                 limitation=(
-                    "The reference case has no operational start boundary."
+                    "The reference event has no effective start boundary."
                 ),
             )
-        anchor_start = _parse_utc(anchor.operational_start)
+        anchor_start = _parse_utc(anchor.effective_start)
         candidates = [
-            case
-            for case in candidates
-            if case.operational_end is not None
-            and _parse_utc(case.operational_end) < anchor_start
+            event
+            for event in candidates
+            if event.effective_end is not None
+            and _parse_utc(event.effective_end) < anchor_start
         ]
-    candidates.sort(key=lambda case: case.case_id)
+    candidates.sort(key=lambda event: event.event_id)
     if not candidates:
-        return CaseSimilarityResult(
+        return TMIEventSimilarityResult(
             status="insufficient",
             query=query,
             candidate_count=0,
             representation_version=index.manifest.representation_version,
             embedding_model_id=index.manifest.embedding_model_id,
             limitation=(
-                "No historical cases match the exact candidate filters."
+                "No historical TMI events match the exact candidate filters."
             ),
         )
 
     try:
-        reference_vector = index.get_case_vector(anchor.case_id)
+        reference_vector = index.get_event_vector(anchor.event_id)
         hits = index.query_candidates(
             query_vector=reference_vector,
-            candidate_case_ids=[
-                case.case_id for case in candidates
-            ],
-            n_results=min(
-                len(candidates),
-                query.offset + query.limit,
-            ),
+            candidate_event_ids=[event.event_id for event in candidates],
+            n_results=min(len(candidates), query.offset + query.limit),
         )
     except ValueError as exc:
-        return CaseSimilarityResult(
+        return TMIEventSimilarityResult(
             status="blocked",
             query=query,
             candidate_count=len(candidates),
@@ -149,37 +147,32 @@ def find_similar_cases(
             limitation=str(exc),
         )
 
-    candidate_by_id = {case.case_id: case for case in candidates}
+    candidate_by_id = {event.event_id: event for event in candidates}
     ranked_hits = sorted(
         hits,
-        key=lambda hit: (-hit.similarity, hit.case_id),
+        key=lambda hit: (-hit.similarity, hit.event_id),
     )
-    selected_hits = ranked_hits[
-        query.offset : query.offset + query.limit
-    ]
+    selected_hits = ranked_hits[query.offset : query.offset + query.limit]
     try:
         matches = tuple(
-            CaseSimilarityMatch(
+            TMIEventSimilarityMatch(
                 rank=query.offset + position,
-                case_id=hit.case_id,
-                event_id=candidate_by_id[hit.case_id].event_id,
+                event_id=hit.event_id,
                 advisory_source_id=(
-                    candidate_by_id[hit.case_id].advisory_source_id
+                    candidate_by_id[hit.event_id].advisory_source_id
                 ),
                 score=round(hit.similarity, 6),
-                tmi_type_iri=_tmi_type(candidate_by_id[hit.case_id]),
+                tmi_type_iri=_tmi_type(candidate_by_id[hit.event_id]),
                 facility_ids=tuple(
-                    sorted(candidate_by_id[hit.case_id].facility_ids)
+                    sorted(candidate_by_id[hit.event_id].facility_ids)
                 ),
-                reason_status=candidate_by_id[
-                    hit.case_id
-                ].reason_status,
-                reason_value=candidate_by_id[hit.case_id].reason_value,
+                reason_status=candidate_by_id[hit.event_id].reason_status,
+                reason_value=candidate_by_id[hit.event_id].reason_value,
             )
             for position, hit in enumerate(selected_hits, start=1)
         )
     except (KeyError, ValueError) as exc:
-        return CaseSimilarityResult(
+        return TMIEventSimilarityResult(
             status="blocked",
             query=query,
             candidate_count=len(candidates),
@@ -187,7 +180,7 @@ def find_similar_cases(
             embedding_model_id=index.manifest.embedding_model_id,
             limitation=str(exc),
         )
-    return CaseSimilarityResult(
+    return TMIEventSimilarityResult(
         status="ok" if matches else "insufficient",
         query=query,
         candidate_count=len(candidates),
@@ -197,6 +190,6 @@ def find_similar_cases(
         limitation=(
             ""
             if matches
-            else "No ranked cases are available on the requested page."
+            else "No ranked TMI events are available on the requested page."
         ),
     )

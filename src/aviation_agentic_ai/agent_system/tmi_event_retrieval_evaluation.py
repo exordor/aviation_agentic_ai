@@ -1,4 +1,4 @@
-"""Evaluate the bounded historical-case retrieval smoke set."""
+"""Evaluate the bounded historical TMI-event retrieval smoke set."""
 
 from __future__ import annotations
 
@@ -9,17 +9,17 @@ from typing import Literal, Sequence
 
 from pydantic import Field
 
-from aviation_agentic_ai.agent_system.case_retrieval_contracts import (
-    CaseSimilarityQuery,
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
+    TMIEventSimilarityQuery,
 )
-from aviation_agentic_ai.agent_system.case_retrieval_index import (
-    ChromaCaseRetrievalIndex,
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_index import (
+    ChromaTMIEventRetrievalIndex,
 )
-from aviation_agentic_ai.agent_system.case_retrieval_search import (
-    find_similar_cases,
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_search import (
+    find_similar_tmi_events,
 )
 from aviation_agentic_ai.agent_system.contracts import (
-    CaseSimilarityMatch,
+    TMIEventSimilarityMatch,
     StrictModel,
 )
 from aviation_agentic_ai.agent_system.corpus_store import CorpusQueryStore
@@ -55,18 +55,18 @@ class _SmokeQuery(StrictModel):
 
 
 class _SmokeSet(StrictModel):
-    version: Literal["case-retrieval-smoke-v1"]
+    version: Literal["tmi-event-retrieval-smoke-v1"]
     queries: tuple[_SmokeQuery, ...]
 
 
 def _validate_match(
-    match: CaseSimilarityMatch,
+    match: TMIEventSimilarityMatch,
     *,
-    anchor_case_id: str,
+    anchor_event_id: str,
     filters: _SmokeFilters,
 ) -> None:
-    if match.case_id == anchor_case_id:
-        raise ValueError("ranked result contains the anchor case")
+    if match.event_id == anchor_event_id:
+        raise ValueError("ranked result contains the anchor event")
     if (
         filters.event_type_iri is not None
         and match.tmi_type_iri != filters.event_type_iri
@@ -89,7 +89,7 @@ def _validate_match(
         raise ValueError("ranked result violates the reason-value filter")
 
 
-def evaluate_case_retrieval_smoke(
+def evaluate_tmi_event_retrieval_smoke(
     corpus_dir: str | Path,
     gold_path: str | Path,
 ) -> RetrievalSmokeMetrics:
@@ -97,20 +97,20 @@ def evaluate_case_retrieval_smoke(
 
     smoke = _SmokeSet.model_validate(load_yaml(gold_path))
     store = CorpusQueryStore(corpus_dir)
-    index = ChromaCaseRetrievalIndex(
+    index = ChromaTMIEventRetrievalIndex(
         store,
-        store.root / "case_index",
+        store.root / "tmi_event_index",
     )
-    case_by_source = {
-        case.advisory_source_id: case for case in store.cases
+    event_by_source = {
+        event.advisory_source_id: event for event in store.events
     }
     for row in smoke.queries:
-        if row.query_source_id not in case_by_source:
+        if row.query_source_id not in event_by_source:
             raise ValueError(
                 f"unknown query_source_id: {row.query_source_id}"
             )
         for source_id in row.relevant_source_ids:
-            if source_id not in case_by_source:
+            if source_id not in event_by_source:
                 raise ValueError(
                     f"unknown relevant_source_id: {source_id}"
                 )
@@ -122,8 +122,8 @@ def evaluate_case_retrieval_smoke(
     expected_insufficient_count = 0
     expected_insufficient_pass_count = 0
     for row in smoke.queries:
-        anchor = case_by_source[row.query_source_id]
-        query = CaseSimilarityQuery(
+        anchor = event_by_source[row.query_source_id]
+        query = TMIEventSimilarityQuery(
             reference_event_id=anchor.event_id,
             event_type_iri=row.filters.event_type_iri,
             facility_id=row.filters.facility_id,
@@ -131,7 +131,7 @@ def evaluate_case_retrieval_smoke(
             reason_value=row.filters.reason_value,
             limit=20,
         )
-        result = find_similar_cases(store, index, query)
+        result = find_similar_tmi_events(store, index, query)
         if result.status == "blocked":
             raise ValueError(
                 f"retrieval blocked for {row.query_source_id}: "
@@ -140,7 +140,7 @@ def evaluate_case_retrieval_smoke(
         for match in result.matches:
             _validate_match(
                 match,
-                anchor_case_id=anchor.case_id,
+                anchor_event_id=anchor.event_id,
                 filters=row.filters,
             )
         if row.expected_status == "insufficient":
@@ -198,12 +198,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     """Run the smoke evaluator and print stable JSON metrics."""
 
     parser = argparse.ArgumentParser(
-        description="Evaluate historical decision-case retrieval."
+        description="Evaluate historical TMI-event retrieval."
     )
     parser.add_argument("--corpus-dir", required=True)
     parser.add_argument("--gold", required=True)
     args = parser.parse_args(argv)
-    metrics = evaluate_case_retrieval_smoke(
+    metrics = evaluate_tmi_event_retrieval_smoke(
         corpus_dir=args.corpus_dir,
         gold_path=args.gold,
     )

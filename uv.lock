@@ -313,10 +313,6 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-case-retrieval = [
-    { name = "chromadb" },
-    { name = "sentence-transformers" },
-]
 dev = [
     { name = "pytest" },
     { name = "ruff" },
@@ -338,6 +334,10 @@ ontology-generation = [
     { name = "langchain-openai" },
     { name = "langgraph" },
 ]
+tmi-event-retrieval = [
+    { name = "chromadb" },
+    { name = "sentence-transformers" },
+]
 web = [
     { name = "fastapi" },
     { name = "uvicorn" },
@@ -345,8 +345,8 @@ web = [
 
 [package.metadata]
 requires-dist = [
-    { name = "chromadb", marker = "extra == 'case-retrieval'", specifier = ">=1.5,<2" },
     { name = "chromadb", marker = "extra == 'graphrag'", specifier = ">=1.5,<2" },
+    { name = "chromadb", marker = "extra == 'tmi-event-retrieval'", specifier = ">=1.5,<2" },
     { name = "click", specifier = ">=8.1" },
     { name = "docling", specifier = ">=2.96.0" },
     { name = "fastapi", marker = "extra == 'web'", specifier = ">=0.115" },
@@ -368,12 +368,12 @@ requires-dist = [
     { name = "rich", specifier = ">=15.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6" },
     { name = "scrapy", specifier = ">=2.13" },
-    { name = "sentence-transformers", marker = "extra == 'case-retrieval'", specifier = ">=3.0" },
     { name = "sentence-transformers", marker = "extra == 'graphrag'", specifier = ">=3.0" },
+    { name = "sentence-transformers", marker = "extra == 'tmi-event-retrieval'", specifier = ">=3.0" },
     { name = "tenacity", specifier = ">=9.1" },
     { name = "uvicorn", marker = "extra == 'web'", specifier = ">=0.30" },
 ]
-provides-extras = ["ontology-generation", "graphrag", "case-retrieval", "web", "ontogpt", "neo4j", "dev"]
+provides-extras = ["ontology-generation", "graphrag", "tmi-event-retrieval", "web", "ontogpt", "neo4j", "dev"]
 
 [[package]]
 name = "babel"

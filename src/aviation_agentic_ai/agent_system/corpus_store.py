@@ -1150,6 +1150,10 @@ def export_event(
     output = Path(output_dir)
     output.mkdir(parents=True, exist_ok=True)
     facts = list(store.get_event_facts(event_id))
+    event_facts = [
+        CorpusEventFact(event_id=event_id, fact_id=fact.fact_id)
+        for fact in facts
+    ]
     gaps = [row for row in store.profile_gaps if row.event_id == event_id]
     associations = list(store.get_weather_context(event_id))
     observations = list(store.get_public_observations(event_id))
@@ -1160,6 +1164,10 @@ def export_event(
         if str(row.get("event_id") or "") == event.event_id
     ]
     _write_jsonl(output / "facts.jsonl", [row.model_dump(mode="json") for row in facts])
+    _write_jsonl(
+        output / "event_facts.jsonl",
+        [row.model_dump(mode="json") for row in event_facts],
+    )
     _write_jsonl(
         output / "evidence_links.jsonl",
         [row.model_dump(mode="json") for row in evidence],
@@ -1202,7 +1210,7 @@ def export_event(
         include_jsonl=False,
         include_neo4j=False,
     )
-    (output / "event_export_manifest.json").write_text(
+    (output / "tmi_event_export_manifest.json").write_text(
         json.dumps(
             {
                 "manifest_version": "tmi-event-export-v1",

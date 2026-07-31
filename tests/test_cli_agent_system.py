@@ -12,9 +12,9 @@ def test_public_agent_system_surface_is_corpus_first() -> None:
     assert set(cli_module.agent_system.commands) == {
         "build-corpus",
         "ask",
-        "index-cases",
+        "index-events",
         "neo4j-export",
-        "export-case",
+        "export-event",
     }
     specification = next(
         row
@@ -24,10 +24,19 @@ def test_public_agent_system_surface_is_corpus_first() -> None:
     assert specification["subcommands"] == (
         "build-corpus",
         "ask",
-        "index-cases",
+        "index-events",
         "neo4j-export",
-        "export-case",
+        "export-event",
     )
+
+
+def test_retired_case_commands_are_unknown() -> None:
+    runner = CliRunner()
+
+    for command in ("index-cases", "export-case"):
+        result = runner.invoke(cli_module.agent_system, [command])
+        assert result.exit_code == 2
+        assert f"No such command '{command}'" in result.output
 
 
 def test_removed_single_run_options_stay_out_of_the_public_cli() -> None:

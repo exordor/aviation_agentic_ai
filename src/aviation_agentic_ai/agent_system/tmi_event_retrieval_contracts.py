@@ -1,19 +1,20 @@
-"""Typed contracts for deterministic historical case retrieval."""
+"""Typed contracts for deterministic historical TMI-event retrieval."""
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Literal, Protocol, Sequence
 
 from pydantic import Field
 
 from aviation_agentic_ai.agent_system.contracts import (
-    CaseSimilarityMatch,
     StrictModel,
+    TMIEventSimilarityMatch,
 )
 
 
-REPRESENTATION_VERSION = "decision-record-v1"
-DEFAULT_CASE_EMBEDDING_MODEL = (
+REPRESENTATION_VERSION = "tmi-event-record-v1"
+DEFAULT_TMI_EVENT_EMBEDDING_MODEL = (
     "sentence-transformers/all-MiniLM-L6-v2"
 )
 
@@ -26,14 +27,13 @@ DurationBucket = Literal[
 ]
 
 
-class CaseRetrievalDocument(StrictModel):
-    """One deterministic decision-record document prepared for embedding."""
+class TMIEventRetrievalDocument(StrictModel):
+    """One deterministic TMI-event document prepared for embedding."""
 
     document_id: str = Field(min_length=1)
-    case_id: str = Field(min_length=1)
     event_id: str = Field(min_length=1)
     advisory_source_id: str = Field(min_length=1)
-    representation_version: Literal["decision-record-v1"] = (
+    representation_version: Literal["tmi-event-record-v1"] = (
         REPRESENTATION_VERSION
     )
     text: str = Field(min_length=1)
@@ -42,12 +42,12 @@ class CaseRetrievalDocument(StrictModel):
     reason_status: Literal["formal", "profile_gap", "missing"]
     reason_value: str | None
     duration_bucket: DurationBucket
-    operational_start: str = Field(min_length=1)
-    operational_end: str = Field(min_length=1)
+    effective_start: datetime
+    effective_end: datetime
 
 
-class CaseEncoder(Protocol):
-    """Embedding boundary used by the rebuildable case index."""
+class TMIEventEncoder(Protocol):
+    """Embedding boundary used by the rebuildable TMI-event index."""
 
     model_id: str
 
@@ -57,7 +57,7 @@ class CaseEncoder(Protocol):
     ) -> Sequence[Sequence[float]]: ...
 
 
-class CaseDocumentArtifact(StrictModel):
+class TMIEventDocumentArtifact(StrictModel):
     """Registered canonical-document file used to build the index."""
 
     path: str = Field(min_length=1)
@@ -65,37 +65,34 @@ class CaseDocumentArtifact(StrictModel):
     sha256: str = Field(min_length=64, max_length=64)
 
 
-class CaseIndexManifest(StrictModel):
-    """Corpus-bound metadata for one persistent case-vector index."""
+class TMIEventIndexManifest(StrictModel):
+    """Corpus-bound metadata for one persistent TMI-event vector index."""
 
-    manifest_version: Literal["decision-case-index-v1"] = (
-        "decision-case-index-v1"
-    )
+    manifest_version: Literal["tmi-event-index-v1"] = "tmi-event-index-v1"
     corpus_id: str = Field(min_length=1)
-    representation_version: Literal["decision-record-v1"] = (
+    representation_version: Literal["tmi-event-record-v1"] = (
         REPRESENTATION_VERSION
     )
     vector_backend: Literal["chromadb"] = "chromadb"
-    collection_name: str = Field(min_length=1)
+    collection_name: Literal["tmi_events"] = "tmi_events"
     distance_metric: Literal["cosine"] = "cosine"
     embedding_model_id: str = Field(min_length=1)
     embedding_dimension: int = Field(ge=1)
     document_count: int = Field(ge=0)
     vector_count: int = Field(ge=0)
-    case_documents: CaseDocumentArtifact
+    tmi_event_documents: TMIEventDocumentArtifact
 
 
-class CaseVectorHit(StrictModel):
+class TMIEventVectorHit(StrictModel):
     """One Chroma result retaining distance and cosine similarity."""
 
-    case_id: str = Field(min_length=1)
     event_id: str = Field(min_length=1)
     advisory_source_id: str = Field(min_length=1)
     distance: float
     similarity: float
 
 
-class CaseSimilarityQuery(StrictModel):
+class TMIEventSimilarityQuery(StrictModel):
     """Exact candidate scope and ranked-page request for one anchor event."""
 
     reference_event_id: str = Field(min_length=1)
@@ -108,13 +105,13 @@ class CaseSimilarityQuery(StrictModel):
     limit: int = Field(default=20, ge=1, le=100)
 
 
-class CaseSimilarityResult(StrictModel):
+class TMIEventSimilarityResult(StrictModel):
     """Ranked derived retrieval records or one bounded limitation."""
 
     status: Literal["ok", "insufficient", "blocked"]
-    query: CaseSimilarityQuery
+    query: TMIEventSimilarityQuery
     candidate_count: int = Field(ge=0)
     representation_version: str = Field(min_length=1)
     embedding_model_id: str = Field(min_length=1)
-    matches: tuple[CaseSimilarityMatch, ...] = ()
+    matches: tuple[TMIEventSimilarityMatch, ...] = ()
     limitation: str = ""

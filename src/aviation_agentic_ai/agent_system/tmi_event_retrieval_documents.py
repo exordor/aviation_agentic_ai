@@ -1,17 +1,17 @@
-"""Build compact, deterministic documents for decision-record retrieval."""
+"""Build compact, deterministic documents for TMI-event retrieval."""
 
 from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from aviation_agentic_ai.agent_system.case_retrieval_contracts import (
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
     REPRESENTATION_VERSION,
-    CaseRetrievalDocument,
+    TMIEventRetrievalDocument,
     DurationBucket,
 )
 from aviation_agentic_ai.agent_system.corpus_store import (
-    CorpusCase,
     CorpusQueryStore,
+    CorpusTMIEvent,
 )
 from aviation_agentic_ai.agent_system.tmi_profiles import active_tmi_profiles
 from aviation_agentic_ai.cross_source.identifiers import stable_id
@@ -31,12 +31,19 @@ _DURATION_LABELS: dict[DurationBucket, str] = {
 }
 
 
-def _parse_utc(value: str) -> datetime:
-    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+def _parse_utc(value: str | datetime) -> datetime:
+    parsed = (
+        value
+        if isinstance(value, datetime)
+        else datetime.fromisoformat(value.replace("Z", "+00:00"))
+    )
     return parsed.astimezone(UTC)
 
 
-def _duration_bucket(start: str, end: str) -> DurationBucket:
+def _duration_bucket(
+    start: str | datetime,
+    end: str | datetime,
+) -> DurationBucket:
     start_time = _parse_utc(start)
     end_time = _parse_utc(end)
     minutes = (end_time - start_time).total_seconds() / 60
@@ -51,15 +58,15 @@ def _duration_bucket(start: str, end: str) -> DurationBucket:
     return "8_hours_or_more"
 
 
-def _reviewed_tmi(case: CorpusCase) -> tuple[str, str]:
+def _reviewed_tmi(event: CorpusTMIEvent) -> tuple[str, str]:
     reviewed = [
         (iri, _TMI_LABELS[iri])
-        for iri in case.event_type_iris
+        for iri in event.event_type_iris
         if iri in _TMI_LABELS
     ]
     if len(reviewed) != 1:
         raise ValueError(
-            f"case must have one reviewed TMI type: {case.case_id}"
+            f"event must have one reviewed TMI type: {event.event_id}"
         )
     return reviewed[0]
 
@@ -70,7 +77,7 @@ def _facility_label(facility_id: str) -> str:
 
 def _document_text(
     *,
-    case: CorpusCase,
+    event: CorpusTMIEvent,
     tmi_label: str,
     facility_ids: tuple[str, ...],
     start: datetime,
@@ -79,7 +86,7 @@ def _document_text(
 ) -> str:
     lines = [
         f"Traffic management measure: {tmi_label}.",
-        f"Declared reason status: {case.reason_status.replace('_', ' ')}.",
+        f"Declared reason status: {event.reason_status.replace('_', ' ')}.",
     ]
     if facility_ids:
         lines.insert(
@@ -94,13 +101,13 @@ def _document_text(
             "Controlled scope: not represented by a formal facility edge "
             "in the active profile.",
         )
-    if case.reason_status == "formal":
+    if event.reason_status == "formal":
         lines.append(
-            f"Declared reason category: {case.reason_value}."
+            f"Declared reason category: {event.reason_value}."
         )
-    elif case.reason_status == "profile_gap":
+    elif event.reason_status == "profile_gap":
         lines.append(
-            f"Source-supported reason category: {case.reason_value}."
+            f"Source-supported reason category: {event.reason_value}."
         )
     lines.extend(
         (
@@ -113,27 +120,27 @@ def _document_text(
     return "\n".join(lines)
 
 
-def build_case_retrieval_documents(
+def build_tmi_event_retrieval_documents(
     store: CorpusQueryStore,
-) -> tuple[CaseRetrievalDocument, ...]:
-    """Return one canonical retrieval document for each accepted corpus case."""
+) -> tuple[TMIEventRetrievalDocument, ...]:
+    """Return one canonical document for each accepted corpus TMI event."""
 
-    documents: list[CaseRetrievalDocument] = []
-    for case in sorted(store.cases, key=lambda row: row.case_id):
-        tmi_type_iri, tmi_label = _reviewed_tmi(case)
-        facility_ids = tuple(sorted(case.facility_ids))
-        if case.operational_start is None or case.operational_end is None:
+    documents: list[TMIEventRetrievalDocument] = []
+    for event in sorted(store.events, key=lambda row: row.event_id):
+        tmi_type_iri, tmi_label = _reviewed_tmi(event)
+        facility_ids = tuple(sorted(event.facility_ids))
+        if event.effective_start is None or event.effective_end is None:
             raise ValueError(
-                f"case has incomplete operational boundaries: {case.case_id}"
+                f"event has incomplete effective boundaries: {event.event_id}"
             )
-        start = _parse_utc(case.operational_start)
-        end = _parse_utc(case.operational_end)
+        start = _parse_utc(event.effective_start)
+        end = _parse_utc(event.effective_end)
         duration_bucket = _duration_bucket(
-            case.operational_start,
-            case.operational_end,
+            event.effective_start,
+            event.effective_end,
         )
         text = _document_text(
-            case=case,
+            event=event,
             tmi_label=tmi_label,
             facility_ids=facility_ids,
             start=start,
@@ -141,24 +148,23 @@ def build_case_retrieval_documents(
             duration_bucket=duration_bucket,
         )
         documents.append(
-            CaseRetrievalDocument(
+            TMIEventRetrievalDocument(
                 document_id=stable_id(
-                    "case-retrieval-document",
+                    "tmi-event-retrieval-document",
                     REPRESENTATION_VERSION,
-                    case.case_id,
+                    event.event_id,
                     text,
                 ),
-                case_id=case.case_id,
-                event_id=case.event_id,
-                advisory_source_id=case.advisory_source_id,
+                event_id=event.event_id,
+                advisory_source_id=event.advisory_source_id,
                 text=text,
                 tmi_type_iri=tmi_type_iri,
                 facility_ids=facility_ids,
-                reason_status=case.reason_status,
-                reason_value=case.reason_value,
+                reason_status=event.reason_status,
+                reason_value=event.reason_value,
                 duration_bucket=duration_bucket,
-                operational_start=case.operational_start,
-                operational_end=case.operational_end,
+                effective_start=event.effective_start,
+                effective_end=event.effective_end,
             )
         )
     return tuple(documents)

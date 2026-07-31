@@ -35,7 +35,7 @@ graphrag = [
   "networkx>=3.2",
   "sentence-transformers>=3.0",
 ]
-case-retrieval = [
+tmi-event-retrieval = [
   "chromadb>=1.5,<2",
   "sentence-transformers>=3.0",
 ]

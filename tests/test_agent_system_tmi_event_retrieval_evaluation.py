@@ -1,4 +1,4 @@
-"""Compact smoke evaluation for historical case retrieval."""
+"""Compact smoke evaluation for historical TMI-event retrieval."""
 
 from __future__ import annotations
 
@@ -9,12 +9,12 @@ from types import SimpleNamespace
 import pytest
 import yaml
 
-import aviation_agentic_ai.agent_system.case_retrieval_evaluation as evaluation
-from aviation_agentic_ai.agent_system.case_retrieval_contracts import (
-    CaseSimilarityResult,
+import aviation_agentic_ai.agent_system.tmi_event_retrieval_evaluation as evaluation
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
+    TMIEventSimilarityResult,
 )
-from aviation_agentic_ai.agent_system.contracts import CaseSimilarityMatch
-from aviation_agentic_ai.agent_system.corpus_store import CorpusCase
+from aviation_agentic_ai.agent_system.contracts import TMIEventSimilarityMatch
+from aviation_agentic_ai.agent_system.corpus_store import CorpusTMIEvent
 
 
 ATM = "https://data.nasa.gov/ontologies/atmonto/ATM#"
@@ -22,18 +22,15 @@ GDP = f"{ATM}GroundDelayProgramTMI"
 KJFK = "urn:aviation-agentic-ai:facility:airport:KJFK"
 
 
-def _case(name: str, source_id: str) -> CorpusCase:
-    return CorpusCase(
-        case_id=f"case:{name}",
-        case_iri=f"urn:decision-case:{name}",
-        reconstruction_iri=f"urn:decision-case-reconstruction:{name}",
+def _event(name: str, source_id: str) -> CorpusTMIEvent:
+    return CorpusTMIEvent(
         event_id=f"event:{name}",
         run_ids=[f"run:{name}"],
         advisory_source_id=source_id,
         event_type_iris=[GDP],
         facility_ids=[KJFK],
-        operational_start="2026-05-19T10:00:00+00:00",
-        operational_end="2026-05-19T11:00:00+00:00",
+        effective_start="2026-05-19T10:00:00+00:00",
+        effective_end="2026-05-19T11:00:00+00:00",
         reason_status="formal",
         reason_value="weather",
     )
@@ -43,7 +40,7 @@ def _gold(path: Path, queries: list[dict[str, object]]) -> Path:
     path.write_text(
         yaml.safe_dump(
             {
-                "version": "case-retrieval-smoke-v1",
+                "version": "tmi-event-retrieval-smoke-v1",
                 "queries": queries,
             },
             sort_keys=False,
@@ -58,10 +55,9 @@ def _ranked_match(
     rank: int,
     name: str,
     source_id: str,
-) -> CaseSimilarityMatch:
-    return CaseSimilarityMatch(
+) -> TMIEventSimilarityMatch:
+    return TMIEventSimilarityMatch(
         rank=rank,
-        case_id=f"case:{name}",
         event_id=f"event:{name}",
         advisory_source_id=source_id,
         score=1.0 - rank / 10,
@@ -76,24 +72,24 @@ def _install_scripted_backend(
     monkeypatch,
     tmp_path: Path,
     *,
-    by_event: dict[str, CaseSimilarityResult],
+    by_event: dict[str, TMIEventSimilarityResult],
 ) -> None:
-    cases = [
-        _case("q1", "source:q1"),
-        _case("q2", "source:q2"),
-        _case("q3", "source:q3"),
-        _case("r1", "source:r1"),
-        _case("r2", "source:r2"),
-        _case("other", "source:other"),
+    events = [
+        _event("q1", "source:q1"),
+        _event("q2", "source:q2"),
+        _event("q3", "source:q3"),
+        _event("r1", "source:r1"),
+        _event("r2", "source:r2"),
+        _event("other", "source:other"),
     ]
     store = SimpleNamespace(
         root=tmp_path / "corpus",
-        cases=tuple(cases),
+        events=tuple(events),
         manifest=SimpleNamespace(corpus_id="corpus:test"),
     )
     index = SimpleNamespace(
         manifest=SimpleNamespace(
-            representation_version="decision-record-v1",
+            representation_version="tmi-event-record-v1",
             embedding_model_id="test/model",
         )
     )
@@ -104,14 +100,14 @@ def _install_scripted_backend(
     )
     monkeypatch.setattr(
         evaluation,
-        "ChromaCaseRetrievalIndex",
+        "ChromaTMIEventRetrievalIndex",
         lambda received_store, _index_dir: (
             index if received_store is store else None
         ),
     )
     monkeypatch.setattr(
         evaluation,
-        "find_similar_cases",
+        "find_similar_tmi_events",
         lambda received_store, received_index, query: (
             by_event[query.reference_event_id]
             if received_store is store and received_index is index
@@ -152,15 +148,15 @@ def test_smoke_metrics_compute_ranked_and_insufficient_cases(
             },
         ],
     )
-    query_one = evaluation.CaseSimilarityQuery(
+    query_one = evaluation.TMIEventSimilarityQuery(
         reference_event_id="event:q1",
         **filters,
     )
-    query_two = evaluation.CaseSimilarityQuery(
+    query_two = evaluation.TMIEventSimilarityQuery(
         reference_event_id="event:q2",
         **filters,
     )
-    query_three = evaluation.CaseSimilarityQuery(
+    query_three = evaluation.TMIEventSimilarityQuery(
         reference_event_id="event:q3",
         **filters,
     )
@@ -168,11 +164,11 @@ def test_smoke_metrics_compute_ranked_and_insufficient_cases(
         monkeypatch,
         tmp_path,
         by_event={
-            "event:q1": CaseSimilarityResult(
+            "event:q1": TMIEventSimilarityResult(
                 status="ok",
                 query=query_one,
                 candidate_count=3,
-                representation_version="decision-record-v1",
+                representation_version="tmi-event-record-v1",
                 embedding_model_id="test/model",
                 matches=(
                     _ranked_match(
@@ -182,11 +178,11 @@ def test_smoke_metrics_compute_ranked_and_insufficient_cases(
                     ),
                 ),
             ),
-            "event:q2": CaseSimilarityResult(
+            "event:q2": TMIEventSimilarityResult(
                 status="ok",
                 query=query_two,
                 candidate_count=3,
-                representation_version="decision-record-v1",
+                representation_version="tmi-event-record-v1",
                 embedding_model_id="test/model",
                 matches=(
                     _ranked_match(
@@ -201,18 +197,18 @@ def test_smoke_metrics_compute_ranked_and_insufficient_cases(
                     ),
                 ),
             ),
-            "event:q3": CaseSimilarityResult(
+            "event:q3": TMIEventSimilarityResult(
                 status="insufficient",
                 query=query_three,
                 candidate_count=0,
-                representation_version="decision-record-v1",
+                representation_version="tmi-event-record-v1",
                 embedding_model_id="test/model",
                 limitation="No exact candidates.",
             ),
         },
     )
 
-    metrics = evaluation.evaluate_case_retrieval_smoke(
+    metrics = evaluation.evaluate_tmi_event_retrieval_smoke(
         corpus_dir=tmp_path / "corpus",
         gold_path=gold_path,
     )
@@ -245,7 +241,7 @@ def test_unknown_query_source_blocks_evaluation(
     )
 
     with pytest.raises(ValueError, match="unknown query_source_id"):
-        evaluation.evaluate_case_retrieval_smoke(
+        evaluation.evaluate_tmi_event_retrieval_smoke(
             corpus_dir=tmp_path / "corpus",
             gold_path=gold_path,
         )
@@ -274,7 +270,7 @@ def test_invalid_ranked_result_blocks_evaluation(
             }
         ],
     )
-    query = evaluation.CaseSimilarityQuery(
+    query = evaluation.TMIEventSimilarityQuery(
         reference_event_id="event:q1",
         **filters,
     )
@@ -295,11 +291,11 @@ def test_invalid_ranked_result_blocks_evaluation(
         monkeypatch,
         tmp_path,
         by_event={
-            "event:q1": CaseSimilarityResult(
+            "event:q1": TMIEventSimilarityResult(
                 status="ok",
                 query=query,
                 candidate_count=1,
-                representation_version="decision-record-v1",
+                representation_version="tmi-event-record-v1",
                 embedding_model_id="test/model",
                 matches=(match,),
             )
@@ -307,7 +303,7 @@ def test_invalid_ranked_result_blocks_evaluation(
     )
 
     with pytest.raises(ValueError, match=violation):
-        evaluation.evaluate_case_retrieval_smoke(
+        evaluation.evaluate_tmi_event_retrieval_smoke(
             corpus_dir=tmp_path / "corpus",
             gold_path=gold_path,
         )
@@ -331,7 +327,7 @@ def test_module_main_prints_canonical_metrics_json(
     )
     monkeypatch.setattr(
         evaluation,
-        "evaluate_case_retrieval_smoke",
+        "evaluate_tmi_event_retrieval_smoke",
         lambda **_kwargs: metrics,
     )
 

@@ -47,7 +47,7 @@ def _observation(*, status: str = "ok") -> dict[str, object]:
             else "No matching formal event fact was found."
         ),
         details=HybridQueryEvidence(
-            case_ids=("urn:case:138",),
+            event_ids=("urn:event:138",),
             fact_ids=("urn:fact:facility",) if status == "ok" else (),
             source_ids=("atcscc:2026-05-20:138",),
         ),
@@ -55,7 +55,7 @@ def _observation(*, status: str = "ok") -> dict[str, object]:
             (
                 HybridQuerySupportRecord(
                     kind="source_fact",
-                    case_ids=("urn:case:138",),
+                    event_ids=("urn:event:138",),
                     fact_ids=("urn:fact:facility",),
                     source_ids=("atcscc:2026-05-20:138",),
                 ),
@@ -67,8 +67,8 @@ def _observation(*, status: str = "ok") -> dict[str, object]:
     ).model_dump(mode="json")
 
 
-@tool("read_case_facts", args_schema=_EventInput)
-def _read_case_facts(event_id: str) -> dict[str, object]:
+@tool("read_tmi_event_facts", args_schema=_EventInput)
+def _read_tmi_event_facts(event_id: str) -> dict[str, object]:
     """Read formal facts for one corpus event."""
 
     assert event_id == "urn:event:138"
@@ -84,7 +84,7 @@ def _read_weather_context(event_id: str) -> dict[str, object]:
         status="ok",
         content="One TAF report is retained as non-causal context.",
         details=HybridQueryEvidence(
-            case_ids=("urn:case:138",),
+            event_ids=("urn:event:138",),
             fact_ids=("urn:fact:taf",),
             context_association_ids=("urn:association:taf",),
             source_ids=("taf:KEWR:2026-05-20T12:00Z",),
@@ -92,7 +92,7 @@ def _read_weather_context(event_id: str) -> dict[str, object]:
         support_records=(
             HybridQuerySupportRecord(
                 kind="non_causal_context",
-                case_ids=("urn:case:138",),
+                event_ids=("urn:event:138",),
                 fact_ids=("urn:fact:taf",),
                 context_association_ids=("urn:association:taf",),
                 source_ids=("taf:KEWR:2026-05-20T12:00Z",),
@@ -105,7 +105,7 @@ def _answer(
     *,
     status: str = "ok",
     answer: str = "KEWR is the controlled facility.",
-    case_ids: tuple[str, ...] = ("urn:case:138",),
+    event_ids: tuple[str, ...] = ("urn:event:138",),
     fact_ids: tuple[str, ...] = ("urn:fact:facility",),
     context_ids: tuple[str, ...] = (),
     source_ids: tuple[str, ...] = ("atcscc:2026-05-20:138",),
@@ -118,7 +118,7 @@ def _answer(
                 HybridQueryStatement(
                     kind=kind,
                     text=answer,
-                    support_case_ids=case_ids,
+                    support_event_ids=event_ids,
                     support_fact_ids=fact_ids,
                     support_context_association_ids=context_ids,
                     support_source_ids=source_ids,
@@ -148,7 +148,7 @@ class _LoopModel:
             [
                 {
                     "id": "call-1",
-                    "name": "read_case_facts",
+                    "name": "read_tmi_event_facts",
                     "args": {"event_id": "urn:event:138"},
                 }
             ]
@@ -200,7 +200,7 @@ def _run(
     return run_hybrid_query_agent(
         question=question,
         scope=_scope(),
-        tools=tools or [_read_case_facts],
+        tools=tools or [_read_tmi_event_facts],
         model_factory=lambda _tools: model,
     )
 
@@ -218,7 +218,7 @@ def test_every_natural_language_question_activates_the_model() -> None:
         assert outcome.status == "ok"
         assert model.phases == ["query_step", "query_step"]
         assert len(outcome.model_calls) == 2
-        assert outcome.tool_calls[0].tool == "read_case_facts"
+        assert outcome.tool_calls[0].tool == "read_tmi_event_facts"
         assert outcome.answer_statements
         assert outcome.support_records
 
@@ -228,7 +228,7 @@ def test_multiple_model_selected_tools_feed_the_answer_turn() -> None:
         calls=[
             {
                 "id": "call-facts",
-                "name": "read_case_facts",
+                "name": "read_tmi_event_facts",
                 "args": {"event_id": "urn:event:138"},
             },
             {
@@ -243,14 +243,14 @@ def test_multiple_model_selected_tools_feed_the_answer_turn() -> None:
                 HybridQueryStatement(
                     kind="source_fact",
                     text="KEWR is the controlled facility.",
-                    support_case_ids=("urn:case:138",),
+                    support_event_ids=("urn:event:138",),
                     support_fact_ids=("urn:fact:facility",),
                     support_source_ids=("atcscc:2026-05-20:138",),
                 ),
                 HybridQueryStatement(
                     kind="non_causal_context",
                     text="One TAF report is retained as non-causal context.",
-                    support_case_ids=("urn:case:138",),
+                    support_event_ids=("urn:event:138",),
                     support_fact_ids=("urn:fact:taf",),
                     support_context_association_ids=("urn:association:taf",),
                     support_source_ids=("taf:KEWR:2026-05-20T12:00Z",),
@@ -262,7 +262,7 @@ def test_multiple_model_selected_tools_feed_the_answer_turn() -> None:
 
     outcome = _run(
         model,
-        tools=[_read_case_facts, _read_weather_context],
+        tools=[_read_tmi_event_facts, _read_weather_context],
     )
 
     assert outcome.status == "ok"
@@ -296,7 +296,7 @@ def test_more_than_three_tool_calls_is_blocked_before_execution() -> None:
     calls = [
         {
             "id": f"call-{index}",
-            "name": "read_case_facts",
+            "name": "read_tmi_event_facts",
             "args": {"event_id": "urn:event:138"},
         }
         for index in range(4)
@@ -318,7 +318,7 @@ def test_unknown_tool_and_invalid_arguments_are_blocked() -> None:
         calls=[
             {
                 "id": "call-1",
-                "name": "read_case_facts",
+                "name": "read_tmi_event_facts",
                 "args": {"event_id": ""},
             }
         ]
@@ -341,7 +341,7 @@ def test_provider_error_and_turn_budget_are_blocked() -> None:
             tool_calls=[
                 {
                     "id": f"call-{index}",
-                    "name": "read_case_facts",
+                    "name": "read_tmi_event_facts",
                     "args": {"event_id": "urn:event:138"},
                 }
             ],
@@ -393,7 +393,7 @@ def test_single_json_code_fence_is_accepted_without_using_surrounding_prose() ->
 
 
 def test_ok_answer_requires_sufficient_retrieval() -> None:
-    @tool("read_case_facts", args_schema=_EventInput)
+    @tool("read_tmi_event_facts", args_schema=_EventInput)
     def insufficient_tool(event_id: str) -> dict[str, object]:
         """Return an honest insufficient observation."""
 
@@ -409,7 +409,7 @@ def test_ok_answer_requires_sufficient_retrieval() -> None:
 
 
 def test_honest_insufficient_answer_is_preserved() -> None:
-    @tool("read_case_facts", args_schema=_EventInput)
+    @tool("read_tmi_event_facts", args_schema=_EventInput)
     def insufficient_tool(event_id: str) -> dict[str, object]:
         """Return an honest insufficient observation."""
 
@@ -435,21 +435,21 @@ class _NoInput(BaseModel):
     pass
 
 
-@tool("find_cases", args_schema=_NoInput)
-def _find_cases() -> dict[str, object]:
-    """Find the case referenced by the user's natural-language question."""
+@tool("find_tmi_events", args_schema=_NoInput)
+def _find_tmi_events() -> dict[str, object]:
+    """Find the event referenced by the user's natural-language question."""
 
     return HybridQueryToolObservation(
         status="ok",
         content="GDP 138 resolves to event urn:event:138.",
         details=HybridQueryEvidence(
-            case_ids=("urn:case:138",),
+            event_ids=("urn:event:138",),
             source_ids=("atcscc:2026-05-20:138",),
         ),
         support_records=(
             HybridQuerySupportRecord(
                 kind="source_fact",
-                case_ids=("urn:case:138",),
+                event_ids=("urn:event:138",),
                 source_ids=("atcscc:2026-05-20:138",),
             ),
         ),
@@ -462,7 +462,7 @@ def test_agent_can_resolve_a_case_then_retrieve_its_context() -> None:
             AIMessage(
                 content="",
                 tool_calls=[
-                    {"id": "find", "name": "find_cases", "args": {}},
+                    {"id": "find", "name": "find_tmi_events", "args": {}},
                 ],
             ),
             AIMessage(
@@ -491,7 +491,7 @@ def test_agent_can_resolve_a_case_then_retrieve_its_context() -> None:
     outcome = run_hybrid_query_agent(
         question="What weather context is recorded for GDP 138?",
         scope=scope,
-        tools=[_find_cases, _read_weather_context],
+        tools=[_find_tmi_events, _read_weather_context],
         model_factory=lambda _tools: model,
     )
 
@@ -552,7 +552,7 @@ def test_statement_kind_must_match_the_tool_evidence_layer() -> None:
 
 
 def test_statement_cannot_mix_a_fact_with_an_unrelated_source() -> None:
-    @tool("read_case_facts", args_schema=_EventInput)
+    @tool("read_tmi_event_facts", args_schema=_EventInput)
     def two_facts(event_id: str) -> dict[str, object]:
         """Return two independently sourced formal facts."""
 
@@ -561,20 +561,20 @@ def test_statement_cannot_mix_a_fact_with_an_unrelated_source() -> None:
             status="ok",
             content="Two formal facts are available.",
             details=HybridQueryEvidence(
-                case_ids=("urn:case:138",),
+                event_ids=("urn:event:138",),
                 fact_ids=("urn:fact:facility", "urn:fact:time"),
                 source_ids=("source:facility", "source:time"),
             ),
             support_records=(
                 HybridQuerySupportRecord(
                     kind="source_fact",
-                    case_ids=("urn:case:138",),
+                    event_ids=("urn:event:138",),
                     fact_ids=("urn:fact:facility",),
                     source_ids=("source:facility",),
                 ),
                 HybridQuerySupportRecord(
                     kind="source_fact",
-                    case_ids=("urn:case:138",),
+                    event_ids=("urn:event:138",),
                     fact_ids=("urn:fact:time",),
                     source_ids=("source:time",),
                 ),
@@ -595,28 +595,28 @@ def test_statement_cannot_mix_a_fact_with_an_unrelated_source() -> None:
 
 
 def test_case_metadata_cannot_borrow_a_source_from_an_unrelated_fact() -> None:
-    @tool("read_case_facts", args_schema=_EventInput)
+    @tool("read_tmi_event_facts", args_schema=_EventInput)
     def case_and_fact(event_id: str) -> dict[str, object]:
-        """Return advisory case metadata and one separately sourced fact."""
+        """Return advisory event metadata and one separately sourced fact."""
 
         assert event_id == "urn:event:138"
         return HybridQueryToolObservation(
             status="ok",
-            content="Case metadata and one formal fact are available.",
+            content="Event metadata and one formal fact are available.",
             details=HybridQueryEvidence(
-                case_ids=("urn:case:138",),
+                event_ids=("urn:event:138",),
                 fact_ids=("urn:fact:weather",),
                 source_ids=("source:advisory", "source:weather"),
             ),
             support_records=(
                 HybridQuerySupportRecord(
                     kind="source_fact",
-                    case_ids=("urn:case:138",),
+                    event_ids=("urn:event:138",),
                     source_ids=("source:advisory",),
                 ),
                 HybridQuerySupportRecord(
                     kind="source_fact",
-                    case_ids=("urn:case:138",),
+                    event_ids=("urn:event:138",),
                     fact_ids=("urn:fact:weather",),
                     source_ids=("source:weather",),
                 ),

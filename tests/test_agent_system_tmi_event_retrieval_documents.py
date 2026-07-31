@@ -1,4 +1,4 @@
-"""Deterministic documents used by historical decision-record retrieval."""
+"""Deterministic documents used by historical TMI-event retrieval."""
 
 from __future__ import annotations
 
@@ -7,14 +7,14 @@ from pathlib import Path
 
 import pytest
 
-from aviation_agentic_ai.agent_system.case_retrieval_documents import (
-    build_case_retrieval_documents,
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_documents import (
+    build_tmi_event_retrieval_documents,
 )
 from aviation_agentic_ai.agent_system.contracts import StrictModel
 from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusArtifactMetadata,
     CorpusBuildManifest,
-    CorpusCase,
+    CorpusTMIEvent,
     CorpusQueryStore,
 )
 
@@ -43,11 +43,8 @@ def _write_jsonl(
 
 @pytest.fixture
 def corpus_store(tmp_path: Path) -> CorpusQueryStore:
-    cases = [
-        CorpusCase(
-            case_id="case:formal",
-            case_iri="urn:decision-case:formal",
-            reconstruction_iri="urn:decision-case-reconstruction:formal",
+    events = [
+        CorpusTMIEvent(
             event_id="urn:event:formal",
             run_ids=["run:formal"],
             advisory_source_id="2026-05-19:138",
@@ -56,17 +53,12 @@ def corpus_store(tmp_path: Path) -> CorpusQueryStore:
                 f"{ATM}GroundDelayProgramTMI",
             ],
             facility_ids=[KJFK],
-            operational_start="2026-05-19T22:05:00+00:00",
-            operational_end="2026-05-20T02:59:00+00:00",
+            effective_start="2026-05-19T22:05:00+00:00",
+            effective_end="2026-05-20T02:59:00+00:00",
             reason_status="formal",
             reason_value="weather",
         ),
-        CorpusCase(
-            case_id="case:profile-gap",
-            case_iri="urn:decision-case:profile-gap",
-            reconstruction_iri=(
-                "urn:decision-case-reconstruction:profile-gap"
-            ),
+        CorpusTMIEvent(
             event_id="urn:event:profile-gap",
             run_ids=["run:profile-gap"],
             advisory_source_id="2026-05-19:123",
@@ -75,30 +67,27 @@ def corpus_store(tmp_path: Path) -> CorpusQueryStore:
                 PROV_ENTITY,
             ],
             facility_ids=[KJFK],
-            operational_start="2026-05-19T21:00:00+00:00",
-            operational_end="2026-05-19T21:30:00+00:00",
+            effective_start="2026-05-19T21:00:00+00:00",
+            effective_end="2026-05-19T21:30:00+00:00",
             reason_status="profile_gap",
             reason_value="weather",
         ),
-        CorpusCase(
-            case_id="case:missing",
-            case_iri="urn:decision-case:missing",
-            reconstruction_iri="urn:decision-case-reconstruction:missing",
+        CorpusTMIEvent(
             event_id="urn:event:missing",
             run_ids=["run:missing"],
             advisory_source_id="2026-05-20:020",
             event_type_iris=[f"{ATM}GroundDelayProgramTMI"],
             facility_ids=[KEWR],
-            operational_start="2026-05-20T12:00:00+00:00",
-            operational_end="2026-05-20T13:30:00+00:00",
+            effective_start="2026-05-20T12:00:00+00:00",
+            effective_end="2026-05-20T13:30:00+00:00",
             reason_status="missing",
             reason_value=None,
         ),
     ]
     artifacts = {
-        "cases": _write_jsonl(tmp_path / "cases.jsonl", cases),
+        "events": _write_jsonl(tmp_path / "events.jsonl", events),
         "facts": _write_jsonl(tmp_path / "facts.jsonl", []),
-        "case_facts": _write_jsonl(tmp_path / "case_facts.jsonl", []),
+        "event_facts": _write_jsonl(tmp_path / "event_facts.jsonl", []),
         "source_bindings": _write_jsonl(
             tmp_path / "source_bindings.jsonl",
             [],
@@ -107,7 +96,7 @@ def corpus_store(tmp_path: Path) -> CorpusQueryStore:
     manifest = CorpusBuildManifest(
         corpus_id="corpus:test",
         run_count=3,
-        case_count=3,
+        event_count=3,
         fact_count=0,
         source_binding_count=0,
         source_object_count=0,
@@ -125,7 +114,7 @@ def test_three_reason_states_have_distinct_canonical_documents(
 ) -> None:
     documents = {
         row.advisory_source_id: row
-        for row in build_case_retrieval_documents(corpus_store)
+        for row in build_tmi_event_retrieval_documents(corpus_store)
     }
 
     assert "Declared reason status: profile gap." in documents[
@@ -157,9 +146,8 @@ def test_three_reason_states_have_distinct_canonical_documents(
 def test_decision_record_document_excludes_non_record_context(
     corpus_store: CorpusQueryStore,
 ) -> None:
-    document = next(iter(build_case_retrieval_documents(corpus_store)))
+    document = next(iter(build_tmi_event_retrieval_documents(corpus_store)))
     forbidden = (
-        document.case_id,
         document.event_id,
         document.advisory_source_id,
         "METAR",
@@ -214,15 +202,15 @@ def test_duration_boundaries_are_canonical(
     expected_bucket: str,
     expected_text: str,
 ) -> None:
-    case = corpus_store.cases[0].model_copy(
+    event = corpus_store.events[0].model_copy(
         update={
-            "operational_start": start,
-            "operational_end": end,
+            "effective_start": start,
+            "effective_end": end,
         }
     )
-    corpus_store.cases = (case,)
+    corpus_store.events = (event,)
 
-    document = build_case_retrieval_documents(corpus_store)[0]
+    document = build_tmi_event_retrieval_documents(corpus_store)[0]
 
     assert document.duration_bucket == expected_bucket
     assert (
@@ -234,16 +222,16 @@ def test_duration_boundaries_are_canonical(
 def test_document_identity_and_facilities_are_stable(
     corpus_store: CorpusQueryStore,
 ) -> None:
-    case = corpus_store.cases[0].model_copy(
+    event = corpus_store.events[0].model_copy(
         update={"facility_ids": [KJFK, KEWR]}
     )
-    corpus_store.cases = (case,)
+    corpus_store.events = (event,)
 
-    first = build_case_retrieval_documents(corpus_store)[0]
-    second = build_case_retrieval_documents(corpus_store)[0]
+    first = build_tmi_event_retrieval_documents(corpus_store)[0]
+    second = build_tmi_event_retrieval_documents(corpus_store)[0]
 
     assert first == second
-    assert first.document_id.startswith("case-retrieval-document:")
+    assert first.document_id.startswith("tmi-event-retrieval-document:")
     assert first.facility_ids == (KEWR, KJFK)
     assert "Controlled facility: KEWR, KJFK." in first.text
 
@@ -252,30 +240,30 @@ def test_document_identity_and_facilities_are_stable(
     "updates",
     [
         {"event_type_iris": [PROV_ENTITY]},
-        {"operational_start": None},
-        {"operational_end": None},
+        {"effective_start": None},
+        {"effective_end": None},
     ],
 )
 def test_incomplete_accepted_case_does_not_publish_a_partial_document(
     corpus_store: CorpusQueryStore,
     updates: dict[str, object],
 ) -> None:
-    corpus_store.cases = (
-        corpus_store.cases[0].model_copy(update=updates),
+    corpus_store.events = (
+        corpus_store.events[0].model_copy(update=updates),
     )
 
     with pytest.raises(ValueError):
-        build_case_retrieval_documents(corpus_store)
+        build_tmi_event_retrieval_documents(corpus_store)
 
 
 def test_case_without_formal_facility_edge_remains_retrievable(
     corpus_store: CorpusQueryStore,
 ) -> None:
-    corpus_store.cases = (
-        corpus_store.cases[0].model_copy(update={"facility_ids": []}),
+    corpus_store.events = (
+        corpus_store.events[0].model_copy(update={"facility_ids": []}),
     )
 
-    document = build_case_retrieval_documents(corpus_store)[0]
+    document = build_tmi_event_retrieval_documents(corpus_store)[0]
 
     assert document.facility_ids == ()
     assert (

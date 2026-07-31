@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from aviation_agentic_ai.agent_system.case_retrieval_index import (
-    build_case_retrieval_index,
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_index import (
+    build_tmi_event_retrieval_index,
 )
 from aviation_agentic_ai.agent_system.contracts import (
     HybridQueryScope,
@@ -79,7 +79,7 @@ def _corpus(tmp_path: Path, *, with_index: bool = False) -> Path:
         corpus_dir,
     )
     if with_index:
-        build_case_retrieval_index(corpus_dir, encoder=_TinyEncoder())
+        build_tmi_event_retrieval_index(corpus_dir, encoder=_TinyEncoder())
     return corpus_dir
 
 
@@ -115,29 +115,29 @@ def test_tool_registry_exposes_only_six_read_only_tools(tmp_path: Path) -> None:
     tools = build_hybrid_query_tools(gateway)
 
     assert [tool.name for tool in tools] == [
-        "find_cases",
-        "read_case_facts",
+        "find_tmi_events",
+        "read_tmi_event_facts",
         "read_weather_context",
         "read_public_observations",
-        "read_case_graph",
-        "find_similar_cases",
+        "read_tmi_event_graph",
+        "find_similar_tmi_events",
     ]
-    result = next(tool for tool in tools if tool.name == "read_case_facts").invoke(
+    result = next(tool for tool in tools if tool.name == "read_tmi_event_facts").invoke(
         {"event_id": FORMAL_EVENT_ID}
     )
     assert HybridQueryToolObservation.model_validate(result).status == "ok"
 
 
-def test_find_cases_returns_bounded_case_identifiers(tmp_path: Path) -> None:
+def test_find_tmi_events_returns_bounded_event_identifiers(tmp_path: Path) -> None:
     gateway = _gateway(_corpus(tmp_path), limit=2)
 
-    observation = gateway.find_cases(limit=2)
+    observation = gateway.find_tmi_events(limit=2)
     payload = json.loads(observation.content)
 
     assert observation.status == "ok"
     assert payload["total_matches"] == 4
-    assert len(payload["cases"]) == 2
-    assert len(observation.details.case_ids) == 2
+    assert len(payload["events"]) == 2
+    assert len(observation.details.event_ids) == 2
 
 
 def test_explicit_event_scope_cannot_be_broadened(tmp_path: Path) -> None:
@@ -146,11 +146,11 @@ def test_explicit_event_scope_cannot_be_broadened(tmp_path: Path) -> None:
         event_id=FORMAL_EVENT_ID,
     )
 
-    assert gateway.read_case_facts(event_id=FORMAL_EVENT_ID).status == "ok"
+    assert gateway.read_tmi_event_facts(event_id=FORMAL_EVENT_ID).status == "ok"
     with pytest.raises(ValueError, match="outside the query scope"):
         gateway.read_weather_context(event_id=CONTEXT_EVENT_ID)
     with pytest.raises(ValueError, match="outside the query scope"):
-        gateway.read_case_graph(event_id=MISSING_EVENT_ID)
+        gateway.read_tmi_event_graph(event_id=MISSING_EVENT_ID)
 
 
 def test_catalog_filters_and_page_bounds_cannot_be_broadened(
@@ -165,7 +165,7 @@ def test_catalog_filters_and_page_bounds_cannot_be_broadened(
         limit=2,
     )
 
-    observation = gateway.find_cases(
+    observation = gateway.find_tmi_events(
         facility_id=facility,
         reason_status="formal",
         offset=1,
@@ -174,42 +174,42 @@ def test_catalog_filters_and_page_bounds_cannot_be_broadened(
 
     assert observation.status in {"ok", "insufficient"}
     with pytest.raises(ValueError, match="facility_id"):
-        gateway.find_cases(facility_id="urn:facility:other")
+        gateway.find_tmi_events(facility_id="urn:facility:other")
     with pytest.raises(ValueError, match="offset"):
-        gateway.find_cases(offset=0)
+        gateway.find_tmi_events(offset=0)
     with pytest.raises(ValueError, match="limit"):
-        gateway.find_cases(offset=1, limit=3)
+        gateway.find_tmi_events(offset=1, limit=3)
     with pytest.raises(ValueError, match="outside the query scope"):
-        gateway.read_case_facts(event_id=MISSING_EVENT_ID)
+        gateway.read_tmi_event_facts(event_id=MISSING_EVENT_ID)
 
 
-def test_case_facts_preserve_formal_gap_and_missing_reason_states(
+def test_event_facts_preserve_formal_gap_and_missing_reason_states(
     tmp_path: Path,
 ) -> None:
     gateway = _gateway(_corpus(tmp_path))
 
-    formal_observation = gateway.read_case_facts(event_id=FORMAL_EVENT_ID)
+    formal_observation = gateway.read_tmi_event_facts(event_id=FORMAL_EVENT_ID)
     formal = json.loads(formal_observation.content)
-    gap_observation = gateway.read_case_facts(event_id=GAP_EVENT_ID)
+    gap_observation = gateway.read_tmi_event_facts(event_id=GAP_EVENT_ID)
     gap = json.loads(gap_observation.content)
     missing = json.loads(
-        gateway.read_case_facts(event_id=MISSING_EVENT_ID).content
+        gateway.read_tmi_event_facts(event_id=MISSING_EVENT_ID).content
     )
 
-    assert formal["case"]["reason_status"] == "formal"
-    assert formal["case"]["reason_value"] == "weather"
+    assert formal["event"]["reason_status"] == "formal"
+    assert formal["event"]["reason_value"] == "weather"
     assert formal["facts"]
     assert all(
         fact["subject_iri"] == FORMAL_EVENT_ID for fact in formal["facts"]
     )
     assert len(formal_observation.details.fact_ids) == len(formal["facts"])
-    assert gap["case"]["reason_status"] == "profile_gap"
+    assert gap["event"]["reason_status"] == "profile_gap"
     assert gap["profile_gaps"][0]["evidence_text"] == (
         "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
     )
     assert gap_observation.details.profile_gap_ids
-    assert missing["case"]["reason_status"] == "missing"
-    assert missing["case"]["reason_value"] is None
+    assert missing["event"]["reason_status"] == "missing"
+    assert missing["event"]["reason_value"] is None
 
 
 def test_weather_and_bts_tools_keep_their_evidence_roles(tmp_path: Path) -> None:
@@ -257,10 +257,10 @@ def test_weather_and_bts_tools_keep_their_evidence_roles(tmp_path: Path) -> None
     )
 
 
-def test_case_graph_is_general_and_case_scoped(tmp_path: Path) -> None:
+def test_event_graph_is_general_and_event_scoped(tmp_path: Path) -> None:
     gateway = _gateway(_corpus(tmp_path))
 
-    graph = gateway.read_case_graph(event_id=FORMAL_EVENT_ID)
+    graph = gateway.read_tmi_event_graph(event_id=FORMAL_EVENT_ID)
     payload = json.loads(graph.content)
 
     assert graph.status == "ok"
@@ -281,7 +281,7 @@ def test_similarity_uses_the_corpus_bound_index(tmp_path: Path) -> None:
     corpus_dir = _corpus(tmp_path, with_index=True)
     gateway = _gateway(corpus_dir)
 
-    observation = gateway.find_similar_cases(
+    observation = gateway.find_similar_tmi_events(
         reference_event_id=FORMAL_EVENT_ID,
         candidate_scope="archive",
         limit=2,
@@ -292,21 +292,21 @@ def test_similarity_uses_the_corpus_bound_index(tmp_path: Path) -> None:
     assert FORMAL_EVENT_ID not in {
         match.event_id for match in observation.similarity_matches
     }
-    assert observation.details.case_ids == tuple(
-        match.case_id for match in observation.similarity_matches
+    assert observation.details.event_ids == tuple(
+        match.event_id for match in observation.similarity_matches
     )
     assert {record.kind for record in observation.support_records} == {
         "similarity"
     }
 
 
-def test_missing_case_index_is_insufficient(tmp_path: Path) -> None:
+def test_missing_event_index_is_insufficient(tmp_path: Path) -> None:
     gateway = _gateway(_corpus(tmp_path))
 
-    observation = gateway.find_similar_cases(
+    observation = gateway.find_similar_tmi_events(
         reference_event_id=FORMAL_EVENT_ID,
         candidate_scope="archive",
     )
 
     assert observation.status == "insufficient"
-    assert "index-cases" in observation.limitation
+    assert "index-events" in observation.limitation

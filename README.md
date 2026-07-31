@@ -16,16 +16,16 @@ and publishes only facts accepted by the Formal Publication Kernel.
   -> sequential workflow for the 46 active-family eligible records
   -> event-patch admissibility check
   -> final decision/profile/membership publication kernel
-  -> canonical corpus v2 with case and reconstruction identities
-  -> read-only Corpus, case-graph, and metadata-conditioned vector tools
+  -> canonical corpus v2 with TMI-event identities
+  -> read-only Corpus, event-graph, and metadata-conditioned vector tools
   -> always-on bounded LLM query loop
   -> per-statement evidence support
   -> answer, insufficient, or blocked
 ```
 
 The public persisted interface is corpus-first. `build-corpus` is the only
-evidence writer; `index-cases` creates a rebuildable vector-index sidecar, while
-`ask`, `neo4j-export`, and `export-case` read the validated corpus. There is no
+evidence writer; `index-events` creates a rebuildable vector-index sidecar, while
+`ask`, `neo4j-export`, and `export-event` read the validated corpus. There is no
 persistent single-case ingest path, run-directory query path, or v1 migration
 layer. Use `build-corpus --source-id` for a bounded single-case debug build.
 
@@ -35,7 +35,7 @@ Install the active system and development dependencies:
 
 ```bash
 uv sync --extra dev --extra ontology-generation --extra neo4j \
-  --extra case-retrieval
+  --extra tmi-event-retrieval
 uv run aviation-ai agent-system --help
 ```
 
@@ -143,13 +143,13 @@ GDP, GS, and ReRoute remains a separate approved research task rather than a
 mainline implementation gate. See [RESEARCH_AUDIT.md](RESEARCH_AUDIT.md) and
 [ARTIFACT_INDEX.md](ARTIFACT_INDEX.md) for the detailed historical records.
 
-## Historical Case Retrieval
+## Historical TMI Event Retrieval
 
-Build one decision-record vector per accepted case in a persistent local Chroma
+Build one decision-record vector per accepted TMI event in a persistent local Chroma
 sidecar:
 
 ```bash
-uv run --extra case-retrieval aviation-ai agent-system index-cases \
+uv run --extra tmi-event-retrieval aviation-ai agent-system index-events \
   --corpus-dir data/corpus/agent_system/cross-source-2026-05-v2 \
   --model-name sentence-transformers/all-MiniLM-L6-v2 \
   --allow-model-download
@@ -169,7 +169,7 @@ Ask a natural-language question:
 ```bash
 uv run aviation-ai agent-system ask \
   --corpus-dir data/corpus/agent_system/smoke-v2 \
-  --event-id <event-id-from-cases.jsonl> \
+  --event-id <event-id-from-events.jsonl> \
   --question "What was published, what reason did the source declare, and what weather context was retained?"
 ```
 
@@ -178,26 +178,26 @@ not answer from memory: its first action must retrieve evidence, and it may
 continue through a bounded action-observation loop. It selects among six
 deterministic, read-only HybridRAG tools:
 
-- exact case discovery and filtering;
-- formal case facts and declared-reason state;
+- exact TMI-event discovery and filtering;
+- formal TMI-event facts and declared-reason state;
 - non-causal Weather context;
 - BTS public observations;
-- case-scoped graph edges;
+- event-scoped graph edges;
 - exact-filtered, metadata-conditioned vector recall.
 
 CLI filters, pagination, event ID, and candidate scope form an immutable upper
 bound around every tool call. The Agent can make at most four provider turns,
 at most three tool calls in one turn, and at most six tool calls in total.
-Each final statement must cite the supporting case, fact, profile-gap, context,
+Each final statement must cite the supporting event, fact, profile-gap, context,
 observation, graph-path, and source IDs appropriate to its claim type.
 Unsupported evidence yields `insufficient`; invalid contracts, unavailable
 providers, or failed dependencies yield `blocked`.
 
 ```bash
-uv run --extra case-retrieval aviation-ai agent-system ask \
+uv run --extra tmi-event-retrieval aviation-ai agent-system ask \
   --corpus-dir data/corpus/agent_system/cross-source-2026-05-v2 \
   --event-id <reference-event-id> \
-  --question "Which historical case is most similar?" \
+  --question "Which historical TMI event is most similar?" \
   --event-type-iri <exact-tmi-iri> \
   --facility-id <canonical-facility-id> \
   --reason-status formal \
@@ -212,12 +212,12 @@ optimality. The pre-refactor six-query relevance smoke remains historical
 retrieval evidence, not evidence of current Query Agent routing or answer
 quality.
 
-Export one bounded, non-replayable case:
+Export one bounded, non-replayable TMI event:
 
 ```bash
-uv run aviation-ai agent-system export-case \
+uv run aviation-ai agent-system export-event \
   --corpus-dir data/corpus/agent_system/smoke-v2 \
-  --event-id <event-id-from-cases.jsonl> \
+  --event-id <event-id-from-events.jsonl> \
   --output-dir data/corpus/agent_system/export-selected-event
 ```
 

@@ -50,7 +50,7 @@ def _call(
         tool_calls=[
             ModelToolCall(
                 call_id=f"provider-call-{index}",
-                name="get_case_evidence",
+                name="get_candidate_bundle",
                 arguments={"source_id": "2026-05-20:025"},
             )
         ],
@@ -69,7 +69,7 @@ def _call(
             "tool_calls": [
                 {
                     "id": f"provider-call-{index}",
-                    "name": "get_case_evidence",
+                    "name": "get_candidate_bundle",
                     "args": {"source_id": "2026-05-20:025"},
                 }
             ],

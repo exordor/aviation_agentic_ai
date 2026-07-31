@@ -8,9 +8,10 @@ def test_readme_lists_current_agent_system_commands() -> None:
 
     for command in [
         "aviation-ai agent-system build-corpus",
+        "aviation-ai agent-system index-events",
         "aviation-ai agent-system ask",
         "aviation-ai agent-system neo4j-export",
-        "aviation-ai agent-system export-case",
+        "aviation-ai agent-system export-event",
     ]:
         assert command in readme
 

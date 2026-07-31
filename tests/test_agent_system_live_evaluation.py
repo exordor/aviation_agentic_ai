@@ -653,13 +653,12 @@ def test_integration_scoring_requires_agent_activation_partial_publication() -> 
             source_id=trial.source_id,
             status="ok",
             event_id="urn:event:025",
-            case_id="urn:event:025",
         ),
         usage=_integration_usage(),
         model_calls=(
             _live_call(
                 agent="event_evidence_integration",
-                tool_name="get_case_evidence",
+                tool_name="get_candidate_bundle",
             ),
             _live_call(agent="event_evidence_integration"),
         ),
@@ -848,7 +847,7 @@ def test_hybrid_query_run_artifact_is_sanitized_and_drives_scoring(
     ]
     assert payload["support_records"][0] == {
         "kind": "public_observation",
-        "case_ids": [],
+        "event_ids": [],
         "fact_ids": ["fact:observation"],
         "profile_gap_ids": [],
         "context_association_ids": [],

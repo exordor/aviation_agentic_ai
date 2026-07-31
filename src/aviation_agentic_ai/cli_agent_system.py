@@ -4,13 +4,13 @@ Five commands:
 
     aviation-ai agent-system build-corpus --config <cfg> --output-dir <dir> [--allow-live-model] [--resume]
     aviation-ai agent-system ask      --corpus-dir <dir> --question "<q>"
-    aviation-ai agent-system index-cases --corpus-dir <dir>
+    aviation-ai agent-system index-events --corpus-dir <dir>
     aviation-ai agent-system neo4j-export --corpus-dir <dir>
-    aviation-ai agent-system export-case --corpus-dir <dir> --event-id <id> --output-dir <dir>
+    aviation-ai agent-system export-event --corpus-dir <dir> --event-id <id> --output-dir <dir>
 
 Corpus materialization is the only persisted read backend: ``build-corpus``
 executes the selected advisory batch, ``ask`` and ``neo4j-export`` read its
-stable artifacts, and ``export-case`` writes a bounded non-replayable case.
+stable artifacts, and ``export-event`` writes a bounded non-replayable event.
 """
 
 from __future__ import annotations
@@ -25,22 +25,22 @@ from aviation_agentic_ai.agent_system.materialize import (
     Neo4jLoadBlocked,
     load_validated_facts_neo4j,
 )
-from aviation_agentic_ai.agent_system.case_retrieval_contracts import (
-    DEFAULT_CASE_EMBEDDING_MODEL,
-)
-from aviation_agentic_ai.agent_system.case_retrieval_index import (
-    SentenceTransformerCaseEncoder,
-    build_case_retrieval_index,
-)
 from aviation_agentic_ai.agent_system.corpus_batch import build_corpus_batch
 from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusBuildManifest,
-    export_case,
+    export_event,
 )
 from aviation_agentic_ai.agent_system.corpus_query import (
     answer_corpus_question,
 )
 from aviation_agentic_ai.agent_system.tool_model import make_live_tool_calling_model
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
+    DEFAULT_TMI_EVENT_EMBEDDING_MODEL,
+)
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_index import (
+    SentenceTransformerTMIEventEncoder,
+    build_tmi_event_retrieval_index,
+)
 from aviation_agentic_ai.config import load_yaml
 
 
@@ -122,35 +122,35 @@ def build_corpus_command(
         click.echo(f"corpus_manifest: {output_dir / 'corpus_manifest.json'}")
 
 
-@agent_system.command("index-cases")
+@agent_system.command("index-events")
 @click.option(
     "--corpus-dir",
     type=click.Path(path_type=Path, exists=True, file_okay=False),
     required=True,
-    help="Normalized decision-case corpus directory.",
+    help="Normalized TMI-event corpus directory.",
 )
 @click.option(
     "--model-name",
-    default=DEFAULT_CASE_EMBEDDING_MODEL,
+    default=DEFAULT_TMI_EVENT_EMBEDDING_MODEL,
     show_default=True,
 )
 @click.option("--allow-model-download", is_flag=True)
-def index_cases_command(
+def index_events_command(
     corpus_dir: Path,
     model_name: str,
     allow_model_download: bool,
 ) -> None:
-    """Build the persistent case-level Chroma index."""
+    """Build the persistent TMI-event-level Chroma index."""
 
     try:
-        encoder = SentenceTransformerCaseEncoder(
+        encoder = SentenceTransformerTMIEventEncoder(
             model_name,
             allow_download=allow_model_download,
         )
     except ImportError as exc:
         raise click.ClickException(
-            "Install case retrieval dependencies with "
-            "uv sync --extra case-retrieval."
+            "Install TMI-event retrieval dependencies with "
+            "uv sync --extra tmi-event-retrieval."
         ) from exc
     except Exception as exc:
         if not allow_model_download:
@@ -159,30 +159,30 @@ def index_cases_command(
                 "--allow-model-download."
             ) from exc
         raise click.ClickException(
-            f"index-cases BLOCKED: {exc}"
+            f"index-events BLOCKED: {exc}"
         ) from exc
     try:
-        manifest = build_case_retrieval_index(
+        manifest = build_tmi_event_retrieval_index(
             corpus_dir,
             encoder=encoder,
         )
     except ImportError as exc:
         raise click.ClickException(
-            "Install case retrieval dependencies with "
-            "uv sync --extra case-retrieval."
+            "Install TMI-event retrieval dependencies with "
+            "uv sync --extra tmi-event-retrieval."
         ) from exc
     except Exception as exc:
         raise click.ClickException(
-            f"index-cases BLOCKED: {exc}"
+            f"index-events BLOCKED: {exc}"
         ) from exc
-    click.echo(f"indexed_cases: {manifest.document_count}")
+    click.echo(f"indexed_events: {manifest.document_count}")
     click.echo(f"vector_backend: {manifest.vector_backend}")
     click.echo(f"collection_name: {manifest.collection_name}")
     click.echo(f"embedding_model: {manifest.embedding_model_id}")
     click.echo(f"embedding_dimension: {manifest.embedding_dimension}")
     click.echo(
-        "case_index_manifest: "
-        f"{corpus_dir / 'case_index' / 'case_index_manifest.json'}"
+        "tmi_event_index_manifest: "
+        f"{corpus_dir / 'tmi_event_index' / 'tmi_event_index_manifest.json'}"
     )
 
 
@@ -191,12 +191,12 @@ def index_cases_command(
     "--corpus-dir",
     type=click.Path(path_type=Path, exists=True, file_okay=False),
     required=True,
-    help="Normalized decision-case corpus directory.",
+    help="Normalized TMI-event corpus directory.",
 )
 @click.option(
     "--question",
     required=True,
-    help="Free natural-language question over the decision-case corpus.",
+    help="Free natural-language question over the TMI-event corpus.",
 )
 @click.option("--event-id", default=None, help="Exact event for record questions.")
 @click.option("--event-type-iri", default=None, help="Exact event-type IRI filter.")
@@ -258,19 +258,20 @@ def ask(
         )
     click.echo(f"status: {outcome.status}")
     click.echo(f"answer: {outcome.answer}")
-    click.echo(f"matching_cases: {outcome.match_count}")
+    click.echo(f"matching_events: {outcome.match_count}")
     click.echo(
-        "cases_returned: "
+        "events_returned: "
         + (
-            ", ".join(outcome.retrieved_case_ids)
-            if outcome.retrieved_case_ids
+            ", ".join(outcome.retrieved_event_ids)
+            if outcome.retrieved_event_ids
             else "(none)"
         )
     )
     for match in outcome.similarity_matches:
         click.echo(
-            "similar_case: "
+            "similar_event: "
             f"rank={match.rank} "
+            f"event_id={match.event_id} "
             f"source_id={match.advisory_source_id} "
             f"score={match.score:.6f}"
         )
@@ -380,19 +381,19 @@ def _write_neo4j_load(run_dir: Path, summary: dict) -> None:
     )
 
 
-@agent_system.command("export-case")
+@agent_system.command("export-event")
 @click.option("--corpus-dir", type=click.Path(path_type=Path), required=True)
 @click.option("--event-id", required=True, help="Exact event to export.")
 @click.option("--output-dir", type=click.Path(path_type=Path), required=True)
-def export_case_command(corpus_dir: Path, event_id: str, output_dir: Path) -> None:
-    """Export one bounded decision case without fabricating a replayable run."""
+def export_event_command(corpus_dir: Path, event_id: str, output_dir: Path) -> None:
+    """Export one bounded TMI event without fabricating a replayable run."""
 
     try:
-        result = export_case(
+        result = export_event(
             corpus_dir=corpus_dir,
             event_id=event_id,
             output_dir=output_dir,
         )
     except ValueError as exc:
         raise click.ClickException(str(exc)) from exc
-    click.echo(f"case_export: {result}")
+    click.echo(f"event_export: {result}")

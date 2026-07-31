@@ -14,15 +14,15 @@ from aviation_agentic_ai.agent_system.agents import parse_structured_fields
 from aviation_agentic_ai.agent_system.authority_evidence import NASRAuthorityRecord
 from aviation_agentic_ai.agent_system.contracts import SourceFamily, SourceRecord
 from aviation_agentic_ai.agent_system.corpus_batch import _preflight
-from aviation_agentic_ai.agent_system.case_retrieval_documents import (
-    build_case_retrieval_documents,
-)
 from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusQueryStore,
     build_corpus,
 )
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.sources import load_advisory_source
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_documents import (
+    build_tmi_event_retrieval_documents,
+)
 from aviation_agentic_ai.agent_system.runtime import write_run_manifest
 from aviation_agentic_ai.agent_system.workflow import IngestContext, run_ingest
 from aviation_agentic_ai.cross_source.contracts import (
@@ -231,12 +231,12 @@ def test_reroute_publishes_atmonto_facts_without_model_or_invalid_artcc_edge(
     corpus_dir = tmp_path / f"reroute-corpus-{source_id.rsplit(':', 1)[-1]}"
     build_corpus([run_dir], corpus_dir)
     store = CorpusQueryStore(corpus_dir)
-    case = store.cases[0]
-    assert case.reason_status == "formal"
-    assert case.reason_value == "WEATHER"
-    assert case.facility_ids == []
+    event = store.events[0]
+    assert event.reason_status == "formal"
+    assert event.reason_value == "WEATHER"
+    assert event.facility_ids == []
 
-    document = build_case_retrieval_documents(store)[0]
+    document = build_tmi_event_retrieval_documents(store)[0]
     assert document.tmi_type_iri == atm + "ReRouteTMI"
     assert document.facility_ids == ()
     assert document.reason_status == "formal"

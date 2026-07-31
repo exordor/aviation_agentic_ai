@@ -85,12 +85,12 @@ FORBIDDEN_OPERATIONAL_OR_CAUSAL_PREDICATES = frozenset(
 )
 HYBRID_QUERY_READ_TOOLS = frozenset(
     {
-        "find_cases",
-        "read_case_facts",
+        "find_tmi_events",
+        "read_tmi_event_facts",
         "read_weather_context",
         "read_public_observations",
-        "read_case_graph",
-        "find_similar_cases",
+        "read_tmi_event_graph",
+        "find_similar_tmi_events",
     }
 )
 
@@ -167,7 +167,7 @@ class HybridQueryRunStatement(StrictModel):
         "similarity",
     ]
     text: str = Field(min_length=1)
-    case_ids: tuple[str, ...] = ()
+    event_ids: tuple[str, ...] = ()
     fact_ids: tuple[str, ...] = ()
     profile_gap_ids: tuple[str, ...] = ()
     context_association_ids: tuple[str, ...] = ()
@@ -188,7 +188,7 @@ class HybridQueryRunSupport(StrictModel):
         "public_observation",
         "similarity",
     ]
-    case_ids: tuple[str, ...] = ()
+    event_ids: tuple[str, ...] = ()
     fact_ids: tuple[str, ...] = ()
     profile_gap_ids: tuple[str, ...] = ()
     context_association_ids: tuple[str, ...] = ()
@@ -209,7 +209,9 @@ class HybridQueryRunTool(StrictModel):
 class HybridQueryRunArtifact(StrictModel):
     """Evaluator-owned Hybrid Query trace without raw model/tool payloads."""
 
-    manifest_version: Literal["hybrid-query-run-v1"] = "hybrid-query-run-v1"
+    manifest_version: Literal["tmi-event-query-run-v1"] = (
+        "tmi-event-query-run-v1"
+    )
     trial_id: str = Field(min_length=1)
     event_id: str = Field(min_length=1)
     run_status: Literal["ok", "insufficient", "blocked"]
@@ -533,7 +535,7 @@ def build_hybrid_query_run_artifact(
         HybridQueryRunStatement(
             kind=statement.kind,
             text=sanitize_text(statement.text),
-            case_ids=statement.support_case_ids,
+            event_ids=statement.support_event_ids,
             fact_ids=statement.support_fact_ids,
             profile_gap_ids=statement.support_profile_gap_ids,
             context_association_ids=(
@@ -568,7 +570,7 @@ def build_hybrid_query_run_artifact(
     support_summaries = tuple(
         HybridQueryRunSupport(
             kind=record.kind,
-            case_ids=record.case_ids,
+            event_ids=record.event_ids,
             fact_ids=record.fact_ids,
             profile_gap_ids=record.profile_gap_ids,
             context_association_ids=record.context_association_ids,
@@ -587,7 +589,6 @@ def build_hybrid_query_run_artifact(
                     {
                         *trace.result_refs,
                         *trace.context_association_ids,
-                        *trace.outcome_summary_ids,
                         *trace.observation_ids,
                         *trace.derivation_ids,
                     }

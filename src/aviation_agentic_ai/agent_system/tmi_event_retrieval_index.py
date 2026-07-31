@@ -1,4 +1,4 @@
-"""Persistent Chroma sidecar for deterministic decision-record documents."""
+"""Persistent Chroma sidecar for deterministic TMI-event documents."""
 
 from __future__ import annotations
 
@@ -7,17 +7,17 @@ import math
 from pathlib import Path
 from typing import Sequence
 
-from aviation_agentic_ai.agent_system.case_retrieval_contracts import (
-    DEFAULT_CASE_EMBEDDING_MODEL,
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
+    DEFAULT_TMI_EVENT_EMBEDDING_MODEL,
     REPRESENTATION_VERSION,
-    CaseDocumentArtifact,
-    CaseEncoder,
-    CaseIndexManifest,
-    CaseRetrievalDocument,
-    CaseVectorHit,
+    TMIEventDocumentArtifact,
+    TMIEventEncoder,
+    TMIEventIndexManifest,
+    TMIEventRetrievalDocument,
+    TMIEventVectorHit,
 )
-from aviation_agentic_ai.agent_system.case_retrieval_documents import (
-    build_case_retrieval_documents,
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_documents import (
+    build_tmi_event_retrieval_documents,
 )
 from aviation_agentic_ai.agent_system.corpus_store import CorpusQueryStore
 from aviation_agentic_ai.retrieval.chroma_store import (
@@ -31,17 +31,17 @@ from aviation_agentic_ai.retrieval.chroma_store import (
 )
 
 
-CASE_INDEX_MANIFEST = "case_index_manifest.json"
-CASE_DOCUMENTS = "case_documents.jsonl"
-CASE_COLLECTION = "decision_cases"
+TMI_EVENT_INDEX_MANIFEST = "tmi_event_index_manifest.json"
+TMI_EVENT_DOCUMENTS = "tmi_event_documents.jsonl"
+TMI_EVENT_COLLECTION = "tmi_events"
 
 
-class SentenceTransformerCaseEncoder:
-    """Lazy Sentence Transformers encoder for canonical case documents."""
+class SentenceTransformerTMIEventEncoder:
+    """Lazy Sentence Transformers encoder for canonical event documents."""
 
     def __init__(
         self,
-        model_name: str = DEFAULT_CASE_EMBEDDING_MODEL,
+        model_name: str = DEFAULT_TMI_EVENT_EMBEDDING_MODEL,
         *,
         allow_download: bool = False,
     ) -> None:
@@ -92,35 +92,35 @@ def _normalized_vectors(
 
 def _write_documents(
     path: Path,
-    documents: Sequence[CaseRetrievalDocument],
-) -> CaseDocumentArtifact:
+    documents: Sequence[TMIEventRetrievalDocument],
+) -> TMIEventDocumentArtifact:
     data = "".join(
         document.model_dump_json() + "\n"
         for document in documents
     ).encode("utf-8")
     path.write_bytes(data)
-    return CaseDocumentArtifact(
+    return TMIEventDocumentArtifact(
         path=path.name,
         count=len(documents),
         sha256=hashlib.sha256(data).hexdigest(),
     )
 
 
-def build_case_retrieval_index(
+def build_tmi_event_retrieval_index(
     corpus_dir: str | Path,
     *,
-    encoder: CaseEncoder,
+    encoder: TMIEventEncoder,
     index_dir: str | Path | None = None,
-) -> CaseIndexManifest:
-    """Rebuild one persistent case-vector sidecar and publish its manifest."""
+) -> TMIEventIndexManifest:
+    """Rebuild one persistent event-vector sidecar and publish its manifest."""
 
     store = CorpusQueryStore(corpus_dir)
-    documents = build_case_retrieval_documents(store)
+    documents = build_tmi_event_retrieval_documents(store)
     if not documents:
-        raise ValueError("corpus has no accepted cases to index")
-    root = Path(index_dir or (store.root / "case_index"))
+        raise ValueError("corpus has no accepted TMI events to index")
+    root = Path(index_dir or (store.root / "tmi_event_index"))
     root.mkdir(parents=True, exist_ok=True)
-    manifest_path = root / CASE_INDEX_MANIFEST
+    manifest_path = root / TMI_EVENT_INDEX_MANIFEST
     manifest_path.unlink(missing_ok=True)
 
     vectors = _normalized_vectors(
@@ -129,7 +129,7 @@ def build_case_retrieval_index(
     )
     dimension = len(vectors[0])
     document_artifact = _write_documents(
-        root / CASE_DOCUMENTS,
+        root / TMI_EVENT_DOCUMENTS,
         documents,
     )
     collection_metadata: dict[str, str | int | float | bool] = {
@@ -141,7 +141,7 @@ def build_case_retrieval_index(
     }
     collection = recreate_collection(
         open_persistent_client(root / "chroma"),
-        CASE_COLLECTION,
+        TMI_EVENT_COLLECTION,
         embedding_function=None,
         configuration={"hnsw": {"space": "cosine"}},
         metadata=collection_metadata,
@@ -153,7 +153,6 @@ def build_case_retrieval_index(
         documents=[document.text for document in documents],
         metadatas=[
             {
-                "case_id": document.case_id,
                 "event_id": document.event_id,
                 "advisory_source_id": document.advisory_source_id,
             }
@@ -162,15 +161,14 @@ def build_case_retrieval_index(
     )
     vector_count = int(collection.count())
     if vector_count != len(documents):
-        raise ValueError("case vector collection count mismatch")
-    manifest = CaseIndexManifest(
+        raise ValueError("TMI-event vector collection count mismatch")
+    manifest = TMIEventIndexManifest(
         corpus_id=store.manifest.corpus_id,
-        collection_name=CASE_COLLECTION,
         embedding_model_id=encoder.model_id,
         embedding_dimension=dimension,
         document_count=len(documents),
         vector_count=vector_count,
-        case_documents=document_artifact,
+        tmi_event_documents=document_artifact,
     )
     manifest_path.write_text(
         manifest.model_dump_json(indent=2) + "\n",
@@ -179,8 +177,8 @@ def build_case_retrieval_index(
     return manifest
 
 
-class ChromaCaseRetrievalIndex:
-    """Validated read-only view of one corpus-bound Chroma case index."""
+class ChromaTMIEventRetrievalIndex:
+    """Validated read-only view of one corpus-bound Chroma event index."""
 
     def __init__(
         self,
@@ -189,31 +187,34 @@ class ChromaCaseRetrievalIndex:
     ) -> None:
         root = Path(index_dir)
         try:
-            manifest = CaseIndexManifest.model_validate_json(
-                (root / CASE_INDEX_MANIFEST).read_text(encoding="utf-8")
+            manifest = TMIEventIndexManifest.model_validate_json(
+                (root / TMI_EVENT_INDEX_MANIFEST).read_text(encoding="utf-8")
             )
         except (OSError, ValueError) as exc:
-            raise ValueError("invalid case index manifest") from exc
+            raise ValueError("invalid TMI-event index manifest") from exc
         if manifest.corpus_id != store.manifest.corpus_id:
-            raise ValueError("case index belongs to another corpus")
+            raise ValueError("TMI-event index belongs to another corpus")
 
-        documents_path = root / manifest.case_documents.path
+        documents_path = root / manifest.tmi_event_documents.path
         try:
             data = documents_path.read_bytes()
         except OSError as exc:
-            raise ValueError("case documents are missing") from exc
-        if hashlib.sha256(data).hexdigest() != manifest.case_documents.sha256:
-            raise ValueError("case documents checksum mismatch")
+            raise ValueError("TMI-event documents are missing") from exc
+        if (
+            hashlib.sha256(data).hexdigest()
+            != manifest.tmi_event_documents.sha256
+        ):
+            raise ValueError("TMI-event documents checksum mismatch")
         documents = tuple(
-            CaseRetrievalDocument.model_validate_json(line)
+            TMIEventRetrievalDocument.model_validate_json(line)
             for line in data.splitlines()
             if line.strip()
         )
         if (
-            len(documents) != manifest.case_documents.count
+            len(documents) != manifest.tmi_event_documents.count
             or len(documents) != manifest.document_count
         ):
-            raise ValueError("case document count mismatch")
+            raise ValueError("TMI-event document count mismatch")
 
         try:
             collection = get_collection(
@@ -222,7 +223,7 @@ class ChromaCaseRetrievalIndex:
                 embedding_function=None,
             )
         except Exception as exc:
-            raise ValueError("case vector collection is missing") from exc
+            raise ValueError("TMI-event vector collection is missing") from exc
         expected_metadata = {
             "corpus_id": manifest.corpus_id,
             "representation_version": manifest.representation_version,
@@ -234,14 +235,14 @@ class ChromaCaseRetrievalIndex:
             (collection.metadata or {}).get("embedding_dimension")
             != manifest.embedding_dimension
         ):
-            raise ValueError("case vector dimension mismatch")
+            raise ValueError("TMI-event vector dimension mismatch")
         if collection.metadata != expected_metadata:
-            raise ValueError("case vector collection metadata mismatch")
+            raise ValueError("TMI-event vector collection metadata mismatch")
         if (
             collection.count() != manifest.vector_count
             or manifest.vector_count != manifest.document_count
         ):
-            raise ValueError("case vector count mismatch")
+            raise ValueError("TMI-event vector count mismatch")
         for document in documents:
             if (
                 len(
@@ -252,43 +253,43 @@ class ChromaCaseRetrievalIndex:
                 )
                 != manifest.embedding_dimension
             ):
-                raise ValueError("case vector dimension mismatch")
+                raise ValueError("TMI-event vector dimension mismatch")
 
         self.store = store
         self.root = root
         self.manifest = manifest
         self.collection = collection
         self.documents = documents
-        self._document_by_case = {
-            document.case_id: document
+        self._document_by_event = {
+            document.event_id: document
             for document in documents
         }
 
-    def get_case_vector(self, case_id: str) -> tuple[float, ...]:
-        """Return the stored normalized vector for one corpus case."""
+    def get_event_vector(self, event_id: str) -> tuple[float, ...]:
+        """Return the stored normalized vector for one corpus TMI event."""
 
         try:
-            document = self._document_by_case[case_id]
+            document = self._document_by_event[event_id]
         except KeyError as exc:
-            raise ValueError(f"case is not indexed: {case_id}") from exc
+            raise ValueError(f"TMI event is not indexed: {event_id}") from exc
         vector = get_stored_embedding(
             self.collection,
             document.document_id,
         )
         if len(vector) != self.manifest.embedding_dimension:
-            raise ValueError("case vector dimension mismatch")
+            raise ValueError("TMI-event vector dimension mismatch")
         return vector
 
     def query_candidates(
         self,
         *,
         query_vector: Sequence[float],
-        candidate_case_ids: Sequence[str],
+        candidate_event_ids: Sequence[str],
         n_results: int,
-    ) -> tuple[CaseVectorHit, ...]:
+    ) -> tuple[TMIEventVectorHit, ...]:
         """Query explicit vectors after the caller has selected candidates."""
 
-        candidate_ids = sorted(set(candidate_case_ids))
+        candidate_ids = sorted(set(candidate_event_ids))
         if not candidate_ids:
             return ()
         if len(query_vector) != self.manifest.embedding_dimension:
@@ -296,19 +297,18 @@ class ChromaCaseRetrievalIndex:
         result = query_explicit_embeddings(
             self.collection,
             query_embedding=query_vector,
-            where={"case_id": {"$in": candidate_ids}},
+            where={"event_id": {"$in": candidate_ids}},
             n_results=min(n_results, len(candidate_ids)),
         )
         ids = (result.get("ids") or [[]])[0]
         metadatas = (result.get("metadatas") or [[]])[0]
         distances = (result.get("distances") or [[]])[0]
-        hits: list[CaseVectorHit] = []
+        hits: list[TMIEventVectorHit] = []
         for index, _record_id in enumerate(ids):
             metadata = metadatas[index]
             distance = float(distances[index])
             hits.append(
-                CaseVectorHit(
-                    case_id=str(metadata["case_id"]),
+                TMIEventVectorHit(
                     event_id=str(metadata["event_id"]),
                     advisory_source_id=str(
                         metadata["advisory_source_id"]

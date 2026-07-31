@@ -112,7 +112,7 @@ def _model_observation(observation: HybridQueryToolObservation) -> str:
 def _result_refs(evidence: HybridQueryEvidence) -> list[str]:
     return sorted(
         {
-            *evidence.case_ids,
+            *evidence.event_ids,
             *evidence.fact_ids,
             *evidence.profile_gap_ids,
             *evidence.context_association_ids,
@@ -126,8 +126,8 @@ def _merge_evidence(
     observations: list[HybridQueryToolObservation],
 ) -> HybridQueryEvidence:
     return HybridQueryEvidence(
-        case_ids=tuple(
-            sorted({value for row in observations for value in row.details.case_ids})
+        event_ids=tuple(
+            sorted({value for row in observations for value in row.details.event_ids})
         ),
         fact_ids=tuple(
             sorted({value for row in observations for value in row.details.fact_ids})
@@ -179,7 +179,7 @@ def _unsupported_ids(
     evidence: HybridQueryEvidence,
 ) -> set[str]:
     checks = (
-        (statement.support_case_ids, evidence.case_ids),
+        (statement.support_event_ids, evidence.event_ids),
         (statement.support_fact_ids, evidence.fact_ids),
         (statement.support_profile_gap_ids, evidence.profile_gap_ids),
         (
@@ -199,7 +199,7 @@ def _unsupported_ids(
 
 
 _SUPPORT_ID_FIELDS = (
-    ("support_case_ids", "case_ids"),
+    ("support_event_ids", "event_ids"),
     ("support_fact_ids", "fact_ids"),
     ("support_profile_gap_ids", "profile_gap_ids"),
     ("support_context_association_ids", "context_association_ids"),
@@ -229,13 +229,13 @@ def _support_binding_error(
     if not records:
         return "statement has no evidence binding for its declared kind"
     cited_sources = set(statement.support_source_ids)
-    cited_non_case_ids = {
+    cited_non_event_ids = {
         value
         for statement_field, _record_field in _SUPPORT_ID_FIELDS
-        if statement_field != "support_case_ids"
+        if statement_field != "support_event_ids"
         for value in getattr(statement, statement_field)
     }
-    cited_case_ids = set(statement.support_case_ids)
+    cited_event_ids = set(statement.support_event_ids)
     for statement_field, record_field in _SUPPORT_ID_FIELDS:
         for value in getattr(statement, statement_field):
             matching = [
@@ -243,7 +243,7 @@ def _support_binding_error(
                 for record in records
                 if value in getattr(record, record_field)
             ]
-            if statement_field == "support_case_ids" and not cited_non_case_ids:
+            if statement_field == "support_event_ids" and not cited_non_event_ids:
                 matching = [
                     record
                     for record in matching
@@ -251,7 +251,7 @@ def _support_binding_error(
                         getattr(record, other_record_field)
                         for other_statement_field, other_record_field
                         in _SUPPORT_ID_FIELDS
-                        if other_statement_field != "support_case_ids"
+                        if other_statement_field != "support_event_ids"
                     )
                 ]
             if not matching:
@@ -267,28 +267,28 @@ def _support_binding_error(
         ]
         if not matching:
             return "statement cites a source outside its evidence binding"
-        if cited_non_case_ids and not any(
-            cited_non_case_ids.intersection(
+        if cited_non_event_ids and not any(
+            cited_non_event_ids.intersection(
                 {
                     value
                     for statement_field, record_field in _SUPPORT_ID_FIELDS
-                    if statement_field != "support_case_ids"
+                    if statement_field != "support_event_ids"
                     for value in getattr(record, record_field)
                 }
             )
             for record in matching
         ):
             return "statement cites a source unrelated to its evidence IDs"
-        if not cited_non_case_ids and cited_case_ids and not any(
-            cited_case_ids.intersection(record.case_ids)
+        if not cited_non_event_ids and cited_event_ids and not any(
+            cited_event_ids.intersection(record.event_ids)
             and not any(
                 getattr(record, record_field)
                 for statement_field, record_field in _SUPPORT_ID_FIELDS
-                if statement_field != "support_case_ids"
+                if statement_field != "support_event_ids"
             )
             for record in matching
         ):
-            return "statement cites a source unrelated to its case metadata"
+            return "statement cites a source unrelated to its event metadata"
     return None
 
 
@@ -379,12 +379,12 @@ def _statement_support_error(statement: HybridQueryStatement) -> str | None:
         and not statement.support_observation_ids
     ):
         return "public observation statement has no observation"
-    if statement.kind == "similarity" and not statement.support_case_ids:
-        return "similarity statement has no case support"
+    if statement.kind == "similarity" and not statement.support_event_ids:
+        return "similarity statement has no event support"
     if statement.kind == "source_fact" and not (
         statement.support_fact_ids
         or statement.support_profile_gap_ids
-        or statement.support_case_ids
+        or statement.support_event_ids
     ):
         return "source fact statement has no formal or source-bound support"
     return None
@@ -662,7 +662,7 @@ def run_hybrid_query_agent(
     )
     similarity_matches = sorted(
         {
-            match.case_id: match
+            match.event_id: match
             for observation in observations
             for match in observation.similarity_matches
         }.values(),
@@ -671,8 +671,8 @@ def run_hybrid_query_agent(
     return QueryToolOutcome(
         status=answer.status,
         answer=_answer_text(answer),
-        match_count=len(evidence.case_ids),
-        retrieved_case_ids=list(evidence.case_ids),
+        match_count=len(evidence.event_ids),
+        retrieved_event_ids=list(evidence.event_ids),
         source_ids=list(evidence.source_ids),
         retrieved_fact_ids=list(evidence.fact_ids),
         retrieved_profile_gap_ids=list(evidence.profile_gap_ids),

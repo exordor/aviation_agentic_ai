@@ -54,14 +54,14 @@ def _corpus(tmp_path: Path) -> Path:
 
 class _EvidenceModel:
     def __init__(self, store: CorpusQueryStore) -> None:
-        case = store.get_case(EVENT_ID)
-        assert case is not None
+        event = store.get_event(EVENT_ID)
+        assert event is not None
         fact = next(
             fact
             for fact in store.get_event_facts(EVENT_ID)
             if fact.predicate_iri.endswith("impactingCondition")
         )
-        self.case = case
+        self.event = event
         self.fact = fact
         self.turn = 0
         self.questions: list[str] = []
@@ -74,7 +74,7 @@ class _EvidenceModel:
             calls = [
                 {
                     "id": "facts",
-                    "name": "read_case_facts",
+                    "name": "read_tmi_event_facts",
                     "args": {"event_id": EVENT_ID},
                 }
             ]
@@ -88,7 +88,7 @@ class _EvidenceModel:
                     tool_calls=[
                         ModelToolCall(
                             call_id="facts",
-                            name="read_case_facts",
+                            name="read_tmi_event_facts",
                             arguments={"event_id": EVENT_ID},
                         )
                     ],
@@ -100,7 +100,7 @@ class _EvidenceModel:
                 HybridQueryStatement(
                     kind="source_fact",
                     text="The advisory records weather as its declared reason.",
-                    support_case_ids=(self.case.case_id,),
+                    support_event_ids=(self.event.event_id,),
                     support_fact_ids=(self.fact.fact_id,),
                     support_source_ids=tuple(self.fact.source_ids),
                 ),
@@ -139,7 +139,7 @@ def test_public_query_uses_the_model_for_paraphrases_and_chinese(
 
         assert outcome.status == "ok"
         assert len(outcome.model_calls) == 2
-        assert outcome.tool_calls[0].tool == "read_case_facts"
+        assert outcome.tool_calls[0].tool == "read_tmi_event_facts"
         assert question in model.questions[0]
 
 

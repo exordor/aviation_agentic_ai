@@ -1,4 +1,4 @@
-"""Exact corpus filtering followed by case-level vector recall."""
+"""Exact corpus filtering followed by TMI-event vector recall."""
 
 from __future__ import annotations
 
@@ -6,18 +6,18 @@ import hashlib
 from pathlib import Path
 from types import SimpleNamespace
 
-from aviation_agentic_ai.agent_system.case_retrieval_contracts import (
-    CaseSimilarityQuery,
-    CaseVectorHit,
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
+    TMIEventSimilarityQuery,
+    TMIEventVectorHit,
 )
-from aviation_agentic_ai.agent_system.case_retrieval_search import (
-    find_similar_cases,
+from aviation_agentic_ai.agent_system.tmi_event_retrieval_search import (
+    find_similar_tmi_events,
 )
 from aviation_agentic_ai.agent_system.contracts import StrictModel
 from aviation_agentic_ai.agent_system.corpus_store import (
     CorpusArtifactMetadata,
     CorpusBuildManifest,
-    CorpusCase,
+    CorpusTMIEvent,
     CorpusQueryStore,
 )
 
@@ -27,7 +27,7 @@ KJFK = "urn:aviation-agentic-ai:facility:airport:KJFK"
 KEWR = "urn:aviation-agentic-ai:facility:airport:KEWR"
 
 
-def _case(
+def _event(
     name: str,
     *,
     facility_id: str = KJFK,
@@ -35,18 +35,15 @@ def _case(
     end: str = "2026-05-19T10:00:00+00:00",
     reason_status: str = "formal",
     reason_value: str | None = "weather",
-) -> CorpusCase:
-    return CorpusCase(
-        case_id=f"case:{name}",
-        case_iri=f"urn:decision-case:{name}",
-        reconstruction_iri=f"urn:decision-case-reconstruction:{name}",
+) -> CorpusTMIEvent:
+    return CorpusTMIEvent(
         event_id=f"event:{name}",
         run_ids=[f"run:{name}"],
         advisory_source_id=f"2026-05-19:{name}",
         event_type_iris=[f"{ATM}GroundDelayProgramTMI"],
         facility_ids=[facility_id],
-        operational_start=start,
-        operational_end=end,
+        effective_start=start,
+        effective_end=end,
         reason_status=reason_status,
         reason_value=reason_value,
     )
@@ -65,11 +62,11 @@ def _write_jsonl(
     )
 
 
-def _store(tmp_path: Path, cases: list[CorpusCase]) -> CorpusQueryStore:
+def _store(tmp_path: Path, events: list[CorpusTMIEvent]) -> CorpusQueryStore:
     artifacts = {
-        "cases": _write_jsonl(tmp_path / "cases.jsonl", cases),
+        "events": _write_jsonl(tmp_path / "events.jsonl", events),
         "facts": _write_jsonl(tmp_path / "facts.jsonl", []),
-        "case_facts": _write_jsonl(tmp_path / "case_facts.jsonl", []),
+        "event_facts": _write_jsonl(tmp_path / "event_facts.jsonl", []),
         "source_bindings": _write_jsonl(
             tmp_path / "source_bindings.jsonl",
             [],
@@ -77,8 +74,8 @@ def _store(tmp_path: Path, cases: list[CorpusCase]) -> CorpusQueryStore:
     }
     manifest = CorpusBuildManifest(
         corpus_id="corpus:search-test",
-        run_count=len(cases),
-        case_count=len(cases),
+        run_count=len(events),
+        event_count=len(events),
         fact_count=0,
         source_binding_count=0,
         source_object_count=0,
@@ -94,77 +91,76 @@ def _store(tmp_path: Path, cases: list[CorpusCase]) -> CorpusQueryStore:
 class FakeIndex:
     def __init__(
         self,
-        cases: list[CorpusCase],
+        events: list[CorpusTMIEvent],
         scores: dict[str, float],
     ) -> None:
         self.manifest = SimpleNamespace(
-            representation_version="decision-record-v1",
+            representation_version="tmi-event-record-v1",
             embedding_model_id="test/four-dimensional",
         )
-        self._case_by_id = {case.case_id: case for case in cases}
+        self._event_by_id = {event.event_id: event for event in events}
         self._scores = scores
-        self.last_candidate_case_ids: tuple[str, ...] = ()
+        self.last_candidate_event_ids: tuple[str, ...] = ()
         self.last_n_results = 0
-        self.anchor_case_id = ""
+        self.anchor_event_id = ""
 
-    def get_case_vector(self, case_id: str) -> tuple[float, ...]:
-        self.anchor_case_id = case_id
+    def get_event_vector(self, event_id: str) -> tuple[float, ...]:
+        self.anchor_event_id = event_id
         return (1.0, 0.0, 0.0, 0.0)
 
     def query_candidates(
         self,
         *,
         query_vector,
-        candidate_case_ids,
+        candidate_event_ids,
         n_results,
-    ) -> tuple[CaseVectorHit, ...]:
+    ) -> tuple[TMIEventVectorHit, ...]:
         assert tuple(query_vector) == (1.0, 0.0, 0.0, 0.0)
-        self.last_candidate_case_ids = tuple(candidate_case_ids)
+        self.last_candidate_event_ids = tuple(candidate_event_ids)
         self.last_n_results = n_results
-        reverse_ties = sorted(candidate_case_ids, reverse=True)
+        reverse_ties = sorted(candidate_event_ids, reverse=True)
         ranked = sorted(
             reverse_ties,
-            key=lambda case_id: self._scores[case_id],
+            key=lambda event_id: self._scores[event_id],
             reverse=True,
         )
         return tuple(
-            CaseVectorHit(
-                case_id=case_id,
-                event_id=self._case_by_id[case_id].event_id,
-                advisory_source_id=self._case_by_id[
-                    case_id
+            TMIEventVectorHit(
+                event_id=event_id,
+                advisory_source_id=self._event_by_id[
+                    event_id
                 ].advisory_source_id,
-                distance=1.0 - self._scores[case_id],
-                similarity=self._scores[case_id],
+                distance=1.0 - self._scores[event_id],
+                similarity=self._scores[event_id],
             )
-            for case_id in ranked[:n_results]
+            for event_id in ranked[:n_results]
         )
 
 
 def test_exact_filters_are_applied_before_cosine_ranking(
     tmp_path: Path,
 ) -> None:
-    cases = [
-        _case("query"),
-        _case("kjfk-nearest"),
-        _case("kjfk-second"),
-        _case("kewr-higher-score", facility_id=KEWR),
+    events = [
+        _event("query"),
+        _event("kjfk-nearest"),
+        _event("kjfk-second"),
+        _event("kewr-higher-score", facility_id=KEWR),
     ]
-    store = _store(tmp_path, cases)
+    store = _store(tmp_path, events)
     index = FakeIndex(
-        cases,
+        events,
         {
-            "case:query": 1.0,
-            "case:kjfk-nearest": 0.91,
-            "case:kjfk-second": 0.82,
-            "case:kewr-higher-score": 0.99,
+            "event:query": 1.0,
+            "event:kjfk-nearest": 0.91,
+            "event:kjfk-second": 0.82,
+            "event:kewr-higher-score": 0.99,
         },
     )
 
-    result = find_similar_cases(
+    result = find_similar_tmi_events(
         store,
         index,
-        CaseSimilarityQuery(
+        TMIEventSimilarityQuery(
             reference_event_id="event:query",
             facility_id=KJFK,
             limit=3,
@@ -178,41 +174,41 @@ def test_exact_filters_are_applied_before_cosine_ranking(
         "event:kjfk-second",
     ]
     assert all(row.facility_ids == (KJFK,) for row in result.matches)
-    assert index.anchor_case_id == "case:query"
-    assert index.last_candidate_case_ids == (
-        "case:kjfk-nearest",
-        "case:kjfk-second",
+    assert index.anchor_event_id == "event:query"
+    assert index.last_candidate_event_ids == (
+        "event:kjfk-nearest",
+        "event:kjfk-second",
     )
 
 
-def test_prior_scope_excludes_same_time_and_later_cases(
+def test_prior_scope_excludes_same_time_and_later_events(
     tmp_path: Path,
 ) -> None:
-    cases = [
-        _case(
+    events = [
+        _event(
             "query",
             start="2026-05-19T12:00:00+00:00",
             end="2026-05-19T14:00:00+00:00",
         ),
-        _case("earlier", end="2026-05-19T11:59:59+00:00"),
-        _case("same-time", end="2026-05-19T12:00:00+00:00"),
-        _case("later", end="2026-05-19T13:00:00+00:00"),
+        _event("earlier", end="2026-05-19T11:59:59+00:00"),
+        _event("same-time", end="2026-05-19T12:00:00+00:00"),
+        _event("later", end="2026-05-19T13:00:00+00:00"),
     ]
-    store = _store(tmp_path, cases)
+    store = _store(tmp_path, events)
     index = FakeIndex(
-        cases,
+        events,
         {
-            "case:query": 1.0,
-            "case:earlier": 0.7,
-            "case:same-time": 0.99,
-            "case:later": 0.98,
+            "event:query": 1.0,
+            "event:earlier": 0.7,
+            "event:same-time": 0.99,
+            "event:later": 0.98,
         },
     )
 
-    result = find_similar_cases(
+    result = find_similar_tmi_events(
         store,
         index,
-        CaseSimilarityQuery(
+        TMIEventSimilarityQuery(
             reference_event_id="event:query",
             candidate_scope="prior",
         ),
@@ -220,41 +216,41 @@ def test_prior_scope_excludes_same_time_and_later_cases(
 
     assert result.status == "ok"
     assert result.candidate_count == 1
-    assert [row.case_id for row in result.matches] == ["case:earlier"]
-    assert index.last_candidate_case_ids == ("case:earlier",)
+    assert [row.event_id for row in result.matches] == ["event:earlier"]
+    assert index.last_candidate_event_ids == ("event:earlier",)
 
 
-def test_equal_scores_are_tied_by_case_id(tmp_path: Path) -> None:
-    cases = [
-        _case("query"),
-        _case("b"),
-        _case("a"),
-        _case("c"),
+def test_equal_scores_are_tied_by_event_id(tmp_path: Path) -> None:
+    events = [
+        _event("query"),
+        _event("b"),
+        _event("a"),
+        _event("c"),
     ]
-    store = _store(tmp_path, cases)
+    store = _store(tmp_path, events)
     index = FakeIndex(
-        cases,
+        events,
         {
-            "case:query": 1.0,
-            "case:a": 0.8,
-            "case:b": 0.8,
-            "case:c": 0.9,
+            "event:query": 1.0,
+            "event:a": 0.8,
+            "event:b": 0.8,
+            "event:c": 0.9,
         },
     )
 
-    result = find_similar_cases(
+    result = find_similar_tmi_events(
         store,
         index,
-        CaseSimilarityQuery(
+        TMIEventSimilarityQuery(
             reference_event_id="event:query",
             limit=3,
         ),
     )
 
-    assert [row.case_id for row in result.matches] == [
-        "case:c",
-        "case:a",
-        "case:b",
+    assert [row.event_id for row in result.matches] == [
+        "event:c",
+        "event:a",
+        "event:b",
     ]
     assert [row.rank for row in result.matches] == [1, 2, 3]
 
@@ -262,27 +258,27 @@ def test_equal_scores_are_tied_by_case_id(tmp_path: Path) -> None:
 def test_offset_and_limit_are_applied_after_ranking(
     tmp_path: Path,
 ) -> None:
-    cases = [
-        _case("query"),
-        _case("a"),
-        _case("b"),
-        _case("c"),
+    events = [
+        _event("query"),
+        _event("a"),
+        _event("b"),
+        _event("c"),
     ]
-    store = _store(tmp_path, cases)
+    store = _store(tmp_path, events)
     index = FakeIndex(
-        cases,
+        events,
         {
-            "case:query": 1.0,
-            "case:a": 0.8,
-            "case:b": 0.7,
-            "case:c": 0.9,
+            "event:query": 1.0,
+            "event:a": 0.8,
+            "event:b": 0.7,
+            "event:c": 0.9,
         },
     )
 
-    result = find_similar_cases(
+    result = find_similar_tmi_events(
         store,
         index,
-        CaseSimilarityQuery(
+        TMIEventSimilarityQuery(
             reference_event_id="event:query",
             offset=1,
             limit=1,
@@ -290,7 +286,7 @@ def test_offset_and_limit_are_applied_after_ranking(
     )
 
     assert result.candidate_count == 3
-    assert [row.case_id for row in result.matches] == ["case:a"]
+    assert [row.event_id for row in result.matches] == ["event:a"]
     assert [row.rank for row in result.matches] == [2]
     assert index.last_n_results == 2
 
@@ -298,17 +294,17 @@ def test_offset_and_limit_are_applied_after_ranking(
 def test_empty_exact_candidate_set_is_insufficient(
     tmp_path: Path,
 ) -> None:
-    cases = [_case("query"), _case("other", facility_id=KEWR)]
-    store = _store(tmp_path, cases)
+    events = [_event("query"), _event("other", facility_id=KEWR)]
+    store = _store(tmp_path, events)
     index = FakeIndex(
-        cases,
-        {"case:query": 1.0, "case:other": 0.9},
+        events,
+        {"event:query": 1.0, "event:other": 0.9},
     )
 
-    result = find_similar_cases(
+    result = find_similar_tmi_events(
         store,
         index,
-        CaseSimilarityQuery(
+        TMIEventSimilarityQuery(
             reference_event_id="event:query",
             facility_id="urn:aviation-agentic-ai:facility:airport:KLGA",
         ),
@@ -317,4 +313,4 @@ def test_empty_exact_candidate_set_is_insufficient(
     assert result.status == "insufficient"
     assert result.candidate_count == 0
     assert result.matches == ()
-    assert index.anchor_case_id == ""
+    assert index.anchor_event_id == ""

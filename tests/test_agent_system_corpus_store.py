@@ -671,9 +671,10 @@ def test_export_event_contains_only_selected_event_artifacts(tmp_path: Path) -> 
     assert {
         path.name for path in export_dir.iterdir()
     } == {
-        "event_export_manifest.json",
+        "tmi_event_export_manifest.json",
         "event.json",
         "facts.jsonl",
+        "event_facts.jsonl",
         "evidence_links.jsonl",
         "profile_gaps.jsonl",
         "context_associations.jsonl",
@@ -684,3 +685,13 @@ def test_export_event_contains_only_selected_event_artifacts(tmp_path: Path) -> 
     }
     assert "urn:event:a" in (export_dir / "event.json").read_text(encoding="utf-8")
     assert "urn:event:b" not in (export_dir / "facts.jsonl").read_text(encoding="utf-8")
+    assert [
+        json.loads(line)
+        for line in (export_dir / "event_facts.jsonl").read_text(
+            encoding="utf-8"
+        ).splitlines()
+        if line
+    ] == [
+        {"event_id": "urn:event:a", "fact_id": fact.fact_id}
+        for fact in CorpusQueryStore(corpus_dir).get_event_facts("urn:event:a")
+    ]

@@ -235,7 +235,6 @@ class QueryToolTrace(StrictModel):
     arguments: dict[str, Any] = Field(default_factory=dict)
     result_refs: list[str] = Field(default_factory=list)
     context_association_ids: list[str] = Field(default_factory=list)
-    outcome_summary_ids: list[str] = Field(default_factory=list)
     observation_ids: list[str] = Field(default_factory=list)
     derivation_ids: list[str] = Field(default_factory=list)
     source_ids: list[str] = Field(default_factory=list)
@@ -244,11 +243,10 @@ class QueryToolTrace(StrictModel):
     error: str | None = None
 
 
-class CaseSimilarityMatch(StrictModel):
-    """One ranked historical decision-record retrieval match."""
+class TMIEventSimilarityMatch(StrictModel):
+    """One ranked historical TMI-event retrieval match."""
 
     rank: int = Field(ge=1)
-    case_id: str = Field(min_length=1)
     event_id: str = Field(min_length=1)
     advisory_source_id: str = Field(min_length=1)
     score: float
@@ -271,7 +269,7 @@ class QueryGraphEdge(StrictModel):
 
 
 class QueryGraphPath(StrictModel):
-    """One case-scoped graph path retained as structured query evidence."""
+    """One event-scoped graph path retained as structured query evidence."""
 
     path_id: str = Field(min_length=1)
     path_kind: str = Field(min_length=1)
@@ -295,7 +293,7 @@ class HybridQueryScope(StrictModel):
 class HybridQueryEvidence(StrictModel):
     """Structured evidence retained outside model-visible answer prose."""
 
-    case_ids: tuple[str, ...] = ()
+    event_ids: tuple[str, ...] = ()
     fact_ids: tuple[str, ...] = ()
     profile_gap_ids: tuple[str, ...] = ()
     context_association_ids: tuple[str, ...] = ()
@@ -313,7 +311,7 @@ class HybridQuerySupportRecord(StrictModel):
         "public_observation",
         "similarity",
     ]
-    case_ids: tuple[str, ...] = ()
+    event_ids: tuple[str, ...] = ()
     fact_ids: tuple[str, ...] = ()
     profile_gap_ids: tuple[str, ...] = ()
     context_association_ids: tuple[str, ...] = ()
@@ -330,7 +328,7 @@ class HybridQueryToolObservation(StrictModel):
     details: HybridQueryEvidence = Field(default_factory=HybridQueryEvidence)
     support_records: tuple[HybridQuerySupportRecord, ...] = ()
     graph_paths: tuple[QueryGraphPath, ...] = ()
-    similarity_matches: tuple[CaseSimilarityMatch, ...] = ()
+    similarity_matches: tuple[TMIEventSimilarityMatch, ...] = ()
     limitation: str = ""
 
 
@@ -344,7 +342,7 @@ class HybridQueryStatement(StrictModel):
         "similarity",
     ]
     text: str = Field(min_length=1)
-    support_case_ids: tuple[str, ...] = ()
+    support_event_ids: tuple[str, ...] = ()
     support_fact_ids: tuple[str, ...] = ()
     support_profile_gap_ids: tuple[str, ...] = ()
     support_context_association_ids: tuple[str, ...] = ()
@@ -367,17 +365,16 @@ class QueryToolOutcome(StrictModel):
     status: Literal["ok", "insufficient", "blocked"]
     answer: str = ""
     match_count: int = Field(default=0, ge=0)
-    retrieved_case_ids: list[str] = Field(default_factory=list)
+    retrieved_event_ids: list[str] = Field(default_factory=list)
     source_ids: list[str] = Field(default_factory=list)
     retrieved_fact_ids: list[str] = Field(default_factory=list)
     retrieved_profile_gap_ids: list[str] = Field(default_factory=list)
     retrieved_context_association_ids: list[str] = Field(default_factory=list)
-    retrieved_outcome_summary_ids: list[str] = Field(default_factory=list)
     retrieved_observation_ids: list[str] = Field(default_factory=list)
     retrieved_derivation_ids: list[str] = Field(default_factory=list)
     retrieved_graph_path_ids: list[str] = Field(default_factory=list)
     retrieved_graph_paths: list[QueryGraphPath] = Field(default_factory=list)
-    similarity_matches: list[CaseSimilarityMatch] = Field(
+    similarity_matches: list[TMIEventSimilarityMatch] = Field(
         default_factory=list
     )
     answer_statements: list[HybridQueryStatement] = Field(default_factory=list)

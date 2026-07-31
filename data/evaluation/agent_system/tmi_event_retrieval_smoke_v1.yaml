@@ -1,4 +1,4 @@
-version: case-retrieval-smoke-v1
+version: tmi-event-retrieval-smoke-v1
 queries:
   - query_source_id: "2026-05-20:147"
     expected_status: ok
