@@ -122,6 +122,11 @@ names, not internal alphanumeric labels.
   acceptance checks. Raw provider responses and parsed trial outputs are
   retained separately in ignored runtime artifacts. This negative result is
   compatibility evidence, not a benchmark.
+- The tracked ingestion-first GDP 138 flagship walkthrough is the current
+  positive end-to-end acceptance: 1/1 natural-language Query Agent task passed,
+  3/3 real `deepseek-v4-pro` calls returned, and 5/5 bounded tool executions
+  were bound to the accepted trial. It is a versioned system walkthrough, not
+  a benchmark or evidence of general model quality.
 - The five familiar records are development/regression fixtures only. No frozen
   post-cutover evaluation set currently exists; `future_frozen_evaluation` is
   `NOT CONSTRUCTED`. Historical suites remain compatibility artifacts and

@@ -1,9 +1,9 @@
 [project]
 name = "aviation-agentic-ai"
 version = "0.1.0"
-description = "Source-bounded multi-Agent system for aviation event knowledge construction and querying."
+description = "ATMONTO-grounded Agentic HybridRAG for heterogeneous aviation knowledge integration."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [
   { name = "Jiale" }
@@ -71,4 +71,4 @@ pythonpath = ["src"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
+target-version = "py311"

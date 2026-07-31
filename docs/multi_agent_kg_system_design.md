@@ -503,6 +503,14 @@ development/regression tasks passed. The two failed answer-contract/evidence
 checks are retained as observed behavior and are not converted into offline
 successes.
 
+The tracked GDP 138 flagship walkthrough provides the current positive
+end-to-end acceptance for this runtime: 1/1 natural-language Query Agent task
+passed, 3/3 real `deepseek-v4-pro` calls returned, and 5/5 bounded tool
+executions were bound to the accepted trial. It verifies one versioned
+ingestion-to-answer path with exact ATCSCC source support, non-causal Weather
+context, and source-qualified BTS observations. It is not a benchmark or a
+claim of general model quality.
+
 ## 18. Deferred Work
 
 - Formal decision-state inputs, alternatives, constraints, rationale, and

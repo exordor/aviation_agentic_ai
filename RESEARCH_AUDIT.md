@@ -169,6 +169,14 @@ raw/parsed binding check passed.
 This is compatibility evidence over development/regression tasks, not a frozen
 holdout or model-quality benchmark.
 
+The tracked ingestion-first GDP 138 flagship walkthrough is the current
+positive end-to-end acceptance. Its single natural-language Query Agent task
+passed (1/1), all 3 real `deepseek-v4-pro` calls returned, and all 5 bounded
+tool executions were bound to the accepted trial. The answer retained exact
+ATCSCC source support, non-causal Weather context, and source-qualified BTS
+observations. This is a versioned system walkthrough, not a statistical
+benchmark or evidence of general model quality.
+
 No natural ambiguity has been identified in the legacy deterministic NYC
 selection that activates the Semantic Resolution Agent; synthetic ambiguity
 fixtures remain offline orchestration tests and are not current-source

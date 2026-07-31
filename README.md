@@ -36,11 +36,12 @@ one natural-language question through persistent ingestion, real
 `deepseek-v4-pro` tool selection, exact source verification, cross-source
 context retrieval, and statement-level support validation. Its observed
 [execution trace](docs/figures/flagship_gdp138_live_trace.png) is a passing
-`live_smoke / system walkthrough`, not a benchmark.
+`live_smoke / system walkthrough`: 1/1 task accepted with 3/3 real provider
+calls returned and 5 bounded tool executions. It is not a benchmark.
 
 ## Quick Start
 
-Install the active system:
+Python 3.11 or newer is required. Install the active system:
 
 ```bash
 uv sync --extra dev --extra agent-system --extra neo4j \
@@ -48,20 +49,33 @@ uv sync --extra dev --extra agent-system --extra neo4j \
 uv run aviation-ai agent-system --help
 ```
 
-Python 3.11 or newer is required. Obtain the pinned FAA NASR source described
-in [REPRODUCIBILITY.md](REPRODUCIBILITY.md) before ingesting eligible events.
+Obtain the pinned FAA NASR source described in
+[REPRODUCIBILITY.md](REPRODUCIBILITY.md) before ingesting eligible events.
 
-Ingest the five GDP, GS, and ReRoute development/regression records:
+Build the GDP 138 flagship slice:
 
 ```bash
 uv run aviation-ai agent-system ingest \
   --config configs/aviation_knowledge_v1.yaml \
-  --store-dir data/stores/aviation/development-smoke-v1 \
-  --advisory-id 2026-05-19:123 \
+  --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
   --advisory-id 2026-05-19:138 \
-  --advisory-id 2026-05-19:108 \
-  --advisory-id 2026-05-20:020 \
-  --advisory-id 2026-05-20:137 \
+  --allow-model-download
+```
+
+Build the rebuildable retrieval indexes and ask the flagship question without
+supplying an internal source or event ID:
+
+```bash
+uv run --extra agent-system aviation-ai agent-system reindex \
+  --config configs/aviation_knowledge_v1.yaml \
+  --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
+  --model-name sentence-transformers/all-MiniLM-L6-v2 \
+  --allow-model-download
+
+uv run aviation-ai agent-system ask \
+  --config configs/aviation_knowledge_v1.yaml \
+  --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
+  --question "For ATCSCC Advisory 138 on 19 May 2026, what was published, what reason did the source declare, and what weather context was retained?" \
   --allow-model-download
 ```
 
@@ -72,7 +86,11 @@ evidence needed by the construction path. The command skips terminal `ok` or
 each accepted publication independently. It does not need a completed batch
 manifest before the data can be queried.
 
-Complete source-supported records follow deterministic processing.
+Complete source-supported records follow deterministic processing. The five
+tracked cross-family records remain documented under
+[Regression Semantics](#regression-semantics); they are not the default user
+entry point.
+
 `--allow-live-model` only authorizes the bounded Semantic Resolution Agent when
 genuine authority ambiguity remains; it is not proof that a provider was
 called. Credentials stay in ignored local environment files.
@@ -119,7 +137,7 @@ with:
 ```bash
 uv run --extra agent-system aviation-ai agent-system reindex \
   --config configs/aviation_knowledge_v1.yaml \
-  --store-dir data/stores/aviation/development-smoke-v1 \
+  --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
   --model-name sentence-transformers/all-MiniLM-L6-v2 \
   --allow-model-download
 ```
@@ -132,7 +150,7 @@ Neither FTS nor Chroma writes semantic facts back into the store.
 ```bash
 uv run aviation-ai agent-system ask \
   --config configs/aviation_knowledge_v1.yaml \
-  --store-dir data/stores/aviation/development-smoke-v1 \
+  --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
   --question "For ATCSCC Advisory 138 on 19 May 2026, what was published, what reason did the source declare, and what weather context was retained?" \
   --allow-model-download
 ```
@@ -177,7 +195,7 @@ Export one active event and only its referenced evidence:
 ```bash
 uv run aviation-ai agent-system export-event \
   --config configs/aviation_knowledge_v1.yaml \
-  --store-dir data/stores/aviation/development-smoke-v1 \
+  --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
   --event-id <event-id> \
   --output-dir data/stores/aviation/exports/selected-event
 ```
@@ -187,7 +205,7 @@ Load a rebuildable property-graph projection into Neo4j:
 ```bash
 uv run aviation-ai agent-system neo4j-export \
   --config configs/aviation_knowledge_v1.yaml \
-  --store-dir data/stores/aviation/development-smoke-v1
+  --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1
 ```
 
 RDF/Turtle, JSONL, and Neo4j are optional products of the authoritative store.
@@ -252,6 +270,14 @@ Fake and scripted models verify software contracts only. Live smoke results
 must use the configured real provider and report provider-call success
 separately from task acceptance. Historical reports remain frozen under their
 recorded architecture and are not evidence for the ingestion-first runtime.
+
+The tracked ingestion-first GDP 138 flagship walkthrough is the current
+positive end-to-end acceptance: 1/1 natural-language Query Agent task passed,
+3/3 real `deepseek-v4-pro` calls returned, and all 5 bounded tool executions
+were bound to the accepted trial. This is one versioned walkthrough, not a
+statistical benchmark. See the [walkthrough](docs/flagship_gdp138_walkthrough.md)
+and its tracked sanitized
+[report](reports/stages/agent_system_live_flagship_gdp138_walkthrough_v1.md).
 
 The tracked persistent-store compatibility smoke used the persistent store and
 6 real `deepseek-v4-pro` calls. All calls returned, but only 1/3 Query Agent
