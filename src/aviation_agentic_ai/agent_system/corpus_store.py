@@ -25,7 +25,7 @@ from aviation_agentic_ai.agent_system.context_artifacts import (
     read_context_associations,
     read_observation_fact_traces,
 )
-from aviation_agentic_ai.agent_system.corpus_event_graph import CorpusEventGraphView
+from aviation_agentic_ai.agent_system.tmi_event_graph import TMIEventGraphView
 from aviation_agentic_ai.agent_system.query_tools import QueryGraphStore
 from aviation_agentic_ai.agent_system.materialize import (
     build_validated_facts_neo4j_projection,
@@ -452,10 +452,10 @@ class CorpusQueryStore:
             )
         return tuple(facts)
 
-    def graph_for_event(self, event_id: str) -> CorpusEventGraphView:
+    def graph_for_event(self, event_id: str) -> TMIEventGraphView:
         """Build one read-only graph view over only the selected event."""
 
-        return CorpusEventGraphView(self.get_event_facts(event_id))
+        return TMIEventGraphView(self.get_event_facts(event_id))
 
     def get_weather_context(
         self, event_id: str

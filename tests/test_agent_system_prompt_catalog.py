@@ -53,7 +53,7 @@ def test_prompt_catalog_contains_only_activated_model_roles() -> None:
 
 def test_every_role_has_version_policy_and_bounded_output() -> None:
     expected_versions = {
-        "query": "hybrid-query-agent-v3",
+        "query": "hybrid-query-agent-v4",
         "semantic_resolution": "semantic-resolution-agent-v1",
     }
     for role, prompt in _catalog()["roles"].items():
@@ -136,6 +136,26 @@ def test_query_prompt_requires_dynamic_tools_and_evidence_bound_user_language() 
     assert "Similarity is historical record retrieval" in normalized
     assert "Answer in the language used by the user" in normalized
     assert "Bind every statement" in normalized
+
+
+def test_query_prompt_exposes_the_live_hybrid_retrieval_registry() -> None:
+    system = _catalog()["roles"]["query"]["system"]
+    tool_names = {
+        "find_tmi_events",
+        "read_tmi_event_facts",
+        "read_tmi_operational_context",
+        "read_public_observations",
+        "read_tmi_event_graph",
+        "find_similar_tmi_events",
+        "search_source_text",
+        "semantic_search_sources",
+        "read_source",
+    }
+
+    assert all(tool_name in system for tool_name in tool_names)
+    assert "candidate" in system.lower()
+    assert "factual claims" in system.lower()
+    assert "read_source" in system
 
 
 def test_semantic_resolution_prompt_requires_a_bounded_tool_then_strict_decision() -> None:

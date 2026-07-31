@@ -20,6 +20,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     ModelToolCall,
     QueryGraphEdge,
     QueryGraphPath,
+    SourceFamily,
 )
 from aviation_agentic_ai.agent_system.hybrid_query_agent import (
     run_hybrid_query_agent,
@@ -29,6 +30,10 @@ from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
 
 class _EventInput(BaseModel):
     event_id: str = Field(min_length=1)
+
+
+class _SourceInput(BaseModel):
+    source_version_id: str = Field(min_length=1)
 
 
 def _scope() -> HybridQueryScope:
@@ -756,3 +761,160 @@ def test_causal_language_is_rejected_even_when_labeled_source_fact() -> None:
 
         assert outcome.status == "blocked"
         assert "claim boundary" in outcome.failure_reason
+
+
+def test_query_scope_carries_logical_source_and_family_bounds() -> None:
+    scope = HybridQueryScope(
+        source_ids=("source:advisory:138",),
+        source_families=(SourceFamily.ATCSCC_ADVISORY, SourceFamily.METAR),
+    )
+
+    assert scope.model_dump(mode="json")["source_ids"] == [
+        "source:advisory:138"
+    ]
+    assert scope.model_dump(mode="json")["source_families"] == [
+        "atcscc_advisory",
+        "metar",
+    ]
+
+
+def _source_record_observation(
+    *,
+    include_support: bool,
+    include_anchor: bool = True,
+) -> dict[str, object]:
+    source_anchor_ids = ("anchor:advisory:138",) if include_anchor else ()
+    return HybridQueryToolObservation(
+        status="ok",
+        content="Exact source text says REASON: WEATHER.",
+        details=HybridQueryEvidence(
+            source_ids=("source:advisory:138",),
+            source_version_ids=("version:advisory:138:v1",),
+            source_anchor_ids=source_anchor_ids,
+            chunk_ids=("chunk:advisory:138:reason",),
+        ),
+        support_records=(
+            (
+                HybridQuerySupportRecord(
+                    kind="source_record",
+                    source_ids=("source:advisory:138",),
+                    source_version_ids=("version:advisory:138:v1",),
+                    source_anchor_ids=source_anchor_ids,
+                    chunk_ids=("chunk:advisory:138:reason",),
+                ),
+            )
+            if include_support
+            else ()
+        ),
+    ).model_dump(mode="json")
+
+
+@tool("read_source", args_schema=_SourceInput)
+def _read_source(source_version_id: str) -> dict[str, object]:
+    """Read exact bounded source content."""
+
+    assert source_version_id == "version:advisory:138:v1"
+    return _source_record_observation(include_support=True)
+
+
+def _source_record_answer(*, include_anchor: bool = True) -> str:
+    return HybridQueryAnswer(
+        status="ok",
+        statements=(
+            HybridQueryStatement(
+                kind="source_record",
+                text="The exact advisory text records WEATHER.",
+                support_source_ids=("source:advisory:138",),
+                support_source_version_ids=("version:advisory:138:v1",),
+                support_source_anchor_ids=(
+                    ("anchor:advisory:138",) if include_anchor else ()
+                ),
+                support_chunk_ids=("chunk:advisory:138:reason",),
+            ),
+        ),
+    ).model_dump_json()
+
+
+def test_exact_source_read_support_survives_trace_and_final_outcome() -> None:
+    model = _LoopModel(
+        calls=[
+            {
+                "id": "read-source",
+                "name": "read_source",
+                "args": {"source_version_id": "version:advisory:138:v1"},
+            }
+        ],
+        final_content=_source_record_answer(),
+    )
+
+    outcome = _run(model, tools=[_read_source])
+
+    assert outcome.status == "ok"
+    assert outcome.retrieved_source_version_ids == [
+        "version:advisory:138:v1"
+    ]
+    assert outcome.retrieved_source_anchor_ids == ["anchor:advisory:138"]
+    assert outcome.retrieved_chunk_ids == ["chunk:advisory:138:reason"]
+    assert outcome.tool_calls[0].source_version_ids == [
+        "version:advisory:138:v1"
+    ]
+    assert outcome.tool_calls[0].source_anchor_ids == ["anchor:advisory:138"]
+    assert outcome.tool_calls[0].chunk_ids == ["chunk:advisory:138:reason"]
+    assert set(outcome.tool_calls[0].result_refs) >= {
+        "version:advisory:138:v1",
+        "anchor:advisory:138",
+        "chunk:advisory:138:reason",
+    }
+
+
+def test_search_candidate_cannot_support_a_final_source_record_statement() -> None:
+    @tool("search_source_text", args_schema=_SourceInput)
+    def search_candidate(source_version_id: str) -> dict[str, object]:
+        """Return a candidate that still requires exact source inspection."""
+
+        assert source_version_id == "version:advisory:138:v1"
+        return _source_record_observation(include_support=False)
+
+    model = _LoopModel(
+        calls=[
+            {
+                "id": "search-source",
+                "name": "search_source_text",
+                "args": {"source_version_id": "version:advisory:138:v1"},
+            }
+        ],
+        final_content=_source_record_answer(),
+    )
+
+    outcome = _run(model, tools=[search_candidate])
+
+    assert outcome.status == "blocked"
+    assert "evidence binding" in outcome.failure_reason
+
+
+def test_source_record_statement_requires_exact_version_and_anchor() -> None:
+    @tool("read_source", args_schema=_SourceInput)
+    def source_without_anchor(source_version_id: str) -> dict[str, object]:
+        """Return an incomplete source binding without an exact anchor."""
+
+        assert source_version_id == "version:advisory:138:v1"
+        return _source_record_observation(
+            include_support=True,
+            include_anchor=False,
+        )
+
+    model = _LoopModel(
+        calls=[
+            {
+                "id": "read-source",
+                "name": "read_source",
+                "args": {"source_version_id": "version:advisory:138:v1"},
+            }
+        ],
+        final_content=_source_record_answer(include_anchor=False),
+    )
+
+    outcome = _run(model, tools=[source_without_anchor])
+
+    assert outcome.status == "blocked"
+    assert "source version and anchor" in outcome.failure_reason

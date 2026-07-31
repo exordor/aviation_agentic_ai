@@ -1793,6 +1793,7 @@ class AviationEvidenceStore:
         self,
         query: str,
         *,
+        source_version_ids: tuple[str, ...] | None = None,
         families: tuple[SourceFamily, ...] = (),
         event_id: str | None = None,
         current_only: bool = True,
@@ -1804,8 +1805,17 @@ class AviationEvidenceStore:
             raise ValueError("source text query must not be empty")
         if limit < 1 or limit > 100:
             raise ValueError("source text search limit must be between 1 and 100")
+        if source_version_ids == ():
+            return ()
         predicates = ["source_chunks_fts MATCH ?"]
         parameters: list[object] = [query]
+        if source_version_ids is not None:
+            selected_version_ids = tuple(sorted(set(source_version_ids)))
+            placeholders = ", ".join("?" for _ in selected_version_ids)
+            predicates.append(
+                f"chunk.source_version_id IN ({placeholders})"
+            )
+            parameters.extend(selected_version_ids)
         if families:
             placeholders = ", ".join("?" for _ in families)
             predicates.append(f"version.family IN ({placeholders})")

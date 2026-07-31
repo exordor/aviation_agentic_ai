@@ -1,85 +1,80 @@
-"""Public corpus-query cutover tests for free natural-language questions."""
+"""Public natural-language query tests over the live knowledge runtime."""
 
 from __future__ import annotations
 
 import importlib.util
+import sys
 from pathlib import Path
 from typing import Any
 
-from click.testing import CliRunner
 from langchain_core.messages import AIMessage
 
-import aviation_agentic_ai.cli_agent_system as cli_module
 from aviation_agentic_ai.agent_system.contracts import (
     HybridQueryAnswer,
+    HybridQueryScope,
     HybridQueryStatement,
     ModelCallRecord,
     ModelToolCall,
-    QueryToolOutcome,
 )
-from aviation_agentic_ai.agent_system.corpus_query import (
-    answer_corpus_question,
+from aviation_agentic_ai.agent_system.knowledge_query import (
+    answer_question,
 )
-from aviation_agentic_ai.agent_system.corpus_store import (
-    CorpusQueryStore,
-    build_corpus,
-)
+from aviation_agentic_ai.agent_system.query_runtime import QueryRuntime
 from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
 
 
 _FIXTURE_SPEC = importlib.util.spec_from_file_location(
-    "hybrid_query_public_fixture",
-    Path(__file__).with_name("test_agent_system_corpus_store.py"),
+    "live_hybrid_query_fixture",
+    Path(__file__).with_name("test_agent_system_hybrid_query_tools.py"),
 )
 assert _FIXTURE_SPEC is not None and _FIXTURE_SPEC.loader is not None
 _fixture = importlib.util.module_from_spec(_FIXTURE_SPEC)
+sys.modules[_FIXTURE_SPEC.name] = _fixture
 _FIXTURE_SPEC.loader.exec_module(_fixture)
 
-EVENT_ID = "urn:event:public-query"
-
-
-def _corpus(tmp_path: Path) -> Path:
-    run_dir = tmp_path / "run"
-    _fixture._write_run(
-        run_dir,
-        event_id=EVENT_ID,
-        suffix="public-query",
-        event_type="atm:GroundDelayProgramTMI",
-        formal_reason="weather",
-    )
-    corpus_dir = tmp_path / "corpus"
-    build_corpus([run_dir], corpus_dir)
-    return corpus_dir
+EVENT_ID = _fixture.FORMAL_EVENT_ID
 
 
 class _EvidenceModel:
-    def __init__(self, store: CorpusQueryStore) -> None:
-        event = store.get_event(EVENT_ID)
+    def __init__(self, scenario) -> None:  # type: ignore[no-untyped-def]
+        event = scenario.store.get_event(EVENT_ID)
         assert event is not None
         fact = next(
             fact
-            for fact in store.get_event_facts(EVENT_ID)
+            for fact in scenario.store.get_event_facts(EVENT_ID)
             if fact.predicate_iri.endswith("impactingCondition")
         )
+        link = next(
+            link
+            for link in scenario.store.get_event_evidence(EVENT_ID)
+            if link.owner_kind == "fact" and link.owner_id == fact.fact_id
+        )
+        source = scenario.store.get_source_version(link.source_version_id)
+        assert source is not None
         self.event = event
         self.fact = fact
+        self.link = link
+        self.source = source
         self.turn = 0
         self.questions: list[str] = []
 
-    def invoke(self, messages: list[Any], *, phase: str) -> ToolModelTurn:
+    def invoke(
+        self,
+        messages: list[Any],
+        *,
+        phase: str,
+    ) -> ToolModelTurn:
         assert phase == "query_step"
         self.turn += 1
         self.questions.append(str(messages[1].content))
         if self.turn == 1:
-            calls = [
-                {
-                    "id": "facts",
-                    "name": "read_tmi_event_facts",
-                    "args": {"event_id": EVENT_ID},
-                }
-            ]
+            call = {
+                "id": "facts",
+                "name": "read_tmi_event_facts",
+                "args": {"event_id": EVENT_ID},
+            }
             return ToolModelTurn(
-                message=AIMessage(content="", tool_calls=calls),
+                message=AIMessage(content="", tool_calls=[call]),
                 record=ModelCallRecord(
                     agent="query",
                     raw_response="",
@@ -99,10 +94,19 @@ class _EvidenceModel:
             statements=(
                 HybridQueryStatement(
                     kind="source_fact",
-                    text="The advisory records weather as its declared reason.",
+                    text=(
+                        "The advisory records weather as its "
+                        "declared reason."
+                    ),
                     support_event_ids=(self.event.event_id,),
                     support_fact_ids=(self.fact.fact_id,),
-                    support_source_ids=tuple(self.fact.source_ids),
+                    support_source_ids=(self.source.source_id,),
+                    support_source_version_ids=(
+                        self.source.source_version_id,
+                    ),
+                    support_source_anchor_ids=(
+                        self.link.source_anchor_id,
+                    ),
                 ),
             ),
         ).model_dump_json()
@@ -118,22 +122,25 @@ class _EvidenceModel:
         )
 
 
-def test_public_query_uses_the_model_for_paraphrases_and_chinese(
+def test_public_query_uses_model_routing_without_a_corpus_manifest(
     tmp_path: Path,
 ) -> None:
-    corpus_dir = _corpus(tmp_path)
-    store = CorpusQueryStore(corpus_dir)
+    scenario = _fixture._live_store(tmp_path)
+    runtime = QueryRuntime(
+        store=scenario.store,
+        source_index=None,
+        event_index=None,
+    )
 
     for question in (
         "Could you summarize the reason in this GDP record?",
-        "\u8fd9\u4efd GDP \u901a\u544a\u4e2d\u8bb0\u5f55\u7684\u539f"
-        "\u56e0\u662f\u4ec0\u4e48\uff1f",
+        "这份 GDP 通告中记录的原因是什么？",
     ):
-        model = _EvidenceModel(store)
-        outcome = answer_corpus_question(
-            corpus_dir=corpus_dir,
+        model = _EvidenceModel(scenario)
+        outcome = answer_question(
+            runtime=runtime,
             question=question,
-            event_id=EVENT_ID,
+            scope=HybridQueryScope(event_id=EVENT_ID),
             model_factory=lambda _tools, model=model: model,
         )
 
@@ -141,76 +148,26 @@ def test_public_query_uses_the_model_for_paraphrases_and_chinese(
         assert len(outcome.model_calls) == 2
         assert outcome.tool_calls[0].tool == "read_tmi_event_facts"
         assert question in model.questions[0]
+    assert not (scenario.store.root / "corpus_manifest.json").exists()
+    scenario.store.close()
 
 
-def test_valid_corpus_without_a_model_factory_is_blocked(tmp_path: Path) -> None:
-    outcome = answer_corpus_question(
-        corpus_dir=_corpus(tmp_path),
+def test_valid_runtime_without_a_model_factory_is_blocked(
+    tmp_path: Path,
+) -> None:
+    scenario = _fixture._live_store(tmp_path)
+    outcome = answer_question(
+        runtime=QueryRuntime(
+            store=scenario.store,
+            source_index=None,
+            event_index=None,
+        ),
         question="Tell me what this record says.",
-        event_id=EVENT_ID,
+        scope=HybridQueryScope(event_id=EVENT_ID),
+        model_factory=None,
     )
 
     assert outcome.status == "blocked"
     assert "model factory" in outcome.failure_reason
     assert outcome.model_calls == []
-
-
-def test_ask_cli_rejects_the_removed_live_model_flag(tmp_path: Path) -> None:
-    result = CliRunner().invoke(
-        cli_module.agent_system,
-        [
-            "ask",
-            "--corpus-dir",
-            str(_corpus(tmp_path)),
-            "--event-id",
-            EVENT_ID,
-            "--question",
-            "What reason is recorded?",
-            "--allow-live-model",
-        ],
-    )
-
-    assert result.exit_code == 2
-    assert "No such option '--allow-live-model'" in result.output
-
-
-def test_ask_cli_constructs_the_query_role(
-    tmp_path: Path,
-    monkeypatch,
-) -> None:
-    roles: list[str] = []
-
-    def fake_model_factory(*, tools, role):  # type: ignore[no-untyped-def]
-        roles.append(role)
-        return object()
-
-    def fake_answer(**kwargs):  # type: ignore[no-untyped-def]
-        kwargs["model_factory"]([])
-        return QueryToolOutcome(status="insufficient", answer="No evidence.")
-
-    monkeypatch.setattr(
-        cli_module,
-        "make_live_tool_calling_model",
-        fake_model_factory,
-    )
-    monkeypatch.setattr(
-        cli_module,
-        "answer_corpus_question",
-        fake_answer,
-    )
-
-    result = CliRunner().invoke(
-        cli_module.agent_system,
-        [
-            "ask",
-            "--corpus-dir",
-            str(_corpus(tmp_path)),
-            "--event-id",
-            EVENT_ID,
-            "--question",
-            "\u4efb\u610f\u81ea\u7136\u8bed\u8a00\u95ee\u9898",
-        ],
-    )
-
-    assert result.exit_code == 0, result.output
-    assert roles == ["query"]
+    scenario.store.close()

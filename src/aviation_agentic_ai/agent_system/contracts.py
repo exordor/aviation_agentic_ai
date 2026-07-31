@@ -241,6 +241,9 @@ class QueryToolTrace(StrictModel):
     observation_ids: list[str] = Field(default_factory=list)
     derivation_ids: list[str] = Field(default_factory=list)
     source_ids: list[str] = Field(default_factory=list)
+    source_version_ids: list[str] = Field(default_factory=list)
+    source_anchor_ids: list[str] = Field(default_factory=list)
+    chunk_ids: list[str] = Field(default_factory=list)
     status: Literal["ok", "insufficient", "blocked"]
     duration_ms: float = Field(default=0.0, ge=0.0)
     error: str | None = None
@@ -288,6 +291,8 @@ class HybridQueryScope(StrictModel):
     facility_id: str | None = Field(default=None, min_length=1)
     reason_status: Literal["formal", "profile_gap", "missing"] | None = None
     reason_value: str | None = Field(default=None, min_length=1)
+    source_ids: tuple[str, ...] = ()
+    source_families: tuple[SourceFamily, ...] = ()
     candidate_scope: Literal["archive", "prior"] = "archive"
     offset: int = Field(default=0, ge=0)
     limit: int = Field(default=20, ge=1, le=100)
@@ -303,6 +308,9 @@ class HybridQueryEvidence(StrictModel):
     observation_ids: tuple[str, ...] = ()
     graph_path_ids: tuple[str, ...] = ()
     source_ids: tuple[str, ...] = ()
+    source_version_ids: tuple[str, ...] = ()
+    source_anchor_ids: tuple[str, ...] = ()
+    chunk_ids: tuple[str, ...] = ()
 
 
 class HybridQuerySupportRecord(StrictModel):
@@ -310,6 +318,7 @@ class HybridQuerySupportRecord(StrictModel):
 
     kind: Literal[
         "source_fact",
+        "source_record",
         "non_causal_context",
         "public_observation",
         "similarity",
@@ -321,6 +330,9 @@ class HybridQuerySupportRecord(StrictModel):
     observation_ids: tuple[str, ...] = ()
     graph_path_ids: tuple[str, ...] = ()
     source_ids: tuple[str, ...] = ()
+    source_version_ids: tuple[str, ...] = ()
+    source_anchor_ids: tuple[str, ...] = ()
+    chunk_ids: tuple[str, ...] = ()
 
 
 class HybridQueryToolObservation(StrictModel):
@@ -340,6 +352,7 @@ class HybridQueryStatement(StrictModel):
 
     kind: Literal[
         "source_fact",
+        "source_record",
         "non_causal_context",
         "public_observation",
         "similarity",
@@ -352,6 +365,9 @@ class HybridQueryStatement(StrictModel):
     support_observation_ids: tuple[str, ...] = ()
     support_graph_path_ids: tuple[str, ...] = ()
     support_source_ids: tuple[str, ...] = ()
+    support_source_version_ids: tuple[str, ...] = ()
+    support_source_anchor_ids: tuple[str, ...] = ()
+    support_chunk_ids: tuple[str, ...] = ()
 
 
 class HybridQueryAnswer(StrictModel):
@@ -376,6 +392,9 @@ class QueryToolOutcome(StrictModel):
     retrieved_observation_ids: list[str] = Field(default_factory=list)
     retrieved_derivation_ids: list[str] = Field(default_factory=list)
     retrieved_graph_path_ids: list[str] = Field(default_factory=list)
+    retrieved_source_version_ids: list[str] = Field(default_factory=list)
+    retrieved_source_anchor_ids: list[str] = Field(default_factory=list)
+    retrieved_chunk_ids: list[str] = Field(default_factory=list)
     retrieved_graph_paths: list[QueryGraphPath] = Field(default_factory=list)
     similarity_matches: list[TMIEventSimilarityMatch] = Field(
         default_factory=list

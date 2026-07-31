@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
-from aviation_agentic_ai.agent_system.contracts import ValidationProfileRef
-from aviation_agentic_ai.agent_system.corpus_event_graph import CorpusEventGraphView
-from aviation_agentic_ai.agent_system.corpus_store import CorpusFact
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Literal
+
+from aviation_agentic_ai.agent_system.tmi_event_graph import (
+    TMIEventGraphView,
+    build_tmi_event_graph,
+)
 
 
 RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
@@ -24,11 +29,15 @@ SOSA_FEATURE = "http://www.w3.org/ns/sosa/hasFeatureOfInterest"
 QUDT_NUMERIC = "http://qudt.org/schema/qudt/numericValue"
 
 
-PROFILE = ValidationProfileRef(
-    profile_id="profile:test",
-    profile_checksum="a" * 64,
-    layer="decision",
-)
+@dataclass(frozen=True)
+class _GraphFact:
+    fact_id: str
+    subject_iri: str
+    predicate_iri: str
+    object_kind: Literal["iri", "literal"]
+    object_value: str
+    datatype_iri: str | None
+    source_ids: tuple[str, ...]
 
 
 def _fact(
@@ -37,13 +46,12 @@ def _fact(
     predicate: str,
     value: str,
     *,
-    kind: str = "iri",
+    kind: Literal["iri", "literal"] = "iri",
     sources: tuple[str, ...] = (),
-) -> CorpusFact:
-    return CorpusFact(
+) -> _GraphFact:
+    return _GraphFact(
         fact_id=fact_id,
         subject_iri=subject,
-        subject_class_iri="urn:class:Entity",
         predicate_iri=predicate,
         object_kind=kind,
         object_value=value,
@@ -52,14 +60,11 @@ def _fact(
             if kind == "literal"
             else None
         ),
-        source_ids=list(sources),
-        validation_profile=PROFILE,
-        evidence_mode="source_text",
-        evidence_ref="source:test",
+        source_ids=sources,
     )
 
 
-def _event_facts() -> tuple[CorpusFact, ...]:
+def _event_facts() -> tuple[_GraphFact, ...]:
     event = "urn:event:1"
     airport = "urn:airport:KJFK"
     weather = "urn:weather:taf:1"
@@ -110,7 +115,7 @@ def _event_facts() -> tuple[CorpusFact, ...]:
 def test_graph_view_supports_sorted_incoming_outgoing_and_literal_edges() -> None:
     """Reversing adjacency direction or dropping literal terminals is a query bug."""
 
-    graph = CorpusEventGraphView(tuple(reversed(_event_facts())))
+    graph = TMIEventGraphView(tuple(reversed(_event_facts())))
 
     outgoing = graph.neighbors("urn:event:1", direction="out")
     incoming = graph.neighbors("urn:airport:KJFK", direction="in")
@@ -130,7 +135,7 @@ def test_graph_view_supports_sorted_incoming_outgoing_and_literal_edges() -> Non
 def test_graph_view_exposes_all_formal_facts_and_predicate_filters() -> None:
     """The runtime graph tool must not be limited to one registered path shape."""
 
-    graph = CorpusEventGraphView(_event_facts())
+    graph = TMIEventGraphView(_event_facts())
 
     assert {edge.fact_id for edge in graph.edges()} == {
         fact.fact_id for fact in _event_facts()
@@ -144,7 +149,7 @@ def test_graph_view_exposes_all_formal_facts_and_predicate_filters() -> None:
 def test_graph_view_is_strictly_limited_to_supplied_event_facts() -> None:
     """The corpus store, not a hard-coded path, owns event isolation."""
 
-    graph = CorpusEventGraphView(
+    graph = TMIEventGraphView(
         tuple(fact for fact in _event_facts() if fact.fact_id != "f05")
     )
 
@@ -152,3 +157,49 @@ def test_graph_view_is_strictly_limited_to_supplied_event_facts() -> None:
     assert {edge.fact_id for edge in graph.edges()} == {
         fact.fact_id for fact in _event_facts() if fact.fact_id != "f05"
     }
+
+
+def test_store_builder_binds_logical_source_ids_to_graph_edges(
+    tmp_path: Path,
+) -> None:
+    """Dropping the version-to-logical-source join would erase provenance."""
+
+    from aviation_agentic_ai.agent_system.evidence_store import (
+        AviationEvidenceStore,
+    )
+    from test_agent_system_evidence_store import (
+        _minimal_ok_attempt,
+        _source_version,
+    )
+
+    event_id = "urn:event:store-backed"
+    version = _source_version("advisory:store-backed", "GROUND STOP")
+    store = AviationEvidenceStore.open(
+        tmp_path / "store",
+        dataset_id="dataset:test",
+        create=True,
+    )
+    try:
+        store.register_source_version(version)
+        anchor = store.anchor_source_text(
+            version.source_version_id,
+            "GROUND STOP",
+        )
+        store.apply_ingestion_attempt(
+            _minimal_ok_attempt(
+                version,
+                event_id=event_id,
+                publication_digest="b" * 64,
+                source_anchor_id=anchor.source_anchor_id,
+            )
+        )
+
+        graph = build_tmi_event_graph(store, event_id)
+        edges = graph.edges()
+
+        assert isinstance(graph, TMIEventGraphView)
+        assert len(edges) == 1
+        assert edges[0].fact_id == f"fact:{event_id}:type"
+        assert edges[0].source_ids == ("advisory:store-backed",)
+    finally:
+        store.close()

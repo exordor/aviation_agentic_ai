@@ -1,4 +1,4 @@
-"""Bounded model-tool-observation loop for corpus-first HybridRAG queries."""
+"""Bounded model-tool-observation loop for live HybridRAG queries."""
 
 from __future__ import annotations
 
@@ -122,6 +122,9 @@ def _result_refs(evidence: HybridQueryEvidence) -> list[str]:
             *evidence.context_association_ids,
             *evidence.observation_ids,
             *evidence.graph_path_ids,
+            *evidence.source_version_ids,
+            *evidence.source_anchor_ids,
+            *evidence.chunk_ids,
         }
     )
 
@@ -175,6 +178,27 @@ def _merge_evidence(
         source_ids=tuple(
             sorted({value for row in observations for value in row.details.source_ids})
         ),
+        source_version_ids=tuple(
+            sorted(
+                {
+                    value
+                    for row in observations
+                    for value in row.details.source_version_ids
+                }
+            )
+        ),
+        source_anchor_ids=tuple(
+            sorted(
+                {
+                    value
+                    for row in observations
+                    for value in row.details.source_anchor_ids
+                }
+            )
+        ),
+        chunk_ids=tuple(
+            sorted({value for row in observations for value in row.details.chunk_ids})
+        ),
     )
 
 
@@ -193,6 +217,12 @@ def _unsupported_ids(
         (statement.support_observation_ids, evidence.observation_ids),
         (statement.support_graph_path_ids, evidence.graph_path_ids),
         (statement.support_source_ids, evidence.source_ids),
+        (
+            statement.support_source_version_ids,
+            evidence.source_version_ids,
+        ),
+        (statement.support_source_anchor_ids, evidence.source_anchor_ids),
+        (statement.support_chunk_ids, evidence.chunk_ids),
     )
     return {
         value
@@ -209,6 +239,9 @@ _SUPPORT_ID_FIELDS = (
     ("support_context_association_ids", "context_association_ids"),
     ("support_observation_ids", "observation_ids"),
     ("support_graph_path_ids", "graph_path_ids"),
+    ("support_source_version_ids", "source_version_ids"),
+    ("support_source_anchor_ids", "source_anchor_ids"),
+    ("support_chunk_ids", "chunk_ids"),
 )
 
 
@@ -232,6 +265,20 @@ def _support_binding_error(
     records = _matching_support_records(statement, support_records)
     if not records:
         return "statement has no evidence binding for its declared kind"
+    if statement.kind == "source_record":
+        cited_sources = set(statement.support_source_ids)
+        cited_versions = set(statement.support_source_version_ids)
+        cited_anchors = set(statement.support_source_anchor_ids)
+        cited_chunks = set(statement.support_chunk_ids)
+        exact_record = any(
+            cited_sources.issubset(record.source_ids)
+            and cited_versions.issubset(record.source_version_ids)
+            and cited_anchors.issubset(record.source_anchor_ids)
+            and cited_chunks.issubset(record.chunk_ids)
+            for record in records
+        )
+        if not exact_record:
+            return "source record IDs do not share one exact evidence binding"
     cited_sources = set(statement.support_source_ids)
     cited_non_event_ids = {
         value
@@ -391,6 +438,11 @@ def _statement_support_error(statement: HybridQueryStatement) -> str | None:
         or statement.support_event_ids
     ):
         return "source fact statement has no formal or source-bound support"
+    if statement.kind == "source_record" and not (
+        statement.support_source_version_ids
+        and statement.support_source_anchor_ids
+    ):
+        return "source record statement has no exact source version and anchor"
     return None
 
 
@@ -580,6 +632,13 @@ def run_hybrid_query_agent(
                     ),
                     observation_ids=list(observation.details.observation_ids),
                     source_ids=list(observation.details.source_ids),
+                    source_version_ids=list(
+                        observation.details.source_version_ids
+                    ),
+                    source_anchor_ids=list(
+                        observation.details.source_anchor_ids
+                    ),
+                    chunk_ids=list(observation.details.chunk_ids),
                     status=observation.status,
                     duration_ms=duration_ms,
                     error=(
@@ -685,6 +744,9 @@ def run_hybrid_query_agent(
         ),
         retrieved_observation_ids=list(evidence.observation_ids),
         retrieved_graph_path_ids=list(evidence.graph_path_ids),
+        retrieved_source_version_ids=list(evidence.source_version_ids),
+        retrieved_source_anchor_ids=list(evidence.source_anchor_ids),
+        retrieved_chunk_ids=list(evidence.chunk_ids),
         retrieved_graph_paths=graph_paths,
         similarity_matches=similarity_matches,
         answer_statements=list(answer.statements),
