@@ -1,32 +1,32 @@
 # Reproducibility
 
-Last updated: 2026-07-30
+Last updated: 2026-07-31
 
-This is the corpus-first Agent-system workflow. Historical experiments remain
-available through `EXPERIMENTS.md`, but they are not the default path.
+This is the current corpus-first TMI-event workflow. Historical experiments
+remain discoverable through `ARTIFACT_INDEX.md`; they are not the default
+execution path.
 
 ## Environment
 
-- Python: 3.11 or newer; see `pyproject.toml`.
+- Python: 3.11 or newer.
 - Package manager: `uv`.
 - Supported development platforms: macOS and Linux.
 
 ```bash
 uv sync --extra dev --extra ontology-generation --extra neo4j \
-  --extra case-retrieval
+  --extra tmi-event-retrieval
 uv run aviation-ai agent-system --help
 ```
 
-The `ontology-generation` extra supplies the LangChain and LangGraph runtime.
-The `neo4j` extra is required only for database loading. The `case-retrieval`
-extra supplies the local Chroma vector database and Sentence Transformers
-encoder.
+`ontology-generation` supplies the LangChain/LangGraph runtime. `neo4j` is
+needed only for database loading. `tmi-event-retrieval` supplies Chroma and the
+Sentence Transformers encoder.
 
 ## Source Snapshot Preflight
 
-The advisory JSONL and terminology seed are tracked. The pinned FAA NASR ZIP is
-238 MB and intentionally ignored by Git. Obtain and verify it before an
-eligible corpus build:
+The advisory JSONL, terminology seed, Weather inputs, and BTS snapshot are
+tracked. The pinned FAA NASR ZIP is intentionally ignored because of its size.
+Obtain and verify it before building eligible events:
 
 ```bash
 NASR_DIR=data/raw/nasa_atmonto/2026-05-14/faa_nasr
@@ -40,11 +40,7 @@ uv run python -c \
   "$NASR_ZIP"
 ```
 
-The local source manifest pins the FAA cycle. Do not replace the snapshot
-implicitly during an ordinary build.
-
-The build also consumes tracked normalized Weather inputs and the tracked
-1,978-row BTS snapshot:
+The tracked context inputs are:
 
 ```text
 data/processed/nasa_atmonto/aligned/2026-05-14/aviationweather_metar.jsonl
@@ -53,33 +49,32 @@ data/sources/bts_on_time_2026_05_manifest.json
 data/sources/bts_on_time_2026_05_nyc.jsonl
 ```
 
+Do not replace a pinned source snapshot implicitly during an ordinary build.
+
 ## Build A Corpus
 
-The only persistent evidence writer is `build-corpus`. It selects advisory
-records, performs deterministic preflight, runs eligible cases sequentially,
-normalizes their validated packages into corpus v2, and removes temporary case
-bundles only after finalization. `index-cases` writes only a rebuildable
-derived sidecar.
+`build-corpus` is the only persistent evidence writer. It selects advisory
+records, performs deterministic preflight, runs eligible records sequentially,
+and publishes a checksum-verified `tmi-event-corpus-v3`.
 
-The frozen cohort has 718 discovered advisories and this required preflight
-summary:
+The frozen cohort has:
 
 | State | Count |
 | --- | ---: |
+| Discovered | 718 |
 | Selected | 68 |
-| Active-family eligible (GDP, GS, ReRoute) | 46 |
+| Active GDP/GS/ReRoute eligible | 46 |
 | Incomplete core fields | 3 |
 | Boundary notices | 18 |
 | Deferred ReRoute cancellation | 1 |
 | Deterministic preflight `insufficient` | 22 |
 
-Build five tracked cross-family regression sources into an ignored smoke
-directory:
+Build the five tracked cross-family regression records:
 
 ```bash
 uv run aviation-ai agent-system build-corpus \
   --config configs/cross_source_v1.yaml \
-  --output-dir data/corpus/agent_system/smoke-v2 \
+  --output-dir data/corpus/agent_system/smoke-v3 \
   --source-id 2026-05-19:123 \
   --source-id 2026-05-19:138 \
   --source-id 2026-05-19:108 \
@@ -88,37 +83,38 @@ uv run aviation-ai agent-system build-corpus \
   --allow-live-model
 ```
 
-Build or resume the approved cohort:
+Build or resume the frozen cohort:
 
 ```bash
 uv run aviation-ai agent-system build-corpus \
   --config configs/cross_source_v1.yaml \
-  --output-dir data/corpus/agent_system/cross-source-2026-05-v2 \
+  --output-dir data/corpus/agent_system/cross-source-2026-05-v3 \
   --selection cohort \
   --allow-live-model \
   --resume
 ```
 
-Eligible cases require `--allow-live-model`. Put `DEEPSEEK_API_KEY` and any
-optional `DEEPSEEK_BASE_URL` in ignored local environment files. The 22
-boundary/deferred/incomplete preflight outcomes are `insufficient` with zero
-model calls. Provider or workflow failures become `blocked`, do not stop the
-batch, and are the only results retried by the same `--resume` command. A final
-manifest is published only when the blocked count is zero.
+Eligible records require `--allow-live-model`, even when the complete evidence
+is expected to use the deterministic zero-call path. Store `DEEPSEEK_API_KEY`
+and any optional `DEEPSEEK_BASE_URL` only in ignored local environment files.
 
-## Corpus Layout And Read Commands
+The 22 preflight insufficiencies use zero provider calls. A blocked provider or
+workflow result does not stop later records, but it prevents final-manifest
+publication. Repeating the command with `--resume` retries only blocked rows.
 
-`corpus_manifest.json` has manifest version `decision-case-corpus-v2` and
-registers path, count, and SHA-256 for every corpus table and projection:
+## Corpus v3 Layout
+
+`corpus_manifest.json` has manifest version `tmi-event-corpus-v3` and registers
+path, count, and SHA-256 for every table and projection:
 
 ```text
 build_results.jsonl
 artifacts.jsonl
 source_objects/<sha256>.txt
 source_bindings.jsonl
-cases.jsonl
+events.jsonl
 facts.jsonl
-case_facts.jsonl
+event_facts.jsonl
 evidence_links.jsonl
 profile_gaps.jsonl
 context_associations.jsonl
@@ -131,50 +127,82 @@ neo4j_nodes.jsonl
 neo4j_relationships.jsonl
 ```
 
-`alignment_audit.json` summarizes exact ATMONTO application-profile use and
-ATMGRAPH-style ABox term roles. `tmi_coverage.json` summarizes detected,
-eligible, and published records by registered family. Both are rebuildable
-corpus summaries, not run ledgers or additional validation authorities.
+Important interpretation rules:
 
-Ask a free natural-language question. A valid corpus query always activates the
-configured Query Agent; the model selects bounded, read-only retrieval tools and
-the runtime validates each final statement against returned evidence IDs:
+- `events.jsonl` catalogs admitted ATMONTO TMI instances;
+- `event_facts.jsonl` attaches accepted facts to those events for storage and
+  retrieval;
+- `facts.jsonl` uses semantic identity independent of provenance;
+- `evidence_links.jsonl` preserves one-to-many source support;
+- `profile_gaps.jsonl` stays outside the formal graph;
+- `context_associations.jsonl` is non-causal and excluded from formal graph
+  projections;
+- admitted BTS public-observation facts remain formal and source-bound;
+- `alignment_audit.json` and `tmi_coverage.json` are rebuildable summaries, not
+  additional publication authorities.
 
-```bash
-uv run aviation-ai agent-system ask \
-  --corpus-dir data/corpus/agent_system/smoke-v2 \
-  --event-id <event-id-from-cases.jsonl> \
-  --question "What forecast was known at decision time?"
-```
+Corpus v3 is canonical. RDF/Turtle, Neo4j, the runtime event graph, and Chroma
+are rebuildable projections.
 
-Scope hints are `--event-type-iri`, `--facility-id`, `--reason-status`,
-`--reason-value`, `--offset`, and `--limit`. They bound tool access; they do not
-select an answer branch. The `ask` command has no `--allow-live-model` flag:
-running it is the explicit request to use the configured provider. If the
-provider cannot be constructed, the query returns `blocked` without a
-deterministic fallback.
-
-Build the rebuildable case-level vector index:
+## Build The TMI Event Index
 
 ```bash
-uv run --extra case-retrieval aviation-ai agent-system index-cases \
-  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v2 \
+uv run --extra tmi-event-retrieval aviation-ai agent-system index-events \
+  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v3 \
   --model-name sentence-transformers/all-MiniLM-L6-v2 \
   --allow-model-download
 ```
 
-The first permitted run may download the pinned embedding model. Later runs can
-omit `--allow-model-download` when the model is already local. The resulting
-`case_index/` directory is a derived, ignored sidecar bound to the corpus ID.
+The first permitted run may download the embedding model. Later runs may omit
+`--allow-model-download` when it is already local.
 
-Run one bounded archive or prior-case query. The Query Agent decides whether
-the metadata-conditioned vector tool is relevant:
+The derived `tmi_event_index/` directory contains:
+
+```text
+tmi_event_index_manifest.json
+tmi_event_documents.jsonl
+chroma/
+```
+
+The representation includes TMI type, canonical facility, declared-reason
+state/value, UTC time-of-day, and duration bucket. Exact filters precede cosine
+recall. Weather, BTS observations, effectiveness, and recommendations are not
+encoded.
+
+## Ask A Natural-Language Question
 
 ```bash
-uv run --extra case-retrieval aviation-ai agent-system ask \
-  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v2 \
+uv run aviation-ai agent-system ask \
+  --corpus-dir data/corpus/agent_system/smoke-v3 \
+  --event-id <event-id-from-events.jsonl> \
+  --question "What forecast was known when this TMI was issued?"
+```
+
+Every valid request activates the Query Agent. The model must retrieve before
+answering and may select:
+
+```text
+find_tmi_events
+read_tmi_event_facts
+read_weather_context
+read_public_observations
+read_tmi_event_graph
+find_similar_tmi_events
+```
+
+Scope hints such as `--event-type-iri`, `--facility-id`, `--reason-status`,
+`--reason-value`, `--offset`, `--limit`, and candidate scope bound tool access;
+they do not select a hard-coded answer route. The `ask` command has no
+deterministic fallback. If the configured provider cannot be constructed, the
+result is `blocked`.
+
+Example similarity question:
+
+```bash
+uv run --extra tmi-event-retrieval aviation-ai agent-system ask \
+  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v3 \
   --event-id <reference-event-id> \
-  --question "Which historical case is most similar?" \
+  --question "Which historical TMI event is most similar?" \
   --event-type-iri <exact-tmi-iri> \
   --facility-id <canonical-facility-id> \
   --reason-status formal \
@@ -182,177 +210,111 @@ uv run --extra case-retrieval aviation-ai agent-system ask \
   --candidate-scope prior
 ```
 
-Evaluate the tracked six-query relevance smoke set:
+The similarity result is metadata-conditioned retrieval, not a causal,
+effectiveness, optimality, or recommendation result.
+
+## Export
+
+Export one bounded, non-replayable event:
 
 ```bash
-uv run --extra case-retrieval python -m \
-  aviation_agentic_ai.agent_system.case_retrieval_evaluation \
-  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v2 \
-  --gold data/evaluation/agent_system/case_retrieval_smoke_v1.yaml
-```
-
-The reviewed 38-case run produced four rank-one analogue hits, Hit@1 and
-Hit@3 of `1.0`, MRR of `1.0`, and two of two expected `insufficient` results.
-These values describe only the small tracked relevance smoke set; they are not
-expert Gold, operational effectiveness, or decision-quality results.
-
-Export one bounded case:
-
-```bash
-uv run aviation-ai agent-system export-case \
-  --corpus-dir data/corpus/agent_system/smoke-v2 \
-  --event-id <event-id-from-cases.jsonl> \
+uv run aviation-ai agent-system export-event \
+  --corpus-dir data/corpus/agent_system/smoke-v3 \
+  --event-id <event-id-from-events.jsonl> \
   --output-dir data/corpus/agent_system/export-selected-event
 ```
 
-Load the full projection:
+Load the full property-graph projection:
 
 ```bash
 uv run aviation-ai agent-system neo4j-export \
-  --corpus-dir data/corpus/agent_system/smoke-v2
+  --corpus-dir data/corpus/agent_system/smoke-v3
 ```
 
-The loader uses parameterized `MERGE`, preserves unrelated data, and returns
-`BLOCKED` for missing credentials or failed connectivity.
+Neo4j loading uses parameterized `MERGE`, preserves unrelated data, and returns
+`blocked` when credentials or connectivity are unavailable.
 
-## Acceptance States
+## Acceptance Semantics
 
 | Source ID | Required result |
 | --- | --- |
 | `2026-05-19:123` | Profile-gap declared reason; no formal `atm:impactingCondition`. |
 | `2026-05-19:138` | Formal `weather`; evidence ends at `THUNDERSTORMS`. |
-| `2026-05-20:020` | Missing declared reason; deterministic `insufficient`. |
-| `2026-05-19:108` | Formal `atm:ReRouteTMI` with `reRouteTimeType=ETD`; ARTCC scope remains a profile gap. |
-| `2026-05-20:137` | Formal `atm:ReRouteTMI` with `reRouteTimeType=ETD`; ARTCC scope remains a profile gap. |
+| `2026-05-20:020` | Missing declared reason; Weather/BTS cannot fill it. |
+| `2026-05-19:108` | Formal `atm:ReRouteTMI` with `reRouteTimeType=ETD`; ARTCC scope is a profile gap. |
+| `2026-05-20:137` | Formal `atm:ReRouteTMI` with `reRouteTimeType=ETD`; ARTCC scope is a profile gap. |
 
 Weather associations remain non-causal. BTS observations are source-qualified
-public observations and are never FAA demand, AAR, capacity, EDCT, or a
-decision rationale.
+public observations and are never FAA demand, AAR, capacity, EDCT, decision
+rationale, effectiveness, or caused outcomes.
 
-## Live Agent Smoke Evaluation
+## Current Live Evaluation Contracts
 
-Fake and scripted model tests validate software behavior and data flow only.
-They must not be reported as LLM or Agent performance. Run the separately
-authorized live smoke with the frozen DeepSeek configuration:
+Offline fake/scripted tests validate software behavior only. They must not be
+reported as LLM or Agent performance.
+
+Run the current event-centered live smoke only with explicit authorization:
 
 ```bash
 uv run python -m aviation_agentic_ai.agent_system.live_agent_evaluation \
   --config configs/cross_source_v1.yaml \
-  --suite data/evaluation/agent_system/live_agent_smoke_v2.yaml \
-  --output-dir data/corpus/agent_system/live-agent-smoke-v2 \
+  --suite data/evaluation/agent_system/live_agent_smoke_v3.yaml \
+  --output-dir data/corpus/agent_system/live-agent-smoke-v3 \
   --report-dir reports/stages \
   --allow-live-model \
   --repetitions 1
 ```
 
-The suite fixes provider/model to DeepSeek `deepseek-v4-pro`, temperature to
-`0.0`, thinking to disabled, automatic retries to `0`, and one repetition.
-The v2 suite evaluates the always-on Hybrid Query Agent and writes evaluator-
-owned, sanitized `hybrid_query_run.json` records containing statement types,
-statement text, evidence IDs, tool names, tool statuses, and referenceable IDs.
-It does not retain prompts, tool arguments, tool results, or model reasoning.
-Semantic Resolution remains `not_evaluated_no_natural_ambiguity`; synthetic
-ambiguity is not presented as cohort performance. This frozen suite is
-GDP-biased historical compatibility evidence; it is not the cross-family
-evaluation required for a current HybridRAG performance claim.
-
-This five-task run is a compatibility and bounded-behavior smoke test, not a
-benchmark or reliability estimate. Temperature zero reduces variance but does
-not make provider behavior deterministic. A completed v2 run writes:
-
-```text
-reports/stages/agent_system_live_agent_smoke_v2.json
-reports/stages/agent_system_live_agent_smoke_v2.md
-```
-
-The existing v1 suite and reports are frozen historical evidence for the
-retired registered-analysis runtime. The v2 writer uses distinct filenames and
-must not overwrite them. Credentials, complete prompts, raw responses, tool
-arguments, tool results, and model reasoning remain ignored and untracked.
-
-### Repeated Real-Provider Experiment
-
-Keep the one-shot smoke as a separate compatibility check. Run the frozen
-repeated experiment with:
+Run the current repeated experiment only under its approved real-provider
+protocol:
 
 ```bash
 uv run python -m aviation_agentic_ai.agent_system.live_agent_experiment \
   --config configs/cross_source_v1.yaml \
-  --suite data/evaluation/agent_system/live_agent_experiment_v2.yaml \
-  --output-dir data/corpus/agent_system/live-agent-experiment-v2 \
+  --suite data/evaluation/agent_system/live_agent_experiment_v3.yaml \
+  --output-dir data/corpus/agent_system/live-agent-experiment-v3 \
   --report-dir reports/stages \
   --allow-live-model
 ```
 
-The experiment fixes DeepSeek `deepseek-v4-pro`, temperature `0.0`, thinking
-disabled, automatic retries to `0`, and the local model cache to disabled. The
-v2 experiment applies the existing provider-call integrity policy to the
-Hybrid Query Agent. Every query measurement is scored from its evaluator-owned
-statement/tool artifact, including per-statement citation and claim-boundary
-checks. Repeated cycles remain repeated measurements of five fixed tasks, not
-independent evaluation samples.
+The v3 suites use the Event Evidence Integration and current Query Agent role,
+event identities, and six tool names. No post-cutover result exists until one
+of these commands is explicitly authorized, executed with the real configured
+provider, and its raw/parsed artifacts and manifest are independently verified.
 
-A completed v2 experiment writes sanitized reports:
-
-```text
-reports/stages/agent_system_live_agent_experiment_v2.json
-reports/stages/agent_system_live_agent_experiment_v2.md
-```
-
-Ignored local evidence:
-
-```text
-data/corpus/agent_system/live-agent-experiment-v2/raw_responses_v2.jsonl
-data/corpus/agent_system/live-agent-experiment-v2/parsed_outputs_v2.jsonl
-data/corpus/agent_system/live-agent-experiment-v2/experiment_manifest_v2.json
-data/corpus/agent_system/live-agent-experiment-v2/hybrid_query_runs/
-data/corpus/agent_system/live-agent-experiment-v2/cycles/
-```
-
-The verified v2 run completed 12 cycles with 120 attempted and 120 successful
-real calls, zero failed calls, 383,201 input tokens, and 69,986 output tokens.
-The current Hybrid Query Agent passed 12/12 query measurements; the four
-unchanged Assembly tasks failed 48/48 measurements. Independently recomputed
-SHA-256 values were:
-
-```text
-raw_responses_v2.jsonl
-  6b38bfc0b705fb802acc56a4468d07a90210422b8e694aca9b6bea9dab948053
-parsed_outputs_v2.jsonl
-  f567449dda7f76afe238f34673e3086c74605db7274e28b6c0a6cdb43384558e
-```
-
-The pre-refactor v1 suite, tracked reports, and ignored local artifacts remain
-historical evidence only. They must not be relabeled as Hybrid Query Agent
-results.
+Tracked v1/v2 reports and later compact-selection compatibility runs predate the
+event-centered semantic cutover. They remain GDP-biased historical evidence
+and must not be relabeled as current performance.
 
 ## Verification
 
-Run after the storage and retrieval batches:
+Focused current-path checks:
 
 ```bash
-uv run pytest -q tests/test_agent_system_live_evaluation.py
-
-uv run --extra case-retrieval pytest -q \
+uv run --extra tmi-event-retrieval pytest -q \
   tests/test_agent_system_corpus_store.py \
   tests/test_agent_system_corpus_batch.py \
   tests/test_agent_system_corpus_projection.py \
-  tests/test_agent_system_case_retrieval_documents.py \
-  tests/test_agent_system_case_retrieval_index.py \
-  tests/test_agent_system_case_retrieval_search.py \
-  tests/test_agent_system_case_retrieval_evaluation.py \
+  tests/test_agent_system_corpus_event_graph.py \
+  tests/test_agent_system_tmi_event_retrieval_documents.py \
+  tests/test_agent_system_tmi_event_retrieval_index.py \
+  tests/test_agent_system_tmi_event_retrieval_search.py \
+  tests/test_agent_system_tmi_event_retrieval_evaluation.py \
   tests/test_agent_system_hybrid_query_agent.py \
   tests/test_agent_system_hybrid_query_tools.py \
   tests/test_agent_system_hybrid_query_public.py \
   tests/test_cli_agent_system.py
+```
 
+Final repository verification:
+
+```bash
 uv run ruff check .
 uv run pytest -q
 uv build
 git diff --check
 ```
 
-Real corpora, `.staging` directories, provider output, and case exports are
-ignored and must remain uncommitted. Do not treat a changing test count as a
-durable project claim; record the command, commit, environment, and date for a
-specific result.
+Generated corpora, `.staging/`, indexes, provider output, and event exports are
+ignored and must remain uncommitted. Report commands, commit, environment, and
+artifact checksums rather than a changing test count as a durable result.

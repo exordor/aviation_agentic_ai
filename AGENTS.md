@@ -21,24 +21,27 @@ The active pipeline is:
   -> facility and terminology authority services
      -> shared Semantic Resolution Agent only for genuine ambiguity
   -> deterministic Weather and BTS context preparation and validation
-  -> sealed Decision Case Assembly task
+  -> sealed Event Evidence Integration task
   -> zero-call deterministic compiler when all required slots are resolved
-     or bounded Decision Case Assembly Agent for a genuine unresolved
+     or bounded Event Evidence Integration Agent for a genuine unresolved
      evidence/schema choice
   -> task-bound validation
-  -> source-independent DecisionCase core and formal reconstruction membership
-  -> write-free multi-profile Formal Publication Kernel
-  -> canonical corpus v2 normalization
+  -> write-free Formal Publication Kernel over decision, Weather,
+     and public-observation profiles
+  -> canonical tmi-event-corpus-v3 normalization
   -> rebuildable JSONL + RDF + Neo4j materialization
-  -> rebuildable case-level Chroma index for filtered decision-record retrieval
+  -> rebuildable TMI-event Chroma index for metadata-conditioned retrieval
   -> every valid natural-language ask activates the bounded Query Agent
-     -> model-selected read-only Corpus, Weather, BTS, graph, and similarity tools
+     -> model-selected read-only event, Weather, BTS, graph, and similarity tools
      -> per-statement evidence and claim-boundary validation
      -> answer, insufficient, or blocked
 ```
 
-Corpus v2 is the canonical persisted knowledge and evidence layer. Formal graph
-views, RDF/Turtle, and Neo4j are derived runtime views or rebuildable outputs.
+Corpus v3 is the canonical persisted knowledge and evidence layer. The admitted
+ATMONTO TMI instance is the formal root; `events.jsonl` and
+`event_facts.jsonl` organize source-qualified evidence without inventing a
+decision-process object. Formal graph views, RDF/Turtle, Neo4j, and Chroma are
+derived runtime views or rebuildable outputs.
 The versioned application profile aligns the active TMI schema with exact
 ATMONTO terms and constrains publication; it is not a separate Agent and is not
 claimed to be a complete aviation ontology. ATMGRAPH is the reference for
@@ -52,32 +55,32 @@ names, not internal alphanumeric labels.
 ## Current Status
 
 - The active implementation contains the corpus-first builder, validation,
-  corpus v2 materialization, full-corpus Neo4j projection, DecisionCase
-  semantic core, Decision Case Assembly, and the bounded HybridRAG Query Agent.
+  corpus v3 materialization, full-corpus Neo4j projection, Event Evidence
+  Integration, and the bounded HybridRAG Query Agent.
 - The common semantic root is `atm:TrafficManagementInitiative`; the active
   application-profile families are GDP, GS, and ReRoute. Family detection,
   preflight, formal property mapping, and retrieval labels share one registry.
-- The formal case graph exposes general, case-scoped formal edges to a read-only
+- The formal event graph exposes general, event-scoped formal edges to a read-only
   query tool. It is no longer limited to one registered evidence-path shape.
-- The three Decision Record Explorer cases are regression fixtures, not the
-  system scope. They preserve their profile-gap, formal weather, and honest
-  missing-reason states. Public answers are nevertheless model-routed and
-  evidence-bound, not deterministic sentence matches.
+- The five tracked cross-family records are regression fixtures, not the system
+  scope. They preserve profile-gap, formal weather, honest missing-reason, and
+  ReRoute states. Public answers are model-routed and evidence-bound, not
+  deterministic sentence matches.
 - Complete active-profile records use the zero-call deterministic compiler
   when all required slots are resolved; source identifiers never choose that
   path. The Formal Publication Kernel remains the sole final publication
   authority.
 - Every valid public `ask` invokes the Query Agent. The model may select exact
-  corpus reads, Weather context, BTS observations, case-graph edges, or
+  event reads, Weather context, BTS observations, event-graph edges, or
   metadata-conditioned Chroma retrieval over multiple bounded turns. There is
   no fixed question registry or deterministic answer fallback.
-- The corpus-first storage cutover is complete. The rebuildable `index-cases`
+- The event-centered storage cutover is complete. The rebuildable `index-events`
   sidecar supports the deterministic filtered-similarity route. The public
-  commands are `build-corpus`, `index-cases`, `ask`, `neo4j-export`, and
-  `export-case`.
+  commands are `build-corpus`, `index-events`, `ask`, `neo4j-export`, and
+  `export-event`.
   There is no persistent single-case `ingest`, `ask-corpus`, `--runs-root`,
-  `--run-dir`, or corpus-v1 compatibility path. Use `build-corpus --source-id`
-  for a bounded debug build.
+  `--run-dir`, old corpus reader, or command compatibility path. Use
+  `build-corpus --source-id` for a bounded debug build.
 - The frozen cohort is 718 discovered and 68 selected: 46 active-family
   eligible records, 3 incomplete records, 18 boundary notices, and 1 deferred
   ReRoute cancellation. The 22 preflight insufficiencies use zero model calls.
@@ -87,24 +90,16 @@ names, not internal alphanumeric labels.
   `alignment_audit.json` and `tmi_coverage.json` summaries. They describe the
   corpus/profile alignment and family coverage; they are not run ledgers or
   additional publication authorities.
-- The system output ceiling is 10,000 tokens. The Query Agent and Decision Case
-  Assembly Agent use that ceiling; the compact Semantic Resolution decision
+- The system output ceiling is 10,000 tokens. The Query Agent and Event
+  Evidence Integration Agent use that ceiling; the compact Semantic Resolution decision
   remains capped at 256 tokens.
-- A current-ceiling DeepSeek smoke passed all five frozen tasks with 10/10 real
-  provider calls and zero failures. The suite is GDP-biased historical
-  compatibility evidence, not representative cross-family evaluation.
-- `live_experiment`: the current compact-selection contract completed 12 full
-  five-task cycles with DeepSeek `deepseek-v4-pro`: 120/120 real calls and all
-  60 task measurements succeeded. Provider-call success is not by itself task
-  acceptance; these are repeated measurements of five fixed, GDP-biased tasks,
-  not 60 independent samples, cross-family evidence, or a model-quality
-  benchmark.
-- The pre-fix v2 experiment remains historical evidence: its Query task passed,
-  while the former full-graph-patch Assembly contract failed. Do not relabel
-  those failures as current compact-selection results.
-- The v1 smoke and repeated experiment remain frozen historical evidence for
-  the retired registered-analysis runtime. Do not relabel them as current Query
-  Agent results.
+- The tracked v1/v2 DeepSeek results and later compact-selection runs predate
+  this event-centered semantic cutover. They remain GDP-biased historical
+  compatibility evidence and must not be relabeled as current role, corpus, or
+  cross-family performance.
+- Current v3 live-suite configurations use the event-centered contracts, but
+  no post-cutover result should be claimed until a separately authorized real
+  provider run is captured and verified.
 - The read-only visualization prototype is isolated on
   `codex/kg-visualization-research`. Visualization is paused and is not the
   active `main` implementation track.

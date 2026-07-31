@@ -1,37 +1,31 @@
 # Aviation Agentic AI
 
 Aviation Agentic AI is an ontology-grounded aviation knowledge-integration and
-HybridRAG system. Its current end-to-end vertical slice builds an
-evidence-bounded corpus of retrospective FAA ATCSCC TMI records. It classifies
-GDP, GS, and ReRoute under an ATMONTO-aligned application profile, resolves
-bounded FAA authority records, prepares non-causal Weather and BTS context,
-and publishes only facts accepted by the Formal Publication Kernel.
+HybridRAG system. Its current vertical slice turns retrospective FAA ATCSCC
+records into ATMONTO-aligned Traffic Management Initiative (TMI) event
+knowledge, then answers natural-language questions through an evidence-bound
+LLM Query Agent.
 
 ```text
-718 discovered advisories
-  -> frozen 68-record cohort or explicit source-ID subset
-  -> ATMONTO-aligned TMI classification
-  -> deterministic preflight
-  -> 22 insufficient boundary/deferred/incomplete results with zero model calls
-  -> sequential workflow for the 46 active-family eligible records
-  -> event-patch admissibility check
-  -> final decision/profile/membership publication kernel
-  -> canonical corpus v2 with TMI-event identities
-  -> read-only Corpus, event-graph, and metadata-conditioned vector tools
-  -> always-on bounded LLM query loop
-  -> per-statement evidence support
-  -> answer, insufficient, or blocked
+ATCSCC + FAA authority + Weather + BTS sources
+  -> deterministic parsing, normalization, and preflight
+  -> selective Semantic Resolution or Event Evidence Integration
+  -> Formal Publication Kernel
+  -> canonical TMI Event Corpus v3
+  -> exact event, event graph, and vector retrieval views
+  -> bounded LLM Query Agent
+  -> supported answer / insufficient / blocked
 ```
 
-The public persisted interface is corpus-first. `build-corpus` is the only
-evidence writer; `index-events` creates a rebuildable vector-index sidecar, while
-`ask`, `neo4j-export`, and `export-event` read the validated corpus. There is no
-persistent single-case ingest path, run-directory query path, or v1 migration
-layer. Use `build-corpus --source-id` for a bounded single-case debug build.
+The admitted ATMONTO `atm:TrafficManagementInitiative` instance is the formal
+root. GDP, GS, and ReRoute are the active application-profile families.
+ATMONTO supplies the admitted schema terms. ATMGRAPH supplies ABox construction
+and cross-source-query principles; the project does not import an ATMGRAPH
+dataset or claim an exact replica.
 
 ## Quick Start
 
-Install the active system and development dependencies:
+Install the active system:
 
 ```bash
 uv sync --extra dev --extra ontology-generation --extra neo4j \
@@ -39,17 +33,16 @@ uv sync --extra dev --extra ontology-generation --extra neo4j \
 uv run aviation-ai agent-system --help
 ```
 
-Python 3.11 or newer is required. Before any eligible build, obtain the pinned
-FAA NASR ZIP described in [REPRODUCIBILITY.md](REPRODUCIBILITY.md); it is
-intentionally ignored by Git.
+Python 3.11 or newer is required. Before building eligible events, obtain the
+pinned FAA NASR snapshot described in
+[REPRODUCIBILITY.md](REPRODUCIBILITY.md).
 
-Build five tracked cross-family regression sources into an ignored smoke
-corpus:
+Build five tracked GDP, GS, and ReRoute regression records:
 
 ```bash
 uv run aviation-ai agent-system build-corpus \
   --config configs/cross_source_v1.yaml \
-  --output-dir data/corpus/agent_system/smoke-v2 \
+  --output-dir data/corpus/agent_system/smoke-v3 \
   --source-id 2026-05-19:123 \
   --source-id 2026-05-19:138 \
   --source-id 2026-05-19:108 \
@@ -58,37 +51,32 @@ uv run aviation-ai agent-system build-corpus \
   --allow-live-model
 ```
 
-`--allow-live-model` permits the bounded semantic-resolution or case-assembly
-path only when it genuinely activates. Complete active-profile records use the
-zero-call deterministic compiler; source identifiers do not select the path.
-The flag is required for eligible corpus builds. Keep `DEEPSEEK_API_KEY` and
-any optional `DEEPSEEK_BASE_URL` in ignored local environment files; the
-system does not substitute an ambient provider.
+`--allow-live-model` authorizes the bounded model path for eligible records.
+Complete source-supported records use the deterministic compiler with zero
+provider calls; source IDs do not select that path. Credentials remain in
+ignored local environment files.
 
 Build or resume the frozen cohort:
 
 ```bash
 uv run aviation-ai agent-system build-corpus \
   --config configs/cross_source_v1.yaml \
-  --output-dir data/corpus/agent_system/cross-source-2026-05-v2 \
+  --output-dir data/corpus/agent_system/cross-source-2026-05-v3 \
   --selection cohort \
   --allow-live-model \
   --resume
 ```
 
-The frozen intake is 718 discovered and 68 selected: 46 active-family eligible
-records, 3 incomplete records, 18 boundary notices, and 1 deferred ReRoute
-cancellation. Every selected advisory gets one `CorpusBuildResult`. The 22
-preflight insufficiencies use zero model calls. Provider or workflow failures
-are `blocked`; `--resume` retries only blocked records. A final manifest is
-written only when blocked is zero. The completion summary also reports
-bounded-Agent activations, deterministic bypasses, outcomes, calls, tokens,
-and recorded latency.
+The frozen intake has 718 discovered and 68 selected records: 46 active-family
+eligible records, 3 incomplete records, 18 boundary notices, and 1 deferred
+ReRoute cancellation. The 22 preflight insufficiencies use zero model calls.
+A final manifest is published only when no result is `blocked`; `--resume`
+retries only blocked records.
 
-## Corpus v2
+## Canonical TMI Event Corpus v3
 
-Each successful build writes a `decision-case-corpus-v2` manifest with counts
-and SHA-256 checksums for its tables and projections:
+A successful build writes a `tmi-event-corpus-v3` manifest with counts and
+SHA-256 checksums:
 
 ```text
 corpus_manifest.json
@@ -96,9 +84,9 @@ build_results.jsonl
 artifacts.jsonl
 source_objects/<sha256>.txt
 source_bindings.jsonl
-cases.jsonl
+events.jsonl
 facts.jsonl
-case_facts.jsonl
+event_facts.jsonl
 evidence_links.jsonl
 profile_gaps.jsonl
 context_associations.jsonl
@@ -111,149 +99,129 @@ neo4j_nodes.jsonl
 neo4j_relationships.jsonl
 ```
 
-Source payloads are globally deduplicated by content SHA-256. Semantic facts
-are deduplicated independently from provenance; `evidence_links.jsonl` retains
-all source bindings. Profile gaps preserve exact source evidence outside the
-formal graph. Weather associations are non-causal, and BTS observations remain
-source-qualified public observations rather than FAA demand, capacity, AAR,
-EDCT, or decision rationale.
+`events.jsonl` catalogs admitted ATMONTO TMI event identities.
+`event_facts.jsonl` organizes accepted facts under those identities without
+creating a formal decision-process object. Semantic facts are deduplicated
+independently from provenance; `evidence_links.jsonl` preserves one-to-many
+source support. Source content is deduplicated by SHA-256.
 
-Corpus v2 is the canonical persisted knowledge layer. Each accepted case has a
-stable conceptual case IRI and a reconstruction IRI. Formal membership facts
-bind the ATCSCC event and admitted Weather/BTS members to that reconstruction.
-RDF/Turtle and Neo4j are offline, rebuildable KG exports. Chroma is a
-rebuildable metadata-conditioned retrieval index. None is authoritative
-runtime storage.
+The Formal Publication Kernel accepts three formal profile layers:
 
-The active schema/TBox target is a versioned application profile over exact
-ATMONTO terms. ATMGRAPH is the reference for source-specific ABox construction,
-stable cross-source identity, explicit time, and cross-source graph queries; it
-is not imported as a dataset and this project does not claim an exact
-ATMGRAPH replica. `alignment_audit.json` and `tmi_coverage.json` are compact,
-rebuildable corpus summaries of that alignment and TMI-family coverage. They
-are not per-run audit ledgers or additional publication gates.
+1. ATCSCC TMI event facts;
+2. METAR/TAF Weather report facts;
+3. BTS-reported public operational observations.
 
-## Evaluation Boundary
+Weather context associations remain outside the formal graph with
+`causal_claim=false`. BTS observations are not FAA demand, capacity, AAR,
+EDCT, decision rationale, effectiveness, or proof that a TMI caused an
+outcome.
 
-Offline fake or scripted tests validate software contracts only. Existing
-DeepSeek runs are preserved as historical, GDP-biased compatibility evidence
-under `reports/stages/`; they do not establish cross-family Query Agent,
-HybridRAG, or model-quality performance. A representative live evaluation over
-GDP, GS, and ReRoute remains a separate approved research task rather than a
-mainline implementation gate. See [RESEARCH_AUDIT.md](RESEARCH_AUDIT.md) and
-[ARTIFACT_INDEX.md](ARTIFACT_INDEX.md) for the detailed historical records.
+Corpus v3 is authoritative. The event graph view, RDF/Turtle, Neo4j, and Chroma
+are rebuildable projections and do not write back into the corpus.
 
-## Historical TMI Event Retrieval
+## Metadata-Conditioned TMI Event Retrieval
 
-Build one decision-record vector per accepted TMI event in a persistent local Chroma
-sidecar:
+Build one vector document per admitted TMI event:
 
 ```bash
 uv run --extra tmi-event-retrieval aviation-ai agent-system index-events \
-  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v2 \
+  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v3 \
   --model-name sentence-transformers/all-MiniLM-L6-v2 \
   --allow-model-download
 ```
 
-The compact representation includes the TMI type, canonical facility,
-declared-reason state and value, UTC time of day, and duration bucket. It
-excludes source IDs, raw text, dates, Weather context, BTS observations, and
-outcomes. Exact metadata filters are applied before cosine vector recall, and
-the reference case is excluded. The index is bound to the corpus ID and must be
-rebuilt after the corpus changes.
+The `tmi_event_index/` sidecar is bound to the corpus ID. Its compact
+representation contains TMI type, canonical facility, declared-reason
+state/value, UTC time of day, and duration bucket. It excludes raw source text,
+Weather context, BTS observations, operational effectiveness, and
+recommendations. Exact metadata filters run before cosine recall.
 
-## Read And Export
+## Ask And Export
 
 Ask a natural-language question:
 
 ```bash
 uv run aviation-ai agent-system ask \
-  --corpus-dir data/corpus/agent_system/smoke-v2 \
+  --corpus-dir data/corpus/agent_system/smoke-v3 \
   --event-id <event-id-from-events.jsonl> \
   --question "What was published, what reason did the source declare, and what weather context was retained?"
 ```
 
-Every valid `ask` request invokes the configured Query Agent. The model does
-not answer from memory: its first action must retrieve evidence, and it may
-continue through a bounded action-observation loop. It selects among six
-deterministic, read-only HybridRAG tools:
+Every valid `ask` activates the configured Query Agent. It must retrieve before
+answering and can select six deterministic, read-only tools:
 
-- exact TMI-event discovery and filtering;
-- formal TMI-event facts and declared-reason state;
-- non-causal Weather context;
-- BTS public observations;
-- event-scoped graph edges;
-- exact-filtered, metadata-conditioned vector recall.
+- `find_tmi_events`;
+- `read_tmi_event_facts`;
+- `read_weather_context`;
+- `read_public_observations`;
+- `read_tmi_event_graph`;
+- `find_similar_tmi_events`.
 
-CLI filters, pagination, event ID, and candidate scope form an immutable upper
-bound around every tool call. The Agent can make at most four provider turns,
-at most three tool calls in one turn, and at most six tool calls in total.
-Each final statement must cite the supporting event, fact, profile-gap, context,
-observation, graph-path, and source IDs appropriate to its claim type.
-Unsupported evidence yields `insufficient`; invalid contracts, unavailable
-providers, or failed dependencies yield `blocked`.
+CLI event IDs, filters, pagination, and candidate scope form an immutable upper
+bound around tool access. The Agent can make at most four provider turns, at
+most three tool calls in one turn, and at most six tool calls in total. Every
+statement must cite the retrieved event, fact, gap, context, observation,
+graph-path, and source IDs appropriate to its claim type.
 
-```bash
-uv run --extra tmi-event-retrieval aviation-ai agent-system ask \
-  --corpus-dir data/corpus/agent_system/cross-source-2026-05-v2 \
-  --event-id <reference-event-id> \
-  --question "Which historical TMI event is most similar?" \
-  --event-type-iri <exact-tmi-iri> \
-  --facility-id <canonical-facility-id> \
-  --reason-status formal \
-  --reason-value weather \
-  --candidate-scope archive
-```
+Similarity is retrieval of historical metadata-conditioned TMI records. It is
+not operational-situation similarity, effectiveness analysis, a recommendation,
+or evidence that a past TMI should be reused.
 
-Similarity remains a deterministic retrieval capability inside the LLM-routed
-tool loop. It compares only the published decision-record representation and
-cannot be promoted to operational effectiveness, recommendation, or
-optimality. The pre-refactor six-query relevance smoke remains historical
-retrieval evidence, not evidence of current Query Agent routing or answer
-quality.
-
-Export one bounded, non-replayable TMI event:
+Export one bounded event:
 
 ```bash
 uv run aviation-ai agent-system export-event \
-  --corpus-dir data/corpus/agent_system/smoke-v2 \
+  --corpus-dir data/corpus/agent_system/smoke-v3 \
   --event-id <event-id-from-events.jsonl> \
   --output-dir data/corpus/agent_system/export-selected-event
 ```
 
-Load the full corpus projection into Neo4j:
+Load the complete rebuildable property-graph projection:
 
 ```bash
 uv run aviation-ai agent-system neo4j-export \
-  --corpus-dir data/corpus/agent_system/smoke-v2
+  --corpus-dir data/corpus/agent_system/smoke-v3
 ```
 
-Neo4j is an offline, rebuildable full-corpus export rather than an authoritative
-runtime query store. Its loader uses parameterized `MERGE`, preserves unrelated
-data, and returns `BLOCKED` when credentials or connectivity are unavailable.
+The public command surface is:
 
-## Cross-Family Regression Semantics
+```text
+build-corpus
+index-events
+ask
+neo4j-export
+export-event
+```
 
-- Ground Stop `2026-05-19:123` retains a source-bound profile-gap reason.
-- Ground Delay Program `2026-05-19:138` retains formal `weather`, with source
-  evidence ending at `THUNDERSTORMS`.
-- GDP cancellation `2026-05-20:020` retains a missing declared reason and a
-  deterministic `insufficient` declared-reason answer.
+There is no persistent one-record ingest command, run-directory query path,
+old-corpus reader, or compatibility alias.
+
+## Regression Semantics
+
+- GS `2026-05-19:123` retains a source-bound profile-gap reason.
+- GDP `2026-05-19:138` retains formal `weather`.
+- GDP cancellation `2026-05-20:020` retains an honestly missing reason.
 - ReRoute `2026-05-19:108` and `2026-05-20:137` publish
-  `atm:ReRouteTMI`, `reRouteTimeType=ETD`, implementation status, and the
-  source-declared reason. Their ARTCC scope remains an explicit profile gap
-  because the active ATMONTO range does not admit it as
-  `controlledNASelement`.
+  `atm:ReRouteTMI`; their ARTCC scope remains a profile gap because the active
+  ATMONTO range does not admit it as `controlledNASelement`.
 
-These records are regression fixtures for distinct semantic states and TMI
-families. They are not the storage boundary, a representative benchmark, or
-special runtime routes.
+These records are regression fixtures, not special runtime routes or a
+representative benchmark.
 
-The system does not provide live ATC support, causal explanation,
-operational-situation or outcome-aware similarity, TMI recommendation, general
-aviation chat beyond the bounded corpus tools, or a complete aviation ontology.
-See
-[REPRODUCIBILITY.md](REPRODUCIBILITY.md) for source checks, verification, and
-corpus commands; see
+## Evaluation Boundary
+
+Fake and scripted models verify software contracts only. The tracked v1/v2
+DeepSeek reports and later compact-selection runs predate the event-centered
+semantic cutover and remain GDP-biased historical compatibility evidence.
+Current v3 suite configurations use the new role and event identities, but no
+post-cutover live-performance claim exists until a separately authorized real
+provider run is captured and verified.
+
+The system does not provide live ATC support, causal explanation, operational
+effectiveness scoring, TMI recommendation, complete aviation coverage, or a
+formal model of decision inputs, alternatives, constraints, and rationale.
+
+See [REPRODUCIBILITY.md](REPRODUCIBILITY.md) for source checks and commands,
+[RESEARCH_AUDIT.md](RESEARCH_AUDIT.md) for current project truth, and
 [docs/multi_agent_kg_system_design.md](docs/multi_agent_kg_system_design.md)
 for the normative architecture.

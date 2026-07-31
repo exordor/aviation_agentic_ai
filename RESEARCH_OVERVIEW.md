@@ -1,171 +1,154 @@
 # System And Research Overview
 
-Last updated: 2026-07-27
+Last updated: 2026-07-31
 
-This document explains the current system direction. Formal comparison
-experiments remain optional and are routed through `EXPERIMENTS.md`.
+This document explains the current research direction. Optional comparisons and
+historical experiments remain routed through `ARTIFACT_INDEX.md`.
 
 ## Problem
 
-FAA ATCSCC advisories are semi-structured records of published traffic
-management measures. They contain useful operational facts, but abbreviations,
-facility identifiers, temporal fields, free text, and incomplete ontology
-coverage make those facts difficult to integrate and inspect consistently.
+ATM data comes from heterogeneous systems with different formats, identifiers,
+time semantics, spatial granularity, and vocabularies. The current vertical
+slice combines:
 
-A plain text extraction pipeline is not enough for this project. The system
-must preserve:
+- semi-structured FAA ATCSCC TMI advisories;
+- FAA NASR and terminology authority records;
+- time-bounded METAR and TAF records;
+- source-qualified BTS public operational observations.
 
-- the source record and exact evidence;
-- canonical facility and terminology identity;
-- the ontology/profile rule that admits a fact;
-- unresolved profile gaps and missing fields;
-- a trace from a user-facing answer back to validated facts and sources.
+No source alone supplies the complete cross-source knowledge needed for a
+natural-language answer. At the same time, temporal association cannot be
+silently promoted to causation, and public BTS fields cannot be reinterpreted
+as FAA demand or capacity.
 
 ## Project Outcome
 
-The project builds an aviation event knowledge system that converts
-one retrospective advisory and bounded FAA authority records into a validated
-event knowledge graph, RDF/Turtle, and a Neo4j projection, then answers a
-registered set of decision-record questions.
-
-The core value is not the number of Agents. It is the separation of:
-
-- deterministic source interpretation;
-- deterministic authority lookup and normalization;
-- conditional semantic resolution and case assembly;
-- deterministic publication;
-- read-only graph-grounded interaction.
-
-## Architecture
+The project builds an ontology-grounded integration and HybridRAG system:
 
 ```text
-ATCSCC advisory
-  -> deterministic AdvisoryParser
-  -> facility and terminology authority services
-     -> Semantic Resolution Agent only for genuine ambiguity
-  -> deterministic Weather/BTS adapters
-  -> canonical compiler or Decision Case Assembly Agent
-  -> Formal Graph Kernel
-  -> validated event KG
-  -> RDF/Turtle and Neo4j projection
-  -> Query Agent
-  -> answer, evidence, provenance, or explicit insufficiency
+heterogeneous aviation sources
+  -> deterministic adapters and authority services
+  -> selective bounded semantic Agents
+  -> Formal Publication Kernel
+  -> canonical ATMONTO-aligned TMI Event Corpus v3
+  -> exact, graph, and vector read views
+  -> bounded LLM Query Agent
+  -> evidence-supported answer / insufficient / blocked
 ```
 
-The workflow coordinator is deterministic. The Formal Graph Kernel is also
-deterministic and is the sole publication gate.
+The core contribution is not the number of Agents. It is the controlled
+combination of:
 
-## Why Multi-Agent
+- deterministic source handling;
+- ontology-guided semantic alignment;
+- selective Agent escalation;
+- source- and profile-bound publication;
+- graph and vector retrieval;
+- statement-level answer support.
 
-The current components reflect real information boundaries:
+## ATMONTO And ATMGRAPH Alignment
 
-- the AdvisoryParser sees the advisory;
-- authority services see their own facility or terminology sources;
-- the Semantic Resolution Agent sees a sealed candidate set only when unique
-  deterministic resolution is impossible;
-- the Decision Case Assembly Agent sees a sealed task and compact schema
-  context only when the zero-call compiler is not applicable;
-- the Query Agent receives only read-only graph tools.
+ATMONTO defines the admitted schema target. The formal root is
+`atm:TrafficManagementInitiative`, with active GDP, GS, and ReRoute subtypes.
+The application profile constrains classes, predicates, domains, ranges,
+datatypes, and enumerated values that may enter the formal graph.
 
-No role receives unrestricted source access or graph-write authority. This
-makes the collaboration protocol observable and limits unsupported knowledge
-transfer between roles.
+ATMGRAPH is a construction and query reference. The implementation adopts its
+principles of source-specific translation, stable cross-source identity,
+explicit time, and graph-based cross-source querying. It does not import an
+ATMGRAPH dataset and does not claim to reproduce the historical implementation.
 
-## Role Of The Ontology
+This division is deliberate:
 
-The NASA ATMONTO-derived application profile is a publication contract. It
-defines which classes, predicates, domains, ranges, datatypes, and enumerated
-values may enter the formal graph.
+- ATMONTO alignment addresses schema and terminology interoperability;
+- ATMGRAPH alignment addresses populated ABox construction and query use;
+- the project-specific corpus preserves evidence roles and rebuildable
+  projections.
 
-The project does not claim:
+## Formal Knowledge Model
 
-- that the profile is a complete aviation ontology;
-- that every source field already has a formal representation;
-- that an LLM can extend the ontology implicitly.
+The admitted ATMONTO TMI event is the formal root. The corpus contains:
 
-A supported source field outside the profile becomes a typed profile gap. It
-does not become an invented triple.
+- `events.jsonl`: TMI event catalog;
+- `facts.jsonl`: validated semantic facts;
+- `event_facts.jsonl`: event-to-fact membership;
+- `evidence_links.jsonl`: one-to-many source support;
+- `profile_gaps.jsonl`: supported but currently unpublishable source fields;
+- `context_associations.jsonl`: non-causal event-to-Weather associations;
+- `observations.jsonl`: query-ready BTS public observations.
 
-## Current User Task
+This model does not claim to reconstruct internal decision inputs,
+alternatives, constraints, rationale, or trade-offs. Such a construct is
+deferred until appropriate sources and semantics exist.
 
-The current bounded interaction task is to understand and verify one published
-decision record:
+## Agent Design
 
-- identify the traffic-management measure;
-- identify the controlled facility;
-- report the operational period;
-- report the source-declared reason when present;
-- show the fact, source, and provenance supporting the answer.
+The workflow coordinator is deterministic. Only three roles can make bounded
+model-mediated choices:
 
-The three approved cases cover a Ground Stop reason represented as a profile
-gap, a GDP formal reason with a cross-midnight period, and a missing-reason
-cancellation.
+1. the Semantic Resolution Agent selects or abstains among sealed authority
+   candidates;
+2. the Event Evidence Integration Agent selects or abstains among sealed
+   evidence/schema candidates when deterministic integration is incomplete;
+3. the Query Agent selects read-only retrieval tools for every valid
+   natural-language question.
+
+Data fetching, parsing, normalization, time alignment, aggregation, profile
+validation, RDF/Neo4j writing, and vector search remain deterministic tools or
+services. No Agent can create a candidate outside its sealed task or write
+directly to the formal graph.
 
 ## Evidence Model
 
-The system keeps four states distinct:
+The system keeps these states distinct:
 
 | State | Meaning |
 | --- | --- |
-| Formal fact | Accepted by the active schema and evidence gate. |
-| Derived provenance | A trace showing which source supports an accepted fact. |
-| Profile gap | Source-supported information not representable in the active profile. |
-| Missing or insufficient | The requested information is absent or unsupported. |
+| Formal fact | Accepted by its profile and the Formal Publication Kernel. |
+| Evidence/provenance | Source support and derivation for an accepted record. |
+| Profile gap | Source-supported information outside the active profile. |
+| Non-causal context | Time-bounded association with `causal_claim=false`. |
+| Public observation | Source-qualified BTS observation under its own profile. |
+| Missing/insufficient | Requested information is absent or unsupported. |
+| Blocked | A required source, contract, provider, or validation step failed. |
 
-None of these states establishes that a declared reason caused a measure or
-that the published measure was optimal.
+Weather and BTS context never fills a missing source-declared reason. BTS is
+not FAA demand, AAR, capacity, EDCT, decision rationale, effectiveness, or
+proof of a caused outcome.
 
-## Current Implementation Boundary
+## HybridRAG Query Surface
 
-Implemented by the current Batch C.1 architecture:
+Every valid public question enters the LLM Query Agent. The Agent must retrieve
+before answering and may choose:
 
-- bounded one-record ingest;
-- deterministic facility and terminology authority services;
-- conditional semantic resolution and decision-case assembly;
-- deterministic validation and audit artifacts;
-- JSONL, RDF/Turtle, and Neo4j projection;
-- bounded decision-record queries;
-- explicit profile-gap, insufficient, and blocked outcomes.
+- exact TMI event discovery;
+- formal event facts and profile gaps;
+- non-causal Weather context;
+- BTS public observations;
+- event-scoped graph paths;
+- metadata-conditioned similar TMI events.
 
-Implemented separately and paused:
+Deterministic tools return typed observations and evidence identities. A final
+validator checks each answer statement against those returned IDs and rejects
+unsupported causal, recommendation, or metric reinterpretation claims.
 
-- the read-only query evidence visualization on
-  `codex/kg-visualization-research`.
+## Research Position
 
-Not implemented as current system capabilities:
+The present system demonstrates a modern, reproducible ATMONTO-aligned
+integration path with selective Agent escalation. It does not yet demonstrate:
 
-- weather-based explanation;
-- decision episodes spanning multiple advisories;
-- ASPM outcomes or flight impact;
-- similar-case ranking;
-- TMI recommendation;
+- complete ATM semantic coverage;
+- causal explanation;
+- optimal TMI selection;
+- decision effectiveness;
 - general-purpose aviation QA;
-- full-corpus live-model processing.
+- current post-cutover model performance.
 
-## Evaluation Position
+Historical real-provider results are useful compatibility evidence for their
+named earlier contracts, but they are GDP-biased and predate the current
+event-centered role and corpus identities. The current v3 live suites require a
+new authorized run before any post-cutover model claim.
 
-The repository contains several historical and optional experiments covering
-schema-guided extraction, alignment, Critic or refinement roles, cross-source
-weather context, retrieval, and answer diagnostics. They can be reactivated to
-evaluate a specific system claim.
-
-They are not prerequisites for building the current system and must not be used
-to infer that:
-
-- multiple Agents are universally superior;
-- the graph is semantically complete;
-- automated checks equal external expert review;
-- historical associations prove operational causation.
-
-## Next Decision
-
-The next mainline increment will be selected after the metadata cleanup.
-Decision-episode identity and an additional source-bounded situation-evidence
-layer are plausible directions, but neither is active without a new approved
-contract.
-
-See `GOALS.md` for durable outcomes, `TODO.md` for active work, and
-`ARTIFACT_INDEX.md` for context routing.
-
-The cutover is breaking: regenerate earlier runs. The familiar command names
-remain current UX and do not promise backward compatibility.
+See `GOALS.md` for durable outcomes, `TODO.md` for active decisions,
+`RESEARCH_AUDIT.md` for current project truth, and `ARTIFACT_INDEX.md` for
+historical routing.

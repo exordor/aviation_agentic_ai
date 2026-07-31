@@ -2,47 +2,49 @@
 
 Compatibility instructions for tools that read this file.
 
-`AGENTS.md` is the authoritative repository instruction file. For current
-project context, read:
+`AGENTS.md` is authoritative. For current project context, read:
 
 1. `RESEARCH_AUDIT.md`
 2. `GOALS.md`
 3. the task-specific design or interface document
 
-Do not load the formal experiment, legacy GraphRAG, PHAK, web-demo, or archived
-report families unless the task explicitly asks for them.
+Do not preload archived experiments, historical stage reports, ignored corpus
+outputs, or the paused browser prototype.
 
 ## Current Scope
 
-Aviation Agentic AI is a system and framework project. It converts one
-retrospective FAA ATCSCC advisory and bounded FAA authority records into a
-validated event knowledge graph, RDF/Turtle, and a Neo4j projection, then
-answers a registered set of decision-record questions with explicit source
-evidence. The active Decision Case Graph v1 extension adds deterministic,
-time-bounded METAR/TAF context and BTS-reported public operational observations
-without adding an Agent role or model call.
+Aviation Agentic AI is an ontology-grounded aviation knowledge-integration and
+HybridRAG system. Its current vertical slice converts retrospective FAA ATCSCC
+records into ATMONTO-aligned TMI-event facts, optional Weather facts, and
+source-qualified BTS public observations.
 
-LLMs perform bounded interpretation and graph construction. Deterministic
-validation is the publication gate.
+The admitted ATMONTO `TrafficManagementInitiative` instance is the formal
+knowledge root. A bounded Event Evidence Integration Agent can select only from
+sealed evidence/schema candidates when deterministic integration is
+insufficient. The write-free Formal Publication Kernel is the only publication
+authority and accepts the decision, Weather, and public-observation profiles.
 
-The project does not currently claim weather-based causal explanation,
-historical-case recommendation, full-corpus autonomous processing, general
-aviation question answering, or live operational decision support.
+`tmi-event-corpus-v3` is the canonical persisted layer. Event graph views,
+RDF/Turtle, Neo4j, and the metadata-conditioned Chroma index are rebuildable
+projections. Every valid natural-language `ask` activates the Query Agent,
+which selects among six read-only event, Weather, BTS, graph, and similarity
+tools before producing evidence-bound statements.
 
-BTS-reported observations must never be described as FAA demand, AAR, capacity,
-or EDCT. Weather associations remain non-causal, and public operational
-observations do not establish that a TMI caused an outcome.
+The project does not currently claim a formal decision-process model, causal
+explanation, operational effectiveness, historical recommendation, complete
+aviation coverage, or live ATC decision support. Weather associations remain
+non-causal. BTS observations are not FAA demand, AAR, capacity, EDCT, decision
+rationale, or proof that a TMI caused an outcome.
 
 ## Repository Rules
 
 - Keep workflows CLI-first and reproducible.
-- Keep source families separate until a current design admits integration.
-- Treat schema validity, evidence support, canonical identity, and semantic
-  correctness as different claims.
+- Keep source families and evidence roles distinct.
+- Treat schema validity, evidence support, canonical identity, and reviewed
+  semantic correctness as different claims.
 - Preserve unrelated user changes and generated artifacts.
-- Keep credentials, model caches, local run directories, and scratch outputs
-  out of Git.
-- Use `git grep` for tracked-file context-hygiene scans.
+- Keep credentials, model caches, local corpora, and provider output out of Git.
+- Use tracked-file scans for current-context hygiene.
 
 ## Verification
 

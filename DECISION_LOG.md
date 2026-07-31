@@ -509,3 +509,77 @@ and provenance boundaries.
 Con: these observations still do not establish FAA demand or capacity, causal
 impact, decision quality, or an appropriate future TMI. ASPM evidence,
 lifecycle grouping, case ranking, and recommendation remain deferred.
+
+## D013 - Root Current Formal Knowledge In ATMONTO TMI Events
+
+### Date
+
+2026-07-31
+
+### Context
+
+The implementation had begun treating a project-defined `DecisionCase` and
+reconstruction membership as the formal center of the knowledge graph.
+Available sources can support published ATCSCC TMI fields, source-declared
+reasons, time-bounded Weather reports, and BTS public observations. They do not
+support the internal decision-state inputs, alternatives, constraints,
+rationale, trade-offs, or attributable outcomes needed to justify that stronger
+domain construct.
+
+This created a construct-validity mismatch: the system correctly prohibited
+causal and recommendation claims while its formal root implied more decision
+reconstruction than the evidence established.
+
+### Decision
+
+Supersede the current-architecture portions of D011 and D012 that depend on a
+formal DecisionCase or reconstruction membership:
+
+- use the admitted ATMONTO `atm:TrafficManagementInitiative` instance as the
+  formal event root;
+- keep the active GDP, GS, and ReRoute terms in the versioned ATMONTO
+  application profile;
+- use ATMGRAPH only as an ABox construction and cross-source-query reference;
+- rename the bounded construction role to Event Evidence Integration Agent;
+- publish only decision, Weather, and public-observation profile facts through
+  one write-free Formal Publication Kernel;
+- use `tmi-event-corpus-v3`, `events.jsonl`, and `event_facts.jsonl` as the
+  canonical storage and membership contract;
+- use event identity throughout exact reads, event graph paths, vector
+  retrieval, Query Agent support, and the `index-events` and `export-event`
+  commands;
+- retain Weather associations as non-causal and BTS values as source-qualified
+  public observations;
+- preserve v1/v2 reports and former architecture artifacts as historical
+  evidence rather than rewriting them under current terminology.
+
+No migration reader or compatibility alias is added.
+
+### Reason
+
+- ATMONTO provides a source-supported formal root already present in the
+  advisory evidence.
+- Event-to-fact corpus membership organizes cross-source knowledge without
+  asserting an unobserved internal decision process.
+- The Event Evidence Integration name accurately describes a bounded evidence
+  and schema-selection responsibility.
+- Removing the stronger construct makes the schema, evidence boundary, corpus,
+  graph, vector index, and Query Agent use the same identity.
+- The breaking cutover is simpler and more honest for a research prototype than
+  maintaining two semantic models.
+
+### Consequences
+
+Pro: current formal claims match available evidence. GDP, GS, and ReRoute
+events can be integrated, queried, and compared without implying causal
+explanation, decision quality, or internal FAA rationale.
+
+Pro: corpus, RDF/Turtle, Neo4j, graph retrieval, vector retrieval, and answer
+support now share the same stable TMI event identity.
+
+Con: old corpora, commands, and derived indexes must be rebuilt. Historical
+reports continue to use their original role and artifact names.
+
+Con: a true decision-case construct remains deferred until appropriate sources
+support decision inputs, alternatives, constraints, rationale, trade-offs, and
+appropriately interpreted outcome evidence.
