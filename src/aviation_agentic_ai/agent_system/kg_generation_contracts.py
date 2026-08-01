@@ -138,6 +138,12 @@ class CandidateFactProposal(StrictModel):
             prop = property_by_iri.get(fact.predicate_iri)
             if prop is None:
                 raise ValueError("predicate is outside the ontology slice")
+            if not _class_satisfies(
+                task.ontology_slice.subject_class_iri,
+                prop.domain_iris,
+                task.ontology_slice,
+            ):
+                raise ValueError("subject class violates ontology property domain")
             if fact.evidence_ref not in evidence_refs:
                 raise ValueError("fact evidence reference is outside the task")
 
@@ -151,7 +157,7 @@ class CandidateFactProposal(StrictModel):
                     raise ValueError("object class does not match candidate entity")
                 if fact.object_class_iri not in class_iris:
                     raise ValueError("object class is outside the ontology slice")
-                if not _range_accepts(
+                if not _class_satisfies(
                     fact.object_class_iri,
                     prop.range_iris,
                     task.ontology_slice,
@@ -184,25 +190,25 @@ def _validate_evidence_refs(
         raise ValueError("evidence reference is outside the task")
 
 
-def _range_accepts(
-    object_class_iri: str,
-    range_iris: tuple[str, ...],
+def _class_satisfies(
+    class_iri: str,
+    accepted_iris: tuple[str, ...],
     ontology_slice: OntologySlice,
 ) -> bool:
-    if not range_iris:
+    if not accepted_iris:
         return True
     parents: dict[str, set[str]] = {}
     for edge in ontology_slice.hierarchy:
         parents.setdefault(edge.subclass_iri, set()).add(edge.superclass_iri)
     seen: set[str] = set()
-    stack = [object_class_iri]
+    stack = [class_iri]
     while stack:
         current = stack.pop()
         if current in seen:
             continue
         seen.add(current)
         stack.extend(parents.get(current, set()) - seen)
-    return bool(seen & set(range_iris))
+    return bool(seen & set(accepted_iris))
 
 
 __all__ = [

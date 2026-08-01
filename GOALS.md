@@ -33,9 +33,23 @@ retrieval. The system:
    running Web Evidence sidecar without making that sidecar a source of
    aviation facts or a required runtime dependency.
 
+The project also provides an explicit ontology-grounded construction path for
+researching LLM-assisted ABox generation. It uses the complete ATMONTO TBox
+to build a task-specific slice, gives a bounded model only sealed evidence
+and candidate identities, validates candidate facts deterministically, and
+incrementally fuses accepted semantic facts with one-to-many provenance.
+This path is opt-in; the default ingestion compiler remains deterministic.
+
 ATMONTO supplies the admitted TBox and application-profile terms. ATMGRAPH
 supplies ABox-construction and cross-source-query principles. The project does
 not import ATMGRAPH data or claim an exact replication.
+
+The semantic control plane also maintains a deterministic inventory of the six
+local ATMONTO OWL modules. Its eight-domain coverage report records class
+hierarchy, object/datatype property signatures, and cardinality constraints,
+with explicit active, planned, and unsupported statuses. This is the baseline
+for measuring KG semantic complexity; it is not a claim that every upstream
+term is populated by the current source adapters.
 
 The current TMI and Flight/Airspace domains validate a reusable architecture.
 They are not the permanent subject boundary, and the goal is not to maximize
@@ -137,6 +151,9 @@ Agents are organized by semantic responsibility, not by source:
 - the Semantic Resolution Agent chooses only among sealed authority candidates;
 - the Query Agent interprets every valid natural-language question and selects
   read-only retrieval tools.
+- the opt-in Ontology Candidate Fact Generator proposes typed ABox facts only
+  from a sealed task; it never writes the store and may abstain or emit a
+  profile gap.
 
 Parsers, adapters, profile loaders, validators, writers, SQLite queries, graph
 views, FTS, and vector search are deterministic tools or services. No Agent can

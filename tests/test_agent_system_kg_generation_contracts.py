@@ -143,6 +143,28 @@ def test_candidate_proposal_rejects_unknown_predicate_or_evidence() -> None:
         proposal.validate_against(task)
 
 
+def test_candidate_proposal_rejects_subject_outside_property_domain() -> None:
+    task = _task()
+    invalid_slice = task.ontology_slice.model_copy(
+        update={"subject_class_iri": AIRPORT}
+    )
+    invalid_task = task.model_copy(update={"ontology_slice": invalid_slice})
+
+    with pytest.raises(ValueError, match="property domain"):
+        CandidateFactProposal(
+            status="accepted",
+            facts=(
+                CandidateFact(
+                    predicate_iri=CONTROLLED_NAS_ELEMENT,
+                    object_kind="iri",
+                    object_value="airport:KJFK",
+                    object_class_iri=AIRPORT,
+                    evidence_ref="ev-003",
+                ),
+            ),
+        ).validate_against(invalid_task)
+
+
 def test_abstention_can_reference_only_task_evidence() -> None:
     task = _task()
     proposal = CandidateFactProposal(

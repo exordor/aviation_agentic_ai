@@ -40,6 +40,15 @@ reconstructed an internal decision process. ATMONTO supplies admitted schema
 terms. ATMGRAPH supplies ABox-construction and cross-source-query principles,
 not another imported dataset or an exact replication target.
 
+The semantic parity baseline is the six-module ATMONTO catalog recorded in
+`data/ontology/curated/atmonto_semantic_coverage_v1.json`. It inventories 105
+classes, 106 object properties, 176 datatype properties, 83 hierarchy axioms,
+282 property signatures, and 13 cardinality constraints. The runtime uses a
+closed active subset; the report separately marks explicit next-scope terms as
+`planned` and the remaining upstream terms as `unsupported`. This prevents a
+small runtime slice from being presented as the whole aviation ontology while
+also making the KG's semantic expansion measurable.
+
 The public commands are:
 
 ```text
@@ -60,9 +69,11 @@ or compatibility alias.
 
 ## Verified Implementation Capabilities
 
-- The only model-backed roles are the Query Agent invoked for every valid
+- The default model-backed roles are the Query Agent invoked for every valid
   natural-language question and the selectively activated Semantic Resolution
-  Agent.
+  Agent. An opt-in Ontology Candidate Fact Generator now provides a sealed
+  candidate-ABox construction path; it is not wired into default `ingest` and
+  has no live performance claim.
 - One registry rooted at `atm:TrafficManagementInitiative` drives GDP, GS, and
   ReRoute detection, required-field preflight, formal property mapping, and
   retrieval labels.
@@ -77,6 +88,11 @@ or compatibility alias.
   for semantic facts under the active TMI, Weather, public-observation,
   Flight/Airspace, and reference profiles. Source-supported association roots
   are emitted by a separate deterministic derivation materializer.
+- Candidate facts from the opt-in ontology construction path use the same
+  publication kernel. Deterministic diagnostics report ontology compliance,
+  evidence-anchor coverage, profile gaps, duplicate semantic facts, and
+  blocked publications; these are software-contract metrics, not model
+  quality results.
 - The dataset-bound SQLite store persists immutable source versions, exact
   anchors, active and historical event publications, semantic facts, evidence
   links, profile gaps, Weather associations, BTS public observations, source

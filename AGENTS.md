@@ -35,6 +35,13 @@ composed runtime + source + dataset/temporal-scope configuration
      -> selected subset of 18 read-only evidence tools
      -> per-statement evidence and claim-boundary validation
      -> answer, insufficient, or blocked
+
+The explicit ontology-construction research path is:
+
+```text
+complete ATMONTO TBox -> task ontology slice -> bounded candidate-fact
+generator -> deterministic validation -> Formal Publication Kernel
+  -> incremental semantic-store fusion
 ```
 
 The dataset-bound SQLite evidence store is the canonical persisted knowledge
@@ -48,7 +55,8 @@ The retired `Corpus v2` batch snapshot is historical only. Files under
 knowledge and not a runtime query backend.
 The versioned application profile aligns the active TMI schema with exact
 ATMONTO terms and constrains publication; it is not a separate Agent and is not
-claimed to be a complete aviation ontology. ATMGRAPH is the reference for
+claimed to be a complete aviation ontology. The opt-in candidate generator is
+write-free and cannot widen the profile. ATMGRAPH is the reference for
 constructing and querying the populated ABox, not an imported dataset or an
 exact system replica.
 
@@ -80,9 +88,11 @@ must not be added to the active runtime.
 - `configs/aviation_knowledge_v1.yaml` composes separate runtime, source, and
   dataset/temporal-scope files. Do not collapse those concerns back into one
   experimental configuration.
-- The only model-backed roles are the Query Agent invoked for every valid
+- The default model-backed roles are the Query Agent invoked for every valid
   natural-language question and the selectively activated Semantic Resolution
-  Agent.
+  Agent. The Ontology Candidate Fact Generator is opt-in construction only;
+  it proposes facts for the same deterministic publication kernel and is not
+  part of default `ingest`.
 - The TMI registry root is `atm:TrafficManagementInitiative`; its active
   application-profile families are GDP, GS, and ReRoute. Family detection,
   preflight, formal property mapping, and retrieval labels share one registry.

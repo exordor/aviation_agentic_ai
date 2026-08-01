@@ -60,6 +60,13 @@ needed, how the complete system is organized, and how the LLM Agent behaves at
 query time. This separation prevents the architecture diagram from becoming a
 dense workflow chart.
 
+![Ontology-grounded incremental ABox generation](figures/ontology_grounded_incremental_kg_generation.png)
+
+**Figure 4.** The opt-in construction path keeps the complete ATMONTO TBox,
+task slice, bounded candidate generation, deterministic publication, and
+incremental semantic fusion explicit. Editable source:
+[ontology_grounded_incremental_kg_generation.drawio](figures/ontology_grounded_incremental_kg_generation.drawio).
+
 The five planes are:
 
 1. **Evidence Plane** — ATCSCC, FAA authority, Weather, BTS, NASA ATMONTO
@@ -78,6 +85,38 @@ The five planes are:
 selective Semantic Resolution Agent. The coordinator, adapters, parsers,
 authority services, profile loaders, validators, materializers, SQLite
 queries, graph views, and index implementations remain deterministic services.
+
+### 2.4 Ontology-Grounded ABox Generation (Opt-In Construction Path)
+
+The system also exposes an explicit research path for using an LLM to propose
+new ABox facts from source evidence. This path is deliberately separate from
+the default deterministic ingestion compiler:
+
+```text
+complete ATMONTO TBox
+  -> deterministic task-specific ontology slice
+  -> sealed evidence cards, anchors, and candidate entities
+  -> bounded LLM candidate-fact generator
+  -> CandidateFactProposal | abstention | profile gap
+  -> deterministic ontology and evidence validation
+  -> Formal Publication Kernel
+  -> generic knowledge-root publication
+  -> incremental semantic-store fusion
+```
+
+The complete TBox supplies reusable classes, properties, hierarchy,
+domain/range, datatypes, and cardinality constraints. A task receives only
+the relevant slice and an immutable evidence binding; it does not receive an
+unbounded ontology prompt. The model may select an allowed term and cite an
+allowed anchor, but it cannot create ontology terms, identities, source
+versions, profile rules, or storage writes. A source-supported statement that
+has no active publication term remains a profile gap.
+
+This is an opt-in construction API in the current release, not a claim that
+the default `ingest` path already delegates all fact extraction to an LLM.
+The separation makes it possible to measure candidate generation and
+incremental fusion without weakening the deterministic runtime publication
+boundary.
 
 Construction:
 
@@ -113,10 +152,17 @@ free-form question + immutable user scope
 RDF/Turtle, JSONL KG, and Neo4j are optional all-root offline exports from
 SQLite, not mandatory runtime databases.
 
-Only two roles make bounded model-mediated choices:
+The default runtime has two roles that make bounded model-mediated choices:
 
 1. Semantic Resolution Agent;
 2. Query Agent.
+
+The opt-in ontology construction path adds a third bounded role:
+
+3. Ontology Candidate Fact Generator.
+
+It is activated only by an explicit construction call and is evaluated as a
+candidate-proposal component, not as a direct knowledge-store writer.
 
 Event Evidence Integration is a deterministic construction service.
 
@@ -170,6 +216,31 @@ Additional validation profiles admit the configured Flight, Aircraft/Model,
 Airport/ARTCC, Route, TrackPoint, Sector, Weather, and association terms. They
 share the publication mechanism but retain typed root kinds and temporal-domain
 boundaries.
+
+The broader semantic control-plane inventory is maintained separately from
+the closed runtime slices. It covers the six pinned NASA OWL/XML modules and
+records class hierarchy, object/datatype property signatures, and cardinality
+constraints across these eight domains:
+
+```text
+airspace structures / facilities
+navigation / routes / fixes
+traffic management initiatives
+flight / carrier / aircraft
+airport / surface operations
+weather
+sequences
+temporal / spatial
+```
+
+The current coverage asset is
+[`atmonto_semantic_coverage_v1.json`](../data/ontology/curated/atmonto_semantic_coverage_v1.json);
+its interpretation and rebuild command are documented in
+[`docs/ontology/atmonto_semantic_coverage.md`](ontology/atmonto_semantic_coverage.md).
+This catalog is the semantic parity baseline, not a claim that every upstream
+term is already populated by a source adapter. Active, planned, and
+unsupported terms are explicit, so the runtime remains closed-world while the
+research comparison remains honest.
 
 ### 4.2 ATMGRAPH
 
@@ -358,6 +429,28 @@ Normal optional insufficiency is omitted before publication. A malformed layer
 already admitted to the final set blocks that event publication.
 
 No model writes directly to SQLite, JSONL, RDF/Turtle, Neo4j, FTS, or Chroma.
+
+### 9.1 Ontology Candidate Fact Publication
+
+The opt-in candidate generator uses the same final publication boundary as
+the deterministic paths. Its sealed task includes a temporal-domain ID, the
+task ontology slice, candidate entities, evidence cards, and immutable source
+anchor bindings. Its strict output contains typed candidate facts, explicit
+abstentions, and profile-gap proposals.
+
+Before publication, deterministic code checks that every predicate belongs to
+the slice and active profile, every object satisfies domain/range and datatype
+constraints, every evidence reference resolves to the exact source span, and
+the root and temporal domain are in scope. Semantic fact identity excludes
+provenance so an incremental replay can retain one fact and attach multiple
+evidence links. A malformed or unsupported candidate is blocked; uncertainty
+is not converted into a guessed fact.
+
+Weather and BTS evidence retain their existing boundaries: an association is
+non-causal, and public observations are not FAA demand, capacity, rationale,
+effectiveness, or recommendation facts. The generator therefore extends
+coverage of source-supported ABox construction without changing those claim
+boundaries.
 
 ## 10. Authoritative SQLite Store
 
@@ -646,6 +739,15 @@ kept retrieving until the 10-tool ceiling and returned `blocked` instead of
 `insufficient`. This is an observed stop-policy failure, not a successful
 abstention or a statistical benchmark.
 
+Ontology candidate generation currently has deterministic structural
+diagnostics only. The report includes proposal counts, ontology-term
+compliance, evidence-anchor coverage, profile gaps, duplicate semantic facts,
+and blocked publication counts under the `offline_software_test` label. These
+metrics verify contracts and incremental fusion; they are not live-model
+quality results. A future live construction benchmark must invoke the
+configured provider for every sample and report provider success separately
+from publication acceptance.
+
 ## 18. Deferred Work
 
 - Formal decision-state inputs, alternatives, constraints, rationale, and
@@ -659,6 +761,8 @@ abstention or a statistical benchmark.
 - TMI recommendation.
 - General-purpose aviation QA.
 - Automatic ontology expansion.
+- Default-ingest activation of ontology candidate generation and a live
+  candidate-fact benchmark.
 - Production deployment and production-only hardening.
 
 ## 19. Verification

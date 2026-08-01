@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="Electron" modified="2026-08-02T12:00:00.000Z" agent="Codex" version="30.3.6" type="device">
+  <diagram id="ontology-grounded-generation" name="Ontology-grounded incremental KG generation">
+    <mxGraphModel dx="2900" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2900" pageHeight="1000" background="#FAFCFD" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="Ontology-Grounded Incremental ABox Generation" style="text;html=1;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fontColor=#17324D;" vertex="1" parent="1">
+          <mxGeometry x="80" y="25" width="2740" height="48" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="tbox" value="Complete ATMONTO TBox&#10;classes · properties · constraints" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#F1ECFB;strokeColor=#7C5AB8;fontColor=#3D2B62;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="130" width="340" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="source" value="Immutable source evidence&#10;versions · anchors · spans" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#E7F3F8;strokeColor=#26758F;fontColor=#164C5F;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="430" width="340" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="task-slice" value="Task ontology slice&#10;runtime-owned scope" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#F1ECFB;strokeColor=#7C5AB8;fontColor=#3D2B62;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="480" y="130" width="340" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="cards" value="Evidence cards&#10;candidate entities · source refs" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#E7F3F8;strokeColor=#26758F;fontColor=#164C5F;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="480" y="430" width="340" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="generator" value="Bounded LLM candidate generator&#10;typed facts · profile gaps · abstention" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#FFF1E8;strokeColor=#C65F2E;fontColor=#71361E;strokeWidth=3;dashed=1;dashPattern=8 6;" vertex="1" parent="1">
+          <mxGeometry x="880" y="130" width="340" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="validation" value="Deterministic validation&#10;ontology · evidence · identity" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#EAF4FC;strokeColor=#2F6F9F;fontColor=#17324D;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="130" width="340" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="kernel" value="Formal Publication Kernel&#10;accepted facts only" style="shape=hexagon;perimeter=hexagonPerimeter2;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#E9F6EE;strokeColor=#2E7D4F;fontColor=#174A2C;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="1680" y="130" width="340" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="store" value="Incremental semantic store&#10;ABox facts + provenance" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#E9F6EE;strokeColor=#2E7D4F;fontColor=#174A2C;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="2080" y="130" width="340" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="views" value="Rebuildable HybridRAG views&#10;graph · FTS · vectors" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#F3F4F6;strokeColor=#64748B;fontColor=#334155;strokeWidth=2;dashed=1;dashPattern=8 6;" vertex="1" parent="1">
+          <mxGeometry x="2480" y="130" width="340" height="150" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="incremental-note" value="New source version → new publication when semantics change; unchanged facts keep their identity and gain additional evidence links." style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#FFF8E7;strokeColor=#C99819;fontColor=#70530A;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="760" y="730" width="1380" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="boundary-note" value="LLM proposes; deterministic components decide what becomes ABox knowledge." style="text;html=1;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fontColor=#71361E;" vertex="1" parent="1">
+          <mxGeometry x="700" y="610" width="1500" height="48" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="edge-tbox-slice" edge="1" parent="1" source="tbox" target="task-slice" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#7C5AB8;strokeWidth=2;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-source-cards" edge="1" parent="1" source="source" target="cards" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#26758F;strokeWidth=2;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-slice-generator" edge="1" parent="1" source="task-slice" target="generator" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#7C5AB8;strokeWidth=2;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.35;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-cards-generator" edge="1" parent="1" source="cards" target="generator" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#26758F;strokeWidth=2;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0.08;entryY=1;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="850" y="490"/><mxPoint x="850" y="325"/><mxPoint x="907" y="325"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="edge-generator-validation" edge="1" parent="1" source="generator" target="validation" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#C65F2E;strokeWidth=2;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-validation-kernel" edge="1" parent="1" source="validation" target="kernel" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#2F6F9F;strokeWidth=2;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-kernel-store" edge="1" parent="1" source="kernel" target="store" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#2E7D4F;strokeWidth=2;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-store-views" edge="1" parent="1" source="store" target="views" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#64748B;strokeWidth=2;dashed=1;dashPattern=8 6;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

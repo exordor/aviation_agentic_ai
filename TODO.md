@@ -59,6 +59,8 @@ causal source.
   TMI recommendation.
 - General-purpose planner, long-term Agent memory, and unrestricted aviation
   chat.
+- Default-ingest activation of ontology candidate generation and a live
+  candidate-fact benchmark; the current construction API remains opt-in.
 - New Agent roles without an observed need.
 - Multi-model or statistically powered evaluation beyond an approved protocol.
 - Semantic Resolution performance claims until a reviewed set of naturally
