@@ -104,7 +104,8 @@ Use 4 highlight colors mapping to 4 fact fields.
 Each row's "evidence span" cell uses the same color as the corresponding
 highlight in the top panel, connected by thin guide lines or color matching.
 
-**Data source:** `reports/stages/atcscc_data_format_and_processing_flow.md`
+**Historical data source:** external archive
+`reports/legacy_runtime/atcscc/atcscc_data_format_and_processing_flow.md`
 (real advisory example); §3.2 task definition.
 
 **Style guidance:** Two-panel figure, top = annotated source text, bottom =

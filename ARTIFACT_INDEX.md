@@ -102,24 +102,39 @@ set; no frozen post-cutover evaluation set currently exists.
 
 ## Historical Compatibility Evidence
 
-The following tracked artifacts are frozen historical evidence and are not
-current role, persistent-store, or cross-family results:
+The following external-archive artifacts are frozen historical evidence and
+are not current role, persistent-store, or cross-family results. They are
+listed here for provenance only; the runtime checkout does not depend on
+them:
 
 | Artifact | Safe interpretation |
 | --- | --- |
-| `data/evaluation/agent_system/live_agent_smoke_v1.yaml` | Retired one-shot five-task contract. |
-| `reports/stages/agent_system_live_agent_smoke_v1.{json,md}` | Historical 0/5 acceptance result under the retired runtime. |
-| `data/evaluation/agent_system/live_agent_experiment_v1.yaml` | Retired repeated five-task contract. |
-| `reports/stages/agent_system_live_agent_experiment_v1.{json,md}` | Historical 108/108 provider-call result with 0/60 task acceptance. |
+| external archive `data/legacy_runtime/agent_system/live_agent_smoke_v1.yaml` | Retired one-shot five-task contract. |
+| external archive `reports/legacy_runtime/agent_system/agent_system_live_agent_smoke_v1.{json,md}` | Historical 0/5 acceptance result under the retired runtime. |
+| external archive `data/legacy_runtime/agent_system/live_agent_experiment_v1.yaml` | Retired repeated five-task contract. |
+| external archive `reports/legacy_runtime/agent_system/agent_system_live_agent_experiment_v1.{json,md}` | Historical 108/108 provider-call result with 0/60 task acceptance. |
 | external archive `data/evaluation/agent_system/live_agent_smoke_v2.yaml` | Pre-cutover current-query compatibility contract; moved out of the runtime checkout. |
 | external archive `reports/stages/agent_system_live_agent_smoke_v2.{json,md}` | Historical pre-cutover one-shot result; moved out of the runtime checkout. |
 | external archive `data/evaluation/agent_system/live_agent_experiment_v2.yaml` | Pre-cutover repeated compatibility contract; moved out of the runtime checkout. |
 | external archive `reports/stages/agent_system_live_agent_experiment_v2.{json,md}` | Historical 120-call result; moved out of the runtime checkout. |
 | external archive `data/evaluation/agent_system/live_agent_smoke_v3.yaml` | Superseded event-centered construction/query contract; moved out of the runtime checkout. |
 | external archive `data/evaluation/agent_system/live_agent_experiment_v3.yaml` | Superseded repeated construction/query contract; moved out of the runtime checkout. |
-| `data/evaluation/agent_system/live_agent_smoke_v4.yaml` | Superseded pre-ingestion-first Query Agent compatibility contract. |
-| `reports/stages/agent_system_live_agent_smoke_v4.{json,md}` | Historical 11-call, 5/5 compatibility result; retained only for compatibility tests and not evidence for the persistent-store runtime. |
-| `data/evaluation/agent_system/live_agent_experiment_v4.yaml` | Superseded pre-ingestion-first repeated-measurement contract. |
+| external archive `data/legacy_runtime/agent_system/live_agent_smoke_v4.yaml` | Superseded pre-ingestion-first Query Agent compatibility contract. |
+| external archive `reports/legacy_runtime/agent_system/agent_system_live_agent_smoke_v4.{json,md}` | Historical 11-call, 5/5 compatibility result; retained only as history and not evidence for the persistent-store runtime. |
+| external archive `data/legacy_runtime/agent_system/live_agent_experiment_v4.yaml` | Superseded pre-ingestion-first repeated-measurement contract. |
+| external archive `src/legacy_runtime/agent_system/live_agent_{evaluation,experiment}.py` | Retired compatibility harness; no longer importable by the active package. |
+| external archive `tests/legacy_runtime/agent_system/test_agent_system_live_{evaluation,experiment}.py` | Dedicated tests for the retired compatibility harness. |
+
+The following extraction-era inputs and reports were also moved out of the
+runtime checkout without changing their bytes:
+
+| Archive location | Safe interpretation |
+| --- | --- |
+| external archive `configs/legacy_runtime/extraction_profile.yaml` | Retired PHAK/BGA extraction configuration. |
+| external archive `data/legacy_runtime/phak_bga/` | PHAK/BGA source metadata, curated material, and HTML fixtures. |
+| external archive `data/legacy_runtime/nasa_atmonto/extraction/2026-05-14/` | Retired ATCSCC schema-extraction outputs. |
+| external archive `data/legacy_runtime/nasa_atmonto/curated/nasa_atmonto_{atcscc_extraction_schema,schema_catalog}.json` | Superseded extraction-era schema catalogs; the active schema slice remains in the checkout. |
+| external archive `reports/legacy_runtime/atcscc/` | Superseded ATCSCC extraction, validation, and stage reports. |
 
 Later compact-selection and 10,000-token runs are also pre-cutover,
 GDP-biased compatibility evidence. The v3 contracts are likewise superseded

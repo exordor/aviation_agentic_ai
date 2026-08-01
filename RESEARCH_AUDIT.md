@@ -187,9 +187,10 @@ the public Query Agent.
 transitions, storage, retrieval plumbing, and validation. Fake or scripted
 models are allowed only in that mode and do not establish LLM or Agent quality.
 
-Tracked earlier reports remain frozen compatibility evidence for their named
-architectures. They must not be relabeled as ingestion-first Query Agent
-performance. Provider-call success and task acceptance remain separate claims.
+Earlier reports remain frozen compatibility evidence for their named
+architectures in the dated external archive. They must not be relabeled as
+ingestion-first Query Agent performance. Provider-call success and task
+acceptance remain separate claims.
 
 The earlier v4 query compatibility smoke recorded 11 real
 `deepseek-v4-pro` calls and accepted 5/5 development/regression tasks,

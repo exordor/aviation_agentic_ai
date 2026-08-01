@@ -39,6 +39,24 @@ directory:
 └── data/legacy_runtime/            # retired evaluation inputs
 ```
 
+The 2026-08-01 archive also contains the following completed cleanup groups:
+
+- `configs/legacy_runtime/extraction_profile.yaml` and
+  `data/legacy_runtime/phak_bga/`: retired PHAK/BGA extraction inputs and
+  fixtures;
+- `data/legacy_runtime/nasa_atmonto/extraction/2026-05-14/`: old ATCSCC
+  extraction output, together with the superseded extraction-era catalogs
+  under `data/legacy_runtime/nasa_atmonto/curated/`;
+- `reports/legacy_runtime/atcscc/`: old ATCSCC extraction, validation, and
+  stage reports;
+- `data/legacy_runtime/agent_system/` and
+  `reports/legacy_runtime/agent_system/`: retired live-agent compatibility
+  contracts and sanitized reports;
+- `src/legacy_runtime/agent_system/` and
+  `tests/legacy_runtime/agent_system/`: the dedicated compatibility harness
+  and tests moved with those reports so the active package has no broken
+  historical-test dependencies.
+
 The archive is a local research-history backup, not an import path and not a
 runtime source of truth. Its files are preserved byte-for-byte and remain
 recoverable from Git history as well. Historical code that still names an

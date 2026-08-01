@@ -137,13 +137,14 @@ must not be added to the active runtime.
 - The system output ceiling is 10,000 tokens for the Query Agent; the compact
   Semantic Resolution decision remains capped at 256 tokens. Event Evidence
   Integration is deterministic and makes no provider call.
-- The tracked v1-v3 DeepSeek contracts/results and later compact-selection runs
-  are historical compatibility artifacts. They must not be relabeled as
-  current role, persistent-store, or cross-family performance.
-- The pre-cutover `live_smoke` v4 completed with DeepSeek `deepseek-v4-pro`: 11 real provider
-  calls, 5/5 Query Agent tasks accepted, and the required cross-source Weather
-  graph path observed. This is historical compatibility evidence, not a frozen
-  holdout, model benchmark, or ingestion-first result.
+- The v1-v4 DeepSeek contracts/results, later compact-selection runs, and
+  their retired evaluation harness are preserved in the dated external
+  archive. They must not be relabeled as current role, persistent-store, or
+  cross-family performance.
+- The pre-cutover `live_smoke` v4 compatibility result remains historical
+  archive evidence: 11 real provider calls, 5/5 Query Agent tasks accepted,
+  and the required cross-source Weather graph path observed. It is not a
+  frozen holdout, model benchmark, or ingestion-first result.
 - The ingestion-first `live_smoke` v1 completed against the persistent store
   with 6/6 returned real `deepseek-v4-pro` calls and no provider errors. One of
   three Query Agent tasks passed; two failed the answer-contract/evidence

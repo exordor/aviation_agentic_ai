@@ -206,11 +206,11 @@ model-quality claims.
 
 ## Historical And Optional Tracks
 
-The repository retains earlier PHAK GraphRAG work, schema-extraction
-experiments, cross-source Weather evaluations, alignment experiments, browser
-prototypes, batch snapshots, and live-provider compatibility reports. They
-remain available for an explicitly reactivated task but do not define the
-current architecture or establish ingestion-first performance.
+Earlier PHAK GraphRAG work, schema-extraction outputs, ATCSCC stage reports,
+and retired live-provider compatibility tracks are preserved in the dated
+external archive. They remain available for an explicitly reactivated task
+but are not in the runtime checkout, do not define the current architecture,
+and do not establish ingestion-first performance.
 
 See `ARTIFACT_INDEX.md` for routing and `DECISION_LOG.md` for the sequence of
 scope decisions. The familiar records remain development/regression fixtures;

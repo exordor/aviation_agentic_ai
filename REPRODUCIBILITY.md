@@ -404,21 +404,19 @@ uv run --extra agent-system aviation-ai agent-system reindex \
   --allow-model-download
 ```
 
-Then execute exactly one real-provider walkthrough:
+The former `live_agent_evaluation` compatibility harness and its v1/v4
+suites are historical archive material. The current runtime equivalent is a
+normal natural-language `ask` after the store and indexes have been built:
 
 ```bash
-RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
-EVAL_RUN_DIR="data/evaluation_runs/agent_system/flagship-gdp138-walkthrough-v1-${RUN_ID}"
-
-uv run python -m aviation_agentic_ai.agent_system.live_agent_evaluation \
+uv run aviation-ai agent-system ask \
   --config configs/aviation_knowledge_v1.yaml \
-  --suite data/evaluation/agent_system/live_flagship_gdp138_walkthrough_v1.yaml \
   --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
-  --output-dir "$EVAL_RUN_DIR" \
-  --report-dir "$EVAL_RUN_DIR/reports" \
-  --allow-live-model \
-  --repetitions 1
+  --question "For ATCSCC Advisory 138 on 19 May 2026, what was published, what reason did the source declare, and what weather context was retained?"
 ```
+
+This command produces a current runtime answer; it does not recreate the
+archived v4 report byte-for-byte.
 
 The verified run completed and passed. It used
 `deepseek/deepseek-v4-pro`, temperature `0`, thinking disabled, and zero
@@ -526,21 +524,16 @@ The tracked sanitized reports are
 
 ### Persistent-Store Compatibility Smoke
 
-After building and indexing the bounded store, run the ingestion-first
-Query Agent compatibility smoke only with explicit authorization:
+The former standalone `live_agent_evaluation` smoke runner and its v1 suite
+are archived. For a current persistent-store compatibility check, use the
+supported natural-language `ask` command (or the current cross-domain smoke
+runner described above) after building the store:
 
 ```bash
-RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
-EVAL_RUN_DIR="data/evaluation_runs/agent_system/live-ingestion-hybridrag-smoke-v1-${RUN_ID}"
-
-uv run python -m aviation_agentic_ai.agent_system.live_agent_evaluation \
+uv run aviation-ai agent-system ask \
   --config configs/aviation_knowledge_v1.yaml \
-  --suite data/evaluation/agent_system/live_ingestion_hybridrag_smoke_v1.yaml \
   --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
-  --output-dir "$EVAL_RUN_DIR" \
-  --report-dir "$EVAL_RUN_DIR/reports" \
-  --allow-live-model \
-  --repetitions 1
+  --question "What public operational situation is recorded for ATCSCC Advisory 138?"
 ```
 
 Every smoke trial must use the configured real provider. Verify provider/model,

@@ -167,21 +167,15 @@ uv run --extra agent-system aviation-ai agent-system reindex \
   --model-name sentence-transformers/all-MiniLM-L6-v2 \
   --allow-model-download
 
-RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
-EVAL_RUN_DIR="data/evaluation_runs/agent_system/flagship-gdp138-walkthrough-v1-${RUN_ID}"
-
-uv run python -m aviation_agentic_ai.agent_system.live_agent_evaluation \
+uv run aviation-ai agent-system ask \
   --config configs/aviation_knowledge_v1.yaml \
-  --suite data/evaluation/agent_system/live_flagship_gdp138_walkthrough_v1.yaml \
   --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
-  --output-dir "$EVAL_RUN_DIR" \
-  --report-dir "$EVAL_RUN_DIR/reports" \
-  --allow-live-model \
-  --repetitions 1
+  --question "For ATCSCC Advisory 138 on 19 May 2026, what was published, what reason did the source declare, and what weather context was retained?"
 ```
 
-The live command requires the configured DeepSeek credential in an ignored
-local environment file. It must not fall back to a fake, scripted, replayed,
-or cached response. A future run may produce different wording even at
-temperature `0`; report its observed task status and new artifact checksums
-rather than presenting the tracked run as deterministic.
+The current `ask` command requires the configured provider credential in an
+ignored local environment file. It must not fall back to a fake, scripted,
+replayed, or cached response. The archived live-evaluation harness and its
+compatibility suites are not part of the supported runtime. A future run may
+produce different wording even at temperature `0`; report its observed status
+rather than presenting the tracked historical walkthrough as deterministic.
