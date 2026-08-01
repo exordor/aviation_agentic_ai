@@ -1,0 +1,81 @@
+snapshot_set_id: aviation-knowledge-2026-05-v1
+
+source_metadata:
+  atcscc_advisories:
+    effective_start: 2026-05-14
+  aviationweather:
+    effective_start: 2026-05-14
+  faa_nasr:
+    effective_start: 2026-05-14
+  faa_pilot_controller_glossary:
+    effective_start: 2026-01-22
+  faa_atcscc_terms:
+    effective_start: 2026-03-19
+  bts_on_time:
+    effective_start: 2026-05-01
+    source_id: bts_on_time:2026-05:nyc
+    timezone: America/New_York
+    role: public_operational_observation
+  bts_flight_operations:
+    effective_start: 2026-05-01
+    effective_end: 2026-06-01
+    temporal_domain_id: proxy-2026-05
+    ingestion_scope:
+      mode: bounded
+      service_date_from: 2026-05-20
+      service_date_to: 2026-05-20
+      routes:
+        - [ATL, JFK]
+        - [JFK, ATL]
+        - [ATL, EWR]
+        - [EWR, ATL]
+        - [ATL, LGA]
+        - [LGA, ATL]
+      selection_basis: single-day overlap across configured advisory, weather, flight, registry, and NASR sources
+    origin_timezones:
+      ATL: America/New_York
+      JFK: America/New_York
+      EWR: America/New_York
+      LGA: America/New_York
+    role: public_flight_operation_records
+  faa_aircraft_registry:
+    effective_start: 2026-07-28
+    temporal_domain_id: registry-2026-07-28
+    registry_snapshot_at: 2026-07-28T00:00:00Z
+    ingestion_scope: active_bts_flight_tail_numbers
+    role: non_personal_aircraft_technical_lookup
+  historical_metar_speci:
+    effective_start: 2026-05-14
+    effective_end: 2026-05-22
+    temporal_domain_id: proxy-2026-05
+    role: historical_metar_speci
+  nasa_atmonto_instances:
+    effective_start: 2014-07-15
+    effective_end: 2014-07-16
+    temporal_domain_id: nasa-atmonto-2014
+    role: canonical_public_cross_source_sample
+    include_public_sample_layers: true
+    sample_date: 2014-07-15
+    weather_aspm_airport_codes:
+      - KJFK
+      - KEWR
+      - KLGA
+    tmi_scope: all_nas_issued_on_sample_date
+    temporal_selection:
+      weather_observation: observed_on_sample_date
+      weather_forecast: issued_on_sample_date
+      airport_operations: interval_starts_on_sample_date
+      traffic_management_initiative: issued_on_sample_date
+    cross_temporal_join_allowed: false
+    naive_time_basis: source_naive_interpreted_utc
+    naive_time_interpretation:
+      assumed_timezone: UTC
+      source_declares_timezone: false
+      status: ingestion_interpretation
+  nasr_airspace:
+    effective_start: 2026-05-14
+    effective_end: 2026-06-11
+    temporal_domain_id: nasr-2026-05-14
+    role: airport_artcc_reference
+  decision_context_weather:
+    role: time_bounded_non_causal_context

@@ -36,6 +36,9 @@ from aviation_agentic_ai.agent_system.live_agent_evaluation import (
     write_hybrid_query_run_artifact,
 )
 from aviation_agentic_ai.agent_system.query_runtime import open_query_runtime
+from aviation_agentic_ai.agent_system.query_tool_registry import (
+    query_tool_model_role,
+)
 from aviation_agentic_ai.agent_system.runtime import (
     FROZEN_MODEL,
     FROZEN_PROVIDER,
@@ -954,7 +957,7 @@ def run_live_agent_experiment(
                         model_factory=lambda tools: (
                             make_live_tool_calling_model(
                                 tools=tools,
-                                role="query",
+                                role=query_tool_model_role(tools),
                             )
                         ),
                     )

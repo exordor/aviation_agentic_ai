@@ -114,6 +114,7 @@ def test_ingest_routes_selected_domain_and_external_source_root(
         ok_count=1,
         insufficient_count=0,
         blocked_count=0,
+        index_status="updated",
     )
     monkeypatch.setattr(
         cli_module,
@@ -156,6 +157,7 @@ def test_ingest_routes_selected_domain_and_external_source_root(
     assert observed["source_root"] == tmp_path
     assert observed["allow_live_model"] is True
     assert "selected: 1" in result.output
+    assert "retrieval_indexes: updated" in result.output
     assert "knowledge_revision: 7" in result.output
     assert "--selection" not in result.output
     assert "--resume" not in result.output

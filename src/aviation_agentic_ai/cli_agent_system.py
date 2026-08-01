@@ -34,6 +34,9 @@ from aviation_agentic_ai.agent_system.materialize import (
     load_validated_facts_neo4j,
 )
 from aviation_agentic_ai.agent_system.query_runtime import open_query_runtime
+from aviation_agentic_ai.agent_system.query_tool_registry import (
+    query_tool_model_role,
+)
 from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
     DEFAULT_TMI_EVENT_EMBEDDING_MODEL,
 )
@@ -241,6 +244,7 @@ def ingest_command(
     click.echo(f"ok: {summary.ok_count}")
     click.echo(f"insufficient: {summary.insufficient_count}")
     click.echo(f"blocked: {summary.blocked_count}")
+    click.echo(f"retrieval_indexes: {summary.index_status}")
     click.echo(f"knowledge_revision: {revision}")
 
 
@@ -361,7 +365,7 @@ def ask_command(
             ),
             model_factory=lambda tools: make_live_tool_calling_model(
                 tools=tools,
-                role="query",
+                role=query_tool_model_role(tools),
             ),
         )
         cited_source_version_ids = dict.fromkeys(

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Callable, Iterator, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal, Protocol
@@ -125,6 +125,7 @@ class IngestionSummary:
     insufficient_count: int
     blocked_count: int
     results: tuple[IngestionResult, ...]
+    index_status: Literal["not_needed", "updated", "blocked"] = "not_needed"
 
 
 @dataclass(frozen=True)
@@ -139,6 +140,7 @@ class ConfiguredIngestionSummary:
     ok_count: int
     insufficient_count: int
     blocked_count: int
+    index_status: str
     tmi_summary: object | None = None
     flight_airspace_summary: object | None = None
 
@@ -227,6 +229,9 @@ def run_configured_ingestion(
         ok_count=total("ok_count"),
         insufficient_count=total("insufficient_count"),
         blocked_count=total("blocked_count"),
+        index_status=str(
+            getattr(tmi_summary, "index_status", "not_applicable")
+        ),
         tmi_summary=tmi_summary,
         flight_airspace_summary=flight_summary,
     )
@@ -477,10 +482,11 @@ def run_ingestion_pipeline(
         insufficient_count=summary.insufficient_count,
         blocked_count=summary.blocked_count,
     )
+    index_status: Literal["not_needed", "updated", "blocked"] = "not_needed"
     if changed_source_version_ids or changed_event_publication_ids:
         indexer = retrieval_indexer or _update_retrieval_indexes
         try:
-            indexer(
+            index_result = indexer(
                 store,
                 source_version_ids=tuple(
                     sorted(changed_source_version_ids)
@@ -491,11 +497,27 @@ def run_ingestion_pipeline(
                 allow_model_download=allow_model_download,
                 model_name=_embedding_model_name(typed_config),
             )
-        except Exception:
+            index_status = (
+                "blocked"
+                if any(
+                    getattr(state, "status", None) == "blocked"
+                    for state in (index_result or ())
+                )
+                else "updated"
+            )
+        except Exception as exc:
             # Semantic publication is authoritative and already committed.
-            # The default indexer records its own rebuildable failure state.
-            pass
-    return summary
+            from aviation_agentic_ai.agent_system.tmi_event_retrieval_index import (
+                mark_vector_indexes_blocked,
+            )
+
+            mark_vector_indexes_blocked(
+                store,
+                embedding_model_id=_embedding_model_name(typed_config),
+                reason=f"{type(exc).__name__}: {exc}",
+            )
+            index_status = "blocked"
+    return replace(summary, index_status=index_status)
 
 
 def _embedding_model_name(config: dict[str, Any]) -> str:
@@ -564,8 +586,12 @@ def _update_retrieval_indexes(
             source_version_ids=source_version_ids,
             event_publication_ids=event_publication_ids,
         )
-    except Exception:
-        return ()
+    except Exception as exc:
+        return mark_vector_indexes_blocked(
+            store,
+            embedding_model_id=model_name,
+            reason=f"{type(exc).__name__}: {exc}",
+        )
 
 
 def _run_case(

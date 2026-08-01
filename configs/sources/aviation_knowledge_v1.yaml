@@ -1,0 +1,37 @@
+sources:
+  atcscc_advisories: data/processed/nasa_atmonto/aligned/2026-05-14/atcscc_advisories.jsonl
+  stationinfo: data/processed/nasa_atmonto/source/2026-05-14/aviationweather_stationinfo.jsonl
+  metar: data/processed/nasa_atmonto/aligned/2026-05-14/aviationweather_metar.jsonl
+  taf: data/processed/nasa_atmonto/aligned/2026-05-14/aviationweather_taf.jsonl
+  nasr_zip: data/raw/nasa_atmonto/2026-05-14/faa_nasr/28DaySubscription_Effective_2026-05-14.zip
+  nasr_manifest: data/raw/nasa_atmonto/2026-05-14/faa_nasr/manifest.json
+  pilot_controller_glossary: data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/PCG_Bsc_w_Chg_1_and_2_dtd_1-22-26.pdf
+  term_seed: data/sources/faa_atcscc_terms_v1.yaml
+  bts_on_time_manifest: data/sources/bts_on_time_2026_05_manifest.json
+  bts_on_time_snapshot: data/sources/bts_on_time_2026_05_nyc.jsonl
+  bts_flight_operations: data/raw/bts/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2026_5.zip
+  faa_aircraft_registry: data/raw/flight_competency/ReleasableAircraft_2026-07-28.zip
+  historical_metar_speci: data/raw/flight_competency/katl_asos_2026-05-14_2026-05-22.csv
+  nasa_atmonto_instances: data/raw/nasa_atmonto_prototype/allFilesTTL.zip
+  nasr_airspace_zip: data/raw/nasa_atmonto/2026-05-14/faa_nasr/28DaySubscription_Effective_2026-05-14.zip
+
+source_checksums:
+  bts_flight_operations: 4e7b96999440afec8c92dd23bfbc68a5852e14d9a56c3d0d366f884542ea80b3
+  faa_aircraft_registry: 8e42c757a3db24cfcd76638f04d151aa2843bd77d5358f7f847fa661331efe7a
+  historical_metar_speci: be6ef673b82cf39779aacaa57008372464f1a81951c692e08a09689223371f85
+  nasa_atmonto_instances: 93dc9675772649079bef11fe3519e6d99fe0d549318a6696af888b7f2b74df47
+  nasr_airspace_zip: db4793352229c1fd74e9b3d924762376abfa224fe6388768cad25d084c7aeed3
+
+source_urls:
+  faa_atcscc: https://www.fly.faa.gov/adv/advADB.jsp
+  faa_contractions: https://www.faa.gov/regulations_policies/orders_notices/index.cfm/go/document.current/documentNumber/7340.2
+  faa_pilot_controller_glossary: https://www.faa.gov/air_traffic/publications/atpubs/pcg_html/
+  faa_tmi_glossary: https://www.fly.faa.gov/fly/FAQ/Acronyms/acronyms.html
+  faa_nasr: https://www.faa.gov/air_traffic/flight_info/aeronav/aero_data/NASR_Subscription/2026-05-14
+  aviationweather: https://connect.aviationweather.gov/data/api/
+  bts_on_time_fields: https://www.transtats.bts.gov/Fields.asp?gnoyr_VQ=FGJ
+  bts_on_time_archive: https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2026_5.zip
+  bts_flight_operations: https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2026_5.zip
+  faa_aircraft_registry: https://registry.faa.gov/database/ReleasableAircraft.zip
+  historical_metar_speci: https://mesonet.agron.iastate.edu/request/download.phtml
+  nasa_atmonto_instances: https://data.nasa.gov/docs/ontologies/atmonto/allFilesTTL.zip

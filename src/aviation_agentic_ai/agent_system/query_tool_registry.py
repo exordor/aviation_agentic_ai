@@ -109,6 +109,17 @@ QUERY_EVIDENCE_TOOL_NAMES = frozenset(
 QUERY_CONTROL_TOOL_NAMES = frozenset({QUERY_ROUTE_TOOL_NAME})
 
 
+def query_tool_model_role(tools: Sequence[BaseTool]) -> str:
+    """Return the registered prompt role for one dynamically bound tool set."""
+
+    names = frozenset(candidate.name for candidate in tools)
+    if names == QUERY_CONTROL_TOOL_NAMES:
+        return "query_router"
+    if names and names <= QUERY_EVIDENCE_TOOL_NAMES:
+        return "query"
+    raise ValueError(f"unsupported Query Agent tool binding: {sorted(names)}")
+
+
 def build_query_tool_registry(tools: Iterable[BaseTool]) -> QueryToolRegistry:
     ordered_tools: dict[str, BaseTool] = {}
     for candidate in tools:
@@ -281,5 +292,6 @@ __all__ = [
     "TMI_TOOL_NAMES",
     "build_query_route_tool",
     "build_query_tool_registry",
+    "query_tool_model_role",
     "select_query_tools",
 ]

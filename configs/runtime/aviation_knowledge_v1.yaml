@@ -1,0 +1,8 @@
+agent_system:
+  dataset_id: aviation-knowledge-2026-05-v1
+  storage:
+    root: data/stores/aviation/aviation-knowledge-2026-05-v1
+    sqlite: aviation_evidence.sqlite3
+    chroma: chroma
+    exports: exports
+    embedding_model: sentence-transformers/all-MiniLM-L6-v2

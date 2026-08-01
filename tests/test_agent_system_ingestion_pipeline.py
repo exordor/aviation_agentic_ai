@@ -936,7 +936,9 @@ def test_ingestion_indexes_only_new_versions_and_publications(
     assert selected is not None
     assert registered_only is None
     assert first.ok_count == 1
+    assert first.index_status == "updated"
     assert second.skipped_count == 1
+    assert second.index_status == "not_needed"
     assert len(calls) == 1
     assert calls[0]["store"] is store
     assert calls[0]["source_version_ids"] == (
@@ -985,7 +987,21 @@ def test_vector_index_failure_does_not_rollback_semantic_publication(
 
     assert summary.ok_count == 1
     assert summary.blocked_count == 0
+    assert summary.index_status == "blocked"
     assert store.find_tmi_events(api.TMIEventQuery()).total_matches == 1
+    states = tuple(
+        state
+        for collection in (
+            "aviation_source_chunks_v1",
+            "aviation_tmi_events_v1",
+        )
+        if (state := store.get_vector_index_state(collection)) is not None
+    )
+    assert {state.status for state in states} == {"blocked"}
+    assert all(
+        state.failure_reason == "RuntimeError: embedding unavailable"
+        for state in states
+    )
     store.close()
 
 

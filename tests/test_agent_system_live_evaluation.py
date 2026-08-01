@@ -9,6 +9,10 @@ from types import SimpleNamespace
 import pytest
 
 import aviation_agentic_ai.agent_system.live_agent_evaluation as live_eval
+from aviation_agentic_ai.agent_system.query_tool_registry import (
+    build_query_route_tool,
+    query_tool_model_role,
+)
 from aviation_agentic_ai.agent_system.contracts import (
     HybridQueryStatement,
     HybridQuerySupportRecord,
@@ -16,6 +20,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     ModelToolCall,
     QueryGraphEdge,
     QueryGraphPath,
+    QueryRouteTrace,
     QueryToolOutcome,
     QueryToolTrace,
 )
@@ -90,6 +95,18 @@ def _live_call(
             if tool_name
             else []
         ),
+    )
+
+
+def _router_live_call() -> ModelCallRecord:
+    return _live_call(
+        tool_name="select_query_tool_families",
+        raw_response="",
+    ).model_copy(
+        update={
+            "agent": "query_router",
+            "prompt_version": "query-router-v1",
+        }
     )
 
 
@@ -362,6 +379,7 @@ def test_live_evaluator_uses_the_shared_current_query_tool_registry() -> None:
     assert live_eval.HYBRID_QUERY_CONTROL_TOOLS == {
         "select_query_tool_families"
     }
+    assert query_tool_model_role([build_query_route_tool()]) == "query_router"
     assert "store_dir" in inspect.signature(
         run_live_agent_evaluation
     ).parameters
@@ -401,6 +419,47 @@ def test_hybrid_query_run_artifact_is_sanitized_and_records_path_kind(
     assert "raw_response" not in serialized
     assert "sk-secret" not in serialized
     assert result.model_acceptance_status == "passed"
+
+
+def test_route_aware_query_scoring_counts_control_call_without_citing_it(
+    tmp_path: Path,
+) -> None:
+    trial = _trial()
+    base = _supported_graph_outcome()
+    outcome = base.model_copy(
+        update={
+            "route_trace": QueryRouteTrace(
+                status="selected",
+                selected_families=("tmi",),
+                available_families=("source", "tmi", "flight_airspace"),
+                selected_tool_names=("read_tmi_event_graph",),
+            ),
+            "model_calls": [_router_live_call(), *base.model_calls],
+        }
+    )
+    query_run = build_hybrid_query_run_artifact(
+        trial=trial,
+        event_id="urn:event:084",
+        outcome=outcome,
+    )
+    artifact_path = write_hybrid_query_run_artifact(tmp_path, query_run)
+
+    result = score_query_trial(
+        trial=trial,
+        repetition=1,
+        live_model=True,
+        event_id="urn:event:084",
+        outcome=outcome,
+        query_run=query_run,
+        query_run_artifact_path=artifact_path,
+    )
+
+    assert result.model_acceptance_status == "passed"
+    assert result.provider_call_count == 3
+    assert result.native_tool_call_count == 2
+    assert [tool.name for tool in query_run.tools] == [
+        "read_tmi_event_graph"
+    ]
 
 
 def test_query_run_artifact_preserves_exact_source_record_bindings() -> None:

@@ -57,6 +57,7 @@ from aviation_agentic_ai.agent_system.tool_model import (
 from aviation_agentic_ai.agent_system.query_tool_registry import (
     QUERY_CONTROL_TOOL_NAMES,
     QUERY_EVIDENCE_TOOL_NAMES,
+    query_tool_model_role,
 )
 from aviation_agentic_ai.config import (
     load_environment,
@@ -617,8 +618,19 @@ def score_query_trial(
         for call in outcome.model_calls
         if call.agent == "query"
     )
+    router_calls = tuple(
+        call
+        for call in outcome.model_calls
+        if call.agent == "query_router"
+    )
+    all_calls = (*router_calls, *calls)
     native_tools = [
         tool_call.name for call in calls for tool_call in call.tool_calls
+    ]
+    route_native_tools = [
+        tool_call.name
+        for call in router_calls
+        for tool_call in call.tool_calls
     ]
     bound_tools = [trace.tool for trace in outcome.tool_calls]
     assertions = (
@@ -636,10 +648,31 @@ def score_query_trial(
             failed_code="query_budget_not_satisfied",
         ),
         _assertion(
+            "tool_family_routing",
+            outcome.route_trace is None
+            or (
+                len(router_calls) == 1
+                and outcome.route_trace.status == "selected"
+                and bool(outcome.route_trace.selected_tool_names)
+                and set(route_native_tools) <= HYBRID_QUERY_CONTROL_TOOLS
+                and set(bound_tools)
+                <= set(outcome.route_trace.selected_tool_names)
+            ),
+            passed_code="model_routed_to_bounded_tool_families",
+            failed_code="query_tool_family_routing_not_satisfied",
+        ),
+        _assertion(
             "frozen_model_contract",
             _model_configuration_ok(
                 calls,
                 role="query",
+            )
+            and (
+                outcome.route_trace is None
+                or _model_configuration_ok(
+                    router_calls,
+                    role="query_router",
+                )
             ),
             passed_code="frozen_deepseek_configuration_observed",
             failed_code="model_configuration_or_provider_call_failed",
@@ -650,6 +683,10 @@ def score_query_trial(
             and all(
                 name in HYBRID_QUERY_READ_TOOLS
                 for name in (*native_tools, *bound_tools)
+            )
+            and all(
+                name in HYBRID_QUERY_CONTROL_TOOLS
+                for name in route_native_tools
             ),
             passed_code="only_hybrid_query_read_tools_observed",
             failed_code="unregistered_or_write_tool_observed",
@@ -720,7 +757,7 @@ def score_query_trial(
             failed_code="required_graph_path_kind_not_observed",
         ),
     )
-    blocked = any(call.error for call in calls)
+    blocked = any(call.error for call in all_calls)
     if blocked:
         acceptance: Literal["passed", "failed", "blocked", "not_run"] = (
             "blocked"
@@ -773,7 +810,7 @@ def score_query_trial(
                 )
             )
         ),
-        **_shared_model_metadata(calls),
+        **_shared_model_metadata(all_calls),
     )
 
 
@@ -1512,7 +1549,7 @@ def _run_live_evaluation_repetition(
                     scope=HybridQueryScope(event_id=event_id),
                     model_factory=lambda tools: make_live_tool_calling_model(
                         tools=tools,
-                        role="query",
+                        role=query_tool_model_role(tools),
                     ),
                 )
             query_run = build_hybrid_query_run_artifact(

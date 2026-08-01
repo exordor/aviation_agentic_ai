@@ -1,5 +1,8 @@
 import builtins
+from pathlib import Path
 from types import ModuleType
+
+import pytest
 
 from aviation_agentic_ai import config as config_module
 from aviation_agentic_ai.config import (
@@ -31,6 +34,131 @@ def test_ontology_generation_config_uses_larger_token_budget() -> None:
     config = load_yaml("configs/ontology_generation.yaml")
 
     assert config["max_tokens"] == 8192
+
+
+def test_load_yaml_recursively_deep_merges_relative_includes(
+    tmp_path: Path,
+) -> None:
+    nested_dir = tmp_path / "nested"
+    nested_dir.mkdir()
+    (tmp_path / "base.yaml").write_text(
+        """
+runtime:
+  storage:
+    root: base-store
+    sqlite: evidence.sqlite3
+  limits:
+    turns: 2
+sequence:
+  - base
+""".strip(),
+        encoding="utf-8",
+    )
+    (nested_dir / "first.yaml").write_text(
+        """
+includes:
+  - ../base.yaml
+runtime:
+  storage:
+    root: first-store
+  limits:
+    tools: 4
+sources:
+  advisory: advisory.jsonl
+""".strip(),
+        encoding="utf-8",
+    )
+    (tmp_path / "second.yaml").write_text(
+        """
+runtime:
+  storage:
+    chroma: vector-index
+  limits:
+    turns: 3
+sequence:
+  - second
+""".strip(),
+        encoding="utf-8",
+    )
+    root_config = tmp_path / "root.yaml"
+    root_config.write_text(
+        """
+includes:
+  - nested/first.yaml
+  - second.yaml
+runtime:
+  storage:
+    root: local-store
+  local: true
+""".strip(),
+        encoding="utf-8",
+    )
+
+    config = load_yaml(root_config)
+
+    assert config == {
+        "runtime": {
+            "storage": {
+                "root": "local-store",
+                "sqlite": "evidence.sqlite3",
+                "chroma": "vector-index",
+            },
+            "limits": {"turns": 3, "tools": 4},
+            "local": True,
+        },
+        "sequence": ["second"],
+        "sources": {"advisory": "advisory.jsonl"},
+    }
+
+
+def test_load_yaml_rejects_recursive_include_cycles(tmp_path: Path) -> None:
+    nested_dir = tmp_path / "nested"
+    nested_dir.mkdir()
+    first = tmp_path / "first.yaml"
+    second = nested_dir / "second.yaml"
+    first.write_text("includes:\n  - nested/second.yaml\n", encoding="utf-8")
+    second.write_text("includes:\n  - ../first.yaml\n", encoding="utf-8")
+
+    with pytest.raises(
+        ValueError,
+        match=r"YAML include cycle.*first\.yaml.*second\.yaml.*first\.yaml",
+    ):
+        load_yaml(first)
+
+
+def test_active_aviation_config_composes_runtime_sources_and_dataset_scope(
+) -> None:
+    config = load_yaml("configs/aviation_knowledge_v1.yaml")
+
+    assert config["snapshot_set_id"] == "aviation-knowledge-2026-05-v1"
+    assert config["agent_system"] == {
+        "dataset_id": "aviation-knowledge-2026-05-v1",
+        "storage": {
+            "root": "data/stores/aviation/aviation-knowledge-2026-05-v1",
+            "sqlite": "aviation_evidence.sqlite3",
+            "chroma": "chroma",
+            "exports": "exports",
+            "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+        },
+    }
+    assert config["sources"]["nasa_atmonto_instances"] == (
+        "data/raw/nasa_atmonto_prototype/allFilesTTL.zip"
+    )
+    assert config["source_checksums"]["nasa_atmonto_instances"] == (
+        "93dc9675772649079bef11fe3519e6d99fe0d549318a6696af888b7f2b74df47"
+    )
+    assert config["source_urls"]["nasa_atmonto_instances"] == (
+        "https://data.nasa.gov/docs/ontologies/atmonto/allFilesTTL.zip"
+    )
+    nasa_metadata = config["source_metadata"]["nasa_atmonto_instances"]
+    assert nasa_metadata["naive_time_basis"] == (
+        "source_naive_interpreted_utc"
+    )
+    assert nasa_metadata["naive_time_interpretation"] == {
+        "assumed_timezone": "UTC",
+        "source_declares_timezone": False,
+        "status": "ingestion_interpretation",
+    }
 
 
 def test_load_environment_loads_dotenv_once_and_can_force(monkeypatch) -> None:
