@@ -13,8 +13,10 @@ from typing import Any
 from aviation_agentic_ai.agent_system.tmi_profiles import (
     APPLICATION_PROFILE_PATH,
 )
-from aviation_agentic_ai.ontology.atmonto_minimal_loop import SCHEMA_SLICE_PATH
 from aviation_agentic_ai.paths import PROJECT_ROOT
+from aviation_agentic_ai.agent_system.semantic_paths import (
+    ATMONTO_SCHEMA_SLICE_PATH as SCHEMA_SLICE_PATH,
+)
 
 
 ATMONTO_NAMESPACE_ROOT = "https://data.nasa.gov/ontologies/atmonto/"

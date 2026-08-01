@@ -33,7 +33,7 @@ from aviation_agentic_ai.agent_system.tmi_event_retrieval_index import (
     update_store_indexes,
 )
 from aviation_agentic_ai.utils.identifiers import stable_id
-from aviation_agentic_ai.retrieval.chroma_store import (
+from aviation_agentic_ai.agent_system.chroma_store import (
     get_collection,
     open_persistent_client,
 )

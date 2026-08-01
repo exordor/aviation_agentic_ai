@@ -24,7 +24,7 @@ def test_gitignore_covers_secret_runtime_and_model_artifacts() -> None:
         ".env",
         ".venv/",
         "data/indexes/",
-        "data/chunks/",
+        "data/stores/",
         "models/",
         "*.faiss",
         "*.index",
@@ -40,7 +40,8 @@ def test_tracked_files_exclude_secrets_indexes_chunks_and_model_weights() -> Non
     forbidden_exact = {".env"}
     forbidden_prefixes = (
         "data/indexes/",
-        "data/chunks/",
+        "data/stores/",
+        "data/runs/agent_system/",
         "models/",
     )
     forbidden_suffixes = (

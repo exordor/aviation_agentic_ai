@@ -80,8 +80,8 @@ def get_llm(
         from langchain_openai import ChatOpenAI
     except ImportError as exc:
         raise RuntimeError(
-            "Ontology generation requires optional LLM dependencies. "
-            "Install with: uv sync --extra ontology-generation"
+            "The active Agent-system runtime requires optional LLM dependencies. "
+            "Install with: uv sync --extra agent-system"
         ) from exc
 
     load_environment()
@@ -187,7 +187,7 @@ def get_deepseek_mve_llm(
     except ImportError as exc:
         raise RuntimeError(
             "Agent-system live run requires optional LLM dependencies. "
-            "Install with: uv sync --extra ontology-generation"
+            "Install with: uv sync --extra agent-system"
         ) from exc
 
     load_environment()

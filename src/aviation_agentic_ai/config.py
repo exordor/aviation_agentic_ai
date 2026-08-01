@@ -95,10 +95,6 @@ def resolved_config_checksum(config: dict[str, Any]) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def load_default_config() -> dict[str, Any]:
-    return load_yaml("configs/default.yaml")
-
-
 def configured_dataset_id(config: dict[str, Any]) -> str:
     """Return the persistent evidence-store dataset identity."""
 

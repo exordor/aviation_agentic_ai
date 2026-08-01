@@ -49,6 +49,17 @@ def test_active_runtime_does_not_import_historical_cross_source_modules() -> Non
     }
 
 
+def test_active_runtime_does_not_import_historical_retrieval_package() -> None:
+    imports = _imports_under(AGENT_SYSTEM)
+
+    assert not {
+        module
+        for module in imports
+        if module == "aviation_agentic_ai.retrieval"
+        or module.startswith("aviation_agentic_ai.retrieval.")
+    }
+
+
 @pytest.mark.parametrize(
     ("prefix", "parts", "expected"),
     (

@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from aviation_agentic_ai.retrieval.chroma_store import (
+from aviation_agentic_ai.agent_system.chroma_store import (
     cosine_similarity,
     get_collection,
     get_or_create_collection,

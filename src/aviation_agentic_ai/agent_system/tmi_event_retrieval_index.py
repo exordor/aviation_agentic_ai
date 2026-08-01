@@ -32,7 +32,7 @@ from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
 from aviation_agentic_ai.agent_system.tmi_event_retrieval_documents import (
     build_tmi_event_retrieval_document,
 )
-from aviation_agentic_ai.retrieval.chroma_store import (
+from aviation_agentic_ai.agent_system.chroma_store import (
     cosine_similarity,
     get_collection,
     get_or_create_collection,

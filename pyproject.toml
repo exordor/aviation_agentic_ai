@@ -30,22 +30,9 @@ agent-system = [
   "langchain-openai>=0.1",
   "langgraph>=0.2",
 ]
-ontology-generation = [
-  "langchain>=0.2",
-  "langchain-openai>=0.1",
-  "langgraph>=0.2",
-]
-graphrag = [
-  "chromadb>=1.5,<2",
-  "networkx>=3.2",
-  "sentence-transformers>=3.0",
-]
 tmi-event-retrieval = [
   "chromadb>=1.5,<2",
   "sentence-transformers>=3.0",
-]
-ontogpt = [
-  "ontogpt>=1.1",
 ]
 neo4j = [
   "neo4j>=6.0,<7",

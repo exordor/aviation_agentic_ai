@@ -35,7 +35,7 @@ TERM_SEED = ROOT / "data/sources/faa_atcscc_terms_v1.yaml"
 DEFINITION_SEED = ROOT / "data/sources/faa_atcscc_authority_definitions_v1.yaml"
 NOW = datetime(2026, 5, 19, 20, 0, tzinfo=UTC)
 
-CONFIG_SHA256 = "3b60f312bf9592bad8e3eaf35daf2cdffb585193e4112e320b6bdd8ca683b38a"
+CONFIG_SHA256 = "8fac39da0206d9b81e56c32bccc2b0684d73fa5c14307c3167c1aaa19c94bbf8"
 TERM_SEED_SHA256 = "8e8941775f2e086429fb1af9751e1a191c650e737e9de5f9b10b5a4812f3bf77"
 
 
@@ -153,8 +153,8 @@ def _facility(catalog, icao: str):
     )
 
 
-def test_v1_inputs_keep_frozen_checksums():
-    assert _sha(ROOT / "configs/cross_source_v1.yaml") == CONFIG_SHA256
+def test_active_inputs_keep_frozen_checksums():
+    assert _sha(ROOT / "configs/aviation_knowledge_v1.yaml") == CONFIG_SHA256
     assert _sha(TERM_SEED) == TERM_SEED_SHA256
 
 

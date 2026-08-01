@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -9,21 +10,21 @@ from aviation_agentic_ai.agent_system.ontology_alignment import (
     load_atmonto_application_profile,
     validate_atmonto_application_profile,
 )
-from aviation_agentic_ai.ontology.atmonto_minimal_loop import (
-    build_atcscc_schema_slice,
-    build_nasa_atmonto_schema_catalog,
-    classify_tmi,
-)
-
-
 ROOT = Path(__file__).resolve().parents[1]
-ONTOLOGY_DIR = ROOT / "data/ontology/external/icarus_ontology/NASA"
+SCHEMA_SLICE_PATH = ROOT / "data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json"
 ATM = "https://data.nasa.gov/ontologies/atmonto/ATM#"
 
 
+def test_active_alignment_module_has_no_legacy_ontology_loop_dependency() -> None:
+    source = (
+        ROOT / "src/aviation_agentic_ai/agent_system/ontology_alignment.py"
+    ).read_text(encoding="utf-8")
+
+    assert "aviation_agentic_ai.ontology.atmonto_minimal_loop" not in source
+
+
 def test_exact_iri_schema_slice_excludes_icarus_bridge_terms() -> None:
-    catalog = build_nasa_atmonto_schema_catalog(ONTOLOGY_DIR, repo_root=ROOT)
-    schema_slice = build_atcscc_schema_slice(catalog)
+    schema_slice = json.loads(SCHEMA_SLICE_PATH.read_text(encoding="utf-8"))
 
     admitted = {
         str(entry["iri"])
@@ -36,8 +37,7 @@ def test_exact_iri_schema_slice_excludes_icarus_bridge_terms() -> None:
 
 
 def test_admitted_class_hierarchy_has_no_dangling_endpoints() -> None:
-    catalog = build_nasa_atmonto_schema_catalog(ONTOLOGY_DIR, repo_root=ROOT)
-    schema_slice = build_atcscc_schema_slice(catalog)
+    schema_slice = json.loads(SCHEMA_SLICE_PATH.read_text(encoding="utf-8"))
     admitted_classes = {str(entry["iri"]) for entry in schema_slice["classes"]}
 
     assert schema_slice["class_hierarchy"]
@@ -63,10 +63,10 @@ def test_application_profile_pins_sources_and_separates_overlay_values() -> None
         }
     ]
 
-    catalog = build_nasa_atmonto_schema_catalog(ONTOLOGY_DIR, repo_root=ROOT)
+    schema_slice = json.loads(SCHEMA_SLICE_PATH.read_text(encoding="utf-8"))
     impacting_constraints = [
         row
-        for row in catalog["class_property_constraints"]
+        for row in schema_slice["class_property_constraints"]
         if row["property_iri"] == ATM + "impactingCondition"
     ]
     assert impacting_constraints
@@ -89,13 +89,6 @@ def test_application_profile_activates_only_exact_atmonto_tmi_terms() -> None:
     )
     assert profile["atmgraph_alignment"]["role"] == (
         "ABox construction and cross-source query reference; not an imported ontology"
-    )
-
-
-def test_legacy_candidate_extractor_uses_the_active_family_boundary() -> None:
-    assert classify_tmi("ATCSCC ADVZY 003 DCC ROUTE RQD /FL") == "ReRouteTMI"
-    assert classify_tmi("ATCSCC ADVZY 006 EWR ARRIVAL DELAYS") == (
-        "TrafficManagementInitiative"
     )
 
 
