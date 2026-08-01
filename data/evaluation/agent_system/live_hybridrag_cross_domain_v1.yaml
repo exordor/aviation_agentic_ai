@@ -1,0 +1,70 @@
+version: live-hybridrag-cross-domain-v1
+suite_id: live-hybridrag-cross-domain-v1
+mode: live_smoke
+provider: deepseek
+model: deepseek-v4-pro
+temperature: 0.0
+thinking: disabled
+automatic_retry_count: 0
+
+trials:
+  - trial_id: tmi_advisory_138
+    category: tmi
+    question: What TMI was issued for JFK in ATCSCC Advisory 138 on May 19, 2026, when was it issued, what was its effective window, and what reason did the advisory declare?
+    required_families: [source, tmi]
+    required_tool_names: [read_source, read_tmi_event_facts]
+    required_support_kinds: [source_record, source_fact]
+    required_event_ids: [urn:aviation-agentic-ai:event:205dd8308f24ff4b]
+    required_answer_terms: [weather]
+    expected_status: ok
+    scope: {}
+
+  - trial_id: flight_aal1102
+    category: flight
+    question: Describe flight AAL1102 on July 15, 2014, including its airports, aircraft type, departure and arrival times, and accepted trajectory?
+    required_families: [flight_airspace]
+    required_tool_names: [find_flights, read_flight_trajectory]
+    required_support_kinds: [flight_fact, trajectory_fact]
+    required_flight_ids: [flight:10715de507eea28f]
+    expected_status: ok
+    scope: {}
+
+  - trial_id: weather_aal100
+    category: weather
+    question: What time-associated weather observation is recorded for flight AAL100 on July 15, 2014?
+    required_families: [flight_airspace]
+    required_tool_names: [find_flight_weather_associations]
+    required_support_kinds: [temporal_association]
+    required_flight_ids: [flight:8f3822287af08a20]
+    required_answer_terms: [AAL100]
+    expected_status: ok
+    scope: {}
+
+  - trial_id: sector_ranking
+    category: sector
+    question: Which sector had the most distinct recorded flights from 00:00 through 01:00 UTC on July 15, 2014?
+    required_families: [flight_airspace]
+    required_tool_names: [analyze_sector_traffic]
+    required_support_kinds: [aggregate_result]
+    required_answer_terms: [ZNYsector056]
+    expected_status: ok
+    scope: {}
+
+  - trial_id: cross_domain_tmi_flight
+    category: cross_domain
+    question: Which stored flights satisfy the destination, departure-scope, and time-window criteria for GDP 059 on July 15, 2014, and does that prove they were actually controlled?
+    required_families: [flight_airspace]
+    required_tool_names: [find_tmi_applicability_candidates]
+    required_support_kinds: [tmi_applicability]
+    required_flight_ids: [flight:504de2162b91429b, flight:7114da122b794b2d]
+    required_answer_terms: [candidate]
+    expected_status: ok
+    scope: {}
+
+  - trial_id: unsupported_optimality
+    category: insufficient
+    question: Did GDP 059 actually control AAL20 on July 15, 2014, and did it cause that flight's operational delay?
+    required_families: [flight_airspace]
+    required_tool_names: [find_tmi_applicability_candidates]
+    expected_status: insufficient
+    scope: {}

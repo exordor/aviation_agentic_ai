@@ -35,7 +35,7 @@ roles:
       - user: |
           example: choose capabilities for a question comparing a recorded flight with a traffic-management applicability candidate.
         assistant: |
-          {"families":["tmi","flight_airspace"]}
+          {"families":["flight_airspace"]}
     user_template: |
       USER_QUESTION:
       ${user_question}
@@ -47,7 +47,7 @@ roles:
       ${family_cards}
 
   query:
-    prompt_version: hybrid-query-agent-v8
+    prompt_version: hybrid-query-agent-v9
     max_output_tokens: 10000
     invocation_policy: bounded_action_observation_loop
     system: |
@@ -81,10 +81,16 @@ roles:
       - A registry snapshot match is not proof of the aircraft state at Flight time.
       - TMI applicability is a rule-derived candidate, never proof that a Flight
         was controlled, delayed, or assigned an EDCT.
+      - A human TMI label such as "GDP 059" is not a reason. If it is not found
+        as an event record, use find_tmi_applicability_candidates with
+        tmi_reference; do not place the identifier in reason_value.
       - Deterministic aggregate statements must cite the derivation ID returned
         by analyze_sector_traffic.
       - Answer in the language used by the user.
-      - Bind every statement to the exact evidence and source IDs that support it.
+      - Bind direct source statements to exact source IDs. For accepted semantic
+        records, cite their publication, association, or derivation handles;
+        the authoritative store resolves those handles to the complete source
+        closure without copying thousands of source IDs into model context.
       - The statement kind must match a tool support_record, and every cited
         evidence ID and source ID must occur together in that support_record.
       - Use source_record only for exact read_source evidence, with both its

@@ -45,6 +45,45 @@ def _unique(values: list[str] | tuple[str, ...]) -> tuple[str, ...]:
     return tuple(sorted(set(values)))
 
 
+def _semantic_handle_payload(value: object) -> object:
+    """Hide expanded source closures from the model-visible semantic view.
+
+    Accepted publication, association, and derivation IDs are resolvable in
+    the authoritative store. Repeating hundreds or thousands of underlying
+    source-record IDs in every Agent observation adds no retrieval capability
+    and can exhaust the provider context window.
+    """
+
+    if isinstance(value, dict):
+        return {
+            key: _semantic_handle_payload(item)
+            for key, item in value.items()
+            if key
+            not in {"source_ids", "source_version_ids", "source_anchor_ids"}
+        }
+    if isinstance(value, list):
+        return [_semantic_handle_payload(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_semantic_handle_payload(item) for item in value)
+    return value
+
+
+def _compact_derivation_payload(derivation: object) -> dict[str, object]:
+    payload = derivation.model_dump(mode="json")  # type: ignore[attr-defined]
+    return {
+        "derivation_id": payload["derivation_id"],
+        "operation": payload["operation"],
+        "method_version": payload["method_version"],
+        "store_revision": payload["store_revision"],
+        "normalized_parameters": payload["normalized_parameters"],
+        "input_publication_count": len(payload["input_publication_ids"]),
+        "input_source_version_count": len(payload["input_source_version_ids"]),
+        "input_entity_count": len(payload["input_entity_ids"]),
+        "result_checksum": payload["result_checksum"],
+        "result_summary": payload["result_summary"],
+    }
+
+
 class FindFlightsInput(StrictModel):
     flight_id: str | None = Field(default=None, min_length=1)
     call_sign: str | None = Field(default=None, min_length=1)
@@ -111,6 +150,7 @@ class FindTMIApplicabilityInput(StrictModel):
     applicability_id: str | None = Field(default=None, min_length=1)
     flight_id: str | None = Field(default=None, min_length=1)
     tmi_root_id: str | None = Field(default=None, min_length=1)
+    tmi_reference: str | None = Field(default=None, min_length=1)
     tmi_family: str | None = Field(default=None, min_length=1)
     status: Literal[
         "applicability_candidate", "unknown", "not_applicable"
@@ -139,9 +179,7 @@ class FlightAirspaceQueryGateway:
     def _limit(self, value: int | None) -> int:
         if value is None:
             return self.scope.limit
-        if value > self.scope.limit:
-            raise ValueError("limit broadens the query scope")
-        return value
+        return min(value, self.scope.limit)
 
     def _offset(self, value: int | None) -> int:
         if value is None:
@@ -308,9 +346,20 @@ class FlightAirspaceQueryGateway:
             payload={
                 "total_matches": page.total_matches,
                 "returned": len(rows),
-                "flights": [row.model_dump(mode="json") for row in rows],
+                "flights": [
+                    _semantic_handle_payload(row.model_dump(mode="json"))
+                    for row in rows
+                ],
             },
-            support=support,
+            support=[
+                row.model_copy(
+                    update={
+                        "source_ids": (),
+                        "source_version_ids": (),
+                    }
+                )
+                for row in support
+            ],
             limitation="No accepted Flight matched the bounded filters.",
         )
 
@@ -361,9 +410,20 @@ class FlightAirspaceQueryGateway:
                 "total_matches": len(rows),
                 "offset": page.offset,
                 "limit": page.limit,
-                "airports": [row.model_dump(mode="json") for row in rows],
+                "airports": [
+                    _semantic_handle_payload(row.model_dump(mode="json"))
+                    for row in rows
+                ],
             },
-            support=support,
+            support=[
+                row.model_copy(
+                    update={
+                        "source_ids": (),
+                        "source_version_ids": (),
+                    }
+                )
+                for row in support
+            ],
             limitation="No accepted Airport matched the bounded filters.",
         )
 
@@ -402,8 +462,17 @@ class FlightAirspaceQueryGateway:
                 )
             )
         return self._observation(
-            payload=route.model_dump(mode="json"),
-            support=support,
+            payload=_semantic_handle_payload(route.model_dump(mode="json")),
+            support=[
+                row.model_copy(
+                    update={
+                        "source_ids": (),
+                        "source_version_ids": (),
+                        "source_anchor_ids": (),
+                    }
+                )
+                for row in support
+            ],
             limitation="The Flight has no accepted trajectory records.",
         )
 
@@ -455,9 +524,21 @@ class FlightAirspaceQueryGateway:
                 "total_matches": len(rows),
                 "offset": page.offset,
                 "limit": page.limit,
-                "passages": [row.model_dump(mode="json") for row in rows],
+                "passages": [
+                    _semantic_handle_payload(row.model_dump(mode="json"))
+                    for row in rows
+                ],
             },
-            support=support,
+            support=[
+                row.model_copy(
+                    update={
+                        "source_ids": (),
+                        "source_version_ids": (),
+                        "source_anchor_ids": (),
+                    }
+                )
+                for row in support
+            ],
             limitation="No accepted SectorPassage matched the bounded filters.",
         )
 
@@ -479,12 +560,6 @@ class FlightAirspaceQueryGateway:
                     family.value for family in self.scope.source_families
                 ),
             )
-            flight_ids = _unique(
-                [value for row in result.rows for value in row.flight_ids]
-            )
-            passage_ids = _unique(
-                [value for row in result.rows for value in row.passage_ids]
-            )
         else:
             result = self.service.find_close_sector_passage_pairs(
                 sector_id=query.sector_id or "",
@@ -495,20 +570,6 @@ class FlightAirspaceQueryGateway:
                 source_families=tuple(
                     family.value for family in self.scope.source_families
                 ),
-            )
-            flight_ids = _unique(
-                [
-                    value
-                    for row in result.rows
-                    for value in (row.first_flight_id, row.second_flight_id)
-                ]
-            )
-            passage_ids = _unique(
-                [
-                    value
-                    for row in result.rows
-                    for value in (row.first_passage_id, row.second_passage_id)
-                ]
             )
         derivation = result.derivation
         source_ids = self._source_ids_for_versions(
@@ -521,19 +582,32 @@ class FlightAirspaceQueryGateway:
             raise ValueError("sector analysis broadens the source query scope")
         support = []
         if result.rows:
+            sector_ids = tuple(
+                sorted({row.sector_id for row in result.rows})
+            )
             support.append(
                 HybridQuerySupportRecord(
                     kind="aggregate_result",
-                    publication_ids=derivation.input_publication_ids,
-                    flight_ids=flight_ids,
-                    sector_passage_ids=passage_ids,
+                    root_ids=sector_ids,
                     derivation_ids=(derivation.derivation_id,),
-                    source_ids=source_ids,
-                    source_version_ids=derivation.input_source_version_ids,
                 )
             )
+        if query.analysis == "ranking":
+            model_rows = [
+                {
+                    "sector_id": row.sector_id,
+                    "distinct_flight_count": row.distinct_flight_count,
+                    "passage_count": row.passage_count,
+                }
+                for row in result.rows
+            ]
+        else:
+            model_rows = [row.model_dump(mode="json") for row in result.rows]
         return self._observation(
-            payload=result.model_dump(mode="json"),
+            payload={
+                "rows": model_rows,
+                "derivation": _compact_derivation_payload(derivation),
+            },
             support=support,
             limitation="The bounded interval produced no sector-analysis rows.",
         )
@@ -575,10 +649,20 @@ class FlightAirspaceQueryGateway:
                 "match_mode": match_mode,
                 "causal_claim": False,
                 "associations": [
-                    row.model_dump(mode="json") for row in rows
+                    _semantic_handle_payload(row.model_dump(mode="json"))
+                    for row in rows
                 ],
             },
-            support=support,
+            support=[
+                row.model_copy(
+                    update={
+                        "source_ids": (),
+                        "source_version_ids": (),
+                        "source_anchor_ids": (),
+                    }
+                )
+                for row in support
+            ],
             limitation="No non-causal Flight-Weather association was found.",
         )
 
@@ -592,6 +676,7 @@ class FlightAirspaceQueryGateway:
                 applicability_id=query.applicability_id,
                 flight_id=self._flight_id(query.flight_id),
                 tmi_root_id=self._tmi_root_id(query.tmi_root_id),
+                tmi_reference=query.tmi_reference,
                 tmi_family=query.tmi_family,
                 status=query.status,
                 temporal_domain_id=self._temporal_domain(
@@ -631,10 +716,22 @@ class FlightAirspaceQueryGateway:
                 "total_matches": len(rows),
                 "offset": page.offset,
                 "limit": page.limit,
-                "candidates": [row.model_dump(mode="json") for row in rows],
+                "candidates": [
+                    _semantic_handle_payload(row.model_dump(mode="json"))
+                    for row in rows
+                ],
                 "actual_control_claim": False,
             },
-            support=support,
+            support=[
+                row.model_copy(
+                    update={
+                        "source_ids": (),
+                        "source_version_ids": (),
+                        "source_anchor_ids": (),
+                    }
+                )
+                for row in support
+            ],
             limitation="No evidence-bounded TMI applicability candidate was found.",
         )
 
@@ -823,7 +920,10 @@ def build_flight_airspace_query_tools(
     def find_tmi_applicability_candidates_tool(
         **kwargs: object,
     ) -> dict[str, object]:
-        """Find rule-derived candidates, never proof of actual TMI control."""
+        """Find rule-derived candidates; tmi_reference accepts labels like GDP 059.
+
+        Results are never proof of actual TMI control.
+        """
 
         return gateway.find_tmi_applicability_candidates(**kwargs).model_dump(
             mode="json"

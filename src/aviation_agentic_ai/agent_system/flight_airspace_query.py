@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from collections import defaultdict
 from datetime import date, datetime
 from itertools import combinations, product
@@ -249,6 +250,7 @@ class TMIApplicabilityQuery(StrictModel):
     applicability_id: str | None = Field(default=None, min_length=1)
     flight_id: str | None = Field(default=None, min_length=1)
     tmi_root_id: str | None = Field(default=None, min_length=1)
+    tmi_reference: str | None = Field(default=None, min_length=1)
     tmi_family: str | None = Field(default=None, min_length=1)
     status: Literal[
         "applicability_candidate", "unknown", "not_applicable"
@@ -1089,6 +1091,18 @@ class FlightAirspaceQueryService:
             if value is not None:
                 predicates.append(f"{column} = ?")
                 parameters.append(value)
+        if query.tmi_reference is not None:
+            reference_tokens = tuple(
+                dict.fromkeys(
+                    re.findall(
+                        r"[a-z]+|[0-9]+",
+                        query.tmi_reference.lower(),
+                    )
+                )
+            )
+            for token in reference_tokens:
+                predicates.append("LOWER(tmi.root_id) LIKE ?")
+                parameters.append(f"%{token}%")
         self._append_source_scope(
             predicates,
             parameters,

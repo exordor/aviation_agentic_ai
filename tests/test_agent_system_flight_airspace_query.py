@@ -678,6 +678,14 @@ def test_reference_passage_and_applicability_queries_are_generic(
         assert candidates.total_matches == 1
         assert candidates.candidates[0].applicability_id == applicability_id
         assert candidates.candidates[0].actual_control_claim is False
+
+        by_human_reference = service.find_tmi_applicability_candidates(
+            TMIApplicabilityQuery(tmi_reference="TMI 001")
+        )
+        assert by_human_reference.total_matches == 2
+        assert {
+            row.tmi_root_id for row in by_human_reference.candidates
+        } == {"urn:tmi:2014:001"}
     finally:
         store.close()
 
@@ -701,6 +709,8 @@ def test_generic_query_tools_return_typed_agent_evidence(tmp_path: Path) -> None
         assert flights["status"] == "ok"
         assert len(flights["details"]["flight_ids"]) == 2
         assert flights["support_records"][0]["kind"] == "flight_fact"
+        assert flights["support_records"][0]["source_ids"] == []
+        assert "source_ids" not in json.loads(flights["content"])["flights"][0]
 
         analysis = tools["analyze_sector_traffic"].invoke(
             {
@@ -714,7 +724,13 @@ def test_generic_query_tools_return_typed_agent_evidence(tmp_path: Path) -> None
         assert analysis["status"] == "ok"
         assert len(analysis["details"]["derivation_ids"]) == 1
         assert analysis["support_records"][0]["kind"] == "aggregate_result"
+        assert analysis["details"]["root_ids"] == [SECTOR_ID]
+        assert analysis["support_records"][0]["source_ids"] == []
         assert "1525" in analysis["content"]
+        compact_analysis = json.loads(analysis["content"])
+        assert "input_source_version_ids" not in compact_analysis["derivation"]
+        assert compact_analysis["derivation"]["input_source_version_count"] > 0
+        assert "passage_ids" not in compact_analysis["rows"][0]
 
         bounded_gateway = FlightAirspaceQueryGateway(
             runtime=runtime,
@@ -821,8 +837,6 @@ def test_natural_language_query_agent_selects_generic_flight_tool(
                             text="DAL flight 101 is recorded from KATL to KJFK.",
                             support_flight_ids=(flight.flight_id,),
                             support_publication_ids=(flight.publication_id,),
-                            support_source_ids=flight.source_ids,
-                            support_source_version_ids=flight.source_version_ids,
                         ),
                     ),
                 ).model_dump_json()

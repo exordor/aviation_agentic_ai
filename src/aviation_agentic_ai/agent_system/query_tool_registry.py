@@ -145,8 +145,9 @@ def build_query_tool_registry(tools: Iterable[BaseTool]) -> QueryToolRegistry:
         QueryToolFamily.TMI: QueryToolFamilySpec(
             family=QueryToolFamily.TMI,
             description=(
-                "Traffic-management initiatives, declared reasons, Weather "
-                "context, BTS observations, event graphs, and TMI similarity."
+                "Persisted ATCSCC traffic-management event records, declared "
+                "reasons, Weather context, BTS observations, event graphs, "
+                "and TMI similarity."
             ),
             tool_names=TMI_TOOL_NAMES,
         ),
@@ -154,7 +155,8 @@ def build_query_tool_registry(tools: Iterable[BaseTool]) -> QueryToolRegistry:
             family=QueryToolFamily.FLIGHT_AIRSPACE,
             description=(
                 "Flights, airports and ARTCC roles, routes, track points, "
-                "sectors, temporal Weather associations, and TMI candidates."
+                "sectors, temporal Weather associations, and rule-derived TMI "
+                "applicability over generic knowledge roots."
             ),
             tool_names=FLIGHT_AIRSPACE_TOOL_NAMES,
         ),

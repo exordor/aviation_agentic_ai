@@ -44,6 +44,19 @@ from aviation_agentic_ai.utils.identifiers import stable_id
 ReasonStatus = Literal["formal", "profile_gap", "missing"]
 ObservationPhase = Literal["baseline", "active", "recovery"]
 GraphView = Literal["edges", "evidence_paths"]
+_PUBLIC_EVENT_IRI_PREFIX = "urn:aviation-agentic-ai:event:"
+
+
+def _canonical_event_subject(value: str) -> str:
+    """Map the Formal Publication Kernel's compact event ID to its public IRI."""
+
+    if value.startswith("evt:"):
+        return _PUBLIC_EVENT_IRI_PREFIX + value.removeprefix("evt:")
+    return value
+
+
+def _is_event_subject(subject_iri: str, event_id: str) -> bool:
+    return _canonical_event_subject(subject_iri) == _canonical_event_subject(event_id)
 
 
 class EventEvidencePath(StrictModel):
@@ -265,9 +278,7 @@ class HybridQueryGateway:
     def _limit(self, requested: int | None) -> int:
         if requested is None:
             return self.scope.limit
-        if requested > self.scope.limit:
-            raise ValueError("limit broadens the query scope")
-        return requested
+        return min(requested, self.scope.limit)
 
     def _families(
         self,
@@ -424,6 +435,7 @@ class HybridQueryGateway:
         return HybridQuerySupportRecord(
             kind="source_fact",
             event_ids=(event.event_id,),
+            publication_ids=(event.publication_id,),
             source_ids=(source.source_id,),
             source_version_ids=(event.publication_source_version_id,),
         )
@@ -535,7 +547,7 @@ class HybridQueryGateway:
         candidate_facts = tuple(
             fact
             for fact in self.store.get_event_facts(event_id)
-            if fact.subject_iri == event_id
+            if _is_event_subject(fact.subject_iri, event_id)
         )
         candidate_gaps = self.store.get_event_profile_gaps(event_id)
         publication_support = self._publication_support(event)
@@ -774,6 +786,13 @@ class HybridQueryGateway:
                     for value in record.event_ids
                 ]
             ),
+            publication_ids=_unique(
+                [
+                    value
+                    for record in support
+                    for value in record.publication_ids
+                ]
+            ),
             fact_ids=_unique(
                 [
                     value
@@ -916,7 +935,7 @@ class HybridQueryGateway:
         controlled_edges = tuple(
             edge
             for edge in edges
-            if edge.subject_iri == event_id
+            if _is_event_subject(edge.subject_iri, event_id)
             and edge.object_kind == "iri"
             and _local_name(edge.predicate_iri) == "controlledNASelement"
         )

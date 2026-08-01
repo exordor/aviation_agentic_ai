@@ -23,7 +23,11 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceFamily,
 )
 from aviation_agentic_ai.agent_system.hybrid_query_agent import (
+    MAX_QUERY_PROVIDER_TURNS,
+    MAX_QUERY_TOOL_CALLS,
+    MAX_QUERY_TOOL_CALLS_PER_TURN,
     run_hybrid_query_agent,
+    validate_hybrid_query_statement,
 )
 from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
 
@@ -301,6 +305,47 @@ def test_flight_and_aggregate_evidence_ids_survive_the_agent_loop() -> None:
     assert outcome.tool_calls[0].derivation_ids == ["urn:query-derivation:1"]
 
 
+def test_semantic_and_derived_handles_do_not_require_expanded_source_ids() -> None:
+    statement = HybridQueryStatement(
+        kind="aggregate_result",
+        text="Sector 56 has the most distinct flights in the interval.",
+        support_derivation_ids=("urn:query-derivation:sector-ranking",),
+    )
+    support = HybridQuerySupportRecord(
+        kind="aggregate_result",
+        derivation_ids=("urn:query-derivation:sector-ranking",),
+    )
+
+    assert validate_hybrid_query_statement(statement, [support]) is None
+
+
+def test_non_causal_flight_weather_statement_accepts_temporal_handle() -> None:
+    statement = HybridQueryStatement(
+        kind="non_causal_context",
+        text=(
+            "This is temporal proximity evidence only and does not establish "
+            "that the weather caused any flight outcome."
+        ),
+        support_flight_ids=("urn:flight:1",),
+        support_derivation_ids=("urn:derivation:weather",),
+        support_temporal_association_ids=("urn:association:weather",),
+    )
+    support = HybridQuerySupportRecord(
+        kind="temporal_association",
+        flight_ids=("urn:flight:1",),
+        derivation_ids=("urn:derivation:weather",),
+        temporal_association_ids=("urn:association:weather",),
+    )
+
+    assert validate_hybrid_query_statement(statement, [support]) is None
+
+
+def test_cross_domain_query_budget_allows_one_full_parallel_tool_batch() -> None:
+    assert MAX_QUERY_PROVIDER_TURNS >= 6
+    assert MAX_QUERY_TOOL_CALLS_PER_TURN >= 6
+    assert MAX_QUERY_TOOL_CALLS >= 10
+
+
 def test_multiple_model_selected_tools_feed_the_answer_turn() -> None:
     model = _LoopModel(
         calls=[
@@ -478,7 +523,7 @@ def test_zero_tool_calls_is_blocked() -> None:
     assert model.phases == ["query_step"]
 
 
-def test_more_than_three_tool_calls_is_blocked_before_execution() -> None:
+def test_four_parallel_tool_calls_are_allowed_for_cross_domain_retrieval() -> None:
     calls = [
         {
             "id": f"call-{index}",
@@ -491,9 +536,8 @@ def test_more_than_three_tool_calls_is_blocked_before_execution() -> None:
 
     outcome = _run(model)
 
-    assert outcome.status == "blocked"
-    assert "tool-call budget" in outcome.failure_reason
-    assert outcome.tool_calls == []
+    assert outcome.status == "ok"
+    assert len(outcome.tool_calls) == 4
 
 
 def test_unknown_tool_and_invalid_arguments_are_blocked() -> None:
@@ -532,7 +576,7 @@ def test_provider_error_and_turn_budget_are_blocked() -> None:
                 }
             ],
         )
-        for index in range(1, 5)
+        for index in range(1, MAX_QUERY_PROVIDER_TURNS + 1)
     ]
     turn_budget = _LoopModel(
         responses=repeated,
@@ -562,6 +606,8 @@ def test_malformed_or_unsupported_answer_is_blocked() -> None:
     assert "JSON" in malformed_outcome.failure_reason
     assert unsupported_outcome.status == "blocked"
     assert "unsupported" in unsupported_outcome.failure_reason
+    assert unsupported_outcome.support_records
+    assert unsupported_outcome.retrieved_fact_ids == ["urn:fact:facility"]
 
 
 def test_single_json_code_fence_is_accepted_without_using_surrounding_prose() -> None:

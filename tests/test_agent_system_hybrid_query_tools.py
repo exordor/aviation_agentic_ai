@@ -49,7 +49,7 @@ from aviation_agentic_ai.agent_system.tmi_event_retrieval_contracts import (
 from aviation_agentic_ai.utils.identifiers import stable_id
 
 
-FORMAL_EVENT_ID = "urn:event:formal-reason"
+FORMAL_EVENT_ID = "urn:aviation-agentic-ai:event:formal-reason"
 GAP_EVENT_ID = "urn:event:profile-gap"
 MISSING_EVENT_ID = "urn:event:missing-reason"
 FACILITY_ID = "urn:facility:KJFK"
@@ -610,7 +610,11 @@ def test_tool_registry_exposes_nine_read_only_tools(tmp_path: Path) -> None:
     result = next(
         tool for tool in tools if tool.name == "read_tmi_event_facts"
     ).invoke({"event_id": FORMAL_EVENT_ID})
-    assert HybridQueryToolObservation.model_validate(result).status == "ok"
+    observation = HybridQueryToolObservation.model_validate(result)
+    assert observation.status == "ok"
+    assert observation.details.publication_ids == (
+        scenario.events[FORMAL_EVENT_ID].publication_id,
+    )
     scenario.store.close()
 
 
@@ -622,8 +626,8 @@ def test_find_events_and_scope_cannot_be_broadened(tmp_path: Path) -> None:
     assert observation.details.event_ids == (FORMAL_EVENT_ID,)
     with pytest.raises(ValueError, match="outside the query scope"):
         gateway.read_tmi_event_facts(event_id=MISSING_EVENT_ID)
-    with pytest.raises(ValueError, match="limit"):
-        gateway.find_tmi_events(limit=3)
+    clamped = gateway.find_tmi_events(limit=3)
+    assert json.loads(clamped.content)["limit"] == 1
     scenario.store.close()
 
 
@@ -711,6 +715,28 @@ def test_reason_states_weather_and_bts_roles_are_preserved(
         "public_observation"
     }
     scenario.store.close()
+
+
+def test_public_event_id_reads_kernel_evt_subject_alias(tmp_path: Path) -> None:
+    scenario = _live_store(tmp_path)
+    try:
+        with scenario.store._connection:
+            scenario.store._connection.execute(
+                "UPDATE semantic_facts SET subject_iri = ? WHERE fact_id = ?",
+                ("evt:formal-reason", "fact:formal:reason"),
+            )
+
+        payload = json.loads(
+            _gateway(scenario).read_tmi_event_facts(
+                event_id=FORMAL_EVENT_ID
+            ).content
+        )
+
+        assert "fact:formal:reason" in {
+            fact["fact_id"] for fact in payload["facts"]
+        }
+    finally:
+        scenario.store.close()
 
 
 def test_event_graph_and_reviewed_paths_are_event_scoped(

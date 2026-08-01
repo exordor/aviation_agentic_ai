@@ -31,9 +31,9 @@ from aviation_agentic_ai.agent_system.prompts import (
 from aviation_agentic_ai.agent_system.tool_model import ToolCallingModel
 
 
-MAX_QUERY_PROVIDER_TURNS = 4
-MAX_QUERY_TOOL_CALLS_PER_TURN = 3
-MAX_QUERY_TOOL_CALLS = 6
+MAX_QUERY_PROVIDER_TURNS = 6
+MAX_QUERY_TOOL_CALLS_PER_TURN = 6
+MAX_QUERY_TOOL_CALLS = 10
 
 ModelFactory = Callable[[list[BaseTool]], ToolCallingModel]
 
@@ -53,12 +53,14 @@ def _blocked(
     reason: str,
     model_calls: list[ModelCallRecord],
     tool_calls: list[QueryToolTrace],
+    observations: list[HybridQueryToolObservation] | None = None,
 ) -> QueryToolOutcome:
     return QueryToolOutcome(
         status="blocked",
         failure_reason=sanitize_text(reason),
         model_calls=model_calls,
         tool_calls=tool_calls,
+        **_query_outcome_evidence(observations or []),
     )
 
 
@@ -181,6 +183,72 @@ def _merge_evidence(
     )
 
 
+def _query_outcome_evidence(
+    observations: list[HybridQueryToolObservation],
+) -> dict[str, Any]:
+    evidence = _merge_evidence(observations)
+    graph_paths = sorted(
+        {
+            path.path_id: path
+            for observation in observations
+            for path in observation.graph_paths
+        }.values(),
+        key=lambda path: path.path_id,
+    )
+    similarity_matches = sorted(
+        {
+            match.event_id: match
+            for observation in observations
+            for match in observation.similarity_matches
+        }.values(),
+        key=lambda match: match.rank,
+    )
+    return {
+        "match_count": max(
+            len(evidence.event_ids),
+            len(evidence.root_ids),
+            len(evidence.flight_ids),
+        ),
+        "retrieved_event_ids": list(evidence.event_ids),
+        "retrieved_root_ids": list(evidence.root_ids),
+        "retrieved_publication_ids": list(evidence.publication_ids),
+        "retrieved_flight_ids": list(evidence.flight_ids),
+        "retrieved_aircraft_ids": list(evidence.aircraft_ids),
+        "retrieved_airport_artcc_assignment_ids": list(
+            evidence.airport_artcc_assignment_ids
+        ),
+        "retrieved_snapshot_match_ids": list(evidence.snapshot_match_ids),
+        "retrieved_route_ids": list(evidence.route_ids),
+        "retrieved_track_point_ids": list(evidence.track_point_ids),
+        "retrieved_sector_passage_ids": list(evidence.sector_passage_ids),
+        "source_ids": list(evidence.source_ids),
+        "retrieved_fact_ids": list(evidence.fact_ids),
+        "retrieved_profile_gap_ids": list(evidence.profile_gap_ids),
+        "retrieved_context_association_ids": list(
+            evidence.context_association_ids
+        ),
+        "retrieved_observation_ids": list(evidence.observation_ids),
+        "retrieved_derivation_ids": list(evidence.derivation_ids),
+        "retrieved_temporal_association_ids": list(
+            evidence.temporal_association_ids
+        ),
+        "retrieved_tmi_applicability_ids": list(
+            evidence.tmi_applicability_ids
+        ),
+        "retrieved_graph_path_ids": list(evidence.graph_path_ids),
+        "retrieved_source_version_ids": list(evidence.source_version_ids),
+        "retrieved_source_anchor_ids": list(evidence.source_anchor_ids),
+        "retrieved_chunk_ids": list(evidence.chunk_ids),
+        "retrieved_graph_paths": graph_paths,
+        "similarity_matches": similarity_matches,
+        "support_records": [
+            record
+            for observation in observations
+            for record in observation.support_records
+        ],
+    }
+
+
 def _unsupported_ids(
     statement: HybridQueryStatement,
     evidence: HybridQueryEvidence,
@@ -264,10 +332,13 @@ def _matching_support_records(
     statement: HybridQueryStatement,
     support_records: list[HybridQuerySupportRecord],
 ) -> list[HybridQuerySupportRecord]:
+    compatible_kinds = {statement.kind}
+    if statement.kind == "non_causal_context":
+        compatible_kinds.add("temporal_association")
     return [
         record
         for record in support_records
-        if record.kind == statement.kind
+        if record.kind in compatible_kinds
     ]
 
 
@@ -412,8 +483,24 @@ def _claim_boundary_error(statement: HybridQueryStatement) -> str | None:
         "\u6700\u4f18",
     )
     padded = f" {normalized} "
-    if any(phrase in padded for phrase in causal_phrases):
-        return "causal statement crosses the claim boundary"
+    non_causal_markers = (
+        "does not establish",
+        "does not imply",
+        "does not prove",
+        "is not proof",
+        "no causal claim",
+        "not a causal claim",
+        "cannot establish",
+        "\u4e0d\u80fd\u8bc1\u660e",
+        "\u4e0d\u8868\u793a",
+        "\u4e0d\u6784\u6210\u56e0\u679c",
+    )
+    for sentence in re.split(r"[.!?;]+", normalized):
+        padded_sentence = f" {sentence} "
+        if any(phrase in padded_sentence for phrase in causal_phrases) and not any(
+            marker in sentence for marker in non_causal_markers
+        ):
+            return "causal statement crosses the claim boundary"
     if statement.kind == "public_observation" and any(
         phrase in padded
         for phrase in (
@@ -434,13 +521,29 @@ def _claim_boundary_error(statement: HybridQueryStatement) -> str | None:
 
 
 def _statement_support_error(statement: HybridQueryStatement) -> str | None:
-    if not statement.support_source_ids:
+    semantic_handle_kinds = {
+        "non_causal_context",
+        "flight_fact",
+        "aircraft_fact",
+        "reference_association",
+        "snapshot_association",
+        "trajectory_fact",
+        "sector_passage",
+        "aggregate_result",
+        "temporal_association",
+        "tmi_applicability",
+    }
+    if (
+        statement.kind not in semantic_handle_kinds
+        and not statement.support_source_ids
+    ):
         return "statement has no supporting source ID"
+    if statement.kind == "non_causal_context" and not (
+        statement.support_context_association_ids
+        or statement.support_temporal_association_ids
+    ):
+        return "non-causal context statement has no context association"
     required_fields = {
-        "non_causal_context": (
-            "support_context_association_ids",
-            "non-causal context statement has no context association",
-        ),
         "public_observation": (
             "support_observation_ids",
             "public observation statement has no observation",
@@ -622,6 +725,7 @@ def run_hybrid_query_agent(
                     reason=str(exc),
                     model_calls=model_calls,
                     tool_calls=traces,
+                    observations=observations,
                 )
             break
         if len(calls) > MAX_QUERY_TOOL_CALLS_PER_TURN:
@@ -680,6 +784,7 @@ def run_hybrid_query_agent(
                     reason=f"invalid arguments or blocked query tool: {name}",
                     model_calls=model_calls,
                     tool_calls=traces,
+                    observations=observations,
                 )
             duration_ms = (time.perf_counter() - started) * 1000.0
             traces.append(
@@ -735,6 +840,7 @@ def run_hybrid_query_agent(
                     reason=observation.limitation or f"query tool blocked: {name}",
                     model_calls=model_calls,
                     tool_calls=traces,
+                    observations=observations,
                 )
             tool_messages.append(
                 ToolMessage(
@@ -749,6 +855,7 @@ def run_hybrid_query_agent(
             reason="Hybrid Query Agent provider-turn budget exceeded",
             model_calls=model_calls,
             tool_calls=traces,
+            observations=observations,
         )
 
     evidence = _merge_evidence(observations)
@@ -764,6 +871,7 @@ def run_hybrid_query_agent(
             reason="ok answer cannot be supported by insufficient tool evidence",
             model_calls=model_calls,
             tool_calls=traces,
+            observations=observations,
         )
     for statement in answer.statements:
         unsupported = _unsupported_ids(statement, evidence)
@@ -772,6 +880,7 @@ def run_hybrid_query_agent(
                 reason="final answer cites unsupported evidence IDs",
                 model_calls=model_calls,
                 tool_calls=traces,
+                observations=observations,
             )
         validation_error = validate_hybrid_query_statement(
             statement,
@@ -782,18 +891,21 @@ def run_hybrid_query_agent(
                 reason=f"final answer statement rejected: {validation_error}",
                 model_calls=model_calls,
                 tool_calls=traces,
+                observations=observations,
             )
     if answer.status == "ok" and not answer.statements:
         return _blocked(
             reason="ok answer has no evidence-bound statements",
             model_calls=model_calls,
             tool_calls=traces,
+            observations=observations,
         )
     if answer.status == "insufficient" and not answer.limitations:
         return _blocked(
             reason="insufficient answer has no limitation",
             model_calls=model_calls,
             tool_calls=traces,
+            observations=observations,
         )
 
     graph_paths = sorted(
