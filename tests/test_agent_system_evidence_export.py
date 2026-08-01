@@ -25,6 +25,18 @@ from aviation_agentic_ai.agent_system.ingestion_package import (
     EventIngestionPackage,
     IngestionAttempt,
 )
+from aviation_agentic_ai.agent_system.knowledge_publication import (
+    KnowledgePublicationPackage,
+    KnowledgePublicationRecord,
+    KnowledgeRootRecord,
+    PublicationEvidenceLink,
+    PublicationFactMembership,
+    PublicationSourceMembership,
+    stable_knowledge_publication_id,
+)
+from aviation_agentic_ai.agent_system.materialize import (
+    _validate_neo4j_projection,
+)
 from aviation_agentic_ai.agent_system.storage_contracts import (
     EventEvidenceLink,
     EventWeatherAssociation,
@@ -39,6 +51,7 @@ from aviation_agentic_ai.utils.identifiers import stable_id
 ATM = "https://data.nasa.gov/ontologies/atmonto/ATM#"
 DATA = "https://data.nasa.gov/ontologies/atmonto/data#"
 NAS = "https://data.nasa.gov/ontologies/atmonto/NAS#"
+GEN = "https://data.nasa.gov/ontologies/atmonto/general#"
 RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 EVENT_A = "urn:aviation-agentic-ai:event:A"
 EVENT_B = "urn:aviation-agentic-ai:event:B"
@@ -52,6 +65,11 @@ WEATHER_PROFILE = ValidationProfileRef(
     profile_id="profile:weather:export-test",
     profile_checksum="b" * 64,
     layer="weather",
+)
+FLIGHT_PROFILE = ValidationProfileRef(
+    profile_id="profile:flight:export-test",
+    profile_checksum="c" * 64,
+    layer="flight_operation",
 )
 
 
@@ -403,6 +421,160 @@ def _store(tmp_path: Path) -> tuple[AviationEvidenceStore, dict[str, object]]:
     }
 
 
+def _publish_flight_graph(store: AviationEvidenceStore) -> tuple[str, set[str]]:
+    source = _version(
+        "source:flight:DL100",
+        "DL100 KATL-KJFK route R1 crossed ZTL sector 42.",
+        SourceFamily.BTS_FLIGHT_OPERATION,
+    )
+    store.register_source_version(source)
+    anchor = store.register_source_anchor(
+        source.source_version_id,
+        char_start=0,
+        char_end=len(source.content),
+    )
+    flight_id = "urn:nasa:flight:DL100"
+    route_id = "urn:nasa:route:DL100"
+    point_id = "urn:nasa:track-point:DL100:1"
+    fix_id = "urn:nasa:fix:ATL01"
+    sector_id = "urn:nasa:sector:ZTL42"
+    facts = (
+        SemanticFactRecord(
+            fact_id="fact:flight:type",
+            subject_iri=flight_id,
+            subject_class_iri=f"{ATM}Flight",
+            predicate_iri=RDF_TYPE,
+            object_kind="iri",
+            object_value=f"{ATM}Flight",
+            object_class_iri=f"{ATM}Flight",
+            datatype_iri=None,
+            validation_profile=FLIGHT_PROFILE,
+            evidence_mode="source_text",
+        ),
+        SemanticFactRecord(
+            fact_id="fact:flight:route",
+            subject_iri=flight_id,
+            subject_class_iri=f"{ATM}Flight",
+            predicate_iri=f"{ATM}hasActualRoute",
+            object_kind="iri",
+            object_value=route_id,
+            object_class_iri=f"{ATM}ActualFlightRoute",
+            datatype_iri=None,
+            validation_profile=FLIGHT_PROFILE,
+            evidence_mode="source_text",
+        ),
+        SemanticFactRecord(
+            fact_id="fact:route:point",
+            subject_iri=route_id,
+            subject_class_iri=f"{ATM}ActualFlightRoute",
+            predicate_iri=f"{GEN}hasSequencedItem",
+            object_kind="iri",
+            object_value=point_id,
+            object_class_iri=f"{ATM}AircraftTrackPoint",
+            datatype_iri=None,
+            validation_profile=FLIGHT_PROFILE,
+            evidence_mode="source_text",
+        ),
+        SemanticFactRecord(
+            fact_id="fact:point:fix",
+            subject_iri=point_id,
+            subject_class_iri=f"{ATM}AircraftTrackPoint",
+            predicate_iri=f"{ATM}aircraftFix",
+            object_kind="iri",
+            object_value=fix_id,
+            object_class_iri=f"{ATM}NavigationFix",
+            datatype_iri=None,
+            validation_profile=FLIGHT_PROFILE,
+            evidence_mode="source_text",
+        ),
+        SemanticFactRecord(
+            fact_id="fact:fix:sector",
+            subject_iri=fix_id,
+            subject_class_iri=f"{ATM}NavigationFix",
+            predicate_iri=f"{ATM}locatedInSector",
+            object_kind="iri",
+            object_value=sector_id,
+            object_class_iri=f"{NAS}Sector",
+            datatype_iri=None,
+            validation_profile=FLIGHT_PROFILE,
+            evidence_mode="source_text",
+        ),
+    )
+    digest = hashlib.sha256(
+        "|".join(fact.fact_id for fact in facts).encode("utf-8")
+    ).hexdigest()
+    publication_id = stable_knowledge_publication_id(
+        flight_id,
+        source.source_version_id,
+        digest,
+    )
+    package = KnowledgePublicationPackage(
+        root=KnowledgeRootRecord(
+            root_id=flight_id,
+            root_kind="flight",
+            temporal_domain_id="test-flight-domain",
+            active_publication_id=publication_id,
+        ),
+        publication=KnowledgePublicationRecord(
+            publication_id=publication_id,
+            root_id=flight_id,
+            temporal_domain_id="test-flight-domain",
+            primary_source_version_id=source.source_version_id,
+            formal_publication_digest=digest,
+        ),
+        publication_sources=(
+            PublicationSourceMembership(
+                membership_id=stable_id(
+                    "publication-source",
+                    publication_id,
+                    source.source_version_id,
+                    "primary",
+                ),
+                publication_id=publication_id,
+                source_version_id=source.source_version_id,
+                source_role="primary",
+            ),
+        ),
+        source_anchors=(anchor,),
+        facts=facts,
+        fact_memberships=tuple(
+            PublicationFactMembership(
+                membership_id=stable_id(
+                    "publication-fact",
+                    publication_id,
+                    fact.fact_id,
+                ),
+                publication_id=publication_id,
+                fact_id=fact.fact_id,
+            )
+            for fact in facts
+        ),
+        evidence_links=tuple(
+            PublicationEvidenceLink(
+                evidence_link_id=stable_id(
+                    "publication-evidence",
+                    publication_id,
+                    "fact",
+                    fact.fact_id,
+                    source.source_version_id,
+                    anchor.source_anchor_id,
+                    "full_record",
+                ),
+                publication_id=publication_id,
+                owner_kind="fact",
+                owner_id=fact.fact_id,
+                source_version_id=source.source_version_id,
+                source_anchor_id=anchor.source_anchor_id,
+                evidence_text=source.content,
+                evidence_ref="full_record",
+            )
+            for fact in facts
+        ),
+    )
+    store.apply_knowledge_publication(package)
+    return flight_id, {fact.fact_id for fact in facts}
+
+
 def test_export_event_isolates_active_event_and_exact_source_versions(
     tmp_path: Path,
 ) -> None:
@@ -490,3 +662,58 @@ def test_store_kg_projection_equals_active_facts_and_excludes_context(
     ) in graph
     assert projection.fact_count == len(active_fact_ids)
     assert Path(projection.manifest_path).exists()
+
+
+def test_store_kg_projection_includes_all_active_knowledge_roots(
+    tmp_path: Path,
+) -> None:
+    store, rows = _store(tmp_path)
+    flight_id, flight_fact_ids = _publish_flight_graph(store)
+
+    projection = build_store_kg_projection(store, tmp_path / "mixed-kg")
+
+    kg_rows = _jsonl(Path(projection.jsonl_path))
+    fact_ids = {row["fact_id"] for row in kg_rows}
+    manifest = json.loads(Path(projection.manifest_path).read_text())
+    node_rows = _jsonl(Path(projection.nodes_path))
+    relationship_rows = _jsonl(Path(projection.relationships_path))
+    labels_by_id = {row["id"]: row["label"] for row in node_rows}
+
+    assert flight_fact_ids <= fact_ids
+    assert manifest["format"] == "aviation-evidence-kg-export-v2"
+    assert manifest["formal_root_kind_counts"] == {
+        "flight": 1,
+        "tmi_event": 2,
+    }
+    assert projection.root_count == 3
+    assert projection.root_kind_counts == {"flight": 1, "tmi_event": 2}
+    flight_row = next(row for row in kg_rows if row["fact_id"] == "fact:flight:route")
+    assert flight_row["publication_bindings"][0]["root_id"] == flight_id
+    assert flight_row["publication_bindings"][0]["root_kind"] == "flight"
+    assert labels_by_id[flight_id] == "Flight"
+    assert labels_by_id["urn:nasa:route:DL100"] == "FlightRoute"
+    assert labels_by_id["urn:nasa:track-point:DL100:1"] == "TrackPoint"
+    assert labels_by_id["urn:nasa:fix:ATL01"] == "NavigationFix"
+    assert labels_by_id["urn:nasa:sector:ZTL42"] == "Sector"
+    assert {
+        row["type"]
+        for row in relationship_rows
+        if row["start_id"].startswith("urn:nasa:")
+    } >= {
+        "HAS_ACTUAL_ROUTE",
+        "HAS_SEQUENCED_ITEM",
+        "AIRCRAFT_FIX",
+        "LOCATED_IN_SECTOR",
+    }
+    route_relationship = next(
+        row
+        for row in relationship_rows
+        if row["type"] == "HAS_ACTUAL_ROUTE"
+    )
+    assert route_relationship["properties"]["root_ids"] == [flight_id]
+    assert route_relationship["properties"]["root_kinds"] == ["flight"]
+    assert route_relationship["properties"]["publication_ids"]
+    assert route_relationship["properties"]["source_version_ids"]
+    _validate_neo4j_projection(node_rows, relationship_rows)
+    exported = Path(projection.jsonl_path).read_text(encoding="utf-8")
+    assert rows["association"].association_id not in exported

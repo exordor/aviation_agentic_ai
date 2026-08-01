@@ -18,11 +18,14 @@ from typing import Any, Iterable
 from aviation_agentic_ai.agent_system.evidence_store import (
     AviationEvidenceStore,
 )
+from aviation_agentic_ai.agent_system.kg_projection_contract import (
+    FORMAL_CLASS_LABELS,
+    FORMAL_RELATIONSHIP_TYPES,
+    SEMANTIC_RELATION,
+)
 from aviation_agentic_ai.agent_system.storage_contracts import (
-    EventEvidenceLink,
     SemanticFactRecord,
     SourceVersionRecord,
-    TMIEventRecord,
 )
 from aviation_agentic_ai.utils.identifiers import stable_id
 
@@ -69,6 +72,7 @@ _RELATIONSHIP_TYPES = {
     f"{_PROV}used": "USED",
     f"{_PROV}generated": "GENERATED",
     f"{_PROV}wasDerivedFrom": "DERIVED_FROM",
+    **FORMAL_RELATIONSHIP_TYPES,
 }
 
 
@@ -82,7 +86,8 @@ class KGProjection:
     ttl_path: str
     nodes_path: str
     relationships_path: str
-    event_count: int
+    root_count: int
+    root_kind_counts: dict[str, int]
     fact_count: int
     evidence_link_count: int
 
@@ -156,11 +161,7 @@ def export_event(
     _write_models(out / "source_versions.jsonl", versions)
     _write_models(out / "source_anchors.jsonl", anchors)
 
-    projection = _build_projection(
-        store,
-        out,
-        events=(event,),
-    )
+    projection = _build_projection(store, out, root_ids=(event.event_id,))
     artifact_names = (
         "event.json",
         "facts.jsonl",
@@ -195,17 +196,16 @@ def build_store_kg_projection(
     store: AviationEvidenceStore,
     output_dir: str | Path,
 ) -> KGProjection:
-    """Project all active formal facts and exact event provenance."""
+    """Project every active formal knowledge root and exact provenance."""
 
-    events = store.list_tmi_event_publications(active_only=True)
-    return _build_projection(store, Path(output_dir), events=events)
+    return _build_projection(store, Path(output_dir))
 
 
 def _build_projection(
     store: AviationEvidenceStore,
     output_dir: Path,
     *,
-    events: tuple[TMIEventRecord, ...],
+    root_ids: tuple[str, ...] = (),
 ) -> KGProjection:
     output_dir.mkdir(parents=True, exist_ok=True)
     facts: dict[str, SemanticFactRecord] = {}
@@ -213,51 +213,48 @@ def _build_projection(
     versions: dict[str, SourceVersionRecord] = {}
     evidence_link_count = 0
 
-    for event in sorted(events, key=lambda row: row.event_id):
-        event_facts = store.get_event_facts(
-            event.event_id,
-            publication_id=event.publication_id,
-        )
-        event_links = tuple(
-            link
-            for link in store.get_event_evidence(
-                event.event_id,
-                publication_id=event.publication_id,
+    active_bindings = store.list_active_formal_fact_bindings(root_ids=root_ids)
+    roots = {
+        (row.root_id, row.root_kind, row.temporal_domain_id)
+        for row in active_bindings
+    }
+    root_kind_counts: dict[str, int] = defaultdict(int)
+    for _root_id, root_kind, _temporal_domain_id in roots:
+        root_kind_counts[root_kind] += 1
+    for row in active_bindings:
+        fact = row.fact
+        previous = facts.setdefault(fact.fact_id, fact)
+        if previous != fact:
+            raise ValueError(f"conflicting semantic fact: {fact.fact_id}")
+        if not row.evidence_links:
+            raise ValueError(
+                f"active formal fact has no evidence binding: {fact.fact_id}"
             )
-            if link.owner_kind == "fact"
-        )
-        links_by_fact: dict[str, list[EventEvidenceLink]] = defaultdict(list)
-        for link in event_links:
-            links_by_fact[link.owner_id].append(link)
+        evidence_link_count += len(row.evidence_links)
+        for link in row.evidence_links:
             version = store.get_source_version(link.source_version_id)
             if version is not None:
                 versions[version.source_version_id] = version
-        evidence_link_count += len(event_links)
-        for fact in event_facts:
-            previous = facts.setdefault(fact.fact_id, fact)
-            if previous != fact:
-                raise ValueError(f"conflicting semantic fact: {fact.fact_id}")
-            bindings[fact.fact_id].append(
-                {
-                    "event_id": event.event_id,
-                    "publication_id": event.publication_id,
-                    "evidence_links": [
-                        link.model_dump(mode="json")
-                        for link in sorted(
-                            links_by_fact.get(fact.fact_id, ()),
-                            key=lambda row: row.evidence_link_id,
-                        )
-                    ],
-                }
-            )
+        bindings[fact.fact_id].append(
+            {
+                "root_id": row.root_id,
+                "root_kind": row.root_kind,
+                "temporal_domain_id": row.temporal_domain_id,
+                "publication_id": row.publication_id,
+                "evidence_links": [
+                    link.model_dump(mode="json")
+                    for link in row.evidence_links
+                ],
+            }
+        )
 
     jsonl_rows = [
         {
             **facts[fact_id].model_dump(mode="json"),
-            "event_bindings": sorted(
+            "publication_bindings": sorted(
                 bindings[fact_id],
                 key=lambda row: (
-                    row["event_id"],
+                    row["root_id"],
                     row["publication_id"],
                 ),
             ),
@@ -284,10 +281,11 @@ def _build_projection(
     _write_jsonl(relationships_path, relationship_rows)
 
     manifest = {
-        "format": "aviation-evidence-kg-export-v1",
+        "format": "aviation-evidence-kg-export-v2",
         "dataset_id": store.dataset_id,
         "knowledge_revision": store.get_knowledge_revision(),
-        "active_event_count": len(events),
+        "formal_root_count": len(roots),
+        "formal_root_kind_counts": dict(sorted(root_kind_counts.items())),
         "fact_count": len(facts),
         "fact_evidence_link_count": evidence_link_count,
         "artifacts": {
@@ -309,7 +307,8 @@ def _build_projection(
         ttl_path=str(ttl_path),
         nodes_path=str(nodes_path),
         relationships_path=str(relationships_path),
-        event_count=len(events),
+        root_count=len(roots),
+        root_kind_counts=dict(sorted(root_kind_counts.items())),
         fact_count=len(facts),
         evidence_link_count=evidence_link_count,
     )
@@ -371,7 +370,7 @@ def _write_rdf(
                     statement,
                     URIRef("urn:aviation-agentic-ai:publication"),
                     URIRef(
-                        "urn:aviation-agentic-ai:event-publication:"
+                        "urn:aviation-agentic-ai:knowledge-publication:"
                         f"{binding['publication_id']}"
                     ),
                 )
@@ -493,21 +492,19 @@ def _neo4j_rows(
                 object_id,
                 class_iri=fact.object_class_iri,
             )
-            relationship_type = _RELATIONSHIP_TYPES.get(predicate)
-            if relationship_type is None:
-                _merge_node_property(
-                    subject["properties"],
-                    f"{_local_name(predicate)}_iris",
-                    object_id,
-                )
-            else:
-                relationship_id = stable_id(
-                    "neo4j-rel",
-                    subject_id,
-                    predicate,
-                    object_id,
-                )
-                relationships[relationship_id] = {
+            relationship_type = _RELATIONSHIP_TYPES.get(
+                predicate,
+                SEMANTIC_RELATION,
+            )
+            relationship_id = stable_id(
+                "neo4j-rel",
+                subject_id,
+                predicate,
+                object_id,
+            )
+            relationship = relationships.setdefault(
+                relationship_id,
+                {
                     "id": relationship_id,
                     "type": relationship_type,
                     "start_id": subject_id,
@@ -515,9 +512,73 @@ def _neo4j_rows(
                     "properties": {
                         "id": relationship_id,
                         "predicate_iri": predicate,
-                        "fact_ids": [fact_id],
+                        "fact_ids": [],
                     },
-                }
+                },
+            )
+            relationship["properties"]["fact_ids"] = sorted(
+                set(relationship["properties"]["fact_ids"]) | {fact_id}
+            )
+            _merge_list_property(
+                relationship["properties"],
+                "root_ids",
+                {
+                    binding["root_id"]
+                    for binding in bindings[fact_id]
+                },
+            )
+            _merge_list_property(
+                relationship["properties"],
+                "root_kinds",
+                {
+                    binding["root_kind"]
+                    for binding in bindings[fact_id]
+                },
+            )
+            _merge_list_property(
+                relationship["properties"],
+                "temporal_domain_ids",
+                {
+                    binding["temporal_domain_id"]
+                    for binding in bindings[fact_id]
+                },
+            )
+            _merge_list_property(
+                relationship["properties"],
+                "publication_ids",
+                {
+                    binding["publication_id"]
+                    for binding in bindings[fact_id]
+                },
+            )
+            _merge_list_property(
+                relationship["properties"],
+                "source_version_ids",
+                {
+                    link["source_version_id"]
+                    for binding in bindings[fact_id]
+                    for link in binding["evidence_links"]
+                },
+            )
+            _merge_list_property(
+                relationship["properties"],
+                "source_anchor_ids",
+                {
+                    link["source_anchor_id"]
+                    for binding in bindings[fact_id]
+                    for link in binding["evidence_links"]
+                    if link["source_anchor_id"] is not None
+                },
+            )
+            _merge_list_property(
+                relationship["properties"],
+                "evidence_refs",
+                {
+                    link["evidence_ref"]
+                    for binding in bindings[fact_id]
+                    for link in binding["evidence_links"]
+                },
+            )
         for binding in bindings[fact_id]:
             for link in binding["evidence_links"]:
                 source_version_id = link["source_version_id"]
@@ -550,7 +611,11 @@ def _neo4j_rows(
                         "id": relationship_id,
                         "predicate_iri": f"{_PROV}wasDerivedFrom",
                         "fact_ids": [fact_id],
-                        "event_id": binding["event_id"],
+                        "root_id": binding["root_id"],
+                        "root_kind": binding["root_kind"],
+                        "temporal_domain_id": binding[
+                            "temporal_domain_id"
+                        ],
                         "publication_id": binding["publication_id"],
                         "source_version_id": source_version_id,
                         "source_anchor_id": link["source_anchor_id"],
@@ -569,6 +634,8 @@ def _node_label(resource_iri: str, class_iri: str | None) -> str:
         return "Facility"
     if resolved_class.endswith("Airport"):
         return "Facility"
+    if resolved_class in FORMAL_CLASS_LABELS:
+        return FORMAL_CLASS_LABELS[resolved_class]
     if resolved_class == f"{_DATA}MeteorologicalReport":
         return "MeteorologicalReport"
     if resolved_class == f"{_SOSA}Observation":
@@ -579,7 +646,12 @@ def _node_label(resource_iri: str, class_iri: str | None) -> str:
         return "TimeInterval"
     if resolved_class == f"{_TIME}Instant":
         return "TimeInstant"
-    return "AviationEvent"
+    if resolved_class.startswith(_ATM) and (
+        resolved_class.endswith("TMI")
+        or resolved_class.endswith("TrafficManagementInitiative")
+    ):
+        return "AviationEvent"
+    return "AviationEntity"
 
 
 def _merge_node_property(
@@ -597,6 +669,16 @@ def _merge_node_property(
     if value not in values:
         values.append(value)
     properties[key] = sorted(values, key=str)
+
+
+def _merge_list_property(
+    properties: dict[str, Any],
+    key: str,
+    values: Iterable[str],
+) -> None:
+    properties[key] = sorted(
+        set(properties.get(key, ())) | set(values),
+    )
 
 
 def _native_literal(fact: SemanticFactRecord) -> Any:

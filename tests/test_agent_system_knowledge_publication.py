@@ -429,3 +429,206 @@ def test_store_applies_general_publication_once_through_common_spine(
         assert row[0] == publication_id
     finally:
         store.close()
+
+
+def test_store_lists_only_active_formal_fact_bindings_in_stable_order(
+    tmp_path: Path,
+) -> None:
+    from aviation_agentic_ai.agent_system.evidence_store import (
+        AviationEvidenceStore,
+    )
+
+    def source_version(source_id: str, content: str) -> SourceVersionRecord:
+        digest = hashlib.sha256(content.encode()).hexdigest()
+        return SourceVersionRecord(
+            source_version_id=stable_id("source-version", source_id, digest),
+            source_id=source_id,
+            family=SourceFamily.NASA_ATMONTO_INSTANCE,
+            asset_id=None,
+            content=content,
+            content_sha256=digest,
+            source_url=None,
+            logical_time="2014-07-15T00:00:00+00:00",
+            metadata={"temporal_domain_id": "nasa-atmonto-2014"},
+        )
+
+    def publication_package(
+        *,
+        root_id: str,
+        root_kind: str,
+        source: SourceVersionRecord,
+        publication_digest: str,
+        fact_ids: tuple[str, ...],
+        store: AviationEvidenceStore,
+    ) -> KnowledgePublicationPackage:
+        publication_id = stable_knowledge_publication_id(
+            root_id,
+            source.source_version_id,
+            publication_digest,
+        )
+        anchor = store.register_source_anchor(
+            source.source_version_id,
+            char_start=0,
+            char_end=len(source.content),
+        )
+        facts = tuple(
+            SemanticFactRecord(
+                fact_id=fact_id,
+                subject_iri=root_id,
+                subject_class_iri=(
+                    "https://data.nasa.gov/ontologies/atmonto/ATM#Flight"
+                    if root_kind == "flight"
+                    else "https://data.nasa.gov/ontologies/atmonto/NAS#Sector"
+                ),
+                predicate_iri=(
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                ),
+                object_kind="iri",
+                object_value=(
+                    "https://data.nasa.gov/ontologies/atmonto/ATM#Flight"
+                    if root_kind == "flight"
+                    else "https://data.nasa.gov/ontologies/atmonto/NAS#Sector"
+                ),
+                object_class_iri=(
+                    "https://data.nasa.gov/ontologies/atmonto/ATM#Flight"
+                    if root_kind == "flight"
+                    else "https://data.nasa.gov/ontologies/atmonto/NAS#Sector"
+                ),
+                datatype_iri=None,
+                validation_profile=PROFILE,
+                evidence_mode="source_text",
+            )
+            for fact_id in fact_ids
+        )
+        return KnowledgePublicationPackage(
+            root=KnowledgeRootRecord(
+                root_id=root_id,
+                root_kind=root_kind,
+                temporal_domain_id="nasa-atmonto-2014",
+                active_publication_id=publication_id,
+            ),
+            publication=KnowledgePublicationRecord(
+                publication_id=publication_id,
+                root_id=root_id,
+                temporal_domain_id="nasa-atmonto-2014",
+                primary_source_version_id=source.source_version_id,
+                formal_publication_digest=publication_digest,
+            ),
+            publication_sources=(
+                PublicationSourceMembership(
+                    membership_id=stable_id(
+                        "publication-source",
+                        publication_id,
+                        source.source_version_id,
+                        "primary",
+                    ),
+                    publication_id=publication_id,
+                    source_version_id=source.source_version_id,
+                    source_role="primary",
+                ),
+            ),
+            source_anchors=(anchor,),
+            facts=facts,
+            fact_memberships=tuple(
+                PublicationFactMembership(
+                    membership_id=stable_id(
+                        "publication-fact",
+                        publication_id,
+                        fact.fact_id,
+                    ),
+                    publication_id=publication_id,
+                    fact_id=fact.fact_id,
+                )
+                for fact in facts
+            ),
+            evidence_links=tuple(
+                PublicationEvidenceLink(
+                    evidence_link_id=stable_id(
+                        "publication-evidence",
+                        publication_id,
+                        "fact",
+                        fact.fact_id,
+                        source.source_version_id,
+                        anchor.source_anchor_id,
+                        f"record#{fact.fact_id}",
+                    ),
+                    publication_id=publication_id,
+                    owner_kind="fact",
+                    owner_id=fact.fact_id,
+                    source_version_id=source.source_version_id,
+                    source_anchor_id=anchor.source_anchor_id,
+                    evidence_text=source.content,
+                    evidence_ref=f"record#{fact.fact_id}",
+                )
+                for fact in reversed(facts)
+            ),
+        )
+
+    store = AviationEvidenceStore.open(
+        tmp_path / "store",
+        dataset_id="dataset:test",
+        create=True,
+    )
+    try:
+        flight_old_source = source_version("source:flight:old", "Old flight record.")
+        flight_new_source = source_version("source:flight:new", "Current flight record.")
+        sector_source = source_version("source:sector", "Current sector record.")
+        for source in (flight_old_source, flight_new_source, sector_source):
+            store.register_source_version(source)
+
+        flight_old = publication_package(
+            root_id="urn:nasa:flight:A",
+            root_kind="flight",
+            source=flight_old_source,
+            publication_digest="1" * 64,
+            fact_ids=("fact:flight:retired",),
+            store=store,
+        )
+        flight_active = publication_package(
+            root_id="urn:nasa:flight:A",
+            root_kind="flight",
+            source=flight_new_source,
+            publication_digest="2" * 64,
+            fact_ids=("fact:flight:type-z", "fact:flight:type-a"),
+            store=store,
+        )
+        sector_active = publication_package(
+            root_id="urn:nasa:sector:B",
+            root_kind="sector",
+            source=sector_source,
+            publication_digest="3" * 64,
+            fact_ids=("fact:sector:type",),
+            store=store,
+        )
+        assert store.apply_knowledge_publication(flight_old) == "inserted"
+        assert store.apply_knowledge_publication(flight_active) == "activated"
+        assert store.apply_knowledge_publication(sector_active) == "inserted"
+
+        bindings = store.list_active_formal_fact_bindings()
+
+        assert [
+            (row.root_id, row.root_kind, row.fact.fact_id)
+            for row in bindings
+        ] == [
+            ("urn:nasa:flight:A", "flight", "fact:flight:type-a"),
+            ("urn:nasa:flight:A", "flight", "fact:flight:type-z"),
+            ("urn:nasa:sector:B", "sector", "fact:sector:type"),
+        ]
+        assert all(
+            row.publication_id == flight_active.publication.publication_id
+            for row in bindings[:2]
+        )
+        assert all(
+            link.publication_id == row.publication_id
+            and link.fact_id == row.fact.fact_id
+            for row in bindings
+            for link in row.evidence_links
+        )
+        assert [
+            row.fact.fact_id
+            for row in store.list_active_formal_fact_bindings(
+                root_ids=("urn:nasa:sector:B",),
+            )
+        ] == ["fact:sector:type"]
+    finally:
+        store.close()

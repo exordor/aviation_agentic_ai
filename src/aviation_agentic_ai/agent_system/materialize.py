@@ -22,6 +22,11 @@ from aviation_agentic_ai.agent_system.contracts import (
     ValidationProfileRef,
     WeatherFactTrace,
 )
+from aviation_agentic_ai.agent_system.kg_projection_contract import (
+    FORMAL_CLASS_LABELS,
+    FORMAL_RELATIONSHIP_TYPES,
+    SEMANTIC_RELATION,
+)
 from aviation_agentic_ai.agent_system.validation_profiles import (
     LoadedValidationProfile,
     ValidationProfileRegistry,
@@ -1140,12 +1145,16 @@ _ALLOWED_NEO4J_LABELS = {
     _LABEL_SOURCE,
     _LABEL_WEATHER_REPORT,
     *_PUBLIC_CLASS_LABELS.values(),
+    *FORMAL_CLASS_LABELS.values(),
+    "AviationEntity",
 }
 _ALLOWED_NEO4J_RELATIONSHIPS = {
     _REL_CONTROLLED,
     _REL_DERIVED,
     _REL_FORECASTING_AIRPORT,
     *_PUBLIC_RELATIONSHIP_TYPES.values(),
+    *FORMAL_RELATIONSHIP_TYPES.values(),
+    SEMANTIC_RELATION,
 }
 _SAFE_NEO4J_TOKEN = re.compile(r"^[A-Z][A-Z0-9_]*$")
 

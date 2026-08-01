@@ -22,9 +22,11 @@ from aviation_agentic_ai.agent_system.knowledge_publication import (
     KnowledgePublicationPackage,
 )
 from aviation_agentic_ai.agent_system.storage_contracts import (
+    ActiveFormalFactBinding,
     EventEvidenceLink,
     EventProfileGapRecord,
     EventWeatherAssociation,
+    FormalFactEvidenceBinding,
     IngestionResult,
     KnowledgeIngestionResult,
     PublicObservationRecord,
@@ -2981,6 +2983,98 @@ class AviationEvidenceStore:
             self._write_ingestion_result(attempt.result)
             self._increment_knowledge_revision(now)
         return outcome
+
+    def list_active_formal_fact_bindings(
+        self,
+        *,
+        root_ids: Sequence[str] = (),
+    ) -> tuple[ActiveFormalFactBinding, ...]:
+        """Return active formal facts and their ordered source evidence."""
+
+        selected_root_ids = tuple(sorted(set(root_ids)))
+        parameters: list[object] = []
+        root_filter = ""
+        if selected_root_ids:
+            placeholders = ", ".join("?" for _ in selected_root_ids)
+            root_filter = f"AND root.root_id IN ({placeholders})"
+            parameters.extend(selected_root_ids)
+        rows = self._connection.execute(
+            f"""
+            SELECT
+                root.root_id,
+                root.root_kind,
+                root.temporal_domain_id,
+                root.active_publication_id AS publication_id,
+                fact.*,
+                evidence.evidence_link_id,
+                evidence.source_version_id AS evidence_source_version_id,
+                evidence.source_anchor_id,
+                evidence.evidence_text,
+                evidence.evidence_ref
+            FROM knowledge_roots AS root
+            JOIN publication_facts AS membership
+              ON membership.publication_id = root.active_publication_id
+            JOIN semantic_facts AS fact
+              ON fact.fact_id = membership.fact_id
+            LEFT JOIN publication_evidence_links AS evidence
+              ON evidence.publication_id = root.active_publication_id
+             AND evidence.owner_kind = 'fact'
+             AND evidence.owner_id = fact.fact_id
+            WHERE root.active_publication_id IS NOT NULL
+              {root_filter}
+            ORDER BY
+                root.root_id,
+                root.active_publication_id,
+                fact.fact_id,
+                evidence.evidence_link_id
+            """,
+            parameters,
+        ).fetchall()
+
+        grouped: dict[
+            tuple[str, str, str, str, str],
+            tuple[SemanticFactRecord, list[FormalFactEvidenceBinding]],
+        ] = {}
+        for row in rows:
+            key = (
+                row["root_id"],
+                row["root_kind"],
+                row["temporal_domain_id"],
+                row["publication_id"],
+                row["fact_id"],
+            )
+            if key not in grouped:
+                grouped[key] = (self._semantic_fact_from_row(row), [])
+            if row["evidence_link_id"] is not None:
+                grouped[key][1].append(
+                    FormalFactEvidenceBinding(
+                        evidence_link_id=row["evidence_link_id"],
+                        publication_id=row["publication_id"],
+                        fact_id=row["fact_id"],
+                        source_version_id=row["evidence_source_version_id"],
+                        source_anchor_id=row["source_anchor_id"],
+                        evidence_text=row["evidence_text"],
+                        evidence_ref=row["evidence_ref"],
+                    )
+                )
+
+        return tuple(
+            ActiveFormalFactBinding(
+                root_id=root_id,
+                root_kind=root_kind,
+                temporal_domain_id=temporal_domain_id,
+                publication_id=publication_id,
+                fact=fact,
+                evidence_links=tuple(evidence_links),
+            )
+            for (
+                root_id,
+                root_kind,
+                temporal_domain_id,
+                publication_id,
+                _fact_id,
+            ), (fact, evidence_links) in grouped.items()
+        )
 
     def get_event(
         self,

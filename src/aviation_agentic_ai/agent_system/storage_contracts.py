@@ -199,6 +199,29 @@ class SemanticFactRecord(StrictModel):
     ]
 
 
+class FormalFactEvidenceBinding(StrictModel):
+    """Source evidence bound to one formally published fact."""
+
+    evidence_link_id: str = Field(min_length=1)
+    publication_id: str = Field(min_length=1)
+    fact_id: str = Field(min_length=1)
+    source_version_id: str = Field(min_length=1)
+    source_anchor_id: str | None
+    evidence_text: str | None
+    evidence_ref: str = Field(min_length=1)
+
+
+class ActiveFormalFactBinding(StrictModel):
+    """One fact and its evidence from an active knowledge publication."""
+
+    root_id: str = Field(min_length=1)
+    root_kind: str = Field(min_length=1)
+    temporal_domain_id: str = Field(min_length=1)
+    publication_id: str = Field(min_length=1)
+    fact: SemanticFactRecord
+    evidence_links: tuple[FormalFactEvidenceBinding, ...] = ()
+
+
 class EventEvidenceLink(StrictModel):
     """Event-scoped provenance for a formal or non-formal publication member."""
 
