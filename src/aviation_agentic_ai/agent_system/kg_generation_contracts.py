@@ -12,6 +12,7 @@ from typing import Literal
 from pydantic import Field, model_validator
 
 from aviation_agentic_ai.agent_system.contracts import EvidenceCard, StrictModel
+from aviation_agentic_ai.agent_system.storage_contracts import SourceAnchorRecord
 from aviation_agentic_ai.agent_system.ontology_registry import OntologySlice
 
 
@@ -50,13 +51,48 @@ class CandidateFact(StrictModel):
     evidence_ref: str = Field(min_length=1)
 
 
+class GenerationEvidenceRecord(StrictModel):
+    """Runtime-owned binding from a prompt evidence reference to a source span.
+
+    The model sees the stable ``evidence_ref`` and the quoted text, while the
+    deterministic publication stage uses the version and anchor fields to
+    prove that the reference resolves to an immutable source record.  The
+    generator cannot create these bindings.
+    """
+
+    evidence_ref: str = Field(min_length=1)
+    source_id: str = Field(min_length=1)
+    source_version_id: str = Field(min_length=1)
+    source_anchor_id: str = Field(min_length=1)
+    char_start: int = Field(ge=0)
+    char_end: int = Field(gt=0)
+    evidence_text: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_anchor_identity(self) -> GenerationEvidenceRecord:
+        expected_anchor_id = SourceAnchorRecord(
+            source_anchor_id=self.source_anchor_id,
+            source_version_id=self.source_version_id,
+            char_start=self.char_start,
+            char_end=self.char_end,
+            # The task does not carry the complete source content, so the
+            # anchor kind is finalized by the publication bridge.
+            anchor_kind="text_span",
+        ).source_anchor_id
+        if self.source_anchor_id != expected_anchor_id:
+            raise ValueError("generation evidence anchor identity is not stable")
+        return self
+
+
 class OntologyGenerationTask(StrictModel):
     """Closed context handed to one ontology-constrained generation call."""
 
     task_id: str = Field(min_length=1)
     root_id: str = Field(min_length=1)
+    temporal_domain_id: str = Field(min_length=1)
     ontology_slice: OntologySlice
     evidence_cards: tuple[EvidenceCard, ...] = ()
+    evidence_bindings: tuple[GenerationEvidenceRecord, ...] = Field(min_length=1)
     evidence_refs: tuple[str, ...] = ()
     candidate_entities: tuple[CandidateEntity, ...] = ()
 
@@ -64,10 +100,12 @@ class OntologyGenerationTask(StrictModel):
     def _validate_task_scope(self) -> OntologyGenerationTask:
         if not self.evidence_cards:
             raise ValueError("at least one evidence card is required")
-        if not self.evidence_refs:
-            raise ValueError("at least one evidence reference is required")
-        if len(set(self.evidence_refs)) != len(self.evidence_refs):
+        binding_refs = tuple(binding.evidence_ref for binding in self.evidence_bindings)
+        if len(set(binding_refs)) != len(binding_refs):
             raise ValueError("evidence references must be unique")
+        if self.evidence_refs and self.evidence_refs != binding_refs:
+            raise ValueError("evidence_refs must match evidence_bindings")
+        self.evidence_refs = binding_refs
 
         class_iris = {row.iri for row in self.ontology_slice.classes}
         entity_ids: set[str] = set()
@@ -172,6 +210,7 @@ __all__ = [
     "CandidateFact",
     "CandidateFactProposal",
     "GenerationAbstention",
+    "GenerationEvidenceRecord",
     "OntologyGenerationTask",
     "ProfileGapProposal",
 ]

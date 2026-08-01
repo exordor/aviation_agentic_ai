@@ -12,6 +12,7 @@ from aviation_agentic_ai.agent_system.contracts import (
 )
 from aviation_agentic_ai.agent_system.kg_generation import generate_candidate_facts
 from aviation_agentic_ai.agent_system.kg_generation_contracts import (
+    GenerationEvidenceRecord,
     OntologyGenerationTask,
 )
 from aviation_agentic_ai.agent_system.ontology_registry import (
@@ -20,6 +21,7 @@ from aviation_agentic_ai.agent_system.ontology_registry import (
     load_ontology_registry,
 )
 from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
+from aviation_agentic_ai.utils.identifiers import stable_id
 
 
 CONTROLLED_NAS_ELEMENT = (
@@ -58,9 +60,25 @@ def _task() -> OntologyGenerationTask:
     return OntologyGenerationTask(
         task_id="generation-task-1",
         root_id="event:runtime-owned-1",
+        temporal_domain_id="test-domain-v1",
         ontology_slice=ontology_slice,
         evidence_cards=(evidence,),
-        evidence_refs=("ev-003",),
+        evidence_bindings=(
+            GenerationEvidenceRecord(
+                evidence_ref="ev-003",
+                source_id="source-advisory-1",
+                source_version_id="source-version-1",
+                source_anchor_id=stable_id(
+                    "source-anchor",
+                    "source-version-1",
+                    0,
+                    24,
+                ),
+                char_start=0,
+                char_end=24,
+                evidence_text="CONTROLLED ELEMENT: KJFK",
+            ),
+        ),
         candidate_entities=(
             {
                 "entity_id": "airport:KJFK",
