@@ -87,6 +87,33 @@ This publishes Flight, Aircraft/Model, Airport/ARTCC, Route, TrackPoint,
 Sector, Weather, and reviewed association roots through the same generic
 publication spine used by the TMI domain.
 
+## Optional Web Evidence Sidecar
+
+Web Evidence is a separate, opt-in ingestion domain. The tracked configuration
+keeps `sources.web_evidence.enabled: false`, so ordinary `ingest` and
+`--domain all` runs make no sidecar calls. Start a pinned Wigolo `0.2.1`
+sidecar separately, then use a local composed configuration that enables the
+approved seed and allowlist. The sidecar is an acquisition adapter only; the
+project persists fetched content, immutable source versions, anchors, and FTS
+chunks in the same SQLite store. A sidecar failure does not roll back TMI or
+Flight/Airspace publications.
+
+With that local configuration, the reproducible entry point is:
+
+```bash
+uv run aviation-ai agent-system ingest \
+  --config /path/to/local/web-enabled-aviation-knowledge.yaml \
+  --store-dir data/stores/aviation/aviation-knowledge-web-v1 \
+  --domain web \
+  --allow-live-web
+```
+
+`--allow-live-web` is a second runtime authorization gate. Without both the
+configuration flag and this option, the domain returns a no-call disabled or
+unauthorized status. Search/research and answer-synthesis capabilities are not
+accepted by the ingestion adapter; retrieved web pages remain source evidence,
+not generated claims.
+
 ### Historical Competency Supplement
 
 The separate deterministic command remains reproducible as a historical

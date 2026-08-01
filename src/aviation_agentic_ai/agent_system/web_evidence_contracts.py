@@ -41,6 +41,42 @@ class WebSourceSeed(StrictModel):
     _validate_url = field_validator("url")(_require_http_url)
 
 
+class WebEvidenceLimits(StrictModel):
+    """Operator limits applied to the optional Web Evidence sidecar."""
+
+    max_content_chars: int = Field(default=120_000, ge=1, le=2_000_000)
+
+
+class WebEvidenceConfig(StrictModel):
+    """Validated configuration for one opt-in Web Evidence sidecar."""
+
+    enabled: bool = False
+    base_url: str = "http://127.0.0.1:3333"
+    token_env: str = "WIGOLO_API_TOKEN"
+    timeout_seconds: float = Field(default=30.0, gt=0, le=300)
+    adapter_version: str = Field(default="wigolo-web-evidence-v1", min_length=1)
+    tools: tuple[str, ...] = ("fetch",)
+    allowed_domains: tuple[str, ...] = ()
+    limits: WebEvidenceLimits = Field(default_factory=WebEvidenceLimits)
+    seeds: tuple[WebSourceSeed, ...] = ()
+
+    _validate_base_url = field_validator("base_url")(_require_http_url)
+
+    @field_validator("token_env")
+    @classmethod
+    def _validate_token_env(cls, value: str) -> str:
+        if not value or not value.replace("_", "").isalnum():
+            raise ValueError("web token_env must be a simple environment variable name")
+        return value
+
+    @field_validator("allowed_domains")
+    @classmethod
+    def _validate_domains(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if any(not domain.strip() for domain in value):
+            raise ValueError("web allowed_domains entries must be non-empty")
+        return tuple(domain.strip().lower().rstrip(".") for domain in value)
+
+
 class WebFetchRequest(StrictModel):
     """The project subset of wigolo's ``fetch`` request."""
 

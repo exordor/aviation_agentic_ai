@@ -10,7 +10,9 @@ responses therefore cannot remove a previously accepted version.
 from __future__ import annotations
 
 import hashlib
-from collections.abc import Mapping
+import os
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from urllib.parse import SplitResult, urlsplit, urlunsplit
 
@@ -25,20 +27,127 @@ from aviation_agentic_ai.agent_system.storage_contracts import (
     SourceVersionRecord,
 )
 from aviation_agentic_ai.agent_system.web_evidence_client import (
+    HttpWigoloWebClient,
     WebEvidenceClient,
     normalize_evidence_span,
 )
 from aviation_agentic_ai.agent_system.web_evidence_contracts import (
     WebCollectionResult,
+    WebEvidenceConfig,
     WebFetchRequest,
     WebFetchResult,
     WebSourceSeed,
 )
+from aviation_agentic_ai.config import validate_web_evidence_config
 from aviation_agentic_ai.utils.identifiers import stable_id
 
 
 DEFAULT_WEB_ADAPTER_VERSION = "wigolo-web-evidence-v1"
 WEB_REPRESENTATION = "normalized_markdown"
+
+
+@dataclass(frozen=True, slots=True)
+class WebIngestionSummary:
+    """Aggregate status for the explicitly opt-in Web Evidence domain."""
+
+    discovered_count: int
+    selected_count: int
+    attempted_count: int
+    skipped_count: int
+    ok_count: int
+    insufficient_count: int
+    blocked_count: int
+    results: tuple[WebCollectionResult, ...] = ()
+    status: str = "not_configured"
+    reason: str | None = None
+
+
+def _empty_web_summary(
+    *,
+    status: str,
+    reason: str | None = None,
+) -> WebIngestionSummary:
+    """Return a no-op outcome that cannot affect direct source domains."""
+
+    return WebIngestionSummary(
+        discovered_count=0,
+        selected_count=0,
+        attempted_count=0,
+        skipped_count=0,
+        ok_count=0,
+        insufficient_count=0,
+        blocked_count=0,
+        status=status,
+        reason=reason,
+    )
+
+
+def run_web_evidence_ingestion(
+    config: Mapping[str, object],
+    store: AviationEvidenceStore,
+    *,
+    allow_live_web: bool = False,
+    client: WebEvidenceClient | None = None,
+    client_factory: Callable[[WebEvidenceConfig], WebEvidenceClient] | None = None,
+    now: datetime | None = None,
+) -> WebIngestionSummary:
+    """Ingest configured web seeds through the existing evidence store.
+
+    The explicit ``allow_live_web`` gate is checked before constructing a
+    transport client.  Thus a disabled or unauthorized run performs zero web
+    calls, including no health check or token lookup.  Seed failures are
+    isolated and returned as typed outcomes so TMI and Flight/Airspace
+    ingestion remain committed independently.
+    """
+
+    settings = validate_web_evidence_config(config)
+    if not settings.enabled:
+        return _empty_web_summary(status="disabled")
+    if not allow_live_web:
+        return _empty_web_summary(
+            status="unauthorized",
+            reason="--allow-live-web is required for web ingestion",
+        )
+    if not settings.seeds:
+        return _empty_web_summary(status="not_configured")
+
+    selected_client = client
+    if selected_client is None:
+        if client_factory is not None:
+            selected_client = client_factory(settings)
+        else:
+            token = os.environ.get(settings.token_env) or None
+            selected_client = HttpWigoloWebClient(
+                settings.base_url,
+                token,
+                settings.timeout_seconds,
+            )
+
+    effective_now = now or datetime.now(UTC)
+    raw_config = settings.model_dump(mode="python")
+    results: list[WebCollectionResult] = []
+    for seed in settings.seeds:
+        results.append(
+            collect_web_seed(
+                raw_config,
+                seed,
+                selected_client,
+                store,
+                now=effective_now,
+            )
+        )
+    ordered = tuple(sorted(results, key=lambda row: row.seed_id))
+    return WebIngestionSummary(
+        discovered_count=len(ordered),
+        selected_count=len(ordered),
+        attempted_count=len(ordered),
+        skipped_count=0,
+        ok_count=sum(row.status == "ok" for row in ordered),
+        insufficient_count=sum(row.status == "insufficient" for row in ordered),
+        blocked_count=sum(row.status == "blocked" for row in ordered),
+        results=ordered,
+        status="completed",
+    )
 
 
 def canonicalize_web_url(url: str) -> str:
@@ -114,6 +223,10 @@ def _config_mapping(config: Mapping[str, object]) -> Mapping[str, object]:
     """Accept either the web block or the whole source configuration."""
 
     nested = config.get("web_evidence")
+    if not isinstance(nested, Mapping):
+        sources = config.get("sources")
+        if isinstance(sources, Mapping):
+            nested = sources.get("web_evidence")
     return nested if isinstance(nested, Mapping) else config
 
 
@@ -394,3 +507,14 @@ def collect_web_seed(
         fetched_urls=(version.source_url or requested_url,),
         changed_urls=((version.source_url or requested_url,) if changed else ()),
     )
+
+
+__all__ = [
+    "DEFAULT_WEB_ADAPTER_VERSION",
+    "WebIngestionSummary",
+    "canonicalize_web_url",
+    "collect_web_seed",
+    "normalize_web_fetch",
+    "run_web_evidence_ingestion",
+    "validate_web_url_allowlist",
+]

@@ -191,7 +191,7 @@ def _store_option(function):
 @_store_option
 @click.option(
     "--domain",
-    type=click.Choice(("all", "tmi", "flight-airspace")),
+    type=click.Choice(("all", "tmi", "flight-airspace", "web")),
     default="all",
     show_default=True,
     help="Select all configured knowledge domains or one bounded backfill domain.",
@@ -209,6 +209,11 @@ def _store_option(function):
     help="Build or backfill only the named ATCSCC advisory records.",
 )
 @click.option("--allow-live-model", is_flag=True)
+@click.option(
+    "--allow-live-web",
+    is_flag=True,
+    help="Authorize calls to the configured Web Evidence sidecar.",
+)
 @click.option("--allow-model-download", is_flag=True)
 def ingest_command(
     config_path: Path,
@@ -217,6 +222,7 @@ def ingest_command(
     source_root: Path | None,
     advisory_ids: tuple[str, ...],
     allow_live_model: bool,
+    allow_live_web: bool,
     allow_model_download: bool,
 ) -> None:
     """Incrementally ingest configured sources into the persistent store."""
@@ -224,6 +230,8 @@ def ingest_command(
     if advisory_ids and domain != "tmi":
         raise click.UsageError("--advisory-id requires --domain tmi")
     config = _load_config(config_path)
+    if allow_live_web:
+        load_environment()
     store = _open_store(config, store_dir, create=True)
     try:
         summary = run_configured_ingestion(
@@ -233,6 +241,7 @@ def ingest_command(
             source_root=source_root,
             advisory_ids=advisory_ids,
             allow_live_model=allow_live_model,
+            allow_live_web=allow_live_web,
             allow_model_download=allow_model_download,
         )
         revision = store.get_knowledge_revision()
@@ -246,6 +255,9 @@ def ingest_command(
     click.echo(f"insufficient: {summary.insufficient_count}")
     click.echo(f"blocked: {summary.blocked_count}")
     click.echo(f"retrieval_indexes: {summary.index_status}")
+    web_summary = getattr(summary, "web_summary", None)
+    if web_summary is not None:
+        click.echo(f"web_evidence: {getattr(web_summary, 'status', 'unknown')}")
     click.echo(f"knowledge_revision: {revision}")
     click.echo(f"resolved_config_sha256: {resolved_config_checksum(config)}")
 

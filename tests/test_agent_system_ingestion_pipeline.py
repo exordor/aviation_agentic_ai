@@ -295,6 +295,48 @@ def test_configured_ingestion_runs_only_the_selected_domain() -> None:
     assert calls == ["flight-airspace"]
 
 
+def test_configured_ingestion_runs_only_the_web_domain() -> None:
+    api = _pipeline_api()
+    store = object()
+    calls: list[tuple[str, dict[str, object]]] = []
+    summary_row = SimpleNamespace(
+        discovered_count=1,
+        selected_count=1,
+        attempted_count=1,
+        skipped_count=0,
+        ok_count=1,
+        insufficient_count=0,
+        blocked_count=0,
+    )
+
+    def run_tmi(*_args, **kwargs):  # type: ignore[no-untyped-def]
+        calls.append(("tmi", kwargs))
+        return summary_row
+
+    def run_flight(*_args, **kwargs):  # type: ignore[no-untyped-def]
+        calls.append(("flight-airspace", kwargs))
+        return summary_row
+
+    def run_web(*_args, **kwargs):  # type: ignore[no-untyped-def]
+        calls.append(("web", kwargs))
+        return summary_row
+
+    summary = api.run_configured_ingestion(
+        {},
+        store,
+        domain="web",
+        allow_live_web=True,
+        tmi_runner=run_tmi,
+        flight_airspace_runner=run_flight,
+        web_runner=run_web,
+    )
+
+    assert calls == [("web", {"allow_live_web": True})]
+    assert summary.web_summary is summary_row
+    assert summary.tmi_summary is None
+    assert summary.flight_airspace_summary is None
+
+
 def test_configured_ingestion_limits_advisory_backfill_to_tmi_domain() -> None:
     api = _pipeline_api()
 

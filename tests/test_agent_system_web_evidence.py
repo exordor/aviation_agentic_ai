@@ -15,6 +15,7 @@ from aviation_agentic_ai.agent_system.evidence_store import AviationEvidenceStor
 from aviation_agentic_ai.agent_system.web_evidence_ingestion import (
     collect_web_seed,
     normalize_web_fetch,
+    run_web_evidence_ingestion,
 )
 from aviation_agentic_ai.agent_system.web_evidence_client import (
     HttpWigoloWebClient,
@@ -293,6 +294,16 @@ class _SequenceWebClient:
         return self.results.pop(0)
 
 
+class _CountingWebClient:
+    def __init__(self, result: WebFetchResult) -> None:
+        self.result = result
+        self.calls = 0
+
+    def fetch(self, request: WebFetchRequest) -> WebFetchResult:
+        self.calls += 1
+        return self.result
+
+
 def _open_web_store(tmp_path: Path) -> AviationEvidenceStore:
     return AviationEvidenceStore.open(
         tmp_path / "store",
@@ -431,5 +442,62 @@ def test_collect_web_seed_rejects_url_outside_global_allowlist_before_fetch(
         assert result.status == "blocked"
         assert result.error_reason is not None and result.error_reason.startswith("policy:")
         assert client.requests == []
+    finally:
+        store.close()
+
+
+def test_web_domain_disabled_or_unauthorized_does_not_call_client(
+    tmp_path: Path,
+) -> None:
+    store = _open_web_store(tmp_path)
+    client = _CountingWebClient(_fetch_result("FAA reference"))
+    config = {
+        "web_evidence": {
+            "enabled": True,
+            "seeds": [_seed().model_dump(mode="python")],
+        }
+    }
+    try:
+        unauthorized = run_web_evidence_ingestion(config, store, client=client)
+        assert unauthorized.status == "unauthorized"
+        assert client.calls == 0
+
+        disabled = run_web_evidence_ingestion(
+            {"web_evidence": {"enabled": False}},
+            store,
+            client=client,
+            allow_live_web=True,
+        )
+        assert disabled.status == "disabled"
+        assert client.calls == 0
+    finally:
+        store.close()
+
+
+def test_web_domain_ingests_seed_after_explicit_authorization(tmp_path: Path) -> None:
+    store = _open_web_store(tmp_path)
+    client = _CountingWebClient(_fetch_result("FAA reference"))
+    seed = _seed()
+    config = {
+        "web_evidence": {
+            "enabled": True,
+            "allowed_domains": ["faa.gov"],
+            "seeds": [seed.model_dump(mode="python")],
+        }
+    }
+    try:
+        summary = run_web_evidence_ingestion(
+            config,
+            store,
+            client=client,
+            allow_live_web=True,
+            now=datetime(2026, 8, 1, tzinfo=UTC),
+        )
+
+        assert summary.status == "completed"
+        assert summary.ok_count == 1
+        assert summary.blocked_count == 0
+        assert client.calls == 1
+        assert len(store.list_source_versions(families=(SourceFamily.WEB_DOCUMENT,))) == 1
     finally:
         store.close()
