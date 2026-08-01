@@ -9,7 +9,9 @@ Date: 2026-08-01
 This document defines a runnable architecture that integrates heterogeneous
 aviation evidence into ATMONTO-aligned knowledge and lets an LLM Query Agent
 answer free-form natural-language questions through exact, graph, lexical,
-vector, context, and source retrieval.
+vector, context, and source retrieval. An optional Web Evidence sidecar can
+provide allowlisted public-document acquisition and read-only query tools; it
+is not required for the aviation store or the core Query Agent.
 
 The method combines deterministic source-specific processing, one formal
 publication boundary, an authoritative persistent knowledge layer, and
@@ -69,7 +71,8 @@ The five planes are:
 4. **Knowledge and Retrieval Plane** — authoritative generic knowledge roots
    in SQLite with rebuildable graph, lexical, vector, and offline export views.
 5. **Agent Interaction Plane** — the model-directed Query Agent, evidence
-   assembly, statement-level support validation, and user answer.
+   assembly, optional explicitly authorized Web Evidence tools,
+   statement-level support validation, and user answer.
 
 `Agentic` refers to the Query Agent's online action-observation loop and the
 selective Semantic Resolution Agent. The coordinator, adapters, parsers,
@@ -192,6 +195,7 @@ The source families remain distinct:
 | NASA ATMONTO public sample | Flight, route, track, sector, Weather, airport-operation, and TMI instance evidence for July 2014. |
 | BTS flight operations | Bounded public flight-operation records for the configured May 2026 slice. |
 | FAA aircraft registry | Later technical aircraft/model lookup; not historical state proof. |
+| Optional Web Evidence | Allowlisted public-document text and exact spans acquired through the separately running Wigolo sidecar; not an aviation authority or decision source. |
 
 Authority evidence can resolve an identity but cannot authorize a TMI fact. A
 Weather report can provide context but cannot fill a missing declared reason.
@@ -199,6 +203,11 @@ A BTS row cannot become an FAA demand or capacity record.
 
 Every accepted fact carries an owning profile and checksum, semantic identity,
 source-version binding, and evidence link or deterministic derivation trace.
+
+Web documents remain a separate source family (`web_document`). Their source
+versions, anchors, and chunks can support a source-grounded statement when the
+operator authorizes the sidecar, but web prose cannot create an ATCSCC reason,
+Weather cause, FAA capacity value, or TMI recommendation.
 
 ### 5.1 Configuration Composition
 
@@ -219,6 +228,14 @@ The composed mapping has a canonical SHA-256 reported by `ingest` for run
 provenance. It is deliberately not used as the authoritative knowledge
 revision: source versions and accepted publications determine store state,
 while configuration files govern a particular ingestion invocation.
+
+The source configuration may also contain an optional `web_evidence` block.
+It is disabled in the tracked configuration and requires both an explicit
+seed/allowlist and the runtime `--allow-live-web` authorization. The sidecar
+endpoint, token environment variable, adapter version, and content limits are
+configuration inputs; the sidecar is not a project import or a core runtime
+dependency. Operational installation and recovery are documented in
+[`wigolo_web_evidence_operations.md`](wigolo_web_evidence_operations.md).
 
 ## 6. Incremental Ingestion
 
@@ -247,6 +264,15 @@ knowledge-root transaction. Its bounded sources publish Flights,
 Aircraft/Models, Airports/ARTCCs, routes, track points, sectors, Weather and
 airport-operation records. A separate deterministic materializer then emits
 reviewed association roots over already accepted participant publications.
+
+The optional Web domain is isolated from those semantic publication paths. It
+fetches configured seeds through the Wigolo REST sidecar, validates the
+response and citation spans, and registers immutable `web_document` source
+versions, anchors, and source-record chunks. A blocked or insufficient web
+seed preserves the previous accepted version and does not roll back TMI or
+Flight/Airspace publications. Web ingestion does not invoke the Formal
+Publication Kernel unless a later, explicitly reviewed source-binding workflow
+uses the stored document as evidence for a formal fact.
 
 ## 7. Semantic Resolution Agent
 
@@ -375,6 +401,11 @@ strategy fits future PDF, table, or long-document sources.
 SQLite FTS5 indexes source-chunk text and follows SQLite inserts, updates, and
 deletes through triggers.
 
+The source-chunk builder includes the `web_document` family. A Web Evidence
+fetch therefore participates in the same exact lexical and source-record
+semantic retrieval path as other admitted textual sources after it is
+persisted; no separate web vector database is introduced.
+
 Chroma contains two rebuildable collections:
 
 | Collection | Purpose |
@@ -390,6 +421,24 @@ The Query runtime attaches a Chroma collection only when dataset identity,
 schema/representation version, embedding model, vector dimension, record
 counts, and indexed knowledge revision are current.
 
+### 11.1 Optional Web Evidence Boundary
+
+The optional Web Evidence sidecar is a separate acquisition process at a
+loopback or operator-controlled REST endpoint. The project owns the
+allowlist, adapter contract, checksum identity, source anchors, and SQLite
+registration; it does not vendor or import Wigolo. Ingestion accepts only the
+non-synthesizing fetch/extract/diff surface, and query time exposes search,
+fetch, and extract only as an explicitly authorized read-only `web` family.
+
+Search results are candidates. A web statement requires an exact fetched span
+and the ordinary support validator. A blocked or insufficient sidecar result
+does not remove an older source version and does not roll back other ingestion
+domains. Web pages are not automatically formal knowledge roots. RDF/Turtle,
+JSONL, and Neo4j remain projections of accepted SQLite formal facts and their
+evidence links. See
+[`wigolo_web_evidence_operations.md`](wigolo_web_evidence_operations.md) for
+installation, scheduling, and recovery procedures.
+
 ## 12. Model-Directed HybridRAG Query Agent
 
 The public `ask` command accepts free natural language. There is no exact
@@ -398,6 +447,7 @@ question registry, keyword classifier, or deterministic answer bypass.
 ```text
 question + immutable CLI scope
   -> LLM selects source | tmi | flight_airspace families
+     (+ optional web only when explicitly authorized)
   -> bind only those bounded read-only evidence tools
   -> typed tool observations
   -> continue retrieval or emit typed statements
@@ -414,10 +464,13 @@ more families from a shared registry:
 | `source` | 3 | SQLite FTS and Chroma candidate discovery followed by exact source-version/anchor reading. |
 | `tmi` | 6 | TMI discovery, formal facts and gaps, Weather context, BTS observations, event graph, and metadata-conditioned candidates. |
 | `flight_airspace` | 9 | Flights, airports, trajectories, sector passages/aggregation, Flight–Weather links, TMI-applicability candidates, and the general aviation graph. |
+| `web` (optional) | 3 | Allowlisted public-document candidates and exact sidecar fetch/extract reads; search candidates alone are never evidence. |
 
-The 18 evidence tools are registered once and shared by the runtime and live
-evaluation harness. The model does not see all 18 on every evidence turn; it
-sees only the families selected during routing.
+The 18 core evidence tools are registered once and shared by the runtime and
+live evaluation harness. When Web Evidence is explicitly authorized, the
+three web tools are added as one optional family. The model does not see all
+core or optional tools on every evidence turn; it sees only the families
+selected during routing.
 
 ```text
 source: search_source_text, semantic_search_sources, read_source
@@ -428,6 +481,7 @@ flight_airspace: find_flights, read_flight, find_airports,
      read_flight_trajectory, find_sector_passages, analyze_sector_traffic,
      find_flight_weather_associations, find_tmi_applicability_candidates,
      read_aviation_graph
+web (optional): web_search, web_fetch, web_extract
 ```
 
 Lexical and semantic source candidates carry active TMI event IDs derived from
@@ -438,8 +492,10 @@ to know an internal source or event ID.
 
 CLI source families, event ID, exact filters, paging, and archive/prior
 candidate scope form an immutable upper bound. The model may narrow but cannot
-widen them. There is no arbitrary SPARQL, Cypher, graph write, external web
-access, or long-term Agent memory.
+widen them. There is no arbitrary SPARQL, Cypher, graph write, or long-term
+Agent memory. External web access is absent by default and becomes available
+only when both the Web Evidence configuration and `--allow-live-web` are
+explicitly set.
 
 ## 13. Retrieval, Augmentation, And Support
 

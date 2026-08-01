@@ -86,12 +86,14 @@ def evidence_store(tmp_path: Path):
 def _source_version(
     source_id: str,
     content: str,
+    *,
+    family: SourceFamily = SourceFamily.ATCSCC_ADVISORY,
 ) -> SourceVersionRecord:
     digest = hashlib.sha256(content.encode("utf-8")).hexdigest()
     return SourceVersionRecord(
         source_version_id=stable_id("source-version", source_id, digest),
         source_id=source_id,
-        family=SourceFamily.ATCSCC_ADVISORY,
+        family=family,
         asset_id=None,
         content=content,
         content_sha256=digest,
@@ -468,3 +470,53 @@ def test_source_only_update_does_not_require_an_accepted_event(
         embedding_function=None,
     )
     assert source_collection.count() == 1
+
+
+def test_web_source_is_indexed_as_source_chunk_not_tmi_event(
+    evidence_store: AviationEvidenceStore,
+    tmp_path: Path,
+) -> None:
+    """Web documents use source retrieval while event vectors stay TMI-only."""
+
+    event = _publish_event(evidence_store, content="GDP EVENT SOURCE")
+    web_version = _source_version(
+        "web-document:reference",
+        "FAA reference document content",
+        family=SourceFamily.WEB_DOCUMENT,
+    )
+    evidence_store.register_source_version(web_version)
+
+    states = update_store_indexes(
+        evidence_store,
+        tmp_path / "chroma",
+        encoder=RecordingEncoder(),
+        source_version_ids=(web_version.source_version_id,),
+    )
+
+    assert tuple(state.status for state in states) == ("current", "current")
+    client = open_persistent_client(tmp_path / "chroma")
+    event_collection = get_collection(
+        client,
+        TMI_EVENT_COLLECTION,
+        embedding_function=None,
+    )
+    source_collection = get_collection(
+        client,
+        SOURCE_CHUNK_COLLECTION,
+        embedding_function=None,
+    )
+    assert event_collection.count() == 1
+    assert source_collection.count() == 2
+    source_metadata = _metadata_by_id(source_collection)
+    web_metadata = next(
+        metadata
+        for metadata in source_metadata.values()
+        if metadata["source_version_id"] == web_version.source_version_id
+    )
+    assert web_metadata["source_family"] == SourceFamily.WEB_DOCUMENT.value
+    assert web_metadata.get("event_id") is None
+    assert all(
+        metadata["publication_source_version_id"] != web_version.source_version_id
+        for metadata in _metadata_by_id(event_collection).values()
+    )
+    assert event.event_id

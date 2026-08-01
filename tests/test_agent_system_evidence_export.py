@@ -664,6 +664,29 @@ def test_store_kg_projection_equals_active_facts_and_excludes_context(
     assert Path(projection.manifest_path).exists()
 
 
+def test_store_kg_projection_excludes_unbound_web_source(
+    tmp_path: Path,
+) -> None:
+    """A fetched page is not a formal graph root without a SQLite binding."""
+
+    store, _rows = _store(tmp_path)
+    web_version = _version(
+        "web-document:reference",
+        "FAA reference page only",
+        SourceFamily.WEB_DOCUMENT,
+    )
+    store.register_source_version(web_version)
+
+    projection = build_store_kg_projection(store, tmp_path / "kg-export")
+    exported = Path(projection.jsonl_path).read_text(encoding="utf-8")
+    ttl = Path(projection.ttl_path).read_text(encoding="utf-8")
+    nodes = Path(projection.nodes_path).read_text(encoding="utf-8")
+
+    assert web_version.source_version_id not in exported
+    assert web_version.source_version_id not in ttl
+    assert web_version.source_version_id not in nodes
+
+
 def test_store_kg_projection_includes_all_active_knowledge_roots(
     tmp_path: Path,
 ) -> None:

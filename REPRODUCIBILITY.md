@@ -98,6 +98,11 @@ project persists fetched content, immutable source versions, anchors, and FTS
 chunks in the same SQLite store. A sidecar failure does not roll back TMI or
 Flight/Airspace publications.
 
+See [`docs/wigolo_web_evidence_operations.md`](docs/wigolo_web_evidence_operations.md)
+for the loopback REST boundary, external scheduling, failure states, and the
+no-vendor/AGPL-3.0 distribution policy. Wigolo is not a project dependency;
+the adapter is tested against its pinned REST contract.
+
 With that local configuration, the reproducible entry point is:
 
 ```bash

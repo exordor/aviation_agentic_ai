@@ -28,8 +28,9 @@ Evidence Plane
 The Query Agent is invoked for every valid natural-language question. One LLM
 routing call first selects the `source`, `tmi`, and/or `flight_airspace`
 capability families; the Agent then selects exact, graph, lexical, vector,
-context, and source-read tools from that bounded subset. Deterministic support
-validation checks the result before release.
+context, and source-read tools from that bounded subset. When explicitly
+authorized, an additional `web` family exposes allowlisted sidecar reads.
+Deterministic support validation checks the result before release.
 
 The TMI slice is rooted at the admitted ATMONTO
 `TrafficManagementInitiative` instance. The generic publication spine now also
@@ -79,7 +80,8 @@ or compatibility alias.
 - The dataset-bound SQLite store persists immutable source versions, exact
   anchors, active and historical event publications, semantic facts, evidence
   links, profile gaps, Weather associations, BTS public observations, source
-  chunks, vector-index state, and compact usage telemetry.
+  chunks, vector-index state, compact usage telemetry, and optional
+  `web_document` versions collected through the sidecar.
 - The former `Corpus v2` batch snapshot has no current runtime role.
   `data/evaluation_runs/agent_system/` contains ignored evaluation evidence,
   not canonical knowledge or a query backend.
@@ -87,17 +89,20 @@ or compatibility alias.
   independently. A failed later record does not invalidate earlier accepted
   evidence, and queryability does not depend on completing a batch manifest.
 - SQLite FTS5 provides lexical source retrieval. Chroma provides independently
-  rebuildable source-record and TMI-event vector collections. Vector state is
-  current only when it matches the store knowledge revision.
+  rebuildable source-record and TMI-event vector collections. Web source
+  chunks enter the source-record collection only; TMI-event vectors remain
+  limited to admitted TMI publications. Vector state is current only when it
+  matches the store knowledge revision.
 - RDF/Turtle, JSONL, and Neo4j are optional, rebuildable exports over all
   active formal knowledge roots. They are not mandatory runtime databases and
   do not write back into SQLite.
 - Every valid `ask` activates the Query Agent. There is no fixed question
   registry or deterministic answer fallback.
-- The Query Agent selects among three capability families containing 18
+- The Query Agent selects among three core capability families containing 18
   bounded, read-only evidence tools: `source` (3), `tmi` (6), and
-  `flight_airspace` (9). The first model call selects families; subsequent
-  turns see only that subset.
+  `flight_airspace` (9). An explicitly authorized sidecar adds an optional
+  `web` family with three read-only tools. The first model call selects
+  families; subsequent turns see only that subset.
 - The evidence loop permits at most 6 provider turns, 6 tool calls in one turn,
   and 10 evidence-tool calls in total.
 - Search candidates do not support final source-record claims by themselves;
@@ -113,8 +118,9 @@ or compatibility alias.
 
 The active top-level configuration composes separate runtime, source, and
 dataset/temporal-scope files. The CLI exposes
-`--domain all|tmi|flight-airspace`; `--advisory-id` is valid only with
-`--domain tmi`.
+`--domain all|tmi|flight-airspace|web`; `--advisory-id` is valid only with
+`--domain tmi`. The Web domain remains disabled unless a local configuration
+overlay and `--allow-live-web` authorize it.
 The ingest summary reports a canonical checksum of the fully resolved
 configuration. Store revisions remain content-driven rather than treating an
 experimental configuration snapshot as runtime knowledge identity.
@@ -167,6 +173,9 @@ the public Query Agent.
 - Weather or BTS evidence never fills a missing declared reason.
 - Profile gaps remain source-supported non-formal records.
 - Lexical and vector hits are candidate discovery, not source verification.
+- Optional Web Evidence pages are public-document context only. Search
+  candidates require an exact sidecar fetch/span before supporting a claim;
+  the sidecar cannot create a TMI reason or causal relation.
 - A retained checksum-bound deterministic supplement records the earlier
   F1/F3S/S4/S1S comparison: S4/S1S use NASA's 2014 sample trajectories;
   F1/F3S are explicitly labelled May 2026 FAA/BTS/Weather proxies. It is
@@ -231,6 +240,7 @@ performance evidence.
 | Normative system design | `docs/multi_agent_kg_system_design.md` |
 | Artifact ownership and history | `ARTIFACT_INDEX.md` |
 | Reproduction commands | `REPRODUCIBILITY.md` |
+| Optional Web Evidence operations | `docs/wigolo_web_evidence_operations.md` |
 | Structural decision history | `DECISION_LOG.md` |
 | Optional historical experiments | Dated external archive `docs/legacy_runtime/` |
 
@@ -251,6 +261,8 @@ The project does not provide:
 - outcome-aware similarity or TMI recommendation;
 - external expert certification;
 - verified actual TMI control of a specific flight or caused flight impact.
+- unrestricted web browsing, background crawling, or a Web Evidence sidecar
+  that bypasses the configured allowlist.
 
 Flight-level and sector-level records are now public `agent-system ask`
 routes, but their evidence boundary remains narrow. The original 2012 KATL
