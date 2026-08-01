@@ -17,6 +17,22 @@ Keep these categories in Git:
   `ARTIFACT_INDEX.md`;
 - small source metadata needed by the supported ingestion commands.
 
+The current report layout is intentionally small:
+
+```text
+reports/
+├── final/       # current thesis and defense-deck outlines
+└── evidence/    # sanitized, tracked reproducibility evidence
+```
+
+The report directories are derived presentation layers. They are not a query
+backend and must not become a second source of truth for the SQLite store.
+
+The former paper-PDF report generator and PPTX deck harness are preserved in
+the dated external archive. Current architecture figures remain in
+`docs/figures/`; no generated deck or paper-analysis gallery is required in
+the default checkout.
+
 SQLite stores, Chroma indexes, provider traces, raw model responses, and
 generated export packages stay outside Git under the paths documented in
 `AGENTS.md` and `ARTIFACT_INDEX.md`.
@@ -60,6 +76,14 @@ The 2026-08-01 archive also contains the following completed cleanup groups:
   `tests/legacy_runtime/agent_system/`: the dedicated compatibility harness
   and tests moved with those reports so the active package has no broken
   historical-test dependencies.
+- `docs/legacy_runtime/paper_analysis/`,
+  `scripts/legacy_runtime/paper_analysis/`, and
+  `templates/legacy_runtime/paper_analysis/`: the retired local PDF-inspection,
+  figure-gallery, and paper-report workflow;
+- `docs/legacy_runtime/presentation/`,
+  `scripts/legacy_runtime/presentation/`, and
+  `reports/final_legacy/templates/`: the retired PPTX generation/style-harness
+  workflow and its presentation template.
 
 The archive is a local research-history backup, not an import path and not a
 runtime source of truth. Its files are preserved byte-for-byte and remain

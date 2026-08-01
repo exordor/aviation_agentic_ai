@@ -456,9 +456,9 @@ evaluation data binding:
 
 See the reader-facing
 [walkthrough](docs/flagship_gdp138_walkthrough.md), the tracked sanitized
-[Markdown report](reports/stages/agent_system_live_flagship_gdp138_walkthrough_v1.md),
+[Markdown report](reports/evidence/agent_system_live_flagship_gdp138_walkthrough_v1.md),
 and the tracked sanitized
-[JSON report](reports/stages/agent_system_live_flagship_gdp138_walkthrough_v1.json).
+[JSON report](reports/evidence/agent_system_live_flagship_gdp138_walkthrough_v1.json).
 This is a `live_smoke / system walkthrough`, not a frozen holdout or a
 statistical benchmark. Weather associations remain non-causal, and BTS public
 observations are not FAA demand, capacity, AAR, EDCT, decision-input,
@@ -519,7 +519,7 @@ artifact integrity: verified
 ```
 
 The tracked sanitized reports are
-`reports/stages/live_hybridrag_cross_domain_v1.{json,md}`. This is a
+`reports/evidence/live_hybridrag_cross_domain_v1.{json,md}`. This is a
 `live_smoke`, not a benchmark or causal/recommendation evaluation.
 
 ### Persistent-Store Compatibility Smoke

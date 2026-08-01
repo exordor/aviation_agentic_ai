@@ -29,9 +29,9 @@ ontology-generation extra, or a PHAK bounded corpus.
   license at `src/aviation_agentic_ai/web/static/vendor/cytoscape.LICENSE.txt`.
   It powers the offline KG relationship graph's node dragging, pan/zoom, and
   edge-selection interactions without requiring a CDN.
-- The Presentations runtime is used to build the editable PPTX under
-  `reports/final/`; scratch render/check files are kept under ignored
-  `outputs/`.
+- The former Presentations runtime and PPTX generation harness are preserved
+  in the dated external archive. Current architecture figures are maintained
+  as editable Draw.io sources under `docs/figures/`.
 
 ## Artifact Policy
 
@@ -61,12 +61,10 @@ external repositories, temporary logs, or generated caches.
   - `Paper_17-An_Improvement_for_Spatial_Temporal_Queries_of_ATMGRAPH.pdf` —
     ATMGRAPH spatial-temporal query reference.
 
-## Presentation Generation
+## Presentation Generation History
 
-### PPTX Generation Script
-
-- Local script:
-  `scripts/build_defense_deck.mjs`
-- Use in this project:
-  - Generates the thesis defense deck as an editable PPTX under `reports/final/`.
-  - Uses the Presentations runtime for PPTX construction.
+The former PPTX generation script, style harness, template, and generated
+decks are preserved under the dated external archive. They are not active
+runtime dependencies or current report inputs. Use the editable Draw.io
+figures and the current defense-deck outline for the mainline presentation
+story.

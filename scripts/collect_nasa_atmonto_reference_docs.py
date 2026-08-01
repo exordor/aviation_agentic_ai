@@ -394,7 +394,7 @@ def main() -> int:
     repo_root = args.repo_root.resolve()
     source_family = "faa_reference_documents"
     raw_root = repo_root / "data/raw/nasa_atmonto" / args.snapshot_date / source_family
-    reports_root = repo_root / "reports/stages"
+    reports_root = repo_root / "reports/evidence"
     retrieved_at = utc_now()
 
     files: list[dict[str, object]] = []

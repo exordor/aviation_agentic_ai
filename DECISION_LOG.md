@@ -184,12 +184,13 @@ artifacts from polluting each other.
 | --- | --- | --- | --- |
 | Current system context | repo root | `AGENTS.md`, `RESEARCH_AUDIT.md`, `GOALS.md`, `README.md`, `TODO.md`, `ARTIFACT_INDEX.md` | Keep short, consistent, and implementation-accurate. |
 | Normative system design | `docs/` | `docs/multi_agent_kg_system_design.md` | Update only when the approved system contract changes. |
-| Optional evaluation protocols | external archive + `docs/` | `docs/legacy_runtime/EXPERIMENTS.md`, `docs/research_paper_analysis_protocol.md` | Load only for an explicitly reactivated evaluation or paper-analysis task. |
-| Historical evaluation evidence | `reports/stages/` | formal scoring, retrieval, and chapter-draft reports | Preserve as dated evidence; do not present as current system truth. |
-| Source and schema explainers | `reports/stages/` | ATCSCC data-flow and ontology-profile reports | Keep thesis-facing and readable; update when data/profile boundaries change. |
-| Method migration and paper analysis | `reports/stages/`, `data/papers/README.md` | adaptation and analysis reports | Use for design inspiration only after full-paper/figure inspection; do not import claims directly. |
-| Historical artifacts | `docs/archive/phak_era/`, `reports/stages/`, `reports/final/` | old prototype and report drafts | Preserve for provenance, but do not let them override current ATCSCC framing. |
-| Generated side artifacts | `reports/stages/*.json`, `.csv`, `.html`, `.log` | report JSON, review packets, worksheets, logs | Track only if they support a current dashboard/audit/chapter claim; otherwise keep under ignored output paths. |
+| Optional evaluation protocols | external archive + `docs/` | external archive `docs/legacy_runtime/paper_analysis/` and `docs/legacy_runtime/EXPERIMENTS.md` | Load only for an explicitly reactivated evaluation or paper-analysis task. |
+| Historical evaluation evidence | external archive `reports/stages/` | formal scoring, retrieval, and chapter-draft reports | Preserve as dated evidence; do not present as current system truth. |
+| Current reproducibility evidence | `reports/evidence/` | small sanitized live-smoke reports listed in `ARTIFACT_INDEX.md` | Keep only when the run is verified and its claim boundary is explicit. |
+| Source and schema explainers | `docs/` | current source, profile, and architecture documentation | Keep implementation-facing explanations next to the contract they describe. |
+| Method migration and paper analysis | external archive + `data/papers/README.md` | adaptation and analysis notes | Use for design inspiration only after full-paper/figure inspection; do not import claims directly. |
+| Historical artifacts | external archive `docs/`, `reports/` | old prototypes and report drafts | Preserve for provenance, but do not let them override current ATCSCC framing. |
+| Generated side artifacts | ignored `outputs/`, `tmp/`, and local evaluation paths | report JSON, review packets, worksheets, logs | Do not track or use as runtime inputs. |
 
 ### Historical Routing Table
 
@@ -203,10 +204,10 @@ use the experiment documents only when that track is explicitly reactivated.
 | --- | --- | --- |
 | Change to thesis scope, RQs, or contribution claims | `RESEARCH_AUDIT.md`, `GOALS.md`, and `TODO.md` | Update this map; the former RQ file is archived. |
 | Change to experiment order, metrics, or regeneration commands | `docs/legacy_runtime/EXPERIMENTS.md` only when reactivating history | Verify report commands remain reproducible. |
-| New source-family explanation | `reports/stages/<source>_source_brief.md` or `<source>_data_format_and_processing_flow.md` | Decide whether it is primary, reference-only, transfer-pilot, or out of scope. |
-| New schema/profile explanation | `reports/stages/<source>_ontology_profile_overview.md` | State whether it is a full ontology, application profile, mapping layer, or runtime output schema. |
-| New experiment result | `reports/stages/<experiment>.md` plus JSON when generated | Link it from the dashboard or leave it as secondary evidence. |
-| New paper analysis | `reports/stages/<paper>_paper_analysis.md`, `<paper>_figures_analysis.md`, or `<paper>_paper_adaptation.md` | Register the paper in `data/papers/README.md` when it influences method design. |
+| New source-family explanation | `docs/` | Decide whether it is primary, reference-only, transfer-pilot, or out of scope. |
+| New schema/profile explanation | `docs/` | State whether it is a full ontology, application profile, mapping layer, or runtime output schema. |
+| New experiment result | `reports/evidence/<experiment>.md` plus JSON when generated | Link it from `ARTIFACT_INDEX.md`; keep raw outputs ignored. |
+| New paper analysis | external archive unless explicitly reactivated | Register the paper and its stable citation in `data/papers/README.md` when it influences method design. |
 | Final report or defense material | `reports/final/` | Ensure it cites current docs, not legacy stage index material. |
 
 ### Reason

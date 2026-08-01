@@ -11,8 +11,8 @@ __pycache__/
 /data/stores/
 data/stores/
 /reports/**/*.tmp
-/reports/stages/*_run.log
-/reports/stages/pytest_*.log
+/reports/evidence/*_run.log
+/reports/evidence/pytest_*.log
 /reports/archive/
 /logs/
 /outputs/
@@ -31,21 +31,14 @@ data/stores/
 data/indexes/
 models/
 
-# Generated local paper figure gallery. Keep scripts and crop specs in Git;
-# rebuild these from tmp/pdfs/ when needed.
-/reports/stages/paper_figure_gallery.html
-/reports/stages/paper_figure_gallery_manifest.json
-
 # Reviewer-facing deck artifacts (PPTX/POTX) and their inspection dumps.
-# Keep the editable TU template under reports/final/templates/ tracked, plus
-# the PPTX style validator and its doc. Generated decks and intermediate
-# render/inspection outputs are backed up outside Git.
+# The old deck workflow is archived; generated decks and intermediate
+# render/inspection outputs stay outside Git.
 /reports/final/*.pptx
 /reports/final/*.potx
 /reports/final/*.bak.pptx
 /reports/final/*.inspect.ndjson
 /reports/final/assets/
-!reports/final/templates/
 
 # Local archived data (kept outside Git; see AGENTS.md source-family boundaries).
 /data/archive/
@@ -54,13 +47,13 @@ models/
 /data/raw/bts/
 
 # Materialized fact-graph preview snapshots (regenerable from the pipeline).
-/reports/stages/atcscc_materialized_fact_graph.preview.json
+/reports/evidence/atcscc_materialized_fact_graph.preview.json
 
 # Locally downloaded paper PDFs; keep citations in data/papers/README.md.
 /data/papers/*.pdf
 
-# Local research downloads/screenshots. Curated literature notes belong in
-# reports/stages/ or data/papers/README.md instead.
+# Local research downloads/screenshots. Curated literature notes belong in the
+# external paper-analysis archive or data/papers/README.md instead.
 /data/papers/*.md
 !/data/papers/README.md
 /data/papers/*.jpg

@@ -14,6 +14,7 @@ rebuildable outputs, optional evaluation material, and historical artifacts.
 | `GOALS.md` | Durable system goal and boundaries. |
 | `README.md` | Current user-facing overview and commands. |
 | `TODO.md` | Active execution queue only. |
+| `reports/README.md` | Report routing: current final outlines and sanitized evidence only. |
 | `docs/architecture_narrative.md` | Shared positioning, five-plane terminology, and running-example contract. |
 | `docs/multi_agent_kg_system_design.md` | Normative ATMONTO-grounded Agentic HybridRAG design. |
 | `docs/figures/cross_source_evidence_motivated_example.{drawio,png}` | Flagship Figure 1: cross-source motivated example. |
@@ -33,11 +34,12 @@ rebuildable outputs, optional evaluation material, and historical artifacts.
 | `data/ontology/curated/nasa_atmonto_decision_context_weather_slice.json` | Curated Weather report profile. |
 | `data/ontology/curated/public_observation_slice.json` | Source-qualified BTS public-observation profile. |
 | `data/evaluation/agent_system/live_ingestion_hybridrag_smoke_v1.yaml` | Ingestion-first Query Agent compatibility-smoke contract; no result implied. |
-| `reports/stages/agent_system_live_ingestion_hybridrag_smoke_v1.{json,md}` | Verified persistent-store smoke: 6/6 returned real calls, 1/3 tasks accepted, and two answer-contract/evidence failures; not a benchmark. |
+| `reports/evidence/agent_system_live_ingestion_hybridrag_smoke_v1.{json,md}` | Verified persistent-store smoke: 6/6 returned real calls, 1/3 tasks accepted, and two answer-contract/evidence failures; not a benchmark. |
 | `data/evaluation/agent_system/live_flagship_gdp138_walkthrough_v1.yaml` | One-question, natural-language GDP 138 system-walkthrough contract; no result implied by the suite alone. |
-| `reports/stages/agent_system_live_flagship_gdp138_walkthrough_v1.{json,md}` | Verified historical pre-family-router walkthrough: 3/3 real calls succeeded, the one task passed, and raw/parsed binding was valid; `live_smoke`, not current-runtime acceptance. |
+| `reports/evidence/agent_system_live_flagship_gdp138_walkthrough_v1.{json,md}` | Verified historical pre-family-router walkthrough: 3/3 real calls succeeded, the one task passed, and raw/parsed binding was valid; `live_smoke`, not current-runtime acceptance. |
 | `data/evaluation/agent_system/live_hybridrag_cross_domain_v1.yaml` | Six-task natural-language TMI/Flight/Weather/Sector/cross-domain/insufficient smoke contract. |
-| `reports/stages/live_hybridrag_cross_domain_v1.{json,md}` | Verified real-provider smoke: 33/33 calls returned, routing/retrieval 6/6, grounding/answer 5/6; one preserved insufficient stop-policy failure. |
+| `reports/evidence/live_hybridrag_cross_domain_v1.{json,md}` | Verified real-provider smoke: 33/33 calls returned, routing/retrieval 6/6, grounding/answer 5/6; one preserved insufficient stop-policy failure. |
+| `reports/evidence/agent_system_wigolo_web_smoke_v1.{json,md}` | Verified Web Evidence sidecar smoke: immutable source-version ingestion, repeat-content deduplication, and bounded source retrieval; not a benchmark. |
 | `data/evaluation/agent_system/tmi_event_retrieval_smoke_v1.yaml` | Development metadata-ranking smoke set. |
 
 ## Canonical Runtime Artifacts
@@ -177,7 +179,7 @@ interfaces. Their bodies and recorded results remain unchanged.
 | `reports/final/atcscc_thesis_report_outline.md` | Current ingestion-first ATCSCC thesis report spine. |
 | `reports/final/atcscc_defense_deck_outline.md` | Current ingestion-first ATCSCC defense deck spine. |
 | `reports/final/README.md` | Entry map separating current deliverables from historical presentation material. |
-| `reports/final/` remaining files | Historical thesis, PHAK, and superseded presentation material unless explicitly marked current. |
+| `reports/final/` remaining files | Current thesis/deck outlines and bibliography; generated decks are kept outside the checkout. |
 
 These artifacts may support a future task. They do not establish current
 performance or external expert certification.

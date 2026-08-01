@@ -10,15 +10,10 @@ license is not part of the repository.
 ## Default Analysis Workflow
 
 When a paper may affect the thesis route or experiment design, do not rely on
-the abstract alone. Follow `docs/research_paper_analysis_protocol.md`:
-
-```bash
-scripts/inspect_paper_pdf.sh <paper.pdf> <paper_slug>
-```
-
-This creates ignored inspection artifacts under `tmp/pdfs/<paper_slug>/`.
-Curated notes belong in `reports/stages/` and should use
-`templates/research_paper_analysis_report.md`.
+the abstract alone. The former local PDF-inspection and report-generation
+workflow is preserved in the dated external archive. This file remains the
+lightweight citation registry; it is not a report pipeline or a runtime
+dependency.
 
 ## Current References
 
@@ -36,7 +31,7 @@ Curated notes belong in `reports/stages/` and should use
   supports the non-safety-critical advisory analysis framing, but it is not a
   KG, ontology-constrained extraction, or GraphRAG method reference.
 - Inspection artifacts: `tmp/pdfs/chatatc/`
-- Curated analysis: `reports/stages/chatatc_paper_analysis.md`
+- Curated analysis: external archive `reports/stages/chatatc_paper_analysis.md`
 
 - Title: "Towards Automated Ontology Generation from Unstructured Text: A
   Multi-Agent LLM Approach"
@@ -53,7 +48,7 @@ Curated notes belong in `reports/stages/` and should use
   https://github.com/brains-group/towards_automated_ontology_generation
 - Inspection artifacts:
   `tmp/pdfs/automated_ontology_generation_multi_agent/`
-- Curated project adaptation:
+- Curated project adaptation: external archive
   `reports/stages/multi_agent_pipeline_method_adaptation.md`
 
 - Title: "Claim Knowledge Graph Construction and GraphRAG-Based
@@ -67,8 +62,8 @@ Curated notes belong in `reports/stages/` and should use
   ontology-to-KG-to-GraphRAG experiment presentation. It is not aviation
   evidence.
 - Curated reports:
-  - `reports/stages/claim_kg_graphrag_paper_adaptation.md`
-  - `reports/stages/claim_kg_graphrag_figures_analysis.md`
+  - external archive `reports/stages/claim_kg_graphrag_paper_adaptation.md`
+  - external archive `reports/stages/claim_kg_graphrag_figures_analysis.md`
 
 - Title: "Gold Deposit Ontology Guides Large Language Model to Transform Text
   into Knowledge Graphs for Gold Deposits"
@@ -82,14 +77,16 @@ Curated notes belong in `reports/stages/` and should use
   performance-cost evaluation. It is geoscience evidence, not aviation
   evidence.
 - Inspection artifacts: `tmp/pdfs/minerals_16_00050/`
-- Curated analysis: `reports/stages/minerals_16_00050_paper_analysis.md`
+- Curated analysis: external archive `reports/stages/minerals_16_00050_paper_analysis.md`
 
 ## arXiv Method Candidates Downloaded for Cross-Domain Transfer
 
 These PDFs were downloaded locally on 2026-06-02 as candidates for the
-ontology-build, KG-extraction, and GraphRAG method backbone. They are not yet
-curated evidence. Before using any paper to change the experiment plan, run the
-default PDF inspection workflow and write a curated stage report.
+ontology-build, KG-extraction, and GraphRAG method backbone. They are not
+current project evidence. Before using a paper to change the experiment plan,
+reactivate the archived paper-analysis workflow explicitly and record the
+result in the external archive; do not create another catch-all report stage
+in this checkout.
 
 - Title: "Accelerating Knowledge Graph and Ontology Engineering with Large
   Language Models"

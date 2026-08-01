@@ -121,5 +121,5 @@ queries:
     max_minutes: 30
 
 outputs:
-  json: reports/stages/atmonto_competency_query_supplement_v1.json
-  markdown: reports/stages/atmonto_competency_query_supplement_v1.md
+  json: reports/evidence/atmonto_competency_query_supplement_v1.json
+  markdown: reports/evidence/atmonto_competency_query_supplement_v1.md

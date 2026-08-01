@@ -8,11 +8,6 @@ outputs/
 /tmp/
 tmp/
 
-/reports/stages/paper_figure_gallery.html
-reports/stages/paper_figure_gallery.html
-/reports/stages/paper_figure_gallery_manifest.json
-reports/stages/paper_figure_gallery_manifest.json
-
 /data/raw/nasa_atmonto/
 data/raw/nasa_atmonto/
 /data/papers/*.pdf

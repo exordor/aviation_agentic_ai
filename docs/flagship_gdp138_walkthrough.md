@@ -130,9 +130,9 @@ capacity, AAR, or EDCT, and it does not recommend a TMI for a future event.
 
 The native provider responses and parsed trial records remain gitignored. The
 tracked, sanitized reports are
-[Markdown](../reports/stages/agent_system_live_flagship_gdp138_walkthrough_v1.md)
+[Markdown](../reports/evidence/agent_system_live_flagship_gdp138_walkthrough_v1.md)
 and
-[JSON](../reports/stages/agent_system_live_flagship_gdp138_walkthrough_v1.json).
+[JSON](../reports/evidence/agent_system_live_flagship_gdp138_walkthrough_v1.json).
 
 The tracked report preserves the original at-run path. The retained local
 files were moved without byte changes; the table below shows their current

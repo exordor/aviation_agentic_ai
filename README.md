@@ -338,7 +338,7 @@ were bound to the accepted trial. This is one versioned walkthrough, not a
 current-runtime acceptance or statistical benchmark. See the
 [walkthrough](docs/flagship_gdp138_walkthrough.md)
 and its tracked sanitized
-[report](reports/stages/agent_system_live_flagship_gdp138_walkthrough_v1.md).
+[report](reports/evidence/agent_system_live_flagship_gdp138_walkthrough_v1.md).
 
 The broader tracked cross-domain compatibility smoke exercised six ordinary
 natural-language tasks spanning TMI, Flight, Weather, Sector, cross-domain
@@ -349,13 +349,13 @@ correctly unsupported in substance, but the Agent continued retrieving until
 the 10-tool ceiling and returned `blocked` instead of stopping with
 `insufficient`. This is an observed stop-policy failure, not a hidden success
 or a statistical benchmark. See the
-[sanitized report](reports/stages/live_hybridrag_cross_domain_v1.md).
+[sanitized report](reports/evidence/live_hybridrag_cross_domain_v1.md).
 
 The tracked persistent-store compatibility smoke used the persistent store and
 6 real `deepseek-v4-pro` calls. All calls returned, but only 1/3 Query Agent
 tasks passed the answer-contract and evidence checks. See the sanitized
-[JSON report](reports/stages/agent_system_live_ingestion_hybridrag_smoke_v1.json)
-or [Markdown report](reports/stages/agent_system_live_ingestion_hybridrag_smoke_v1.md).
+[JSON report](reports/evidence/agent_system_live_ingestion_hybridrag_smoke_v1.json)
+or [Markdown report](reports/evidence/agent_system_live_ingestion_hybridrag_smoke_v1.md).
 The raw provider responses and parsed trial rows remain gitignored and are
 identified by path and checksum in those reports.
 
