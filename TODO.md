@@ -1,6 +1,6 @@
 # TODO
 
-Last updated: 2026-07-31
+Last updated: 2026-08-01
 
 This file contains only the active execution queue and immediate deferred
 decisions. Historical backlogs are routed through `ARTIFACT_INDEX.md`.
@@ -14,9 +14,15 @@ decisions. Historical backlogs are routed through `ARTIFACT_INDEX.md`.
 - [ ] Admit any next TMI family only after an explicit ATMONTO mapping and
   reviewed source/evidence boundary. Do not promote informational notices only
   to increase coverage.
-- [ ] Decide whether the checksum-bound F1/F3S/S4/S1S research supplement
-  should remain an offline competency artifact or be ingested into the
-  persistent store and exposed through new bounded Query Agent tools.
+- [ ] Correct the observed insufficient-answer stop policy: when retrieved
+  evidence establishes that actual control or causation is unsupported, the
+  Query Agent should return `insufficient` before exhausting its 10-tool
+  budget. Re-run the six-task cross-domain smoke once after that behavior is
+  changed.
+- [ ] Promote the six current TMI, Flight, Weather, Sector, cross-domain, and
+  insufficient task categories from compatibility smoke to a frozen
+  evaluation only after sampling, annotations, and acceptance rules are
+  independently reviewed.
 
 Do not reintroduce fixed question registries or bypass the Query Agent for
 apparently simple natural-language questions. Deterministic retrieval stays
@@ -35,13 +41,10 @@ representations remain rebuildable views.
 - Weather-cause claims, operational effectiveness, and decision optimality.
 - ASPM demand, AAR, capacity, EDCT, runway configuration, and flight-level
   impact.
-- TCF, CWA, SIGMET, NOTAM, operational ADS-B, and full-store single-flight
-  trajectories. The bounded NASA/BTS flight-competency sidecar is not a runtime
-  Query Agent capability.
+- TCF, CWA, SIGMET, NOTAM, operational ADS-B, and national-scale
+  single-flight trajectories beyond the bounded configured sources.
 - Advisory lifecycle or TMI-episode grouping.
 - National Playbook PDF grounding.
-- F1/F3S/S4/S1S integration into the persistent store and natural-language
-  query path.
 - Operational-situation and outcome-aware similarity, learned reranking, and
   TMI recommendation.
 - General-purpose planner, long-term Agent memory, and unrestricted aviation

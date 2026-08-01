@@ -1,166 +1,166 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mxfile host="Electron" modified="2026-07-31T12:00:00.000Z" version="30.3.6">
+<mxfile host="Electron" modified="2026-08-01T12:00:00.000Z" agent="Codex" version="30.3.6" type="device">
   <diagram id="system-architecture" name="System architecture">
-    <mxGraphModel dx="2400" dy="1500" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1500" background="#FAFCFD" math="0" shadow="0">
+    <mxGraphModel dx="2400" dy="1700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1700" background="#FAFCFD" math="0" shadow="0">
       <root>
         <mxCell id="0"/>
         <mxCell id="1" parent="0"/>
 
         <mxCell id="title" value="ATMONTO-Grounded Agentic HybridRAG Architecture" style="text;html=1;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fontColor=#17324D;" vertex="1" parent="1">
-          <mxGeometry x="260" y="25" width="1880" height="45" as="geometry"/>
-        </mxCell>
-        <mxCell id="scope_note" value="Current vertical slice: ATCSCC GDP, GS, and ReRoute  •  the architecture is not limited to these TMI families" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#FFF8E7;strokeColor=#C99819;fontColor=#70530A;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="240" y="75" width="1920" height="55" as="geometry"/>
+          <mxGeometry x="250" y="25" width="1900" height="45" as="geometry"/>
         </mxCell>
 
-        <mxCell id="evidence_panel" value="" style="rounded=1;arcSize=10;html=1;fillColor=#FFFFFF;strokeColor=#26758F;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="80" y="150" width="2240" height="200" as="geometry"/>
+        <mxCell id="config-panel" value="1 · Composed Configuration — deterministic include order applies across the system" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=28;spacingTop=12;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#FFFFFF;strokeColor=#64748B;fontColor=#334155;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="90" width="2240" height="150" as="geometry"/>
         </mxCell>
-        <mxCell id="evidence_title" value="1 · Evidence Plane" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fontColor=#164C5F;" vertex="1" parent="1">
-          <mxGeometry x="110" y="160" width="500" height="40" as="geometry"/>
+        <mxCell id="runtime-config" value="Runtime and storage&#10;dataset · paths · index model" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#F1ECFB;strokeColor=#7C5AB8;fontColor=#3D2B62;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="220" y="145" width="560" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="src_atcscc" value="ATCSCC advisories&#10;TMI publication records" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#E7F3F8;strokeColor=#26758F;fontColor=#164C5F;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="150" y="205" width="450" height="80" as="geometry"/>
+        <mxCell id="source-config" value="Source catalog&#10;locations · roles · versions" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#F1ECFB;strokeColor=#7C5AB8;fontColor=#3D2B62;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="920" y="145" width="560" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="src_authority" value="NASR / FAA authority&#10;facilities · terminology" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#F1ECFB;strokeColor=#7C5AB8;fontColor=#3D2B62;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="700" y="205" width="450" height="80" as="geometry"/>
-        </mxCell>
-        <mxCell id="src_weather" value="METAR / TAF&#10;weather context" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#E7F3F8;strokeColor=#26758F;fontColor=#164C5F;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="1250" y="205" width="450" height="80" as="geometry"/>
-        </mxCell>
-        <mxCell id="src_bts" value="BTS public observations&#10;source-qualified records" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#E7F3F8;strokeColor=#26758F;fontColor=#164C5F;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="1800" y="205" width="450" height="80" as="geometry"/>
-        </mxCell>
-        <mxCell id="source_merge" value="Heterogeneous source records" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#F3F8FA;strokeColor=#26758F;fontColor=#164C5F;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="300" y="300" width="1800" height="40" as="geometry"/>
+        <mxCell id="dataset-config" value="Dataset scope&#10;selected sources · time bounds" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#F1ECFB;strokeColor=#7C5AB8;fontColor=#3D2B62;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1620" y="145" width="560" height="70" as="geometry"/>
         </mxCell>
 
-        <mxCell id="ingestion_panel" value="" style="rounded=1;arcSize=10;html=1;fillColor=#FFFFFF;strokeColor=#2F6F9F;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="80" y="390" width="2240" height="200" as="geometry"/>
+        <mxCell id="evidence-panel" value="2 · Heterogeneous Evidence and Deterministic Preparation" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=28;spacingTop=12;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#FFFFFF;strokeColor=#26758F;fontColor=#164C5F;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="275" width="2240" height="370" as="geometry"/>
         </mxCell>
-        <mxCell id="ingestion_title" value="2 · Deterministic Ingestion Orchestration  —  no model on the normal path" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fontColor=#17324D;" vertex="1" parent="1">
-          <mxGeometry x="110" y="400" width="1250" height="40" as="geometry"/>
+        <mxCell id="src-decision" value="Decision / event records&#10;ATCSCC advisories" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#E7F3F8;strokeColor=#26758F;fontColor=#164C5F;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="120" y="335" width="400" height="82" as="geometry"/>
         </mxCell>
-        <mxCell id="source_adapters" value="Source adapters&#10;parse · normalize" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#EAF4FC;strokeColor=#2F6F9F;fontColor=#17324D;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="180" y="460" width="580" height="95" as="geometry"/>
+        <mxCell id="src-observation" value="Weather / operations&#10;METAR · TAF · BTS" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#E7F3F8;strokeColor=#26758F;fontColor=#164C5F;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="335" width="400" height="82" as="geometry"/>
         </mxCell>
-        <mxCell id="versioning" value="Immutable evidence&#10;version · anchor · checksum" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#EAF4FC;strokeColor=#2F6F9F;fontColor=#17324D;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="910" y="460" width="580" height="95" as="geometry"/>
+        <mxCell id="src-reference" value="Aeronautical reference&#10;NASR · FAA terminology" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#F1ECFB;strokeColor=#7C5AB8;fontColor=#3D2B62;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="335" width="400" height="82" as="geometry"/>
         </mxCell>
-        <mxCell id="alignment" value="Identity and time alignment&#10;prepare cross-source context" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#EAF4FC;strokeColor=#2F6F9F;fontColor=#17324D;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="1640" y="460" width="580" height="95" as="geometry"/>
+        <mxCell id="src-flight" value="Flight / trajectory&#10;routes · track points" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#E7F3F8;strokeColor=#26758F;fontColor=#164C5F;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="335" width="400" height="82" as="geometry"/>
         </mxCell>
-
-        <mxCell id="semantic_panel" value="" style="rounded=1;arcSize=10;html=1;fillColor=#FFFFFF;strokeColor=#7C5AB8;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="80" y="640" width="2240" height="230" as="geometry"/>
+        <mxCell id="src-semantic" value="Semantic sample&#10;NASA ATMONTO ABox" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#F1ECFB;strokeColor=#7C5AB8;fontColor=#3D2B62;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1880" y="335" width="400" height="82" as="geometry"/>
         </mxCell>
-        <mxCell id="semantic_title" value="3 · Semantic and Trust Plane" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fontColor=#3D2B62;" vertex="1" parent="1">
-          <mxGeometry x="110" y="650" width="620" height="40" as="geometry"/>
+        <mxCell id="source-contract" value="Immutable source-version contract  ·  source identity  ·  anchors  ·  checksums" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#F3F8FA;strokeColor=#26758F;fontColor=#164C5F;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="260" y="455" width="1880" height="55" as="geometry"/>
         </mxCell>
-        <mxCell id="semantic_agent" value="Semantic Resolution Agent&#10;ambiguity only · proposal or abstain" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#FFF1E8;strokeColor=#C65F2E;fontColor=#71361E;strokeWidth=2;dashed=1;dashPattern=8 6;" vertex="1" parent="1">
-          <mxGeometry x="220" y="720" width="540" height="110" as="geometry"/>
+        <mxCell id="tmi-prep" value="TMI evidence pipeline&#10;parse · authority · context · resolve ambiguity" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#EAF4FC;strokeColor=#2F6F9F;fontColor=#17324D;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="300" y="545" width="800" height="75" as="geometry"/>
         </mxCell>
-        <mxCell id="publication_kernel" value="Formal Publication Kernel&#10;schema · evidence · provenance" style="shape=hexagon;perimeter=hexagonPerimeter2;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#E9F6EE;strokeColor=#2E7D4F;fontColor=#174A2C;strokeWidth=3;" vertex="1" parent="1">
-          <mxGeometry x="920" y="710" width="560" height="130" as="geometry"/>
-        </mxCell>
-        <mxCell id="atmonto_profile" value="ATMONTO application profile&#10;TMI classes · properties · constraints" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#F1ECFB;strokeColor=#7C5AB8;fontColor=#3D2B62;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="1640" y="720" width="540" height="110" as="geometry"/>
+        <mxCell id="flight-prep" value="Flight–Airspace pipeline&#10;profiles · routes · tracks · fact compilation" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#EAF4FC;strokeColor=#2F6F9F;fontColor=#17324D;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="545" width="800" height="75" as="geometry"/>
         </mxCell>
 
-        <mxCell id="knowledge_panel" value="" style="rounded=1;arcSize=10;html=1;fillColor=#FFFFFF;strokeColor=#2E7D4F;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="80" y="920" width="2240" height="210" as="geometry"/>
+        <mxCell id="trust-panel" value="3 · Shared Semantic Publication Spine" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=28;spacingTop=12;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#FFFFFF;strokeColor=#7C5AB8;fontColor=#3D2B62;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="680" width="2240" height="250" as="geometry"/>
         </mxCell>
-        <mxCell id="knowledge_title" value="4 · Knowledge and Retrieval Plane" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fontColor=#174A2C;" vertex="1" parent="1">
-          <mxGeometry x="110" y="930" width="720" height="40" as="geometry"/>
+        <mxCell id="tmi-proposal" value="TMI publication proposal&#10;ATMONTO TMI profile" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#F1ECFB;strokeColor=#7C5AB8;fontColor=#3D2B62;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="180" y="755" width="520" height="100" as="geometry"/>
         </mxCell>
-        <mxCell id="runtime_views" value="Rebuildable retrieval views&#10;FTS5 · Chroma · store-backed graph" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#EAF4FC;strokeColor=#2F6F9F;fontColor=#17324D;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="150" y="990" width="590" height="105" as="geometry"/>
+        <mxCell id="publication-kernel" value="Formal Publication Kernel&#10;schema · evidence · provenance" style="shape=hexagon;perimeter=hexagonPerimeter2;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#E9F6EE;strokeColor=#2E7D4F;fontColor=#174A2C;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="880" y="735" width="640" height="140" as="geometry"/>
         </mxCell>
-        <mxCell id="sqlite_store" value="Authoritative SQLite&#10;source records · ATMONTO-aligned event facts" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#E9F6EE;strokeColor=#2E7D4F;fontColor=#174A2C;strokeWidth=3;" vertex="1" parent="1">
-          <mxGeometry x="840" y="985" width="720" height="115" as="geometry"/>
+        <mxCell id="flight-proposal" value="Flight publication proposal&#10;ATMONTO Flight / NAS profiles" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#F1ECFB;strokeColor=#7C5AB8;fontColor=#3D2B62;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1700" y="755" width="520" height="100" as="geometry"/>
         </mxCell>
-        <mxCell id="offline_exports" value="Offline KG exports&#10;RDF / Turtle · Neo4j" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#F3F4F6;strokeColor=#64748B;fontColor=#334155;strokeWidth=2;dashed=1;dashPattern=8 6;" vertex="1" parent="1">
-          <mxGeometry x="1660" y="990" width="590" height="105" as="geometry"/>
+        <mxCell id="resolver-note" value="Semantic Resolution Agent&#10;bounded proposal or abstention" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#FFF1E8;strokeColor=#C65F2E;fontColor=#71361E;strokeWidth=2;dashed=1;dashPattern=8 6;" vertex="1" parent="1">
+          <mxGeometry x="250" y="875" width="760" height="62" as="geometry"/>
         </mxCell>
-
-        <mxCell id="agent_panel" value="" style="rounded=1;arcSize=10;html=1;fillColor=#FFFFFF;strokeColor=#C65F2E;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="80" y="1170" width="2240" height="260" as="geometry"/>
-        </mxCell>
-        <mxCell id="agent_title" value="5 · Agent Interaction Plane  —  the main online agentic behavior" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fontColor=#71361E;" vertex="1" parent="1">
-          <mxGeometry x="110" y="1180" width="1200" height="40" as="geometry"/>
-        </mxCell>
-        <mxCell id="user_query" value="Natural-language query&#10;user intent" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#E7F3F8;strokeColor=#26758F;fontColor=#164C5F;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="110" y="1260" width="320" height="105" as="geometry"/>
-        </mxCell>
-        <mxCell id="query_agent" value="LLM Query Agent&#10;model-directed tool selection" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#FFF1E8;strokeColor=#C65F2E;fontColor=#71361E;strokeWidth=3;" vertex="1" parent="1">
-          <mxGeometry x="500" y="1260" width="400" height="105" as="geometry"/>
-        </mxCell>
-        <mxCell id="retrieval_tools" value="Read-only HybridRAG tools&#10;exact · graph · lexical · vector" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#EAF4FC;strokeColor=#2F6F9F;fontColor=#17324D;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="970" y="1260" width="460" height="105" as="geometry"/>
-        </mxCell>
-        <mxCell id="evidence_validation" value="Evidence validation&#10;statement-level support" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#E9F6EE;strokeColor=#2E7D4F;fontColor=#174A2C;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="1500" y="1260" width="390" height="105" as="geometry"/>
-        </mxCell>
-        <mxCell id="supported_answer" value="Supported answer&#10;citations or insufficient" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#E9F6EE;strokeColor=#2E7D4F;fontColor=#174A2C;strokeWidth=3;" vertex="1" parent="1">
-          <mxGeometry x="1960" y="1260" width="340" height="105" as="geometry"/>
+        <mxCell id="association-materializer" value="Post-publication association materializer&#10;participant-root gated · non-causal" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#F3F4F6;strokeColor=#64748B;fontColor=#334155;strokeWidth=2;dashed=1;dashPattern=8 6;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="875" width="760" height="62" as="geometry"/>
         </mxCell>
 
-        <mxCell id="edge_atcscc_merge" edge="1" parent="1" source="src_atcscc" target="source_merge" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#26758F;strokeWidth=2;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.042;entryY=0;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="375" y="292"/></Array></mxGeometry>
+        <mxCell id="knowledge-panel" value="4 · Authoritative Knowledge and Rebuildable Views" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=28;spacingTop=12;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#FFFFFF;strokeColor=#2E7D4F;fontColor=#174A2C;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="965" width="2240" height="285" as="geometry"/>
         </mxCell>
-        <mxCell id="edge_authority_merge" edge="1" parent="1" source="src_authority" target="source_merge" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#26758F;strokeWidth=2;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.347;entryY=0;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="925" y="292"/></Array></mxGeometry>
+        <mxCell id="sqlite-store" value="Authoritative SQLite Evidence Store&#10;source evidence · knowledge publications · deterministic associations" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#E9F6EE;strokeColor=#2E7D4F;fontColor=#174A2C;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="750" y="1025" width="900" height="115" as="geometry"/>
         </mxCell>
-        <mxCell id="edge_weather_merge" edge="1" parent="1" source="src_weather" target="source_merge" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#26758F;strokeWidth=2;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.653;entryY=0;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1475" y="292"/></Array></mxGeometry>
+        <mxCell id="runtime-views" value="Runtime read views&#10;exact + graph · FTS5 · Chroma" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#EAF4FC;strokeColor=#2F6F9F;fontColor=#17324D;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="170" y="1080" width="470" height="105" as="geometry"/>
         </mxCell>
-        <mxCell id="edge_bts_merge" edge="1" parent="1" source="src_bts" target="source_merge" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#26758F;strokeWidth=2;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.958;entryY=0;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="2025" y="292"/></Array></mxGeometry>
+        <mxCell id="offline-exports" value="Offline all-root KG exports&#10;RDF / Turtle · Neo4j" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#F3F4F6;strokeColor=#64748B;fontColor=#334155;strokeWidth=2;dashed=1;dashPattern=8 6;" vertex="1" parent="1">
+          <mxGeometry x="1760" y="1080" width="470" height="105" as="geometry"/>
         </mxCell>
-        <mxCell id="edge_evidence_adapters" edge="1" parent="1" source="source_merge" target="ingestion_panel" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#334155;strokeWidth=3;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1200" y="370"/></Array></mxGeometry>
+        <mxCell id="authority-note" value="SQLite is authoritative; search indexes and KG exports are disposable projections." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fontColor=#174A2C;" vertex="1" parent="1">
+          <mxGeometry x="500" y="1185" width="1400" height="42" as="geometry"/>
         </mxCell>
-        <mxCell id="edge_adapters_versioning" edge="1" parent="1" source="source_adapters" target="versioning" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F6F9F;strokeWidth=3;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="835" y="508"/></Array></mxGeometry>
+
+        <mxCell id="query-panel" value="5 · Online Agentic Retrieval" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=28;spacingTop=12;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#FFFFFF;strokeColor=#C65F2E;fontColor=#71361E;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1285" width="2240" height="305" as="geometry"/>
         </mxCell>
-        <mxCell id="edge_versioning_alignment" edge="1" parent="1" source="versioning" target="alignment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F6F9F;strokeWidth=3;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1565" y="508"/></Array></mxGeometry>
+        <mxCell id="question" value="Natural-language question" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#E7F3F8;strokeColor=#26758F;fontColor=#164C5F;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="130" y="1380" width="360" height="95" as="geometry"/>
         </mxCell>
-        <mxCell id="edge_alignment_kernel" edge="1" parent="1" source="alignment" target="publication_kernel" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2E7D4F;strokeWidth=3;endArrow=block;endFill=1;exitX=0.45;exitY=1;entryX=0.5;entryY=0;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1901" y="615"/><mxPoint x="1200" y="615"/></Array></mxGeometry>
+        <mxCell id="query-agent" value="Bounded LLM Query Agent&#10;family route → selected tools → evidence loop" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#FFF1E8;strokeColor=#C65F2E;fontColor=#71361E;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="620" y="1360" width="640" height="135" as="geometry"/>
         </mxCell>
-        <mxCell id="edge_alignment_agent" edge="1" parent="1" source="alignment" target="semantic_agent" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#C65F2E;strokeWidth=2;dashed=1;dashPattern=8 6;endArrow=open;exitX=0.2;exitY=1;entryX=0.5;entryY=0;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1756" y="600"/><mxPoint x="490" y="600"/></Array></mxGeometry>
+        <mxCell id="support-validator" value="Statement support validation&#10;evidence handles · claim boundaries" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#E9F6EE;strokeColor=#2E7D4F;fontColor=#174A2C;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="1380" width="470" height="95" as="geometry"/>
         </mxCell>
-        <mxCell id="edge_agent_kernel" edge="1" parent="1" source="semantic_agent" target="publication_kernel" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#C65F2E;strokeWidth=2;dashed=1;dashPattern=8 6;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="840" y="775"/></Array></mxGeometry>
+        <mxCell id="answer" value="Supported answer&#10;or insufficient / blocked" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#E9F6EE;strokeColor=#2E7D4F;fontColor=#174A2C;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="1960" y="1380" width="330" height="95" as="geometry"/>
         </mxCell>
-        <mxCell id="edge_profile_kernel" edge="1" parent="1" source="atmonto_profile" target="publication_kernel" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7C5AB8;strokeWidth=2;dashed=1;dashPattern=8 6;endArrow=open;exitX=0;exitY=0.5;entryX=1;entryY=0.5;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1560" y="775"/></Array></mxGeometry>
+        <mxCell id="claim-boundary" value="Historical evidence integration and retrieval — no causal inference or TMI recommendation." style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#FFF8E7;strokeColor=#C99819;fontColor=#70530A;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="360" y="1520" width="1680" height="45" as="geometry"/>
         </mxCell>
-        <mxCell id="edge_kernel_store" edge="1" parent="1" source="publication_kernel" target="sqlite_store" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2E7D4F;strokeWidth=3;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1200" y="910"/></Array></mxGeometry>
+
+        <mxCell id="decision-contract-edge" edge="1" parent="1" source="src-decision" target="source-contract" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#26758F;strokeWidth=2;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.032;entryY=0;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="320" y="435"/></Array></mxGeometry>
         </mxCell>
-        <mxCell id="edge_store_views" edge="1" parent="1" source="sqlite_store" target="runtime_views" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F6F9F;strokeWidth=3;endArrow=block;endFill=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="790" y="1043"/></Array></mxGeometry>
+        <mxCell id="observation-contract-edge" edge="1" parent="1" source="src-observation" target="source-contract" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#26758F;strokeWidth=2;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.266;entryY=0;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="760" y="435"/></Array></mxGeometry>
         </mxCell>
-        <mxCell id="edge_store_exports" edge="1" parent="1" source="sqlite_store" target="offline_exports" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;strokeWidth=2;dashed=1;dashPattern=8 6;endArrow=open;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1610" y="1043"/></Array></mxGeometry>
+        <mxCell id="reference-contract-edge" edge="1" parent="1" source="src-reference" target="source-contract" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#7C5AB8;strokeWidth=2;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1200" y="435"/></Array></mxGeometry>
         </mxCell>
-        <mxCell id="edge_store_retrieval" edge="1" parent="1" source="sqlite_store" target="retrieval_tools" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F6F9F;strokeWidth=3;startArrow=block;startFill=1;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1200" y="1175"/></Array></mxGeometry>
+        <mxCell id="flight-contract-edge" edge="1" parent="1" source="src-flight" target="source-contract" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#26758F;strokeWidth=2;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.734;entryY=0;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1640" y="435"/></Array></mxGeometry>
         </mxCell>
-        <mxCell id="edge_query_agent" edge="1" parent="1" source="user_query" target="query_agent" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#334155;strokeWidth=3;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="465" y="1313"/></Array></mxGeometry>
+        <mxCell id="semantic-contract-edge" edge="1" parent="1" source="src-semantic" target="source-contract" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#7C5AB8;strokeWidth=2;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.968;entryY=0;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="2080" y="435"/></Array></mxGeometry>
         </mxCell>
-        <mxCell id="edge_agent_tools" edge="1" parent="1" source="query_agent" target="retrieval_tools" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#C65F2E;strokeWidth=3;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="935" y="1313"/></Array></mxGeometry>
+        <mxCell id="contract-tmi-edge" edge="1" parent="1" source="source-contract" target="tmi-prep" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#2F6F9F;strokeWidth=3;endArrow=block;endFill=1;exitX=0.35;exitY=1;entryX=0.5;entryY=0;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="918" y="525"/><mxPoint x="700" y="525"/></Array></mxGeometry>
         </mxCell>
-        <mxCell id="edge_tools_validation" edge="1" parent="1" source="retrieval_tools" target="evidence_validation" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2E7D4F;strokeWidth=3;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1465" y="1313"/></Array></mxGeometry>
+        <mxCell id="contract-flight-edge" edge="1" parent="1" source="source-contract" target="flight-prep" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#2F6F9F;strokeWidth=3;endArrow=block;endFill=1;exitX=0.65;exitY=1;entryX=0.5;entryY=0;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1482" y="525"/><mxPoint x="1700" y="525"/></Array></mxGeometry>
         </mxCell>
-        <mxCell id="edge_validation_answer" edge="1" parent="1" source="evidence_validation" target="supported_answer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2E7D4F;strokeWidth=3;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1925" y="1313"/></Array></mxGeometry>
+        <mxCell id="tmi-proposal-edge" edge="1" parent="1" source="tmi-prep" target="tmi-proposal" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#2F6F9F;strokeWidth=3;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="700" y="700"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="flight-proposal-edge" edge="1" parent="1" source="flight-prep" target="flight-proposal" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#2F6F9F;strokeWidth=3;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1700" y="700"/><mxPoint x="1960" y="700"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="tmi-kernel-edge" edge="1" parent="1" source="tmi-proposal" target="publication-kernel" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#2E7D4F;strokeWidth=3;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="790" y="805"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="flight-kernel-edge" edge="1" parent="1" source="flight-proposal" target="publication-kernel" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#2E7D4F;strokeWidth=3;endArrow=block;endFill=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1610" y="805"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="kernel-store-edge" edge="1" parent="1" source="publication-kernel" target="sqlite-store" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#2E7D4F;strokeWidth=3;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1200" y="970"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="store-views-edge" edge="1" parent="1" source="sqlite-store" target="runtime-views" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#2F6F9F;strokeWidth=3;endArrow=block;endFill=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="690" y="1133"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="store-exports-edge" edge="1" parent="1" source="sqlite-store" target="offline-exports" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#64748B;strokeWidth=2;dashed=1;dashPattern=8 6;endArrow=open;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1710" y="1133"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="association-store-edge" edge="1" parent="1" source="association-materializer" target="sqlite-store" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#64748B;strokeWidth=2;dashed=1;dashPattern=8 6;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.9;entryY=0;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1770" y="985"/><mxPoint x="1560" y="985"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="views-agent-edge" edge="1" parent="1" source="runtime-views" target="query-agent" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#2F6F9F;strokeWidth=3;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="405" y="1315"/><mxPoint x="940" y="1315"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="question-agent-edge" edge="1" parent="1" source="question" target="query-agent" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#C65F2E;strokeWidth=3;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="555" y="1428"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="agent-validator-edge" edge="1" parent="1" source="query-agent" target="support-validator" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#2E7D4F;strokeWidth=3;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1325" y="1428"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="validator-answer-edge" edge="1" parent="1" source="support-validator" target="answer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;html=1;strokeColor=#2E7D4F;strokeWidth=3;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1910" y="1428"/></Array></mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>

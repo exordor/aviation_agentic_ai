@@ -1,6 +1,6 @@
 # System And Research Overview
 
-Last updated: 2026-07-31
+Last updated: 2026-08-01
 
 This document explains the current research direction. Optional comparisons and
 historical experiments remain routed through `ARTIFACT_INDEX.md`.
@@ -8,13 +8,16 @@ historical experiments remain routed through `ARTIFACT_INDEX.md`.
 ## Problem
 
 ATM data comes from heterogeneous systems with different formats, identifiers,
-time semantics, spatial granularity, and vocabularies. The current vertical
-slice combines:
+time semantics, spatial granularity, and vocabularies. The active domains
+combine:
 
 - semi-structured FAA ATCSCC TMI advisories;
 - FAA NASR and terminology authority records;
 - time-bounded METAR and TAF records;
-- source-qualified BTS public operational observations.
+- source-qualified BTS public operational observations;
+- the public NASA ATMONTO Flight/Airspace sample;
+- bounded BTS flight records, FAA aircraft technical lookup, and NASR
+  Airport/ARTCC reference data.
 
 No source alone supplies the complete cross-source knowledge needed for a
 natural-language answer. At the same time, temporal association cannot be
@@ -29,11 +32,13 @@ The project builds an ontology-grounded integration and HybridRAG system:
 heterogeneous aviation sources
   -> deterministic adapters and authority services
   -> selective bounded Semantic Resolution for genuine ambiguity
-  -> deterministic Event Evidence Integration
-  -> Formal Publication Kernel
+  -> deterministic TMI evidence integration and Flight/Airspace fact compilation
+  -> semantic facts: Formal Publication Kernel
+  -> cross-source links: deterministic association materializer
   -> authoritative ATMONTO-aligned SQLite evidence store
   -> exact, graph, lexical, vector, and source-read views
-  -> bounded LLM Query Agent
+  -> LLM tool-family routing
+  -> bounded Query Agent evidence loop
   -> evidence-supported answer / insufficient / blocked
 ```
 
@@ -49,9 +54,10 @@ combination of:
 
 ## ATMONTO And ATMGRAPH Alignment
 
-ATMONTO defines the admitted schema target. The formal root is
+ATMONTO defines the admitted schema target. The TMI registry root is
 `atm:TrafficManagementInitiative`, with active GDP, GS, and ReRoute subtypes.
-The application profile constrains classes, predicates, domains, ranges,
+Additional profiles admit the configured Flight/Airspace and reference
+classes. Each profile constrains classes, predicates, domains, ranges,
 datatypes, and enumerated values that may enter the formal graph.
 
 ATMGRAPH is a construction and query reference. The implementation adopts its
@@ -68,17 +74,23 @@ This division is deliberate:
 
 ## Formal Knowledge Model
 
-The admitted ATMONTO TMI event is the formal root. The authoritative SQLite
-store contains immutable source assets and versions, exact anchors, ingestion
-results, active and historical TMI publications, validated semantic facts,
-event membership, one-to-many evidence support, profile gaps, non-causal
-Weather associations, source-qualified BTS public observations, and compact
-Agent usage telemetry.
+The TMI slice is rooted at an admitted ATMONTO TMI instance. The generic
+publication spine also admits Flight/Airspace, reference, Weather, and reviewed
+association roots. The authoritative SQLite store contains immutable source
+assets and versions, exact anchors, ingestion results, active and historical
+publications, validated semantic facts, root membership, one-to-many evidence
+support, profile gaps, non-causal Weather associations, source-qualified BTS
+observations, deterministic derivations, and compact Agent usage telemetry.
+
+The active top-level configuration composes separate runtime, source, and
+dataset/temporal-scope files. This keeps deployment choices, artifact identity,
+and research selection semantics distinct without turning an evaluation
+snapshot into the runtime source of truth.
 
 SQLite FTS5 and two Chroma collections provide lexical source discovery,
 semantic source discovery, and metadata-conditioned TMI-event candidates.
-JSONL, RDF/Turtle, and Neo4j remain optional rebuildable exports; none is a
-second source of truth.
+JSONL, RDF/Turtle, and Neo4j remain optional rebuildable exports over all
+active formal roots; none is a second source of truth.
 
 This model does not claim to reconstruct internal decision inputs,
 alternatives, constraints, rationale, or trade-offs. Such a construct is
@@ -91,8 +103,8 @@ model-mediated choices:
 
 1. the Semantic Resolution Agent selects or abstains among sealed authority
    candidates;
-2. the Query Agent selects read-only retrieval tools for every valid
-   natural-language question.
+2. the Query Agent first selects one or more capability families, then selects
+   read-only retrieval tools for every valid natural-language question.
 
 Event Evidence Integration, data fetching, parsing, normalization, time
 alignment, aggregation, profile validation, RDF/Neo4j writing, and vector
@@ -120,7 +132,9 @@ proof of a caused outcome.
 ## HybridRAG Query Surface
 
 Every valid public question enters the LLM Query Agent. The Agent must retrieve
-before answering and may choose:
+before answering. A first LLM call selects the `source`, `tmi`, and/or
+`flight_airspace` capability families. The evidence loop then sees only the
+relevant subset of 18 tools and may choose:
 
 - exact TMI event discovery;
 - formal event facts and profile gaps;
@@ -129,7 +143,14 @@ before answering and may choose:
 - event-scoped formal and cross-source evidence paths;
 - metadata-conditioned TMI event ranking;
 - lexical and semantic source discovery followed by exact `read_source`
-  verification.
+  verification;
+- Flight, airport, trajectory, and sector reads;
+- temporal Flight–Weather associations and rule-derived TMI-applicability
+  candidates;
+- the general aviation graph view.
+
+The loop permits 6 provider turns, at most 6 tool calls in one turn, and at
+most 10 evidence-tool calls in total.
 
 Deterministic tools return typed observations and evidence identities. A final
 validator checks each answer statement against those returned IDs. Search hits
@@ -149,12 +170,13 @@ integration path with selective Agent escalation. It does not yet demonstrate:
 - general-purpose aviation QA;
 - broad post-cutover model performance.
 
-Historical real-provider results are useful compatibility evidence for their
-named earlier contracts, but they are GDP-biased and predate the current
-persistent-store runtime. The ingestion-first compatibility smoke recorded six
-successful `deepseek-v4-pro` provider calls and accepted one of three Query
-Agent tasks. This is a compatibility result over development fixtures, not a
-benchmark or general model-quality claim.
+The current cross-domain `live_smoke` recorded 33/33 successful
+`deepseek-v4-pro` calls. Routing and retrieval passed 6/6 tasks; grounding and
+answer acceptance passed 5/6. The remaining unsupported actual-control/causal
+task exhausted the 10-tool budget instead of stopping with `insufficient` and
+is retained as a stop-policy failure. This is compatibility evidence, not a
+benchmark or general model-quality claim. Earlier GDP-biased reports remain
+historical evidence for their named architectures.
 
 See `GOALS.md` for durable outcomes, `TODO.md` for active decisions,
 `RESEARCH_AUDIT.md` for current project truth, and `ARTIFACT_INDEX.md` for

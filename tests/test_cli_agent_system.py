@@ -159,6 +159,7 @@ def test_ingest_routes_selected_domain_and_external_source_root(
     assert "selected: 1" in result.output
     assert "retrieval_indexes: updated" in result.output
     assert "knowledge_revision: 7" in result.output
+    assert "resolved_config_sha256:" in result.output
     assert "--selection" not in result.output
     assert "--resume" not in result.output
 

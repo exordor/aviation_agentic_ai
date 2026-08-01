@@ -1,6 +1,6 @@
 # Project Audit And Context Router
 
-Audit date: 2026-07-31
+Audit date: 2026-08-01
 
 This is the default entry point for a new project task. It records current
 implementation truth and routes historical material without making it default
@@ -21,12 +21,15 @@ Evidence Plane
   -> Agent Interaction Plane
 ```
 
-The Query Agent is invoked for every valid natural-language question and may
-select exact, graph, lexical, vector, context, and source-read tools across a
-bounded action-observation loop. Deterministic support validation checks the
-result before release.
+The Query Agent is invoked for every valid natural-language question. One LLM
+routing call first selects the `source`, `tmi`, and/or `flight_airspace`
+capability families; the Agent then selects exact, graph, lexical, vector,
+context, and source-read tools from that bounded subset. Deterministic support
+validation checks the result before release.
 
-The admitted ATMONTO `TrafficManagementInitiative` instance is the formal root.
+The TMI slice is rooted at the admitted ATMONTO
+`TrafficManagementInitiative` instance. The generic publication spine now also
+admits Flight/Airspace, reference, Weather, and reviewed association roots.
 Store membership organizes accepted facts without asserting that the system
 reconstructed an internal decision process. ATMONTO supplies admitted schema
 terms. ATMGRAPH supplies ABox-construction and cross-source-query principles,
@@ -67,7 +70,9 @@ or compatibility alias.
   returns honest `insufficient` when required evidence is absent; it does not
   call a provider.
 - The write-free Formal Publication Kernel is the sole publication authority
-  over TMI, Weather, and public-observation profiles.
+  for semantic facts under the active TMI, Weather, public-observation,
+  Flight/Airspace, and reference profiles. Source-supported association roots
+  are emitted by a separate deterministic derivation materializer.
 - The dataset-bound SQLite store persists immutable source versions, exact
   anchors, active and historical event publications, semantic facts, evidence
   links, profile gaps, Weather associations, BTS public observations, source
@@ -78,14 +83,17 @@ or compatibility alias.
 - SQLite FTS5 provides lexical source retrieval. Chroma provides independently
   rebuildable source-record and TMI-event vector collections. Vector state is
   current only when it matches the store knowledge revision.
-- RDF/Turtle, JSONL, and Neo4j are optional, rebuildable exports. They are not
-  mandatory runtime databases and do not write back into SQLite.
+- RDF/Turtle, JSONL, and Neo4j are optional, rebuildable exports over all
+  active formal knowledge roots. They are not mandatory runtime databases and
+  do not write back into SQLite.
 - Every valid `ask` activates the Query Agent. There is no fixed question
   registry or deterministic answer fallback.
-- The Query Agent may select nine bounded, read-only tools for exact event
-  facts, operational context, public observations, graph views,
-  metadata-conditioned event candidates, lexical source search, semantic
-  source search, and exact source reading.
+- The Query Agent selects among three capability families containing 18
+  bounded, read-only evidence tools: `source` (3), `tmi` (6), and
+  `flight_airspace` (9). The first model call selects families; subsequent
+  turns see only that subset.
+- The evidence loop permits at most 6 provider turns, 6 tool calls in one turn,
+  and 10 evidence-tool calls in total.
 - Search candidates do not support final source-record claims by themselves;
   `read_source` supplies the exact source version and anchor.
 - Source discovery also returns active event identities bound by the
@@ -97,12 +105,21 @@ or compatibility alias.
 - Missing support yields `insufficient`; provider, contract, or dependency
   failures yield `blocked`.
 
+The active top-level configuration composes separate runtime, source, and
+dataset/temporal-scope files. The CLI exposes
+`--domain all|tmi|flight-airspace`; `--advisory-id` is valid only with
+`--domain tmi`.
+The ingest summary reports a canonical checksum of the fully resolved
+configuration. Store revisions remain content-driven rather than treating an
+experimental configuration snapshot as runtime knowledge identity.
+
 ## Current Intake
 
-The active configuration contains 718 advisory records. `ingest` processes all
-configured advisories when no `--advisory-id` is supplied. With one or more
-advisory IDs, it registers and constructs only those advisory records while
-retaining the shared authority and context evidence required by the pipeline.
+The active configuration contains 718 advisory records. `ingest --domain tmi`
+processes all configured advisories when no `--advisory-id` is supplied. With
+one or more advisory IDs, it registers and constructs only those advisory
+records while retaining the shared authority and context evidence required by
+the pipeline.
 Terminal `ok` and `insufficient` versions are skipped on a later run; blocked
 versions can be retried.
 
@@ -123,6 +140,13 @@ The tracked acceptance fixtures preserve:
 These are development/regression fixtures, not evaluation samples,
 representative coverage, or special execution routes.
 
+The Flight/Airspace domain publishes the configured NASA July 2014 public
+sample and the bounded May 2026 operational-source slice into the same store,
+while preserving distinct temporal-domain identifiers and prohibiting a
+cross-temporal join. It exposes Flight, Airport/ARTCC, trajectory, sector,
+Flight–Weather association, and TMI-applicability candidate queries through
+the public Query Agent.
+
 ## Evidence Boundaries
 
 - ATCSCC records support published TMI fields and source-declared reasons.
@@ -137,10 +161,10 @@ representative coverage, or special execution routes.
 - Weather or BTS evidence never fills a missing declared reason.
 - Profile gaps remain source-supported non-formal records.
 - Lexical and vector hits are candidate discovery, not source verification.
-- A checksum-bound deterministic supplement answers the published
-  F1/F3S/S4/S1S query shapes outside the runtime store: S4/S1S use NASA's 2014
-  sample trajectories; F1/F3S are explicitly labelled May 2026
-  FAA/BTS/Weather proxies.
+- A retained checksum-bound deterministic supplement records the earlier
+  F1/F3S/S4/S1S comparison: S4/S1S use NASA's 2014 sample trajectories;
+  F1/F3S are explicitly labelled May 2026 FAA/BTS/Weather proxies. It is
+  historical evidence, not the current runtime boundary.
 
 ## Evaluation Boundary
 
@@ -169,13 +193,22 @@ raw/parsed binding check passed.
 This is compatibility evidence over development/regression tasks, not a frozen
 holdout or model-quality benchmark.
 
-The tracked ingestion-first GDP 138 flagship walkthrough is the current
-positive end-to-end acceptance. Its single natural-language Query Agent task
+The tracked ingestion-first GDP 138 flagship walkthrough is historical
+pre-family-router TMI-slice evidence. Its single natural-language Query Agent task
 passed (1/1), all 3 real `deepseek-v4-pro` calls returned, and all 5 bounded
 tool executions were bound to the accepted trial. The answer retained exact
 ATCSCC source support, non-causal Weather context, and source-qualified BTS
-observations. This is a versioned system walkthrough, not a statistical
-benchmark or evidence of general model quality.
+observations. This is not current-runtime acceptance, a statistical benchmark,
+or evidence of general model quality.
+
+The current cross-domain `live_smoke` used `deepseek-v4-pro`, temperature 0,
+thinking disabled, and no automatic retries. All 33/33 real provider calls
+returned. Routing and retrieval passed 6/6 tasks; grounding and answer
+acceptance passed 5/6. TMI, Flight, Weather, Sector, and cross-domain
+applicability tasks passed. The unsupported actual-control/causal task should
+have terminated as `insufficient`, but the Agent continued retrieving until
+the 10-tool ceiling and returned `blocked`. This is a preserved stop-policy
+failure and a compatibility result, not a statistical benchmark.
 
 No natural ambiguity has been identified in the legacy deterministic NYC
 selection that activates the Semantic Resolution Agent; synthetic ambiguity
@@ -211,13 +244,12 @@ The project does not provide:
 - lifecycle episode reconstruction;
 - outcome-aware similarity or TMI recommendation;
 - external expert certification;
-- runtime ingestion or Query Agent tools for individual-flight and
-  sector-trajectory evidence.
+- verified actual TMI control of a specific flight or caused flight impact.
 
-Flight-level and sector-level competency queries remain an isolated research
-supplement, not registered `agent-system ask` routes. The original 2012 KATL
-F1/F3S database was not recovered: the modern F1/F3S results are proxy
-reconstructions, and the NASA S4/S1S results cover only the published 2014
+Flight-level and sector-level records are now public `agent-system ask`
+routes, but their evidence boundary remains narrow. The original 2012 KATL
+F1/F3S database was not recovered: the retained modern F1/F3S report is a proxy
+reconstruction, and NASA trajectory knowledge covers only the published 2014
 sample rather than national operations. Weather matching is temporal and
 non-causal; current FAA aircraft registry data is a later technical lookup,
 not historical aircraft-state proof.

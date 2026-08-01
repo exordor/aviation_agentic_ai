@@ -18,26 +18,29 @@ Operational aviation knowledge is distributed across sources with different
 formats, identifiers, temporal granularity, and authority roles. An ATCSCC
 record describes a published Traffic Management Initiative (TMI), NASR and FAA
 terminology establish reference identity, METAR and TAF provide time-bounded
-Weather reports, and BTS publishes operational observations. No source alone
-answers a question that spans the event, its source-declared reason, its
-surrounding context, and the available observations.
+Weather reports, BTS publishes operational observations and flight records,
+and the NASA ATMONTO sample provides public Flight/Airspace instances. No
+source alone answers a question that spans an event, a flight, its route and
+airspace, its surrounding context, and the available observations.
 
 ### 2. Method
 
 The architecture has five planes:
 
-1. **Evidence Plane** — ATCSCC, FAA authority, Weather, and BTS source records.
+1. **Evidence Plane** — ATCSCC, FAA authority, Weather, BTS, NASA ATMONTO
+   sample, aircraft-registry, and airspace source records.
 2. **Deterministic Ingestion Orchestration** — source parsing, versioning,
    normalization, identity resolution, temporal alignment, and evidence
    preparation.
 3. **Semantic and Trust Plane** — ATMONTO application profiles, selective
    semantic resolution when ambiguity remains, and the Formal Publication
    Kernel.
-4. **Knowledge and Retrieval Plane** — authoritative SQLite knowledge with
-   rebuildable graph, lexical, and vector views.
-5. **Agent Interaction Plane** — a natural-language Query Agent that selects
-   read-only HybridRAG tools, inspects observations, and forms a supported
-   answer.
+4. **Knowledge and Retrieval Plane** — authoritative generic knowledge roots
+   in SQLite with rebuildable graph, lexical, vector, and all-root export
+   views.
+5. **Agent Interaction Plane** — an LLM first routes the question to bounded
+   capability families; the Query Agent then selects read-only HybridRAG tools,
+   inspects observations, and forms a supported answer.
 
 ATMONTO supplies the admitted TBox and publication vocabulary. ATMGRAPH
 supplies ABox-construction and cross-source-query principles. Neither is used
@@ -47,23 +50,29 @@ record.
 ### 3. What Makes The System Agentic
 
 Agentic behavior belongs to model-directed choice, not to every processing
-box. For every valid natural-language query, the LLM Query Agent can select and
-sequence exact-store, graph, Weather/BTS, lexical, vector, and exact-source
-tools over multiple bounded turns. Search retrieves candidates; an exact
-source read supplies final source-record support.
+box. For every valid natural-language query, an initial LLM call selects the
+`source`, `tmi`, and/or `flight_airspace` families. The Query Agent then sees
+only the relevant subset of 18 registered tools and can sequence exact-store,
+graph, Weather/BTS, lexical, vector, Flight/Airspace, and exact-source reads.
+The loop allows 6 provider turns, 6 tool calls per turn, and 10 evidence-tool
+calls in total. Search retrieves candidates; an exact source read supplies
+final source-record support.
 
 The Semantic Resolution Agent is activated only when deterministic authority
 services leave more than one plausible candidate. The ingestion coordinator,
 parsers, adapters, indexes, validators, and writers are deterministic services,
 not decorative Agents.
 
-### 4. Current Vertical Slice
+### 4. Current Knowledge Domains
 
 GDP, Ground Stop, and ReRoute are the implemented TMI families used to
-demonstrate the complete architecture. They are not the permanent subject
-boundary of the framework. New aviation families should reuse the same source,
-semantic-publication, retrieval, and evidence-support contracts rather than
-introducing event-specific runtime routes.
+demonstrate the mature advisory path. Formal Flight, Aircraft/Model,
+Airport/ARTCC, Route, TrackPoint, Sector, and Weather roots now reuse the same
+Formal Publication Kernel and generic publication spine; reviewed association
+roots are emitted by a separate deterministic derivation materializer. The NASA
+July 2014 and May 2026 slices remain separate temporal domains. New aviation
+families should reuse these source, publication, retrieval, and support
+contracts rather than introducing event-specific runtime routes.
 
 ## Running Example: Advisory 138
 
@@ -98,7 +107,14 @@ receive the same TMI.
    evidence assembly, and statement-level validation produce an answer.
 
 Together the figures tell one story: heterogeneous evidence is normalized and
-published under a shared semantic contract, then an LLM Agent dynamically
+published under a shared semantic contract, then an LLM routes and dynamically
 retrieves the evidence needed for a user question while deterministic support
 validation protects the boundary between source fact, context, observation,
-and unsupported inference.
+derived candidate relation, and unsupported inference.
+
+The current six-task cross-domain live smoke is consistent with that story:
+routing and retrieval passed 6/6 tasks, while grounding and answer acceptance
+passed 5/6 with 33/33 real `deepseek-v4-pro` calls returned. The failed task
+exposed a stop-policy problem—the Agent exhausted its 10-tool budget instead
+of returning `insufficient` for unsupported actual-control and causal claims.
+It is a compatibility observation, not a benchmark.

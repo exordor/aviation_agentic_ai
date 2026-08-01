@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import threading
 from pathlib import Path
 from typing import Any
@@ -79,6 +81,18 @@ def _deep_merge_mappings(
         else:
             merged[key] = value
     return merged
+
+
+def resolved_config_checksum(config: dict[str, Any]) -> str:
+    """Return a stable checksum for one fully composed configuration."""
+
+    payload = json.dumps(
+        config,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
 
 
 def load_default_config() -> dict[str, Any]:

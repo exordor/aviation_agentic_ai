@@ -52,6 +52,7 @@ from aviation_agentic_ai.config import (
     configured_store_root,
     load_environment,
     load_yaml,
+    resolved_config_checksum,
     resolve_project_path,
 )
 
@@ -246,6 +247,7 @@ def ingest_command(
     click.echo(f"blocked: {summary.blocked_count}")
     click.echo(f"retrieval_indexes: {summary.index_status}")
     click.echo(f"knowledge_revision: {revision}")
+    click.echo(f"resolved_config_sha256: {resolved_config_checksum(config)}")
 
 
 @agent_system.command("reindex")

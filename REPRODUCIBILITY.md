@@ -1,10 +1,10 @@
 # Reproducibility
 
-Last updated: 2026-07-31
+Last updated: 2026-08-01
 
-This is the current ingestion-first TMI-event workflow. Historical experiments
-remain discoverable through `ARTIFACT_INDEX.md`; they are not the default
-execution path.
+This is the current ingestion-first cross-domain aviation workflow. Historical
+experiments remain discoverable through `ARTIFACT_INDEX.md`; they are not the
+default execution path.
 
 ## Environment
 
@@ -51,14 +51,49 @@ data/sources/bts_on_time_2026_05_nyc.jsonl
 
 Do not replace a pinned source implicitly during an ordinary ingestion run.
 
-## Optional Flight And Sector Competency Supplement
+## Flight And Airspace Sources
 
-The persistent TMI-event store does not yet ingest individual flights,
-aircraft models, or sector-crossing trajectories. A separate deterministic
-sidecar reconstructs four flight-oriented ATMONTO appendix questions without
-changing the authoritative store or public Query Agent runtime.
+The active top-level config composes three files:
 
-The checksum-bound source manifest is
+```text
+configs/aviation_knowledge_v1.yaml
+  -> configs/runtime/aviation_knowledge_v1.yaml
+  -> configs/sources/aviation_knowledge_v1.yaml
+  -> configs/datasets/aviation_knowledge_v1.yaml
+```
+
+They separate runtime/storage settings, source locations and pinned source
+checksums, and dataset/temporal-scope metadata. The configured Flight/Airspace
+domain includes the public NASA ATMONTO July 2014 sample plus a bounded May
+2026 operational-source slice. Their temporal-domain identifiers remain
+distinct and cross-temporal joins are prohibited.
+
+`ingest` prints `resolved_config_sha256`, a canonical SHA-256 over the fully
+composed mapping. This records the exact resolved configuration used for a
+run; the store's knowledge revision remains content-driven and is not replaced
+by configuration identity.
+
+Required ignored inputs and checksums are declared in the source and dataset
+config files. Ingest the Flight/Airspace domain with:
+
+```bash
+uv run aviation-ai agent-system ingest \
+  --config configs/aviation_knowledge_v1.yaml \
+  --store-dir data/stores/aviation/aviation-knowledge-2026-05-v1 \
+  --domain flight-airspace
+```
+
+This publishes Flight, Aircraft/Model, Airport/ARTCC, Route, TrackPoint,
+Sector, Weather, and reviewed association roots through the same generic
+publication spine used by the TMI domain.
+
+### Historical Competency Supplement
+
+The separate deterministic command remains reproducible as a historical
+comparison for four ATMONTO appendix query shapes; it is no longer the public
+runtime boundary.
+
+Its checksum-bound source manifest is
 `configs/flight_competency_v1.yaml`. It pins:
 
 - the published NASA `atmontoPlus` 2014 flight/sector sample;
@@ -77,7 +112,7 @@ uv run python -m aviation_agentic_ai.competency_query_supplement \
   --config configs/flight_competency_v1.yaml
 ```
 
-The pinned run produces:
+The pinned historical run produces:
 
 | Query | Executed form | Result |
 | --- | --- | ---: |
@@ -98,8 +133,8 @@ reports/stages/atmonto_competency_query_supplement_v1.md
 
 ## Persistent Store
 
-`configs/aviation_knowledge_v1.yaml` declares the active dataset identity and
-default store root:
+The composed active configuration declares the dataset identity and default
+store root:
 
 ```text
 data/stores/aviation/aviation-knowledge-2026-05-v1/
@@ -112,7 +147,8 @@ The SQLite database is authoritative. It holds immutable source assets and
 versions, anchors, ingestion results, active and historical event
 publications, accepted semantic facts, provenance, profile gaps, Weather
 associations, public observations, source chunks, FTS5 data, vector-index
-state, and compact Agent usage telemetry.
+state, compact Agent usage telemetry, Flight/Airspace domain records,
+deterministic derivations, and cross-source associations.
 
 The store uses a knowledge revision to bind rebuildable vector indexes and
 evaluation runs to an exact semantic state. It opens directly from SQLite; no
@@ -126,6 +162,7 @@ Ingest the three reason-state regression records:
 uv run aviation-ai agent-system ingest \
   --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
+  --domain tmi \
   --advisory-id 2026-05-19:123 \
   --advisory-id 2026-05-19:138 \
   --advisory-id 2026-05-20:020 \
@@ -134,8 +171,10 @@ uv run aviation-ai agent-system ingest \
 ```
 
 `--advisory-id` is an operator-facing targeted construction/backfill selector.
-It registers only the named advisory records plus shared authority and context
-evidence. Omit the option to process all 718 configured advisories.
+It is valid only with `--domain tmi` and registers only the named advisory
+records plus shared authority and context evidence. Omit the option to process
+all 718 configured advisories in that domain. `--domain all` is the default;
+`--domain flight-airspace` runs only the other active ingestion domain.
 
 The pipeline:
 
@@ -150,6 +189,10 @@ The pipeline:
 A blocked record does not erase earlier accepted data. Repeating the same
 command skips terminal versions and retries blocked versions. Semantic
 publication remains valid if vector indexing fails.
+
+The command reports `retrieval_indexes` separately as `updated`, `not_needed`,
+`blocked`, or `not_applicable`. Do not infer semantic-ingestion failure from a
+blocked rebuildable index; inspect the semantic counts and knowledge revision.
 
 Complete source-supported records use deterministic Event Evidence Integration.
 `--allow-live-model` authorizes live Semantic Resolution only when genuine
@@ -199,19 +242,38 @@ uv run aviation-ai agent-system ask \
 ```
 
 Every valid request activates the configured Query Agent. The model must
-retrieve before answering and may choose:
+retrieve before answering. A dedicated first model call selects one or more
+tool families:
 
 ```text
-find_tmi_events
-read_tmi_event_facts
-read_tmi_operational_context
-read_public_observations
-read_tmi_event_graph
-find_similar_tmi_events
-search_source_text
-semantic_search_sources
-read_source
+source (3 tools)
+  search_source_text
+  semantic_search_sources
+  read_source
+
+tmi (6 tools)
+  find_tmi_events
+  read_tmi_event_facts
+  read_tmi_operational_context
+  read_public_observations
+  read_tmi_event_graph
+  find_similar_tmi_events
+
+flight_airspace (9 tools)
+  find_flights
+  read_flight
+  find_airports
+  read_flight_trajectory
+  find_sector_passages
+  analyze_sector_traffic
+  find_flight_weather_associations
+  find_tmi_applicability_candidates
+  read_aviation_graph
 ```
+
+The evidence loop is bounded at 6 provider turns, 6 tool calls in one turn,
+and 10 evidence-tool calls in total. Routing is LLM-mediated; it is not a
+fixed question registry or keyword classifier.
 
 Scope hints such as `--source-family`, `--event-type-iri`,
 `--facility-id`, `--reason-status`, `--reason-value`, `--offset`, `--limit`,
@@ -254,7 +316,7 @@ uv run aviation-ai agent-system export-event \
   --output-dir data/stores/aviation/exports/selected-event
 ```
 
-The package includes event, fact, evidence, profile-gap, Weather-association,
+The event package includes event, fact, evidence, profile-gap, Weather-association,
 public-observation, source-version, source-anchor, JSONL KG, RDF/Turtle, and
 Neo4j projection files plus an export manifest. It is not a replay directory or
 a query dependency.
@@ -267,8 +329,11 @@ uv run aviation-ai agent-system neo4j-export \
   --store-dir data/stores/aviation/ingestion-refactor-smoke-v1
 ```
 
-Neo4j loading returns `blocked` when credentials or connectivity are
-unavailable. RDF/Turtle and Neo4j remain rebuildable offline products.
+The store-wide export includes accepted facts from every active formal
+knowledge root, including TMI and Flight/Airspace roots, with publication and
+provenance bindings. Neo4j loading returns `blocked` when credentials or
+connectivity are unavailable. RDF/Turtle and Neo4j remain rebuildable offline
+products.
 
 ## Acceptance Semantics
 
@@ -291,15 +356,17 @@ reported as LLM or Agent performance.
 
 ### GDP 138 Flagship Live Walkthrough
 
-The flagship walkthrough uses one natural-language cross-source question to
-exercise the current persistent-store Query Agent with the real configured
-DeepSeek provider. Build its bounded evidence store and both rebuildable
-indexes with:
+The flagship walkthrough is a historical pre-family-router TMI-slice run. It
+used one natural-language cross-source question with the real configured
+DeepSeek provider. The commands below rebuild its bounded evidence store and
+both rebuildable indexes, but the tracked result is not current-runtime
+acceptance:
 
 ```bash
 uv run --extra agent-system aviation-ai agent-system ingest \
   --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
+  --domain tmi \
   --advisory-id 2026-05-19:138
 
 uv run --extra agent-system aviation-ai agent-system reindex \
@@ -365,6 +432,57 @@ statistical benchmark. Weather associations remain non-causal, and BTS public
 observations are not FAA demand, capacity, AAR, EDCT, decision-input,
 effectiveness, or recommendation evidence.
 
+### Cross-Domain HybridRAG Live Smoke
+
+Build one store containing both configured domains, then run the six ordinary
+natural-language tasks:
+
+```bash
+uv run aviation-ai agent-system ingest \
+  --config configs/aviation_knowledge_v1.yaml \
+  --store-dir data/stores/aviation/cross-domain-smoke-v1 \
+  --domain flight-airspace
+
+uv run aviation-ai agent-system ingest \
+  --config configs/aviation_knowledge_v1.yaml \
+  --store-dir data/stores/aviation/cross-domain-smoke-v1 \
+  --domain tmi \
+  --advisory-id 2026-05-19:138 \
+  --allow-model-download
+
+uv run python -m aviation_agentic_ai.agent_system.live_cross_domain_smoke \
+  --config configs/aviation_knowledge_v1.yaml \
+  --suite data/evaluation/agent_system/live_hybridrag_cross_domain_v1.yaml \
+  --store-dir data/stores/aviation/cross-domain-smoke-v1 \
+  --output-dir data/corpus/agent_system/live-hybridrag-cross-domain-v1 \
+  --report-dir reports/stages \
+  --allow-live-model
+```
+
+The verified run used `deepseek-v4-pro`, temperature 0, thinking disabled,
+and zero retries. It recorded 33 attempted, 33 successful, and 0 failed real
+calls; 265,691 input and 10,352 output tokens; and valid raw/trial binding.
+Routing and retrieval passed all 6 tasks. Grounding and answer acceptance
+passed 5/6: TMI, Flight, Weather, Sector, and TMI-applicability tasks passed.
+For the unsupported actual-control/causal question, the Agent retrieved the
+right candidate evidence but exhausted its 10-tool budget instead of stopping
+with `insufficient`, so the task remained `blocked`. Preserve this as a
+stop-policy failure.
+
+```text
+raw provider responses:
+  data/corpus/agent_system/live-hybridrag-cross-domain-v1/raw_provider_responses.jsonl
+  sha256 18e2028b57f392a058c63b2c87efd33e9ca4e0002e809148bcbbf537b7cf3ece
+parsed trial outputs:
+  data/corpus/agent_system/live-hybridrag-cross-domain-v1/parsed_trial_outputs.jsonl
+  sha256 856fafb8a8dd8842345d91b3d90fc9d19626e2a87ec081b1b80f06fae5f99af9
+artifact integrity: verified
+```
+
+The tracked sanitized reports are
+`reports/stages/live_hybridrag_cross_domain_v1.{json,md}`. This is a
+`live_smoke`, not a benchmark or causal/recommendation evaluation.
+
 ### Persistent-Store Compatibility Smoke
 
 After building and indexing the bounded store, run the ingestion-first
@@ -422,6 +540,9 @@ uv run --extra tmi-event-retrieval pytest -q \
   tests/test_agent_system_tmi_event_retrieval_documents.py \
   tests/test_agent_system_tmi_event_retrieval_index.py \
   tests/test_agent_system_tmi_event_retrieval_search.py \
+  tests/test_config.py \
+  tests/test_agent_system_flight_airspace_query.py \
+  tests/test_agent_system_cross_domain_live_smoke.py \
   tests/test_agent_system_hybrid_query_agent.py \
   tests/test_agent_system_hybrid_query_tools.py \
   tests/test_agent_system_hybrid_query_public.py \

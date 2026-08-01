@@ -2,7 +2,7 @@
 
 Status: normative current architecture
 
-Date: 2026-07-31
+Date: 2026-08-01
 
 ## 1. Purpose
 
@@ -16,8 +16,9 @@ publication boundary, an authoritative persistent knowledge layer, and
 model-directed HybridRAG. Every released answer statement remains traceable to
 retrieved evidence.
 
-The current vertical slice covers GDP, GS, and ReRoute. These families
-demonstrate the complete architecture but do not define its permanent subject
+GDP, GS, and ReRoute remain the mature TMI vertical slice. Flight/Airspace,
+reference, Weather, and reviewed cross-source association roots now use the
+same publication and query architecture; none defines its permanent subject
 boundary.
 
 ## 2. Research Narrative And Architecture
@@ -59,13 +60,14 @@ dense workflow chart.
 
 The five planes are:
 
-1. **Evidence Plane** — ATCSCC, FAA authority, Weather, and BTS records.
+1. **Evidence Plane** — ATCSCC, FAA authority, Weather, BTS, NASA ATMONTO
+   sample, aircraft-registry, and airspace records.
 2. **Deterministic Ingestion Orchestration** — parsing, versioning,
    normalization, identity and time alignment, and evidence preparation.
 3. **Semantic and Trust Plane** — ATMONTO profiles, selective semantic
    resolution when ambiguity remains, and the Formal Publication Kernel.
-4. **Knowledge and Retrieval Plane** — authoritative SQLite knowledge with
-   rebuildable graph, lexical, vector, and offline export views.
+4. **Knowledge and Retrieval Plane** — authoritative generic knowledge roots
+   in SQLite with rebuildable graph, lexical, vector, and offline export views.
 5. **Agent Interaction Plane** — the model-directed Query Agent, evidence
    assembly, statement-level support validation, and user answer.
 
@@ -77,16 +79,16 @@ queries, graph views, and index implementations remain deterministic services.
 Construction:
 
 ```text
-ATCSCC + FAA authority + METAR/TAF + BTS source artifacts
+composed runtime + source + dataset/temporal-scope configuration
   -> source-specific deterministic adapters
   -> immutable source assets, versions, and anchors
-  -> ATMONTO-aligned TMI classification and preflight
-  -> FAA facility and terminology authority services
-     -> Semantic Resolution Agent only for genuine ambiguity
-  -> Weather and BTS evidence preparation
-  -> deterministic Event Evidence Integration
-  -> task-bound admissibility validation
-  -> write-free Formal Publication Kernel
+  -> selected domain
+     -> TMI classification, authority resolution, Weather/BTS preparation,
+        and deterministic Event Evidence Integration
+     -> Flight/Airspace normalization and profile-bound fact compilation
+  -> semantic facts: write-free Formal Publication Kernel
+     -> generic knowledge-root publication spine
+  -> cross-source associations: deterministic derivation materializer
   -> authoritative SQLite evidence and semantic store
   -> source chunks and SQLite FTS5
   -> rebuildable source and TMI-event Chroma collections
@@ -96,7 +98,8 @@ Retrieval:
 
 ```text
 free-form question + immutable user scope
-  -> bounded LLM Query Agent
+  -> LLM selects source | tmi | flight_airspace tool families
+  -> bounded Query Agent over the selected evidence tools
   -> exact store | semantic graph | FTS | Chroma | exact source read
   -> structured evidence and support records
   -> LLM answer formation
@@ -104,8 +107,8 @@ free-form question + immutable user scope
   -> answer / insufficient / blocked
 ```
 
-RDF/Turtle, JSONL KG, and Neo4j are optional offline exports from SQLite, not
-mandatory runtime databases.
+RDF/Turtle, JSONL KG, and Neo4j are optional all-root offline exports from
+SQLite, not mandatory runtime databases.
 
 Only two roles make bounded model-mediated choices:
 
@@ -142,7 +145,7 @@ not a required runtime read backend.
 
 ### 4.1 ATMONTO
 
-ATMONTO is the schema/TBox target. The formal root is:
+ATMONTO is the schema/TBox target. The TMI registry root is:
 
 ```text
 atm:TrafficManagementInitiative
@@ -159,6 +162,11 @@ atm:ReRouteTMI
 One registry drives source-family detection, required-field preflight,
 admitted predicates and values, publication-profile selection, and retrieval
 labels. The versioned profile constrains publication; an LLM cannot extend it.
+
+Additional validation profiles admit the configured Flight, Aircraft/Model,
+Airport/ARTCC, Route, TrackPoint, Sector, Weather, and association terms. They
+share the publication mechanism but retain typed root kinds and temporal-domain
+boundaries.
 
 ### 4.2 ATMGRAPH
 
@@ -181,6 +189,9 @@ The source families remain distinct:
 | FAA terminology | Operational-term authority and schema alignment. |
 | METAR / TAF | Time-bounded Weather report facts and non-causal context. |
 | BTS On-Time | Source-qualified public operational observations. |
+| NASA ATMONTO public sample | Flight, route, track, sector, Weather, airport-operation, and TMI instance evidence for July 2014. |
+| BTS flight operations | Bounded public flight-operation records for the configured May 2026 slice. |
+| FAA aircraft registry | Later technical aircraft/model lookup; not historical state proof. |
 
 Authority evidence can resolve an identity but cannot authorize a TMI fact. A
 Weather report can provide context but cannot fill a missing declared reason.
@@ -189,14 +200,35 @@ A BTS row cannot become an FAA demand or capacity record.
 Every accepted fact carries an owning profile and checksum, semantic identity,
 source-version binding, and evidence link or deterministic derivation trace.
 
+### 5.1 Configuration Composition
+
+`configs/aviation_knowledge_v1.yaml` composes:
+
+```text
+runtime/aviation_knowledge_v1.yaml
+sources/aviation_knowledge_v1.yaml
+datasets/aviation_knowledge_v1.yaml
+```
+
+The files separate runtime/storage settings, artifact locations and source
+checksums, and dataset/role/temporal-scope metadata. In particular, the NASA
+July 2014 and May 2026 operational slices carry distinct temporal-domain IDs;
+the active configuration forbids cross-temporal joins.
+
+The composed mapping has a canonical SHA-256 reported by `ingest` for run
+provenance. It is deliberately not used as the authoritative knowledge
+revision: source versions and accepted publications determine store state,
+while configuration files govern a particular ingestion invocation.
+
 ## 6. Incremental Ingestion
 
-`ingest` is the public write path. One or more `--advisory-id` values select a
-targeted advisory construction/backfill; omitting them processes all configured
-advisory records. A targeted run registers the selected advisory records plus
-the shared authority and context evidence required by the construction path.
+`ingest` is the public write path. `--domain all` is the default;
+`--domain tmi` and `--domain flight-airspace` select one bounded domain. One or
+more `--advisory-id` values select a targeted TMI construction/backfill and are
+valid only with `--domain tmi`. A targeted run registers the selected advisory
+records plus the shared authority and context evidence required by that path.
 
-One invocation loads schema, authority, Weather, and BTS resources once, then
+The TMI path loads schema, authority, Weather, and BTS resources once, then
 processes advisories sequentially. For each source version:
 
 1. a previous terminal `ok` or `insufficient` result is skipped;
@@ -208,6 +240,13 @@ processes advisories sequentially. For each source version:
 
 There is no requirement to complete a batch or publish a batch manifest before
 accepted knowledge becomes queryable.
+
+The Flight/Airspace path uses deterministic source adapters, profile-bound
+fact compilation, the same Formal Publication Kernel, and the generic
+knowledge-root transaction. Its bounded sources publish Flights,
+Aircraft/Models, Airports/ARTCCs, routes, track points, sectors, Weather and
+airport-operation records. A separate deterministic materializer then emits
+reviewed association roots over already accepted participant publications.
 
 ## 7. Semantic Resolution Agent
 
@@ -258,7 +297,7 @@ BTS rules:
 
 Neither source family changes the ATCSCC-declared reason.
 
-## 9. Event Evidence Integration And Publication
+## 9. Evidence Integration And Publication
 
 After deterministic parsing, authority resolution, and optional-layer
 preparation, the runtime seals an `EventEvidenceIntegrationTask`. It binds the
@@ -271,14 +310,21 @@ The deterministic compiler returns a source-supported proposal or honest
 out-of-task evidence is `blocked`.
 
 The Formal Publication Kernel is write-free and is the sole final publication
-authority. It validates the complete admitted formal set before a transaction
-writes accepted semantics.
+authority. It validates a complete admitted formal set before the generic
+knowledge-root transaction writes accepted semantics.
 
-It accepts:
+For the TMI path it accepts:
 
 1. ATCSCC TMI event facts under the ATMONTO profile;
 2. admitted METAR/TAF Weather report facts;
 3. admitted BTS public-observation facts.
+
+The Flight/Airspace adapters compile their typed roots and source-supported
+facts against the corresponding profiles, then use the same Kernel and
+publication spine. After those participants are accepted, a deterministic
+association materializer publishes Flight–Weather and TMI-applicability roots
+with procedure identity, input publications, source closure, result checksum,
+and an explicit non-causal or candidate relation type.
 
 It checks profile identity, source-version bindings, evidence and fact traces,
 datatypes, domain/range, graph constraints, and layer-specific boundaries.
@@ -290,7 +336,7 @@ No model writes directly to SQLite, JSONL, RDF/Turtle, Neo4j, FTS, or Chroma.
 ## 10. Authoritative SQLite Store
 
 The dataset-bound store uses schema version
-`aviation-evidence-store-v1` and file:
+`aviation-evidence-store-v2` and file:
 
 ```text
 aviation_evidence.sqlite3
@@ -302,9 +348,10 @@ Its main logical groups are:
 | --- | --- |
 | Source | assets, logical sources, immutable versions, exact anchors |
 | Ingestion | source-version results, ingestion runs, compact Agent usage |
-| Event | TMI identities, active/historical publications, type/facility/source bindings |
-| Semantics | facts, event membership, evidence links |
+| Knowledge roots | typed roots and active/historical generic publications |
+| Semantics | facts, root membership, evidence links and deterministic derivations |
 | Qualified evidence | profile gaps, Weather associations, public observations |
+| Flight/Airspace | Flights, aircraft, airports/ARTCCs, routes, trajectories, sectors, Weather links, and TMI-applicability candidates |
 | Retrieval | source chunks, FTS5 table, vector-index state |
 
 Semantic facts are deduplicated independently of provenance. Evidence links
@@ -347,32 +394,41 @@ question registry, keyword classifier, or deterministic answer bypass.
 
 ```text
 question + immutable CLI scope
-  -> LLM selects bounded read-only tool(s)
+  -> LLM selects source | tmi | flight_airspace families
+  -> bind only those bounded read-only evidence tools
   -> typed tool observations
   -> continue retrieval or emit typed statements
   -> statement-support and claim-boundary validation
   -> answer / insufficient / blocked
 ```
 
-The loop permits at most four provider turns, three tool calls in one turn, and
-six tool calls in total.
+The evidence loop permits at most 6 provider turns, 6 tool calls in one turn,
+and 10 evidence-tool calls in total. The separate routing call selects one or
+more families from a shared registry:
 
-The nine tools are:
+| Family | Tools | Capability |
+| --- | ---: | --- |
+| `source` | 3 | SQLite FTS and Chroma candidate discovery followed by exact source-version/anchor reading. |
+| `tmi` | 6 | TMI discovery, formal facts and gaps, Weather context, BTS observations, event graph, and metadata-conditioned candidates. |
+| `flight_airspace` | 9 | Flights, airports, trajectories, sector passages/aggregation, Flight–Weather links, TMI-applicability candidates, and the general aviation graph. |
 
-| Tool | Capability |
-| --- | --- |
-| `find_tmi_events` | Exact event filters and bounded paging. |
-| `read_tmi_event_facts` | Formal facts, profile gaps, and reason state. |
-| `read_tmi_operational_context` | Non-causal Weather associations and report facts. |
-| `read_public_observations` | Source-qualified BTS public observations. |
-| `read_tmi_event_graph` | Bounded formal edges or reviewed non-causal paths. |
-| `find_similar_tmi_events` | Metadata-conditioned TMI event candidates. |
-| `search_source_text` | SQLite FTS lexical candidate discovery. |
-| `semantic_search_sources` | Chroma source candidate discovery. |
-| `read_source` | Exact bounded source-version and anchor read. |
+The 18 evidence tools are registered once and shared by the runtime and live
+evaluation harness. The model does not see all 18 on every evidence turn; it
+sees only the families selected during routing.
 
-Lexical and semantic source candidates carry active event IDs derived from the
-store's publication bindings. `read_source` preserves that mapping, allowing
+```text
+source: search_source_text, semantic_search_sources, read_source
+tmi: find_tmi_events, read_tmi_event_facts,
+     read_tmi_operational_context, read_public_observations,
+     read_tmi_event_graph, find_similar_tmi_events
+flight_airspace: find_flights, read_flight, find_airports,
+     read_flight_trajectory, find_sector_passages, analyze_sector_traffic,
+     find_flight_weather_associations, find_tmi_applicability_candidates,
+     read_aviation_graph
+```
+
+Lexical and semantic source candidates carry active TMI event IDs derived from
+the store's publication bindings. `read_source` preserves that mapping, allowing
 the Agent to resolve a user's date, advisory number, airport, or other source
 wording before continuing through event-scoped tools. The user is not expected
 to know an internal source or event ID.
@@ -402,6 +458,14 @@ source_record
 non_causal_context
 public_observation
 similarity
+flight_fact
+airport_fact
+airspace_fact
+trajectory_fact
+graph_fact
+aggregate_result
+temporal_association
+tmi_applicability
 ```
 
 The validator rejects unknown support IDs, unsupported factual statements,
@@ -417,7 +481,7 @@ Answer prose is never written back into the knowledge store or its indexes.
 profile gaps, Weather associations, public observations, exact referenced
 source versions and anchors, and bounded KG projections.
 
-The full store can be projected to:
+All active formal knowledge roots in the store can be projected to:
 
 ```text
 kg.jsonl
@@ -427,9 +491,10 @@ neo4j_relationships.jsonl
 ```
 
 `neo4j-export` builds that current projection and loads it into Neo4j. Export
-manifests record dataset identity, store revision, counts, and checksums for
-inspection and interchange. They are not query-runtime manifests and do not
-become publication authorities.
+manifests record dataset identity, store revision, total roots, root-kind
+counts, facts, publication/provenance bindings, and checksums for inspection
+and interchange. They are not query-runtime manifests and do not become
+publication authorities.
 
 ## 15. Public Commands
 
@@ -437,6 +502,8 @@ become publication authorities.
 aviation-ai agent-system ingest \
   --config <config> \
   [--store-dir <store-dir>] \
+  [--domain all|tmi|flight-airspace] \
+  [--source-root <source-root>] \
   [--advisory-id <id> ...] \
   [--allow-live-model] \
   [--allow-model-download]
@@ -503,13 +570,22 @@ development/regression tasks passed. The two failed answer-contract/evidence
 checks are retained as observed behavior and are not converted into offline
 successes.
 
-The tracked GDP 138 flagship walkthrough provides the current positive
-end-to-end acceptance for this runtime: 1/1 natural-language Query Agent task
+The tracked GDP 138 flagship walkthrough provides historical pre-family-router
+TMI-slice evidence: 1/1 natural-language Query Agent task
 passed, 3/3 real `deepseek-v4-pro` calls returned, and 5/5 bounded tool
 executions were bound to the accepted trial. It verifies one versioned
 ingestion-to-answer path with exact ATCSCC source support, non-causal Weather
-context, and source-qualified BTS observations. It is not a benchmark or a
-claim of general model quality.
+context, and source-qualified BTS observations. It is not current-runtime
+acceptance, a benchmark, or a claim of general model quality.
+
+The broader cross-domain `live_smoke` binds six ordinary natural-language
+tasks to one store revision and the shared runtime registry. With
+`deepseek-v4-pro`, all 33/33 real calls returned; routing and retrieval passed
+6/6, and grounding/answer acceptance passed 5/6. TMI, Flight, Weather, Sector,
+and TMI-applicability tasks passed. The unsupported actual-control/causal task
+kept retrieving until the 10-tool ceiling and returned `blocked` instead of
+`insufficient`. This is an observed stop-policy failure, not a successful
+abstention or a statistical benchmark.
 
 ## 18. Deferred Work
 
@@ -517,8 +593,8 @@ claim of general model quality.
   trade-offs.
 - Decision lifecycle/episode identity.
 - National Playbook PDF grounding.
-- F1/F3S/S4/S1S flight and sector data.
 - ASPM demand, capacity, AAR, EDCT, and runway configuration.
+- National-scale or operationally complete flight and sector coverage.
 - Weather-based causal explanation.
 - Operational effectiveness and outcome-aware similarity.
 - TMI recommendation.

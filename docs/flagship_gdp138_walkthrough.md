@@ -2,15 +2,16 @@
 
 ## Purpose And Status
 
-This walkthrough demonstrates the current ingestion-first, ATMONTO-grounded
-HybridRAG system on one cross-source question. It uses the normal persistent
-ingestion pipeline, the normal bounded Query Agent, and the configured real
-DeepSeek provider.
+This historical walkthrough demonstrates the ingestion-first,
+ATMONTO-grounded HybridRAG TMI slice before LLM tool-family routing was added.
+It used the normal persistent ingestion pipeline of that revision, its bounded
+Query Agent, and the configured real DeepSeek provider.
 
 The observed run completed and passed its evidence and answer-contract checks.
 It is a `live_smoke / system walkthrough`: it shows that this versioned
-end-to-end path executed successfully, but it is not a benchmark, a holdout
-evaluation, or evidence of general model quality.
+end-to-end path executed successfully, but it is not current-runtime
+acceptance, a benchmark, a holdout evaluation, or evidence of general model
+quality.
 
 The question was:
 
@@ -152,6 +153,7 @@ After completing the source-snapshot preflight in
 uv run --extra agent-system aviation-ai agent-system ingest \
   --config configs/aviation_knowledge_v1.yaml \
   --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
+  --domain tmi \
   --advisory-id 2026-05-19:138
 
 uv run --extra agent-system aviation-ai agent-system reindex \

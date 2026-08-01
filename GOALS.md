@@ -1,6 +1,6 @@
 # Project Goals
 
-Last updated: 2026-07-31
+Last updated: 2026-08-01
 
 This file defines durable system outcomes. Concrete work belongs in `TODO.md`;
 historical evaluations are routed through `ARTIFACT_INDEX.md`.
@@ -15,15 +15,18 @@ retrieval. The system:
 1. maps heterogeneous aviation sources to a shared ATMONTO-aligned semantic
    layer;
 2. incrementally ingests source versions and publishes retrospective ATCSCC
-   GDP, GS, and ReRoute event knowledge as the current vertical slice;
+   TMI plus Flight/Airspace knowledge through a shared generic publication
+   spine;
 3. escalates only genuine authority ambiguity to a bounded Semantic Resolution
    Agent and keeps normal evidence integration deterministic;
 4. publishes only source-supported facts accepted by one explicit Formal
    Publication Kernel;
 5. keeps the persistent SQLite evidence store authoritative while deriving
-   FTS, Chroma, RDF/Turtle, and Neo4j views from it;
+   FTS, Chroma, all-root RDF/Turtle, and all-root Neo4j views from it;
 6. routes every valid natural-language question through a bounded LLM Query
-   Agent over exact, graph, lexical, vector, and source-read tools;
+   Agent that first selects source, TMI, and/or Flight/Airspace capability
+   families and then invokes their exact, graph, lexical, vector, and
+   source-read tools;
 7. exposes evidence, limitations, and honest missing states for every
    supported answer.
 
@@ -31,8 +34,9 @@ ATMONTO supplies the admitted TBox and application-profile terms. ATMGRAPH
 supplies ABox-construction and cross-source-query principles. The project does
 not import ATMGRAPH data or claim an exact replication.
 
-The current TMI-event slice validates a reusable architecture. It is not the
-permanent subject boundary, and the goal is not to maximize Agent count.
+The current TMI and Flight/Airspace domains validate a reusable architecture.
+They are not the permanent subject boundary, and the goal is not to maximize
+Agent count.
 
 ## User Value
 
@@ -45,6 +49,10 @@ questions that require one or more of:
 - semantic graph edges and reviewed cross-source evidence paths;
 - lexical or semantic discovery of source records followed by exact reading;
 - metadata-conditioned retrieval of historical TMI event candidates;
+- Flight facts, airport/ARTCC reference relations, trajectories and sector
+  passages;
+- temporal Flight–Weather associations and rule-derived TMI-applicability
+  candidates;
 - the source version and exact anchor supporting each answer statement.
 
 The system must distinguish:
@@ -60,16 +68,17 @@ The system must distinguish:
 
 The current system provides:
 
-- one family registry rooted at `atm:TrafficManagementInitiative`, with active
-  GDP, GS, and ReRoute application profiles over exact ATMONTO terms;
+- one TMI family registry rooted at `atm:TrafficManagementInitiative`, with
+  active GDP, GS, and ReRoute application profiles over exact ATMONTO terms;
 - deterministic advisory parsing, source normalization, time alignment, and
   FAA facility/terminology authority services;
 - a shared Semantic Resolution Agent only for genuine multi-candidate
   authority ambiguity;
 - deterministic Event Evidence Integration that compiles source-supported
   sealed evidence and preserves honest insufficiency;
-- one write-free Formal Publication Kernel over TMI, Weather, and
-  public-observation layers;
+- one write-free Formal Publication Kernel used by TMI, Weather,
+  public-observation, Flight/Airspace, and reference semantic facts, plus a
+  separate deterministic materializer for source-supported association roots;
 - a versioned SQLite store for source assets, source versions, anchors,
   publications, facts, evidence, profile gaps, context, observations, and
   lightweight usage telemetry;
@@ -77,21 +86,26 @@ The current system provides:
 - SQLite FTS5 over source-record chunks;
 - rebuildable Chroma collections for source records and compact TMI event
   summaries;
-- optional JSONL, RDF/Turtle, and Neo4j exports;
-- nine bounded read-only Query Agent tools;
+- optional all-root JSONL, RDF/Turtle, and Neo4j exports;
+- three model-routed Query Agent capability families containing 18 bounded
+  read-only evidence tools;
 - a Query Agent invoked for every valid natural-language question, with a
-  bounded action-observation loop and statement-level support validation;
-- a checksum-bound flight-competency supplement that executes the F1, F3S,
-  S4, and S1S query shapes over pinned NASA and modern FAA/BTS/Weather sources
-  without changing the authoritative TMI-event store or public Query Agent
-  runtime;
+  6-turn, 6-per-turn, 10-total-tool action-observation loop and
+  statement-level support validation;
+- Flight/Airspace ingestion and read-only tools covering stored flights,
+  airports, trajectories, sectors, temporal Weather associations, TMI
+  applicability candidates, and graph reads;
+- a retained historical checksum-bound supplement for the F1, F3S, S4, and
+  S1S query shapes;
 - explicit `ok`, `insufficient`, and `blocked` semantics.
 
 ## Current Semantic Boundary
 
-The admitted ATMONTO TMI event is the formal root. Store membership and event
-publication records organize accepted facts; they do not claim that the system
-reconstructed an internal FAA decision process.
+The store supports typed formal knowledge roots. ATMONTO TMI instances remain
+the root of the mature advisory slice; Flight, Aircraft, Airport/ARTCC, Route,
+TrackPoint, Sector, Weather, and reviewed association roots use the same
+publication spine. None claims that the system reconstructed an internal FAA
+decision process.
 
 The evidence rules are:
 
@@ -122,13 +136,16 @@ views, FTS, and vector search are deterministic tools or services. No Agent can
 invent an ontology term, widen its sealed scope, write directly to the
 knowledge store, or treat model memory as evidence.
 
-The flight-competency supplement is an offline deterministic evaluation
-sidecar, not a public Agent query backend. NASA's published 2014 sample
-supports sector-passage S4/S1S queries. May 2026 BTS departures, NASR ARTCC
-assignments, FAA aircraft technical records, and KATL METAR/SPECI observations
-support explicitly labelled modern F1/F3S proxies. These results do not
-reconstruct the unavailable 2012 KATL prototype database and do not establish
-weather causality or historical aircraft-registration state.
+The public Query Agent uses a first LLM call to select one or more tool
+families, then binds only those evidence tools. The active families are
+`source` (3 tools), `tmi` (6 tools), and `flight_airspace` (9 tools). This
+model-directed gate avoids exposing all 18 evidence tools on every turn while
+retaining a shared runtime and support contract.
+
+The older flight-competency supplement remains an offline deterministic
+comparison artifact. Its modern F1/F3S proxies do not reconstruct the
+unavailable 2012 KATL database and do not establish Weather causality or
+historical aircraft-registration state.
 
 ## Success Criteria
 
@@ -143,8 +160,8 @@ The current mainline succeeds when:
 - exact and lexical reads remain available when a vector index is absent or
   stale;
 - both Chroma collections can be rebuilt from the authoritative store;
-- optional RDF/Turtle and Neo4j exports contain the same accepted formal fact
-  identities;
+- optional RDF/Turtle and Neo4j exports contain accepted facts from every
+  active formal knowledge root, with publication and provenance bindings;
 - every valid natural-language query activates the Query Agent and retrieves
   before answering;
 - search candidates are verified through exact source reads before supporting a
@@ -165,8 +182,6 @@ model-quality claims.
   impact.
 - Initial, revision, extension, and cancellation episode grouping.
 - National Playbook PDF grounding.
-- Ingestion of flight/sector evidence and exposure of F1/F3S/S4/S1S through
-  bounded Query Agent tools.
 - Operational-situation or outcome-aware similarity, learned reranking, and
   TMI recommendation.
 - General-purpose aviation QA.

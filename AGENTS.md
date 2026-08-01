@@ -14,37 +14,35 @@ boundary.
 The active pipeline is:
 
 ```text
-configured ATCSCC, FAA authority, Weather, and BTS source artifacts
+composed runtime + source + dataset/temporal-scope configuration
+  -> configured ATCSCC, FAA authority, Weather, BTS, NASA ATMONTO,
+     aircraft-registry, and airspace source artifacts
   -> immutable source assets, source versions, and anchors
-  -> all advisories or explicit advisory-ID subset
-  -> ATMONTO-aligned TMI classification (GDP, GS, and ReRoute active)
-  -> deterministic preflight (boundary/deferred/incomplete -> zero-call insufficient)
-  -> deterministic AdvisoryParser
-  -> facility and terminology authority services
-     -> shared Semantic Resolution Agent only for genuine ambiguity
-  -> deterministic Weather and BTS context preparation and validation
-  -> deterministic Event Evidence Integration service
-     -> sealed evidence task
-     -> source-supported proposal or honest insufficient
-  -> task-bound validation
-  -> write-free Formal Publication Kernel over TMI, Weather,
-     and public-observation profiles
+  -> selected ingestion domain: all | tmi | flight-airspace
+     -> TMI: classification, preflight, AdvisoryParser, authority services,
+        optional Semantic Resolution, Weather/BTS preparation, and
+        deterministic Event Evidence Integration
+     -> Flight/Airspace: source-specific deterministic adapters,
+        temporal-domain boundaries, and reviewed cross-source derivations
+  -> semantic facts: shared write-free Formal Publication Kernel
+     -> generic knowledge-root publication spine
+  -> cross-source associations: deterministic derivation materializer
   -> authoritative SQLite evidence and semantic store
   -> source chunks and SQLite FTS5
   -> rebuildable source-record and TMI-event Chroma collections
   -> every valid natural-language ask activates the bounded Query Agent
-     -> model-selected read-only exact, Weather, BTS, graph, lexical,
-        vector, and source-read tools
+     -> LLM selects source, tmi, and/or flight_airspace tool families
+     -> selected subset of 18 read-only evidence tools
      -> per-statement evidence and claim-boundary validation
      -> answer, insufficient, or blocked
 ```
 
 The dataset-bound SQLite evidence store is the canonical persisted knowledge
-and evidence layer. The admitted ATMONTO TMI instance is the formal root;
-event-publication and event-fact records organize source-qualified evidence
-without inventing a decision-process object. SQLite FTS5 and Chroma are
-rebuildable indexes. RDF/Turtle, JSONL KG, and Neo4j are optional offline
-exports.
+and evidence layer. The TMI slice is rooted at an admitted ATMONTO TMI
+instance; Flight/Airspace, reference, Weather, and reviewed association roots
+use the same generic publication spine. None invents a decision-process
+object. SQLite FTS5 and Chroma are rebuildable indexes. RDF/Turtle, JSONL KG,
+and Neo4j are optional all-root offline exports.
 The versioned application profile aligns the active TMI schema with exact
 ATMONTO terms and constrains publication; it is not a separate Agent and is not
 claimed to be a complete aviation ontology. ATMGRAPH is the reference for
@@ -62,12 +60,21 @@ names, not internal alphanumeric labels.
   Evidence Integration, store-backed exact and graph reads, SQLite FTS5,
   rebuildable Chroma indexes, optional exports, and the bounded HybridRAG Query
   Agent.
+- `configs/aviation_knowledge_v1.yaml` composes separate runtime, source, and
+  dataset/temporal-scope files. Do not collapse those concerns back into one
+  experimental configuration.
 - The only model-backed roles are the Query Agent invoked for every valid
   natural-language question and the selectively activated Semantic Resolution
   Agent.
-- The common semantic root is `atm:TrafficManagementInitiative`; the active
+- The TMI registry root is `atm:TrafficManagementInitiative`; its active
   application-profile families are GDP, GS, and ReRoute. Family detection,
   preflight, formal property mapping, and retrieval labels share one registry.
+- Flight/Airspace ingestion publishes formal Flight, Aircraft/Model,
+  Airport/ARTCC, Route, TrackPoint, Sector, and Weather roots through the
+  shared Formal Publication Kernel and generic knowledge-root spine. Reviewed
+  association roots are separate deterministic derivation publications.
+  NASA 2014 and May 2026 records retain distinct temporal domains and are not
+  cross-temporally joined.
 - The store-backed event graph exposes event-scoped formal edges and derived
   cross-source evidence paths for Weather context and BTS public observations.
   The paths preserve source-role bindings and do not add causal graph facts.
@@ -79,24 +86,28 @@ names, not internal alphanumeric labels.
   when all required slots are resolved; source identifiers never choose that
   path. The Formal Publication Kernel remains the sole final publication
   authority.
-- Every valid public `ask` invokes the Query Agent. The model may select exact
-  event reads, Weather context, BTS observations, event-graph edges, lexical
-  source search, semantic source search, exact source reads, or
-  metadata-conditioned event retrieval over multiple bounded turns. There is
-  no fixed question registry or deterministic answer fallback.
+- Every valid public `ask` invokes the Query Agent. A first model call selects
+  one or more of `source`, `tmi`, and `flight_airspace`; the evidence loop then
+  sees only that subset of 18 registered read-only tools. There is no fixed
+  question registry or deterministic answer fallback.
+- The Query Agent budget is 6 provider turns, at most 6 evidence-tool calls in
+  one turn, and at most 10 evidence-tool calls in total.
 - Search tools return candidates. A source-record statement requires an exact
   `read_source` result with immutable source-version and anchor support.
 - The ingestion-first storage cutover is complete. The public commands are
   `ingest`, `reindex`, `ask`, `neo4j-export`, and `export-event`. There is no
   run-directory query path, mandatory batch snapshot, old reader, or command
   compatibility path.
-- `ingest` registers immutable source versions, skips terminal
+- `ingest --domain all|tmi|flight-airspace` registers immutable source
+  versions, skips terminal
   `ok/insufficient` versions, retries blocked versions, and commits each
-  accepted event independently. A targeted advisory backfill registers only
-  the selected advisory records plus shared authority/context evidence.
+  accepted knowledge-root publication independently. A targeted advisory
+  backfill registers only the selected advisory records plus shared
+  authority/context evidence.
   Queryability does not depend on finishing a batch manifest.
-- The active configuration contains 718 advisory records. `ingest` processes
-  all of them unless an operator supplies an explicit `--advisory-id` subset.
+- The active configuration contains 718 advisory records. The TMI domain
+  processes all of them unless an operator supplies an explicit
+  `--advisory-id` subset.
 - The legacy cross-source experiment deterministically selected 68 records
   whose full text mentioned JFK, EWR, LGA, KJFK, KEWR, or KLGA. Its 46/3/18/1
   split is automated registry/preflight output, not manual review, a
@@ -104,8 +115,8 @@ names, not internal alphanumeric labels.
 - SQLite FTS5 indexes exact source chunks. Chroma has separately rebuildable
   source-record and TMI-event collections; a collection is usable only when
   its indexed knowledge revision matches the store.
-- RDF/Turtle, JSONL KG, and Neo4j are optional current-store exports and are
-  never Query Agent prerequisites.
+- RDF/Turtle, JSONL KG, and Neo4j are optional all-root current-store exports
+  and are never Query Agent prerequisites.
 - The system output ceiling is 10,000 tokens for the Query Agent; the compact
   Semantic Resolution decision remains capped at 256 tokens. Event Evidence
   Integration is deterministic and makes no provider call.
@@ -122,11 +133,17 @@ names, not internal alphanumeric labels.
   acceptance checks. Raw provider responses and parsed trial outputs are
   retained separately in ignored runtime artifacts. This negative result is
   compatibility evidence, not a benchmark.
-- The tracked ingestion-first GDP 138 flagship walkthrough is the current
-  positive end-to-end acceptance: 1/1 natural-language Query Agent task passed,
+- The tracked ingestion-first GDP 138 flagship walkthrough is historical
+  pre-family-router TMI-slice evidence: 1/1 natural-language Query Agent task passed,
   3/3 real `deepseek-v4-pro` calls returned, and 5/5 bounded tool executions
-  were bound to the accepted trial. It is a versioned system walkthrough, not
-  a benchmark or evidence of general model quality.
+  were bound to the accepted trial. It is not current-runtime acceptance, a
+  benchmark, or evidence of general model quality.
+- The cross-domain `live_smoke` completed with `deepseek-v4-pro`: 33/33 real
+  provider calls returned; routing and retrieval passed 6/6 tasks; grounding
+  and answer acceptance passed 5/6. The unsupported actual-control/causal task
+  exhausted the 10-tool budget and returned `blocked` instead of
+  `insufficient`; preserve this as an observed stop-policy failure, not a
+  hidden success or benchmark result.
 - The five familiar records are development/regression fixtures only. No frozen
   post-cutover evaluation set currently exists; `future_frozen_evaluation` is
   `NOT CONSTRUCTED`. Historical suites remain compatibility artifacts and

@@ -9,6 +9,7 @@ from aviation_agentic_ai.config import (
     load_default_config,
     load_environment,
     load_yaml,
+    resolved_config_checksum,
     resolve_project_path,
 )
 from aviation_agentic_ai.paths import PROJECT_ROOT
@@ -124,6 +125,16 @@ def test_load_yaml_rejects_recursive_include_cycles(tmp_path: Path) -> None:
         match=r"YAML include cycle.*first\.yaml.*second\.yaml.*first\.yaml",
     ):
         load_yaml(first)
+
+
+def test_resolved_config_checksum_is_canonical_and_content_sensitive() -> None:
+    first = {"sources": {"b": 2, "a": 1}, "runtime": {"enabled": True}}
+    reordered = {"runtime": {"enabled": True}, "sources": {"a": 1, "b": 2}}
+    changed = {"runtime": {"enabled": False}, "sources": {"a": 1, "b": 2}}
+
+    assert resolved_config_checksum(first) == resolved_config_checksum(reordered)
+    assert resolved_config_checksum(first) != resolved_config_checksum(changed)
+    assert len(resolved_config_checksum(first)) == 64
 
 
 def test_active_aviation_config_composes_runtime_sources_and_dataset_scope(

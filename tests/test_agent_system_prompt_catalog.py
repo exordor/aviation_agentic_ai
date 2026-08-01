@@ -59,7 +59,7 @@ def test_prompt_catalog_contains_only_activated_model_roles() -> None:
 
 def test_every_role_has_version_policy_and_bounded_output() -> None:
     expected_versions = {
-        "query": "hybrid-query-agent-v8",
+        "query": "hybrid-query-agent-v9",
         "query_router": "hybrid-query-router-v1",
         "semantic_resolution": "semantic-resolution-agent-v1",
     }
@@ -144,7 +144,7 @@ def test_query_prompt_requires_dynamic_tools_and_evidence_bound_user_language() 
     assert "Keep Weather context non-causal" in normalized
     assert "Similarity is historical record retrieval" in normalized
     assert "Answer in the language used by the user" in normalized
-    assert "Bind every statement" in normalized
+    assert "The statement kind must match a tool support_record" in normalized
 
 
 def test_query_prompt_describes_only_dynamically_bound_retrieval_tools() -> None:
@@ -160,7 +160,7 @@ def test_query_prompt_requires_sequential_exact_source_verification() -> None:
     role = _catalog()["roles"]["query"]
     normalized = " ".join(role["system"].split())
 
-    assert role["prompt_version"] == "hybrid-query-agent-v8"
+    assert role["prompt_version"] == "hybrid-query-agent-v9"
     assert (
         "Call read_source only after a completed tool observation supplies "
         "both the source-version ID and source-anchor ID."

@@ -14,22 +14,24 @@ snapshots/provider outputs, or the paused browser prototype.
 ## Current Scope
 
 Aviation Agentic AI is an **ATMONTO-Grounded Agentic HybridRAG for
-Heterogeneous Aviation Knowledge Integration**. Its current vertical slice
-converts retrospective FAA ATCSCC records into ATMONTO-aligned TMI-event facts,
-optional Weather facts, and source-qualified BTS public observations.
+Heterogeneous Aviation Knowledge Integration**. Its active domains publish
+retrospective FAA ATCSCC TMI knowledge and bounded Flight/Airspace knowledge,
+including Weather, reference, and reviewed cross-source association roots.
 
-The admitted ATMONTO `TrafficManagementInitiative` instance is the formal
-knowledge root. Event Evidence Integration is a deterministic service that
-compiles source-supported sealed evidence or returns honest `insufficient`.
-The write-free Formal Publication Kernel is the only publication authority and
-accepts the TMI, Weather, and public-observation profiles.
+The TMI slice is rooted at an admitted ATMONTO
+`TrafficManagementInitiative` instance. Event Evidence Integration is a
+deterministic TMI service that compiles source-supported sealed evidence or
+returns honest `insufficient`. The write-free Formal Publication Kernel and
+generic knowledge-root spine are shared across TMI and Flight/Airspace
+profiles.
 
 The versioned SQLite evidence store is the authoritative persisted layer.
 SQLite FTS5, two Chroma collections, event graph views, RDF/Turtle, and Neo4j
-are rebuildable indexes, views, or exports. Every valid natural-language `ask`
-activates the Query Agent, which selects among nine read-only exact, Weather,
-BTS, graph, lexical, vector, event-ranking, and source-read tools before
-producing evidence-bound statements.
+are rebuildable indexes, views, or all-root exports. Every valid
+natural-language `ask` activates the Query Agent. A first LLM routing call
+selects `source`, `tmi`, and/or `flight_airspace`; the Agent then uses the
+relevant subset of 18 read-only tools under a 6-turn, 6-per-turn, 10-total-tool
+budget before producing evidence-bound statements.
 
 The project does not currently claim a formal decision-process model, causal
 explanation, operational effectiveness, historical recommendation, complete
