@@ -74,9 +74,12 @@ models/
 /data/processed/cross_source/
 /data/kg/cross_source/
 
-# Versioned local runs from the multi-Agent KG system. These can contain raw
-# provider responses and are regenerated from tracked config/source snapshots.
+# Local runtime and evaluation artifacts from the Agent system. These can
+# contain raw provider responses and are regenerated from tracked contracts.
 /data/runs/agent_system/
+/data/evaluation_runs/agent_system/
+# Retired historical location kept quarantined so raw responses from older
+# checkouts cannot become untracked commit candidates. It is not a runtime.
 /data/corpus/agent_system/
 
 # Exploratory gpt-5.5 evidence-handling pilot runs (10/100 records, prompt

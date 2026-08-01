@@ -147,7 +147,7 @@ def test_graph_view_exposes_all_formal_facts_and_predicate_filters() -> None:
 
 
 def test_graph_view_is_strictly_limited_to_supplied_event_facts() -> None:
-    """The corpus store, not a hard-coded path, owns event isolation."""
+    """The authoritative store, not a hard-coded path, owns event isolation."""
 
     graph = TMIEventGraphView(
         tuple(fact for fact in _event_facts() if fact.fact_id != "f05")

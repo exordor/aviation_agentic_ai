@@ -5,7 +5,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from aviation_agentic_ai.agent_system.ontology_alignment import (
-    build_corpus_alignment_audit,
+    build_knowledge_alignment_audit,
     load_atmonto_application_profile,
     validate_atmonto_application_profile,
 )
@@ -114,7 +114,7 @@ def test_application_profile_rejects_an_unadmitted_atmonto_property() -> None:
     )
 
 
-def test_corpus_alignment_audit_separates_atmonto_and_standard_terms() -> None:
+def test_knowledge_alignment_audit_separates_atmonto_and_standard_terms() -> None:
     profile = SimpleNamespace(layer="decision")
     facts = [
         SimpleNamespace(
@@ -137,8 +137,9 @@ def test_corpus_alignment_audit_separates_atmonto_and_standard_terms() -> None:
         ),
     ]
 
-    report = build_corpus_alignment_audit(facts)
+    report = build_knowledge_alignment_audit(facts)
 
+    assert report["report_version"] == "knowledge-alignment-audit-v1"
     assert report["formal_fact_count"] == 2
     assert report["fact_counts_by_validation_layer"] == {
         "decision": 1,

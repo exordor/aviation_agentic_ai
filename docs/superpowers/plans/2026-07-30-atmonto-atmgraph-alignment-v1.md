@@ -1,5 +1,10 @@
 # ATMONTO / ATMGRAPH Alignment and TMI Target Correction v1
 
+> **Historical and superseded.** This dated implementation plan records an
+> earlier migration stage; it is not a current runtime contract. Current truth
+> is defined by `RESEARCH_AUDIT.md`, `GOALS.md`, and
+> `docs/multi_agent_kg_system_design.md`.
+
 > **Execution mode:** Subagent-driven inventory and one focused review,
 > followed by local test-driven implementation. Run focused tests while
 > implementing, then one final repository verification.

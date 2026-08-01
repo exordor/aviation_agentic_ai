@@ -839,7 +839,7 @@ def test_blocked_runner_uses_suite_specific_report_stem(
     ).is_file()
 
 
-def test_live_runner_reads_existing_store_without_building_a_corpus(
+def test_live_runner_reads_existing_store_without_building_a_batch_snapshot(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -972,7 +972,7 @@ def test_live_runner_reads_existing_store_without_building_a_corpus(
     assert summary.runner_status == "completed"
     assert summary.provider_call_count == 10
     assert (tmp_path / "runtime" / "evaluation_data_binding.json").is_file()
-    assert not (tmp_path / "runtime" / "corpus").exists()
+    assert not (tmp_path / "runtime" / "corpus").exists()  # retired path
     assert (
         tmp_path / "reports" / "custom_completed_smoke.json"
     ).is_file()

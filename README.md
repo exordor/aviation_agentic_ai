@@ -125,6 +125,16 @@ SQLite is authoritative. It stores:
 - source chunks, FTS5 search data, vector-index state, and compact Agent usage
   telemetry.
 
+The retired `Corpus v2` batch snapshot is not part of the current system.
+Gitignored files under `data/evaluation_runs/agent_system/` are execution
+evidence only; they are neither a knowledge store nor a query backend.
+
+| Location | Role |
+| --- | --- |
+| `data/stores/aviation/` | Authoritative SQLite knowledge plus rebuildable indexes and exports |
+| `data/evaluation/agent_system/` | Tracked evaluation-suite definitions |
+| `data/evaluation_runs/agent_system/` | Ignored raw and parsed execution evidence |
+
 The Formal Publication Kernel is the sole authority for accepted formal facts.
 SQLite FTS5 is a lexical index over exact source chunks. Chroma contains two
 rebuildable vector collections:

@@ -172,12 +172,20 @@ historical implementation material rather than compatibility interfaces.
 | Path | Policy |
 | --- | --- |
 | `data/runs/agent_system/` | Legacy/internal run and debug packages. |
-| `data/corpus/agent_system/` | Historical local snapshots and provider artifacts; never a current query backend. |
+| `data/evaluation_runs/agent_system/` | Current ignored raw provider responses, parsed outputs, bindings, and query traces; never a knowledge store. |
+| `data/corpus/agent_system/` | Retired-path quarantine for sensitive artifacts left by older checkouts; never create or read it in the current runtime. |
 | `data/stores/aviation/` | Current ignored SQLite stores, Chroma indexes, and optional exports. |
 | local live-evaluation output directories | Raw provider responses, parsed outputs, and binding artifacts; keep ignored. |
 | `outputs/` | Scratch and mixed-branch outputs. |
 | vector/model caches | Rebuild locally; do not commit. |
 | `.env` and credentials | Never commit or print. |
+
+Tracked live-evaluation reports are immutable historical execution records.
+They preserve the artifact locations recorded when each run occurred, even
+when a retained local copy has since moved. See
+[`docs/evaluation_artifact_relocations.md`](docs/evaluation_artifact_relocations.md)
+for the explicit old-to-new mapping. No file under the evaluation-runs root is
+part of the authoritative knowledge store.
 
 ## Admission Policy
 

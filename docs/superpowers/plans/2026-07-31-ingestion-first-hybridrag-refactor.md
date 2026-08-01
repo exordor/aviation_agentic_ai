@@ -1,5 +1,11 @@
 # Ingestion-First Storage and HybridRAG Runtime Refactor Implementation Plan
 
+> **Historical implemented cutover.** This plan records the migration that
+> removed Corpus v2 from the runtime and established the authoritative SQLite
+> evidence store. It is retained as implementation history, not as current
+> instructions. Current truth is defined by `RESEARCH_AUDIT.md`, `GOALS.md`,
+> and `docs/multi_agent_kg_system_design.md`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace the batch-corpus runtime with a normal ingestion-first data system: configured aviation source artifacts are versioned, normalized, formally published, chunked, embedded, and persisted once; every natural-language query then uses the live structured store, semantic graph view, Chroma indexes, and exact source-reading tools without requiring an experiment corpus or manifest.

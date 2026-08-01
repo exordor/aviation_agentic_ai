@@ -295,7 +295,7 @@ def test_rdf_reifies_each_fact_at_its_deterministic_statement_iri(
     snapshot,
     tmp_path,
 ):
-    """A random reification node would break reproducible corpus RDF."""
+    """A random reification node would break reproducible RDF export."""
 
     mat = _materialize_current(
         facts=_fixed_facts(), output_dir=tmp_path,

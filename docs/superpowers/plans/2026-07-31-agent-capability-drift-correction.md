@@ -1,5 +1,10 @@
 # Agent Capability Drift Correction Implementation Plan
 
+> **Historical and superseded.** This plan records a pre-ingestion-first
+> architecture. Its Corpus v2 store and batch commands are not current runtime
+> contracts. Current truth is defined by `RESEARCH_AUDIT.md`, `GOALS.md`, and
+> `docs/multi_agent_kg_system_design.md`.
+
 > **For Codex:** REQUIRED SUB-SKILL: Use `superpowers:executing-plans` to implement this plan task by task. Use `superpowers:test-driven-development` for behavior changes.
 
 **Goal:** Remove one model-backed role that cannot add evidence, make the existing graph query expose real cross-source evidence paths, and reset interfaces and evaluation language so the project demonstrates positive Agent/KG capability without returning to GDP-specific logic.

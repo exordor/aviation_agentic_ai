@@ -1,5 +1,11 @@
 # ATMONTO-Centered TMI Event Semantic Cutover Implementation Plan
 
+> **Historical and superseded.** This plan records the semantic cutover before
+> the later ingestion-first persistence cutover. Its Corpus-oriented commands
+> and storage contracts are not current interfaces. Current truth is defined
+> by `RESEARCH_AUDIT.md`, `GOALS.md`, and
+> `docs/multi_agent_kg_system_design.md`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use
 > superpowers:executing-plans to implement this plan task-by-task. Steps use
 > checkbox (`- [ ]`) syntax for tracking.

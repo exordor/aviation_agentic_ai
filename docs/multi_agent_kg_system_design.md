@@ -335,6 +335,9 @@ No model writes directly to SQLite, JSONL, RDF/Turtle, Neo4j, FTS, or Chroma.
 
 ## 10. Authoritative SQLite Store
 
+This store replaced the former `Corpus v2` batch snapshot. Evaluation output
+directories contain run evidence only and never participate in runtime reads.
+
 The dataset-bound store uses schema version
 `aviation-evidence-store-v2` and file:
 

@@ -19,5 +19,10 @@ def test_readme_lists_current_agent_system_commands() -> None:
     assert "aviation-ai agent-system " + "index" + "-events" not in readme
     assert "aviation-ai agent-system ask-corpus" not in readme
     assert "--corpus" + "-dir" not in readme
+    assert "data/corpus/agent_system" not in readme
+    assert "data/evaluation_runs/agent_system/" in readme
+    assert "data/evaluation/agent_system/" in readme
+    assert "Authoritative SQLite knowledge" in readme
+    assert "neither a knowledge store nor a query backend" in readme
     assert "docs/multi_agent_kg_system_design.md" in readme
     assert "does not provide live ATC support" in readme

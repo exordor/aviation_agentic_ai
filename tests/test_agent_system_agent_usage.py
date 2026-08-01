@@ -100,7 +100,7 @@ def test_usage_records_distinguish_activation_bypass_and_not_reached() -> None:
 
 def test_final_event_id_applies_to_both_resolution_usage_records() -> None:
     state = {
-        "event_uri": "event:final-corpus-id",
+        "event_uri": "event:finalized-event-id",
         "resolution_event_id": "event:resolution-only",
         "facility_authority_result": _semantic_result(
             task_id="task:facility",
@@ -116,7 +116,7 @@ def test_final_event_id_applies_to_both_resolution_usage_records() -> None:
 
     records = build_agent_usage_records(source_id="source:final", state=state)
 
-    assert {row.event_id for row in records} == {"event:final-corpus-id"}
+    assert {row.event_id for row in records} == {"event:finalized-event-id"}
     assert [row.task_id for row in records] == [
         "task:facility",
         "task:terminology",

@@ -1,5 +1,10 @@
 # GDP 138 Flagship Walkthrough Implementation Plan
 
+> **Historical implemented walkthrough plan.** The tracked report keeps its
+> original at-run paths, while retained local evidence now lives under
+> `data/evaluation_runs/agent_system/`. This plan is not a current storage or
+> execution contract; use `REPRODUCIBILITY.md` for current commands.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Demonstrate the current ingestion-first aviation HybridRAG architecture with one reproducible, real-DeepSeek, evidence-bound GDP 138 walkthrough.

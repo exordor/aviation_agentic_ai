@@ -80,7 +80,7 @@ def _observation(*, status: str = "ok") -> dict[str, object]:
 
 @tool("read_tmi_event_facts", args_schema=_EventInput)
 def _read_tmi_event_facts(event_id: str) -> dict[str, object]:
-    """Read formal facts for one corpus event."""
+    """Read formal facts for one stored TMI event."""
 
     assert event_id == "urn:event:138"
     return _observation()
@@ -88,7 +88,7 @@ def _read_tmi_event_facts(event_id: str) -> dict[str, object]:
 
 @tool("read_weather_context", args_schema=_EventInput)
 def _read_weather_context(event_id: str) -> dict[str, object]:
-    """Read non-causal Weather context for one corpus event."""
+    """Read non-causal Weather context for one stored TMI event."""
 
     assert event_id == "urn:event:138"
     return HybridQueryToolObservation(
@@ -542,7 +542,7 @@ def test_four_parallel_tool_calls_are_allowed_for_cross_domain_retrieval() -> No
 
 def test_unknown_tool_and_invalid_arguments_are_blocked() -> None:
     unknown = _LoopModel(
-        calls=[{"id": "call-1", "name": "delete_corpus", "args": {}}]
+        calls=[{"id": "call-1", "name": "delete_knowledge_store", "args": {}}]
     )
     invalid = _LoopModel(
         calls=[
@@ -651,7 +651,7 @@ def test_honest_insufficient_answer_is_preserved() -> None:
     model = _LoopModel(
         final_content=_answer(
             status="insufficient",
-            answer="The corpus does not record the requested reason.",
+            answer="The knowledge store does not record the requested reason.",
             fact_ids=(),
         )
     )

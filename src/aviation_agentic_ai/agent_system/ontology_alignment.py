@@ -112,7 +112,7 @@ def validate_atmonto_application_profile(
     return ApplicationProfileValidation(valid=not errors, errors=tuple(errors))
 
 
-def build_corpus_alignment_audit(
+def build_knowledge_alignment_audit(
     facts: Iterable[Any],
     *,
     profile_path: str | Path | None = None,
@@ -162,7 +162,7 @@ def build_corpus_alignment_audit(
             classified["unknown"].append(term)
 
     return {
-        "report_version": "corpus-alignment-audit-v1",
+        "report_version": "knowledge-alignment-audit-v1",
         "application_profile": {
             "profile_id": str(profile["profile_id"]),
             "profile_version": str(profile["profile_version"]),
@@ -185,7 +185,7 @@ def build_corpus_alignment_audit(
 
 __all__ = [
     "ApplicationProfileValidation",
-    "build_corpus_alignment_audit",
+    "build_knowledge_alignment_audit",
     "load_atmonto_application_profile",
     "validate_atmonto_application_profile",
 ]

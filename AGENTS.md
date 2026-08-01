@@ -43,6 +43,9 @@ instance; Flight/Airspace, reference, Weather, and reviewed association roots
 use the same generic publication spine. None invents a decision-process
 object. SQLite FTS5 and Chroma are rebuildable indexes. RDF/Turtle, JSONL KG,
 and Neo4j are optional all-root offline exports.
+The retired `Corpus v2` batch snapshot is historical only. Files under
+`data/evaluation_runs/agent_system/` are evaluation evidence, not persisted
+knowledge and not a runtime query backend.
 The versioned application profile aligns the active TMI schema with exact
 ATMONTO terms and constrains publication; it is not a separate Agent and is not
 claimed to be a complete aviation ontology. ATMGRAPH is the reference for

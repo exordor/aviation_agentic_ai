@@ -353,7 +353,7 @@ def test_reindex_rebuilds_both_derived_indexes(monkeypatch) -> None:
     assert "aviation_source_chunks_v1" in result.output
 
 
-def test_export_event_reads_store_not_a_corpus(
+def test_export_event_reads_the_authoritative_store(
     monkeypatch,
     tmp_path: Path,
 ) -> None:

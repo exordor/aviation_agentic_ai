@@ -42,8 +42,8 @@ The tracked source of record is:
 
 The `raw_file` fields point to locally retained HTML snapshots, but those files
 are ignored by Git. Any explorer bundle must therefore be derived from the
-tracked JSONL record and checksum-verified corpus artifacts, not from an
-untracked HTML path.
+tracked JSONL record or immutable SQLite source-version and anchor records,
+not from an untracked HTML path.
 
 ## 2. Positive Case A - Ground Stop
 

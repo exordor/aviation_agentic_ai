@@ -77,6 +77,9 @@ or compatibility alias.
   anchors, active and historical event publications, semantic facts, evidence
   links, profile gaps, Weather associations, BTS public observations, source
   chunks, vector-index state, and compact usage telemetry.
+- The former `Corpus v2` batch snapshot has no current runtime role.
+  `data/evaluation_runs/agent_system/` contains ignored evaluation evidence,
+  not canonical knowledge or a query backend.
 - Ingestion commits each source version and accepted event publication
   independently. A failed later record does not invalidate earlier accepted
   evidence, and queryability does not depend on completing a batch manifest.

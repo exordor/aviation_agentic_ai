@@ -134,12 +134,17 @@ tracked, sanitized reports are
 and
 [JSON](../reports/stages/agent_system_live_flagship_gdp138_walkthrough_v1.json).
 
-| Artifact | Gitignored location | SHA-256 |
+The tracked report preserves the original at-run path. The retained local
+files were moved without byte changes; the table below shows their current
+local locations. See the
+[relocation index](evaluation_artifact_relocations.md).
+
+| Artifact | Current gitignored location | SHA-256 |
 | --- | --- | --- |
-| Native provider responses | `data/corpus/agent_system/flagship-gdp138-walkthrough-v1/raw_responses_v4.jsonl` | `469f3343fee058431814cd931a5e2ba196fdf9fbf45833bb0c1585787c9c0f51` |
-| Parsed trial outputs | `data/corpus/agent_system/flagship-gdp138-walkthrough-v1/live_evaluation_results_v4.jsonl` | `c6ab95d8051b94c4164238885c77c9431985cf0f848b5fe046754d27a7c99dff` |
-| Sanitized query run | `data/corpus/agent_system/flagship-gdp138-walkthrough-v1/hybrid_query_runs/flagship-cross-source-gdp138/hybrid_query_run.json` | `b6124bf1058c12f63a6b330c504ecde9dd18b762076ab32878c1b3fea921d923` |
-| Evaluation data binding | `data/corpus/agent_system/flagship-gdp138-walkthrough-v1/evaluation_data_binding.json` | `677341ac4f59024459a96ee2279a08e3cc9a1e2dd91348a85cf2927acd1b5a8b` |
+| Native provider responses | `data/evaluation_runs/agent_system/flagship-gdp138-walkthrough-v1/raw_responses_v4.jsonl` | `469f3343fee058431814cd931a5e2ba196fdf9fbf45833bb0c1585787c9c0f51` |
+| Parsed trial outputs | `data/evaluation_runs/agent_system/flagship-gdp138-walkthrough-v1/live_evaluation_results_v4.jsonl` | `c6ab95d8051b94c4164238885c77c9431985cf0f848b5fe046754d27a7c99dff` |
+| Sanitized query run | `data/evaluation_runs/agent_system/flagship-gdp138-walkthrough-v1/hybrid_query_runs/flagship-cross-source-gdp138/hybrid_query_run.json` | `b6124bf1058c12f63a6b330c504ecde9dd18b762076ab32878c1b3fea921d923` |
+| Evaluation data binding | `data/evaluation_runs/agent_system/flagship-gdp138-walkthrough-v1/evaluation_data_binding.json` | `677341ac4f59024459a96ee2279a08e3cc9a1e2dd91348a85cf2927acd1b5a8b` |
 
 The evaluator separately reported the provider-call-to-parsed-trial binding as
 `valid`.
@@ -162,12 +167,15 @@ uv run --extra agent-system aviation-ai agent-system reindex \
   --model-name sentence-transformers/all-MiniLM-L6-v2 \
   --allow-model-download
 
+RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
+EVAL_RUN_DIR="data/evaluation_runs/agent_system/flagship-gdp138-walkthrough-v1-${RUN_ID}"
+
 uv run python -m aviation_agentic_ai.agent_system.live_agent_evaluation \
   --config configs/aviation_knowledge_v1.yaml \
   --suite data/evaluation/agent_system/live_flagship_gdp138_walkthrough_v1.yaml \
   --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
-  --output-dir data/corpus/agent_system/flagship-gdp138-walkthrough-v1 \
-  --report-dir reports/stages \
+  --output-dir "$EVAL_RUN_DIR" \
+  --report-dir "$EVAL_RUN_DIR/reports" \
   --allow-live-model \
   --repetitions 1
 ```

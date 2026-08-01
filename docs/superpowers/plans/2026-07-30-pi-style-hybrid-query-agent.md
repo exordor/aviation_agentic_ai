@@ -1,5 +1,10 @@
 # Pi-Style Hybrid Query Agent Refactor Implementation Plan
 
+> **Historical and superseded.** This plan predates the ingestion-first SQLite
+> runtime. Its Corpus v2 store, commands, and paths are not current interfaces.
+> Current truth is defined by `RESEARCH_AUDIT.md`, `GOALS.md`, and
+> `docs/multi_agent_kg_system_design.md`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use
 > `superpowers:subagent-driven-development` (recommended) or
 > `superpowers:executing-plans` to implement this plan task-by-task. Steps use

@@ -1,10 +1,12 @@
 # Decision Case Semantic Expansion Design
 
-Status: historical design; query-routing sections superseded on 2026-07-30
+Status: historical design; fully superseded by the TMI semantic and ingestion-first cutovers
 
-> This document records the earlier fixed-query design. The active runtime is
-> defined by `docs/multi_agent_kg_system_design.md` and uses an always-on,
-> tool-selecting HybridRAG Query Agent.
+> **Historical and superseded.** This document records the earlier
+> DecisionCase, Corpus-persistence, and fixed-query design. None is a current
+> runtime contract. The active ingestion-first SQLite runtime is defined by
+> `RESEARCH_AUDIT.md`, `GOALS.md`, and
+> `docs/multi_agent_kg_system_design.md`.
 
 Date: 2026-07-27
 

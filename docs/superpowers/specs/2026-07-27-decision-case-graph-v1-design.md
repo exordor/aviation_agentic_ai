@@ -1,6 +1,12 @@
 # Decision Case Graph v1 Design
 
-Status: approved architecture, implementation not started
+> **Historical and superseded.** This design predates both the TMI semantic
+> cutover and the ingestion-first persistence cutover. DecisionCase and Corpus
+> persistence are not current domain or runtime contracts. Current truth is
+> defined by `RESEARCH_AUDIT.md`, `GOALS.md`, and
+> `docs/multi_agent_kg_system_design.md`.
+
+Status: historical design; superseded by the TMI semantic and ingestion-first cutovers
 
 Date: 2026-07-27
 

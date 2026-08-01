@@ -379,12 +379,15 @@ uv run --extra agent-system aviation-ai agent-system reindex \
 Then execute exactly one real-provider walkthrough:
 
 ```bash
+RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
+EVAL_RUN_DIR="data/evaluation_runs/agent_system/flagship-gdp138-walkthrough-v1-${RUN_ID}"
+
 uv run python -m aviation_agentic_ai.agent_system.live_agent_evaluation \
   --config configs/aviation_knowledge_v1.yaml \
   --suite data/evaluation/agent_system/live_flagship_gdp138_walkthrough_v1.yaml \
   --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
-  --output-dir data/corpus/agent_system/flagship-gdp138-walkthrough-v1 \
-  --report-dir reports/stages \
+  --output-dir "$EVAL_RUN_DIR" \
+  --report-dir "$EVAL_RUN_DIR/reports" \
   --allow-live-model \
   --repetitions 1
 ```
@@ -404,21 +407,24 @@ read_tmi_operational_context
 read_public_observations
 ```
 
-Runtime artifact integrity:
+Runtime artifact integrity for the retained local copy is shown below. The
+tracked run report preserves its original at-run locations; the files were
+relocated without changing their bytes. See
+[`docs/evaluation_artifact_relocations.md`](docs/evaluation_artifact_relocations.md).
 
 ```text
 raw provider responses:
-  data/corpus/agent_system/flagship-gdp138-walkthrough-v1/raw_responses_v4.jsonl
+  data/evaluation_runs/agent_system/flagship-gdp138-walkthrough-v1/raw_responses_v4.jsonl
   sha256 469f3343fee058431814cd931a5e2ba196fdf9fbf45833bb0c1585787c9c0f51
 parsed trial outputs:
-  data/corpus/agent_system/flagship-gdp138-walkthrough-v1/live_evaluation_results_v4.jsonl
+  data/evaluation_runs/agent_system/flagship-gdp138-walkthrough-v1/live_evaluation_results_v4.jsonl
   sha256 c6ab95d8051b94c4164238885c77c9431985cf0f848b5fe046754d27a7c99dff
 sanitized query run:
-  data/corpus/agent_system/flagship-gdp138-walkthrough-v1/hybrid_query_runs/flagship-cross-source-gdp138/hybrid_query_run.json
+  data/evaluation_runs/agent_system/flagship-gdp138-walkthrough-v1/hybrid_query_runs/flagship-cross-source-gdp138/hybrid_query_run.json
   sha256 b6124bf1058c12f63a6b330c504ecde9dd18b762076ab32878c1b3fea921d923
 raw / parsed binding: valid
 evaluation data binding:
-  data/corpus/agent_system/flagship-gdp138-walkthrough-v1/evaluation_data_binding.json
+  data/evaluation_runs/agent_system/flagship-gdp138-walkthrough-v1/evaluation_data_binding.json
   sha256 677341ac4f59024459a96ee2279a08e3cc9a1e2dd91348a85cf2927acd1b5a8b
 ```
 
@@ -450,12 +456,15 @@ uv run aviation-ai agent-system ingest \
   --advisory-id 2026-05-19:138 \
   --allow-model-download
 
+RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
+EVAL_RUN_DIR="data/evaluation_runs/agent_system/live-hybridrag-cross-domain-v1-${RUN_ID}"
+
 uv run python -m aviation_agentic_ai.agent_system.live_cross_domain_smoke \
   --config configs/aviation_knowledge_v1.yaml \
   --suite data/evaluation/agent_system/live_hybridrag_cross_domain_v1.yaml \
   --store-dir data/stores/aviation/cross-domain-smoke-v1 \
-  --output-dir data/corpus/agent_system/live-hybridrag-cross-domain-v1 \
-  --report-dir reports/stages \
+  --output-dir "$EVAL_RUN_DIR" \
+  --report-dir "$EVAL_RUN_DIR/reports" \
   --allow-live-model
 ```
 
@@ -469,12 +478,16 @@ right candidate evidence but exhausted its 10-tool budget instead of stopping
 with `insufficient`, so the task remained `blocked`. Preserve this as a
 stop-policy failure.
 
+The tracked report preserves the original at-run path. The retained local copy
+was moved to the evaluation-runs root without changing its bytes; see the
+[relocation index](docs/evaluation_artifact_relocations.md).
+
 ```text
 raw provider responses:
-  data/corpus/agent_system/live-hybridrag-cross-domain-v1/raw_provider_responses.jsonl
+  data/evaluation_runs/agent_system/live-hybridrag-cross-domain-v1/raw_provider_responses.jsonl
   sha256 18e2028b57f392a058c63b2c87efd33e9ca4e0002e809148bcbbf537b7cf3ece
 parsed trial outputs:
-  data/corpus/agent_system/live-hybridrag-cross-domain-v1/parsed_trial_outputs.jsonl
+  data/evaluation_runs/agent_system/live-hybridrag-cross-domain-v1/parsed_trial_outputs.jsonl
   sha256 856fafb8a8dd8842345d91b3d90fc9d19626e2a87ec081b1b80f06fae5f99af9
 artifact integrity: verified
 ```
@@ -489,12 +502,15 @@ After building and indexing the bounded store, run the ingestion-first
 Query Agent compatibility smoke only with explicit authorization:
 
 ```bash
+RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
+EVAL_RUN_DIR="data/evaluation_runs/agent_system/live-ingestion-hybridrag-smoke-v1-${RUN_ID}"
+
 uv run python -m aviation_agentic_ai.agent_system.live_agent_evaluation \
   --config configs/aviation_knowledge_v1.yaml \
   --suite data/evaluation/agent_system/live_ingestion_hybridrag_smoke_v1.yaml \
   --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
-  --output-dir data/corpus/agent_system/live-ingestion-hybridrag-smoke-v1 \
-  --report-dir reports/stages \
+  --output-dir "$EVAL_RUN_DIR" \
+  --report-dir "$EVAL_RUN_DIR/reports" \
   --allow-live-model \
   --repetitions 1
 ```
@@ -512,11 +528,13 @@ provider / model: deepseek / deepseek-v4-pro
 attempted / returned / provider-error calls: 6 / 6 / 0
 task acceptance: 1 passed / 2 failed / 0 blocked
 input / output tokens: 113806 / 5774
-raw responses:
-  data/corpus/agent_system/live-ingestion-hybridrag-smoke-v1/raw_responses_v4.jsonl
-parsed outputs:
-  data/corpus/agent_system/live-ingestion-hybridrag-smoke-v1/live_evaluation_results_v4.jsonl
+retained local raw / parsed artifacts: not present
 ```
+
+The tracked historical report preserves the original raw and parsed artifact
+locations and checksums. No retained local copy was available during the
+2026-08-01 relocation, so those locations are not current reproduction
+targets.
 
 The tracked sanitized report records both artifact checksums. The two task
 failures are preserved; successful provider calls are not counted as accepted
