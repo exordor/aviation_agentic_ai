@@ -201,8 +201,10 @@ uv run aviation-ai agent-system ingest \
 `--advisory-id` is an operator-facing targeted construction/backfill selector.
 It is valid only with `--domain tmi` and registers only the named advisory
 records plus shared authority and context evidence. Omit the option to process
-all 718 configured advisories in that domain. `--domain all` is the default;
-`--domain flight-airspace` runs only the other active ingestion domain.
+all advisories in the explicitly selected TMI source configuration. This is an
+ingestion choice, not a research-scope definition. `--domain all` is the
+default; `--domain flight-airspace` runs only the other active ingestion
+domain.
 
 The pipeline:
 

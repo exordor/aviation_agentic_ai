@@ -32,9 +32,10 @@ context, and source-read tools from that bounded subset. When explicitly
 authorized, an additional `web` family exposes allowlisted sidecar reads.
 Deterministic support validation checks the result before release.
 
-The TMI slice is rooted at the admitted ATMONTO
-`TrafficManagementInitiative` instance. The generic publication spine now also
-admits Flight/Airspace, reference, Weather, and reviewed association roots.
+The generic publication spine admits ATMONTO-aligned TMI, Flight/Airspace,
+reference, Weather, and reviewed association roots. TMI instances are the
+current regression vertical slice, rooted at an admitted ATMONTO
+`TrafficManagementInitiative`, rather than the permanent subject boundary.
 Store membership organizes accepted facts without asserting that the system
 reconstructed an internal decision process. ATMONTO supplies admitted schema
 terms. ATMGRAPH supplies ABox-construction and cross-source-query principles,
@@ -149,11 +150,17 @@ experimental configuration snapshot as runtime knowledge identity.
 
 ## Current Intake
 
-The active configuration contains 718 advisory records. `ingest --domain tmi`
-processes all configured advisories when no `--advisory-id` is supplied. With
-one or more advisory IDs, it registers and constructs only those advisory
-records while retaining the shared authority and context evidence required by
-the pipeline.
+Research scope is selected by the dataset and temporal-scope configuration.
+The recommended high-coverage public prototype is the one-day NASA ATMONTO
+sample (`configs/atmonto_public_sample_v1.yaml`), which keeps Flight,
+Weather, TMI, and infrastructure records in one explicit 2014 temporal
+domain. The 2026 ATCSCC inventory is an optional historical TMI source, not a
+definition of the current system scale or research cohort.
+
+`ingest --domain tmi` processes all advisories in the explicitly selected
+source configuration when no `--advisory-id` is supplied. With one or more
+advisory IDs, it registers and constructs only those advisory records while
+retaining the shared authority and context evidence required by the pipeline.
 Terminal `ok` and `insufficient` versions are skipped on a later run; blocked
 versions can be retried.
 

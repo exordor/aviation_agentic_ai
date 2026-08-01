@@ -18,10 +18,11 @@ publication boundary, an authoritative persistent knowledge layer, and
 model-directed HybridRAG. Every released answer statement remains traceable to
 retrieved evidence.
 
-GDP, GS, and ReRoute remain the mature TMI vertical slice. Flight/Airspace,
-reference, Weather, and reviewed cross-source association roots now use the
-same publication and query architecture; none defines its permanent subject
-boundary.
+GDP, GS, and ReRoute form the mature TMI regression slice. Flight/Airspace,
+reference, Weather, and reviewed cross-source association roots use the same
+publication and query architecture. Dataset and temporal-scope configuration
+selects the research material; no advisory inventory or TMI family defines the
+permanent subject boundary.
 
 ## 2. Research Narrative And Architecture
 

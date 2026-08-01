@@ -15,15 +15,18 @@ snapshots/provider outputs, or the paused browser prototype.
 
 Aviation Agentic AI is an **ATMONTO-Grounded Agentic HybridRAG for
 Heterogeneous Aviation Knowledge Integration**. Its active domains publish
-retrospective FAA ATCSCC TMI knowledge and bounded Flight/Airspace knowledge,
-including Weather, reference, and reviewed cross-source association roots.
+ATMONTO-aligned TMI, Flight/Airspace, reference, Weather, and reviewed
+cross-source association roots. The retrospective FAA ATCSCC material is a
+regression vertical slice; dataset and temporal-scope configuration determine
+the research material.
 
-The TMI slice is rooted at an admitted ATMONTO
+The TMI regression slice is rooted at an admitted ATMONTO
 `TrafficManagementInitiative` instance. Event Evidence Integration is a
 deterministic TMI service that compiles source-supported sealed evidence or
 returns honest `insufficient`. The write-free Formal Publication Kernel and
 generic knowledge-root spine are shared across TMI and Flight/Airspace
-profiles.
+profiles; dataset and temporal-scope configuration determines research
+material.
 
 The versioned SQLite evidence store is the authoritative persisted layer.
 SQLite FTS5, two Chroma collections, event graph views, RDF/Turtle, and Neo4j

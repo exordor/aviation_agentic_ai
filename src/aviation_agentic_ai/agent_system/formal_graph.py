@@ -582,10 +582,10 @@ def _validate_line(
                         datatype_iri=_datatype_iri(schema_guide, pred),
                         bound_claim=claim, validation_profile=validation_profile)
 
-    # Property exists in source but not in the current profile slice -> gap.
+    # Property exists in source but not in the active application profile -> gap.
     return _reject(
         raw_line, "schema_membership",
-        f"predicate {pred!r} not in the current ATCSCC profile slice",
+        f"predicate {pred!r} not in the active application profile",
     )
 
 

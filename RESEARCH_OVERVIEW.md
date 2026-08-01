@@ -74,9 +74,11 @@ This division is deliberate:
 
 ## Formal Knowledge Model
 
-The TMI slice is rooted at an admitted ATMONTO TMI instance. The generic
-publication spine also admits Flight/Airspace, reference, Weather, and reviewed
-association roots. The authoritative SQLite store contains immutable source
+The generic publication spine admits ATMONTO-aligned TMI, Flight/Airspace,
+reference, Weather, and reviewed association roots. The TMI regression slice
+is rooted at an admitted ATMONTO TMI instance, but dataset and temporal-scope
+configuration—not the legacy advisory inventory—selects research material.
+The authoritative SQLite store contains immutable source
 assets and versions, exact anchors, ingestion results, active and historical
 publications, validated semantic facts, root membership, one-to-many evidence
 support, profile gaps, non-causal Weather associations, source-qualified BTS

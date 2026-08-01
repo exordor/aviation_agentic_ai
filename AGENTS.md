@@ -7,9 +7,9 @@ detailed designs and historical protocols live under `docs/`.
 
 This is a **system and framework construction project**. Its research-facing
 positioning is **ATMONTO-Grounded Agentic HybridRAG for Heterogeneous Aviation
-Knowledge Integration**. Retrospective FAA ATCSCC TMI records are the current
-end-to-end vertical slice; they are not the architecture's permanent subject
-boundary.
+Knowledge Integration**. Retrospective FAA ATCSCC TMI records are one
+end-to-end regression vertical slice; they are not the architecture's
+permanent subject boundary or its research sample definition.
 
 The active pipeline is:
 
@@ -45,11 +45,11 @@ generator -> deterministic validation -> Formal Publication Kernel
 ```
 
 The dataset-bound SQLite evidence store is the canonical persisted knowledge
-and evidence layer. The TMI slice is rooted at an admitted ATMONTO TMI
-instance; Flight/Airspace, reference, Weather, and reviewed association roots
-use the same generic publication spine. None invents a decision-process
-object. SQLite FTS5 and Chroma are rebuildable indexes. RDF/Turtle, JSONL KG,
-and Neo4j are optional all-root offline exports.
+and evidence layer. The generic publication spine admits ATMONTO-aligned TMI,
+Flight/Airspace, reference, Weather, and reviewed association roots; the TMI
+root is one demonstrator, not the permanent subject boundary. None invents a
+decision-process object. SQLite FTS5 and Chroma are rebuildable indexes.
+RDF/Turtle, JSONL KG, and Neo4j are optional all-root offline exports.
 The retired `Corpus v2` batch snapshot is historical only. Files under
 `data/evaluation_runs/agent_system/` are evaluation evidence, not persisted
 knowledge and not a runtime query backend.
@@ -132,9 +132,15 @@ must not be added to the active runtime.
   backfill registers only the selected advisory records plus shared
   authority/context evidence.
   Queryability does not depend on finishing a batch manifest.
-- The active configuration contains 718 advisory records. The TMI domain
-  processes all of them unless an operator supplies an explicit
-  `--advisory-id` subset.
+- Research scope is selected by the dataset and temporal-scope configuration,
+  not by the size of a source inventory. The recommended high-coverage public
+  prototype is the one-day NASA ATMONTO sample in
+  `configs/atmonto_public_sample_v1.yaml`; the 2014 Flight, Weather, TMI, and
+  infrastructure records remain in their own temporal domain.
+- The 718-row 2026 ATCSCC inventory is retained as an optional historical TMI
+  source and regression asset. `ingest --domain tmi` can process that inventory
+  when explicitly selected, but it is not the current system scale, research
+  cohort, or ontology-coverage target.
 - The legacy cross-source experiment deterministically selected 68 records
   whose full text mentioned JFK, EWR, LGA, KJFK, KEWR, or KLGA. Its 46/3/18/1
   split is automated registry/preflight output, not manual review, a

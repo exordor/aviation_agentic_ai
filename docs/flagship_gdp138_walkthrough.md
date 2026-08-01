@@ -4,6 +4,8 @@
 
 This historical walkthrough demonstrates the ingestion-first,
 ATMONTO-grounded HybridRAG TMI slice before LLM tool-family routing was added.
+It is a regression and presentation artifact only; the 2026 ATCSCC inventory
+and this GDP example do not define the current research scope.
 It used the normal persistent ingestion pipeline of that revision, its bounded
 Query Agent, and the configured real DeepSeek provider.
 

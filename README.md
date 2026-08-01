@@ -24,11 +24,14 @@ Evidence Plane
 
 ![ATMONTO-grounded Agentic HybridRAG architecture](docs/figures/aviation_hybridrag_system_architecture.png)
 
-GDP, Ground Stop, and ReRoute remain the most mature end-to-end vertical
-slice. The same publication spine now also admits Flight, Aircraft,
-Airport/ARTCC, Route, TrackPoint, Sector, Weather, and reviewed cross-source
-association roots. ATMONTO supplies admitted schema terms; ATMGRAPH supplies
-ABox-construction and cross-source-query principles.
+The repository includes a GDP/Ground Stop/ReRoute regression slice and a
+one-day public ATMONTO cross-source sample. The same publication spine also
+admits Flight, Aircraft, Airport/ARTCC, Route, TrackPoint, Sector, Weather,
+and reviewed cross-source association roots. Dataset and temporal-scope
+configuration select the research material; neither the legacy ATCSCC
+inventory nor the regression slice defines the system boundary. ATMONTO
+supplies admitted schema terms; ATMGRAPH supplies ABox-construction and
+cross-source-query principles.
 
 The [architecture narrative](docs/architecture_narrative.md) explains the
 research story and running example. The
@@ -45,6 +48,10 @@ context retrieval, and statement-level support validation. Its observed
 calls returned and 5 bounded tool executions. It is not a benchmark.
 
 ## Quick Start
+
+The commands below exercise a small GDP regression slice for installation and
+pipeline verification. They do not define the research dataset; choose the
+required source families and temporal scope in the composed configuration.
 
 Python 3.11 or newer is required. Install the active system:
 

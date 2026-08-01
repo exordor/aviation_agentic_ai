@@ -65,8 +65,8 @@ exports/
 - source chunks and an FTS5 lexical index;
 - vector-index state and payload-free Agent usage telemetry.
 
-The TMI slice is rooted at an admitted ATMONTO TMI instance. Other active root
-kinds use the same generic publication spine. Root membership is an
+The TMI regression slice is rooted at an admitted ATMONTO TMI instance. Other
+active root kinds use the same generic publication spine. Root membership is an
 organization relation for accepted knowledge; it does not assert a
 reconstructed decision process. Weather associations are non-causal. Admitted
 BTS observations remain source-bound formal facts under their own profile.
