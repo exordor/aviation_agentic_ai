@@ -217,6 +217,23 @@ Airport/ARTCC, Route, TrackPoint, Sector, Weather, and association terms. They
 share the publication mechanism but retain typed root kinds and temporal-domain
 boundaries.
 
+### 4.1.1 ATMONTO Uses Realized By This Project
+
+The project operationalizes four of ATMONTO's five stated uses:
+
+| ATMONTO use | Current realization |
+| --- | --- |
+| Data query and search | Natural-language Query Agent routing over exact, graph, lexical, vector, and source reads. |
+| Information organization | ATMONTO class hierarchy, typed knowledge roots, profiles, and graph relations organize ABox records. |
+| Information integration | ATCSCC, NASR, Weather, BTS, Flight/Airspace, and NASA sample records map to shared ATMONTO-aligned terms. |
+| Terminology standardization | Canonical ATMONTO IRIs, application profiles, registry labels, and authority mappings normalize aliases and abbreviations. |
+
+Information exchange remains a design motivation rather than a current
+external interoperability capability: the project does not yet expose an
+ATMONTO exchange protocol or negotiate live messages with another ATM system.
+It does, however, preserve exchange-ready semantic identifiers, source
+versions, profiles, and provenance in the published ABox.
+
 The broader semantic control-plane inventory is maintained separately from
 the closed runtime slices. It covers the six pinned NASA OWL/XML modules and
 records class hierarchy, object/datatype property signatures, and cardinality

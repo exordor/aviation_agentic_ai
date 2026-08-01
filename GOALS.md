@@ -44,6 +44,11 @@ ATMONTO supplies the admitted TBox and application-profile terms. ATMGRAPH
 supplies ABox-construction and cross-source-query principles. The project does
 not import ATMGRAPH data or claim an exact replication.
 
+The ATMONTO use-case boundary is explicit: the current system demonstrates
+data query/search, information organization, information integration, and
+terminology standardization. External information exchange is a future
+interoperability capability, not a current runtime claim.
+
 The semantic control plane also maintains a deterministic inventory of the six
 local ATMONTO OWL modules. Its eight-domain coverage report records class
 hierarchy, object/datatype property signatures, and cardinality constraints,

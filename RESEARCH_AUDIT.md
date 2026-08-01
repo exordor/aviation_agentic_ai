@@ -40,6 +40,12 @@ reconstructed an internal decision process. ATMONTO supplies admitted schema
 terms. ATMGRAPH supplies ABox-construction and cross-source-query principles,
 not another imported dataset or an exact replication target.
 
+The current research demonstrator realizes four ATMONTO use cases: data
+query/search, information organization, information integration, and
+terminology standardization. Information exchange is retained as the broader
+interoperability motivation only; no external ATMONTO exchange protocol is
+claimed as implemented.
+
 The semantic parity baseline is the six-module ATMONTO catalog recorded in
 `data/ontology/curated/atmonto_semantic_coverage_v1.json`. It inventories 105
 classes, 106 object properties, 176 datatype properties, 83 hierarchy axioms,
