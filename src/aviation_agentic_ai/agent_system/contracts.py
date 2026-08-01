@@ -42,6 +42,7 @@ class SourceFamily(str, Enum):
     NASA_ATMONTO_INSTANCE = "nasa_atmonto_instance"
     NASR_AIRSPACE = "nasr_airspace"
     HISTORICAL_METAR_SPECI = "historical_metar_speci"
+    WEB_DOCUMENT = "web_document"
 
 
 class AgentStatus(str, Enum):
