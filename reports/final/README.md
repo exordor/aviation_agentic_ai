@@ -21,8 +21,8 @@ provenance; none is current merely because it is stored under `reports/final/`.
 | `project_defense_notes.md` | historical PHAK-era defense notes | Presentation-format reference only. |
 | `project_defense_notes.json` | structured source for historical defense notes | Keep for reproducibility of the old defense notes. |
 | `defense_deck_outline.md` | historical PHAK-era deck outline | Slide-structure reference only; not current content. |
-| `atcscc_agent_plan_storyboard.md` | historical extraction-loop storyboard | Superseded by the current Query Agent and ingestion-first architecture. |
-| `figure_descriptions.md` | historical figure specifications | Contains superseded extractor/validator/refiner/critic and Gold-sample wording. |
+| external archive `reports/legacy_runtime/atcscc_agent_plan_storyboard.md` | historical extraction-loop storyboard | Superseded by the current Query Agent and ingestion-first architecture. |
+| external archive `reports/legacy_runtime/figure_descriptions.md` | historical figure specifications | Contains superseded extractor/validator/refiner/critic and Gold-sample wording. |
 | `aviation_graphrag_defense_deck.pptx` | historical PHAK-era deck | Large binary deck. Keep for provenance and design reference, not current thesis submission. |
 | `aviation_graphrag_defense_deck_sources.json` | provenance for historical deck | Source pack for the old deck. Do not load it as current narrative context. |
 | `assets/*` | historical figures | Mostly PHAK/web-demo presentation assets. Some legacy filenames preserve earlier asset labels; reuse only if the figure still matches the ATCSCC method story. |
@@ -43,13 +43,11 @@ retired competency runner as current system evidence.
 
 ## Cleanup Policy
 
-Do not delete these historical final outputs by default. They are useful for
-provenance, presentation patterns, and comparison with earlier project phases.
-Instead:
+Historical final outputs remain available in the dated external archive when
+they describe a retired pipeline. They are useful for provenance and
+comparison with earlier project phases. For the remaining files:
 
 - keep this README as the directory-level warning;
 - create new ATCSCC-named final files for the current thesis;
-- move old outputs to an archive only if the user explicitly asks for a physical
-  cleanup;
 - do not commit new large binary assets unless they are used by a current
   ATCSCC final deliverable.

@@ -49,6 +49,10 @@ The 2026-08-01 archive also contains the following completed cleanup groups:
   under `data/legacy_runtime/nasa_atmonto/curated/`;
 - `reports/legacy_runtime/atcscc/`: old ATCSCC extraction, validation, and
   stage reports;
+- `docs/legacy_runtime/atcscc_decision_record_explorer_*.md`,
+  `templates/legacy_runtime/agentic_artifact_contract.md`, and the two
+  archived report specifications under `reports/legacy_runtime/`: the
+  retired artifact-per-role extraction and run-artifact explorer design;
 - `data/legacy_runtime/agent_system/` and
   `reports/legacy_runtime/agent_system/`: retired live-agent compatibility
   contracts and sanitized reports;

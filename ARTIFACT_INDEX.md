@@ -147,8 +147,11 @@ Do not rewrite historical report bytes to use current role names.
 
 | Artifact | Status |
 | --- | --- |
-| `docs/atcscc_decision_record_explorer_design.md` | Historical user-story and evidence-contract reference; not current architecture. |
-| `docs/atcscc_decision_record_explorer_cases.md` | Historical source audit behind three regression fixtures. |
+| external archive `docs/legacy_runtime/atcscc_decision_record_explorer_design.md` | Historical run-artifact explorer design; not current architecture. |
+| external archive `docs/legacy_runtime/atcscc_decision_record_explorer_cases.md` | Historical source audit behind the former artifact-based explorer. |
+| external archive `templates/legacy_runtime/agentic_artifact_contract.md` | Superseded artifact-per-role contract for the retired extraction pipeline. |
+| external archive `reports/legacy_runtime/atcscc_agent_plan_storyboard.md` | Superseded extractor/validator/refiner/critic storyboard. |
+| external archive `reports/legacy_runtime/figure_descriptions.md` | Superseded artifact-pipeline figure specifications and Gold-sample claims. |
 | external archive `docs/superpowers/specs/decision-case-*` | Superseded planning/specification history. |
 | former `docs/figures/decision_case_*_architecture.*` | Superseded figures retained through Git history, not current documentation. |
 | external archive `docs/legacy_runtime/` | Superseded cross-source, extractor/critic/refiner, PHAK annotation, and snapshot-projection designs. |
