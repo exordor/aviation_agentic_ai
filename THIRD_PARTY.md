@@ -7,79 +7,16 @@ offline demo behavior and must be attributed below.
 
 ## Reference Projects
 
-### FAA Pilot's Handbook of Aeronautical Knowledge
+### Retired coursework and ontology-generation inputs
 
-- Local source excerpt:
-  `data/raw/06_phak_ch4_0.pdf`
-- Source type:
-  FAA handbook chapter excerpt used as the bounded corpus for coursework
-  experiments.
-- Use in this project:
-  - Input document for chunking, ontology-grounded KG extraction, vector
-    indexing, GraphRAG retrieval, and evaluation.
-  - The project stores derived chunks, KG triples, and reports with provenance
-    back to source pages/chunks.
-- Integration rule:
-  - Keep the source scope explicit in reports.
-  - Do not claim coverage beyond the included PHAK Chapter 4 excerpt.
+The former PHAK chunking/KG pipeline, ontology-generation experiments, and
+their local PDFs/derived files are preserved in the dated external archive at
+`../aviation_agentic_ai-research-archive-2026-08-01/`. They are historical
+research material, not dependencies of the active ingestion-first runtime.
 
-### Towards Automated Ontology Generation from Unstructured Text
-
-- Local reference paper:
-  `data/papers/towards-automated-ontology-generation-multi-agent-llm.pdf`
-- Title:
-  "Towards Automated Ontology Generation from Unstructured Text: A Multi-Agent
-  LLM Approach"
-- Authors:
-  Abid Talukder, Maruf Ahmed Mridul, and Oshani Seneviratne
-- Associated GitHub repository:
-  https://github.com/brains-group/towards_automated_ontology_generation
-- Use in this project:
-  - Primary methodology reference for automated ontology generation.
-  - Inspires the CQ-driven, artifact-oriented generation flow used by this
-    project.
-  - The associated open-source GitHub implementation is used as the basis for
-    the project-owned ontology generation code, adapted for aviation training
-    text.
-  - The project adapts the general method to aviation training text rather than
-    insurance contracts.
-
-### `towards_automated_ontology_generation`
-
-- Upstream repository:
-  https://github.com/brains-group/towards_automated_ontology_generation
-- Local reference path during development:
-  `../Aviation/towards_automated_ontology_generation`
-- Use in this project:
-  - Source implementation basis for CQ generation and multi-agent ontology
-    generation, modified and simplified into project-owned modules under
-    `src/aviation_agentic_ai/ontology/`.
-  - Source of the curated baseline PHAK ontology copied to
-    `data/ontology/baseline/06_phak_ch4_0.ttl`.
-  - Source of the PHAK Chapter 4 PDF if needed.
-- Integration rule:
-  - Adapt small modules only when needed and keep the adapted implementation
-    clearly project-owned.
-  - Do not vendor the full repository.
-  - Preserve license/copyright headers if any source code is copied.
-
-### `automatic-KG-creation-with-LLM`
-
-- Local reference path during development:
-  `../Aviation/automatic-KG-creation-with-LLM`
-- License: Apache License 2.0, as declared by the source project.
-- Use in this project:
-  - Methodology reference for CQ-driven KG construction.
-  - No full-repository vendoring.
-
-### OntoGPT
-
-- Upstream project: https://github.com/monarch-initiative/ontogpt
-- License: BSD-3-Clause, as declared by the upstream project.
-- Use in this project:
-  - Optional dependency and reference design for ontology-grounded extraction.
-  - If used directly, wrap it behind project-owned interfaces.
-  - If source/templates are copied or adapted, document the copied files and preserve attribution.
+The active system uses a curated ATMONTO application profile and six pinned
+NASA OWL authority files. It does not depend on OntoGPT, the former
+ontology-generation extra, or a PHAK bounded corpus.
 
 ## Runtime And Tooling Dependencies
 
@@ -107,29 +44,12 @@ external repositories, temporary logs, or generated caches.
 - Source:
   https://github.com/UCY-LINC-LAB/icarus-ontology (MIT License)
 - Local:
-  `data/ontology/external/icarus_ontology/`
+  `data/ontology/external/icarus_ontology/NASA/`
 - Use in this project:
-  - ATM ontology reference used in ATMONTO experiment and minimal-loop scripts.
-  - Referenced by `atmonto_minimal_loop.py` and `atmonto_experiment.py`.
-
-### AIRM-O Ontology
-
-- Source:
-  https://github.com/airm-o/airm-o (CC-BY-4.0)
-- Local:
-  `data/ontology/external/airm_o/`
-- Use in this project:
-  - ATM Information Reference Model ontology used as external reference.
-  - Referenced by `airm_o.py`.
-
-### NASA Beginner's Guide to Aeronautics (BGA)
-
-- Source:
-  https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/
-- Source type:
-  NASA educational web resource covering aerodynamics principles.
-- Use in this project:
-  - Web source material for aerodynamics ontology extraction.
+  - Six NASA OWL modules are checksum-pinned by the active application profile
+    and provide ATMONTO TBox authority for publication and retrieval labels.
+  - They are reference inputs, not an imported ATMGRAPH dataset or a complete
+    aviation ontology.
 
 ### Additional Research Papers
 

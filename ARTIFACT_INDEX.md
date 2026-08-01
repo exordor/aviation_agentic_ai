@@ -136,12 +136,9 @@ Do not rewrite historical report bytes to use current role names.
 | `docs/atcscc_decision_record_explorer_cases.md` | Historical source audit behind three regression fixtures. |
 | external archive `docs/superpowers/specs/decision-case-*` | Superseded planning/specification history. |
 | former `docs/figures/decision_case_*_architecture.*` | Superseded figures retained through Git history, not current documentation. |
-| `docs/cross_source_multi_agent_v2_design.md` | Superseded cross-source V2 plan and retired CLI. |
-| `configs/cross_source_v1.yaml` | Historical cross-source configuration retaining the deterministic 68-record NYC full-text code-match experiment; not the active `agent-system` configuration. |
-| `docs/atcscc_agent_architecture.md` | Superseded extractor/critic/refiner Agent design. |
-| `docs/thesis_writing_spine.md` | Superseded thesis scaffold for the former extraction pipeline. |
-| `docs/pipeline_authority_model.md` | Historical authority-model framing for the former pipeline. |
-| `docs/neo4j_visualization.md` | Historical snapshot-projection guide; current export command is in `REPRODUCIBILITY.md`. |
+| external archive `docs/legacy_runtime/` | Superseded cross-source, extractor/critic/refiner, PHAK annotation, and snapshot-projection designs. |
+| external archive `docs/legacy_runtime/thesis_writing_spine.md` | Superseded thesis scaffold for the former extraction pipeline. |
+| external archive `docs/legacy_runtime/` | Historical authority-model and snapshot-projection guides for the former pipeline. |
 | `codex/kg-visualization-research` | Paused read-only browser prototype on a separate branch. |
 
 Historical names in this section are references, not accepted current
@@ -151,13 +148,12 @@ interfaces. Their bodies and recorded results remain unchanged.
 
 | Family | Use |
 | --- | --- |
-| `RESEARCH_QUESTIONS.md`, `HYPOTHESES.md`, `EXPERIMENTS.md`, `RESULTS.md` | Historical or explicitly reactivated formal evaluation. |
+| external archive `docs/legacy_runtime/{RESEARCH_QUESTIONS,HYPOTHESES,EXPERIMENTS,RESULTS}.md` | Historical or explicitly reactivated formal evaluation. |
 | `src/aviation_agentic_ai/alignment_mve/` | Optional alignment comparison. |
-| `src/aviation_agentic_ai/cross_source/` | Earlier broad Weather/RAG implementation. |
-| `data/evaluation/nasa_atmonto/` | Extraction-evaluation material. |
-| `data/evaluation/cross_source/` | Alignment and cross-source calibration. |
-| `reports/stages/nasa_atmonto_*` | Formal extraction/validation history. |
-| `reports/stages/cross_source_*` | Cross-source design and evaluation history. |
+| external archive `src/legacy_runtime/` | Retired source packages, root CLI wrappers, and helper scripts from the pre-ingestion architecture. |
+| external archive `tests/legacy_runtime/` | Tests for retired packages; preserved for historical review, not collected by the current suite. |
+| external archive `data/legacy_runtime/` | Retired evaluation and experiment inputs. |
+| external archive `reports/legacy_runtime/` | Formal extraction, cross-source, AIRM-O, and PHAK-era evaluation history. |
 | external archive `reports/stages/` (literature/roadmap summaries) | Reports with no supported runtime or test dependency; the exact moved filenames are preserved in the dated archive. |
 | external archive `docs/archive/`, `reports/phak_era_archive/` | Archived method, review, and presentation history; not in the default checkout. |
 | `reports/final/` | Small thesis-facing and presentation history retained in the checkout. |
@@ -168,22 +164,24 @@ performance or external expert certification.
 The external archive location and retention policy are documented in
 [`docs/repository_artifact_policy.md`](docs/repository_artifact_policy.md).
 
-The retired `cross-source`, PHAK chunk/index/query/demo/agent, ontology, source,
+The retired cross-source, PHAK chunk/index/query/demo/agent, ontology, source,
 CQ, and report groups are not registered on the supported root CLI. Their
-modules remain historical implementation material rather than compatibility
-interfaces while the remaining legacy test/data retirement is completed.
+source modules, tests, and helper scripts now live in the dated external
+archive rather than in the importable package. They are historical material,
+not compatibility interfaces.
 
-The following data remains tracked only because the legacy `ontology`,
-`source`, `cqs`, and `report` utilities and their tests still read it:
+The following data is retained only as historical research input in the dated
+external archive:
 
-- `data/evaluation/nasa_atmonto/`;
-- `data/experiments/nasa_atmonto/`;
-- `data/ontology/external/`;
-- `data/papers/ntrs_ontology_selection/`.
+- external archive `data/legacy_runtime/nasa_atmonto/`;
+- external archive `data/legacy_runtime/formal_experiments/`;
+- external archive `data/legacy_runtime/airm_o/` and non-NASA Icarus files;
+- external archive `data/legacy_runtime/ntrs_ontology_selection/`.
 
 These are legacy research inputs, not current Agent-runtime knowledge. Do not
-add new production or Query Agent dependencies to them. A future removal must
-retire the corresponding utilities and tests in the same change.
+add new production or Query Agent dependencies to them. The active semantic
+authority is limited to the curated profile and its six checksum-pinned NASA
+OWL files under `data/ontology/external/icarus_ontology/NASA/`.
 
 ## Ignored Local Material
 

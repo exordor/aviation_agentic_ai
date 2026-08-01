@@ -8,10 +8,8 @@ __pycache__/
 
 # Runtime/generated artifacts
 /data/indexes/
-/data/chunks/
 /data/stores/
-/data/kg/*.tmp
-/data/kg/*.cache
+data/stores/
 /reports/**/*.tmp
 /reports/stages/*_run.log
 /reports/stages/pytest_*.log
@@ -29,10 +27,8 @@ __pycache__/
 /data/evaluation/agent_system/live_agent_experiment_v2.yaml
 /data/evaluation/agent_system/live_agent_experiment_v3.yaml
 
-# Keep these legacy pattern strings for repository hygiene checks and for tools
-# that do not interpret root-anchored patterns consistently.
+# Keep the active vector/model cache patterns out of tracked-file scans.
 data/indexes/
-data/chunks/
 models/
 
 # Generated local paper figure gallery. Keep scripts and crop specs in Git;
@@ -76,13 +72,6 @@ models/
 /data/raw/nasa_atmonto/
 /data/raw/nasa_atmonto_prototype/
 /data/raw/flight_competency/
-/data/experiments/nasa_atmonto/formal/smoke/
-
-# Reproducible cross-source runtime outputs. Keep the config, source registry,
-# review benchmark, and build code tracked; rebuild these normalized/graph
-# artifacts from the pinned snapshots.
-/data/processed/cross_source/
-/data/kg/cross_source/
 
 # Local runtime and evaluation artifacts from the Agent system. These can
 # contain raw provider responses and are regenerated from tracked contracts.
@@ -91,12 +80,6 @@ models/
 # Retired historical location kept quarantined so raw responses from older
 # checkouts cannot become untracked commit candidates. It is not a runtime.
 /data/corpus/agent_system/
-
-# Exploratory gpt-5.5 evidence-handling pilot runs (10/100 records, prompt
-# variants not recorded); not formal thesis artifacts. Summarized inline if
-# referenced rather than tracked.
-/data/experiments/nasa_atmonto/formal/gpt55_s2_evidence_only/
-/data/experiments/nasa_atmonto/formal/gpt55_s2_evidence_variant/
 
 # Model and vector-store artifacts
 *.faiss

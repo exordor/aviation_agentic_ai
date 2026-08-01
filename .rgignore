@@ -15,9 +15,6 @@ reports/stages/paper_figure_gallery_manifest.json
 
 /data/raw/nasa_atmonto/
 data/raw/nasa_atmonto/
-/data/experiments/nasa_atmonto/formal/smoke/
-data/experiments/nasa_atmonto/formal/smoke/
-
 /data/papers/*.pdf
 /data/papers/*.jpg
 /data/papers/*.jpeg

@@ -49,11 +49,10 @@ neo4j-export
 export-event
 ```
 
-The root CLI presents `agent-system` plus the still-supported `ontology`,
-`source`, `cqs`, and `report` research utilities. Retired PHAK demos and the
-historical `cross-source` workflow are not registered as current root commands.
-Their implementations and artifacts remain classified through
-`ARTIFACT_INDEX.md`.
+The root CLI presents only `agent-system`. The former `ontology`, `source`,
+`cqs`, `report`, PHAK, and historical `cross-source` implementations and
+artifacts are outside the active checkout in the dated external archive.
+`ARTIFACT_INDEX.md` records the retention boundary.
 
 There is no required batch snapshot, run-directory query path, legacy reader,
 or compatibility alias.
@@ -233,7 +232,7 @@ performance evidence.
 | Artifact ownership and history | `ARTIFACT_INDEX.md` |
 | Reproduction commands | `REPRODUCIBILITY.md` |
 | Structural decision history | `DECISION_LOG.md` |
-| Optional historical experiments | `RESEARCH_QUESTIONS.md`, `HYPOTHESES.md`, `EXPERIMENTS.md`, `RESULTS.md` |
+| Optional historical experiments | Dated external archive `docs/legacy_runtime/` |
 
 Do not preload optional experiments, historical stage reports, ignored local
 stores or exports, or archives.

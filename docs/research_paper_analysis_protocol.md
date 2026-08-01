@@ -150,8 +150,8 @@ Only `primary_method_reference`, `evaluation_reference`, and
 
 If the paper changes project direction, update the relevant protocol or report:
 
-- `EXPERIMENTS.md`;
-- `EXPERIMENTS.md`;
+- the dated external archive's `docs/legacy_runtime/EXPERIMENTS.md` when a
+  historical experiment is explicitly reactivated;
 - the external archive's former `docs/archive/phak_era/nasa_atmonto_experiment_design.md`;
 - a focused `reports/stages/*_paper_adaptation.md` or
   `reports/stages/*_figures_analysis.md` file.

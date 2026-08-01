@@ -62,12 +62,13 @@ in `docs/repository_artifact_policy.md`; do not restore them or add new
 runtime dependencies on them unless a legacy experiment is explicitly being
 reactivated.
 
-The tracked NASA extraction/evaluation inputs and external ontology files are
-legacy-only dependencies of historical `ontology`, `source`, `cqs`, and
-`report` modules. Those modules are no longer registered on the root CLI and
-are not the SQLite/Query Agent knowledge layer. Do not extend the current
-runtime with those paths; retire the remaining dependent modules and tests
-together before removing the inputs.
+The old extraction/evaluation packages, root command wrappers, and their
+dedicated tests/scripts have been moved to the dated external archive. They
+are not importable runtime modules. Keep the six checksum-pinned NASA ATMONTO
+OWL files and the curated application-profile JSON in the checkout: they are
+active semantic authority inputs, not historical experiment leftovers. Other
+external ontology copies and old evaluation inputs belong in the archive and
+must not be added to the active runtime.
 
 ## Current Status
 
@@ -180,10 +181,10 @@ For a new task:
 3. Load `README.md`, `TODO.md`, or a design document only when the task needs
    that layer.
 
-Do not preload `RESEARCH_QUESTIONS.md`, `HYPOTHESES.md`, `EXPERIMENTS.md`,
-`RESULTS.md`, stage-report directories, ignored stores/exports, or archived
-PHAK/web-demo material. They describe optional evaluation or historical work,
-not the default system scope.
+Do not preload the external archive's former research-question, hypothesis,
+experiment, result, stage-report, ignored-store/export, or PHAK/web-demo
+material. Those artifacts describe optional evaluation or historical work, not
+the default system scope.
 
 Use English for active code, contracts, prompts, CLI messages, tests,
 documentation, and generated artifacts. Preserve non-English text only when it

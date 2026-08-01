@@ -1,7 +1,7 @@
 {
   "source_family": "nasa_atmonto_owl_xml",
   "ontology_id": "nasa_atmonto",
-  "parser_version": "aviation_agentic_ai.ontology.atmonto_minimal_loop.v1",
+  "parser_version": "curated_atmonto_schema_catalog.v1",
   "role": "primary_schema_constraint",
   "boundary": "schema_constraint_not_abox_ground_truth",
   "ontology_iris": [

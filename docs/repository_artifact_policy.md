@@ -32,7 +32,11 @@ directory:
 ├── docs/archive/
 ├── docs/superpowers/
 ├── reports/stages/                 # superseded live v2 reports and old literature summaries
-└── data/evaluation/agent_system/   # superseded v2/v3 contracts
+├── reports/legacy_runtime/         # retired extraction and cross-source reports
+├── src/legacy_runtime/             # retired packages and root CLI wrappers
+├── tests/legacy_runtime/           # tests for retired packages
+├── scripts/legacy_runtime/         # retired experiment runners
+└── data/legacy_runtime/            # retired evaluation inputs
 ```
 
 The archive is a local research-history backup, not an import path and not a
@@ -57,17 +61,12 @@ store; indexes and exports are rebuildable views.
 
 ## Scope of this cleanup
 
-This phase retires the legacy root CLI surface without deleting modules that
-still have direct historical test fixtures. A later, explicit legacy-module
-retirement can remove their source/data dependencies together; that is a
-separate change and must not be inferred from this CLI change.
+The legacy-module retirement is complete for the active checkout. The old
+root command wrappers, extraction/reporting packages, cross-source experiment
+packages, and their dedicated tests/scripts are kept only in the dated
+external archive. The archive is not on `PYTHONPATH` and is never a runtime
+source of truth.
 
-The root-CLI integration tests for those retired commands are kept under the
-dated external archive at `../aviation_agentic_ai-research-archive-2026-08-01/tests/legacy_cli/`.
-They are historical regression evidence, not part of the current test suite.
-
-In particular, the tracked NASA evaluation, experiment, external-ontology,
-and selected-paper directories remain temporarily because the legacy research
-CLI and tests still read them. They are classified as legacy inputs, not
-canonical runtime knowledge, and are the next removal target only when those
-utilities are retired together.
+The six NASA ATMONTO OWL files pinned by the active application profile remain
+in the checkout, together with the curated schema slices. Other external
+ontology copies and old evaluation inputs are historical archive material.
