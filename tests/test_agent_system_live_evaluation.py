@@ -338,7 +338,7 @@ def test_active_evaluator_has_no_integration_scorer_or_role() -> None:
     assert "answer_corpus_question" not in source
 
 
-def test_live_evaluator_uses_the_current_nine_read_tools() -> None:
+def test_live_evaluator_uses_the_shared_current_query_tool_registry() -> None:
     assert live_eval.HYBRID_QUERY_READ_TOOLS == {
         "find_tmi_events",
         "read_tmi_event_facts",
@@ -349,6 +349,18 @@ def test_live_evaluator_uses_the_current_nine_read_tools() -> None:
         "search_source_text",
         "semantic_search_sources",
         "read_source",
+        "find_flights",
+        "read_flight",
+        "find_airports",
+        "read_flight_trajectory",
+        "find_sector_passages",
+        "analyze_sector_traffic",
+        "find_flight_weather_associations",
+        "find_tmi_applicability_candidates",
+        "read_aviation_graph",
+    }
+    assert live_eval.HYBRID_QUERY_CONTROL_TOOLS == {
+        "select_query_tool_families"
     }
     assert "store_dir" in inspect.signature(
         run_live_agent_evaluation

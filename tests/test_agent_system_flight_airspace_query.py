@@ -837,10 +837,43 @@ def test_natural_language_query_agent_selects_generic_flight_tool(
                     ),
                 )
 
-        available_tools: set[str] = set()
+        available_tool_sets: list[set[str]] = []
 
-        def factory(tools: list[Any]) -> FlightQueryModel:
-            available_tools.update(tool.name for tool in tools)
+        class RouterModel:
+            def invoke(
+                self,
+                messages: list[Any],
+                *,
+                phase: str,
+            ) -> ToolModelTurn:
+                assert phase == "select_tool"
+                call = {
+                    "id": "route-flight",
+                    "name": "select_query_tool_families",
+                    "args": {"families": ["flight_airspace"]},
+                }
+                return ToolModelTurn(
+                    message=AIMessage(content="", tool_calls=[call]),
+                    record=ModelCallRecord(
+                        agent="query",
+                        raw_response="",
+                        provider="scripted",
+                        model="scripted",
+                        tool_calls=(
+                            ModelToolCall(
+                                call_id="route-flight",
+                                name="select_query_tool_families",
+                                arguments={"families": ["flight_airspace"]},
+                            ),
+                        ),
+                    ),
+                )
+
+        def factory(tools: list[Any]):  # type: ignore[no-untyped-def]
+            names = {tool.name for tool in tools}
+            available_tool_sets.append(names)
+            if names == {"select_query_tool_families"}:
+                return RouterModel()
             return FlightQueryModel()
 
         outcome = answer_question(
@@ -856,10 +889,13 @@ def test_natural_language_query_agent_selects_generic_flight_tool(
 
         assert outcome.status == "ok", outcome.failure_reason
         assert outcome.match_count == 1
+        assert outcome.route_trace is not None
+        assert outcome.route_trace.selected_families == ("flight_airspace",)
         assert outcome.tool_calls[0].tool == "find_flights"
         assert outcome.retrieved_flight_ids == [flight.flight_id]
-        assert "find_tmi_events" in available_tools
-        assert "find_flights" in available_tools
-        assert "analyze_sector_traffic" in available_tools
+        assert available_tool_sets[0] == {"select_query_tool_families"}
+        assert "find_tmi_events" not in available_tool_sets[1]
+        assert "find_flights" in available_tool_sets[1]
+        assert "analyze_sector_traffic" in available_tool_sets[1]
     finally:
         store.close()

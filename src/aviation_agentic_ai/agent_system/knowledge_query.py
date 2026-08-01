@@ -22,6 +22,12 @@ from aviation_agentic_ai.agent_system.hybrid_query_tools import (
     build_hybrid_query_tools,
 )
 from aviation_agentic_ai.agent_system.query_runtime import QueryRuntime
+from aviation_agentic_ai.agent_system.query_tool_registry import (
+    QueryRoutingBlocked,
+    build_query_route_tool,
+    build_query_tool_registry,
+    select_query_tools,
+)
 from aviation_agentic_ai.agent_system.tool_model import ToolCallingModel
 
 
@@ -47,14 +53,51 @@ def answer_question(
         runtime=runtime,
         scope=scope,
     )
-    return run_hybrid_query_agent(
-        question=question,
-        scope=scope,
-        tools=[
+    registry = build_query_tool_registry(
+        [
             *build_hybrid_query_tools(gateway),
             *build_flight_airspace_query_tools(flight_airspace_gateway),
-        ],
+        ]
+    )
+    route_tool = build_query_route_tool()
+    try:
+        route_model = model_factory([route_tool])
+        selected_tools, route_trace, route_record = select_query_tools(
+            question=question,
+            scope=scope,
+            registry=registry,
+            model=route_model,
+        )
+    except QueryRoutingBlocked as exc:
+        return QueryToolOutcome(
+            status="blocked",
+            failure_reason=str(exc),
+            model_calls=[exc.record] if exc.record is not None else [],
+        )
+    except Exception as exc:
+        return QueryToolOutcome(
+            status="blocked",
+            failure_reason=(
+                "Hybrid Query Agent routing construction failed: "
+                f"{type(exc).__name__}: {exc}"
+            ),
+        )
+    outcome = run_hybrid_query_agent(
+        question=question,
+        scope=scope,
+        tools=selected_tools,
         model_factory=model_factory,
+    )
+    routed_records = [route_record]
+    routed_records.extend(
+        record.model_copy(update={"attempt": index})
+        for index, record in enumerate(outcome.model_calls, start=2)
+    )
+    return outcome.model_copy(
+        update={
+            "route_trace": route_trace,
+            "model_calls": routed_records,
+        }
     )
 
 

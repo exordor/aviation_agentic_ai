@@ -54,25 +54,18 @@ from aviation_agentic_ai.agent_system.tool_model import (
     capture_tool_model_calls,
     make_live_tool_calling_model,
 )
+from aviation_agentic_ai.agent_system.query_tool_registry import (
+    QUERY_CONTROL_TOOL_NAMES,
+    QUERY_EVIDENCE_TOOL_NAMES,
+)
 from aviation_agentic_ai.config import (
     load_environment,
     load_yaml,
 )
 
 
-HYBRID_QUERY_READ_TOOLS = frozenset(
-    {
-        "find_tmi_events",
-        "read_tmi_event_facts",
-        "read_tmi_operational_context",
-        "read_public_observations",
-        "read_tmi_event_graph",
-        "find_similar_tmi_events",
-        "search_source_text",
-        "semantic_search_sources",
-        "read_source",
-    }
-)
+HYBRID_QUERY_READ_TOOLS = QUERY_EVIDENCE_TOOL_NAMES
+HYBRID_QUERY_CONTROL_TOOLS = QUERY_CONTROL_TOOL_NAMES
 DEFAULT_LIVE_EVALUATION_REPORT_STEM = "agent_system_live_agent_smoke_v4"
 LIVE_EVALUATION_REPORT_STEM_PATTERN = r"^[a-z0-9][a-z0-9_-]*$"
 

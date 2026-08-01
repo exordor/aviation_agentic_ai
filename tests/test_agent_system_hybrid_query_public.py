@@ -122,6 +122,40 @@ class _EvidenceModel:
         )
 
 
+class _ToolFamilyRouterModel:
+    def __init__(self, family: str) -> None:
+        self.family = family
+
+    def invoke(
+        self,
+        messages: list[Any],
+        *,
+        phase: str,
+    ) -> ToolModelTurn:
+        assert phase == "select_tool"
+        call = {
+            "id": f"route-{self.family}",
+            "name": "select_query_tool_families",
+            "args": {"families": [self.family]},
+        }
+        return ToolModelTurn(
+            message=AIMessage(content="", tool_calls=[call]),
+            record=ModelCallRecord(
+                agent="query",
+                raw_response="",
+                provider="scripted",
+                model="scripted",
+                tool_calls=[
+                    ModelToolCall(
+                        call_id=call["id"],
+                        name=call["name"],
+                        arguments=call["args"],
+                    )
+                ],
+            ),
+        )
+
+
 def test_public_query_uses_model_routing_over_the_live_store(
     tmp_path: Path,
 ) -> None:
@@ -137,16 +171,30 @@ def test_public_query_uses_model_routing_over_the_live_store(
         "What stated reason is recorded in this GDP advisory?",
     ):
         model = _EvidenceModel(scenario)
+        tool_sets: list[set[str]] = []
+
+        def factory(tools: list[Any]):  # type: ignore[no-untyped-def]
+            names = {tool.name for tool in tools}
+            tool_sets.append(names)
+            if names == {"select_query_tool_families"}:
+                return _ToolFamilyRouterModel("tmi")
+            return model
+
         outcome = answer_question(
             runtime=runtime,
             question=question,
             scope=HybridQueryScope(event_id=EVENT_ID),
-            model_factory=lambda _tools, model=model: model,
+            model_factory=factory,
         )
 
         assert outcome.status == "ok"
-        assert len(outcome.model_calls) == 2
+        assert outcome.route_trace is not None
+        assert outcome.route_trace.selected_families == ("tmi",)
+        assert len(outcome.model_calls) == 3
         assert outcome.tool_calls[0].tool == "read_tmi_event_facts"
+        assert tool_sets[0] == {"select_query_tool_families"}
+        assert "find_tmi_events" in tool_sets[1]
+        assert "find_flights" not in tool_sets[1]
         assert question in model.questions[0]
     scenario.store.close()
 

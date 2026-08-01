@@ -16,6 +16,7 @@ PROMPT_PATH = (
 
 EXPECTED_ROLES = {
     "query",
+    "query_router",
     "semantic_resolution",
 }
 
@@ -23,6 +24,11 @@ EXPECTED_PLACEHOLDERS = {
     "query": {
         "user_question",
         "query_scope",
+    },
+    "query_router": {
+        "user_question",
+        "query_scope",
+        "family_cards",
     },
     "semantic_resolution": {
         "task_id",
@@ -53,7 +59,8 @@ def test_prompt_catalog_contains_only_activated_model_roles() -> None:
 
 def test_every_role_has_version_policy_and_bounded_output() -> None:
     expected_versions = {
-        "query": "hybrid-query-agent-v7",
+        "query": "hybrid-query-agent-v8",
+        "query_router": "hybrid-query-router-v1",
         "semantic_resolution": "semantic-resolution-agent-v1",
     }
     for role, prompt in _catalog()["roles"].items():
@@ -69,12 +76,14 @@ def test_active_generation_roles_use_the_10k_output_ceiling() -> None:
     roles = _catalog()["roles"]
 
     assert roles["query"]["max_output_tokens"] == 10_000
+    assert roles["query_router"]["max_output_tokens"] == 256
     assert roles["semantic_resolution"]["max_output_tokens"] == 256
 
 
 def test_every_role_has_two_fictional_contrastive_few_shot_pairs() -> None:
     expected_headers = {
         "query": {"{"},
+        "query_router": {"{"},
         "semantic_resolution": {"{"},
     }
     forbidden_real_tokens = re.compile(r"\b(?:DCA|SFO|MIA|CLT)\b")
@@ -138,21 +147,10 @@ def test_query_prompt_requires_dynamic_tools_and_evidence_bound_user_language() 
     assert "Bind every statement" in normalized
 
 
-def test_query_prompt_exposes_the_live_hybrid_retrieval_registry() -> None:
+def test_query_prompt_describes_only_dynamically_bound_retrieval_tools() -> None:
     system = _catalog()["roles"]["query"]["system"]
-    tool_names = {
-        "find_tmi_events",
-        "read_tmi_event_facts",
-        "read_tmi_operational_context",
-        "read_public_observations",
-        "read_tmi_event_graph",
-        "find_similar_tmi_events",
-        "search_source_text",
-        "semantic_search_sources",
-        "read_source",
-    }
-
-    assert all(tool_name in system for tool_name in tool_names)
+    assert "Only tools selected by the routing stage are bound" in system
+    assert "Tool registry:" not in system
     assert "candidate" in system.lower()
     assert "factual claims" in system.lower()
     assert "read_source" in system
@@ -162,7 +160,7 @@ def test_query_prompt_requires_sequential_exact_source_verification() -> None:
     role = _catalog()["roles"]["query"]
     normalized = " ".join(role["system"].split())
 
-    assert role["prompt_version"] == "hybrid-query-agent-v7"
+    assert role["prompt_version"] == "hybrid-query-agent-v8"
     assert (
         "Call read_source only after a completed tool observation supplies "
         "both the source-version ID and source-anchor ID."
@@ -174,10 +172,20 @@ def test_query_prompt_requires_sequential_exact_source_verification() -> None:
         "continue with the relevant event tools."
         in normalized
     )
-    assert "find_flights / read_flight" in normalized
-    assert "analyze_sector_traffic" in normalized
     assert "temporal evidence only, never causality" in normalized
     assert "rule-derived candidate" in normalized
+
+
+def test_query_router_prompt_uses_capability_cards_without_fixed_question_rules() -> None:
+    role = _catalog()["roles"]["query_router"]
+    normalized = " ".join(role["system"].split())
+
+    assert role["invocation_policy"] == "llm_selected_tool_families"
+    assert "select_query_tool_families" in normalized
+    assert "capability cards" in normalized
+    assert "keyword" in normalized
+    assert "fixed question" in normalized
+    assert "model memory" not in normalized
 
 
 def test_semantic_resolution_prompt_requires_a_bounded_tool_then_strict_decision() -> None:

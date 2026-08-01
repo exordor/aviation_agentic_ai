@@ -467,6 +467,19 @@ class HybridQueryAnswer(StrictModel):
     limitations: tuple[str, ...] = ()
 
 
+class QueryRouteTrace(StrictModel):
+    """Control-plane trace for one model-selected Query tool family set."""
+
+    status: Literal["selected", "blocked"]
+    selected_families: tuple[
+        Literal["source", "tmi", "flight_airspace"], ...
+    ] = ()
+    available_families: tuple[
+        Literal["source", "tmi", "flight_airspace"], ...
+    ] = ()
+    selected_tool_names: tuple[str, ...] = ()
+
+
 class QueryToolOutcome(StrictModel):
     """Final outcome of one bounded Query Agent tool loop."""
 
@@ -501,6 +514,7 @@ class QueryToolOutcome(StrictModel):
     )
     answer_statements: list[HybridQueryStatement] = Field(default_factory=list)
     support_records: list[HybridQuerySupportRecord] = Field(default_factory=list)
+    route_trace: QueryRouteTrace | None = None
     model_calls: list[ModelCallRecord] = Field(default_factory=list)
     tool_calls: list[QueryToolTrace] = Field(default_factory=list)
     failure_reason: str = ""
