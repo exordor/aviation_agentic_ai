@@ -8,35 +8,6 @@ import click
 
 TOP_LEVEL_COMMANDS: tuple[dict[str, Any], ...] = (
     {
-        "module": "aviation_agentic_ai.cli_cqs",
-        "attribute": "cqs",
-        "name": "cqs",
-        "help": "Competency-question gold label utilities.",
-        "subcommands": ("gold-draft", "validate-benchmark"),
-    },
-    {
-        "module": "aviation_agentic_ai.cli_ontology",
-        "attribute": "ontology",
-        "name": "ontology",
-        "help": "Ontology lifecycle commands.",
-        "subcommands": (
-            "validate",
-            "report",
-            "evaluate",
-            "scope",
-            "cqs",
-            "validate-cqs",
-            "generate",
-        ),
-    },
-    {
-        "module": "aviation_agentic_ai.cli_source",
-        "attribute": "source_group",
-        "name": "source",
-        "help": "Source ingestion commands.",
-        "subcommands": ("ingest-nasa",),
-    },
-    {
         "module": "aviation_agentic_ai.cli_agent_system",
         "attribute": "agent_system",
         "name": "agent-system",
@@ -54,33 +25,6 @@ TOP_LEVEL_COMMANDS: tuple[dict[str, Any], ...] = (
         ),
     },
 )
-
-REPORT_REGISTRARS: tuple[dict[str, Any], ...] = (
-    {
-        "module": "aviation_agentic_ai.cli_report_stage",
-        "attribute": "register_stage_report_commands",
-        "commands": ("hygiene",),
-    },
-    {
-        "module": "aviation_agentic_ai.cli_report_thesis",
-        "attribute": "register_thesis_report_commands",
-        "commands": (
-            "thesis-claims",
-        ),
-    },
-    {
-        "module": "aviation_agentic_ai.cli_report_nasa",
-        "attribute": "register_nasa_report_commands",
-        "commands": (
-            "nasa-atmonto-cq-evaluation",
-            "nasa-atmonto-cq-query-evaluation",
-            "nasa-atmonto-answer-generation",
-            "nasa-atmonto-agentic-loop",
-            "nasa-atmonto-l1-agent-batch",
-        ),
-    },
-)
-
 
 def _unavailable_message(module: str, error: ImportError) -> str:
     return (
@@ -133,27 +77,9 @@ def _load_attribute(module_name: str, attribute: str) -> tuple[Any | None, Impor
     return getattr(module, attribute), None
 
 
-def _add_unavailable_report_commands(
-    report_group: click.Group,
-    registrar_spec: dict[str, Any],
-    import_error: ImportError,
-) -> None:
-    for command_name in registrar_spec["commands"]:
-        name = str(command_name)
-        if name in report_group.commands:
-            continue
-        report_group.add_command(
-            _unavailable_command(
-                name,
-                str(registrar_spec["module"]),
-                import_error,
-            )
-        )
-
-
 @click.group()
 def main() -> None:
-    """Aviation Agentic AI CLI."""
+    """Supported Aviation Agentic AI runtime CLI."""
 
 
 for command_spec in TOP_LEVEL_COMMANDS:
@@ -184,22 +110,3 @@ for command_spec in TOP_LEVEL_COMMANDS:
                 str(command_spec["help"]),
             )
         )
-
-
-@main.group()
-def report() -> None:
-    """Research report commands."""
-
-
-for registrar_spec in REPORT_REGISTRARS:
-    registrar, import_error = _load_attribute(
-        str(registrar_spec["module"]),
-        str(registrar_spec["attribute"]),
-    )
-    if import_error is None:
-        try:
-            registrar(report)
-        except ImportError as exc:
-            _add_unavailable_report_commands(report, registrar_spec, exc)
-        continue
-    _add_unavailable_report_commands(report, registrar_spec, import_error)

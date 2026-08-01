@@ -168,9 +168,10 @@ performance or external expert certification.
 The external archive location and retention policy are documented in
 [`docs/repository_artifact_policy.md`](docs/repository_artifact_policy.md).
 
-The retired `cross-source`, PHAK chunk/index/query/demo/agent, and legacy KG
-groups are not registered on the supported root CLI. Their modules remain
-historical implementation material rather than compatibility interfaces.
+The retired `cross-source`, PHAK chunk/index/query/demo/agent, ontology, source,
+CQ, and report groups are not registered on the supported root CLI. Their
+modules remain historical implementation material rather than compatibility
+interfaces while the remaining legacy test/data retirement is completed.
 
 The following data remains tracked only because the legacy `ontology`,
 `source`, `cqs`, and `report` utilities and their tests still read it:

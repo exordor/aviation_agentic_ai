@@ -248,12 +248,11 @@ neo4j-export
 export-event
 ```
 
-At the repository root, `agent-system` is the supported runtime group.
-`ontology`, `source`, `cqs`, and `report` remain research utilities. Retired
-PHAK demos and the historical `cross-source` workflow are no longer registered
-as public root commands. Their source, focused tests, and recorded artifacts are
-retained only as historical evidence; the retired command surface is not kept
-executable.
+At the repository root, `agent-system` is the only supported runtime group.
+The former `ontology`, `source`, `cqs`, `report`, PHAK, demo, and
+`cross-source` command surfaces are retired and are not registered as public
+root commands. Their source, focused tests, and recorded artifacts are
+historical evidence only; they are not compatibility interfaces.
 
 The cutover is intentionally breaking. There is no run-directory query path,
 batch-snapshot query requirement, legacy reader, or command compatibility

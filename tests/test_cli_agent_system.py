@@ -73,23 +73,8 @@ def test_public_agent_system_surface_is_ingestion_first() -> None:
     )
 
 
-def test_root_cli_exposes_only_current_runtime_and_research_utilities() -> None:
-    assert set(top_cli.main.commands) == {
-        "agent-system",
-        "cqs",
-        "ontology",
-        "report",
-        "source",
-    }
-    assert not {
-        "agent",
-        "chunk",
-        "cross-source",
-        "demo",
-        "index",
-        "kg",
-        "query",
-    } & set(top_cli.main.commands)
+def test_root_cli_exposes_only_the_current_runtime() -> None:
+    assert set(top_cli.main.commands) == {"agent-system"}
 
 
 def test_active_commands_default_to_the_cohort_free_configuration() -> None:

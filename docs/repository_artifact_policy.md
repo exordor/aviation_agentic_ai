@@ -57,10 +57,14 @@ store; indexes and exports are rebuildable views.
 
 ## Scope of this cleanup
 
-This phase removes non-runtime history without retiring the legacy ontology
-and reporting modules that still have direct test fixtures. A later, explicit
-legacy-module retirement can remove their source/data dependencies together;
-that is a separate change and must not be inferred from this archive move.
+This phase retires the legacy root CLI surface without deleting modules that
+still have direct historical test fixtures. A later, explicit legacy-module
+retirement can remove their source/data dependencies together; that is a
+separate change and must not be inferred from this CLI change.
+
+The root-CLI integration tests for those retired commands are kept under the
+dated external archive at `../aviation_agentic_ai-research-archive-2026-08-01/tests/legacy_cli/`.
+They are historical regression evidence, not part of the current test suite.
 
 In particular, the tracked NASA evaluation, experiment, external-ontology,
 and selected-paper directories remain temporarily because the legacy research
