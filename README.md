@@ -129,6 +129,11 @@ The retired `Corpus v2` batch snapshot is not part of the current system.
 Gitignored files under `data/evaluation_runs/agent_system/` are execution
 evidence only; they are neither a knowledge store nor a query backend.
 
+Historical plans, PHAK-era reports, and superseded compatibility contracts
+are kept outside the default checkout. See the
+[repository artifact policy](docs/repository_artifact_policy.md) for the
+retention boundary; it does not change the supported runtime commands.
+
 | Location | Role |
 | --- | --- |
 | `data/stores/aviation/` | Authoritative SQLite knowledge plus rebuildable indexes and exports |

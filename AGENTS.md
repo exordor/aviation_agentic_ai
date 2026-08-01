@@ -56,6 +56,12 @@ The normative implementation design is
 `docs/multi_agent_kg_system_design.md`. Reader-facing documents use full Agent
 names, not internal alphanumeric labels.
 
+Historical plans, PHAK-era reports, and retired compatibility contracts are
+not part of the default checkout. Their external-archive policy is documented
+in `docs/repository_artifact_policy.md`; do not restore them or add new
+runtime dependencies on them unless a legacy experiment is explicitly being
+reactivated.
+
 ## Current Status
 
 - The active implementation contains incremental ingestion, a dataset-bound

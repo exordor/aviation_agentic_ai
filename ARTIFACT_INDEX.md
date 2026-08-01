@@ -111,14 +111,14 @@ current role, persistent-store, or cross-family results:
 | `reports/stages/agent_system_live_agent_smoke_v1.{json,md}` | Historical 0/5 acceptance result under the retired runtime. |
 | `data/evaluation/agent_system/live_agent_experiment_v1.yaml` | Retired repeated five-task contract. |
 | `reports/stages/agent_system_live_agent_experiment_v1.{json,md}` | Historical 108/108 provider-call result with 0/60 task acceptance. |
-| `data/evaluation/agent_system/live_agent_smoke_v2.yaml` | Pre-cutover current-query compatibility contract. |
-| `reports/stages/agent_system_live_agent_smoke_v2.{json,md}` | Historical pre-cutover one-shot result. |
-| `data/evaluation/agent_system/live_agent_experiment_v2.yaml` | Pre-cutover repeated compatibility contract. |
-| `reports/stages/agent_system_live_agent_experiment_v2.{json,md}` | Historical 120-call result; repeated GDP query passed, former construction tasks failed. |
-| `data/evaluation/agent_system/live_agent_smoke_v3.yaml` | Superseded event-centered construction/query contract. |
-| `data/evaluation/agent_system/live_agent_experiment_v3.yaml` | Superseded repeated construction/query contract. |
+| external archive `data/evaluation/agent_system/live_agent_smoke_v2.yaml` | Pre-cutover current-query compatibility contract; moved out of the runtime checkout. |
+| external archive `reports/stages/agent_system_live_agent_smoke_v2.{json,md}` | Historical pre-cutover one-shot result; moved out of the runtime checkout. |
+| external archive `data/evaluation/agent_system/live_agent_experiment_v2.yaml` | Pre-cutover repeated compatibility contract; moved out of the runtime checkout. |
+| external archive `reports/stages/agent_system_live_agent_experiment_v2.{json,md}` | Historical 120-call result; moved out of the runtime checkout. |
+| external archive `data/evaluation/agent_system/live_agent_smoke_v3.yaml` | Superseded event-centered construction/query contract; moved out of the runtime checkout. |
+| external archive `data/evaluation/agent_system/live_agent_experiment_v3.yaml` | Superseded repeated construction/query contract; moved out of the runtime checkout. |
 | `data/evaluation/agent_system/live_agent_smoke_v4.yaml` | Superseded pre-ingestion-first Query Agent compatibility contract. |
-| `reports/stages/agent_system_live_agent_smoke_v4.{json,md}` | Historical 11-call, 5/5 compatibility result; not evidence for the persistent-store runtime. |
+| `reports/stages/agent_system_live_agent_smoke_v4.{json,md}` | Historical 11-call, 5/5 compatibility result; retained only for compatibility tests and not evidence for the persistent-store runtime. |
 | `data/evaluation/agent_system/live_agent_experiment_v4.yaml` | Superseded pre-ingestion-first repeated-measurement contract. |
 
 Later compact-selection and 10,000-token runs are also pre-cutover,
@@ -134,7 +134,7 @@ Do not rewrite historical report bytes to use current role names.
 | --- | --- |
 | `docs/atcscc_decision_record_explorer_design.md` | Historical user-story and evidence-contract reference; not current architecture. |
 | `docs/atcscc_decision_record_explorer_cases.md` | Historical source audit behind three regression fixtures. |
-| `docs/superpowers/specs/decision-case-*` | Superseded planning/specification history. |
+| external archive `docs/superpowers/specs/decision-case-*` | Superseded planning/specification history. |
 | former `docs/figures/decision_case_*_architecture.*` | Superseded figures retained through Git history, not current documentation. |
 | `docs/cross_source_multi_agent_v2_design.md` | Superseded cross-source V2 plan and retired CLI. |
 | `configs/cross_source_v1.yaml` | Historical cross-source configuration retaining the deterministic 68-record NYC full-text code-match experiment; not the active `agent-system` configuration. |
@@ -158,10 +158,14 @@ interfaces. Their bodies and recorded results remain unchanged.
 | `data/evaluation/cross_source/` | Alignment and cross-source calibration. |
 | `reports/stages/nasa_atmonto_*` | Formal extraction/validation history. |
 | `reports/stages/cross_source_*` | Cross-source design and evaluation history. |
-| `docs/archive/`, `reports/phak_era_archive/`, `reports/final/` | Archived method and presentation history. |
+| external archive `docs/archive/`, `reports/phak_era_archive/` | Archived method, review, and presentation history; not in the default checkout. |
+| `reports/final/` | Small thesis-facing and presentation history retained in the checkout. |
 
 These artifacts may support a future task. They do not establish current
 performance or external expert certification.
+
+The external archive location and retention policy are documented in
+[`docs/repository_artifact_policy.md`](docs/repository_artifact_policy.md).
 
 The retired `cross-source`, PHAK chunk/index/query/demo/agent, and legacy KG
 groups are not registered on the supported root CLI. Their modules remain

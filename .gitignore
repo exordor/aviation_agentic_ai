@@ -19,6 +19,16 @@ __pycache__/
 /logs/
 /outputs/
 
+# Historical bundles are kept outside the default checkout. These patterns
+# prevent a local archive restore from becoming a new tracked artifact.
+/reports/phak_era_archive/
+/docs/archive/
+/docs/superpowers/
+/data/evaluation/agent_system/live_agent_smoke_v2.yaml
+/data/evaluation/agent_system/live_agent_smoke_v3.yaml
+/data/evaluation/agent_system/live_agent_experiment_v2.yaml
+/data/evaluation/agent_system/live_agent_experiment_v3.yaml
+
 # Keep these legacy pattern strings for repository hygiene checks and for tools
 # that do not interpret root-anchored patterns consistently.
 data/indexes/

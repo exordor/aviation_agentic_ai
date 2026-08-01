@@ -152,7 +152,7 @@ If the paper changes project direction, update the relevant protocol or report:
 
 - `EXPERIMENTS.md`;
 - `EXPERIMENTS.md`;
-- `docs/archive/phak_era/nasa_atmonto_experiment_design.md`;
+- the external archive's former `docs/archive/phak_era/nasa_atmonto_experiment_design.md`;
 - a focused `reports/stages/*_paper_adaptation.md` or
   `reports/stages/*_figures_analysis.md` file.
 

@@ -6,6 +6,10 @@ This is the default entry point for a new project task. It records current
 implementation truth and routes historical material without making it default
 context.
 
+Historical plans and large report bundles are kept in the dated external
+archive described by `docs/repository_artifact_policy.md`; do not treat their
+absence from the checkout as a missing runtime dependency.
+
 ## Current Project Snapshot
 
 Aviation Agentic AI is a runnable **ATMONTO-Grounded Agentic HybridRAG for

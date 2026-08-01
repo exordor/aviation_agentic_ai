@@ -68,6 +68,9 @@ representations remain rebuildable views.
 - Keep generated stores, vector indexes, exports, provider artifacts, and
   credentials out of Git.
 - Preserve historical material through the artifact index and Git history.
+- Keep large historical reports and superseded plans in the dated external
+  archive described by `docs/repository_artifact_policy.md`; do not restore
+  them into the default checkout for convenience.
 - Apply the research-prototype effort boundary in `AGENTS.md`.
 - Require each mainline implementation batch to add or simplify a user-visible
   capability. A validator-only batch needs a reproduced supported-workflow
