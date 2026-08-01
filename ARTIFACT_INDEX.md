@@ -156,7 +156,10 @@ interfaces. Their bodies and recorded results remain unchanged.
 | external archive `reports/legacy_runtime/` | Formal extraction, cross-source, AIRM-O, and PHAK-era evaluation history. |
 | external archive `reports/stages/` (literature/roadmap summaries) | Reports with no supported runtime or test dependency; the exact moved filenames are preserved in the dated archive. |
 | external archive `docs/archive/`, `reports/phak_era_archive/` | Archived method, review, and presentation history; not in the default checkout. |
-| `reports/final/` | Small thesis-facing and presentation history retained in the checkout. |
+| `reports/final/atcscc_thesis_report_outline.md` | Current ingestion-first ATCSCC thesis report spine. |
+| `reports/final/atcscc_defense_deck_outline.md` | Current ingestion-first ATCSCC defense deck spine. |
+| `reports/final/README.md` | Entry map separating current deliverables from historical presentation material. |
+| `reports/final/` remaining files | Historical thesis, PHAK, and superseded presentation material unless explicitly marked current. |
 
 These artifacts may support a future task. They do not establish current
 performance or external expert certification.

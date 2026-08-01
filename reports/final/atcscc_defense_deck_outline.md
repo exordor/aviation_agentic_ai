@@ -1,114 +1,83 @@
-# ATCSCC Defense Deck Outline
+# Current ATCSCC Defense Deck Outline
 
-Status: outline for the current ATCSCC thesis route, not a generated PPTX.
+Status: current slide spine for the ingestion-first mainline. This outline
+does not describe the retired extractor/validator/refiner/critic pipeline or a
+100-record Gold evaluation.
 
-Deck profile: `engineering-platform`
+## Working title
 
-Working title:
+**ATMONTO-Grounded Agentic HybridRAG for Heterogeneous Aviation Knowledge
+Integration**
 
-> Schema-Constrained Agentic KG-RAG for Evidence-Grounded FAA ATCSCC Advisory QA
+## Deck boundary
 
-## Deck Intent
+The thesis presents a retrospective, evidence-bounded aviation knowledge
+system. It is not live ATC support, a causal model, an effectiveness scorer, or
+a TMI recommendation system.
 
-The defense deck should explain a bounded research system, not sell a product.
-Its purpose is to make the thesis claim auditable:
+## Slide spine
 
-> A lightweight ATCSCC application schema can constrain advisory-event
-> extraction, an agentic validator/refiner/critic loop can expose repair and
-> rejection behavior, and KG-RAG can improve source-bounded grounding and
-> citation diagnostics without claiming live operational decision support.
-
-## Design System
-
-| Element | Direction |
-| --- | --- |
-| Visual style | SOTA-paper figure style: clean white background, technical diagrams, compact metric tables, restrained blue/gray accents. |
-| Slide rhythm | Alternate system diagrams, source examples, metric tables, and claim-boundary slides. Avoid repeated card grids. |
-| Proof objects | ATCSCC advisory excerpt, schema/profile slice, agentic loop artifact contract, research-question validation matrix, extraction-to-answer result tables, failure taxonomy. |
-| Typography | Academic technical deck: large claim headline, one proof object per slide, source footnote. |
-| Claim boundary | Every result slide must state whether evidence is deterministic, LLM diagnostic, automated review, or human/expert review. |
-
-## Slide Spine
-
-| # | Slide | Role | Main claim | Proof object | Visual plan | Primary sources |
-| ---: | --- | --- | --- | --- | --- | --- |
-| 1 | Title and research boundary | title | The project studies retrospective ATCSCC advisory analysis, not live ATC decision support. | One-line thesis title plus boundary footer. | Clean title over a minimal pipeline strip. | `RESEARCH_OVERVIEW.md`, `RESEARCH_OVERVIEW.md` |
-| 2 | Problem: advisory facts are useful but hard to trust | motivation | FAA ATCSCC advisories contain operational facts, but free-form LLM answers need schema and evidence controls. | Ground Stop / GDP advisory excerpt. | Left: raw advisory excerpt; right: extracted fields needed for QA. | `reports/stages/atcscc_data_format_and_processing_flow.md` |
-| 3 | Thesis reframing | positioning | The thesis is schema-guided event extraction plus KG-RAG evaluation, not ontology engineering. | Pressure-lowering framing table: ontology thesis vs schema-constrained KG-RAG. | Two-column contrast table. | `RESEARCH_OVERVIEW.md`, `RESEARCH_OVERVIEW.md` |
-| 4 | Data source and task | data | ATCSCC is a semi-structured retrospective source family with a frozen 100-record reviewed sample. | Dataset table: 867 raw, 718 aligned, 100 formal sample, 100 reviewed gold. | Funnel from raw HTML to reviewed gold. | `reports/stages/atcscc_data_format_and_processing_flow.md` |
-| 5 | Schema/profile boundary | method | NASA ATMONTO is used as a lightweight ATCSCC application profile and validation guardrail. | Profile-size table: 18 classes, 11 object properties, 11 datatype properties, 17 constraints. | Layer diagram: full ATMONTO -> schema catalog -> ATCSCC slice -> extraction schema. | `reports/stages/atcscc_ontology_profile_overview.md` |
-| 6 | Competency questions define measurable scope | method | The 12 CQs turn vague extraction into task-relative fields, metrics, and failure modes. | CQ matrix excerpt grouped by domain, event, ontology, provenance, queryability, abstention. | Compact CQ heatmap or grouped matrix. | `reports/stages/nasa_atmonto_competency_questions.md` |
-| 7 | End-to-end pipeline | method | The system connects source parsing, schema-constrained extraction, agentic validation, event graph construction, retrieval, answering, and review. | Pipeline sequence from `RESEARCH_OVERVIEW.md`. | SOTA-style 5-block architecture diagram. | `RESEARCH_OVERVIEW.md`, `EXPERIMENTS.md` |
-| 8 | Baselines and systems | experiment design | The evaluation compares rule, LLM, schema-constrained, repair, hybrid, and agentic systems rather than one model. | Descriptively named system table. | Horizontal system ladder with what each stage adds. | `EXPERIMENTS.md`, retrieval report listed in `ARTIFACT_INDEX.md` |
-| 9 | Research-question validation matrix | evaluation design | Each question has explicit baselines, metrics, artifacts, and pass/fail criteria. | Four-row validation matrix. | Extraction, agentic validation, cross-source KG-RAG, and autonomous failure boundary. | `RESEARCH_QUESTIONS.md` |
-| 10 | Extraction results and boundary | result | Schema-constrained extraction is evaluated through validity, evidence, precision/recall/F1, and profile gaps, not ontology completeness. | Formal scoring summary and rejection/profile-gap counts. | Layered metric table with claim-safe interpretation. | `reports/stages/nasa_atmonto_formal_experiment_scoring.md`, `reports/stages/nasa_atmonto_rejection_adjudication.md` |
-| 11 | Agentic loop result | result | The agentic loop is auditable and diagnostic; it should not be overclaimed as autonomous ontology construction. | Live full-run diagnostic summary. | Agent roles around a fact artifact; side panel with repairs, rejections, failure categories. | Agentic evidence listed in `ARTIFACT_INDEX.md` |
-| 12 | KG-RAG answer-generation result | result | KG/hybrid retrieval supports source-bounded grounding and citation diagnostics, while vector-only remains a fair baseline. | Correctness, citation precision/recall, and unsupported-claim rate. | Retrieval-mode comparison table with citation metrics. | Retrieval evidence listed in `ARTIFACT_INDEX.md` |
-| 13 | Failure analysis and review boundary | result / limitation | Remaining failures are categorized, and automated diagnostics are not human or expert certification. | Failure categories plus human-review and expert-certification status. | Failure taxonomy diagram with red boundary labels. | `reports/stages/nasa_atmonto_reviewer_defense_audit.md`, `reports/stages/nasa_atmonto_sota_goal_audit.md` |
-| 14 | SOTA positioning | related work | The contribution is methodological integration under a bounded source family. | Four-area SOTA table: schema-guided IE, KG quality, GraphRAG, multi-agent validation. | 2x2 method-positioning matrix. | `RESEARCH_OVERVIEW.md`, `reports/stages/sota_comparison_matrix.md` |
-| 15 | Conclusion and defense claim | closing | The thesis is defensible as a retrospective, schema-constrained Agentic KG-RAG case study with explicit claim boundaries. | Claims preserved / claims avoided. | Two-column final claim safety slide. | `RESEARCH_OVERVIEW.md`, `reports/stages/nasa_atmonto_reviewer_defense_audit.md` |
-
-## Appendix Slides
-
-| # | Slide | Purpose | Source |
+| # | Slide | Main message | Current proof object |
 | ---: | --- | --- | --- |
-| A1 | Detailed ATCSCC source example | Show raw advisory structure and extracted fields. | `reports/stages/atcscc_data_format_and_processing_flow.md` |
-| A2 | ATCSCC profile term list | Show classes, object properties, datatype properties, and constraints. | `reports/stages/atcscc_ontology_profile_overview.md` |
-| A3 | Full CQ matrix | Preserve the 12 CQ framework for examiner questions. | `reports/stages/nasa_atmonto_competency_questions.md` |
-| Full result dashboard snapshot | Provide evidence inventory and consistency checks. | Retrieval evidence listed in `ARTIFACT_INDEX.md` |
-| A5 | Claim safety matrix | Give safe wording versus unsafe wording. | `RESEARCH_OVERVIEW.md` |
-| A6 | Historical project boundary | Explain why old PHAK final outputs are not the current thesis narrative. | `reports/final/README.md` |
+| 1 | Title and research boundary | The project integrates aviation evidence and answers bounded natural-language questions. | `RESEARCH_AUDIT.md` |
+| 2 | Why heterogeneous evidence matters | ATCSCC, authority, Weather, BTS, and Flight/Airspace records have different roles and identifiers. | `docs/figures/cross_source_evidence_motivated_example.png` |
+| 3 | Research positioning | ATMONTO supplies admitted vocabulary; ATMGRAPH motivates ABox construction and cross-source querying. | `docs/architecture_narrative.md` |
+| 4 | Five-plane architecture | Deterministic ingestion, semantic publication, authoritative storage, retrieval views, and Agent interaction form one pipeline. | `docs/figures/aviation_hybridrag_system_architecture.png` |
+| 5 | Source and evidence contracts | Source versions, anchors, temporal scopes, and source roles are preserved before publication. | `docs/figures/heterogeneous_source_formats.png` |
+| 6 | ATMONTO-grounded publication | TMI and Flight/Airspace roots use one Formal Publication Kernel and generic publication spine. | `data/ontology/curated/atmonto_application_profile_v1.json` |
+| 7 | Authoritative store and views | SQLite is canonical; FTS5, Chroma, RDF/Turtle, JSONL, and Neo4j are derived or optional views. | `docs/multi_agent_kg_system_design.md` |
+| 8 | Query Agent workflow | Every valid natural-language question enters an LLM-routed, bounded read-only tool loop. | `docs/figures/bounded_query_agent_workflow.png` |
+| 9 | GDP 138 walkthrough | A single question can combine publication facts, declared reason, Weather context, and BTS observations without causal overclaiming. | `docs/flagship_gdp138_walkthrough.md` |
+| 10 | Extensible domains | The same spine admits Flight, Airport/ARTCC, Route, TrackPoint, Sector, Weather, and reviewed associations under separate temporal scopes. | `GOALS.md` |
+| 11 | Optional Web Evidence | A separately authorized sidecar can add public-document evidence with exact anchors; it is not a source of aviation facts by itself. | `docs/wigolo_web_evidence_operations.md` |
+| 12 | Evaluation and limitations | Offline tests, live smoke, and future experiments are separated; current reports are compatibility evidence, not benchmarks. | `ARTIFACT_INDEX.md`, `RESEARCH_AUDIT.md` |
+| 13 | Conclusion | The contribution is reusable evidence integration and bounded HybridRAG interaction, not autonomous aviation decision-making. | `reports/final/atcscc_thesis_report_outline.md` |
 
-## Core Speaking Script
+## Speaking script
 
 ### Opening
 
-This thesis studies how to build a source-bounded, evidence-grounded QA system
-over FAA ATCSCC advisories. The system is not an operational ATC tool and does
-not claim to build a complete aviation ontology. The research question is
-whether a lightweight application schema, an agentic validation loop, and an
-advisory event graph can make LLM-based advisory QA more constrained,
-traceable, and auditable.
+This thesis studies an ATMONTO-grounded HybridRAG system for heterogeneous
+aviation evidence. ATCSCC advisories are the mature demonstrator, while the
+publication and retrieval contracts are designed for additional aviation
+domains.
 
-### Method Transition
+### Method transition
 
-ATCSCC advisories are useful because they are neither clean tables nor generic
-prose. They contain typed fields, time windows, causes, route or airport
-constraints, and comments. This makes them suitable for a schema-constrained
-event extraction task where every accepted fact must carry source evidence.
+The system first preserves immutable sources, exact anchors, authority
+identity, and temporal scope. Deterministic services publish only supported
+facts through the Formal Publication Kernel. The Query Agent is then allowed
+to choose read-only retrieval actions for a natural-language question.
 
-### Result Transition
+### Result transition
 
-The results should be read layer by layer. Schema validity is not semantic
-truth. Evidence containment is not full support. Graph retrieval is not
-automatically better than vector retrieval. Automated adversarial review is not
-human review. The thesis contribution is the disciplined separation of these
-layers and the evidence that this separation makes the system easier to audit.
+Results must be read by layer: provider-call success is not answer acceptance;
+Weather association is not causality; BTS observation is not FAA capacity or
+demand; and a compatibility smoke is not a benchmark.
 
 ### Closing
 
-The defensible conclusion is that schema-constrained Agentic KG-RAG is a useful
-method for retrospective ATCSCC advisory analysis when claims remain
-source-bounded, profile-relative, and evidence-aware. The next step would be
-human answer review, external aviation expert review, or a separate
-source-family transfer study, not operational deployment.
+The defensible claim is that a source-bounded, ATMONTO-grounded Agentic
+HybridRAG can organize heterogeneous aviation evidence and produce traceable
+answers under explicit support and insufficiency boundaries.
 
-## Figures To Build Next
+## Appendix slides
 
-| Figure | Build priority | Notes |
-| --- | --- | --- |
-| SOTA-style 5-block pipeline | high | Should become the main defense deck architecture figure. |
-| Raw advisory to event record | high | Use an actual ATCSCC advisory excerpt and annotate fields. |
-| ATMONTO to ATCSCC profile slice | high | Must show why the full ontology is not used wholesale. |
-| Agentic validation loop | medium | Use role labels: extractor, validator, refiner, critic. |
-| Layered evaluation stack | medium | Show extraction, agentic, retrieval, answer, and review layers separately. |
+1. ATCSCC advisory source example and exact anchors.
+2. ATMONTO application-profile slice and publication contract.
+3. SQLite evidence store and rebuildable retrieval views.
+4. Query Agent family routing and bounded tool loop.
+5. GDP 138 evidence layers and claim boundaries.
+6. Flight/Airspace temporal-domain separation.
+7. Web Evidence sidecar boundary and license/deployment separation.
+8. Evaluation-mode and limitation matrix.
 
-## Build Rules For Future PPTX
+## Presentation rules
 
-- Do not reuse the old PHAK `aviation_graphrag_defense_deck.pptx` content
-  without rewriting the claims.
-- Reuse its slide-rhythm lessons only: title, motivation, pipeline, method,
-  results, limitations, appendix.
-- Use current ATCSCC source documents and stage reports as primary evidence.
-- Keep every result slide paired with a claim-boundary note.
-- Do not introduce operational aviation images that imply live ATC deployment.
+- Do not use the former extractor/validator/refiner/critic architecture as a
+  current system diagram.
+- Do not describe the former 100-record Gold sample as current evaluation.
+- Do not present historical compatibility reports as benchmark results.
+- Keep Weather and BTS in their declared evidence roles.
+- Keep the current architecture and report spine synchronized with
+  `RESEARCH_AUDIT.md`, `GOALS.md`, and `ARTIFACT_INDEX.md`.

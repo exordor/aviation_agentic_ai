@@ -121,9 +121,10 @@ not generated claims.
 
 ### Historical Competency Supplement
 
-The separate deterministic command remains reproducible as a historical
-comparison for four ATMONTO appendix query shapes; it is no longer the public
-runtime boundary.
+The F1/F3S/S4/S1S supplement is retained as report-only historical evidence;
+it is no longer a supported runtime command. The old Python runner was retired
+with the ingestion-first cutover and must not be invoked as a current
+reproduction step.
 
 Its checksum-bound source manifest is
 `configs/flight_competency_v1.yaml`. It pins:
@@ -136,15 +137,8 @@ Its checksum-bound source manifest is
 - KATL routine and special METAR observations for 2026-05-14 through
   2026-05-22 from the IEM ASOS archive.
 
-Raw files are intentionally ignored. Download them to the paths declared in
-the config; the runner stops on a missing file or checksum mismatch. Then run:
-
-```bash
-uv run python -m aviation_agentic_ai.competency_query_supplement \
-  --config configs/flight_competency_v1.yaml
-```
-
-The pinned historical run produces:
+Raw files and the former runner are intentionally outside the active runtime.
+The pinned historical outputs record:
 
 | Query | Executed form | Result |
 | --- | --- | ---: |
@@ -156,11 +150,13 @@ The pinned historical run produces:
 F1 and F3S are explicitly modern proxies because the recovered NASA archive
 does not contain the original 2012 KATL data. F3S is non-causal. S4 keeps both
 counts because the appendix's `COUNT(?flight)` counts track-point bindings,
-while the English question asks for distinct flights. The tracked reports are:
+while the English question asks for distinct flights. The reports are retained
+in the external historical archive described by
+`docs/repository_artifact_policy.md`:
 
 ```text
-reports/stages/atmonto_competency_query_supplement_v1.json
-reports/stages/atmonto_competency_query_supplement_v1.md
+../aviation_agentic_ai-research-archive-2026-08-01/reports/legacy_runtime/atmonto_competency_query_supplement_v1.json
+../aviation_agentic_ai-research-archive-2026-08-01/reports/legacy_runtime/atmonto_competency_query_supplement_v1.md
 ```
 
 ## Persistent Store

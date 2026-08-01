@@ -318,20 +318,11 @@ uv run aviation-ai agent-system ingest \
 
 The NASA July 2014 sample and the May 2026 operational-source slice remain
 separate temporal domains; the runtime does not join them across time. The
-earlier checksum-bound deterministic competency command is retained as a
-historical comparison artifact for the four ATMONTO appendix query shapes:
-
-```bash
-uv run python -m aviation_agentic_ai.competency_query_supplement \
-  --config configs/flight_competency_v1.yaml
-```
-
-Its pinned historical result is F1-modern `616`, F3S-modern `81`, S4 `12`
-distinct flights (`146` appendix track-point bindings), and S1S `3` pairs.
-F1/F3S are modern proxies—not reproductions of the unavailable 2012 KATL
-dataset—and the rain join is non-causal. See the
-[sanitized report](reports/stages/atmonto_competency_query_supplement_v1.md)
-and [REPRODUCIBILITY.md](REPRODUCIBILITY.md).
+older F1/F3S/S4/S1S competency supplement is report-only historical material;
+its retired runner is not a supported command. Current Flight/Airspace
+questions use the natural-language `agent-system ask` path. See the
+[artifact index](ARTIFACT_INDEX.md) and [REPRODUCIBILITY.md](REPRODUCIBILITY.md)
+for its historical boundary.
 
 ## Evaluation Boundary
 
