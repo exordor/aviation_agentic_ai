@@ -28,7 +28,10 @@ retrieval. The system:
    families and then invokes their exact, graph, lexical, vector, and
    source-read tools;
 7. exposes evidence, limitations, and honest missing states for every
-   supported answer.
+   supported answer; and
+8. can optionally acquire allowlisted public documents through a separately
+   running Web Evidence sidecar without making that sidecar a source of
+   aviation facts or a required runtime dependency.
 
 ATMONTO supplies the admitted TBox and application-profile terms. ATMGRAPH
 supplies ABox-construction and cross-source-query principles. The project does
@@ -54,6 +57,8 @@ questions that require one or more of:
 - temporal Flight–Weather associations and rule-derived TMI-applicability
   candidates;
 - the source version and exact anchor supporting each answer statement.
+- optionally, an allowlisted public web document fetched through the Web
+  Evidence adapter, with exact source-version and span support.
 
 The system must distinguish:
 
@@ -86,6 +91,8 @@ The current system provides:
 - SQLite FTS5 over source-record chunks;
 - rebuildable Chroma collections for source records and compact TMI event
   summaries;
+- an opt-in `web_document` source family with persistent source versions,
+  exact anchors, and read-only query tools;
 - optional all-root JSONL, RDF/Turtle, and Neo4j exports;
 - three model-routed Query Agent capability families containing 18 bounded
   read-only evidence tools;
@@ -137,10 +144,12 @@ invent an ontology term, widen its sealed scope, write directly to the
 knowledge store, or treat model memory as evidence.
 
 The public Query Agent uses a first LLM call to select one or more tool
-families, then binds only those evidence tools. The active families are
-`source` (3 tools), `tmi` (6 tools), and `flight_airspace` (9 tools). This
-model-directed gate avoids exposing all 18 evidence tools on every turn while
-retaining a shared runtime and support contract.
+families, then binds only those evidence tools. The core families are
+`source` (3 tools), `tmi` (6 tools), and `flight_airspace` (9 tools). An
+explicitly authorized Web Evidence sidecar adds an optional `web` family with
+three read-only tools. This model-directed gate avoids exposing all core or
+optional tools on every turn while retaining a shared runtime and support
+contract.
 
 The older flight-competency supplement remains an offline deterministic
 comparison artifact. Its modern F1/F3S proxies do not reconstruct the
@@ -168,6 +177,12 @@ The current mainline succeeds when:
   source-record statement;
 - each answer statement cites retrieved support;
 - missing support yields `insufficient`, and a user can inspect why.
+
+When Web Evidence is enabled, ordinary ingestion remains disabled unless the
+operator supplies both the configured seed/allowlist and `--allow-live-web`.
+The sidecar is external and its source versions enter the same SQLite-backed
+source and retrieval contracts; it is not vendored or required for the core
+aviation pipeline.
 
 These are system acceptance criteria, not expert semantic certification or
 model-quality claims.

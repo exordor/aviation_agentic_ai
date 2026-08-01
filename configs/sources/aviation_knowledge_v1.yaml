@@ -14,6 +14,30 @@ sources:
   historical_metar_speci: data/raw/flight_competency/katl_asos_2026-05-14_2026-05-22.csv
   nasa_atmonto_instances: data/raw/nasa_atmonto_prototype/allFilesTTL.zip
   nasr_airspace_zip: data/raw/nasa_atmonto/2026-05-14/faa_nasr/28DaySubscription_Effective_2026-05-14.zip
+  # Optional operator-approved Web Evidence sidecar.  It is intentionally
+  # disabled until both this flag and the CLI --allow-live-web gate are set.
+  web_evidence:
+    enabled: false
+    base_url: http://127.0.0.1:3333
+    token_env: WIGOLO_API_TOKEN
+    timeout_seconds: 30
+    adapter_version: wigolo-web-evidence-v1
+    tools:
+      - fetch
+    allowed_domains:
+      - faa.gov
+      - fly.faa.gov
+    limits:
+      max_content_chars: 120000
+    seeds:
+      - seed_id: faa-atcscc-advisory-index
+        url: https://www.fly.faa.gov/adv/advADB.jsp
+        authority: FAA ATCSCC
+        document_role: advisory_index
+        parser_profile: faa_atcscc_advisory_index_v1
+        allowed_domains:
+          - fly.faa.gov
+        max_pages: 1
 
 source_checksums:
   bts_flight_operations: 4e7b96999440afec8c92dd23bfbc68a5852e14d9a56c3d0d366f884542ea80b3

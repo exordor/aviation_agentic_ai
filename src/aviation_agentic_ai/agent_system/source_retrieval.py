@@ -22,8 +22,11 @@ _TEXTUAL_SOURCE_FAMILIES = frozenset(
         SourceFamily.FAA_TERM,
         SourceFamily.METAR,
         SourceFamily.TAF,
+        SourceFamily.WEB_DOCUMENT,
     }
 )
+
+
 def build_full_record_anchor(
     source_version: SourceVersionRecord,
 ) -> SourceAnchorRecord:

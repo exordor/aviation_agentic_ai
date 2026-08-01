@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import threading
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -93,6 +94,53 @@ def resolved_config_checksum(config: dict[str, Any]) -> str:
         sort_keys=True,
     ).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
+
+
+def validate_web_evidence_config(
+    config: Mapping[str, Any],
+) -> Any:
+    """Validate and return the optional Web Evidence sidecar settings.
+
+    The active source configuration keeps the sidecar under
+    ``sources.web_evidence``.  Accepting a top-level ``web_evidence`` block as
+    well keeps small programmatic configurations convenient while preserving a
+    single validation boundary for the ingestion pipeline.  An omitted block
+    is the safe, disabled configuration and never creates a network client.
+    """
+
+    from aviation_agentic_ai.agent_system.web_evidence_client import (
+        validate_ingestion_tools,
+    )
+    from aviation_agentic_ai.agent_system.web_evidence_contracts import (
+        WebEvidenceConfig,
+    )
+
+    raw: object = config.get("web_evidence")
+    if raw is None:
+        sources = config.get("sources")
+        if isinstance(sources, Mapping):
+            raw = sources.get("web_evidence")
+    if raw is None:
+        return WebEvidenceConfig()
+    if not isinstance(raw, Mapping):
+        raise ValueError("config.sources.web_evidence must be a mapping")
+    try:
+        settings = WebEvidenceConfig.model_validate(dict(raw))
+        validate_ingestion_tools(settings.tools)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"invalid web evidence configuration: {exc}") from exc
+    seed_ids = [seed.seed_id for seed in settings.seeds]
+    if len(seed_ids) != len(set(seed_ids)):
+        raise ValueError("invalid web evidence configuration: seed_id values must be unique")
+    if settings.allowed_domains:
+        configured_domains = set(settings.allowed_domains)
+        for seed in settings.seeds:
+            if not configured_domains.intersection(seed.allowed_domains):
+                raise ValueError(
+                    "invalid web evidence configuration: global allowed_domains "
+                    f"exclude seed {seed.seed_id}"
+                )
+    return settings
 
 
 def configured_dataset_id(config: dict[str, Any]) -> str:

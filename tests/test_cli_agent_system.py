@@ -176,9 +176,10 @@ def test_ingest_help_exposes_full_domain_as_the_default() -> None:
     result = CliRunner().invoke(cli_module.agent_system, ["ingest", "--help"])
 
     assert result.exit_code == 0, result.output
-    assert "--domain [all|tmi|flight-airspace]" in result.output
+    assert "--domain [all|tmi|flight-airspace|web]" in result.output
     assert "[default: all]" in result.output
     assert "--source-root DIRECTORY" in result.output
+    assert "--allow-live-web" in result.output
 
 
 def test_ask_always_uses_query_agent_and_preserves_source_scope(

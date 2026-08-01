@@ -23,6 +23,9 @@ decisions. Historical backlogs are routed through `ARTIFACT_INDEX.md`.
   insufficient task categories from compatibility smoke to a frozen
   evaluation only after sampling, annotations, and acceptance rules are
   independently reviewed.
+- [ ] Review and expand the explicitly allowlisted Web Evidence seed catalog
+  only when a source role, parser profile, and evidence-support task are
+  specified. Keep the Wigolo sidecar disabled by default.
 
 Do not reintroduce fixed question registries or bypass the Query Agent for
 apparently simple natural-language questions. Deterministic retrieval stays
@@ -33,6 +36,11 @@ Do not promote an export, frozen evaluation dataset, or batch snapshot into the
 runtime source of truth. New source families enter through the ingestion
 pipeline and persistent evidence store; lexical, vector, RDF/Turtle, and Neo4j
 representations remain rebuildable views.
+
+Keep external Web Evidence acquisition at the sidecar boundary. It must persist
+immutable source versions and anchors through the normal SQLite path, never
+write during query time, and never be treated as an aviation authority or
+causal source.
 
 ## Explicitly Deferred
 
@@ -45,6 +53,8 @@ representations remain rebuildable views.
   single-flight trajectories beyond the bounded configured sources.
 - Advisory lifecycle or TMI-episode grouping.
 - National Playbook PDF grounding.
+- Broad web crawling, unrestricted browser access, and automatic Web Evidence
+  seed discovery.
 - Operational-situation and outcome-aware similarity, learned reranking, and
   TMI recommendation.
 - General-purpose planner, long-term Agent memory, and unrestricted aviation

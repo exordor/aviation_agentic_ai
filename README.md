@@ -9,7 +9,10 @@ sample into a shared semantic knowledge layer. Deterministic ingestion
 preserves source roles and evidence anchors; ATMONTO constrains formal
 publication; an LLM Query Agent first selects relevant capability families and
 then combines exact, graph, lexical, vector, and source retrieval to answer
-free-form questions with verifiable support.
+free-form questions with verifiable support. An optional, separately running
+Wigolo Web Evidence sidecar can add allowlisted public documents without
+becoming a required runtime dependency or a source of aviation facts by
+itself.
 
 ```text
 Evidence Plane
@@ -122,6 +125,9 @@ SQLite is authoritative. It stores:
 - source-qualified BTS public observations;
 - Flight/Airspace records, formal knowledge roots, deterministic derivations,
   and temporal/applicability associations;
+- optional `web_document` source versions, exact anchors, and normalized
+  source chunks collected through the explicitly authorized Web Evidence
+  sidecar;
 - source chunks, FTS5 search data, vector-index state, and compact Agent usage
   telemetry.
 
@@ -141,11 +147,15 @@ retention boundary; it does not change the supported runtime commands.
 | `data/evaluation_runs/agent_system/` | Ignored raw and parsed execution evidence |
 
 The Formal Publication Kernel is the sole authority for accepted formal facts.
-SQLite FTS5 is a lexical index over exact source chunks. Chroma contains two
-rebuildable vector collections:
+SQLite FTS5 is a lexical index over exact source chunks, including admitted
+`web_document` chunks. Chroma contains two rebuildable vector collections:
 
 - source-record chunks for semantic source discovery;
 - compact TMI event summaries for metadata-conditioned event retrieval.
+
+Web source chunks enter only the source-record collection. TMI event vectors
+are built from admitted TMI event publications and do not become a general
+web-document index.
 
 The current source representation uses bounded full-record chunks with exact
 source anchors. Search results are candidates: a final source-supported claim
@@ -191,6 +201,12 @@ tools:
   associations, TMI-applicability candidates, and the general aviation graph
   (9 tools).
 
+When the operator explicitly enables the Web Evidence sidecar for query time,
+the router may also expose one optional `web` family containing
+`web_search`, `web_fetch`, and `web_extract`. This adds three tools only for
+that authorized process; the default core remains the 18-tool source/TMI/
+Flight/Airspace registry.
+
 The action-observation loop permits at most 6 provider turns, 6 tool calls in
 one turn, and 10 evidence-tool calls in total. Family routing is a model call,
 not a deterministic question classifier.
@@ -213,6 +229,20 @@ Weather associations remain non-causal. BTS observations cannot be
 reinterpreted as FAA demand, AAR, capacity, EDCT, decision rationale,
 effectiveness, or caused outcomes. Metadata-conditioned event retrieval is not
 operational-situation similarity and cannot support a TMI recommendation.
+
+## Optional Web Evidence
+
+The Web Evidence domain is disabled in the tracked configuration and makes no
+network call during ordinary ingestion. It is activated only with a local
+configuration overlay that sets an explicit seed and domain allowlist, plus
+`--allow-live-web`. The sidecar runs separately on a controlled endpoint; the
+project owns URL policy, checksum identity, anchors, persistence, and support
+validation. It does not vendor Wigolo or add its AGPL-3.0 package to the core
+runtime.
+
+For installation, loopback REST operation, external scheduling, failure states,
+and the no-vendor/license boundary, see
+[`docs/wigolo_web_evidence_operations.md`](docs/wigolo_web_evidence_operations.md).
 
 ## Optional Exports
 
@@ -237,6 +267,9 @@ uv run aviation-ai agent-system neo4j-export \
 RDF/Turtle, JSONL, and Neo4j are optional products of all active formal
 knowledge roots in the authoritative store, not only TMI events. They are not
 required by the Query Agent and do not become independent sources of truth.
+Web records appear in these projections only when SQLite formal facts or
+qualified evidence links explicitly bind to the web source version; a
+standalone fetched page is not exported as a formal graph root.
 
 The public command surface is:
 

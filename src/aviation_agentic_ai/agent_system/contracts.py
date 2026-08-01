@@ -42,6 +42,7 @@ class SourceFamily(str, Enum):
     NASA_ATMONTO_INSTANCE = "nasa_atmonto_instance"
     NASR_AIRSPACE = "nasr_airspace"
     HISTORICAL_METAR_SPECI = "historical_metar_speci"
+    WEB_DOCUMENT = "web_document"
 
 
 class AgentStatus(str, Enum):
@@ -472,10 +473,10 @@ class QueryRouteTrace(StrictModel):
 
     status: Literal["selected", "blocked"]
     selected_families: tuple[
-        Literal["source", "tmi", "flight_airspace"], ...
+        Literal["source", "tmi", "flight_airspace", "web"], ...
     ] = ()
     available_families: tuple[
-        Literal["source", "tmi", "flight_airspace"], ...
+        Literal["source", "tmi", "flight_airspace", "web"], ...
     ] = ()
     selected_tool_names: tuple[str, ...] = ()
 

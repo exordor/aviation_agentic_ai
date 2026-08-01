@@ -132,7 +132,7 @@ class IngestionSummary:
 class ConfiguredIngestionSummary:
     """Aggregate status for one public multi-domain ingestion invocation."""
 
-    domain: Literal["all", "tmi", "flight-airspace"]
+    domain: Literal["all", "tmi", "flight-airspace", "web"]
     discovered_count: int
     selected_count: int
     attempted_count: int
@@ -143,6 +143,7 @@ class ConfiguredIngestionSummary:
     index_status: str
     tmi_summary: object | None = None
     flight_airspace_summary: object | None = None
+    web_summary: object | None = None
 
 
 ResourceLoader = Callable[[dict[str, Any]], IngestionResources]
@@ -171,17 +172,19 @@ def run_configured_ingestion(
     config: dict[str, object],
     store: AviationEvidenceStore,
     *,
-    domain: Literal["all", "tmi", "flight-airspace"] = "all",
+    domain: Literal["all", "tmi", "flight-airspace", "web"] = "all",
     source_root: str | Path | None = None,
     advisory_ids: tuple[str, ...] = (),
     allow_live_model: bool = False,
+    allow_live_web: bool = False,
     allow_model_download: bool = False,
     tmi_runner: Callable[..., object] | None = None,
     flight_airspace_runner: Callable[..., object] | None = None,
+    web_runner: Callable[..., object] | None = None,
 ) -> ConfiguredIngestionSummary:
     """Run selected ingestion domains while keeping their adapters isolated."""
 
-    if domain not in {"all", "tmi", "flight-airspace"}:
+    if domain not in {"all", "tmi", "flight-airspace", "web"}:
         raise ValueError(f"unsupported ingestion domain: {domain}")
     if advisory_ids and domain != "tmi":
         raise ValueError("advisory_ids require the tmi ingestion domain")
@@ -195,9 +198,18 @@ def run_configured_ingestion(
         selected_flight_runner = run_flight_airspace_ingestion
     else:
         selected_flight_runner = flight_airspace_runner
+    if web_runner is None:
+        from aviation_agentic_ai.agent_system.web_evidence_ingestion import (
+            run_web_evidence_ingestion,
+        )
+
+        selected_web_runner = run_web_evidence_ingestion
+    else:
+        selected_web_runner = web_runner
 
     tmi_summary: object | None = None
     flight_summary: object | None = None
+    web_summary: object | None = None
     if domain in {"all", "tmi"}:
         tmi_summary = selected_tmi_runner(
             config,
@@ -212,9 +224,36 @@ def run_configured_ingestion(
             store,
             source_root=source_root,
         )
+    if domain in {"all", "web"}:
+        # The web sidecar is an optional layer.  A transport or configuration
+        # failure must not roll back or hide direct TMI/Flight outcomes.
+        try:
+            web_summary = selected_web_runner(
+                config,
+                store,
+                allow_live_web=allow_live_web,
+            )
+        except Exception as exc:
+            from aviation_agentic_ai.agent_system.web_evidence_ingestion import (
+                WebIngestionSummary,
+            )
+
+            web_summary = WebIngestionSummary(
+                discovered_count=0,
+                selected_count=0,
+                attempted_count=0,
+                skipped_count=0,
+                ok_count=0,
+                insufficient_count=0,
+                blocked_count=1,
+                status="blocked",
+                reason=f"{type(exc).__name__}: {exc}",
+            )
 
     summaries = tuple(
-        summary for summary in (tmi_summary, flight_summary) if summary is not None
+        summary
+        for summary in (tmi_summary, flight_summary, web_summary)
+        if summary is not None
     )
 
     def total(field_name: str) -> int:
@@ -234,6 +273,7 @@ def run_configured_ingestion(
         ),
         tmi_summary=tmi_summary,
         flight_airspace_summary=flight_summary,
+        web_summary=web_summary,
     )
 
 

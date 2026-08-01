@@ -29,6 +29,7 @@ from aviation_agentic_ai.agent_system.query_tool_registry import (
     select_query_tools,
 )
 from aviation_agentic_ai.agent_system.tool_model import ToolCallingModel
+from aviation_agentic_ai.agent_system.web_query_tools import build_web_query_tools
 
 
 ModelFactory = Callable[[list[BaseTool]], ToolCallingModel]
@@ -57,6 +58,11 @@ def answer_question(
         [
             *build_hybrid_query_tools(gateway),
             *build_flight_airspace_query_tools(flight_airspace_gateway),
+            *(
+                build_web_query_tools(runtime.web_client, runtime.web_config)
+                if runtime.web_client is not None and runtime.web_config is not None
+                else []
+            ),
         ]
     )
     route_tool = build_query_route_tool()
