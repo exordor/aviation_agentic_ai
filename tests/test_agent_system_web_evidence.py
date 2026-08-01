@@ -62,22 +62,22 @@ def test_transport_models_reject_unknown_fields() -> None:
 
 
 def test_byte_span_is_normalized_to_python_character_offsets() -> None:
-    content = "Weather: 雷雨 near KJFK"
-    text = "雷雨"
-    start = len("Weather: ".encode("utf-8"))
+    content = "Weather: café near KJFK"
+    text = "é"
+    start = len("Weather: caf".encode("utf-8"))
     end = start + len(text.encode("utf-8"))
     span = WebEvidenceSpan(start=start, end=end, unit="byte", text=text, citation_id="c1")
 
     normalized = normalize_evidence_span(content, span)
 
     assert normalized.unit == "character"
-    assert (normalized.start, normalized.end) == (9, 11)
+    assert (normalized.start, normalized.end) == (12, 13)
     assert content[normalized.start : normalized.end] == text
 
 
 def test_byte_span_that_cuts_a_utf8_codepoint_is_rejected() -> None:
-    content = "雷雨"
-    span = WebEvidenceSpan(start=1, end=4, unit="byte", text="雷", citation_id="c1")
+    content = "é"
+    span = WebEvidenceSpan(start=1, end=2, unit="byte", text="é", citation_id="c1")
 
     with pytest.raises(ValueError, match="UTF-8 character boundary"):
         normalize_evidence_span(content, span)
@@ -313,7 +313,7 @@ def _open_web_store(tmp_path: Path) -> AviationEvidenceStore:
 
 
 def test_normalize_web_fetch_uses_canonical_url_and_checksum_identity() -> None:
-    content = "FAA 雷雨 reference"
+    content = "FAA café reference"
     result = _fetch_result(
         content,
         url="https://FAA.gov:443/reference#heading",
