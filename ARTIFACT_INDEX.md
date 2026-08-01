@@ -158,6 +158,7 @@ interfaces. Their bodies and recorded results remain unchanged.
 | `data/evaluation/cross_source/` | Alignment and cross-source calibration. |
 | `reports/stages/nasa_atmonto_*` | Formal extraction/validation history. |
 | `reports/stages/cross_source_*` | Cross-source design and evaluation history. |
+| external archive `reports/stages/` (literature/roadmap summaries) | Reports with no supported runtime or test dependency; the exact moved filenames are preserved in the dated archive. |
 | external archive `docs/archive/`, `reports/phak_era_archive/` | Archived method, review, and presentation history; not in the default checkout. |
 | `reports/final/` | Small thesis-facing and presentation history retained in the checkout. |
 
@@ -170,6 +171,18 @@ The external archive location and retention policy are documented in
 The retired `cross-source`, PHAK chunk/index/query/demo/agent, and legacy KG
 groups are not registered on the supported root CLI. Their modules remain
 historical implementation material rather than compatibility interfaces.
+
+The following data remains tracked only because the legacy `ontology`,
+`source`, `cqs`, and `report` utilities and their tests still read it:
+
+- `data/evaluation/nasa_atmonto/`;
+- `data/experiments/nasa_atmonto/`;
+- `data/ontology/external/`;
+- `data/papers/ntrs_ontology_selection/`.
+
+These are legacy research inputs, not current Agent-runtime knowledge. Do not
+add new production or Query Agent dependencies to them. A future removal must
+retire the corresponding utilities and tests in the same change.
 
 ## Ignored Local Material
 

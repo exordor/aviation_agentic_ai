@@ -31,7 +31,7 @@ directory:
 ├── reports/phak_era_archive/
 ├── docs/archive/
 ├── docs/superpowers/
-├── reports/stages/                 # superseded live v2 reports
+├── reports/stages/                 # superseded live v2 reports and old literature summaries
 └── data/evaluation/agent_system/   # superseded v2/v3 contracts
 ```
 
@@ -61,3 +61,9 @@ This phase removes non-runtime history without retiring the legacy ontology
 and reporting modules that still have direct test fixtures. A later, explicit
 legacy-module retirement can remove their source/data dependencies together;
 that is a separate change and must not be inferred from this archive move.
+
+In particular, the tracked NASA evaluation, experiment, external-ontology,
+and selected-paper directories remain temporarily because the legacy research
+CLI and tests still read them. They are classified as legacy inputs, not
+canonical runtime knowledge, and are the next removal target only when those
+utilities are retired together.

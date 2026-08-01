@@ -62,6 +62,12 @@ in `docs/repository_artifact_policy.md`; do not restore them or add new
 runtime dependencies on them unless a legacy experiment is explicitly being
 reactivated.
 
+The tracked NASA extraction/evaluation inputs and external ontology files are
+legacy-only dependencies of the optional `ontology`, `source`, `cqs`, and
+`report` utilities. They are not the SQLite/Query Agent knowledge layer. Do
+not extend the current runtime with those paths; retire the dependent utility
+and tests together before removing them.
+
 ## Current Status
 
 - The active implementation contains incremental ingestion, a dataset-bound
