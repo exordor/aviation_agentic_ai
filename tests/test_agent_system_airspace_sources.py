@@ -148,6 +148,12 @@ def test_nasa_adapter_preserves_route_sequence_track_seconds_and_all_sectors(
         archive.writestr(
             "allFilesTTL/SectorLocationInst.ttl", "@prefix nas: <urn:nas:> ."
         )
+        archive.writestr(
+            "allFilesTTL/airportInst.ttl", "@prefix nas: <urn:nas:> ."
+        )
+        archive.writestr(
+            "allFilesTTL/ARTCCLocationInst.ttl", "@prefix nas: <urn:nas:> ."
+        )
         archive.writestr("allFilesTTL/not-allowlisted.ttl", "not valid turtle")
 
     records = list(
@@ -220,6 +226,12 @@ def test_nasa_adapter_keeps_canonical_subject_triples_and_checksum(
         archive.writestr("allFilesTTL/flightInst.ttl", "@prefix atm: <urn:atm:> .")
         archive.writestr("allFilesTTL/fixInst.ttl", fix_ttl)
         archive.writestr("allFilesTTL/SectorLocationInst.ttl", sector_ttl)
+        archive.writestr(
+            "allFilesTTL/airportInst.ttl", "@prefix nas: <urn:nas:> ."
+        )
+        archive.writestr(
+            "allFilesTTL/ARTCCLocationInst.ttl", "@prefix nas: <urn:nas:> ."
+        )
 
     records = list(iter_nasa_atmonto_airspace_records(archive_path))
     fix = next(row for row in records if isinstance(row, NASANavigationFixSourceRecord))
@@ -262,6 +274,128 @@ def test_nasa_adapter_requires_each_allowlisted_member_exactly_once(
         archive.writestr("nested/flightInst.ttl", "@prefix atm: <urn:atm:> .")
         archive.writestr("fixInst.ttl", "@prefix atm: <urn:atm:> .")
         archive.writestr("SectorLocationInst.ttl", "@prefix nas: <urn:nas:> .")
+        archive.writestr("airportInst.ttl", "@prefix nas: <urn:nas:> .")
+        archive.writestr("ARTCCLocationInst.ttl", "@prefix nas: <urn:nas:> .")
 
     with pytest.raises(ValueError, match="exactly one flightInst.ttl"):
         list(iter_nasa_atmonto_airspace_records(archive_path))
+
+
+def test_nasa_adapter_materializes_only_flight_referenced_airports_and_artccs(
+    tmp_path: Path,
+) -> None:
+    """Catch loading the full airport catalog or losing withinARTCC evidence."""
+
+    from aviation_agentic_ai.agent_system.airspace_sources import (
+        NASAARTCCSourceRecord,
+        NASAAirportARTCCAssignmentSourceRecord,
+        NASAAirportSourceRecord,
+        iter_nasa_atmonto_airspace_records,
+    )
+
+    flight_ttl = """
+        @prefix atm: <https://data.nasa.gov/ontologies/atmonto/ATM#> .
+        @prefix nas: <https://data.nasa.gov/ontologies/atmonto/NAS#> .
+        <urn:test:flight:F1> a atm:Flight ;
+            atm:departureAirport nas:KATLairport ;
+            atm:arrivalAirport nas:KJFKairport .
+    """
+    airport_ttl = """
+        @prefix nas: <https://data.nasa.gov/ontologies/atmonto/NAS#> .
+        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+        nas:KATLairport a nas:CONUSairport ;
+            rdfs:label "KATL Airport" ;
+            nas:airportName "HARTSFIELD - JACKSON ATLANTA INTL" ;
+            nas:faaAirportCode "ATL" ;
+            nas:iataAirportCode "ATL" ;
+            nas:icaoAirportCode "KATL" ;
+            nas:locatedInState "GA" ;
+            nas:withinARTCC nas:ZTLcenter .
+        nas:KJFKairport a nas:CONUSairport ;
+            rdfs:label "KJFK Airport" ;
+            nas:airportName "JOHN F KENNEDY INTL" ;
+            nas:faaAirportCode "JFK" ;
+            nas:iataAirportCode "JFK" ;
+            nas:icaoAirportCode "KJFK" ;
+            nas:locatedInState "NY" ;
+            nas:withinARTCC nas:ZNYcenter .
+        nas:KORDairport a nas:CONUSairport ;
+            rdfs:label "KORD Airport" ;
+            nas:icaoAirportCode "KORD" ;
+            nas:withinARTCC nas:ZAUcenter .
+    """
+    artcc_ttl = """
+        @prefix gen: <https://data.nasa.gov/ontologies/atmonto/general#> .
+        @prefix nas: <https://data.nasa.gov/ontologies/atmonto/NAS#> .
+        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+        nas:ZTLcenter rdfs:label "Atlanta Center" ;
+            nas:hasCenterGeometry gen:ZTLCenterGeometry .
+        nas:ZNYcenter rdfs:label "New York Center" ;
+            nas:hasCenterGeometry gen:ZNYCenterGeometry .
+        nas:ZAUcenter rdfs:label "Chicago Center" ;
+            nas:hasCenterGeometry gen:ZAUCenterGeometry .
+    """
+    archive_path = tmp_path / "atmonto.zip"
+    with zipfile.ZipFile(archive_path, "w") as archive:
+        archive.writestr("allFilesTTL/flightInst.ttl", flight_ttl)
+        archive.writestr("allFilesTTL/fixInst.ttl", "@prefix atm: <urn:atm:> .")
+        archive.writestr(
+            "allFilesTTL/SectorLocationInst.ttl", "@prefix nas: <urn:nas:> ."
+        )
+        archive.writestr("allFilesTTL/airportInst.ttl", airport_ttl)
+        archive.writestr("allFilesTTL/ARTCCLocationInst.ttl", artcc_ttl)
+
+    records = list(iter_nasa_atmonto_airspace_records(archive_path))
+    airports = [row for row in records if isinstance(row, NASAAirportSourceRecord)]
+    assignments = [
+        row
+        for row in records
+        if isinstance(row, NASAAirportARTCCAssignmentSourceRecord)
+    ]
+    artccs = [row for row in records if isinstance(row, NASAARTCCSourceRecord)]
+
+    assert [row.icao_code for row in airports] == ["KATL", "KJFK"]
+    assert [row.subject_iri.rsplit("#", 1)[-1] for row in airports] == [
+        "KATLairport",
+        "KJFKairport",
+    ]
+    assert airports[0].faa_code == "ATL"
+    assert airports[0].iata_code == "ATL"
+    assert airports[0].display_name == "HARTSFIELD - JACKSON ATLANTA INTL"
+    assert airports[0].state == "GA"
+    assert airports[0].within_artcc_iris == (
+        "https://data.nasa.gov/ontologies/atmonto/NAS#ZTLcenter",
+    )
+    assert airports[0].source.zip_member == "allFilesTTL/airportInst.ttl"
+
+    assert [row.artcc_code for row in artccs] == ["ZNY", "ZTL"]
+    assert [row.display_name for row in artccs] == [
+        "New York Center",
+        "Atlanta Center",
+    ]
+    assert all(
+        row.source.zip_member == "allFilesTTL/ARTCCLocationInst.ttl"
+        for row in artccs
+    )
+
+    assert [
+        (
+            row.airport_iri.rsplit("#", 1)[-1],
+            row.artcc_iri.rsplit("#", 1)[-1],
+            row.assignment_role,
+        )
+        for row in assignments
+    ] == [
+        ("KATLairport", "ZTLcenter", "within"),
+        ("KJFKairport", "ZNYcenter", "within"),
+    ]
+    expected_relation = (
+        "<https://data.nasa.gov/ontologies/atmonto/NAS#KATLairport> "
+        "<https://data.nasa.gov/ontologies/atmonto/NAS#withinARTCC> "
+        "<https://data.nasa.gov/ontologies/atmonto/NAS#ZTLcenter> ."
+    )
+    assert expected_relation in assignments[0].source.canonical_triples
+    assert assignments[0].source.subject_iri.endswith("#KATLairport")
+    assert assignments[0].source.related_subject_iris == (
+        "https://data.nasa.gov/ontologies/atmonto/NAS#ZTLcenter",
+    )

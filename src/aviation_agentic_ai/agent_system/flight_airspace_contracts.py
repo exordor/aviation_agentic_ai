@@ -13,6 +13,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     StrictModel,
 )
 from aviation_agentic_ai.agent_system.knowledge_publication import (
+    DeterministicDerivationRecord,
     KnowledgePublicationPackage,
 )
 from aviation_agentic_ai.utils.identifiers import stable_id
@@ -202,13 +203,13 @@ class ARTCCRecord(StrictModel):
 
 
 class AirportARTCCAssignmentRecord(StrictModel):
-    """One role-preserving, publication-version-bound NASR assignment."""
+    """One role-preserving, publication-version-bound airport assignment."""
 
     assignment_id: str = Field(min_length=1)
     airport_publication_id: str = Field(min_length=1)
     artcc_publication_id: str = Field(min_length=1)
     temporal_domain_id: str = Field(min_length=1)
-    assignment_role: Literal["boundary", "responsible"]
+    assignment_role: Literal["boundary", "responsible", "within"]
     effective_start: datetime | None = None
     effective_end: datetime | None = None
     procedure_id: str = Field(min_length=1)
@@ -455,6 +456,9 @@ class TMIPublicationRecord(StrictModel):
     ]
     controlled_element_id: str | None = Field(default=None, min_length=1)
     airport_id: str | None = Field(default=None, min_length=1)
+    departure_scope_declared: bool = False
+    departure_scope_airport_ids: tuple[str, ...] = ()
+    departure_scope_artcc_ids: tuple[str, ...] = ()
     reason: str | None = Field(default=None, min_length=1)
     issued_at: datetime
     effective_from: datetime | None = None
@@ -465,6 +469,22 @@ class TMIPublicationRecord(StrictModel):
     @classmethod
     def _validate_times(cls, value: datetime | None) -> datetime | None:
         return _require_aware(value, "TMI time")
+
+    @model_validator(mode="after")
+    def _validate_departure_scope(self) -> TMIPublicationRecord:
+        if (
+            self.departure_scope_airport_ids or self.departure_scope_artcc_ids
+        ) and not self.departure_scope_declared:
+            raise ValueError("TMI departure-scope members require a declared scope")
+        if len(set(self.departure_scope_airport_ids)) != len(
+            self.departure_scope_airport_ids
+        ):
+            raise ValueError("TMI departure-scope airports must be unique")
+        if len(set(self.departure_scope_artcc_ids)) != len(
+            self.departure_scope_artcc_ids
+        ):
+            raise ValueError("TMI departure-scope ARTCCs must be unique")
+        return self
 
 
 class FlightWeatherAssociationRecord(StrictModel):
@@ -570,6 +590,123 @@ class FlightTMIApplicabilityRecord(StrictModel):
         return self
 
 
+class CrossSourceParticipantEvidence(StrictModel):
+    """Exact source anchor contributed by one immutable participant."""
+
+    participant_role: str = Field(min_length=1)
+    publication_id: str = Field(min_length=1)
+    source_version_id: str = Field(min_length=1)
+    source_anchor_id: str = Field(min_length=1)
+    evidence_ref: str = Field(min_length=1)
+
+
+class CrossSourceAssociationBinding(StrictModel):
+    """Independent association publication plus its participant bindings."""
+
+    association_kind: Literal[
+        "flight_weather",
+        "aircraft_snapshot",
+        "tmi_applicability",
+    ]
+    association_id: str = Field(min_length=1)
+    participating_publication_ids: tuple[str, ...]
+    participant_evidence: tuple[CrossSourceParticipantEvidence, ...]
+    derivation_id: str = Field(min_length=1)
+    derivation: DeterministicDerivationRecord
+    association_publication: KnowledgePublicationPackage
+
+    @model_validator(mode="after")
+    def _validate_binding(self) -> CrossSourceAssociationBinding:
+        publication_ids = set(self.participating_publication_ids)
+        if not publication_ids or len(publication_ids) != len(
+            self.participating_publication_ids
+        ):
+            raise ValueError("association participants must be unique")
+        if self.derivation_id != self.derivation.derivation_id:
+            raise ValueError("association binding references another derivation")
+        package = self.association_publication
+        if package.root.root_id != self.association_id:
+            raise ValueError("association publication has another root")
+        if package.root.root_kind != self.association_kind:
+            raise ValueError("association publication kind does not match")
+        if self.derivation.publication_id != package.publication.publication_id:
+            raise ValueError("association derivation is outside its publication")
+        if package.derivations != (self.derivation,):
+            raise ValueError("association publication requires its one derivation")
+        if set(self.derivation.input_publication_ids) != publication_ids:
+            raise ValueError("derivation publications differ from participants")
+        evidence_publications = {
+            link.publication_id for link in self.participant_evidence
+        }
+        if evidence_publications != publication_ids:
+            raise ValueError("every association participant requires evidence")
+        evidence_sources = {
+            link.source_version_id for link in self.participant_evidence
+        }
+        if evidence_sources != set(self.derivation.input_source_version_ids):
+            raise ValueError("derivation sources differ from participant evidence")
+        if {link.source_version_id for link in package.evidence_links} != evidence_sources:
+            raise ValueError("association publication evidence differs from participants")
+        return self
+
+
+class CrossSourceAssociationMaterialization(StrictModel):
+    """Rebuildable associations over active, immutable source publications."""
+
+    rebuilt_temporal_domain_ids: tuple[str, ...]
+    flight_weather_associations: tuple[FlightWeatherAssociationRecord, ...] = ()
+    aircraft_snapshot_matches: tuple[FlightAircraftSnapshotMatchRecord, ...] = ()
+    tmi_applicability: tuple[FlightTMIApplicabilityRecord, ...] = ()
+    bindings: tuple[CrossSourceAssociationBinding, ...] = ()
+
+    @model_validator(mode="after")
+    def _validate_complete_bindings(self) -> CrossSourceAssociationMaterialization:
+        rebuilt_domains = set(self.rebuilt_temporal_domain_ids)
+        if len(rebuilt_domains) != len(self.rebuilt_temporal_domain_ids):
+            raise ValueError("rebuilt temporal domains must be unique")
+        association_ids = {
+            *(row.association_id for row in self.flight_weather_associations),
+            *(row.match_id for row in self.aircraft_snapshot_matches),
+            *(row.applicability_id for row in self.tmi_applicability),
+        }
+        if len(association_ids) != (
+            len(self.flight_weather_associations)
+            + len(self.aircraft_snapshot_matches)
+            + len(self.tmi_applicability)
+        ):
+            raise ValueError("cross-source association identities must be unique")
+        bindings_by_id = {binding.association_id: binding for binding in self.bindings}
+        if len(bindings_by_id) != len(self.bindings):
+            raise ValueError("cross-source association bindings must be unique")
+        row_domains = {
+            *(row.temporal_domain_id for row in self.flight_weather_associations),
+            *(row.temporal_domain_id for row in self.aircraft_snapshot_matches),
+            *(row.temporal_domain_id for row in self.tmi_applicability),
+        }
+        if not row_domains.issubset(rebuilt_domains):
+            raise ValueError("association row is outside the rebuilt temporal domains")
+        if set(bindings_by_id) != association_ids:
+            raise ValueError("every cross-source association requires one binding")
+        expected_kinds = {
+            **{
+                row.association_id: "flight_weather"
+                for row in self.flight_weather_associations
+            },
+            **{
+                row.match_id: "aircraft_snapshot"
+                for row in self.aircraft_snapshot_matches
+            },
+            **{
+                row.applicability_id: "tmi_applicability"
+                for row in self.tmi_applicability
+            },
+        }
+        for association_id, binding in bindings_by_id.items():
+            if binding.association_kind != expected_kinds[association_id]:
+                raise ValueError("association binding kind does not match its record")
+        return self
+
+
 class FlightAirspaceMaterialization(StrictModel):
     """Domain rows atomically materialized with one accepted publication.
 
@@ -598,9 +735,6 @@ class FlightAirspaceMaterialization(StrictModel):
         AirportOperationalObservationRecord, ...
     ] = ()
     tmi_publications: tuple[TMIPublicationRecord, ...] = ()
-    flight_weather_associations: tuple[FlightWeatherAssociationRecord, ...] = ()
-    aircraft_snapshot_matches: tuple[FlightAircraftSnapshotMatchRecord, ...] = ()
-    tmi_applicability: tuple[FlightTMIApplicabilityRecord, ...] = ()
 
     @model_validator(mode="after")
     def _validate_domain_scope(self) -> FlightAirspaceMaterialization:
@@ -634,9 +768,6 @@ class FlightAirspaceMaterialization(StrictModel):
             self.weather_forecasts,
             self.airport_operational_observations,
             self.tmi_publications,
-            self.flight_weather_associations,
-            self.aircraft_snapshot_matches,
-            self.tmi_applicability,
         ):
             for record in collection:
                 if record.temporal_domain_id != temporal_domain_id:
@@ -702,9 +833,6 @@ class FlightAirspaceMaterialization(StrictModel):
             ),
             *(tmi.tmi_id for tmi in self.tmi_publications),
             *(row.assignment_id for row in self.airport_artcc_assignments),
-            *(row.association_id for row in self.flight_weather_associations),
-            *(row.match_id for row in self.aircraft_snapshot_matches),
-            *(row.applicability_id for row in self.tmi_applicability),
         }
         for link in package.evidence_links:
             if (

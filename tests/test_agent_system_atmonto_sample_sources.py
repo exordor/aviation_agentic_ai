@@ -68,10 +68,14 @@ def _write_public_sample_archive(path: Path) -> None:
     tmi = prefixes + """
         atm:GDP20140715057 a atm:GroundDelayProgramTMI ;
             atm:controlledNASelement nas:KLGAairport ;
+            atm:departureScope atm:GDPscope20140715057 ;
             atm:issuedTime "2014-07-15T14:19:00"^^xsd:dateTime ;
             atm:effectiveStartTime "2014-07-15T14:17:00"^^xsd:dateTime ;
             atm:effectiveEndTime "2014-07-16T05:59:00"^^xsd:dateTime ;
             atm:impactingCondition "WEATHER / THUNDERSTORMS" .
+        atm:GDPscope20140715057 a atm:FlightSpec ;
+            atm:includesAirport nas:KATLairport ;
+            atm:withinARTCC nas:ZTLcenter .
         atm:GS20140715016 a atm:GroundStopTMI ;
             atm:controlledNASelement nas:KJFKairport ;
             atm:issuedTime "2014-07-15T01:42:00"^^xsd:dateTime ;
@@ -146,6 +150,17 @@ def test_atmonto_public_sample_adapter_selects_typed_records_by_date_and_airport
     assert tmis[2].airport_iri is None
     assert tmis[0].issued_at == datetime(2014, 7, 15, 14, 19, tzinfo=UTC)
     assert tmis[0].effective_to == datetime(2014, 7, 16, 5, 59, tzinfo=UTC)
+    assert tmis[0].departure_scope_iri is not None
+    assert tmis[0].departure_scope_airport_iris == (
+        "https://data.nasa.gov/ontologies/atmonto/NAS#KATLairport",
+    )
+    assert tmis[0].departure_scope_artcc_iris == (
+        "https://data.nasa.gov/ontologies/atmonto/NAS#ZTLcenter",
+    )
+    assert any(
+        "includesAirport" in triple
+        for triple in tmis[0].source.association_triples
+    )
 
 
 def test_atmonto_public_sample_trace_binds_subject_member_and_canonical_triples(
@@ -188,4 +203,3 @@ def test_atmonto_public_sample_adapter_accepts_explicit_sample_scope(
         "KJFKairportData20140716000000",
         "GDP20140716001",
     ]
-

@@ -75,6 +75,7 @@ source_metadata:
     effective_start: 2026-07-28
     temporal_domain_id: registry-2026-07-28
     registry_snapshot_at: 2026-07-28T00:00:00Z
+    ingestion_scope: active_bts_flight_tail_numbers
     role: non_personal_aircraft_technical_lookup
   historical_metar_speci:
     effective_start: 2026-05-14

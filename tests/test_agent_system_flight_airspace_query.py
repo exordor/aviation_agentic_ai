@@ -26,13 +26,15 @@ from aviation_agentic_ai.agent_system.flight_airspace_contracts import (
     FlightAirspaceMaterialization,
     FlightPublicationRecord,
     FlightRecord,
-    FlightTMIApplicabilityRecord,
-    FlightWeatherAssociationRecord,
     RouteRecord,
     SectorPassageRecord,
     SectorRecord,
     TrackPointRecord,
+    TMIPublicationRecord,
     WeatherObservationRecord,
+)
+from aviation_agentic_ai.agent_system.cross_source_associations import (
+    materialize_cross_source_associations,
 )
 from aviation_agentic_ai.agent_system.flight_airspace_query import (
     AirportQuery,
@@ -459,13 +461,6 @@ def test_weather_association_nearest_and_all_remain_non_causal(
             source=weather_source,
         )
         weather_publication_id = weather_package.publication.publication_id
-        association_id = stable_id(
-            "flight-weather-association",
-            flight.publication_id,
-            weather_publication_id,
-            "actual_wheels_off",
-            "a" * 64,
-        )
         store.apply_flight_airspace_publication(
             FlightAirspaceMaterialization(
                 publication=weather_package,
@@ -484,23 +479,16 @@ def test_weather_association_nearest_and_all_remain_non_causal(
                         time_basis="utc",
                     ),
                 ),
-                flight_weather_associations=(
-                    FlightWeatherAssociationRecord(
-                        association_id=association_id,
-                        flight_publication_id=flight.publication_id,
-                        weather_publication_id=weather_publication_id,
-                        temporal_domain_id=DOMAIN,
-                        flight_time_field="actual_wheels_off",
-                        flight_time=datetime(2014, 7, 15, 2, tzinfo=UTC),
-                        observation_time=datetime(2014, 7, 15, 2, 10, tzinfo=UTC),
-                        delta_seconds=600,
-                        procedure_id="flight-weather-proximity-v1",
-                        procedure_checksum="a" * 64,
-                        derivation_id="derivation:weather:101",
-                        causal_claim=False,
-                    ),
-                ),
             )
+        )
+        associations = materialize_cross_source_associations(
+            store=store,
+            temporal_domain_id=DOMAIN,
+        )
+        association_id = next(
+            row.association_id
+            for row in associations.flight_weather_associations
+            if row.flight_publication_id == flight.publication_id
         )
 
         service = FlightAirspaceQueryService(store)
@@ -629,36 +617,45 @@ def test_reference_passage_and_applicability_queries_are_generic(
         tmi_package = _package(
             store,
             root_id="urn:tmi:2014:001",
-            root_kind="tmi_reference",
+            root_kind="tmi",
             source=tmi_source,
-        )
-        inputs = {"destination": "KJFK", "interval_overlap": True}
-        applicability_id = stable_id(
-            "flight-tmi-applicability",
-            flight.publication_id,
-            tmi_package.publication.publication_id,
-            "c" * 64,
-            '{"destination":"KJFK","interval_overlap":true}',
         )
         store.apply_flight_airspace_publication(
             FlightAirspaceMaterialization(
                 publication=tmi_package,
-                tmi_applicability=(
-                    FlightTMIApplicabilityRecord(
-                        applicability_id=applicability_id,
-                        flight_publication_id=flight.publication_id,
-                        tmi_publication_id=tmi_package.publication.publication_id,
+                tmi_publications=(
+                    TMIPublicationRecord(
+                        tmi_id="urn:tmi:2014:001",
+                        publication_id=tmi_package.publication.publication_id,
                         temporal_domain_id=DOMAIN,
-                        tmi_family="GDP",
-                        status="applicability_candidate",
-                        rule_id="tmi-applicability-v1",
-                        rule_checksum="c" * 64,
-                        normalized_inputs=inputs,
-                        limitation="Candidate only; not proof of actual control.",
-                        derivation_id="derivation:tmi-applicability:101",
+                        source_family=SourceFamily.ATCSCC_ADVISORY,
+                        tmi_type="GroundDelayProgramTMI",
+                        controlled_element_id="KJFK",
+                        airport_id="KJFK",
+                        departure_scope_declared=True,
+                        departure_scope_airport_ids=("KATL",),
+                        issued_at=datetime(
+                            2014, 7, 15, 1, 30, tzinfo=UTC
+                        ),
+                        effective_from=datetime(
+                            2014, 7, 15, 1, 30, tzinfo=UTC
+                        ),
+                        effective_to=datetime(
+                            2014, 7, 15, 2, 30, tzinfo=UTC
+                        ),
+                        source_version_id=tmi_source.source_version_id,
                     ),
                 ),
             )
+        )
+        associations = materialize_cross_source_associations(
+            store=store,
+            temporal_domain_id=DOMAIN,
+        )
+        applicability_id = next(
+            row.applicability_id
+            for row in associations.tmi_applicability
+            if row.flight_publication_id == flight.publication_id
         )
 
         service = FlightAirspaceQueryService(store)
@@ -866,4 +863,3 @@ def test_natural_language_query_agent_selects_generic_flight_tool(
         assert "analyze_sector_traffic" in available_tools
     finally:
         store.close()
-    FlightTMIApplicabilityRecord,

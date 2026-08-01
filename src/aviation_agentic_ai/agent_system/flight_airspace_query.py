@@ -84,7 +84,7 @@ class AirportQuery(StrictModel):
     airport_id: str | None = Field(default=None, min_length=1)
     airport_code: str | None = Field(default=None, min_length=1)
     artcc_code: str | None = Field(default=None, min_length=1)
-    assignment_role: Literal["boundary", "responsible"] | None = None
+    assignment_role: Literal["boundary", "responsible", "within"] | None = None
     temporal_domain_id: str | None = Field(default=None, min_length=1)
     source_ids: tuple[str, ...] = ()
     source_families: tuple[str, ...] = ()
@@ -277,6 +277,7 @@ class TMIApplicabilityView(StrictModel):
     actual_control_claim: Literal[False]
     source_ids: tuple[str, ...] = ()
     source_version_ids: tuple[str, ...] = ()
+    source_anchor_ids: tuple[str, ...] = ()
 
 
 class TMIApplicabilityPage(StrictModel):
@@ -993,7 +994,9 @@ class FlightAirspaceQueryService:
                    observation.station_id, observation.observed_at,
                    observation.phenomenon_tokens_json,
                    observation.raw_report, observation.source_version_id,
-                   source.source_id
+                   source.source_id,
+                   association_root.active_publication_id
+                     AS association_publication_id
             FROM knowledge_roots AS root
             JOIN flight_publications AS detail
               ON detail.publication_id = root.active_publication_id
@@ -1002,6 +1005,12 @@ class FlightAirspaceQueryService:
               ON association.flight_publication_id = detail.publication_id
             JOIN weather_observations AS observation
               ON observation.publication_id = association.weather_publication_id
+            JOIN knowledge_roots AS weather_root
+              ON weather_root.active_publication_id = observation.publication_id
+             AND weather_root.root_kind = 'weather_observation'
+            JOIN knowledge_roots AS association_root
+              ON association_root.root_id = association.association_id
+             AND association_root.root_kind = 'flight_weather'
             JOIN source_versions AS source
               ON source.source_version_id = observation.source_version_id
             WHERE root.root_id = ?
@@ -1025,13 +1034,16 @@ class FlightAirspaceQueryService:
                 """
                 SELECT DISTINCT source_anchor_id
                 FROM publication_evidence_links
-                WHERE publication_id IN (?, ?)
-                  AND owner_kind = 'structured_record'
+                WHERE publication_id = ?
+                  AND owner_kind = 'association'
                   AND owner_id = ?
                   AND source_anchor_id IS NOT NULL
                 ORDER BY source_anchor_id
                 """,
-                (*publication_ids, row["association_id"]),
+                (
+                    row["association_publication_id"],
+                    row["association_id"],
+                ),
             ).fetchall()
             associations.append(
                 FlightWeatherAssociationView(
@@ -1092,9 +1104,18 @@ class FlightAirspaceQueryService:
             FROM flight_tmi_applicability AS candidate
             JOIN flight_publications AS flight_detail
               ON flight_detail.publication_id = candidate.flight_publication_id
+            JOIN knowledge_roots AS flight_root
+              ON flight_root.active_publication_id = flight_detail.publication_id
+             AND flight_root.root_kind = 'flight'
             JOIN flights AS flight ON flight.flight_id = flight_detail.flight_id
             JOIN knowledge_publications AS tmi
               ON tmi.publication_id = candidate.tmi_publication_id
+            JOIN knowledge_roots AS tmi_root
+              ON tmi_root.active_publication_id = tmi.publication_id
+             AND tmi_root.root_kind = 'tmi'
+            JOIN knowledge_roots AS association_root
+              ON association_root.root_id = candidate.applicability_id
+             AND association_root.root_kind = 'tmi_applicability'
             WHERE {where}
         """
         total = int(
@@ -1104,7 +1125,9 @@ class FlightAirspaceQueryService:
         )
         rows = self._connection.execute(
             f"""
-            SELECT candidate.*, flight.flight_id, tmi.root_id AS tmi_root_id
+            SELECT candidate.*, flight.flight_id, tmi.root_id AS tmi_root_id,
+                   association_root.active_publication_id
+                     AS association_publication_id
             {base}
             ORDER BY candidate.applicability_id
             LIMIT ? OFFSET ?
@@ -1114,11 +1137,23 @@ class FlightAirspaceQueryService:
         candidates: list[TMIApplicabilityView] = []
         for row in rows:
             source_ids, source_version_ids = self._publication_sources(
-                (
-                    row["flight_publication_id"],
-                    row["tmi_publication_id"],
-                )
+                (row["association_publication_id"],)
             )
+            anchor_rows = self._connection.execute(
+                """
+                SELECT DISTINCT source_anchor_id
+                FROM publication_evidence_links
+                WHERE publication_id = ?
+                  AND owner_kind = 'association'
+                  AND owner_id = ?
+                  AND source_anchor_id IS NOT NULL
+                ORDER BY source_anchor_id
+                """,
+                (
+                    row["association_publication_id"],
+                    row["applicability_id"],
+                ),
+            ).fetchall()
             candidates.append(
                 TMIApplicabilityView(
                     applicability_id=row["applicability_id"],
@@ -1137,6 +1172,9 @@ class FlightAirspaceQueryService:
                     actual_control_claim=False,
                     source_ids=source_ids,
                     source_version_ids=source_version_ids,
+                    source_anchor_ids=tuple(
+                        item["source_anchor_id"] for item in anchor_rows
+                    ),
                 )
             )
         return TMIApplicabilityPage(

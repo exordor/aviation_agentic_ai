@@ -18,6 +18,9 @@ from typing import Any, Callable, Iterable, Iterator, TypeVar
 
 from aviation_agentic_ai.agent_system.airspace_sources import (
     NASAActualRouteSourceRecord,
+    NASAARTCCSourceRecord,
+    NASAAirportARTCCAssignmentSourceRecord,
+    NASAAirportSourceRecord,
     NASAFlightSourceRecord,
     NASANavigationFixSourceRecord,
     NASARDFSourceTrace,
@@ -42,6 +45,9 @@ from aviation_agentic_ai.agent_system.contracts import (
     FactTraceRow,
     SourceFamily,
     SourceRecord,
+)
+from aviation_agentic_ai.agent_system.cross_source_associations import (
+    materialize_cross_source_associations,
 )
 from aviation_agentic_ai.agent_system.evidence_store import AviationEvidenceStore
 from aviation_agentic_ai.agent_system.flight_airspace_contracts import (
@@ -144,6 +150,9 @@ class FlightAirspaceIngestionSummary:
     insufficient_count: int
     blocked_count: int
     skipped_count: int
+    flight_weather_association_count: int
+    aircraft_snapshot_match_count: int
+    tmi_applicability_count: int
     results: tuple[FlightAirspaceRootResult, ...]
 
     @property
@@ -183,7 +192,14 @@ class _SummaryAccumulator:
         for result in results:
             self.add(result)
 
-    def build(self, *, asset_count: int) -> FlightAirspaceIngestionSummary:
+    def build(
+        self,
+        *,
+        asset_count: int,
+        flight_weather_association_count: int = 0,
+        aircraft_snapshot_match_count: int = 0,
+        tmi_applicability_count: int = 0,
+    ) -> FlightAirspaceIngestionSummary:
         return FlightAirspaceIngestionSummary(
             asset_count=asset_count,
             discovered_count=self.discovered_count,
@@ -193,6 +209,9 @@ class _SummaryAccumulator:
             insufficient_count=self.insufficient_count,
             blocked_count=self.blocked_count,
             skipped_count=self.skipped_count,
+            flight_weather_association_count=flight_weather_association_count,
+            aircraft_snapshot_match_count=aircraft_snapshot_match_count,
+            tmi_applicability_count=tmi_applicability_count,
             results=tuple(self.results),
         )
 
@@ -913,6 +932,9 @@ def _atmonto_tmi_publication(
             "tmi_type": record.tmi_type,
             "controlled_element_iri": record.controlled_element_iri,
             "airport_iri": record.airport_iri,
+            "departure_scope_iri": record.departure_scope_iri,
+            "departure_scope_airport_iris": record.departure_scope_airport_iris,
+            "departure_scope_artcc_iris": record.departure_scope_artcc_iris,
             "reason": record.reason,
             "issued_at": record.issued_at,
             "effective_from": record.effective_from,
@@ -937,6 +959,17 @@ def _atmonto_tmi_publication(
                         _airport_identifier(record.airport_iri)
                         if record.airport_iri is not None
                         else None
+                    ),
+                    departure_scope_declared=(
+                        record.departure_scope_iri is not None
+                    ),
+                    departure_scope_airport_ids=tuple(
+                        _airport_identifier(value)
+                        for value in record.departure_scope_airport_iris
+                    ),
+                    departure_scope_artcc_ids=tuple(
+                        _iri_fragment(value).removesuffix("center")
+                        for value in record.departure_scope_artcc_iris
                     ),
                     reason=record.reason,
                     issued_at=record.issued_at,
@@ -1562,6 +1595,164 @@ def _nasr_assignment_publication(
     )
 
 
+def _nasa_airport_publication(
+    record: NASAAirportSourceRecord,
+    *,
+    asset: SourceAssetRecord,
+    temporal_domain_id: str,
+) -> _PendingPublication:
+    source = _record_with_domain(
+        _nasa_source_record(record.source, asset=asset),
+        temporal_domain_id,
+    )
+    version = build_source_version(source)
+    airport_id = stable_id(
+        "airport",
+        SourceFamily.NASA_ATMONTO_INSTANCE.value,
+        record.icao_code,
+    )
+    package = _publication_package(
+        root_id=airport_id,
+        root_kind="airport",
+        temporal_domain_id=temporal_domain_id,
+        source_version=version,
+        structured_payload={
+            "subject_iri": record.subject_iri,
+            "icao_code": record.icao_code,
+            "faa_code": record.faa_code,
+            "iata_code": record.iata_code,
+            "display_name": record.display_name,
+            "state": record.state,
+            "within_artcc_iris": record.within_artcc_iris,
+        },
+    )
+    return _PendingPublication(
+        source_version=version,
+        adapter_id="flight-airspace:nasa-airport",
+        root_kind="airport",
+        materialization=FlightAirspaceMaterialization(
+            publication=package,
+            airports=(
+                AirportRecord(
+                    airport_id=airport_id,
+                    temporal_domain_id=temporal_domain_id,
+                    source_family=SourceFamily.NASA_ATMONTO_INSTANCE,
+                    airport_code=record.icao_code,
+                    display_name=record.display_name,
+                ),
+            ),
+        ),
+    )
+
+
+def _nasa_artcc_publication(
+    record: NASAARTCCSourceRecord,
+    *,
+    asset: SourceAssetRecord,
+    temporal_domain_id: str,
+) -> _PendingPublication:
+    source = _record_with_domain(
+        _nasa_source_record(record.source, asset=asset),
+        temporal_domain_id,
+    )
+    version = build_source_version(source)
+    artcc_id = stable_id(
+        "artcc",
+        SourceFamily.NASA_ATMONTO_INSTANCE.value,
+        record.artcc_code,
+    )
+    package = _publication_package(
+        root_id=artcc_id,
+        root_kind="artcc",
+        temporal_domain_id=temporal_domain_id,
+        source_version=version,
+        structured_payload={
+            "subject_iri": record.subject_iri,
+            "artcc_code": record.artcc_code,
+            "display_name": record.display_name,
+        },
+    )
+    return _PendingPublication(
+        source_version=version,
+        adapter_id="flight-airspace:nasa-artcc",
+        root_kind="artcc",
+        materialization=FlightAirspaceMaterialization(
+            publication=package,
+            artccs=(
+                ARTCCRecord(
+                    artcc_id=artcc_id,
+                    temporal_domain_id=temporal_domain_id,
+                    source_family=SourceFamily.NASA_ATMONTO_INSTANCE,
+                    artcc_code=record.artcc_code,
+                    display_name=record.display_name,
+                ),
+            ),
+        ),
+    )
+
+
+def _nasa_assignment_publication(
+    record: NASAAirportARTCCAssignmentSourceRecord,
+    *,
+    asset: SourceAssetRecord,
+    temporal_domain_id: str,
+    airport_publication_id: str,
+    artcc_publication_id: str,
+) -> _PendingPublication:
+    source = _record_with_domain(
+        _nasa_source_record(record.source, asset=asset),
+        temporal_domain_id,
+    )
+    version = build_source_version(source)
+    procedure_id = "nasa-atmonto-within-artcc-v1"
+    procedure_checksum = _canonical_digest({"procedure_id": procedure_id})
+    assignment_id = stable_id(
+        "airport-artcc-assignment",
+        airport_publication_id,
+        artcc_publication_id,
+        record.assignment_role,
+        "",
+        "",
+        procedure_checksum,
+    )
+    derivation_id = stable_id(
+        "nasa-airport-artcc-derivation",
+        assignment_id,
+        version.source_version_id,
+        procedure_checksum,
+    )
+    assignment = AirportARTCCAssignmentRecord(
+        assignment_id=assignment_id,
+        airport_publication_id=airport_publication_id,
+        artcc_publication_id=artcc_publication_id,
+        temporal_domain_id=temporal_domain_id,
+        assignment_role="within",
+        procedure_id=procedure_id,
+        procedure_checksum=procedure_checksum,
+        derivation_id=derivation_id,
+    )
+    package = _publication_package(
+        root_id=assignment_id,
+        root_kind="airport_artcc_assignment",
+        temporal_domain_id=temporal_domain_id,
+        source_version=version,
+        structured_payload={
+            **assignment.model_dump(mode="json"),
+            "airport_iri": record.airport_iri,
+            "artcc_iri": record.artcc_iri,
+        },
+    )
+    return _PendingPublication(
+        source_version=version,
+        adapter_id="flight-airspace:nasa-within-artcc",
+        root_kind="airport_artcc_assignment",
+        materialization=FlightAirspaceMaterialization(
+            publication=package,
+            airport_artcc_assignments=(assignment,),
+        ),
+    )
+
+
 def _metadata(config: dict[str, Any], key: str) -> dict[str, Any]:
     all_metadata = config.get("source_metadata")
     if not isinstance(all_metadata, dict):
@@ -1581,12 +1772,34 @@ def _required_domain(config: dict[str, Any], key: str) -> str:
 
 def _required_datetime(config: dict[str, Any], key: str, field: str) -> datetime:
     value = _metadata(config, key).get(field)
-    if not isinstance(value, str) or not value:
+    if isinstance(value, datetime):
+        parsed = value
+    elif isinstance(value, str) and value:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    else:
         raise ValueError(f"source_metadata.{key}.{field} must be configured")
-    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
     if parsed.tzinfo is None or parsed.utcoffset() is None:
         raise ValueError(f"source_metadata.{key}.{field} must include a timezone")
     return parsed.astimezone(UTC)
+
+
+def _active_bts_tail_numbers(store: AviationEvidenceStore) -> set[str]:
+    rows = store._connection.execute(
+        """
+        SELECT DISTINCT detail.tail_number
+        FROM knowledge_roots AS root
+        JOIN flight_publications AS detail
+          ON detail.publication_id = root.active_publication_id
+        JOIN flights AS flight ON flight.flight_id = detail.flight_id
+        WHERE root.root_kind = 'flight'
+          AND flight.source_family = ?
+          AND detail.tail_number IS NOT NULL
+          AND TRIM(detail.tail_number) != ''
+        ORDER BY detail.tail_number
+        """,
+        (SourceFamily.BTS_FLIGHT_OPERATION.value,),
+    ).fetchall()
+    return {str(row["tail_number"]) for row in rows}
 
 
 def _scope_date(value: object, *, field: str) -> date:
@@ -2119,11 +2332,12 @@ def run_flight_airspace_ingestion(
     if registry_asset is not None:
         metadata = _metadata(config, "faa_aircraft_registry")
         configured_tails = metadata.get("tail_numbers")
-        tail_numbers = (
-            {str(value) for value in configured_tails}
-            if isinstance(configured_tails, list)
-            else None
-        )
+        if isinstance(configured_tails, list):
+            tail_numbers = {str(value) for value in configured_tails}
+        elif metadata.get("ingestion_scope") == "all":
+            tail_numbers = None
+        else:
+            tail_numbers = _active_bts_tail_numbers(store)
         records = iter_faa_registry_technical_sources(
             _asset_path(
                 registry_asset,
@@ -2184,6 +2398,17 @@ def run_flight_airspace_ingestion(
         sectors = tuple(
             row for row in nasa_records if isinstance(row, NASASectorSourceRecord)
         )
+        airports = tuple(
+            row for row in nasa_records if isinstance(row, NASAAirportSourceRecord)
+        )
+        artccs = tuple(
+            row for row in nasa_records if isinstance(row, NASAARTCCSourceRecord)
+        )
+        airport_artcc_assignments = tuple(
+            row
+            for row in nasa_records
+            if isinstance(row, NASAAirportARTCCAssignmentSourceRecord)
+        )
         referenced_fix_ids = {
             row.fix_iri for row in points if row.fix_iri is not None
         }
@@ -2223,6 +2448,80 @@ def run_flight_airspace_ingestion(
             )
         sectors = tuple(
             sectors_by_id[key] for key in sorted(sectors_by_id)
+        )
+
+        airport_references: list[_PendingPublication] = []
+        airport_publications_by_iri: dict[str, str] = {}
+        for row in airports:
+            pending = _nasa_airport_publication(
+                row,
+                asset=nasa_asset,
+                temporal_domain_id=domain,
+            )
+            airport_references.append(pending)
+            airport_publications_by_iri[row.subject_iri] = (
+                pending.materialization.publication.publication.publication_id
+            )
+
+        artcc_references: list[_PendingPublication] = []
+        artcc_publications_by_iri: dict[str, str] = {}
+        for row in artccs:
+            pending = _nasa_artcc_publication(
+                row,
+                asset=nasa_asset,
+                temporal_domain_id=domain,
+            )
+            artcc_references.append(pending)
+            artcc_publications_by_iri[row.subject_iri] = (
+                pending.materialization.publication.publication.publication_id
+            )
+
+        summary.extend(
+            _publish_chunks(
+                store,
+                (*airport_references, *artcc_references),
+                chunk_size=chunk_size,
+            )
+        )
+
+        nasa_assignment_publications: list[_PendingPublication] = []
+        for row in airport_artcc_assignments:
+            airport_publication_id = airport_publications_by_iri.get(row.airport_iri)
+            artcc_publication_id = artcc_publications_by_iri.get(row.artcc_iri)
+            if airport_publication_id is None or artcc_publication_id is None:
+                source = _record_with_domain(
+                    _nasa_source_record(row.source, asset=nasa_asset),
+                    domain,
+                )
+                summary.add(
+                    _record_insufficient(
+                        store,
+                        source=source,
+                        temporal_domain_id=domain,
+                        adapter_id="flight-airspace:nasa-within-artcc",
+                        root_kind="airport_artcc_assignment",
+                        reason=(
+                            "referenced NASA airport or ARTCC publication is "
+                            "unavailable"
+                        ),
+                    )
+                )
+                continue
+            nasa_assignment_publications.append(
+                _nasa_assignment_publication(
+                    row,
+                    asset=nasa_asset,
+                    temporal_domain_id=domain,
+                    airport_publication_id=airport_publication_id,
+                    artcc_publication_id=artcc_publication_id,
+                )
+            )
+        summary.extend(
+            _publish_chunks(
+                store,
+                nasa_assignment_publications,
+                chunk_size=chunk_size,
+            )
         )
 
         summary.extend(
@@ -2467,7 +2766,15 @@ def run_flight_airspace_ingestion(
             )
         )
 
-    return summary.build(asset_count=len(assets))
+    associations = materialize_cross_source_associations(store=store)
+    return summary.build(
+        asset_count=len(assets),
+        flight_weather_association_count=len(
+            associations.flight_weather_associations
+        ),
+        aircraft_snapshot_match_count=len(associations.aircraft_snapshot_matches),
+        tmi_applicability_count=len(associations.tmi_applicability),
+    )
 
 
 ingest_flight_airspace_sources = run_flight_airspace_ingestion

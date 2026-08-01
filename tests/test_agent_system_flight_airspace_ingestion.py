@@ -168,6 +168,9 @@ def test_source_asset_discovery_rejects_a_pinned_checksum_mismatch(
 
 
 def test_canonical_config_registers_all_flight_airspace_raw_sources() -> None:
+    from aviation_agentic_ai.agent_system.flight_airspace_ingestion import (
+        _required_datetime,
+    )
     from aviation_agentic_ai.config import load_yaml
 
     config = load_yaml("configs/aviation_knowledge_v1.yaml")
@@ -206,6 +209,14 @@ def test_canonical_config_registers_all_flight_airspace_raw_sources() -> None:
     assert config["source_metadata"]["nasa_atmonto_instances"][
         "temporal_domain_id"
     ] == "nasa-atmonto-2014"
+    assert _required_datetime(
+        config,
+        "faa_aircraft_registry",
+        "registry_snapshot_at",
+    ) == datetime(2026, 7, 28, tzinfo=UTC)
+    assert config["source_metadata"]["faa_aircraft_registry"][
+        "ingestion_scope"
+    ] == "active_bts_flight_tail_numbers"
 
 
 def _materialization(

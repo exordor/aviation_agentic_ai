@@ -89,6 +89,9 @@ class ATMONTOTMISourceRecord:
     tmi_type: TMIType
     controlled_element_iri: str | None
     airport_iri: str | None
+    departure_scope_iri: str | None
+    departure_scope_airport_iris: tuple[str, ...]
+    departure_scope_artcc_iris: tuple[str, ...]
     reason: str | None
     issued_at: datetime
     effective_from: datetime | None
@@ -356,6 +359,26 @@ def _iter_tmis(
                 continue
             controlled = _iri_value(graph, subject, ATM.controlledNASelement)
             controlled_text = str(controlled) if controlled is not None else None
+            departure_scope = _iri_value(graph, subject, ATM.departureScope)
+            scope_triples = (
+                tuple(graph.triples((departure_scope, None, None)))
+                if departure_scope is not None
+                else ()
+            )
+            scope_airports = tuple(
+                sorted(
+                    str(value)
+                    for value in graph.objects(departure_scope, ATM.includesAirport)
+                    if isinstance(value, URIRef)
+                )
+            ) if departure_scope is not None else ()
+            scope_artccs = tuple(
+                sorted(
+                    str(value)
+                    for value in graph.objects(departure_scope, ATM.withinARTCC)
+                    if isinstance(value, URIRef)
+                )
+            ) if departure_scope is not None else ()
             airport_iri = (
                 controlled_text
                 if controlled_text is not None and controlled_text.endswith("airport")
@@ -367,11 +390,17 @@ def _iter_tmis(
                     member_name=member_name,
                     graph=graph,
                     subject=subject,
+                    association_triples=scope_triples,
                 ),
                 subject_iri=str(subject),
                 tmi_type=tmi_type,
                 controlled_element_iri=controlled_text,
                 airport_iri=airport_iri,
+                departure_scope_iri=(
+                    str(departure_scope) if departure_scope is not None else None
+                ),
+                departure_scope_airport_iris=scope_airports,
+                departure_scope_artcc_iris=scope_artccs,
                 reason=_text_value(graph, subject, reason_predicate),
                 issued_at=issued_at,
                 effective_from=_datetime_value(graph, subject, ATM.effectiveStartTime),
@@ -426,4 +455,3 @@ def iter_atmonto_public_sample_records(
                     member_name=member_name,
                     sample_date=sample_date,
                 )
-

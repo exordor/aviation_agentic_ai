@@ -183,6 +183,7 @@ def test_ingests_registry_record_as_two_source_bound_technical_roots(
             "faa_aircraft_registry": {
                 "temporal_domain_id": "registry-2026-07-28",
                 "registry_snapshot_at": "2026-07-28T00:00:00+00:00",
+                "tail_numbers": ["N201AA"],
             }
         },
     }
@@ -222,6 +223,79 @@ def test_ingests_registry_record_as_two_source_bound_technical_roots(
         assert store._connection.execute(
             "SELECT COUNT(*) FROM publication_evidence_links"
         ).fetchone()[0] == 2
+    finally:
+        store.close()
+
+
+def test_registry_defaults_to_tails_in_active_bts_flights(tmp_path: Path) -> None:
+    """The full registry asset is retained but unrelated aircraft stay unmaterialized."""
+
+    from aviation_agentic_ai.agent_system.flight_airspace_ingestion import (
+        run_flight_airspace_ingestion,
+    )
+
+    raw_root = tmp_path / "raw"
+    raw_root.mkdir()
+    _write_bts_archive(raw_root / "bts.zip")
+    with zipfile.ZipFile(raw_root / "registry.zip", "w") as archive:
+        archive.writestr(
+            "registry/MASTER.txt",
+            "N-NUMBER,MFR MDL CODE\n"
+            "201-aa,1234567\n"
+            "999-zz,7654321\n",
+        )
+        archive.writestr(
+            "registry/ACFTREF.txt",
+            "CODE,MFR,MODEL\n"
+            "1234567,AIRBUS INDUSTRIE,A-319-114\n"
+            "7654321,BOEING,737-800\n",
+        )
+    config = {
+        "sources": {
+            "bts_flight_operations": "bts.zip",
+            "faa_aircraft_registry": "registry.zip",
+        },
+        "source_metadata": {
+            "bts_flight_operations": {
+                "temporal_domain_id": "proxy-2026-05",
+                "origin_timezones": {"ATL": "America/New_York"},
+                "ingestion_scope": {"mode": "all"},
+            },
+            "faa_aircraft_registry": {
+                "temporal_domain_id": "registry-2026-07-28",
+                "registry_snapshot_at": "2026-07-28T00:00:00+00:00",
+                "ingestion_scope": "active_bts_flight_tail_numbers",
+            },
+        },
+    }
+    store = AviationEvidenceStore.open(
+        tmp_path / "store",
+        dataset_id="registry-active-tail-scope-test",
+        create=True,
+    )
+    try:
+        summary = run_flight_airspace_ingestion(
+            config=config,
+            store=store,
+            source_root=raw_root,
+            project_root=tmp_path / "unused-project",
+            chunk_size=10,
+        )
+
+        assert summary.root_count == 3
+        assert summary.aircraft_snapshot_match_count == 1
+        assert [
+            row["registration_mark"]
+            for row in store._connection.execute(
+                "SELECT registration_mark FROM aircraft"
+            ).fetchall()
+        ] == ["N201AA"]
+        assert store._connection.execute(
+            "SELECT COUNT(*) FROM flight_aircraft_snapshot_matches"
+        ).fetchone()[0] == 1
+        assert store._connection.execute(
+            "SELECT COUNT(*) FROM knowledge_roots"
+        ).fetchone()[0] == 4
     finally:
         store.close()
 
@@ -547,6 +621,10 @@ def test_nasa_flight_trajectory_is_published_without_forcing_bts_semantics(
     from aviation_agentic_ai.agent_system.flight_airspace_ingestion import (
         run_flight_airspace_ingestion,
     )
+    from aviation_agentic_ai.agent_system.flight_airspace_query import (
+        FlightAirspaceQueryService,
+        TMIApplicabilityQuery,
+    )
 
     raw_root = tmp_path / "raw"
     raw_root.mkdir()
@@ -587,6 +665,24 @@ def test_nasa_flight_trajectory_is_published_without_forcing_bts_semantics(
             "SectorLocationInst.ttl",
             "@prefix nas: <https://data.nasa.gov/ontologies/atmonto/NAS#> .\n",
         )
+        archive.writestr(
+            "airportInst.ttl",
+            "@prefix nas: <https://data.nasa.gov/ontologies/atmonto/NAS#> .\n"
+            "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n"
+            "nas:KATLairport nas:icaoAirportCode \"KATL\" ;\n"
+            "  rdfs:label \"Atlanta Hartsfield-Jackson\" ;\n"
+            "  nas:withinARTCC nas:ZTLcenter .\n"
+            "nas:KJFKairport nas:icaoAirportCode \"KJFK\" ;\n"
+            "  rdfs:label \"John F. Kennedy International\" ;\n"
+            "  nas:withinARTCC nas:ZNYcenter .\n",
+        )
+        archive.writestr(
+            "ARTCCLocationInst.ttl",
+            "@prefix nas: <https://data.nasa.gov/ontologies/atmonto/NAS#> .\n"
+            "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n"
+            "nas:ZTLcenter rdfs:label \"Atlanta Center\" .\n"
+            "nas:ZNYcenter rdfs:label \"New York Center\" .\n",
+        )
         common = (
             "@prefix atm: <https://data.nasa.gov/ontologies/atmonto/ATM#> .\n"
             "@prefix data: <https://data.nasa.gov/ontologies/atmonto/data#> .\n"
@@ -597,9 +693,9 @@ def test_nasa_flight_trajectory_is_published_without_forcing_bts_semantics(
             "METARinst.ttl",
             common
             + "data:M1 a data:METARreport ; "
-            "data:associatedMETARreportingStation nas:KJFKairport ; "
-            "data:dataIntervalStartTime \"2014-07-15T02:00:00\"^^xsd:dateTime ; "
-            "data:metarReportString \"KJFK 150200Z 10SM CLR\" .\n",
+            "data:associatedMETARreportingStation nas:KATLairport ; "
+            "data:dataIntervalStartTime \"2014-07-15T02:10:00\"^^xsd:dateTime ; "
+            "data:metarReportString \"KATL 150210Z 10SM CLR\" .\n",
         )
         archive.writestr(
             "TAFinst.ttl",
@@ -625,10 +721,13 @@ def test_nasa_flight_trajectory_is_published_without_forcing_bts_semantics(
             common
             + "atm:G1 a atm:GroundDelayProgramTMI ; "
             "atm:controlledNASelement nas:KJFKairport ; "
+            "atm:departureScope atm:G1scope ; "
             "atm:issuedTime \"2014-07-15T01:30:00\"^^xsd:dateTime ; "
             "atm:effectiveStartTime \"2014-07-15T02:00:00\"^^xsd:dateTime ; "
             "atm:effectiveEndTime \"2014-07-15T03:00:00\"^^xsd:dateTime ; "
-            "atm:impactingCondition \"WEATHER\" .\n",
+            "atm:impactingCondition \"WEATHER\" .\n"
+            "atm:G1scope a atm:FlightSpec ; "
+            "atm:withinARTCC nas:ZTLcenter .\n",
         )
     config = {
         "sources": {"nasa_atmonto_instances": "atmonto.zip"},
@@ -637,7 +736,12 @@ def test_nasa_flight_trajectory_is_published_without_forcing_bts_semantics(
                 "temporal_domain_id": "nasa-atmonto-2014",
                 "include_public_sample_layers": True,
                 "sample_date": "2014-07-15",
-                "weather_aspm_airport_codes": ["KJFK", "KEWR", "KLGA"],
+                "weather_aspm_airport_codes": [
+                    "KATL",
+                    "KJFK",
+                    "KEWR",
+                    "KLGA",
+                ],
             }
         },
     }
@@ -655,12 +759,24 @@ def test_nasa_flight_trajectory_is_published_without_forcing_bts_semantics(
             chunk_size=2,
         )
 
-        assert summary.discovered_count == 7
-        assert summary.ok_count == 7
+        assert summary.discovered_count == 13
+        assert summary.ok_count == 13
         assert summary.insufficient_count == 0
+        assert summary.flight_weather_association_count == 1
+        assert summary.aircraft_snapshot_match_count == 0
+        assert summary.tmi_applicability_count == 1
         assert store._connection.execute(
             "SELECT COUNT(*) FROM source_versions"
-        ).fetchone()[0] == 9
+        ).fetchone()[0] == 13
+        assert store._connection.execute(
+            "SELECT COUNT(*) FROM airports"
+        ).fetchone()[0] == 2
+        assert store._connection.execute(
+            "SELECT COUNT(*) FROM artccs"
+        ).fetchone()[0] == 2
+        assert store._connection.execute(
+            "SELECT COUNT(*) FROM airport_artcc_assignments"
+        ).fetchone()[0] == 2
         sector = store._connection.execute("SELECT * FROM sectors").fetchone()
         assert sector["sector_id"].endswith("#ZTLsector040")
         flight = store._connection.execute(
@@ -691,9 +807,58 @@ def test_nasa_flight_trajectory_is_published_without_forcing_bts_semantics(
         assert store._connection.execute(
             "SELECT COUNT(*) FROM source_tmi_publications"
         ).fetchone()[0] == 1
+        tmi = store._connection.execute(
+            "SELECT * FROM source_tmi_publications"
+        ).fetchone()
+        assert tmi["departure_scope_declared"] == 1
+        assert json.loads(tmi["departure_scope_airport_ids_json"]) == []
+        assert json.loads(tmi["departure_scope_artcc_ids_json"]) == ["ZTL"]
+        assert store._connection.execute(
+            "SELECT COUNT(*) FROM flight_weather_associations"
+        ).fetchone()[0] == 1
+        applicability = store._connection.execute(
+            "SELECT status, actual_control_claim FROM flight_tmi_applicability"
+        ).fetchone()
+        assert (applicability["status"], applicability["actual_control_claim"]) == (
+            "applicability_candidate",
+            0,
+        )
         assert store._connection.execute(
             "SELECT COUNT(*) FROM publication_sources"
-        ).fetchone()[0] == 11
+        ).fetchone()[0] == 22
+        assert store._connection.execute(
+            """
+            SELECT COUNT(*)
+            FROM publication_evidence_links AS link
+            JOIN knowledge_roots AS root
+              ON root.active_publication_id = link.publication_id
+            WHERE root.root_kind = 'tmi_applicability'
+              AND link.evidence_ref LIKE
+                  'tmi_applicability:airport_artcc_assignment:%'
+            """
+        ).fetchone()[0] == 1
+        applicability_page = FlightAirspaceQueryService(
+            store
+        ).find_tmi_applicability_candidates(
+            TMIApplicabilityQuery(status="applicability_candidate")
+        )
+        assert applicability_page.total_matches == 1
+        assert len(applicability_page.candidates[0].source_ids) == 3
+        assert len(applicability_page.candidates[0].source_version_ids) == 3
+        assert len(applicability_page.candidates[0].source_anchor_ids) == 3
+        association_roots = store._connection.execute(
+            """
+            SELECT root_kind, COUNT(*) AS count
+            FROM knowledge_roots
+            WHERE root_kind IN ('flight_weather', 'tmi_applicability')
+            GROUP BY root_kind
+            ORDER BY root_kind
+            """
+        ).fetchall()
+        assert [(row["root_kind"], row["count"]) for row in association_roots] == [
+            ("flight_weather", 1),
+            ("tmi_applicability", 1),
+        ]
         source_metadata = {
             json.loads(row["metadata_json"])["subject_iri"]: json.loads(
                 row["metadata_json"]

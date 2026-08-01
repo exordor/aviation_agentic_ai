@@ -13,6 +13,7 @@ from pathlib import Path
 from aviation_agentic_ai.agent_system.agent_usage import AgentUsageRecord
 from aviation_agentic_ai.agent_system.contracts import SourceFamily
 from aviation_agentic_ai.agent_system.flight_airspace_contracts import (
+    CrossSourceAssociationMaterialization,
     FlightAirspaceMaterialization,
 )
 from aviation_agentic_ai.agent_system.ingestion_package import IngestionAttempt
@@ -605,6 +606,9 @@ class AviationEvidenceStore:
                         tmi_type TEXT NOT NULL,
                         controlled_element_id TEXT,
                         airport_id TEXT,
+                        departure_scope_declared INTEGER NOT NULL DEFAULT 0,
+                        departure_scope_airport_ids_json TEXT NOT NULL DEFAULT '[]',
+                        departure_scope_artcc_ids_json TEXT NOT NULL DEFAULT '[]',
                         reason TEXT,
                         issued_at TEXT NOT NULL,
                         effective_from TEXT,
@@ -1678,6 +1682,234 @@ class AviationEvidenceStore:
                 )
         return outcomes
 
+    def apply_cross_source_association_materialization(
+        self,
+        materialization: CrossSourceAssociationMaterialization,
+    ) -> bool:
+        """Idempotently publish rebuildable joins over active publications.
+
+        Each association receives its own immutable knowledge publication.
+        The participant publications remain unchanged; the association
+        publication owns the multi-source evidence and derivation.
+        """
+
+        for binding in materialization.bindings:
+            for publication_id in binding.participating_publication_ids:
+                active = self._connection.execute(
+                    """
+                    SELECT 1
+                    FROM knowledge_roots
+                    WHERE active_publication_id = ?
+                    """,
+                    (publication_id,),
+                ).fetchone()
+                if active is None:
+                    raise ValueError(
+                        "association input is not an active knowledge publication"
+                    )
+            for link in binding.participant_evidence:
+                membership = self._connection.execute(
+                    """
+                    SELECT 1
+                    FROM publication_sources
+                    WHERE publication_id = ? AND source_version_id = ?
+                    """,
+                    (link.publication_id, link.source_version_id),
+                ).fetchone()
+                anchor = self.get_source_anchor(link.source_anchor_id or "")
+                if membership is None or anchor is None:
+                    raise ValueError(
+                        "association evidence is outside its participant publication"
+                    )
+                if anchor.source_version_id != link.source_version_id:
+                    raise ValueError(
+                        "association evidence anchor belongs to another source"
+                    )
+
+        domains = materialization.rebuilt_temporal_domain_ids
+        if not domains:
+            return False
+        domain_placeholders = ",".join("?" for _ in domains)
+        weather_rows = tuple(
+            (
+                row.association_id,
+                row.flight_publication_id,
+                row.weather_publication_id,
+                row.flight_time_field,
+                row.flight_time.isoformat(),
+                row.observation_time.isoformat(),
+                row.delta_seconds,
+                row.procedure_id,
+                row.procedure_checksum,
+                row.temporal_domain_id,
+                row.derivation_id,
+                int(row.causal_claim),
+            )
+            for row in materialization.flight_weather_associations
+        )
+        snapshot_rows = tuple(
+            (
+                row.match_id,
+                row.flight_publication_id,
+                row.aircraft_publication_id,
+                row.aircraft_model_publication_id,
+                row.registry_snapshot_at.isoformat(),
+                row.matched_registration_number,
+                row.match_status,
+                row.procedure_id,
+                row.procedure_checksum,
+                row.temporal_domain_id,
+                row.derivation_id,
+                int(row.historical_model_claim),
+            )
+            for row in materialization.aircraft_snapshot_matches
+        )
+        applicability_rows = tuple(
+            (
+                row.applicability_id,
+                row.flight_publication_id,
+                row.tmi_publication_id,
+                row.tmi_family,
+                row.status,
+                row.rule_id,
+                row.rule_checksum,
+                json.dumps(
+                    row.normalized_inputs,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ),
+                row.temporal_domain_id,
+                row.limitation,
+                row.derivation_id,
+                int(row.actual_control_claim),
+            )
+            for row in materialization.tmi_applicability
+        )
+        view_specs = (
+            (
+                "flight_weather_associations",
+                "association_id",
+                "flight_weather",
+                (
+                    "association_id", "flight_publication_id",
+                    "weather_publication_id", "flight_time_field",
+                    "flight_time", "observation_time", "delta_seconds",
+                    "procedure_id", "procedure_checksum",
+                    "temporal_domain_id", "derivation_id", "causal_claim",
+                ),
+                weather_rows,
+            ),
+            (
+                "flight_aircraft_snapshot_matches",
+                "snapshot_match_id",
+                "aircraft_snapshot",
+                (
+                    "snapshot_match_id", "flight_publication_id",
+                    "aircraft_publication_id", "model_publication_id",
+                    "registry_snapshot_at", "matched_registration_number",
+                    "match_status", "procedure_id", "procedure_checksum",
+                    "temporal_domain_id", "derivation_id",
+                    "historical_model_claim",
+                ),
+                snapshot_rows,
+            ),
+            (
+                "flight_tmi_applicability",
+                "applicability_id",
+                "tmi_applicability",
+                (
+                    "applicability_id", "flight_publication_id",
+                    "tmi_publication_id", "tmi_family", "status", "rule_id",
+                    "rule_checksum", "normalized_inputs_json",
+                    "temporal_domain_id", "limitation", "derivation_id",
+                    "actual_control_claim",
+                ),
+                applicability_rows,
+            ),
+        )
+
+        stale_roots: list[tuple[str, str]] = []
+        for table, id_column, root_kind, _, target_rows in view_specs:
+            current_ids = {
+                row[0]
+                for row in self._connection.execute(
+                    f"SELECT {id_column} FROM {table} "
+                    f"WHERE temporal_domain_id IN ({domain_placeholders})",
+                    domains,
+                ).fetchall()
+            }
+            target_ids = {row[0] for row in target_rows}
+            stale_roots.extend(
+                (root_id, root_kind) for root_id in current_ids - target_ids
+            )
+
+        before = self._connection.total_changes
+        with self._connection:
+            for binding in materialization.bindings:
+                self.apply_knowledge_publication(
+                    binding.association_publication,
+                    _manage_transaction=False,
+                    _increment_revision=False,
+                )
+            for root_id, root_kind in stale_roots:
+                self._connection.execute(
+                    """
+                    UPDATE knowledge_roots
+                    SET active_publication_id = NULL
+                    WHERE root_id = ? AND root_kind = ?
+                      AND active_publication_id IS NOT NULL
+                    """,
+                    (root_id, root_kind),
+                )
+            for table, id_column, _, columns, target_rows in view_specs:
+                target_ids = {row[0] for row in target_rows}
+                current_ids = {
+                    row[0]
+                    for row in self._connection.execute(
+                        f"SELECT {id_column} FROM {table} "
+                        f"WHERE temporal_domain_id IN ({domain_placeholders})",
+                        domains,
+                    ).fetchall()
+                }
+                stale_ids = current_ids - target_ids
+                if stale_ids:
+                    placeholders = ",".join("?" for _ in stale_ids)
+                    self._connection.execute(
+                        f"DELETE FROM {table} "
+                        f"WHERE {id_column} IN ({placeholders})",
+                        tuple(sorted(stale_ids)),
+                    )
+                column_list = ",".join(columns)
+                value_placeholders = ",".join("?" for _ in columns)
+                for values in target_rows:
+                    current = self._connection.execute(
+                        f"SELECT {column_list} FROM {table} WHERE {id_column} = ?",
+                        (values[0],),
+                    ).fetchone()
+                    if current is not None and tuple(current) == values:
+                        continue
+                    self._connection.execute(
+                        f"INSERT OR REPLACE INTO {table}({column_list}) "
+                        f"VALUES ({value_placeholders})",
+                        values,
+                    )
+            for binding in materialization.bindings:
+                publication_id = (
+                    binding.association_publication.publication.publication_id
+                )
+                self._connection.execute(
+                    """
+                    UPDATE knowledge_roots
+                    SET active_publication_id = ?
+                    WHERE root_id = ? AND active_publication_id IS NOT ?
+                    """,
+                    (publication_id, binding.association_id, publication_id),
+                )
+            changed = self._connection.total_changes > before
+            if changed:
+                self._increment_knowledge_revision(datetime.now(UTC).isoformat())
+        return changed
+
     def _insert_flight_airspace_rows(
         self,
         materialization: FlightAirspaceMaterialization,
@@ -2050,9 +2282,11 @@ class AviationEvidenceStore:
             """
             INSERT INTO source_tmi_publications(
                 tmi_id, publication_id, temporal_domain_id, source_family,
-                tmi_type, controlled_element_id, airport_id, reason, issued_at,
+                tmi_type, controlled_element_id, airport_id,
+                departure_scope_declared, departure_scope_airport_ids_json,
+                departure_scope_artcc_ids_json, reason, issued_at,
                 effective_from, effective_to, source_version_id
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 (
@@ -2063,6 +2297,9 @@ class AviationEvidenceStore:
                     row.tmi_type,
                     row.controlled_element_id,
                     row.airport_id,
+                    int(row.departure_scope_declared),
+                    json.dumps(row.departure_scope_airport_ids),
+                    json.dumps(row.departure_scope_artcc_ids),
                     row.reason,
                     row.issued_at.isoformat(),
                     self._datetime_text(row.effective_from),
@@ -2072,93 +2309,6 @@ class AviationEvidenceStore:
                 for row in materialization.tmi_publications
             ),
         )
-        self._connection.executemany(
-            """
-            INSERT INTO flight_weather_associations(
-                association_id, flight_publication_id, weather_publication_id,
-                flight_time_field, flight_time, observation_time, delta_seconds,
-                procedure_id, procedure_checksum, temporal_domain_id,
-                derivation_id, causal_claim
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                (
-                    row.association_id,
-                    row.flight_publication_id,
-                    row.weather_publication_id,
-                    row.flight_time_field,
-                    row.flight_time.isoformat(),
-                    row.observation_time.isoformat(),
-                    row.delta_seconds,
-                    row.procedure_id,
-                    row.procedure_checksum,
-                    row.temporal_domain_id,
-                    row.derivation_id,
-                    int(row.causal_claim),
-                )
-                for row in materialization.flight_weather_associations
-            ),
-        )
-        self._connection.executemany(
-            """
-            INSERT INTO flight_aircraft_snapshot_matches(
-                snapshot_match_id, flight_publication_id,
-                aircraft_publication_id, model_publication_id,
-                registry_snapshot_at, matched_registration_number,
-                match_status, procedure_id, procedure_checksum,
-                temporal_domain_id, derivation_id, historical_model_claim
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                (
-                    row.match_id,
-                    row.flight_publication_id,
-                    row.aircraft_publication_id,
-                    row.aircraft_model_publication_id,
-                    row.registry_snapshot_at.isoformat(),
-                    row.matched_registration_number,
-                    row.match_status,
-                    row.procedure_id,
-                    row.procedure_checksum,
-                    row.temporal_domain_id,
-                    row.derivation_id,
-                    int(row.historical_model_claim),
-                )
-                for row in materialization.aircraft_snapshot_matches
-            ),
-        )
-        self._connection.executemany(
-            """
-            INSERT INTO flight_tmi_applicability(
-                applicability_id, flight_publication_id, tmi_publication_id,
-                tmi_family, status, rule_id, rule_checksum,
-                normalized_inputs_json, temporal_domain_id, limitation,
-                derivation_id, actual_control_claim
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                (
-                    row.applicability_id,
-                    row.flight_publication_id,
-                    row.tmi_publication_id,
-                    row.tmi_family,
-                    row.status,
-                    row.rule_id,
-                    row.rule_checksum,
-                    json.dumps(
-                        row.normalized_inputs,
-                        sort_keys=True,
-                        separators=(",", ":"),
-                    ),
-                    row.temporal_domain_id,
-                    row.limitation,
-                    row.derivation_id,
-                    int(row.actual_control_claim),
-                )
-                for row in materialization.tmi_applicability
-            ),
-        )
-
     @staticmethod
     def _datetime_text(value: datetime | None) -> str | None:
         return value.isoformat() if value is not None else None

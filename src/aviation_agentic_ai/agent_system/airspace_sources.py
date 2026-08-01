@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Literal, TypeAlias
 import zipfile
 
-from rdflib import Graph, Literal as RDFLiteral, Namespace, RDF, URIRef
+from rdflib import Graph, Literal as RDFLiteral, Namespace, RDF, RDFS, URIRef
 from rdflib.term import Node
 
 from aviation_agentic_ai.authority.nasr import (
@@ -33,6 +33,8 @@ NASA_ATMONTO_AIRSPACE_MEMBER_BASENAMES = (
     "flightInst.ttl",
     "fixInst.ttl",
     "SectorLocationInst.ttl",
+    "airportInst.ttl",
+    "ARTCCLocationInst.ttl",
 )
 
 
@@ -161,12 +163,43 @@ class NASASectorSourceRecord:
     sector_identifier: str
 
 
+@dataclass(frozen=True, slots=True)
+class NASAAirportSourceRecord:
+    source: NASARDFSourceTrace
+    subject_iri: str
+    icao_code: str
+    faa_code: str | None
+    iata_code: str | None
+    display_name: str
+    state: str | None
+    within_artcc_iris: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class NASAARTCCSourceRecord:
+    source: NASARDFSourceTrace
+    subject_iri: str
+    artcc_code: str
+    display_name: str
+
+
+@dataclass(frozen=True, slots=True)
+class NASAAirportARTCCAssignmentSourceRecord:
+    source: NASARDFSourceTrace
+    airport_iri: str
+    artcc_iri: str
+    assignment_role: Literal["within"]
+
+
 NASAAirspaceSourceRecord: TypeAlias = (
     NASAFlightSourceRecord
     | NASAActualRouteSourceRecord
     | NASATrackPointSourceRecord
     | NASANavigationFixSourceRecord
     | NASASectorSourceRecord
+    | NASAAirportSourceRecord
+    | NASAARTCCSourceRecord
+    | NASAAirportARTCCAssignmentSourceRecord
 )
 
 
@@ -647,15 +680,89 @@ def _iter_sector_records(
         )
 
 
+def _iter_airport_reference_records(
+    graph: Graph,
+    *,
+    subjects: set[URIRef],
+    archive_checksum: str,
+    member_name: str,
+) -> Iterator[NASAAirportSourceRecord | NASAAirportARTCCAssignmentSourceRecord]:
+    for subject in sorted(subjects, key=str):
+        icao_code = _text_value(graph, subject, NAS.icaoAirportCode)
+        if icao_code is None:
+            continue
+        within_artccs = tuple(
+            URIRef(value) for value in _uri_values(graph, subject, NAS.withinARTCC)
+        )
+        relation_triples = tuple(
+            (subject, NAS.withinARTCC, artcc) for artcc in within_artccs
+        )
+        trace = _rdf_trace(
+            archive_checksum=archive_checksum,
+            member_name=member_name,
+            subject=subject,
+            graph=graph,
+            related_subjects=within_artccs,
+            relation_triples=relation_triples,
+        )
+        yield NASAAirportSourceRecord(
+            source=trace,
+            subject_iri=str(subject),
+            icao_code=icao_code,
+            faa_code=_text_value(graph, subject, NAS.faaAirportCode),
+            iata_code=_text_value(graph, subject, NAS.iataAirportCode),
+            display_name=_text_value(graph, subject, NAS.airportName)
+            or _text_value(graph, subject, RDFS.label)
+            or icao_code,
+            state=_text_value(graph, subject, NAS.locatedInState),
+            within_artcc_iris=tuple(str(value) for value in within_artccs),
+        )
+        for artcc in within_artccs:
+            yield NASAAirportARTCCAssignmentSourceRecord(
+                source=trace,
+                airport_iri=str(subject),
+                artcc_iri=str(artcc),
+                assignment_role="within",
+            )
+
+
+def _iter_artcc_records(
+    graph: Graph,
+    *,
+    subjects: set[URIRef],
+    archive_checksum: str,
+    member_name: str,
+) -> Iterator[NASAARTCCSourceRecord]:
+    for subject in sorted(subjects, key=str):
+        trace = _rdf_trace(
+            archive_checksum=archive_checksum,
+            member_name=member_name,
+            subject=subject,
+            graph=graph,
+        )
+        if not trace.canonical_triples:
+            continue
+        fragment = _subject_fragment(subject)
+        artcc_code = fragment.removesuffix("center")
+        yield NASAARTCCSourceRecord(
+            source=trace,
+            subject_iri=str(subject),
+            artcc_code=artcc_code,
+            display_name=_text_value(graph, subject, RDFS.label) or artcc_code,
+        )
+
+
 def iter_nasa_atmonto_airspace_records(
     path: str | Path,
     *,
     include_global_fixes: bool = True,
 ) -> Iterator[NASAAirspaceSourceRecord]:
-    """Stream typed records from the three reviewed atmontoPlus members.
+    """Stream typed records from the reviewed atmontoPlus airspace members.
 
     Each member is parsed and discarded independently.  No aggregate 138 MB
-    graph is constructed, and non-allowlisted members are never parsed.
+    graph is constructed, and non-allowlisted members are never parsed.  The
+    airport and ARTCC layers are restricted to entities referenced by the
+    selected Flight records rather than materializing the full airport catalog.
     """
 
     archive_path = Path(path)
@@ -676,6 +783,44 @@ def iter_nasa_atmonto_airspace_records(
         )
         del flight_graph
         yield from flight_records
+
+        referenced_airports = {
+            URIRef(airport_iri)
+            for record in flight_records
+            if isinstance(record, NASAFlightSourceRecord)
+            for airport_iri in (
+                record.departure_airport_iri,
+                record.arrival_airport_iri,
+            )
+            if airport_iri is not None
+        }
+        airport_member = members["airportInst.ttl"]
+        airport_graph = _parse_turtle_member(archive, airport_member)
+        airport_records = tuple(
+            _iter_airport_reference_records(
+                airport_graph,
+                subjects=referenced_airports,
+                archive_checksum=archive_checksum,
+                member_name=airport_member,
+            )
+        )
+        del airport_graph
+        yield from airport_records
+
+        referenced_artccs = {
+            URIRef(record.artcc_iri)
+            for record in airport_records
+            if isinstance(record, NASAAirportARTCCAssignmentSourceRecord)
+        }
+        artcc_member = members["ARTCCLocationInst.ttl"]
+        artcc_graph = _parse_turtle_member(archive, artcc_member)
+        yield from _iter_artcc_records(
+            artcc_graph,
+            subjects=referenced_artccs,
+            archive_checksum=archive_checksum,
+            member_name=artcc_member,
+        )
+        del artcc_graph
 
         referenced_fixes = {
             URIRef(record.fix_iri)
@@ -704,7 +849,10 @@ def iter_nasa_atmonto_airspace_records(
 
 __all__ = [
     "NASAActualRouteSourceRecord",
+    "NASAARTCCSourceRecord",
     "NASAAirspaceSourceRecord",
+    "NASAAirportARTCCAssignmentSourceRecord",
+    "NASAAirportSourceRecord",
     "NASAFlightSourceRecord",
     "NASANavigationFixSourceRecord",
     "NASARDFSourceTrace",
