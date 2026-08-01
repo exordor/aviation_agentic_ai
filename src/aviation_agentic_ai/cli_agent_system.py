@@ -335,6 +335,11 @@ def reindex_command(
 @click.option("--offset", type=click.IntRange(min=0), default=0)
 @click.option("--limit", type=click.IntRange(min=1, max=100), default=20)
 @click.option("--allow-model-download", is_flag=True)
+@click.option(
+    "--allow-live-web",
+    is_flag=True,
+    help="Authorize read-only calls to the configured Web Evidence sidecar.",
+)
 def ask_command(
     config_path: Path,
     store_dir: Path | None,
@@ -349,6 +354,7 @@ def ask_command(
     offset: int,
     limit: int,
     allow_model_download: bool,
+    allow_live_web: bool,
 ) -> None:
     """Ask a natural-language question through the bounded Query Agent."""
 
@@ -358,6 +364,7 @@ def ask_command(
         config,
         store_dir=store_dir,
         allow_model_download=allow_model_download,
+        allow_live_web=allow_live_web,
     )
     source_labels: list[str] = []
     try:

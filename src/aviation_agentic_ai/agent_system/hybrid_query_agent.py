@@ -513,6 +513,19 @@ def _claim_boundary_error(statement: HybridQueryStatement) -> str | None:
         )
     ):
         return "public observation statement crosses the claim boundary"
+    if statement.kind == "source_record" and any(
+        source_id.startswith("web-document:")
+        for source_id in statement.support_source_ids
+    ) and any(
+        phrase in padded
+        for phrase in (
+            " actual faa control",
+            " actually controls",
+            " currently controls",
+            " is controlling",
+        )
+    ):
+        return "web source cannot establish actual FAA control"
     if statement.kind == "similarity" and any(
         phrase in padded for phrase in recommendation_phrases
     ):

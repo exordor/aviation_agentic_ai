@@ -32,10 +32,11 @@ class QueryToolFamily(StrEnum):
     SOURCE = "source"
     TMI = "tmi"
     FLIGHT_AIRSPACE = "flight_airspace"
+    WEB = "web"
 
 
 class QueryRouteDecision(StrictModel):
-    families: tuple[QueryToolFamily, ...] = Field(min_length=1, max_length=3)
+    families: tuple[QueryToolFamily, ...] = Field(min_length=1, max_length=4)
 
 
 @dataclass(frozen=True)
@@ -103,9 +104,15 @@ FLIGHT_AIRSPACE_TOOL_NAMES = (
     "find_tmi_applicability_candidates",
     "read_aviation_graph",
 )
+WEB_TOOL_NAMES = (
+    "web_search",
+    "web_fetch",
+    "web_extract",
+)
 QUERY_EVIDENCE_TOOL_NAMES = frozenset(
     (*SOURCE_TOOL_NAMES, *TMI_TOOL_NAMES, *FLIGHT_AIRSPACE_TOOL_NAMES)
 )
+OPTIONAL_QUERY_EVIDENCE_TOOL_NAMES = frozenset(WEB_TOOL_NAMES)
 QUERY_CONTROL_TOOL_NAMES = frozenset({QUERY_ROUTE_TOOL_NAME})
 
 
@@ -115,7 +122,9 @@ def query_tool_model_role(tools: Sequence[BaseTool]) -> str:
     names = frozenset(candidate.name for candidate in tools)
     if names == QUERY_CONTROL_TOOL_NAMES:
         return "query_router"
-    if names and names <= QUERY_EVIDENCE_TOOL_NAMES:
+    if names and names <= (
+        QUERY_EVIDENCE_TOOL_NAMES | OPTIONAL_QUERY_EVIDENCE_TOOL_NAMES
+    ):
         return "query"
     raise ValueError(f"unsupported Query Agent tool binding: {sorted(names)}")
 
@@ -127,7 +136,14 @@ def build_query_tool_registry(tools: Iterable[BaseTool]) -> QueryToolRegistry:
             raise ValueError(f"duplicate query tool name: {candidate.name}")
         ordered_tools[candidate.name] = candidate
     missing = QUERY_EVIDENCE_TOOL_NAMES.difference(ordered_tools)
-    extra = set(ordered_tools).difference(QUERY_EVIDENCE_TOOL_NAMES)
+    extra = set(ordered_tools).difference(
+        QUERY_EVIDENCE_TOOL_NAMES | OPTIONAL_QUERY_EVIDENCE_TOOL_NAMES
+    )
+    optional = set(ordered_tools).intersection(OPTIONAL_QUERY_EVIDENCE_TOOL_NAMES)
+    if optional and optional != set(OPTIONAL_QUERY_EVIDENCE_TOOL_NAMES):
+        raise ValueError(
+            "query tool registry must expose all optional web tools together"
+        )
     if missing or extra:
         raise ValueError(
             "query tool registry does not match the active contract: "
@@ -161,6 +177,16 @@ def build_query_tool_registry(tools: Iterable[BaseTool]) -> QueryToolRegistry:
             tool_names=FLIGHT_AIRSPACE_TOOL_NAMES,
         ),
     }
+    if optional:
+        specs[QueryToolFamily.WEB] = QueryToolFamilySpec(
+            family=QueryToolFamily.WEB,
+            description=(
+                "Explicitly authorized Web Evidence candidates and exact, "
+                "source-bound fetch/extract reads; search results alone are "
+                "not evidence."
+            ),
+            tool_names=WEB_TOOL_NAMES,
+        )
     return QueryToolRegistry(tools_by_name=ordered_tools, family_specs=specs)
 
 
@@ -285,6 +311,7 @@ __all__ = [
     "FLIGHT_AIRSPACE_TOOL_NAMES",
     "QUERY_CONTROL_TOOL_NAMES",
     "QUERY_EVIDENCE_TOOL_NAMES",
+    "OPTIONAL_QUERY_EVIDENCE_TOOL_NAMES",
     "QUERY_ROUTE_TOOL_NAME",
     "QueryRouteDecision",
     "QueryRoutingBlocked",
@@ -292,6 +319,7 @@ __all__ = [
     "QueryToolRegistry",
     "SOURCE_TOOL_NAMES",
     "TMI_TOOL_NAMES",
+    "WEB_TOOL_NAMES",
     "build_query_route_tool",
     "build_query_tool_registry",
     "query_tool_model_role",

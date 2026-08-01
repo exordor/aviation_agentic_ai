@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -26,6 +27,14 @@ from aviation_agentic_ai.config import (
     configured_dataset_id,
     configured_store_root,
     resolve_project_path,
+    validate_web_evidence_config,
+)
+from aviation_agentic_ai.agent_system.web_evidence_client import (
+    HttpWigoloWebClient,
+    WebEvidenceClient,
+)
+from aviation_agentic_ai.agent_system.web_evidence_contracts import (
+    WebEvidenceConfig,
 )
 
 
@@ -36,6 +45,10 @@ class QueryRuntime:
     store: AviationEvidenceStore
     source_index: ChromaSourceRetrievalIndex | None
     event_index: ChromaTMIEventRetrievalIndex | None
+    # Query-time web access is an explicitly authorized, read-only sidecar.
+    # It is intentionally not a store writer and is absent by default.
+    web_client: WebEvidenceClient | None = None
+    web_config: WebEvidenceConfig | None = None
 
 
 def _storage_config(config: dict[str, Any]) -> dict[str, Any]:
@@ -120,6 +133,7 @@ def open_query_runtime(
     *,
     store_dir: str | Path | None = None,
     allow_model_download: bool = False,
+    allow_live_web: bool = False,
 ) -> QueryRuntime:
     """Open the live store and independently attach valid vector indexes."""
 
@@ -138,6 +152,16 @@ def open_query_runtime(
         create=False,
     )
 
+    web_config = validate_web_evidence_config(typed_config)
+    web_client: WebEvidenceClient | None = None
+    if allow_live_web and web_config.enabled:
+        token = os.environ.get(web_config.token_env) or None
+        web_client = HttpWigoloWebClient(
+            web_config.base_url,
+            token,
+            web_config.timeout_seconds,
+        )
+
     try:
         source_index = _open_source_index(
             store,
@@ -155,6 +179,8 @@ def open_query_runtime(
         store=store,
         source_index=source_index,
         event_index=event_index,
+        web_client=web_client,
+        web_config=web_config if web_client is not None else None,
     )
 
 
