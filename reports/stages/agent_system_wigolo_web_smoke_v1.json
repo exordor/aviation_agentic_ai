@@ -1,0 +1,85 @@
+{
+  "evaluation_mode": "live_smoke",
+  "suite_id": "wigolo_web_smoke_v1",
+  "runner_status": "completed",
+  "sidecar": {
+    "provider": "wigolo",
+    "version": "0.2.1",
+    "endpoint": "http://127.0.0.1:3333",
+    "health": "healthy",
+    "synthesis": "disabled"
+  },
+  "initial_ingestion": {
+    "samples": 3,
+    "attempted_fetches": 3,
+    "returned_fetches": 3,
+    "failed_fetches": 0,
+    "accepted_source_versions": 3,
+    "source_anchors_per_version": 1,
+    "knowledge_revision": 3,
+    "fts_glossary_matches": 1,
+    "sources": [
+      {
+        "seed_id": "faa-pcg",
+        "url": "https://www.faa.gov/air_traffic/publications/atpubs/pcg_html/",
+        "status": "ok",
+        "content_sha256": "2cfa9b15084a348c53c6f2840d362fb1f5b005d94ca5d31e841e6a901e3fb682",
+        "source_version_id": "source-version:b01ba61e73f0f918"
+      },
+      {
+        "seed_id": "nasa-aeronautics",
+        "url": "https://www.nasa.gov/aeronautics/",
+        "status": "ok",
+        "content_sha256": "0cf8e6be5d9cd124a11a6106017d8c4392a8345ce1fab6059af222aebf362042",
+        "source_version_id": "source-version:09396ec0ff53d546"
+      },
+      {
+        "seed_id": "faa-aim",
+        "url": "https://www.faa.gov/air_traffic/publications/atpubs/aim_html/",
+        "status": "ok",
+        "content_sha256": "96dc5ff0daedb1481ec1d85b966beb466ccda9bec1740dc8554a73e48e787c",
+        "source_version_id": "source-version:ee15024feb59117e"
+      }
+    ]
+  },
+  "repeat_deduplication": {
+    "attempted_fetches": 1,
+    "returned_fetches": 1,
+    "failed_fetches": 0,
+    "changed_urls": [],
+    "source_version_count_after_repeat": 3,
+    "knowledge_revision_after_repeat": 3
+  },
+  "latency_probe": {
+    "attempted_fetches": 3,
+    "returned_fetches": 3,
+    "failed_fetches": 0,
+    "latency_ms": [194.91, 249.25, 6.38],
+    "mean_latency_ms": 150.18,
+    "median_latency_ms": 194.91
+  },
+  "controlled_storage_fixture": {
+    "mode": "offline_controlled_storage_fixture",
+    "first_status": "ok",
+    "second_status": "ok",
+    "version_count": 2,
+    "claim": "changed content creates a second immutable source version"
+  },
+  "artifacts": {
+    "raw_summary": "data/evaluation_runs/agent_system/wigolo_web_smoke_v1/raw_sidecar_responses.jsonl",
+    "parsed_outputs": "data/evaluation_runs/agent_system/wigolo_web_smoke_v1/parsed_trial_outputs.jsonl",
+    "raw_summary_sha256": "38ca9ca95a0fb50e2433e01f340a5273fbfbd25d61e701349e426d8401fb6156",
+    "parsed_outputs_sha256": "36aecac57ebd83f2342f2d2d7c95f8309f9a7386826c8b57e77bfca3879dc91f",
+    "note": "Ignored artifacts contain sanitized response summaries and parsed source identities only; no page bodies, prompts, headers, tokens, or model reasoning are retained."
+  },
+  "direct_domain_check_after_sidecar_stop": {
+    "sidecar_health": "unreachable_after_stop",
+    "focused_tests_passed": 50,
+    "result": "TMI, Flight/Airspace, and web contract tests remained green"
+  },
+  "limitations": [
+    "This is a compatibility smoke, not a statistical benchmark.",
+    "The requested historical data.nasa.gov ATMONTO URL returned http_500; the accepted NASA sample used the official NASA aeronautics page.",
+    "No Chroma reindex state was published in this small smoke store; FTS5 queryability was verified directly from persisted source chunks."
+  ]
+}
