@@ -61,6 +61,46 @@ class GeneratedFactPublication:
     reason: str | None = None
 
 
+def merge_candidate_fact_proposals(
+    proposals: tuple[CandidateFactProposal, ...] | list[CandidateFactProposal],
+) -> CandidateFactProposal:
+    """Fuse incremental model proposals without collapsing provenance.
+
+    Semantic duplicates remain as separate candidate rows when their evidence
+    references differ.  The publication bridge collapses their semantic fact
+    identity and emits one-to-many evidence links.  Exact duplicate rows from
+    a replay are removed here so a repeated incremental pass is byte-stable.
+    """
+
+    if not proposals:
+        raise ValueError("at least one candidate proposal is required")
+    facts = []
+    seen_rows: set[tuple[str, str, str, str | None, str | None, str]] = set()
+    abstentions = []
+    profile_gaps = []
+    for proposal in proposals:
+        for fact in proposal.facts:
+            key = (
+                fact.predicate_iri,
+                fact.object_kind,
+                fact.object_value,
+                fact.object_class_iri,
+                fact.datatype_iri,
+                fact.evidence_ref,
+            )
+            if key not in seen_rows:
+                seen_rows.add(key)
+                facts.append(fact)
+        abstentions.extend(proposal.abstentions)
+        profile_gaps.extend(proposal.profile_gaps)
+    return CandidateFactProposal(
+        status="accepted" if facts else "abstained",
+        facts=tuple(facts),
+        abstentions=tuple(abstentions),
+        profile_gaps=tuple(profile_gaps),
+    )
+
+
 def _digest(payload: object) -> str:
     encoded = json.dumps(
         payload,
@@ -139,21 +179,22 @@ def _validate_binding(
 def _source_snapshot_registry(
     versions: tuple[SourceVersionRecord, ...],
 ) -> SourceSnapshotRegistry:
+    snapshots_by_source: dict[str, SourceSnapshot] = {}
+    for version in versions:
+        snapshots_by_source.setdefault(
+            version.source_id,
+            SourceSnapshot(
+                source_id=version.source_id,
+                family=version.family,
+                source_url=version.source_url,
+                content=version.content,
+                content_sha256=version.content_sha256,
+            ),
+        )
     snapshots = tuple(
-        SourceSnapshot(
-            source_id=version.source_id,
-            family=version.family,
-            source_url=version.source_url,
-            content=version.content,
-            content_sha256=version.content_sha256,
-        )
-        for version in versions
+        snapshots_by_source[source_id]
+        for source_id in sorted(snapshots_by_source)
     )
-    if len({snapshot.source_id for snapshot in snapshots}) != len(snapshots):
-        raise ValueError(
-            "the shared Formal Publication Kernel requires one source version "
-            "per logical source in this generation task"
-        )
     return SourceSnapshotRegistry(snapshots=snapshots)
 
 
@@ -177,10 +218,14 @@ def _to_validated_facts(
     profile_ref,
     versions_by_id: dict[str, SourceVersionRecord],
     bindings: dict[str, GenerationEvidenceRecord],
-) -> tuple[list[ValidatedFact], list[FactTraceRow], dict[str, GenerationEvidenceRecord]]:
+) -> tuple[
+    list[ValidatedFact],
+    list[FactTraceRow],
+    dict[str, tuple[GenerationEvidenceRecord, ...]],
+]:
     facts: list[ValidatedFact] = []
     traces: list[FactTraceRow] = []
-    fact_bindings: dict[str, GenerationEvidenceRecord] = {}
+    fact_bindings: dict[str, list[GenerationEvidenceRecord]] = {}
     seen_ids: set[str] = set()
     for candidate in proposal.facts:
         binding = bindings.get(candidate.evidence_ref)
@@ -188,51 +233,54 @@ def _to_validated_facts(
             raise ValueError("candidate fact evidence is not bound")
         version = _validate_binding(binding, versions_by_id)
         fact_id = _fact_id(task, candidate)
-        if fact_id in seen_ids:
-            raise ValueError("candidate proposal contains duplicate semantic facts")
-        seen_ids.add(fact_id)
-        fact_bindings[fact_id] = binding
-        facts.append(
-            ValidatedFact(
-                fact_id=fact_id,
-                subject_iri=task.root_id,
-                subject_class_iri=task.ontology_slice.subject_class_iri,
-                predicate_iri=candidate.predicate_iri,
-                object_kind=candidate.object_kind,
-                object_value=candidate.object_value,
-                object_class_iri=candidate.object_class_iri,
-                datatype_iri=candidate.datatype_iri,
-                source_ids=[version.source_id],
-                evidence_texts=[binding.evidence_text],
-                validation_profile=profile_ref,
-                evidence_mode="source_text",
-                # The legacy Formal Publication Kernel's trace contract uses
-                # the fact ID as its internal source-text evidence key.  The
-                # original task reference is retained on the generic package.
-                evidence_ref=fact_id,
+        if fact_id not in seen_ids:
+            seen_ids.add(fact_id)
+            facts.append(
+                ValidatedFact(
+                    fact_id=fact_id,
+                    subject_iri=task.root_id,
+                    subject_class_iri=task.ontology_slice.subject_class_iri,
+                    predicate_iri=candidate.predicate_iri,
+                    object_kind=candidate.object_kind,
+                    object_value=candidate.object_value,
+                    object_class_iri=candidate.object_class_iri,
+                    datatype_iri=candidate.datatype_iri,
+                    source_ids=[version.source_id],
+                    evidence_texts=[binding.evidence_text],
+                    validation_profile=profile_ref,
+                    evidence_mode="source_text",
+                    # The legacy Formal Publication Kernel's trace contract
+                    # uses the fact ID as its internal source-text key.  The
+                    # original task reference is retained on the generic
+                    # package, which can carry one-to-many evidence links.
+                    evidence_ref=fact_id,
+                )
             )
-        )
-        traces.append(
-            FactTraceRow(
-                fact_id=fact_id,
-                graph_patch_line=(
-                    f"{task.root_id} | {candidate.predicate_iri} | "
-                    f"{candidate.object_value} | {version.source_id}"
-                ),
-                source_id=version.source_id,
-                evidence_text=binding.evidence_text,
-                evidence_agent_role="kg_generation",
-                source_snapshot_sha256=version.content_sha256,
+            traces.append(
+                FactTraceRow(
+                    fact_id=fact_id,
+                    graph_patch_line=(
+                        f"{task.root_id} | {candidate.predicate_iri} | "
+                        f"{candidate.object_value} | {version.source_id}"
+                    ),
+                    source_id=version.source_id,
+                    evidence_text=binding.evidence_text,
+                    evidence_agent_role="kg_generation",
+                    source_snapshot_sha256=version.content_sha256,
+                )
             )
-        )
-    return facts, traces, fact_bindings
+        fact_bindings.setdefault(fact_id, []).append(binding)
+    return facts, traces, {
+        fact_id: tuple(bindings_for_fact)
+        for fact_id, bindings_for_fact in fact_bindings.items()
+    }
 
 
 def _build_package(
     *,
     task: OntologyGenerationTask,
     facts: tuple[ValidatedFact, ...],
-    fact_bindings: dict[str, GenerationEvidenceRecord],
+    fact_bindings: dict[str, tuple[GenerationEvidenceRecord, ...]],
     versions_by_id: dict[str, SourceVersionRecord],
     primary_source_version_id: str,
     root_kind: str,
@@ -241,21 +289,21 @@ def _build_package(
     used_version_ids: set[str] = {primary_source_version_id}
     anchors: dict[str, SourceAnchorRecord] = {}
     for fact in facts:
-        binding = fact_bindings[fact.fact_id]
-        used_binding_refs.append(binding.evidence_ref)
-        used_version_ids.add(binding.source_version_id)
-        anchors[binding.source_anchor_id] = SourceAnchorRecord(
-            source_anchor_id=binding.source_anchor_id,
-            source_version_id=binding.source_version_id,
-            char_start=binding.char_start,
-            char_end=binding.char_end,
-            anchor_kind=(
-                "full_record"
-                if binding.char_start == 0
-                and binding.char_end == len(versions_by_id[binding.source_version_id].content)
-                else "text_span"
-            ),
-        )
+        for binding in fact_bindings[fact.fact_id]:
+            used_binding_refs.append(binding.evidence_ref)
+            used_version_ids.add(binding.source_version_id)
+            anchors[binding.source_anchor_id] = SourceAnchorRecord(
+                source_anchor_id=binding.source_anchor_id,
+                source_version_id=binding.source_version_id,
+                char_start=binding.char_start,
+                char_end=binding.char_end,
+                anchor_kind=(
+                    "full_record"
+                    if binding.char_start == 0
+                    and binding.char_end == len(versions_by_id[binding.source_version_id].content)
+                    else "text_span"
+                ),
+            )
 
     publication_payload = {
         "root_id": task.root_id,
@@ -281,27 +329,27 @@ def _build_package(
 
     evidence_links = []
     for fact in facts:
-        binding = fact_bindings[fact.fact_id]
-        evidence_links.append(
-            PublicationEvidenceLink(
-                evidence_link_id=stable_id(
-                    "publication-evidence",
-                    publication_id,
-                    "fact",
-                    fact.fact_id,
-                    binding.source_version_id,
-                    binding.source_anchor_id,
-                    binding.evidence_ref,
-                ),
-                publication_id=publication_id,
-                owner_kind="fact",
-                owner_id=fact.fact_id,
-                source_version_id=binding.source_version_id,
-                source_anchor_id=binding.source_anchor_id,
-                evidence_text=binding.evidence_text,
-                evidence_ref=binding.evidence_ref,
+        for binding in fact_bindings[fact.fact_id]:
+            evidence_links.append(
+                PublicationEvidenceLink(
+                    evidence_link_id=stable_id(
+                        "publication-evidence",
+                        publication_id,
+                        "fact",
+                        fact.fact_id,
+                        binding.source_version_id,
+                        binding.source_anchor_id,
+                        binding.evidence_ref,
+                    ),
+                    publication_id=publication_id,
+                    owner_kind="fact",
+                    owner_id=fact.fact_id,
+                    source_version_id=binding.source_version_id,
+                    source_anchor_id=binding.source_anchor_id,
+                    evidence_text=binding.evidence_text,
+                    evidence_ref=binding.evidence_ref,
+                )
             )
-        )
 
     return KnowledgePublicationPackage(
         root=KnowledgeRootRecord(
@@ -428,7 +476,27 @@ def validate_and_prepare_generated_publication(
     )
 
 
+def apply_generated_publication(
+    store,
+    result: GeneratedFactPublication,
+    source_versions: tuple[SourceVersionRecord, ...],
+) -> str:
+    """Register immutable inputs and apply one validated publication.
+
+    The store is intentionally duck-typed here so the validation module stays
+    independent of the concrete SQLite implementation.  Reapplying the same
+    result is idempotent because the publication identity is content-derived.
+    """
+
+    if result.status != "ok" or result.package is None:
+        raise ValueError("only an accepted generated publication can be applied")
+    store.register_source_versions(source_versions)
+    return store.apply_knowledge_publication(result.package)
+
+
 __all__ = [
     "GeneratedFactPublication",
+    "apply_generated_publication",
+    "merge_candidate_fact_proposals",
     "validate_and_prepare_generated_publication",
 ]

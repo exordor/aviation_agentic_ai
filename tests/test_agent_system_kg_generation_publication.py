@@ -16,8 +16,11 @@ from aviation_agentic_ai.agent_system.kg_generation_contracts import (
     OntologyGenerationTask,
 )
 from aviation_agentic_ai.agent_system.kg_generation_validation import (
+    apply_generated_publication,
+    merge_candidate_fact_proposals,
     validate_and_prepare_generated_publication,
 )
+from aviation_agentic_ai.agent_system.evidence_store import AviationEvidenceStore
 from aviation_agentic_ai.agent_system.ontology_registry import (
     OntologySliceRequest,
     build_ontology_slice,
@@ -218,3 +221,102 @@ def test_weather_source_cannot_publish_as_decision_fact() -> None:
     assert result.status == "blocked"
     assert result.package is None
     assert "source family" in (result.reason or "")
+
+
+def test_incremental_duplicate_fact_keeps_one_fact_and_two_evidence_links() -> None:
+    task, source_version, profiles, source_version_id = _task()
+    second_content = SOURCE_CONTENT
+    second_source_id = "advisory-002"
+    second_version_id = stable_id(
+        "source-version",
+        second_source_id,
+        hashlib.sha256(second_content.encode("utf-8")).hexdigest(),
+    )
+    second_anchor_id = stable_id(
+        "source-anchor",
+        second_version_id,
+        0,
+        len(second_content),
+    )
+    second_binding = GenerationEvidenceRecord(
+        evidence_ref="ev-facility-2",
+        source_id=second_source_id,
+        source_version_id=second_version_id,
+        source_anchor_id=second_anchor_id,
+        char_start=0,
+        char_end=len(second_content),
+        evidence_text=second_content,
+    )
+    task = task.model_copy(
+        update={
+            "evidence_bindings": (*task.evidence_bindings, second_binding),
+            "evidence_refs": ("ev-facility", "ev-facility-2"),
+        }
+    )
+    duplicate_proposal = _proposal().model_copy(
+        update={
+            "facts": (
+                *_proposal().facts,
+                _proposal().facts[0].model_copy(
+                    update={"evidence_ref": "ev-facility-2"}
+                ),
+            )
+        }
+    )
+    second_source = SourceVersionRecord(
+        source_version_id=second_version_id,
+        source_id=second_source_id,
+        family=SourceFamily.ATCSCC_ADVISORY,
+        asset_id=None,
+        content=second_content,
+        content_sha256=hashlib.sha256(second_content.encode("utf-8")).hexdigest(),
+        source_url=None,
+        logical_time=None,
+        metadata={},
+    )
+
+    result = validate_and_prepare_generated_publication(
+        task=task,
+        proposal=duplicate_proposal,
+        profile_registry=profiles,
+        source_versions=(source_version, second_source),
+        primary_source_version_id=source_version_id,
+    )
+
+    assert result.status == "ok"
+    assert len(result.accepted_facts) == 1
+    assert result.package is not None
+    assert len(result.package.evidence_links) == 2
+    assert len({link.owner_id for link in result.package.evidence_links}) == 1
+
+
+def test_exact_incremental_replay_rows_are_deduplicated() -> None:
+    proposal = _proposal()
+    merged = merge_candidate_fact_proposals([proposal, proposal])
+
+    assert len(merged.facts) == 1
+    assert merged.facts[0].evidence_ref == "ev-facility"
+
+
+def test_accepted_publication_is_idempotent_in_the_semantic_store(tmp_path) -> None:
+    task, source_version, profiles, source_version_id = _task()
+    result = validate_and_prepare_generated_publication(
+        task=task,
+        proposal=_proposal(),
+        profile_registry=profiles,
+        source_versions=(source_version,),
+        primary_source_version_id=source_version_id,
+    )
+    store = AviationEvidenceStore.open(
+        tmp_path / "store",
+        dataset_id="kg-generation-test",
+        create=True,
+    )
+    try:
+        assert apply_generated_publication(store, result, (source_version,)) == "inserted"
+        assert apply_generated_publication(store, result, (source_version,)) == "unchanged"
+        active = store.list_active_formal_fact_bindings()
+        assert len(active) == 1
+        assert len(active[0].evidence_links) == 1
+    finally:
+        store.close()
