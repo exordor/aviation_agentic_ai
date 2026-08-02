@@ -92,6 +92,10 @@ def resolved_config_checksum(config: dict[str, Any]) -> str:
         ensure_ascii=False,
         separators=(",", ":"),
         sort_keys=True,
+        # PyYAML materializes unquoted ISO dates as ``date`` objects.  The
+        # checksum is a configuration boundary and must support those values
+        # just like their equivalent quoted YAML strings.
+        default=str,
     ).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
 

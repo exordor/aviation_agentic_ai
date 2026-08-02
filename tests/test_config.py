@@ -1,4 +1,5 @@
 import builtins
+from datetime import date
 from pathlib import Path
 from types import ModuleType
 
@@ -111,6 +112,12 @@ def test_resolved_config_checksum_is_canonical_and_content_sensitive() -> None:
     assert resolved_config_checksum(first) == resolved_config_checksum(reordered)
     assert resolved_config_checksum(first) != resolved_config_checksum(changed)
     assert len(resolved_config_checksum(first)) == 64
+
+
+def test_resolved_config_checksum_accepts_yaml_date_values() -> None:
+    assert resolved_config_checksum({"sample_date": date(2014, 7, 15)}) == (
+        resolved_config_checksum({"sample_date": "2014-07-15"})
+    )
 
 
 def test_active_aviation_config_composes_runtime_sources_and_dataset_scope(
