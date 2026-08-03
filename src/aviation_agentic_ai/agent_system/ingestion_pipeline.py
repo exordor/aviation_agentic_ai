@@ -132,7 +132,7 @@ class IngestionSummary:
 class ConfiguredIngestionSummary:
     """Aggregate status for one public multi-domain ingestion invocation."""
 
-    domain: Literal["all", "tmi", "flight-airspace", "web"]
+    domain: Literal["all", "tmi", "flight-airspace", "web", "document"]
     discovered_count: int
     selected_count: int
     attempted_count: int
@@ -144,6 +144,7 @@ class ConfiguredIngestionSummary:
     tmi_summary: object | None = None
     flight_airspace_summary: object | None = None
     web_summary: object | None = None
+    document_summary: object | None = None
 
 
 ResourceLoader = Callable[[dict[str, Any]], IngestionResources]
@@ -172,7 +173,7 @@ def run_configured_ingestion(
     config: dict[str, object],
     store: AviationEvidenceStore,
     *,
-    domain: Literal["all", "tmi", "flight-airspace", "web"] = "all",
+    domain: Literal["all", "tmi", "flight-airspace", "web", "document"] = "all",
     source_root: str | Path | None = None,
     advisory_ids: tuple[str, ...] = (),
     allow_live_model: bool = False,
@@ -181,10 +182,11 @@ def run_configured_ingestion(
     tmi_runner: Callable[..., object] | None = None,
     flight_airspace_runner: Callable[..., object] | None = None,
     web_runner: Callable[..., object] | None = None,
+    document_runner: Callable[..., object] | None = None,
 ) -> ConfiguredIngestionSummary:
     """Run selected ingestion domains while keeping their adapters isolated."""
 
-    if domain not in {"all", "tmi", "flight-airspace", "web"}:
+    if domain not in {"all", "tmi", "flight-airspace", "web", "document"}:
         raise ValueError(f"unsupported ingestion domain: {domain}")
     if advisory_ids and domain != "tmi":
         raise ValueError("advisory_ids require the tmi ingestion domain")
@@ -206,10 +208,19 @@ def run_configured_ingestion(
         selected_web_runner = run_web_evidence_ingestion
     else:
         selected_web_runner = web_runner
+    if document_runner is None:
+        from aviation_agentic_ai.agent_system.faa_order_ingestion import (
+            run_faa_order_ingestion,
+        )
+
+        selected_document_runner = run_faa_order_ingestion
+    else:
+        selected_document_runner = document_runner
 
     tmi_summary: object | None = None
     flight_summary: object | None = None
     web_summary: object | None = None
+    document_summary: object | None = None
     if domain in {"all", "tmi"}:
         tmi_summary = selected_tmi_runner(
             config,
@@ -249,10 +260,26 @@ def run_configured_ingestion(
                 status="blocked",
                 reason=f"{type(exc).__name__}: {exc}",
             )
+    configured_sources = config.get("sources")
+    document_configured = (
+        isinstance(configured_sources, dict)
+        and "faa_order_7210_3ee" in configured_sources
+    )
+    if domain == "document" or (domain == "all" and document_configured):
+        document_summary = selected_document_runner(
+            config,
+            store,
+            source_root=source_root,
+        )
 
     summaries = tuple(
         summary
-        for summary in (tmi_summary, flight_summary, web_summary)
+        for summary in (
+            tmi_summary,
+            flight_summary,
+            web_summary,
+            document_summary,
+        )
         if summary is not None
     )
 
@@ -274,6 +301,7 @@ def run_configured_ingestion(
         tmi_summary=tmi_summary,
         flight_airspace_summary=flight_summary,
         web_summary=web_summary,
+        document_summary=document_summary,
     )
 
 

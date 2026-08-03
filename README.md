@@ -33,19 +33,18 @@ inventory nor the regression slice defines the system boundary. ATMONTO
 supplies admitted schema terms; ATMGRAPH supplies ABox-construction and
 cross-source-query principles.
 
-The [architecture narrative](docs/architecture_narrative.md) explains the
-research story and running example. The
-[normative design](docs/multi_agent_kg_system_design.md) documents the complete
-runtime and evidence contracts.
+The document-to-KG path is a framework capability. Public interfaces use the
+generic `document` ingestion domain and `knowledge` retrieval family; the
+`faa_order_*` modules and their `PolicyRule` concepts belong only to the
+current JO 7210.3EE adapter.
 
-The [GDP 138 flagship walkthrough](docs/flagship_gdp138_walkthrough.md) is a
-historical pre-family-router TMI-slice run. It follows one natural-language
-question through persistent ingestion, real
-`deepseek-v4-pro` tool selection, exact source verification, cross-source
-context retrieval, and statement-level support validation. Its observed
-[execution trace](docs/figures/flagship_gdp138_live_trace.png) is a passing
-`live_smoke / system walkthrough`: 1/1 task accepted with 3/3 real provider
-calls returned and 5 bounded tool executions. It is not a benchmark.
+The [normative design](docs/multi_agent_kg_system_design.md) documents the
+architecture, runtime, and evidence contracts. `RESEARCH_AUDIT.md` is the
+authority for current implementation status.
+
+The [GDP 138 walkthrough](docs/flagship_gdp138_walkthrough.md) is historical
+regression evidence for one TMI slice; it does not define current scope or
+establish a benchmark.
 
 ## Quick Start
 
@@ -110,6 +109,28 @@ entry point.
 genuine authority ambiguity remains; it is not proof that a provider was
 called. Credentials stay in ignored local environment files.
 
+To run the document-to-KG framework with the FAA Chapter 18 adapter, first
+ingest the configured FAA order, then run the generic ontology-construction
+command with the real model:
+
+```bash
+uv run aviation-ai agent-system ingest \
+  --config configs/aviation_knowledge_v1.yaml \
+  --store-dir data/stores/aviation/chapter18-atmonto-kg-v1 \
+  --domain document
+
+uv run aviation-ai agent-system build-kg \
+  --config configs/aviation_knowledge_v1.yaml \
+  --store-dir data/stores/aviation/chapter18-atmonto-kg-v1 \
+  --domain document \
+  --allow-live-model
+```
+
+This path recursively chunks all configured Chapter 18 paragraphs, performs
+schema-guided NER and relation extraction, and publishes only ontology- and
+evidence-valid candidate facts. `--max-items` is an optional smoke limit over
+extraction chunks, not a Chapter-specific execution path.
+
 ## Persistent Knowledge And Retrieval
 
 The configured store contains:
@@ -155,10 +176,11 @@ retention boundary; it does not change the supported runtime commands.
 
 The Formal Publication Kernel is the sole authority for accepted formal facts.
 SQLite FTS5 is a lexical index over exact source chunks, including admitted
-`web_document` chunks. Chroma contains two rebuildable vector collections:
+`web_document` chunks. Chroma contains three rebuildable vector collections:
 
 - source-record chunks for semantic source discovery;
 - compact TMI event summaries for metadata-conditioned event retrieval.
+- ontology-extracted knowledge entities for discovery before exact graph reads.
 
 Web source chunks enter only the source-record collection. TMI event vectors
 are built from admitted TMI event publications and do not become a general
@@ -172,7 +194,7 @@ Ingestion attempts an incremental index update after semantic publication.
 If the embedding model is unavailable, accepted evidence remains queryable
 through exact and lexical paths. The CLI reports `retrieval_indexes` as
 `updated`, `not_needed`, `blocked`, or `not_applicable` independently from
-semantic ingestion counts. Rebuild both vector collections explicitly with:
+semantic ingestion counts. Rebuild all vector collections explicitly with:
 
 ```bash
 uv run --extra agent-system aviation-ai agent-system reindex \
@@ -198,7 +220,7 @@ uv run aviation-ai agent-system ask \
 Every valid `ask` activates the configured Query Agent. There is no fixed
 question registry, keyword router, or deterministic prose fallback. A first
 LLM routing step selects one or more bounded capability families; the Agent
-then sees only the relevant subset of 18 deterministic, read-only evidence
+then sees only the relevant subset of 21 deterministic, read-only evidence
 tools:
 
 - `source`: lexical/semantic discovery and exact source reading (3 tools);
@@ -207,16 +229,20 @@ tools:
 - `flight_airspace`: flights, airports, trajectories, sectors, Weather
   associations, TMI-applicability candidates, and the general aviation graph
   (9 tools).
+- `knowledge`: ontology-entity discovery, structured relationship filtering,
+  and ATMONTO-aligned graph reads (3 tools), plus the shared exact
+  `read_source`.
 
 When the operator explicitly enables the Web Evidence sidecar for query time,
 the router may also expose one optional `web` family containing
 `web_search`, `web_fetch`, and `web_extract`. This adds three tools only for
-that authorized process; the default core remains the 18-tool source/TMI/
-Flight/Airspace registry.
+that authorized process; the default core remains the 21-tool
+source/TMI/knowledge/Flight/Airspace registry.
 
-The action-observation loop permits at most 6 provider turns, 6 tool calls in
-one turn, and 10 evidence-tool calls in total. Family routing is a model call,
-not a deterministic question classifier.
+The action-observation loop permits at most 7 retrieval turns, 6 tool calls in
+one turn, and 16 evidence-tool calls in total, followed when needed by one
+tool-free Evidence Packet answer turn. Family routing is a model call, not a
+deterministic question classifier.
 
 The default interaction requires only the natural-language question. Lexical
 or semantic discovery returns any active TMI event IDs authoritatively bound to
@@ -327,44 +353,18 @@ The NASA July 2014 sample and the May 2026 operational-source slice remain
 separate temporal domains; the runtime does not join them across time. The
 older F1/F3S/S4/S1S competency supplement is report-only historical material;
 its retired runner is not a supported command. Current Flight/Airspace
-questions use the natural-language `agent-system ask` path. See the
-[artifact index](ARTIFACT_INDEX.md) and [REPRODUCIBILITY.md](REPRODUCIBILITY.md)
-for its historical boundary.
+questions use the natural-language `agent-system ask` path. See
+[REPRODUCIBILITY.md](REPRODUCIBILITY.md) and the
+[repository artifact policy](docs/repository_artifact_policy.md) for source
+and historical-material boundaries.
 
 ## Evaluation Boundary
 
-Fake and scripted models verify software contracts only. Live smoke results
-must use the configured real provider and report provider-call success
-separately from task acceptance. Historical reports remain frozen under their
-recorded architecture and are not evidence for the ingestion-first runtime.
-
-The tracked ingestion-first GDP 138 flagship walkthrough is historical
-pre-family-router TMI-slice evidence: 1/1 natural-language Query Agent task passed,
-3/3 real `deepseek-v4-pro` calls returned, and all 5 bounded tool executions
-were bound to the accepted trial. This is one versioned walkthrough, not a
-current-runtime acceptance or statistical benchmark. See the
-[walkthrough](docs/flagship_gdp138_walkthrough.md)
-and its tracked sanitized
-[report](reports/evidence/agent_system_live_flagship_gdp138_walkthrough_v1.md).
-
-The broader tracked cross-domain compatibility smoke exercised six ordinary
-natural-language tasks spanning TMI, Flight, Weather, Sector, cross-domain
-applicability, and an unsupported causal/actual-control question. With
-`deepseek-v4-pro`, all 33/33 real calls returned; routing and retrieval passed
-6/6, while grounding and answer acceptance passed 5/6. The remaining task was
-correctly unsupported in substance, but the Agent continued retrieving until
-the 10-tool ceiling and returned `blocked` instead of stopping with
-`insufficient`. This is an observed stop-policy failure, not a hidden success
-or a statistical benchmark. See the
-[sanitized report](reports/evidence/live_hybridrag_cross_domain_v1.md).
-
-The tracked persistent-store compatibility smoke used the persistent store and
-6 real `deepseek-v4-pro` calls. All calls returned, but only 1/3 Query Agent
-tasks passed the answer-contract and evidence checks. See the sanitized
-[JSON report](reports/evidence/agent_system_live_ingestion_hybridrag_smoke_v1.json)
-or [Markdown report](reports/evidence/agent_system_live_ingestion_hybridrag_smoke_v1.md).
-The raw provider responses and parsed trial rows remain gitignored and are
-identified by path and checksum in those reports.
+Fake and scripted models verify software contracts only. Live results must use
+the configured provider and separate provider-call success from task
+acceptance. Historical reports remain frozen under their recorded
+architecture. See `RESEARCH_AUDIT.md` for current status and
+`docs/repository_artifact_policy.md` for retention rules.
 
 The system does not provide live ATC support, causal explanation, operational
 effectiveness scoring, TMI recommendation, complete aviation coverage, or a

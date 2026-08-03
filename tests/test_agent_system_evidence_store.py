@@ -1874,6 +1874,39 @@ def test_source_text_search_defaults_to_latest_observed_version(
         store.close()
 
 
+def test_source_text_search_recovers_from_user_punctuation(
+    tmp_path: Path,
+) -> None:
+    """Natural-language punctuation must not turn a valid ask into FTS5 syntax."""
+
+    version = _source_version(
+        "faa-order:jo-7210.3ee",
+        "18-10-6. ATCSCC PROCEDURES Ground Delay Program implementation.",
+    )
+    from aviation_agentic_ai.agent_system.source_retrieval import (
+        build_source_record_chunks,
+    )
+    from aviation_agentic_ai.agent_system.evidence_store import (
+        AviationEvidenceStore,
+    )
+
+    store = AviationEvidenceStore.open(
+        tmp_path / "store",
+        dataset_id="fts-punctuation-test",
+        create=True,
+    )
+    try:
+        store.register_source_version(version)
+        store.upsert_source_chunks(build_source_record_chunks((version,)))
+
+        matches = store.search_source_text("JO 7210.3EE GDP implementation")
+
+        assert matches
+        assert matches[0].source_version_id == version.source_version_id
+    finally:
+        store.close()
+
+
 def test_event_listing_and_sources_use_active_bounded_publication(
     tmp_path: Path,
 ) -> None:

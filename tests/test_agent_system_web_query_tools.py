@@ -30,6 +30,10 @@ from aviation_agentic_ai.agent_system.hybrid_query_tools import (
     HybridQueryGateway,
     build_hybrid_query_tools,
 )
+from aviation_agentic_ai.agent_system.knowledge_query_tools import (
+    KnowledgeQueryGateway,
+    build_knowledge_query_tools,
+)
 from aviation_agentic_ai.agent_system.query_runtime import QueryRuntime
 from aviation_agentic_ai.agent_system.web_evidence_contracts import (
     WebDiffResponse,
@@ -155,10 +159,19 @@ def test_web_tools_are_added_as_one_explicit_family(tmp_path: Path) -> None:
             *build_flight_airspace_query_tools(
                 FlightAirspaceQueryGateway(runtime=runtime, scope=scope)
             ),
+            *build_knowledge_query_tools(
+                KnowledgeQueryGateway(runtime=runtime, scope=scope)
+            ),
             *tools,
         ]
     )
-    assert set(registry.family_specs) == {"source", "tmi", "flight_airspace", "web"}
+    assert set(registry.family_specs) == {
+        "source",
+        "tmi",
+        "flight_airspace",
+        "knowledge",
+        "web",
+    }
     assert {tool.name for tool in registry.tools_for(("web",))} == {
         tool.name for tool in tools
     }

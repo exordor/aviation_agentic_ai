@@ -84,6 +84,80 @@ def build_source_record_chunk(
     )
 
 
+def _build_declared_span_chunks(
+    source_version: SourceVersionRecord,
+) -> tuple[SourceChunkRecord, ...] | None:
+    """Materialize source-owned chunk spans when an adapter supplied them.
+
+    PDF and other structured documents can provide paragraph/section spans
+    during deterministic ingestion.  The spans remain ordinary source chunks
+    so the existing FTS/Chroma indexing path can embed them without creating a
+    second retrieval implementation.
+    """
+
+    raw_spans = source_version.metadata.get("chunk_spans")
+    if not isinstance(raw_spans, list):
+        return None
+    base_metadata = {
+        key: value
+        for key, value in source_version.metadata.items()
+        if key != "chunk_spans"
+    }
+    chunks: list[SourceChunkRecord] = []
+    for span in raw_spans:
+        if not isinstance(span, dict):
+            raise ValueError("source chunk span must be an object")
+        char_start = span.get("char_start")
+        char_end = span.get("char_end")
+        if not isinstance(char_start, int) or not isinstance(char_end, int):
+            raise ValueError("source chunk span offsets must be integers")
+        if char_start < 0 or char_end <= char_start or char_end > len(source_version.content):
+            raise ValueError("source chunk span is outside source content")
+        anchor = SourceAnchorRecord(
+            source_anchor_id=stable_id(
+                "source-anchor",
+                source_version.source_version_id,
+                char_start,
+                char_end,
+            ),
+            source_version_id=source_version.source_version_id,
+            char_start=char_start,
+            char_end=char_end,
+            anchor_kind="text_span",
+        )
+        metadata = {
+            **base_metadata,
+            "chunking": "declared_span",
+            **{
+                key: value
+                for key, value in span.items()
+                if key not in {"char_start", "char_end"}
+            },
+        }
+        chunks.append(
+            SourceChunkRecord(
+                chunk_id=stable_id(
+                    "source-chunk",
+                    source_version.source_version_id,
+                    "source_record",
+                    char_start,
+                    char_end,
+                    SOURCE_CHUNK_REPRESENTATION_VERSION,
+                ),
+                source_version_id=source_version.source_version_id,
+                event_id=None,
+                chunk_kind="source_record",
+                text=source_version.content[char_start:char_end],
+                char_start=char_start,
+                char_end=char_end,
+                source_anchor_id=anchor.source_anchor_id,
+                representation_version=SOURCE_CHUNK_REPRESENTATION_VERSION,
+                metadata=metadata,
+            )
+        )
+    return tuple(sorted(chunks, key=lambda chunk: chunk.chunk_id))
+
+
 def build_source_record_chunks(
     source_versions: Iterable[SourceVersionRecord],
     *,
@@ -92,16 +166,26 @@ def build_source_record_chunks(
     """Build deterministically ordered chunks without writing an index."""
 
     event_ids = event_ids_by_source_version or {}
-    chunks = (
-        build_source_record_chunk(
+    chunks: list[SourceChunkRecord] = []
+    for source_version in source_versions:
+        declared = _build_declared_span_chunks(source_version)
+        if declared is not None:
+            chunks.extend(declared)
+            continue
+        chunk = build_source_record_chunk(
             source_version,
             event_id=event_ids.get(source_version.source_version_id),
         )
-        for source_version in source_versions
-    )
+        if chunk is not None:
+            chunks.append(chunk)
     return tuple(
         sorted(
-            (chunk for chunk in chunks if chunk is not None),
-            key=lambda chunk: chunk.chunk_id,
+            chunks,
+            key=lambda chunk: (
+                chunk.source_version_id,
+                chunk.char_start,
+                chunk.char_end,
+                chunk.chunk_id,
+            ),
         )
     )

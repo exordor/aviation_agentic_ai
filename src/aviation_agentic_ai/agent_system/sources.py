@@ -136,6 +136,12 @@ _SOURCE_ASSET_SPECS: dict[
         "nasr_airspace",
         "faa_nasr",
     ),
+    "faa_order_7210_3ee": (
+        SourceFamily.WEB_DOCUMENT,
+        "application/pdf",
+        "faa_order_7210_3ee",
+        "faa_order_7210_3ee",
+    ),
 }
 
 

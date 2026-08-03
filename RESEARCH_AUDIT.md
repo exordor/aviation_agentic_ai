@@ -1,10 +1,15 @@
 # Project Audit And Context Router
 
-Audit date: 2026-08-01
+Audit date: 2026-08-02
 
 This is the default entry point for a new project task. It records current
 implementation truth and routes historical material without making it default
 context.
+
+This is the single authority for changing project status, dataset scope,
+implementation capabilities, and evaluation observations. Other current
+documents may explain the system for readers, but must not introduce a
+competing status narrative.
 
 Historical plans and large report bundles are kept in the dated external
 archive described by `docs/repository_artifact_policy.md`; do not treat their
@@ -26,11 +31,18 @@ Evidence Plane
 ```
 
 The Query Agent is invoked for every valid natural-language question. One LLM
-routing call first selects the `source`, `tmi`, and/or `flight_airspace`
+routing call first selects the `source`, `tmi`, `knowledge`, and/or
+`flight_airspace`
 capability families; the Agent then selects exact, graph, lexical, vector,
 context, and source-read tools from that bounded subset. When explicitly
 authorized, an additional `web` family exposes allowlisted sidecar reads.
 Deterministic support validation checks the result before release.
+
+The document-to-KG capability is framework-level. Its public boundaries are
+the `document` ingestion domain, `knowledge` query family, generic ontology KG
+contracts, and `knowledge_entities_v1` index. FAA JO 7210.3EE Chapter 18 is the
+current `faa_order_*` adapter; its `PolicyRule` vocabulary does not define the
+framework or its public API.
 
 The generic publication spine admits ATMONTO-aligned TMI, Flight/Airspace,
 reference, Weather, and reviewed association roots. TMI instances are the
@@ -69,7 +81,7 @@ export-event
 The root CLI presents only `agent-system`. The former `ontology`, `source`,
 `cqs`, `report`, PHAK, and historical `cross-source` implementations and
 artifacts are outside the active checkout in the dated external archive.
-`ARTIFACT_INDEX.md` records the retention boundary.
+`docs/repository_artifact_policy.md` records the retention boundary.
 
 There is no required batch snapshot, run-directory query path, legacy reader,
 or compatibility alias.
@@ -99,7 +111,19 @@ or compatibility alias.
   publication kernel. Deterministic diagnostics report ontology compliance,
   evidence-anchor coverage, profile gaps, duplicate semantic facts, and
   blocked publications; these are software-contract metrics, not model
-  quality results.
+  quality results. The FAA JO 7210.3EE document adapter now uses full-Chapter-18
+  recursive chunks, a compact ATMONTO+FAA schema, separate LLM NER and relation
+  extraction, deterministic entity resolution, and incremental publication of
+  evidence-bound ontology entities. The completed versioned live experiment used
+  `deepseek-v4-flash` with temperature 0, thinking disabled, no retries, and no
+  response cache. It made 210/210 successful real calls (168 NER and 42 RE),
+  used 876,508 input and 269,963 output tokens, resolved 1,452 entities,
+  validated 218 relations, and retained 840 publications with 3,293 facts and
+  4,124 evidence links. Six chunks abstained and two local chunks/publication
+  groups remained blocked, so the runner completed but construction status is
+  honestly `blocked`; this is not reported as a perfect extraction result. The
+  online Query Agent uses knowledge-entity
+  discovery, exact graph reads, and separate source-anchor reads.
 - The dataset-bound SQLite store persists immutable source versions, exact
   anchors, active and historical event publications, semantic facts, evidence
   links, profile gaps, Weather associations, BTS public observations, source
@@ -112,7 +136,7 @@ or compatibility alias.
   independently. A failed later record does not invalidate earlier accepted
   evidence, and queryability does not depend on completing a batch manifest.
 - SQLite FTS5 provides lexical source retrieval. Chroma provides independently
-  rebuildable source-record and TMI-event vector collections. Web source
+  rebuildable source-record, TMI-event, and knowledge-entity vector collections. Web source
   chunks enter the source-record collection only; TMI-event vectors remain
   limited to admitted TMI publications. Vector state is current only when it
   matches the store knowledge revision.
@@ -121,13 +145,18 @@ or compatibility alias.
   do not write back into SQLite.
 - Every valid `ask` activates the Query Agent. There is no fixed question
   registry or deterministic answer fallback.
-- The Query Agent selects among three core capability families containing 18
-  bounded, read-only evidence tools: `source` (3), `tmi` (6), and
-  `flight_airspace` (9). An explicitly authorized sidecar adds an optional
-  `web` family with three read-only tools. The first model call selects
-  families; subsequent turns see only that subset.
-- The evidence loop permits at most 6 provider turns, 6 tool calls in one turn,
-  and 10 evidence-tool calls in total.
+- The Query Agent selects among four core capability families containing 21
+  bounded, read-only evidence tools: `source` (3), `tmi` (6), `knowledge` (3 plus
+  the shared exact `read_source` tool),
+  and `flight_airspace` (9). The knowledge family discovers and reads published
+  ontology roots by candidate discovery and exact graph reads; it is distinct
+  from exact PDF source reads. An explicitly
+  authorized sidecar adds an optional `web` family with three read-only tools.
+  The first model call selects families; subsequent turns see only that subset.
+- The evidence loop permits at most 7 retrieval turns, 6 tool calls in one
+  turn, and 16 evidence-tool calls in total. When a retrieval boundary is
+  reached after evidence exists, one tool-free Answer Formation turn receives
+  a fresh Evidence Packet instead of inheriting the tool transcript.
 - Search candidates do not support final source-record claims by themselves;
   `read_source` supplies the exact source version and anchor.
 - Source discovery also returns active event identities bound by the
@@ -141,7 +170,7 @@ or compatibility alias.
 
 The active top-level configuration composes separate runtime, source, and
 dataset/temporal-scope files. The CLI exposes
-`--domain all|tmi|flight-airspace|web`; `--advisory-id` is valid only with
+`--domain all|tmi|document|flight-airspace|web`; `--advisory-id` is valid only with
 `--domain tmi`. The Web domain remains disabled unless a local configuration
 overlay and `--allow-live-web` authorize it.
 The ingest summary reports a canonical checksum of the fully resolved
@@ -188,6 +217,17 @@ cross-temporal join. It exposes Flight, Airport/ARTCC, trajectory, sector,
 Flight–Weather association, and TMI-applicability candidate queries through
 the public Query Agent.
 
+The July 2014 public-sample build now has a complete source-grounded ABox
+construction path for every configured NASA sample layer. In the verified
+fresh build, 24,820 source roots were selected; 24,817 were accepted, three
+airport–ARTCC references were insufficient, and none were blocked. The formal
+projection contains 164,182 unique ATMONTO-aligned facts across Flight,
+Airport, ARTCC, NavigationFix, Sector, METAR, TAF, AirportStatisticsData, and
+TMI roots. The projection is bounded by the local six-module ATMONTO catalog;
+it is a complete KG for this configured public sample, not a claim of complete
+NASA or national ATM coverage. Derived association roots remain separate and
+non-causal.
+
 ## Evidence Boundaries
 
 - ATCSCC records support published TMI fields and source-declared reasons.
@@ -215,6 +255,41 @@ the public Query Agent.
 `offline_software_test` covers deterministic software, contracts, state
 transitions, storage, retrieval plumbing, and validation. Fake or scripted
 models are allowed only in that mode and do not establish LLM or Agent quality.
+
+The Chapter 18 ontology-construction `live_experiment` completed its provider
+run with `deepseek-v4-flash`, temperature 0, thinking disabled, a 10,000-token
+output ceiling, no automatic retries, and local response caching disabled.
+All 210 attempted calls returned successfully: 168 NER calls and 42
+relation-extraction calls. The run used 876,508 input tokens and 269,963 output
+tokens; the provider reported 772,096 cache-read input tokens and zero
+cache-creation tokens. It resolved 1,452 entities, validated 218 relations,
+and retained 840 incremental publications containing 3,293 facts and 4,124
+evidence links. Six chunks abstained and two local chunk/publication groups
+remained blocked. Consequently, `runner_status=completed` while
+`construction_status=blocked`; provider success is not being relabeled as
+perfect extraction acceptance.
+
+The ignored raw provider responses are stored at
+`data/evaluation_runs/agent_system/chapter18-atmonto-kg-v1/raw_provider_responses.jsonl`
+(SHA-256 `3854232e37b5ec19b012dd947351b9dde11284a323d0745057fa6a89a574a29b`).
+Parsed outputs are stored separately at
+`data/evaluation_runs/agent_system/chapter18-atmonto-kg-v1/parsed_extraction_outputs.jsonl`
+(SHA-256 `9d0211ac6106526d0c95b17f297c5ad7697d76b179e8cc2b0da688819746e3b6`).
+The experiment manifest verified both artifacts and bound them to knowledge
+revision 841. These files are evaluation evidence, not the runtime knowledge
+backend.
+
+A separate post-build `live_smoke` exercised the ordinary natural-language
+Query Agent over the current knowledge entity index, formal graph, and exact PDF
+reader. GDP, Ground Stop, System Operations responsibility, and coordination
+questions each achieved an accepted real-model run. Their accepted trajectories
+used respectively 9/14, 8/15, 7/9, and 4/2 model/tool calls. Independent repeats
+of the responsibility question also exposed one pre-fix multi-anchor binding
+rejection and one malformed final JSON response. The former produced a
+regression test and now permits the union of multiple independently exact
+source reads; the latter remains an observed provider-output failure. These
+are compatibility observations, not a statistical stability or quality
+benchmark.
 
 Earlier reports remain frozen compatibility evidence for their named
 architectures in the dated external archive. They must not be relabeled as
@@ -266,9 +341,9 @@ performance evidence.
 | --- | --- |
 | Durable system goal and boundaries | `GOALS.md` |
 | Installation and current commands | `README.md` |
-| Active execution queue | `TODO.md` |
+| Current decisions and deferred work | `GOALS.md` |
 | Normative system design | `docs/multi_agent_kg_system_design.md` |
-| Artifact ownership and history | `ARTIFACT_INDEX.md` |
+| Artifact ownership and history | `docs/repository_artifact_policy.md` |
 | Reproduction commands | `REPRODUCIBILITY.md` |
 | Optional Web Evidence operations | `docs/wigolo_web_evidence_operations.md` |
 | Structural decision history | `DECISION_LOG.md` |

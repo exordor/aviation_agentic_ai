@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 import click
+from langchain_core.globals import get_llm_cache, set_llm_cache
 
 from aviation_agentic_ai.agent_system.contracts import (
     HybridQueryScope,
@@ -34,6 +35,9 @@ from aviation_agentic_ai.agent_system.materialize import (
     load_validated_facts_neo4j,
 )
 from aviation_agentic_ai.agent_system.query_runtime import open_query_runtime
+from aviation_agentic_ai.agent_system.ontology_kg_builder import (
+    run_ontology_kg_build,
+)
 from aviation_agentic_ai.agent_system.query_tool_registry import (
     query_tool_model_role,
 )
@@ -44,8 +48,17 @@ from aviation_agentic_ai.agent_system.tmi_event_retrieval_index import (
     SentenceTransformerTMIEventEncoder,
     reindex_store,
 )
+from aviation_agentic_ai.agent_system.knowledge_entity_retrieval_index import (
+    reindex_knowledge_entities,
+)
 from aviation_agentic_ai.agent_system.tool_model import (
     make_live_tool_calling_model,
+)
+from aviation_agentic_ai.agent_system.runtime import (
+    FROZEN_MAX_OUTPUT_TOKENS,
+    FROZEN_MODEL,
+    FROZEN_PROVIDER,
+    FROZEN_TEMPERATURE,
 )
 from aviation_agentic_ai.config import (
     configured_dataset_id,
@@ -146,7 +159,13 @@ def _source_display_label(version: Any) -> str:
         SourceFamily.TAF.value: "AviationWeather TAF",
         SourceFamily.BTS_ON_TIME.value: "BTS On-Time",
     }.get(family, family.replace("_", " ").title())
-    title = str(metadata.get("title") or authority)
+    if metadata.get("source_role") == "normative_document_reference":
+        authority = "FAA Order Document"
+    title = str(
+        metadata.get("title")
+        or metadata.get("document_title")
+        or authority
+    )
     if family == SourceFamily.ATCSCC_ADVISORY.value:
         advisory_number = metadata.get("advisory_number")
         advisory_date = metadata.get("advisory_date")
@@ -191,7 +210,7 @@ def _store_option(function):
 @_store_option
 @click.option(
     "--domain",
-    type=click.Choice(("all", "tmi", "flight-airspace", "web")),
+    type=click.Choice(("all", "tmi", "flight-airspace", "web", "document")),
     default="all",
     show_default=True,
     help="Select all configured knowledge domains or one bounded backfill domain.",
@@ -258,8 +277,122 @@ def ingest_command(
     web_summary = getattr(summary, "web_summary", None)
     if web_summary is not None:
         click.echo(f"web_evidence: {getattr(web_summary, 'status', 'unknown')}")
+    document_summary = getattr(summary, "document_summary", None)
+    if document_summary is not None:
+        click.echo(
+            "document: "
+            f"{getattr(document_summary, 'status', 'unknown')} "
+            f"chunks={getattr(document_summary, 'chunk_count', 0)}"
+        )
     click.echo(f"knowledge_revision: {revision}")
     click.echo(f"resolved_config_sha256: {resolved_config_checksum(config)}")
+
+
+@agent_system.command("build-kg")
+@_config_option
+@_store_option
+@click.option(
+    "--domain",
+    required=True,
+    help="Configured ontology KG domain adapter to build.",
+)
+@click.option(
+    "--source-root",
+    type=click.Path(path_type=Path, exists=True, file_okay=False),
+    default=None,
+    help="Optional external root containing the configured source artifact.",
+)
+@click.option(
+    "--allow-live-model",
+    is_flag=True,
+    help="Authorize real provider candidate-fact generation.",
+)
+@click.option(
+    "--max-items",
+    type=click.IntRange(min=1),
+    default=None,
+    help="Optional bounded input-item count for a smoke run.",
+)
+def build_kg_command(
+    config_path: Path,
+    store_dir: Path | None,
+    domain: str,
+    source_root: Path | None,
+    allow_live_model: bool,
+    max_items: int | None,
+) -> None:
+    """Build an ontology-constrained KG domain with the real provider."""
+
+    if not allow_live_model:
+        raise click.UsageError(
+            "--allow-live-model is required; ontology KG generation never uses "
+            "a fake or deterministic model fallback"
+        )
+    config = _load_config(config_path)
+    load_environment()
+    if not os.environ.get("DEEPSEEK_API_KEY", "").strip():
+        raise click.ClickException(
+            "live KG experiment NOT EXECUTED: DEEPSEEK_API_KEY is unavailable"
+        )
+    if (
+        FROZEN_PROVIDER,
+        FROZEN_MODEL,
+        FROZEN_TEMPERATURE,
+        FROZEN_MAX_OUTPUT_TOKENS,
+    ) != ("deepseek", "deepseek-v4-flash", 0.0, 10_000):
+        raise click.ClickException(
+            "live KG experiment NOT EXECUTED: frozen model configuration changed"
+        )
+    set_llm_cache(None)
+    if get_llm_cache() is not None:
+        raise click.ClickException(
+            "live KG experiment NOT EXECUTED: LangChain response cache is active"
+        )
+    store = _open_store(config, store_dir, create=True)
+    try:
+        summary = run_ontology_kg_build(
+            config,
+            store,
+            domain=domain,
+            source_root=source_root,
+            allow_live_model=True,
+            max_items=max_items,
+        )
+    finally:
+        store.close()
+    click.echo(f"domain: {summary.domain}")
+    click.echo(f"status: {summary.status}")
+    click.echo(f"tasks: {summary.task_count}")
+    click.echo(f"attempted: {summary.attempted_count}")
+    click.echo(f"accepted: {summary.accepted_count}")
+    click.echo(f"abstained: {summary.abstained_count}")
+    click.echo(f"blocked: {summary.blocked_count}")
+    click.echo(f"provider_calls: {summary.provider_call_count}")
+    click.echo(f"input_tokens: {getattr(summary, 'input_token_count', 0)}")
+    click.echo(f"output_tokens: {getattr(summary, 'output_token_count', 0)}")
+    click.echo(
+        "provider_latency_ms: "
+        f"{getattr(summary, 'provider_latency_ms', 0.0):.1f}"
+    )
+    click.echo(f"publications: {summary.publication_count}")
+    click.echo(f"model: {FROZEN_MODEL}")
+    click.echo(f"successful_real_calls: {summary.successful_real_calls}")
+    click.echo(f"failed_real_calls: {summary.failed_real_calls}")
+    if summary.raw_response_artifact:
+        click.echo(f"raw_response_artifact: {summary.raw_response_artifact}")
+        click.echo(f"raw_response_sha256: {summary.raw_response_sha256}")
+    if summary.parsed_output_artifact:
+        click.echo(f"parsed_output_artifact: {summary.parsed_output_artifact}")
+        click.echo(f"parsed_output_sha256: {summary.parsed_output_sha256}")
+    if summary.experiment_manifest_path:
+        click.echo(f"experiment_manifest: {summary.experiment_manifest_path}")
+    for reason in summary.reasons[:3]:
+        click.echo(f"reason: {reason}")
+    if summary.status == "blocked":
+        raise click.ClickException(
+            f"ontology KG build blocked for {domain}: "
+            f"{summary.reasons[0] if summary.reasons else 'unknown reason'}"
+        )
 
 
 @agent_system.command("reindex")
@@ -273,7 +406,7 @@ def reindex_command(
     model_name: str | None,
     allow_model_download: bool,
 ) -> None:
-    """Rebuild source and TMI-event vector indexes from the live store."""
+    """Rebuild source, TMI-event, and knowledge-entity vector indexes."""
 
     config = _load_config(config_path)
     store = _open_store(config, store_dir, create=False)
@@ -287,6 +420,14 @@ def reindex_command(
             store,
             _storage_path(config, store, "chroma", "chroma"),
             encoder=encoder,
+        )
+        states = (
+            *states,
+            reindex_knowledge_entities(
+                store,
+                _storage_path(config, store, "chroma", "chroma"),
+                encoder=encoder,
+            ),
         )
     except ImportError as exc:
         raise click.ClickException(

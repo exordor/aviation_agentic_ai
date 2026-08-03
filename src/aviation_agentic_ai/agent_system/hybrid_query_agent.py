@@ -31,9 +31,9 @@ from aviation_agentic_ai.agent_system.prompts import (
 from aviation_agentic_ai.agent_system.tool_model import ToolCallingModel
 
 
-MAX_QUERY_PROVIDER_TURNS = 6
+MAX_QUERY_PROVIDER_TURNS = 7
 MAX_QUERY_TOOL_CALLS_PER_TURN = 6
-MAX_QUERY_TOOL_CALLS = 10
+MAX_QUERY_TOOL_CALLS = 16
 
 ModelFactory = Callable[[list[BaseTool]], ToolCallingModel]
 
@@ -95,6 +95,14 @@ def _observation_from_result(result: Any) -> HybridQueryToolObservation:
 
 
 def _model_observation(observation: HybridQueryToolObservation) -> str:
+    try:
+        content_payload = json.loads(observation.content)
+    except (TypeError, json.JSONDecodeError):
+        content_payload = None
+    graph_paths_are_in_content = (
+        isinstance(content_payload, dict)
+        and isinstance(content_payload.get("paths"), list)
+    )
     payload = {
         "status": observation.status,
         "content": observation.content,
@@ -102,17 +110,70 @@ def _model_observation(observation: HybridQueryToolObservation) -> str:
             record.model_dump(mode="json")
             for record in observation.support_records
         ],
-        "graph_paths": [
-            path.model_dump(mode="json")
-            for path in observation.graph_paths
-        ],
         "similarity_matches": [
             match.model_dump(mode="json")
             for match in observation.similarity_matches
         ],
         "limitation": observation.limitation,
     }
+    if not graph_paths_are_in_content:
+        payload["graph_paths"] = [
+            path.model_dump(mode="json")
+            for path in observation.graph_paths
+        ]
     return json.dumps(payload, sort_keys=True, separators=(",", ":"))
+
+
+def _final_answer_messages(
+    *,
+    question: str,
+    scope: HybridQueryScope,
+    observations: list[HybridQueryToolObservation],
+) -> list[Any]:
+    evidence_packet = {
+        "question": question,
+        "scope": scope.model_dump(mode="json"),
+        "observations": [
+            json.loads(_model_observation(observation))
+            for observation in observations
+        ],
+    }
+    return [
+        SystemMessage(
+            content=(
+                "You are the evidence-bound answer formation stage of an aviation "
+                "HybridRAG system. Retrieval is complete and no tools are available. "
+                "Do not request tools, emit DSML, or describe another retrieval step. "
+                "Use only the supplied EVIDENCE_PACKET. Return exactly one JSON object "
+                "that conforms to the supplied JSON_SCHEMA. Every evidence identifier "
+                "cited by a statement must appear together in one supplied "
+                "support_record. Use source_record only for an exact source read with "
+                "both a source-version ID and source-anchor ID; copy only identifiers "
+                "present in that exact source_record support_record and do not mix in "
+                "graph-root or publication IDs. If the packet is "
+                "insufficient, return status insufficient with no unsupported "
+                "statements. Preserve non-causal boundaries and do not make "
+                "recommendations. Answer statement text in the user's language.\n\n"
+                "JSON_SCHEMA:\n"
+                + json.dumps(
+                    HybridQueryAnswer.model_json_schema(),
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+            )
+        ),
+        HumanMessage(
+            content=(
+                "EVIDENCE_PACKET:\n"
+                + json.dumps(
+                    evidence_packet,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+                + "\n\nReturn the final JSON object now."
+            )
+        ),
+    ]
 
 
 def _result_refs(evidence: HybridQueryEvidence) -> list[str]:
@@ -356,15 +417,34 @@ def _support_binding_error(
         cited_versions = set(statement.support_source_version_ids)
         cited_anchors = set(statement.support_source_anchor_ids)
         cited_chunks = set(statement.support_chunk_ids)
-        exact_record = any(
-            cited_sources.issubset(record.source_ids)
-            and cited_versions.issubset(record.source_version_ids)
-            and cited_anchors.issubset(record.source_anchor_ids)
-            and cited_chunks.issubset(record.chunk_ids)
+        exact_records = [
+            record
             for record in records
-        )
-        if not exact_record:
-            return "source record IDs do not share one exact evidence binding"
+            if (not cited_sources or cited_sources.intersection(record.source_ids))
+            and (
+                not cited_versions
+                or cited_versions.intersection(record.source_version_ids)
+            )
+        ]
+        covered_sources = {
+            value for record in exact_records for value in record.source_ids
+        }
+        covered_versions = {
+            value for record in exact_records for value in record.source_version_ids
+        }
+        covered_anchors = {
+            value for record in exact_records for value in record.source_anchor_ids
+        }
+        covered_chunks = {
+            value for record in exact_records for value in record.chunk_ids
+        }
+        if not (
+            cited_sources.issubset(covered_sources)
+            and cited_versions.issubset(covered_versions)
+            and cited_anchors.issubset(covered_anchors)
+            and cited_chunks.issubset(covered_chunks)
+        ):
+            return "source record IDs are not covered by exact evidence bindings"
     cited_sources = set(statement.support_source_ids)
     cited_non_event_ids = {
         value
@@ -439,12 +519,31 @@ def _parse_answer(message: AIMessage) -> HybridQueryAnswer:
             text,
             flags=re.DOTALL | re.IGNORECASE,
         )
-        if len(fenced) != 1:
-            raise ValueError("final answer is not valid JSON")
-        try:
-            payload = json.loads(fenced[0])
-        except json.JSONDecodeError as exc:
-            raise ValueError("final answer is not valid JSON") from exc
+        if len(fenced) == 1:
+            try:
+                payload = json.loads(fenced[0])
+            except json.JSONDecodeError as exc:
+                raise ValueError("final answer is not valid JSON") from exc
+        else:
+            # Some providers prepend a short natural-language sentence even
+            # when the contract requests one JSON object.  Recover exactly
+            # one top-level object, while still rejecting multiple competing
+            # objects or arbitrary prose without a valid contract payload.
+            decoder = json.JSONDecoder()
+            candidates: list[HybridQueryAnswer] = []
+            for match in re.finditer(r"\{", text):
+                try:
+                    candidate_payload, _end = decoder.raw_decode(
+                        text[match.start() :]
+                    )
+                    candidates.append(
+                        HybridQueryAnswer.model_validate(candidate_payload)
+                    )
+                except (json.JSONDecodeError, ValidationError):
+                    continue
+            if len(candidates) != 1:
+                raise ValueError("final answer is not valid JSON")
+            return candidates[0]
     try:
         return HybridQueryAnswer.model_validate(payload)
     except ValidationError as exc:
@@ -655,7 +754,7 @@ def run_hybrid_query_agent(
     model_factory: ModelFactory,
     catalog_path: str = DEFAULT_PROMPT_CATALOG,
 ) -> QueryToolOutcome:
-    """Run one required retrieval turn and one evidence-bound answer turn."""
+    """Run bounded retrieval followed by one evidence-bound answer turn."""
 
     model_calls: list[ModelCallRecord] = []
     traces: list[QueryToolTrace] = []
@@ -742,12 +841,16 @@ def run_hybrid_query_agent(
                 )
             break
         if len(calls) > MAX_QUERY_TOOL_CALLS_PER_TURN:
+            if observations:
+                break
             return _blocked(
                 reason="Hybrid Query Agent per-turn tool-call budget exceeded",
                 model_calls=model_calls,
                 tool_calls=traces,
             )
         if len(traces) + len(calls) > MAX_QUERY_TOOL_CALLS:
+            if observations:
+                break
             return _blocked(
                 reason="Hybrid Query Agent total tool-call budget exceeded",
                 model_calls=model_calls,
@@ -863,6 +966,56 @@ def run_hybrid_query_agent(
             )
         active_messages.extend([turn.message, *tool_messages])
 
+    if answer is None and observations:
+        final_messages = _final_answer_messages(
+            question=question,
+            scope=scope,
+            observations=observations,
+        )
+        try:
+            final_turn = model.invoke(final_messages, phase="final_answer")
+        except Exception as exc:
+            model_calls.append(
+                ModelCallRecord(
+                    agent="query",
+                    raw_response="",
+                    attempt=len(model_calls) + 1,
+                    error=sanitize_text(f"{type(exc).__name__}: {exc}"),
+                )
+            )
+            return _blocked(
+                reason=(
+                    "Hybrid Query Agent final answer failed: "
+                    f"{type(exc).__name__}: {exc}"
+                ),
+                model_calls=model_calls,
+                tool_calls=traces,
+                observations=observations,
+            )
+        model_calls.append(final_turn.record)
+        if final_turn.record.error:
+            return _blocked(
+                reason=final_turn.record.error,
+                model_calls=model_calls,
+                tool_calls=traces,
+                observations=observations,
+            )
+        if final_turn.message is None or final_turn.message.tool_calls:
+            return _blocked(
+                reason="provider returned no final evidence-bound answer",
+                model_calls=model_calls,
+                tool_calls=traces,
+                observations=observations,
+            )
+        try:
+            answer = _parse_answer(final_turn.message)
+        except ValueError as exc:
+            return _blocked(
+                reason=str(exc),
+                model_calls=model_calls,
+                tool_calls=traces,
+                observations=observations,
+            )
     if answer is None:
         return _blocked(
             reason="Hybrid Query Agent provider-turn budget exceeded",

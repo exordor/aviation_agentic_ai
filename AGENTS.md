@@ -18,7 +18,7 @@ composed runtime + source + dataset/temporal-scope configuration
   -> configured ATCSCC, FAA authority, Weather, BTS, NASA ATMONTO,
      aircraft-registry, and airspace source artifacts
   -> immutable source assets, source versions, and anchors
-  -> selected ingestion domain: all | tmi | flight-airspace
+  -> selected ingestion domain: all | tmi | document | flight-airspace
      -> TMI: classification, preflight, AdvisoryParser, authority services,
         optional Semantic Resolution, Weather/BTS preparation, and
         deterministic Event Evidence Integration
@@ -29,10 +29,10 @@ composed runtime + source + dataset/temporal-scope configuration
   -> cross-source associations: deterministic derivation materializer
   -> authoritative SQLite evidence and semantic store
   -> source chunks and SQLite FTS5
-  -> rebuildable source-record and TMI-event Chroma collections
+  -> rebuildable source-record, TMI-event, and knowledge-entity Chroma collections
   -> every valid natural-language ask activates the bounded Query Agent
-     -> LLM selects source, tmi, and/or flight_airspace tool families
-     -> selected subset of 18 read-only evidence tools
+     -> LLM selects source, tmi, knowledge, and/or flight_airspace tool families
+     -> selected subset of 21 read-only evidence tools
      -> per-statement evidence and claim-boundary validation
      -> answer, insufficient, or blocked
 
@@ -43,6 +43,13 @@ complete ATMONTO TBox -> task ontology slice -> bounded candidate-fact
 generator -> deterministic validation -> Formal Publication Kernel
   -> incremental semantic-store fusion
 ```
+
+Framework names must remain source-neutral: use `document` for the ingestion
+domain, `knowledge` for the query family, and `knowledge_entity` for derived
+indexes. FAA-specific parsing, prompt examples, normalization, and extension
+terms belong in `faa_order_*` adapter modules and its application profile.
+`PolicyRule` is an allowed FAA adapter concept; `policy` must not reappear as a
+public CLI domain, runtime family, generic module, index, or experiment name.
 
 The dataset-bound SQLite evidence store is the canonical persisted knowledge
 and evidence layer. The generic publication spine admits ATMONTO-aligned TMI,
@@ -64,6 +71,14 @@ The normative implementation design is
 `docs/multi_agent_kg_system_design.md`. Reader-facing documents use full Agent
 names, not internal alphanumeric labels.
 
+Document authority is intentionally narrow: `RESEARCH_AUDIT.md` owns current
+status and evaluation observations; `GOALS.md` owns durable goals and
+non-goals; `README.md` owns the public overview; and `REPRODUCIBILITY.md` owns
+commands and source bindings. `docs/repository_artifact_policy.md` defines the
+historical-material boundary.
+Other documents must explain or illustrate these authorities, not restate
+changing facts.
+
 Historical plans, PHAK-era reports, and retired compatibility contracts are
 not part of the default checkout. Their external-archive policy is documented
 in `docs/repository_artifact_policy.md`; do not restore them or add new
@@ -79,6 +94,11 @@ external ontology copies and old evaluation inputs belong in the archive and
 must not be added to the active runtime.
 
 ## Current Status
+
+`RESEARCH_AUDIT.md` is the sole authority for current implementation status,
+dataset counts, and evaluation observations. This section keeps only the
+runtime rules that an executor needs; do not copy changing metrics or sample
+inventories into this file.
 
 - The active implementation contains incremental ingestion, a dataset-bound
   SQLite evidence store, the Formal Publication Kernel, deterministic Event
@@ -114,18 +134,21 @@ must not be added to the active runtime.
   path. The Formal Publication Kernel remains the sole final publication
   authority.
 - Every valid public `ask` invokes the Query Agent. A first model call selects
-  one or more of `source`, `tmi`, and `flight_airspace`; the evidence loop then
-  sees only that subset of 18 registered read-only tools. There is no fixed
+  one or more of `source`, `tmi`, `knowledge`, and `flight_airspace`; the evidence
+  loop then sees only that subset of 21 registered read-only tools. There is no fixed
   question registry or deterministic answer fallback.
-- The Query Agent budget is 6 provider turns, at most 6 evidence-tool calls in
-  one turn, and at most 10 evidence-tool calls in total.
+- The Query Agent budget is 7 retrieval turns, at most 6 evidence-tool calls in
+  one turn, and at most 16 evidence-tool calls in total. Knowledge retrieval uses
+  compact graph observations so multi-paragraph questions retain room for
+  exact source-anchor reads. A retrieval boundary with accumulated evidence
+  triggers one tool-free Evidence Packet answer turn.
 - Search tools return candidates. A source-record statement requires an exact
   `read_source` result with immutable source-version and anchor support.
 - The ingestion-first storage cutover is complete. The public commands are
   `ingest`, `reindex`, `ask`, `neo4j-export`, and `export-event`. There is no
   run-directory query path, mandatory batch snapshot, old reader, or command
   compatibility path.
-- `ingest --domain all|tmi|flight-airspace` registers immutable source
+- `ingest --domain all|tmi|document|flight-airspace|web` registers immutable source
   versions, skips terminal
   `ok/insufficient` versions, retries blocked versions, and commits each
   accepted knowledge-root publication independently. A targeted advisory
@@ -146,48 +169,21 @@ must not be added to the active runtime.
   split is automated registry/preflight output, not manual review, a
   representative sample, or a current runtime cohort.
 - SQLite FTS5 indexes exact source chunks. Chroma has separately rebuildable
-  source-record and TMI-event collections; a collection is usable only when
+  source-record, TMI-event, and knowledge-entity collections; a collection is usable only when
   its indexed knowledge revision matches the store.
 - RDF/Turtle, JSONL KG, and Neo4j are optional all-root current-store exports
   and are never Query Agent prerequisites.
 - The system output ceiling is 10,000 tokens for the Query Agent; the compact
   Semantic Resolution decision remains capped at 256 tokens. Event Evidence
   Integration is deterministic and makes no provider call.
-- The v1-v4 DeepSeek contracts/results, later compact-selection runs, and
-  their retired evaluation harness are preserved in the dated external
-  archive. They must not be relabeled as current role, persistent-store, or
-  cross-family performance.
-- The pre-cutover `live_smoke` v4 compatibility result remains historical
-  archive evidence: 11 real provider calls, 5/5 Query Agent tasks accepted,
-  and the required cross-source Weather graph path observed. It is not a
-  frozen holdout, model benchmark, or ingestion-first result.
-- The ingestion-first `live_smoke` v1 completed against the persistent store
-  with 6/6 returned real `deepseek-v4-pro` calls and no provider errors. One of
-  three Query Agent tasks passed; two failed the answer-contract/evidence
-  acceptance checks. Raw provider responses and parsed trial outputs are
-  retained separately in ignored runtime artifacts. This negative result is
-  compatibility evidence, not a benchmark.
-- The tracked ingestion-first GDP 138 flagship walkthrough is historical
-  pre-family-router TMI-slice evidence: 1/1 natural-language Query Agent task passed,
-  3/3 real `deepseek-v4-pro` calls returned, and 5/5 bounded tool executions
-  were bound to the accepted trial. It is not current-runtime acceptance, a
-  benchmark, or evidence of general model quality.
-- The cross-domain `live_smoke` completed with `deepseek-v4-pro`: 33/33 real
-  provider calls returned; routing and retrieval passed 6/6 tasks; grounding
-  and answer acceptance passed 5/6. The unsupported actual-control/causal task
-  exhausted the 10-tool budget and returned `blocked` instead of
-  `insufficient`; preserve this as an observed stop-policy failure, not a
-  hidden success or benchmark result.
-- The five familiar records are development/regression fixtures only. No frozen
-  post-cutover evaluation set currently exists; `future_frozen_evaluation` is
-  `NOT CONSTRUCTED`. Historical suites remain compatibility artifacts and
-  cannot establish current performance.
-- The read-only visualization prototype is isolated on
-  `codex/kg-visualization-research`. Visualization is paused and is not the
-  active `main` implementation track.
-- Comparison experiments, Gold adjudication, broader ATMONTO family coverage,
-  weather expansion, causal explanation, and recommendation remain optional or
-  deferred unless explicitly reactivated.
+- Historical provider runs, walkthroughs, and compatibility suites are routed
+  through `docs/repository_artifact_policy.md`; they are not runtime status or model-quality
+  claims.
+- The five familiar records are development/regression fixtures only. No
+  frozen post-cutover evaluation set is part of the default system.
+- Broader ATMONTO coverage, weather expansion, causal explanation,
+  recommendation, and production deployment remain deferred unless explicitly
+  reactivated.
 
 ## Default Context
 
@@ -195,8 +191,7 @@ For a new task:
 
 1. Read `RESEARCH_AUDIT.md`.
 2. Read `GOALS.md`.
-3. Load `README.md`, `TODO.md`, or a design document only when the task needs
-   that layer.
+3. Load `README.md` or a design document only when the task needs that layer.
 
 Do not preload the external archive's former research-question, hypothesis,
 experiment, result, stage-report, ignored-store/export, or PHAK/web-demo

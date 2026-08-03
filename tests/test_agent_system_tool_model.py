@@ -139,7 +139,6 @@ def test_adapter_binds_tools_for_construction_and_query_without_strict_schema():
     _adapter(chat)
     assert [call["tool_choice"] for call in chat.bind_calls] == [
         "required",
-        "none",
         "auto",
     ]
     for call in chat.bind_calls:
@@ -165,7 +164,7 @@ def test_final_turn_receives_original_ai_message_and_matching_tool_message():
     )
     assert second_turn.message is final
     phase, captured = chat.invocations[-1]
-    assert phase == "none"
+    assert phase == "unbound"
     assert captured[-2] is first
     assert captured[-1] is observation
     assert captured[-1].tool_call_id == first.tool_calls[0]["id"]

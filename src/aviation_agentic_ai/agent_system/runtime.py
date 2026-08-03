@@ -7,7 +7,7 @@ from typing import Any
 
 # Frozen DeepSeek config for the system mainline.
 FROZEN_PROVIDER = "deepseek"
-FROZEN_MODEL = "deepseek-v4-pro"
+FROZEN_MODEL = "deepseek-v4-flash"
 FROZEN_TEMPERATURE = 0.0
 FROZEN_MAX_OUTPUT_TOKENS = 10_000
 FROZEN_TIMEOUT = 120.0

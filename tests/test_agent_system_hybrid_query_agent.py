@@ -26,6 +26,7 @@ from aviation_agentic_ai.agent_system.hybrid_query_agent import (
     MAX_QUERY_PROVIDER_TURNS,
     MAX_QUERY_TOOL_CALLS,
     MAX_QUERY_TOOL_CALLS_PER_TURN,
+    _parse_answer,
     run_hybrid_query_agent,
     validate_hybrid_query_statement,
 )
@@ -38,6 +39,20 @@ class _EventInput(BaseModel):
 
 class _SourceInput(BaseModel):
     source_version_id: str = Field(min_length=1)
+
+
+def test_query_answer_parser_accepts_one_json_object_after_provider_preamble() -> None:
+    answer = _parse_answer(
+        AIMessage(
+            content=(
+                "I verified the source. Here is the evidence-bound answer:\n"
+                '{"status":"insufficient","statements":[],"limitations":["No matching policy paragraph."]}'
+            )
+        )
+    )
+
+    assert answer.status == "insufficient"
+    assert answer.limitations == ("No matching policy paragraph.",)
 
 
 def _scope() -> HybridQueryScope:
@@ -202,6 +217,47 @@ class _LoopModel:
         )
 
 
+class _BudgetFinalizingModel:
+    def __init__(
+        self,
+        *,
+        query_responses: list[AIMessage] | None = None,
+    ) -> None:
+        self.query_responses = query_responses
+        self.query_turn = 0
+        self.phases: list[str] = []
+        self.messages: list[list[Any]] = []
+
+    def invoke(self, messages: list[Any], *, phase: str) -> ToolModelTurn:
+        self.phases.append(phase)
+        self.messages.append(list(messages))
+        if phase == "final_answer":
+            message = AIMessage(content=_answer())
+        else:
+            if self.query_responses is None:
+                calls = [
+                    {
+                        "id": f"budget-{self.query_turn}",
+                        "name": "read_tmi_event_facts",
+                        "args": {"event_id": "urn:event:138"},
+                    }
+                ]
+                message = AIMessage(content="", tool_calls=calls)
+            else:
+                message = self.query_responses[self.query_turn]
+            self.query_turn += 1
+        return ToolModelTurn(
+            message=message,
+            record=ModelCallRecord(
+                agent="query",
+                raw_response=str(message.content or ""),
+                provider="scripted",
+                model="scripted",
+                attempt=len(self.phases),
+            ),
+        )
+
+
 def _run(
     model: _LoopModel,
     *,
@@ -344,6 +400,124 @@ def test_cross_domain_query_budget_allows_one_full_parallel_tool_batch() -> None
     assert MAX_QUERY_PROVIDER_TURNS >= 6
     assert MAX_QUERY_TOOL_CALLS_PER_TURN >= 6
     assert MAX_QUERY_TOOL_CALLS >= 10
+
+
+def test_multi_paragraph_policy_retrieval_can_use_twelve_bounded_tool_calls() -> None:
+    responses: list[AIMessage] = []
+    for turn in range(4):
+        responses.append(
+            AIMessage(
+                content="",
+                tool_calls=[
+                    {
+                        "id": f"policy-{turn}-{index}",
+                        "name": "read_tmi_event_facts",
+                        "args": {"event_id": "urn:event:138"},
+                    }
+                    for index in range(3)
+                ],
+            )
+        )
+    responses.append(AIMessage(content=_answer()))
+    model = _LoopModel(responses=responses)
+
+    outcome = _run(model)
+
+    assert outcome.status == "ok"
+    assert len(outcome.tool_calls) == 12
+    assert model.phases == ["query_step"] * 5
+
+
+def test_policy_query_can_use_six_retrieval_turns_then_answer() -> None:
+    responses = [
+        AIMessage(
+            content="",
+            tool_calls=[
+                {
+                    "id": f"policy-turn-{turn}",
+                    "name": "read_tmi_event_facts",
+                    "args": {"event_id": "urn:event:138"},
+                }
+            ],
+        )
+        for turn in range(6)
+    ]
+    responses.append(AIMessage(content=_answer()))
+    model = _LoopModel(responses=responses)
+
+    outcome = _run(model)
+
+    assert outcome.status == "ok"
+    assert len(outcome.tool_calls) == 6
+    assert model.phases == ["query_step"] * 7
+
+
+def test_retrieval_turn_budget_forces_one_evidence_bound_answer_turn() -> None:
+    model = _BudgetFinalizingModel()
+
+    outcome = run_hybrid_query_agent(
+        question="What does the policy evidence record?",
+        scope=_scope(),
+        tools=[_read_tmi_event_facts],
+        model_factory=lambda _tools: model,
+    )
+
+    assert outcome.status == "ok"
+    assert model.phases == ["query_step"] * MAX_QUERY_PROVIDER_TURNS + [
+        "final_answer"
+    ]
+
+
+def test_forced_answer_uses_a_fresh_evidence_packet_without_tool_transcript() -> None:
+    model = _BudgetFinalizingModel()
+
+    outcome = run_hybrid_query_agent(
+        question="What does the policy evidence record?",
+        scope=_scope(),
+        tools=[_read_tmi_event_facts],
+        model_factory=lambda _tools: model,
+    )
+    final_messages = model.messages[-1]
+
+    assert outcome.status == "ok"
+    assert len(final_messages) == 2
+    assert all(not isinstance(message, ToolMessage) for message in final_messages)
+    assert all(
+        not (isinstance(message, AIMessage) and message.tool_calls)
+        for message in final_messages
+    )
+    assert "EVIDENCE_PACKET" in str(final_messages[-1].content)
+    assert "urn:fact:facility" in str(final_messages[-1].content)
+
+
+def test_tool_budget_forces_answer_instead_of_discarding_retrieved_evidence() -> None:
+    batches = (1, 6, 6, 4)
+    responses = [
+        AIMessage(
+            content="",
+            tool_calls=[
+                {
+                    "id": f"overflow-{turn}-{index}",
+                    "name": "read_tmi_event_facts",
+                    "args": {"event_id": "urn:event:138"},
+                }
+                for index in range(size)
+            ],
+        )
+        for turn, size in enumerate(batches)
+    ]
+    model = _BudgetFinalizingModel(query_responses=responses)
+
+    outcome = run_hybrid_query_agent(
+        question="What does the policy evidence record?",
+        scope=_scope(),
+        tools=[_read_tmi_event_facts],
+        model_factory=lambda _tools: model,
+    )
+
+    assert outcome.status == "ok"
+    assert len(outcome.tool_calls) == 13
+    assert model.phases == ["query_step"] * 4 + ["final_answer"]
 
 
 def test_multiple_model_selected_tools_feed_the_answer_turn() -> None:
@@ -510,6 +684,88 @@ def test_graph_paths_are_visible_to_and_citable_by_the_answer_turn() -> None:
     assert outcome.retrieved_graph_paths == [path]
 
 
+def test_graph_paths_already_in_tool_content_are_not_duplicated_for_the_model() -> None:
+    path = QueryGraphPath(
+        path_id="urn:path:knowledge",
+        path_kind="knowledge_neighbor_out",
+        edges=(
+            QueryGraphEdge(
+                fact_id="urn:fact:knowledge",
+                subject_iri="urn:knowledge:rule",
+                predicate_iri="urn:faa:appliesToTMI",
+                object_kind="iri",
+                object_value="urn:atmonto:GroundDelayProgramTMI",
+                source_ids=("source:faa:7210.3ee",),
+            ),
+        ),
+        source_ids=("source:faa:7210.3ee",),
+    )
+
+    @tool("read_knowledge_graph", args_schema=_EventInput)
+    def knowledge_graph_tool(event_id: str) -> dict[str, object]:
+        """Return one knowledge path already serialized in compact content."""
+
+        assert event_id == "urn:event:138"
+        return HybridQueryToolObservation(
+            status="ok",
+            content=json.dumps(
+                {"root_id": "urn:knowledge:rule", "paths": [path.model_dump(mode="json")]}
+            ),
+            details=HybridQueryEvidence(
+                root_ids=("urn:knowledge:rule",),
+                fact_ids=("urn:fact:knowledge",),
+                graph_path_ids=(path.path_id,),
+                source_ids=path.source_ids,
+            ),
+            support_records=(
+                HybridQuerySupportRecord(
+                    kind="source_fact",
+                    root_ids=("urn:knowledge:rule",),
+                    fact_ids=("urn:fact:knowledge",),
+                    graph_path_ids=(path.path_id,),
+                    source_ids=path.source_ids,
+                ),
+            ),
+            graph_paths=(path,),
+        ).model_dump(mode="json")
+
+    model = _LoopModel(
+        calls=[
+            {
+                "id": "knowledge-graph",
+                "name": "read_knowledge_graph",
+                "args": {"event_id": "urn:event:138"},
+            }
+        ],
+        final_content=HybridQueryAnswer(
+            status="ok",
+            statements=(
+                HybridQueryStatement(
+                    kind="source_fact",
+                    text="The policy rule applies to the GDP concept.",
+                    support_root_ids=("urn:knowledge:rule",),
+                    support_fact_ids=("urn:fact:knowledge",),
+                    support_graph_path_ids=(path.path_id,),
+                    support_source_ids=path.source_ids,
+                ),
+            ),
+        ).model_dump_json(),
+    )
+
+    outcome = _run(model, tools=[knowledge_graph_tool])
+    tool_message = next(
+        message
+        for message in model.messages[-1]
+        if isinstance(message, ToolMessage)
+    )
+    model_observation = json.loads(str(tool_message.content))
+
+    assert outcome.status == "ok"
+    assert "graph_paths" not in model_observation
+    assert "urn:path:knowledge" in model_observation["content"]
+    assert outcome.retrieved_graph_paths == [path]
+
+
 def test_zero_tool_calls_is_blocked() -> None:
     model = _LoopModel(
         calls=[],
@@ -563,7 +819,7 @@ def test_unknown_tool_and_invalid_arguments_are_blocked() -> None:
     assert "arguments" in invalid_outcome.failure_reason
 
 
-def test_provider_error_and_turn_budget_are_blocked() -> None:
+def test_provider_error_and_failed_forced_finalization_are_blocked() -> None:
     provider_error = _LoopModel(first_error="provider unavailable")
     repeated = [
         AIMessage(
@@ -588,7 +844,7 @@ def test_provider_error_and_turn_budget_are_blocked() -> None:
     assert first.status == "blocked"
     assert first.failure_reason == "provider unavailable"
     assert second.status == "blocked"
-    assert "turn budget" in second.failure_reason
+    assert "final answer failed" in second.failure_reason
 
 
 def test_malformed_or_unsupported_answer_is_blocked() -> None:
@@ -1035,3 +1291,32 @@ def test_source_record_statement_requires_exact_version_and_anchor() -> None:
 
     assert outcome.status == "blocked"
     assert "source version and anchor" in outcome.failure_reason
+
+
+def test_source_record_statement_can_combine_multiple_exact_reads() -> None:
+    statement = HybridQueryStatement(
+        kind="source_record",
+        text="Two paragraphs jointly describe the policy responsibilities.",
+        support_source_ids=("faa-order:jo-7210.3ee",),
+        support_source_version_ids=("source-version:chapter18",),
+        support_source_anchor_ids=("source-anchor:first", "source-anchor:second"),
+        support_chunk_ids=("source-chunk:first", "source-chunk:second"),
+    )
+    support_records = [
+        HybridQuerySupportRecord(
+            kind="source_record",
+            source_ids=("faa-order:jo-7210.3ee",),
+            source_version_ids=("source-version:chapter18",),
+            source_anchor_ids=("source-anchor:first",),
+            chunk_ids=("source-chunk:first",),
+        ),
+        HybridQuerySupportRecord(
+            kind="source_record",
+            source_ids=("faa-order:jo-7210.3ee",),
+            source_version_ids=("source-version:chapter18",),
+            source_anchor_ids=("source-anchor:second",),
+            chunk_ids=("source-chunk:second",),
+        ),
+    ]
+
+    assert validate_hybrid_query_statement(statement, support_records) is None

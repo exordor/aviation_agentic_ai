@@ -63,6 +63,26 @@ def test_flight_airspace_profiles_are_opt_in() -> None:
     )
 
 
+def test_public_atmonto_sample_profile_exposes_local_full_tbox() -> None:
+    """The public ABox compiler is bounded by the complete local TBox catalog."""
+
+    registry = _registry(include_atmonto_public_sample=True)
+    profile = next(
+        item for item in registry.profiles if item.ref.layer == "atmonto_public_sample"
+    )
+
+    assert profile.ref.profile_id == "nasa_atmonto_public_sample_abox_v1"
+    assert len(profile.class_mappings) == 105
+    assert len(profile.property_mappings) == 280
+    assert f"{ATM}Flight" in {
+        mapping["iri"] for mapping in profile.class_mappings.values()
+    }
+    assert (
+        "https://data.nasa.gov/ontologies/atmonto/data#arrivalDemand"
+        not in {mapping["iri"] for mapping in profile.property_mappings.values()}
+    )
+
+
 def test_flight_operation_profile_uses_exact_atmonto_signatures() -> None:
     """A renamed or ad-hoc Flight term must not enter the closed profile."""
 

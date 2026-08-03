@@ -2,7 +2,11 @@
 
 Status: normative current architecture
 
-Date: 2026-08-01
+Date: 2026-08-02
+
+Changing implementation status, dataset inventories, and evaluation results
+are authoritative only in `../RESEARCH_AUDIT.md`. This document defines
+contracts and architecture; it does not duplicate run-specific observations.
 
 ## 1. Purpose
 
@@ -18,11 +22,22 @@ publication boundary, an authoritative persistent knowledge layer, and
 model-directed HybridRAG. Every released answer statement remains traceable to
 retrieved evidence.
 
-GDP, GS, and ReRoute form the mature TMI regression slice. Flight/Airspace,
-reference, Weather, and reviewed cross-source association roots use the same
-publication and query architecture. Dataset and temporal-scope configuration
-selects the research material; no advisory inventory or TMI family defines the
-permanent subject boundary.
+GDP, GS, and ReRoute are regression fixtures for one TMI publication path.
+Flight/Airspace, reference, Weather, and reviewed cross-source association
+roots use the same publication and query architecture. Dataset and
+temporal-scope configuration selects the research material; no advisory
+inventory or TMI family defines the permanent subject boundary.
+
+### Framework And Adapter Boundary
+
+The reusable framework owns document ingestion contracts, compact ontology
+slices, candidate-only LLM generation, deterministic publication, generic
+knowledge-entity indexes, and knowledge graph query tools. Source-specific
+code lives behind named adapters. The current `faa_order_*` adapter supplies
+JO 7210.3EE parsing, examples, normalization, and its FAA+ATMONTO application
+profile. Consequently, FAA concepts such as `PolicyRule` may appear inside
+that profile, but `policy` is not a public ingestion domain, query family,
+index type, or framework module name.
 
 ## 2. Research Narrative And Architecture
 
@@ -67,6 +82,15 @@ dense workflow chart.
 task slice, bounded candidate generation, deterministic publication, and
 incremental semantic fusion explicit. Editable source:
 [ontology_grounded_incremental_kg_generation.drawio](figures/ontology_grounded_incremental_kg_generation.drawio).
+
+![Ontology-grounded document-to-KG and Agentic HybridRAG framework](figures/ontology_grounded_document_kg_framework.png)
+
+**Figure 5.** The reusable document-to-KG flow runs from configured document
+ingestion and recursive chunking through two-stage LLM extraction,
+incremental publication, rebuildable retrieval views, and evidence-bound
+natural-language answering. FAA Chapter 18 is shown only as the current
+adapter. Editable source:
+[ontology_grounded_document_kg_framework.drawio](figures/ontology_grounded_document_kg_framework.drawio).
 
 The five planes are:
 
@@ -119,6 +143,29 @@ The separation makes it possible to measure candidate generation and
 incremental fusion without weakening the deterministic runtime publication
 boundary.
 
+### 2.5 Same-Date Reconstruction Validation
+
+The first construction experiment is a paired reconstruction of the public
+NASA `atmontoPlus` sample. The baseline date and geographic scope are fixed
+to 2014-07-15 and KJFK/KEWR/KLGA. NASA's published ABox is a reference-only
+comparison target; it is not included in the LLM task context and is not a
+runtime knowledge store.
+
+The experiment supplies source-native evidence to the construction path,
+generates candidate facts, validates and publishes them through the existing
+kernel, and compares provenance-independent semantic fact signatures with the
+reference ABox. Precision, recall, F1, predicate coverage, publication
+status, evidence support, and abstention are reported separately. This
+isolates extraction and ontology-alignment behaviour from temporal
+generalisation. A later cross-date experiment must use a different target
+date and the same competency-question and geographic scope; it must not be
+reported as part of this same-date validation.
+
+The source gate for this experiment is recorded in
+`docs/ontology/same_date_source_completeness.md`. It distinguishes source-
+native records from the processed NASA reference ABox and blocks provider
+calls until the approved date/region source intersection is complete.
+
 Construction:
 
 ```text
@@ -134,14 +181,14 @@ composed runtime + source + dataset/temporal-scope configuration
   -> cross-source associations: deterministic derivation materializer
   -> authoritative SQLite evidence and semantic store
   -> source chunks and SQLite FTS5
-  -> rebuildable source and TMI-event Chroma collections
+  -> rebuildable source, TMI-event, and knowledge-entity Chroma collections
 ```
 
 Retrieval:
 
 ```text
 free-form question + immutable user scope
-  -> LLM selects source | tmi | flight_airspace tool families
+  -> LLM selects source | tmi | knowledge | flight_airspace tool families
   -> bounded Query Agent over the selected evidence tools
   -> exact store | semantic graph | FTS | Chroma | exact source read
   -> structured evidence and support records
@@ -448,15 +495,17 @@ already admitted to the final set blocks that event publication.
 
 No model writes directly to SQLite, JSONL, RDF/Turtle, Neo4j, FTS, or Chroma.
 
-### 9.1 Ontology Candidate Fact Publication
+### 9.1 Schema-Guided NER/RE And Candidate Publication
 
-The opt-in candidate generator uses the same final publication boundary as
-the deterministic paths. Its sealed task includes a temporal-domain ID, the
-task ontology slice, candidate entities, evidence cards, and immutable source
-anchor bindings. Its strict output contains typed candidate facts, explicit
-abstentions, and profile-gap proposals.
+The generic document construction path compiles a configured ontology profile
+into a task-sized schema and applies separate entity and relation extraction
+calls to recursively bounded document chunks. Deterministic normalization
+owns stable entity identity. The model can select only schema classes and can
+relate only already resolved entities with allowed object properties. FAA JO
+7210.3EE Chapter 18 is the first configured adapter, not the framework scope.
 
-Before publication, deterministic code checks that every predicate belongs to
+Resolved entities and relation candidates form a write-free candidate
+subgraph. Before publication, deterministic code checks that every predicate belongs to
 the slice and active profile, every object satisfies domain/range and datatype
 constraints, every evidence reference resolves to the exact source span, and
 the root and temporal domain are in scope. Semantic fact identity excludes
@@ -517,15 +566,16 @@ fetch therefore participates in the same exact lexical and source-record
 semantic retrieval path as other admitted textual sources after it is
 persisted; no separate web vector database is introduced.
 
-Chroma contains two rebuildable collections:
+Chroma contains three rebuildable collections:
 
 | Collection | Purpose |
 | --- | --- |
 | `aviation_source_chunks_v1` | Semantic discovery of source-record chunks. |
 | `tmi_events_v1` | Metadata-conditioned retrieval of TMI event publications. |
+| `knowledge_entities_v1` | Ontology-entity discovery before exact graph and source reads. |
 
 Ingestion attempts an incremental update after semantic publication.
-`reindex` recreates both collections from all current store rows. A failed or
+`reindex` recreates all collections from current authoritative rows. A failed or
 missing vector index does not roll back accepted semantic publication.
 
 The Query runtime attaches a Chroma collection only when dataset identity,
@@ -557,7 +607,7 @@ question registry, keyword classifier, or deterministic answer bypass.
 
 ```text
 question + immutable CLI scope
-  -> LLM selects source | tmi | flight_airspace families
+  -> LLM selects source | tmi | knowledge | flight_airspace families
      (+ optional web only when explicitly authorized)
   -> bind only those bounded read-only evidence tools
   -> typed tool observations
@@ -566,18 +616,21 @@ question + immutable CLI scope
   -> answer / insufficient / blocked
 ```
 
-The evidence loop permits at most 6 provider turns, 6 tool calls in one turn,
-and 10 evidence-tool calls in total. The separate routing call selects one or
-more families from a shared registry:
+The evidence loop permits at most 7 retrieval turns, 6 tool calls in one turn,
+and 16 evidence-tool calls in total. If retrieval reaches a boundary after
+collecting evidence, one tool-free Answer Formation turn receives a compact
+Evidence Packet rather than the tool transcript. The separate routing call
+selects one or more families from a shared registry:
 
 | Family | Tools | Capability |
 | --- | ---: | --- |
 | `source` | 3 | SQLite FTS and Chroma candidate discovery followed by exact source-version/anchor reading. |
 | `tmi` | 6 | TMI discovery, formal facts and gaps, Weather context, BTS observations, event graph, and metadata-conditioned candidates. |
+| `knowledge` | 3 + shared source read | Ontology-entity vector discovery, structured root filtering, bounded graph reads, and exact anchor reads through the shared `read_source` tool. |
 | `flight_airspace` | 9 | Flights, airports, trajectories, sector passages/aggregation, Flight–Weather links, TMI-applicability candidates, and the general aviation graph. |
 | `web` (optional) | 3 | Allowlisted public-document candidates and exact sidecar fetch/extract reads; search candidates alone are never evidence. |
 
-The 18 core evidence tools are registered once and shared by the runtime and
+The 21 core evidence tools are registered once and shared by the runtime and
 live evaluation harness. When Web Evidence is explicitly authorized, the
 three web tools are added as one optional family. The model does not see all
 core or optional tools on every evidence turn; it sees only the families
@@ -592,6 +645,7 @@ flight_airspace: find_flights, read_flight, find_airports,
      read_flight_trajectory, find_sector_passages, analyze_sector_traffic,
      find_flight_weather_associations, find_tmi_applicability_candidates,
      read_aviation_graph
+knowledge: search_knowledge_entities, find_knowledge_roots, read_knowledge_graph, shared read_source
 web (optional): web_search, web_fetch, web_extract
 ```
 
@@ -672,7 +726,7 @@ publication authorities.
 aviation-ai agent-system ingest \
   --config <config> \
   [--store-dir <store-dir>] \
-  [--domain all|tmi|flight-airspace] \
+  [--domain all|tmi|document|flight-airspace|web] \
   [--source-root <source-root>] \
   [--advisory-id <id> ...] \
   [--allow-live-model] \
@@ -683,6 +737,14 @@ aviation-ai agent-system reindex \
   [--store-dir <store-dir>] \
   [--model-name <model>] \
   [--allow-model-download]
+
+aviation-ai agent-system build-kg \
+  --config <config> \
+  [--store-dir <store-dir>] \
+  --domain <configured-ontology-domain> \
+  [--source-root <source-root>] \
+  [--max-items <n>] \
+  --allow-live-model
 
 aviation-ai agent-system ask \
   --config <config> \
@@ -722,49 +784,11 @@ not evaluation samples, representative coverage, or special source-ID routes.
 
 ## 17. Evaluation Boundary
 
-Offline fake/scripted providers validate software contracts only. They do not
-establish extraction, reasoning, tool-selection, or Agent quality.
-
-A live evaluation binds directly to an existing store revision, source
-versions, active event publications, and current vector state. It does not copy
-the knowledge base into a temporary query store.
-
-Historical reports remain frozen under their named runtimes. They cannot
-establish ingestion-first performance. Any new live claim must use the
-configured real provider, record provider-call success separately from task
-acceptance, and verify its raw/parsed artifacts and binding.
-
-The first ingestion-first compatibility smoke satisfied those capture
-requirements: 6/6 real `deepseek-v4-pro` calls returned, but only 1/3
-development/regression tasks passed. The two failed answer-contract/evidence
-checks are retained as observed behavior and are not converted into offline
-successes.
-
-The tracked GDP 138 flagship walkthrough provides historical pre-family-router
-TMI-slice evidence: 1/1 natural-language Query Agent task
-passed, 3/3 real `deepseek-v4-pro` calls returned, and 5/5 bounded tool
-executions were bound to the accepted trial. It verifies one versioned
-ingestion-to-answer path with exact ATCSCC source support, non-causal Weather
-context, and source-qualified BTS observations. It is not current-runtime
-acceptance, a benchmark, or a claim of general model quality.
-
-The broader cross-domain `live_smoke` binds six ordinary natural-language
-tasks to one store revision and the shared runtime registry. With
-`deepseek-v4-pro`, all 33/33 real calls returned; routing and retrieval passed
-6/6, and grounding/answer acceptance passed 5/6. TMI, Flight, Weather, Sector,
-and TMI-applicability tasks passed. The unsupported actual-control/causal task
-kept retrieving until the 10-tool ceiling and returned `blocked` instead of
-`insufficient`. This is an observed stop-policy failure, not a successful
-abstention or a statistical benchmark.
-
-Ontology candidate generation currently has deterministic structural
-diagnostics only. The report includes proposal counts, ontology-term
-compliance, evidence-anchor coverage, profile gaps, duplicate semantic facts,
-and blocked publication counts under the `offline_software_test` label. These
-metrics verify contracts and incremental fusion; they are not live-model
-quality results. A future live construction benchmark must invoke the
-configured provider for every sample and report provider success separately
-from publication acceptance.
+Offline fake/scripted providers validate software contracts only. Live
+evaluation must use the configured provider and separate provider-call success
+from task acceptance. Historical results and current observations are routed
+through `../RESEARCH_AUDIT.md` and `repository_artifact_policy.md`; they are not part of
+the normative design contract.
 
 ## 18. Deferred Work
 

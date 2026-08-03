@@ -21,6 +21,10 @@ from aviation_agentic_ai.agent_system.hybrid_query_tools import (
     HybridQueryGateway,
     build_hybrid_query_tools,
 )
+from aviation_agentic_ai.agent_system.knowledge_query_tools import (
+    KnowledgeQueryGateway,
+    build_knowledge_query_tools,
+)
 from aviation_agentic_ai.agent_system.query_runtime import QueryRuntime
 from aviation_agentic_ai.agent_system.query_tool_registry import (
     QueryRoutingBlocked,
@@ -54,10 +58,12 @@ def answer_question(
         runtime=runtime,
         scope=scope,
     )
+    knowledge_gateway = KnowledgeQueryGateway(runtime=runtime, scope=scope)
     registry = build_query_tool_registry(
         [
             *build_hybrid_query_tools(gateway),
             *build_flight_airspace_query_tools(flight_airspace_gateway),
+            *build_knowledge_query_tools(knowledge_gateway),
             *(
                 build_web_query_tools(runtime.web_client, runtime.web_config)
                 if runtime.web_client is not None and runtime.web_config is not None

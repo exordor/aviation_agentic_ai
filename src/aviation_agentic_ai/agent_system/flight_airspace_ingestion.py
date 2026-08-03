@@ -81,6 +81,7 @@ from aviation_agentic_ai.agent_system.flight_sources import (
 )
 from aviation_agentic_ai.agent_system.flight_airspace_publication import (
     compile_nasa_flight_airspace_facts,
+    compile_nasa_public_sample_trace_facts,
     run_nasa_flight_airspace_publication_kernel,
 )
 from aviation_agentic_ai.agent_system.knowledge_publication import (
@@ -122,6 +123,65 @@ _SOURCE_KEYS = (
     "nasa_atmonto_instances",
     "nasr_airspace_zip",
 )
+
+_ATM = "https://data.nasa.gov/ontologies/atmonto/ATM#"
+_DATA = "https://data.nasa.gov/ontologies/atmonto/data#"
+_NAS = "https://data.nasa.gov/ontologies/atmonto/NAS#"
+_SAMPLE_PROFILE_LAYER = "atmonto_public_sample"
+_SAMPLE_CLASS_BY_KIND = {
+    "airport": f"{_NAS}Airport",
+    "artcc": f"{_NAS}ARTCC",
+    "sector": f"{_NAS}Sector",
+    "navigation_fix": f"{_ATM}NavigationFix",
+    "weather_observation": f"{_DATA}MeteorologicalReport",
+    "weather_forecast": f"{_DATA}MeteorologicalReport",
+    "airport_operational_observation": f"{_DATA}AirportStatisticsData",
+}
+
+
+def _sample_formal_publication(
+    *,
+    trace: object,
+    source_version: SourceVersionRecord,
+    root_id: str,
+    root_kind: str,
+    profile_registry: ValidationProfileRegistry | None,
+) -> tuple[FormalPublication | None, tuple[FactTraceRow, ...]]:
+    """Compile one source-root ABox record when the full sample profile is active."""
+
+    if profile_registry is None or not any(
+        profile.ref.layer == _SAMPLE_PROFILE_LAYER
+        for profile in profile_registry.profiles
+    ):
+        return None, ()
+    subject_class = _SAMPLE_CLASS_BY_KIND.get(root_kind)
+    if root_kind == "tmi":
+        # TMI family is an explicit source type, so retain the concrete
+        # GroundDelayProgram/GroundStop/ReRoute class for domain checks.
+        for line in getattr(trace, "canonical_subject_triples", ()):
+            if " rdf:type " not in line:
+                continue
+            object_token = line.rsplit(" ", 2)[-2].strip("<>")
+            if object_token.endswith("TMI"):
+                subject_class = object_token
+                break
+        subject_class = subject_class or f"{_ATM}TrafficManagementInitiative"
+    if subject_class is None:
+        return None, ()
+    source_subject = getattr(trace, "subject_iri", root_id)
+    compilation = compile_nasa_public_sample_trace_facts(
+        trace=trace,
+        subject_iri=source_subject,
+        subject_class_iri=subject_class,
+        profile_registry=profile_registry,
+        source_snapshot_sha256=source_version.content_sha256,
+    )
+    publication = run_nasa_flight_airspace_publication_kernel(
+        compilation=compilation,
+        profile_registry=profile_registry,
+        source_snapshot=build_source_snapshot_registry([source_version]),
+    )
+    return publication, compilation.fact_traces
 
 
 @dataclass(frozen=True, slots=True)
@@ -758,6 +818,7 @@ def _atmonto_weather_publication(
     *,
     asset: SourceAssetRecord,
     temporal_domain_id: str,
+    profile_registry: ValidationProfileRegistry | None = None,
 ) -> _PendingPublication:
     if not record.report_text:
         raise ValueError("NASA METAR report has no source report text")
@@ -771,6 +832,13 @@ def _atmonto_weather_publication(
     )
     version = build_source_version(source)
     observation_id = record.subject_iri
+    formal_publication, fact_traces = _sample_formal_publication(
+        trace=record.source,
+        source_version=version,
+        root_id=observation_id,
+        root_kind="weather_observation",
+        profile_registry=profile_registry,
+    )
     package = _publication_package(
         root_id=observation_id,
         root_kind="weather_observation",
@@ -782,6 +850,8 @@ def _atmonto_weather_publication(
             "interval_end": record.interval_end,
             "report_text": record.report_text,
         },
+        formal_publication=formal_publication,
+        fact_traces=fact_traces,
     )
     return _PendingPublication(
         source_version=version,
@@ -811,6 +881,7 @@ def _atmonto_taf_publication(
     *,
     asset: SourceAssetRecord,
     temporal_domain_id: str,
+    profile_registry: ValidationProfileRegistry | None = None,
 ) -> _PendingPublication:
     source = _record_with_domain(
         _atmonto_sample_source_record(
@@ -821,6 +892,13 @@ def _atmonto_taf_publication(
         temporal_domain_id,
     )
     version = build_source_version(source)
+    formal_publication, fact_traces = _sample_formal_publication(
+        trace=record.source,
+        source_version=version,
+        root_id=record.subject_iri,
+        root_kind="weather_forecast",
+        profile_registry=profile_registry,
+    )
     package = _publication_package(
         root_id=record.subject_iri,
         root_kind="weather_forecast",
@@ -833,6 +911,8 @@ def _atmonto_taf_publication(
             "valid_to": record.valid_to,
             "report_text": record.report_text,
         },
+        formal_publication=formal_publication,
+        fact_traces=fact_traces,
     )
     return _PendingPublication(
         source_version=version,
@@ -863,6 +943,7 @@ def _atmonto_airport_data_publication(
     *,
     asset: SourceAssetRecord,
     temporal_domain_id: str,
+    profile_registry: ValidationProfileRegistry | None = None,
 ) -> _PendingPublication:
     source = _record_with_domain(
         _atmonto_sample_source_record(
@@ -873,6 +954,13 @@ def _atmonto_airport_data_publication(
         temporal_domain_id,
     )
     version = build_source_version(source)
+    formal_publication, fact_traces = _sample_formal_publication(
+        trace=record.source,
+        source_version=version,
+        root_id=record.subject_iri,
+        root_kind="airport_operational_observation",
+        profile_registry=profile_registry,
+    )
     package = _publication_package(
         root_id=record.subject_iri,
         root_kind="airport_operational_observation",
@@ -884,6 +972,8 @@ def _atmonto_airport_data_publication(
             "interval_end": record.interval_end,
             "metrics": record.metrics,
         },
+        formal_publication=formal_publication,
+        fact_traces=fact_traces,
     )
     return _PendingPublication(
         source_version=version,
@@ -913,6 +1003,7 @@ def _atmonto_tmi_publication(
     *,
     asset: SourceAssetRecord,
     temporal_domain_id: str,
+    profile_registry: ValidationProfileRegistry | None = None,
 ) -> _PendingPublication:
     source = _record_with_domain(
         _atmonto_sample_source_record(
@@ -923,6 +1014,13 @@ def _atmonto_tmi_publication(
         temporal_domain_id,
     )
     version = build_source_version(source)
+    formal_publication, fact_traces = _sample_formal_publication(
+        trace=record.source,
+        source_version=version,
+        root_id=record.subject_iri,
+        root_kind="tmi",
+        profile_registry=profile_registry,
+    )
     package = _publication_package(
         root_id=record.subject_iri,
         root_kind="tmi",
@@ -940,6 +1038,8 @@ def _atmonto_tmi_publication(
             "effective_from": record.effective_from,
             "effective_to": record.effective_to,
         },
+        formal_publication=formal_publication,
+        fact_traces=fact_traces,
     )
     return _PendingPublication(
         source_version=version,
@@ -987,12 +1087,20 @@ def _nasa_sector_publication(
     *,
     asset: SourceAssetRecord,
     temporal_domain_id: str,
+    profile_registry: ValidationProfileRegistry | None = None,
 ) -> _PendingPublication:
     source = _record_with_domain(
         _nasa_source_record(record.source, asset=asset),
         temporal_domain_id,
     )
     version = build_source_version(source)
+    formal_publication, fact_traces = _sample_formal_publication(
+        trace=record.source,
+        source_version=version,
+        root_id=record.subject_iri,
+        root_kind="sector",
+        profile_registry=profile_registry,
+    )
     package = _publication_package(
         root_id=record.subject_iri,
         root_kind="sector",
@@ -1002,6 +1110,8 @@ def _nasa_sector_publication(
             "subject_iri": record.subject_iri,
             "sector_identifier": record.sector_identifier,
         },
+        formal_publication=formal_publication,
+        fact_traces=fact_traces,
     )
     return _PendingPublication(
         source_version=version,
@@ -1026,12 +1136,20 @@ def _nasa_fix_publication(
     *,
     asset: SourceAssetRecord,
     temporal_domain_id: str,
+    profile_registry: ValidationProfileRegistry | None = None,
 ) -> _PendingPublication:
     source = _record_with_domain(
         _nasa_source_record(record.source, asset=asset),
         temporal_domain_id,
     )
     version = build_source_version(source)
+    formal_publication, fact_traces = _sample_formal_publication(
+        trace=record.source,
+        source_version=version,
+        root_id=record.subject_iri,
+        root_kind="navigation_fix",
+        profile_registry=profile_registry,
+    )
     package = _publication_package(
         root_id=record.subject_iri,
         root_kind="navigation_fix",
@@ -1044,6 +1162,8 @@ def _nasa_fix_publication(
             "longitude": record.longitude,
             "sector_iris": record.sector_iris,
         },
+        formal_publication=formal_publication,
+        fact_traces=fact_traces,
     )
     return _PendingPublication(
         source_version=version,
@@ -1600,6 +1720,7 @@ def _nasa_airport_publication(
     *,
     asset: SourceAssetRecord,
     temporal_domain_id: str,
+    profile_registry: ValidationProfileRegistry | None = None,
 ) -> _PendingPublication:
     source = _record_with_domain(
         _nasa_source_record(record.source, asset=asset),
@@ -1610,6 +1731,13 @@ def _nasa_airport_publication(
         "airport",
         SourceFamily.NASA_ATMONTO_INSTANCE.value,
         record.icao_code,
+    )
+    formal_publication, fact_traces = _sample_formal_publication(
+        trace=record.source,
+        source_version=version,
+        root_id=airport_id,
+        root_kind="airport",
+        profile_registry=profile_registry,
     )
     package = _publication_package(
         root_id=airport_id,
@@ -1625,6 +1753,8 @@ def _nasa_airport_publication(
             "state": record.state,
             "within_artcc_iris": record.within_artcc_iris,
         },
+        formal_publication=formal_publication,
+        fact_traces=fact_traces,
     )
     return _PendingPublication(
         source_version=version,
@@ -1650,6 +1780,7 @@ def _nasa_artcc_publication(
     *,
     asset: SourceAssetRecord,
     temporal_domain_id: str,
+    profile_registry: ValidationProfileRegistry | None = None,
 ) -> _PendingPublication:
     source = _record_with_domain(
         _nasa_source_record(record.source, asset=asset),
@@ -1661,6 +1792,13 @@ def _nasa_artcc_publication(
         SourceFamily.NASA_ATMONTO_INSTANCE.value,
         record.artcc_code,
     )
+    formal_publication, fact_traces = _sample_formal_publication(
+        trace=record.source,
+        source_version=version,
+        root_id=artcc_id,
+        root_kind="artcc",
+        profile_registry=profile_registry,
+    )
     package = _publication_package(
         root_id=artcc_id,
         root_kind="artcc",
@@ -1671,6 +1809,8 @@ def _nasa_artcc_publication(
             "artcc_code": record.artcc_code,
             "display_name": record.display_name,
         },
+        formal_publication=formal_publication,
+        fact_traces=fact_traces,
     )
     return _PendingPublication(
         source_version=version,
@@ -2373,6 +2513,12 @@ def run_flight_airspace_ingestion(
         flight_airspace_profiles = load_validation_profile_registry(
             decision_guide=load_schema_guide(),
             include_flight_airspace=True,
+            include_atmonto_public_sample=(
+                _metadata(config, "nasa_atmonto_instances").get(
+                    "include_public_sample_layers"
+                )
+                is True
+            ),
         )
         nasa_records = tuple(
             iter_nasa_atmonto_airspace_records(
@@ -2457,6 +2603,7 @@ def run_flight_airspace_ingestion(
                 row,
                 asset=nasa_asset,
                 temporal_domain_id=domain,
+                profile_registry=flight_airspace_profiles,
             )
             airport_references.append(pending)
             airport_publications_by_iri[row.subject_iri] = (
@@ -2470,6 +2617,7 @@ def run_flight_airspace_ingestion(
                 row,
                 asset=nasa_asset,
                 temporal_domain_id=domain,
+                profile_registry=flight_airspace_profiles,
             )
             artcc_references.append(pending)
             artcc_publications_by_iri[row.subject_iri] = (
@@ -2532,6 +2680,7 @@ def run_flight_airspace_ingestion(
                         row,
                         asset=nasa_asset,
                         temporal_domain_id=domain,
+                        profile_registry=flight_airspace_profiles,
                     )
                     for row in sectors
                 ),
@@ -2546,6 +2695,7 @@ def run_flight_airspace_ingestion(
                         row,
                         asset=nasa_asset,
                         temporal_domain_id=domain,
+                        profile_registry=flight_airspace_profiles,
                     )
                     for row in fixes_by_id.values()
                 ),
@@ -2657,24 +2807,28 @@ def run_flight_airspace_ingestion(
                             sample_record,
                             asset=nasa_asset,
                             temporal_domain_id=domain,
+                            profile_registry=flight_airspace_profiles,
                         )
                     elif isinstance(sample_record, ATMONTOTAFSourceRecord):
                         yield _atmonto_taf_publication(
                             sample_record,
                             asset=nasa_asset,
                             temporal_domain_id=domain,
+                            profile_registry=flight_airspace_profiles,
                         )
                     elif isinstance(sample_record, ATMONTOAirportDataSourceRecord):
                         yield _atmonto_airport_data_publication(
                             sample_record,
                             asset=nasa_asset,
                             temporal_domain_id=domain,
+                            profile_registry=flight_airspace_profiles,
                         )
                     else:
                         yield _atmonto_tmi_publication(
                             sample_record,
                             asset=nasa_asset,
                             temporal_domain_id=domain,
+                            profile_registry=flight_airspace_profiles,
                         )
 
             summary.extend(

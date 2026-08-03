@@ -2,7 +2,7 @@ version: live-hybridrag-cross-domain-v1
 suite_id: live-hybridrag-cross-domain-v1
 mode: live_smoke
 provider: deepseek
-model: deepseek-v4-pro
+model: deepseek-v4-flash
 temperature: 0.0
 thinking: disabled
 automatic_retry_count: 0

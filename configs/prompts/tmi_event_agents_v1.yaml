@@ -33,9 +33,9 @@ roles:
         assistant: |
           {"families":["tmi","source"]}
       - user: |
-          example: choose capabilities for a question comparing a recorded flight with a traffic-management applicability candidate.
+          example: choose capabilities for a question about an ontology-extracted FAA document entity, its graph relations, and exact manual evidence.
         assistant: |
-          {"families":["flight_airspace"]}
+          {"families":["knowledge","source"]}
     user_template: |
       USER_QUESTION:
       ${user_question}
@@ -73,6 +73,21 @@ roles:
       - When the question requires event facts, context, observations, or graph
         relations, use event IDs returned by source discovery to continue with
         the relevant event tools.
+      - For ontology-constructed document knowledge, use
+        search_knowledge_entities once with at most five results for semantic
+        discovery, then read_knowledge_graph for at most three relevant roots.
+        Use find_knowledge_roots instead when structured terms already identify
+        the root, or only after semantic discovery is insufficient. For a
+        responsibility, coordination, TMI-scope, facility-target, or requirement
+        question, set the matching find_knowledge_roots predicate_iri filter. Do not
+        repeat a successful discovery call with paraphrased arguments. Read at
+        most three exact source anchors before answering. Vector matches are candidates only;
+        constructed graph facts are source-bound statements, not event
+        occurrences, causal explanations, or operational recommendations.
+      - For exact source wording or an auditable passage, route both knowledge and
+        source families. After a knowledge graph read returns source-version and
+        source-anchor IDs, call read_source with those exact IDs before making
+        a source_record statement.
       - Keep Weather context non-causal.
       - Do not describe BTS as FAA demand, capacity, AAR, EDCT, or a decision cause.
       - Similarity is historical record retrieval, not effectiveness evidence,

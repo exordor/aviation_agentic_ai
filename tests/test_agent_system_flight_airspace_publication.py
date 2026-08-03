@@ -16,6 +16,9 @@ from aviation_agentic_ai.agent_system.airspace_sources import (
     NASASectorSourceRecord,
     NASATrackPointSourceRecord,
 )
+from aviation_agentic_ai.agent_system.atmonto_sample_sources import (
+    ATMONTHOSourceTrace,
+)
 from aviation_agentic_ai.agent_system.contracts import (
     SourceFamily,
     SourceSnapshot,
@@ -24,13 +27,16 @@ from aviation_agentic_ai.agent_system.contracts import (
 )
 from aviation_agentic_ai.agent_system.flight_airspace_publication import (
     compile_nasa_flight_airspace_facts,
+    compile_nasa_public_sample_trace_facts,
     run_nasa_flight_airspace_publication_kernel,
 )
 from aviation_agentic_ai.agent_system.materialize import FormalPublicationBlocked
 from aviation_agentic_ai.agent_system.validation_profiles import (
     LoadedValidationProfile,
     ValidationProfileRegistry,
+    load_validation_profile_registry,
 )
+from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 
 
 RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
@@ -454,3 +460,62 @@ def test_publication_kernel_rejects_non_nasa_source_family() -> None:
             profile_registry=registry,
             source_snapshot=_snapshots(records, SourceFamily.BTS_FLIGHT_OPERATION),
         )
+
+
+def test_public_sample_compiler_normalizes_source_class_and_keeps_exact_evidence() -> None:
+    """Full-profile extraction accepts declared facts but not forbidden metrics."""
+
+    subject = f"{ATM}test-metar-1"
+    data = "https://data.nasa.gov/ontologies/atmonto/data#"
+    lines = (
+        f"<{subject}> <{RDF_TYPE}> <{data}METARreport> .",
+        f"<{subject}> <{data}metarReportString> \"KJFK 150000Z 10005KT\"^^<{XSD_STRING}> .",
+        f"<{subject}> <{data}arrivalDemand> \"42\"^^<{XSD_STRING}> .",
+    )
+    content = "\n".join(lines)
+    checksum = hashlib.sha256(content.encode()).hexdigest()
+    trace = ATMONTHOSourceTrace(
+        source_record_id="nasa-test-source:metar-1",
+        archive_checksum=checksum,
+        zip_member="METARinst.ttl",
+        record_locator="METARinst.ttl#metar-1",
+        subject_iri=subject,
+        canonical_subject_triples=lines,
+        association_triples=(),
+        record_checksum=checksum,
+    )
+    registry = load_validation_profile_registry(
+        decision_guide=load_schema_guide(),
+        include_flight_airspace=True,
+        include_atmonto_public_sample=True,
+    )
+
+    compilation = compile_nasa_public_sample_trace_facts(
+        trace=trace,
+        subject_iri=subject,
+        subject_class_iri=f"{data}MeteorologicalReport",
+        profile_registry=registry,
+        source_snapshot_sha256=checksum,
+    )
+    rows = {
+        (fact.predicate_iri, fact.object_value) for fact in compilation.facts
+    }
+    assert (RDF_TYPE, f"{data}MeteorologicalReport") in rows
+    assert (f"{data}metarReportString", "KJFK 150000Z 10005KT") in rows
+    assert all(f"{data}arrivalDemand" != fact.predicate_iri for fact in compilation.facts)
+    snapshots = SourceSnapshotRegistry(
+        snapshots=(
+            SourceSnapshot(
+                source_id=trace.source_record_id,
+                family=SourceFamily.NASA_ATMONTO_INSTANCE,
+                content=content,
+                content_sha256=checksum,
+            ),
+        )
+    )
+    publication = run_nasa_flight_airspace_publication_kernel(
+        compilation=compilation,
+        profile_registry=registry,
+        source_snapshot=snapshots,
+    )
+    assert len(publication.accepted) == len(compilation.facts)

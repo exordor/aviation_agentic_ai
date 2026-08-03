@@ -32,6 +32,12 @@ from aviation_agentic_ai.agent_system.tmi_event_retrieval_index import (
     reindex_store,
     update_store_indexes,
 )
+from aviation_agentic_ai.agent_system.knowledge_entity_retrieval_index import (
+    KNOWLEDGE_ENTITY_COLLECTION,
+    KNOWLEDGE_ENTITY_REPRESENTATION_VERSION,
+    ChromaKnowledgeEntityRetrievalIndex,
+    reindex_knowledge_entities,
+)
 from aviation_agentic_ai.utils.identifiers import stable_id
 from aviation_agentic_ai.agent_system.chroma_store import (
     get_collection,
@@ -437,6 +443,31 @@ def test_explicit_blocked_marker_supports_encoder_initialization_failure(
         state.failure_reason == "encoder initialization failed"
         for state in states
     )
+
+
+def test_knowledge_entity_index_state_is_bound_to_knowledge_revision(
+    evidence_store: AviationEvidenceStore,
+    tmp_path: Path,
+) -> None:
+    encoder = RecordingEncoder()
+    state = reindex_knowledge_entities(
+        evidence_store,
+        tmp_path / "chroma",
+        encoder=encoder,
+    )
+
+    assert state.collection_name == KNOWLEDGE_ENTITY_COLLECTION
+    assert state.representation_version == KNOWLEDGE_ENTITY_REPRESENTATION_VERSION
+    assert state.status == "blocked"
+    assert state.indexed_knowledge_revision == evidence_store.get_knowledge_revision()
+    assert state.failure_reason == "no active ontology-extracted entities are available"
+
+    with pytest.raises(ValueError, match="not current"):
+        ChromaKnowledgeEntityRetrievalIndex(
+            evidence_store,
+            tmp_path / "chroma",
+            encoder,
+        )
 
 
 def test_source_only_update_does_not_require_an_accepted_event(

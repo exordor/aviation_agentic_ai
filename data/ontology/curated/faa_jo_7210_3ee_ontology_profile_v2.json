@@ -1,0 +1,457 @@
+{
+  "profile_id": "faa-jo-7210.3ee-ontology-profile-v2",
+  "profile_version": "2.0.0",
+  "namespace_prefixes": {
+    "faa": "urn:aviation-agentic-ai:faa7210.3ee#",
+    "atm": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+    "nas": "https://data.nasa.gov/ontologies/atmonto/NAS#",
+    "data": "https://data.nasa.gov/ontologies/atmonto/data#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#"
+  },
+  "class_mappings": [
+    {
+      "prefixed_name": "faa:PolicyDocument",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#PolicyDocument",
+      "label": "FAA Policy Document",
+      "description": "A versioned FAA normative document.",
+      "aliases": ["FAA order", "JO 7210.3EE"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "faa:PolicySection",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#PolicySection",
+      "label": "Policy Section",
+      "description": "A numbered section within an FAA policy document.",
+      "aliases": ["section"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "faa:PolicyParagraph",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#PolicyParagraph",
+      "label": "Policy Paragraph",
+      "description": "A numbered paragraph that provides exact source evidence.",
+      "aliases": ["paragraph"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "faa:PolicyRule",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#PolicyRule",
+      "label": "Policy Rule",
+      "description": "A normative rule expressed by a policy paragraph.",
+      "aliases": ["rule", "procedure rule"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "faa:ProcedureRequirement",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#ProcedureRequirement",
+      "label": "Procedure Requirement",
+      "description": "An action or condition required by an FAA policy rule.",
+      "aliases": ["requirement", "required action"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "faa:OperationalRole",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#OperationalRole",
+      "label": "Operational Role",
+      "description": "An organization or operational actor assigned responsibility.",
+      "aliases": ["role", "organization", "facility role"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "faa:GroundDelayProgramRule",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#GroundDelayProgramRule",
+      "label": "Ground Delay Program Rule",
+      "description": "A policy rule specifically about a Ground Delay Program.",
+      "aliases": ["GDP rule"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "faa:RouteAdvisoryRule",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#RouteAdvisoryRule",
+      "label": "Route Advisory Rule",
+      "description": "A policy rule about reroutes or route advisories.",
+      "aliases": ["reroute rule", "route rule"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "faa:NationalPlaybookRule",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#NationalPlaybookRule",
+      "label": "National Playbook Rule",
+      "description": "A policy rule governing National Playbook use.",
+      "aliases": ["playbook rule"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "faa:WeatherManagementRule",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#WeatherManagementRule",
+      "label": "Weather Management Rule",
+      "description": "A policy rule concerning weather-related traffic management.",
+      "aliases": ["weather rule"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "atm:TrafficManagementInitiative",
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative",
+      "label": "Traffic Management Initiative",
+      "description": "The ATMONTO superclass for traffic management initiatives.",
+      "aliases": ["TMI", "traffic management measure"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "atm:GroundDelayProgramTMI",
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#GroundDelayProgramTMI",
+      "label": "Ground Delay Program",
+      "description": "An ATMONTO traffic management initiative that manages arrival demand through ground delays.",
+      "aliases": ["GDP", "ground delay program"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "atm:GroundStopTMI",
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#GroundStopTMI",
+      "label": "Ground Stop",
+      "description": "An ATMONTO traffic management initiative that holds affected flights on the ground.",
+      "aliases": ["GS", "ground stop"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "atm:AirspaceFlowProgramTMI",
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#AirspaceFlowProgramTMI",
+      "label": "Airspace Flow Program",
+      "description": "An ATMONTO traffic management initiative applied to constrained airspace flow.",
+      "aliases": ["AFP", "airspace flow program"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "atm:MilesInTrailTMI",
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#MilesInTrailTMI",
+      "label": "Miles in Trail",
+      "description": "An ATMONTO spacing initiative stated as miles in trail.",
+      "aliases": ["MIT", "miles-in-trail", "miles in trail"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "atm:ReRouteTMI",
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
+      "label": "ReRoute",
+      "description": "An ATMONTO traffic management initiative that changes routing.",
+      "aliases": ["reroute", "re-route", "route advisory"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "atm:AirspaceRouteSegment",
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#AirspaceRouteSegment",
+      "label": "Airspace Route Segment",
+      "description": "An ATMONTO segment of an airspace route.",
+      "aliases": ["route segment"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "atm:Flight",
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#Flight",
+      "label": "Flight",
+      "description": "An ATMONTO flight entity.",
+      "aliases": ["aircraft flight"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "nas:NASfacility",
+      "iri": "https://data.nasa.gov/ontologies/atmonto/NAS#NASfacility",
+      "label": "NAS Facility",
+      "description": "The ATMONTO superclass for National Airspace System facilities.",
+      "aliases": ["facility", "ATC facility"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "nas:ARTCC",
+      "iri": "https://data.nasa.gov/ontologies/atmonto/NAS#ARTCC",
+      "label": "Air Route Traffic Control Center",
+      "description": "An ATMONTO Air Route Traffic Control Center facility.",
+      "aliases": ["ARTCC", "center", "air route traffic control center"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "nas:Airport",
+      "iri": "https://data.nasa.gov/ontologies/atmonto/NAS#Airport",
+      "label": "Airport",
+      "description": "An ATMONTO airport facility.",
+      "aliases": ["airport"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "nas:Sector",
+      "iri": "https://data.nasa.gov/ontologies/atmonto/NAS#Sector",
+      "label": "Sector",
+      "description": "An ATMONTO controlled airspace sector.",
+      "aliases": ["sector", "airspace sector"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "nas:AirspaceRoute",
+      "iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceRoute",
+      "label": "Airspace Route",
+      "description": "An ATMONTO route through the National Airspace System.",
+      "aliases": ["route", "airway"],
+      "kind": "class"
+    },
+    {
+      "prefixed_name": "data:WeatherCondition",
+      "iri": "https://data.nasa.gov/ontologies/atmonto/data#WeatherCondition",
+      "label": "Weather Condition",
+      "description": "An ATMONTO weather condition described by the policy source.",
+      "aliases": ["weather", "meteorological condition"],
+      "kind": "class"
+    }
+  ],
+  "class_ancestors": {
+    "faa:GroundDelayProgramRule": ["faa:PolicyRule"],
+    "faa:RouteAdvisoryRule": ["faa:PolicyRule"],
+    "faa:NationalPlaybookRule": ["faa:PolicyRule"],
+    "faa:WeatherManagementRule": ["faa:PolicyRule"],
+    "atm:GroundDelayProgramTMI": ["atm:TrafficManagementInitiative"],
+    "atm:GroundStopTMI": ["atm:TrafficManagementInitiative"],
+    "atm:AirspaceFlowProgramTMI": ["atm:TrafficManagementInitiative"],
+    "atm:MilesInTrailTMI": ["atm:TrafficManagementInitiative"],
+    "atm:ReRouteTMI": ["atm:TrafficManagementInitiative"],
+    "nas:ARTCC": ["nas:NASfacility"],
+    "nas:Airport": ["nas:NASfacility"],
+    "nas:Sector": ["nas:NASfacility"]
+  },
+  "property_mappings": [
+    {
+      "prefixed_name": "rdfs:label",
+      "iri": "http://www.w3.org/2000/01/rdf-schema#label",
+      "label": "label",
+      "description": "The canonical human-readable label of a knowledge entity.",
+      "aliases": ["name", "label"],
+      "kind": "datatype",
+      "domain_iri_set": [
+        "urn:aviation-agentic-ai:faa7210.3ee#PolicyDocument",
+        "urn:aviation-agentic-ai:faa7210.3ee#PolicySection",
+        "urn:aviation-agentic-ai:faa7210.3ee#PolicyParagraph",
+        "urn:aviation-agentic-ai:faa7210.3ee#PolicyRule",
+        "urn:aviation-agentic-ai:faa7210.3ee#ProcedureRequirement",
+        "urn:aviation-agentic-ai:faa7210.3ee#OperationalRole",
+        "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative",
+        "https://data.nasa.gov/ontologies/atmonto/ATM#Flight",
+        "https://data.nasa.gov/ontologies/atmonto/NAS#NASfacility",
+        "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceRoute",
+        "https://data.nasa.gov/ontologies/atmonto/data#WeatherCondition"
+      ]
+    },
+    {
+      "prefixed_name": "faa:hasSection",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#hasSection",
+      "label": "has section",
+      "description": "Connects a policy document to one numbered section.",
+      "aliases": ["contains section"],
+      "kind": "object",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyDocument"],
+      "range_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicySection"]
+    },
+    {
+      "prefixed_name": "faa:hasParagraph",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#hasParagraph",
+      "label": "has paragraph",
+      "description": "Connects a policy section to one numbered paragraph.",
+      "aliases": ["contains paragraph"],
+      "kind": "object",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicySection"],
+      "range_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyParagraph"]
+    },
+    {
+      "prefixed_name": "faa:hasRule",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#hasRule",
+      "label": "has rule",
+      "description": "Connects a source paragraph to a rule expressed by that paragraph.",
+      "aliases": ["expresses rule"],
+      "kind": "object",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyParagraph"],
+      "range_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyRule"]
+    },
+    {
+      "prefixed_name": "faa:mentionsEntity",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#mentionsEntity",
+      "label": "mentions entity",
+      "description": "Connects a source paragraph to a normalized aviation or policy entity explicitly mentioned in its text.",
+      "aliases": ["mentions", "refers to"],
+      "kind": "object",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyParagraph"],
+      "range_iri_set": [
+        "urn:aviation-agentic-ai:faa7210.3ee#PolicyDocument",
+        "urn:aviation-agentic-ai:faa7210.3ee#PolicySection",
+        "urn:aviation-agentic-ai:faa7210.3ee#PolicyParagraph",
+        "urn:aviation-agentic-ai:faa7210.3ee#PolicyRule",
+        "urn:aviation-agentic-ai:faa7210.3ee#ProcedureRequirement",
+        "urn:aviation-agentic-ai:faa7210.3ee#OperationalRole",
+        "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative",
+        "https://data.nasa.gov/ontologies/atmonto/ATM#AirspaceRouteSegment",
+        "https://data.nasa.gov/ontologies/atmonto/ATM#Flight",
+        "https://data.nasa.gov/ontologies/atmonto/NAS#NASfacility",
+        "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceRoute",
+        "https://data.nasa.gov/ontologies/atmonto/data#WeatherCondition"
+      ]
+    },
+    {
+      "prefixed_name": "faa:assignsResponsibilityTo",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#assignsResponsibilityTo",
+      "label": "assigns responsibility to",
+      "description": "States the operational role responsible for a policy rule.",
+      "aliases": ["responsibility", "responsible organization"],
+      "kind": "object",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyRule"],
+      "range_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#OperationalRole"]
+    },
+    {
+      "prefixed_name": "faa:requiresCoordinationWith",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#requiresCoordinationWith",
+      "label": "requires coordination with",
+      "description": "States another role with which execution of a policy rule requires coordination.",
+      "aliases": ["coordinate with", "coordination"],
+      "kind": "object",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyRule"],
+      "range_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#OperationalRole"]
+    },
+    {
+      "prefixed_name": "faa:appliesToTMI",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#appliesToTMI",
+      "label": "applies to TMI",
+      "description": "Connects a policy rule to the ATMONTO traffic management initiative it governs.",
+      "aliases": ["governs TMI", "applies to initiative"],
+      "kind": "object",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyRule"],
+      "range_iri_set": ["https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative"]
+    },
+    {
+      "prefixed_name": "faa:targetsFacility",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#targetsFacility",
+      "label": "targets facility",
+      "description": "Connects a policy rule to the ATMONTO NAS facility within its scope.",
+      "aliases": ["applies to facility", "facility scope"],
+      "kind": "object",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyRule"],
+      "range_iri_set": ["https://data.nasa.gov/ontologies/atmonto/NAS#NASfacility"]
+    },
+    {
+      "prefixed_name": "faa:referencesRouteSegment",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#referencesRouteSegment",
+      "label": "references route segment",
+      "description": "Connects a policy rule to a route or route segment explicitly referenced in the source.",
+      "aliases": ["references route", "route scope"],
+      "kind": "object",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyRule"],
+      "range_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#AirspaceRouteSegment",
+        "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceRoute"
+      ]
+    },
+    {
+      "prefixed_name": "faa:requires",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#requires",
+      "label": "requires",
+      "description": "Connects a policy rule to an explicit procedure requirement.",
+      "aliases": ["requires action", "mandates"],
+      "kind": "object",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyRule"],
+      "range_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#ProcedureRequirement"]
+    },
+    {
+      "prefixed_name": "faa:documentEdition",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#documentEdition",
+      "label": "document edition",
+      "description": "The edition identifier printed by the FAA document.",
+      "aliases": ["edition"],
+      "kind": "datatype",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyDocument"]
+    },
+    {
+      "prefixed_name": "faa:effectiveDate",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#effectiveDate",
+      "label": "effective date",
+      "description": "The effective date of the policy document edition.",
+      "aliases": ["effective from"],
+      "kind": "datatype",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyDocument"]
+    },
+    {
+      "prefixed_name": "faa:sectionNumber",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#sectionNumber",
+      "label": "section number",
+      "description": "The printed section identifier.",
+      "aliases": ["section ID"],
+      "kind": "datatype",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicySection"]
+    },
+    {
+      "prefixed_name": "faa:paragraphNumber",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#paragraphNumber",
+      "label": "paragraph number",
+      "description": "The printed paragraph identifier.",
+      "aliases": ["paragraph ID"],
+      "kind": "datatype",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyParagraph"]
+    },
+    {
+      "prefixed_name": "faa:pageNumber",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#pageNumber",
+      "label": "page number",
+      "description": "The source PDF page number.",
+      "aliases": ["page"],
+      "kind": "datatype",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyParagraph"]
+    },
+    {
+      "prefixed_name": "faa:heading",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#heading",
+      "label": "heading",
+      "description": "The printed heading of a numbered paragraph.",
+      "aliases": ["title"],
+      "kind": "datatype",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyParagraph"]
+    },
+    {
+      "prefixed_name": "faa:topic",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#topic",
+      "label": "topic",
+      "description": "A deterministic document topic label.",
+      "aliases": ["subject"],
+      "kind": "datatype",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyParagraph"]
+    },
+    {
+      "prefixed_name": "faa:policyText",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#policyText",
+      "label": "policy text",
+      "description": "The exact source text that expresses a policy rule.",
+      "aliases": ["rule text"],
+      "kind": "datatype",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#PolicyRule"]
+    },
+    {
+      "prefixed_name": "faa:requirementText",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#requirementText",
+      "label": "requirement text",
+      "description": "The exact action or condition expressed by a procedure requirement.",
+      "aliases": ["required action text"],
+      "kind": "datatype",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#ProcedureRequirement"]
+    },
+    {
+      "prefixed_name": "faa:actionLevel",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#actionLevel",
+      "label": "action level",
+      "description": "The modal strength or action level explicitly stated by a requirement.",
+      "aliases": ["modality"],
+      "kind": "datatype",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#ProcedureRequirement"]
+    },
+    {
+      "prefixed_name": "faa:roleName",
+      "iri": "urn:aviation-agentic-ai:faa7210.3ee#roleName",
+      "label": "role name",
+      "description": "The normalized name of an operational role.",
+      "aliases": ["organization name"],
+      "kind": "datatype",
+      "domain_iri_set": ["urn:aviation-agentic-ai:faa7210.3ee#OperationalRole"]
+    }
+  ]
+}

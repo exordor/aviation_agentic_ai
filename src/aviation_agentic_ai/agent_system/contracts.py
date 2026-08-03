@@ -105,6 +105,7 @@ class EvidenceCard(StrictModel):
         "advisory",
         "facility",
         "terminology",
+        "document",
     ]
     status: AgentStatus
     claims: list[EvidenceClaim] = Field(default_factory=list)
@@ -129,6 +130,8 @@ class ValidationProfileRef(StrictModel):
         "flight_operation",
         "aeronautical_reference",
         "trajectory",
+        "atmonto_public_sample",
+        "document_reference",
     ]
 
 
@@ -473,10 +476,10 @@ class QueryRouteTrace(StrictModel):
 
     status: Literal["selected", "blocked"]
     selected_families: tuple[
-        Literal["source", "tmi", "flight_airspace", "web"], ...
+        Literal["source", "tmi", "flight_airspace", "knowledge", "web"], ...
     ] = ()
     available_families: tuple[
-        Literal["source", "tmi", "flight_airspace", "web"], ...
+        Literal["source", "tmi", "flight_airspace", "knowledge", "web"], ...
     ] = ()
     selected_tool_names: tuple[str, ...] = ()
 

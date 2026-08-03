@@ -10,7 +10,10 @@ from aviation_agentic_ai.agent_system.contracts import (
     EvidenceClaim,
     ModelCallRecord,
 )
-from aviation_agentic_ai.agent_system.kg_generation import generate_candidate_facts
+from aviation_agentic_ai.agent_system.kg_generation import (
+    build_generation_messages,
+    generate_candidate_facts,
+)
 from aviation_agentic_ai.agent_system.kg_generation_contracts import (
     GenerationEvidenceRecord,
     OntologyGenerationTask,
@@ -90,15 +93,16 @@ def _task() -> OntologyGenerationTask:
 
 
 class _ScriptedProposalModel:
-    def __init__(self, payload: dict[str, object]) -> None:
+    def __init__(self, payload: dict[str, object], *, prefix: str = "") -> None:
         self.payload = payload
+        self.prefix = prefix
         self.phases: list[str] = []
         self.messages: list[list[object]] = []
 
     def invoke(self, messages, *, phase: str) -> ToolModelTurn:
         self.phases.append(phase)
         self.messages.append(list(messages))
-        raw = json.dumps(self.payload, sort_keys=True)
+        raw = self.prefix + json.dumps(self.payload, sort_keys=True)
         return ToolModelTurn(
             message=AIMessage(content=raw),
             record=ModelCallRecord(
@@ -144,6 +148,121 @@ def test_generator_returns_typed_candidate_fact_without_storage_write() -> None:
     assert len(result.proposal.facts) == 1
     assert model.phases == ["emit_proposal"]
     assert "raw_response" not in result.proposal.model_dump()
+
+
+def test_generator_normalizes_one_bounded_provider_candidate_shape() -> None:
+    """A real provider's single candidate envelope remains task-validated."""
+
+    task = _task()
+    model = _ScriptedProposalModel(
+        {
+            "proposal_id": "candidate-1",
+            "subject_id": task.root_id,
+            "subject_class_iri": task.ontology_slice.subject_class_iri,
+            "predicate_iri": CONTROLLED_NAS_ELEMENT,
+            "object_value": "airport:KJFK",
+            "object_datatype_iri": None,
+            "evidence_refs": ["ev-003"],
+            "storage_writes": [],
+        }
+    )
+
+    result = generate_candidate_facts(task, model)
+
+    assert result.status == "accepted"
+    assert result.proposal is not None
+    assert result.proposal.facts[0].object_kind == "iri"
+    assert result.proposal.facts[0].object_class_iri == AIRPORT
+
+
+def test_generator_normalizes_nested_candidate_fact_shape() -> None:
+    """Provider wrappers may nest one bounded candidate under candidate_fact."""
+
+    task = _task()
+    model = _ScriptedProposalModel(
+        {
+            "candidate_fact": {
+                "subject_id": task.root_id,
+                "predicate": CONTROLLED_NAS_ELEMENT,
+                "object": "airport:KJFK",
+                "evidence_refs": ["ev-003"],
+            },
+            "status": "proposed",
+        }
+    )
+
+    result = generate_candidate_facts(task, model)
+
+    assert result.status == "accepted"
+    assert result.proposal is not None
+    assert result.proposal.facts[0].object_value == "airport:KJFK"
+
+
+def test_generator_normalizes_provider_proposal_wrapper() -> None:
+    task = _task()
+    model = _ScriptedProposalModel(
+        {
+            "status": "proposed",
+            "proposal": {
+                "subject_id": task.root_id,
+                "predicate": CONTROLLED_NAS_ELEMENT,
+                "object_id": "airport:KJFK",
+                "evidence_refs": ["ev-003"],
+            },
+        }
+    )
+
+    result = generate_candidate_facts(task, model)
+
+    assert result.status == "accepted"
+    assert result.proposal is not None
+    assert result.proposal.facts[0].object_value == "airport:KJFK"
+
+
+def test_generator_preserves_provider_abstention_wrapper() -> None:
+    task = _task()
+    model = _ScriptedProposalModel(
+        {
+            "status": "abstained",
+            "proposed_fact": None,
+            "reason": "the evidence does not support the allowed relation",
+        }
+    )
+
+    result = generate_candidate_facts(task, model)
+
+    assert result.status == "abstained"
+    assert result.proposal is not None
+    assert result.proposal.abstentions[0].reason.startswith("the evidence")
+
+
+def test_generator_accepts_one_json_object_after_provider_preamble() -> None:
+    task = _task()
+    model = _ScriptedProposalModel(
+        {
+            "candidate_fact": {
+                "subject_id": task.root_id,
+                "predicate": CONTROLLED_NAS_ELEMENT,
+                "object": "airport:KJFK",
+                "evidence_refs": ["ev-003"],
+            },
+            "status": "proposed",
+        },
+        prefix="I checked the closed task.\n",
+    )
+
+    result = generate_candidate_facts(task, model)
+
+    assert result.status == "accepted"
+    assert result.proposal is not None
+
+
+def test_generation_prompt_lists_only_task_properties() -> None:
+    task = _task()
+    prompt = str(build_generation_messages(task)[1].content)
+
+    assert CONTROLLED_NAS_ELEMENT in prompt
+    assert "Use exactly one predicate from ALLOWED_PREDICATES" in prompt
 
 
 def test_generator_preserves_model_abstention() -> None:

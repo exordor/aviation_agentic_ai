@@ -56,6 +56,7 @@ def test_public_agent_system_surface_is_ingestion_first() -> None:
         "ingest",
         "reindex",
         "ask",
+        "build-kg",
         "neo4j-export",
         "export-event",
     }
@@ -68,6 +69,7 @@ def test_public_agent_system_surface_is_ingestion_first() -> None:
         "ingest",
         "reindex",
         "ask",
+        "build-kg",
         "neo4j-export",
         "export-event",
     )
@@ -176,10 +178,89 @@ def test_ingest_help_exposes_full_domain_as_the_default() -> None:
     result = CliRunner().invoke(cli_module.agent_system, ["ingest", "--help"])
 
     assert result.exit_code == 0, result.output
-    assert "--domain [all|tmi|flight-airspace|web]" in result.output
+    assert "--domain [all|tmi|flight-airspace|web|document]" in result.output
     assert "[default: all]" in result.output
     assert "--source-root DIRECTORY" in result.output
     assert "--allow-live-web" in result.output
+
+
+def test_build_kg_requires_live_model_and_dispatches_generic_domain(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    observed: dict[str, object] = {}
+    store = _Store()
+    summary = SimpleNamespace(
+        domain="document",
+        status="ok",
+        task_count=4,
+        attempted_count=4,
+        accepted_count=3,
+        abstained_count=1,
+        blocked_count=0,
+        provider_call_count=4,
+        publication_count=3,
+        reasons=(),
+        successful_real_calls=4,
+        failed_real_calls=0,
+        raw_response_artifact=None,
+        raw_response_sha256=None,
+        parsed_output_artifact=None,
+        parsed_output_sha256=None,
+        experiment_manifest_path=None,
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "_load_config",
+        lambda _path: {"agent_system": {}},
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "_open_store",
+        lambda config, store_dir, create: store,
+    )
+    monkeypatch.setattr(cli_module, "load_environment", lambda: None)
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "offline-cli-contract-test")
+
+    def run(config, selected_store, **kwargs):
+        observed.update(kwargs)
+        assert selected_store is store
+        return summary
+
+    monkeypatch.setattr(cli_module, "run_ontology_kg_build", run)
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "build-kg",
+            "--domain",
+            "document",
+            "--config",
+            "configs/aviation_knowledge_v1.yaml",
+            "--store-dir",
+            str(tmp_path / "store"),
+            "--max-items",
+            "2",
+            "--allow-live-model",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert observed["domain"] == "document"
+    assert observed["max_items"] == 2
+    assert observed["allow_live_model"] is True
+    assert "status: ok" in result.output
+    assert "provider_calls: 4" in result.output
+    assert "publications: 3" in result.output
+
+
+def test_build_kg_rejects_without_explicit_live_authorization() -> None:
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        ["build-kg", "--domain", "document"],
+    )
+
+    assert result.exit_code != 0
+    assert "--allow-live-model is required" in result.output
 
 
 def test_ask_always_uses_query_agent_and_preserves_source_scope(
@@ -285,7 +366,7 @@ def test_ask_does_not_expose_internal_source_id_as_a_user_option() -> None:
     assert "--source-id" in result.output
 
 
-def test_reindex_rebuilds_both_derived_indexes(monkeypatch) -> None:
+def test_reindex_rebuilds_all_derived_indexes(monkeypatch) -> None:
     store = _Store()
     monkeypatch.setattr(
         cli_module,
@@ -328,6 +409,16 @@ def test_reindex_rebuilds_both_derived_indexes(monkeypatch) -> None:
         "reindex_store",
         lambda *args, **kwargs: states,
     )
+    monkeypatch.setattr(
+        cli_module,
+        "reindex_knowledge_entities",
+        lambda *args, **kwargs: SimpleNamespace(
+            collection_name="knowledge_entities_v1",
+            status="current",
+            document_count=11,
+            vector_count=11,
+        ),
+    )
 
     result = CliRunner().invoke(
         cli_module.agent_system,
@@ -337,6 +428,7 @@ def test_reindex_rebuilds_both_derived_indexes(monkeypatch) -> None:
     assert result.exit_code == 0, result.output
     assert "tmi_events_v1" in result.output
     assert "aviation_source_chunks_v1" in result.output
+    assert "knowledge_entities_v1" in result.output
 
 
 def test_export_event_reads_the_authoritative_store(
@@ -376,3 +468,23 @@ def test_export_event_reads_the_authoritative_store(
 
     assert result.exit_code == 0, result.output
     assert str(manifest) in result.output
+
+
+def test_faa_order_uses_document_role_in_public_source_label() -> None:
+    version = SimpleNamespace(
+        source_id="faa-order:jo-7210.3ee",
+        family=SimpleNamespace(value="web_document"),
+        metadata={
+            "document_title": "Facility Operation and Administration",
+            "source_role": "normative_document_reference",
+        },
+        logical_time="2025-02-20",
+        source_url="https://www.faa.gov/example/order.pdf",
+    )
+
+    label = cli_module._source_display_label(version)
+
+    assert label.startswith(
+        "Facility Operation and Administration (2025-02-20) — "
+        "FAA Order Document"
+    )

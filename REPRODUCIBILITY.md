@@ -1,10 +1,15 @@
 # Reproducibility
 
-Last updated: 2026-08-01
+Last updated: 2026-08-02
 
 This is the current ingestion-first cross-domain aviation workflow. Historical
-experiments remain discoverable through `ARTIFACT_INDEX.md`; they are not the
+experiments remain governed by `docs/repository_artifact_policy.md`; they are not the
 default execution path.
+
+This file is authoritative for executable procedures and source bindings only.
+Current implementation status and evaluation observations belong to
+`RESEARCH_AUDIT.md`; copied counts or run summaries here do not define the
+research scope.
 
 ## Environment
 
@@ -184,6 +189,44 @@ batch manifest is required.
 
 ## Ingest Source Data
 
+### Ontology-Grounded Document KG: FAA Chapter 18 Adapter
+
+The pinned FAA JO 7210.3EE PDF and its checksum are declared in
+`configs/sources/aviation_knowledge_v1.yaml`. The configured Chapter 18 scope
+contains 26 sections, 159 numbered paragraphs, and 168 recursive extraction
+chunks under the current 500-token/50-token-overlap configuration. Build the
+authoritative source records first:
+
+```bash
+uv run aviation-ai agent-system ingest \
+  --config configs/aviation_knowledge_v1.yaml \
+  --store-dir data/stores/aviation/chapter18-atmonto-kg-v1 \
+  --domain document
+```
+
+Then execute the generic ontology-construction path. This command requires the
+configured real provider and does not substitute fake, replayed, or cached
+responses:
+
+```bash
+uv run aviation-ai agent-system build-kg \
+  --config configs/aviation_knowledge_v1.yaml \
+  --store-dir data/stores/aviation/chapter18-atmonto-kg-v1 \
+  --domain document \
+  --allow-live-model
+```
+
+`--max-items <n>` limits recursive extraction chunks for a live smoke. Omit it
+for the complete configured chapter. In `live_experiment` mode, raw provider
+responses, parsed outputs, and their integrity manifest are written under the
+gitignored directory
+`data/evaluation_runs/agent_system/ontology-kg-live-v1/` (with a
+`smoke-max-<n>` suffix when `--max-items` is used).
+
+Rebuild `knowledge_entities_v1` with the ordinary `reindex` command and ask
+free-form questions with the ordinary `ask` command; no FAA- or
+document-specific query entry point is required.
+
 Ingest the three reason-state regression records:
 
 ```bash
@@ -232,7 +275,7 @@ local environment files.
 
 ## Rebuild Retrieval Indexes
 
-SQLite FTS5 is maintained from stored source chunks. Rebuild both Chroma
+SQLite FTS5 is maintained from stored source chunks. Rebuild all Chroma
 collections from the authoritative store with:
 
 ```bash
@@ -248,6 +291,7 @@ The collections are:
 ```text
 aviation_source_chunks_v1
 tmi_events_v1
+knowledge_entities_v1
 ```
 
 The first permitted run may download the embedding model. Later runs can omit
@@ -259,7 +303,9 @@ store.
 Source vectors discover candidate source versions. TMI event vectors encode a
 compact representation of event type, canonical facility, declared-reason
 state/value, UTC time-of-day, and duration bucket. Neither index represents
-causality, effectiveness, or a recommended action.
+causality, effectiveness, or a recommended action. Knowledge-entity vectors
+use published labels, class identity, accepted relation summaries, and source
+anchors for discovery; exact claims still require graph and source reads.
 
 ## Ask Natural-Language Questions
 
@@ -299,11 +345,19 @@ flight_airspace (9 tools)
   find_flight_weather_associations
   find_tmi_applicability_candidates
   read_aviation_graph
+
+knowledge (3 tools)
+  search_knowledge_entities
+  find_knowledge_roots
+  read_knowledge_graph
+  shared exact reader: read_source
 ```
 
-The evidence loop is bounded at 6 provider turns, 6 tool calls in one turn,
-and 10 evidence-tool calls in total. Routing is LLM-mediated; it is not a
-fixed question registry or keyword classifier.
+The evidence loop is bounded at 7 retrieval turns, 6 tool calls in one turn,
+and 16 evidence-tool calls in total. If retrieval reaches a boundary after
+collecting evidence, one tool-free Answer Formation turn receives a compact
+Evidence Packet. Routing is LLM-mediated; it is not a fixed question registry
+or keyword classifier.
 
 Scope hints such as `--source-family`, `--event-type-iri`,
 `--facility-id`, `--reason-status`, `--reason-value`, `--offset`, `--limit`,

@@ -47,6 +47,8 @@ ToolPhase = Literal[
     "final_answer",
     "query_step",
     "emit_proposal",
+    "extract_entities",
+    "extract_relations",
     "revision",
 ]
 NativeToolModelResponse = dict[str, Any] | None
@@ -153,13 +155,11 @@ class LangChainToolCallingModel:
             list(self.tools),
             tool_choice="required",
         )
-        # Final-answer/proposal turns retain the registered tool schema but
-        # explicitly prohibit further actions. This prevents a provider from
-        # serializing an attempted tool call as ordinary answer text.
-        self._answer_model = chat_model.bind_tools(
-            list(self.tools),
-            tool_choice="none",
-        )
+        # Final-answer/proposal turns are genuinely unbound. Some compatible
+        # providers serialize attempted tool calls as ordinary text even when
+        # a bound schema uses tool_choice="none"; removing the schemas makes
+        # answer formation a distinct, tool-free phase.
+        self._answer_model = chat_model
         self._query_loop_model = chat_model.bind_tools(
             list(self.tools),
             tool_choice="auto",

@@ -32,11 +32,12 @@ class QueryToolFamily(StrEnum):
     SOURCE = "source"
     TMI = "tmi"
     FLIGHT_AIRSPACE = "flight_airspace"
+    KNOWLEDGE = "knowledge"
     WEB = "web"
 
 
 class QueryRouteDecision(StrictModel):
-    families: tuple[QueryToolFamily, ...] = Field(min_length=1, max_length=4)
+    families: tuple[QueryToolFamily, ...] = Field(min_length=1, max_length=5)
 
 
 @dataclass(frozen=True)
@@ -104,13 +105,24 @@ FLIGHT_AIRSPACE_TOOL_NAMES = (
     "find_tmi_applicability_candidates",
     "read_aviation_graph",
 )
+KNOWLEDGE_TOOL_NAMES = (
+    "search_knowledge_entities",
+    "find_knowledge_roots",
+    "read_knowledge_graph",
+    "read_source",
+)
 WEB_TOOL_NAMES = (
     "web_search",
     "web_fetch",
     "web_extract",
 )
 QUERY_EVIDENCE_TOOL_NAMES = frozenset(
-    (*SOURCE_TOOL_NAMES, *TMI_TOOL_NAMES, *FLIGHT_AIRSPACE_TOOL_NAMES)
+    (
+        *SOURCE_TOOL_NAMES,
+        *TMI_TOOL_NAMES,
+        *FLIGHT_AIRSPACE_TOOL_NAMES,
+        *KNOWLEDGE_TOOL_NAMES,
+    )
 )
 OPTIONAL_QUERY_EVIDENCE_TOOL_NAMES = frozenset(WEB_TOOL_NAMES)
 QUERY_CONTROL_TOOL_NAMES = frozenset({QUERY_ROUTE_TOOL_NAME})
@@ -175,6 +187,15 @@ def build_query_tool_registry(tools: Iterable[BaseTool]) -> QueryToolRegistry:
                 "applicability over generic knowledge roots."
             ),
             tool_names=FLIGHT_AIRSPACE_TOOL_NAMES,
+        ),
+        QueryToolFamily.KNOWLEDGE: QueryToolFamilySpec(
+            family=QueryToolFamily.KNOWLEDGE,
+            description=(
+                "Ontology-constructed knowledge entities and graph facts from "
+                "configured documents, with the shared exact source reader "
+                "for text and anchor evidence."
+            ),
+            tool_names=KNOWLEDGE_TOOL_NAMES,
         ),
     }
     if optional:
@@ -309,6 +330,7 @@ def select_query_tools(
 
 __all__ = [
     "FLIGHT_AIRSPACE_TOOL_NAMES",
+    "KNOWLEDGE_TOOL_NAMES",
     "QUERY_CONTROL_TOOL_NAMES",
     "QUERY_EVIDENCE_TOOL_NAMES",
     "OPTIONAL_QUERY_EVIDENCE_TOOL_NAMES",

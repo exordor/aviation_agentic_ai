@@ -148,3 +148,33 @@ def test_source_chunk_identity_is_repeatable_and_revision_specific() -> None:
     assert revised is not None
     assert first.chunk_id != revised.chunk_id
     assert first.source_version_id != revised.source_version_id
+
+
+def test_document_chunk_spans_are_materialized_as_retrieval_chunks() -> None:
+    content = "18-10-1. POLICY\nGDP policy.\n\f\n18-10-2. GENERAL\nGDP general."
+    version = _source_version(
+        "faa-order:jo-7210.3ee",
+        SourceFamily.WEB_DOCUMENT,
+        content,
+    ).model_copy(
+        update={
+            "metadata": {
+                "chunk_spans": [
+                    {"char_start": 0, "char_end": 27, "paragraph_id": "18-10-1"},
+                    {"char_start": 30, "char_end": len(content), "paragraph_id": "18-10-2"},
+                ]
+            }
+        }
+    )
+
+    chunks = build_source_record_chunks((version,))
+
+    assert len(chunks) == 2
+    assert [chunk.text for chunk in chunks] == [
+        content[0:27],
+        content[30:],
+    ]
+    assert [chunk.metadata["paragraph_id"] for chunk in chunks] == [
+        "18-10-1",
+        "18-10-2",
+    ]

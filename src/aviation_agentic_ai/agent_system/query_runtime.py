@@ -20,6 +20,10 @@ from aviation_agentic_ai.agent_system.tmi_event_retrieval_index import (
     ChromaTMIEventRetrievalIndex,
     SentenceTransformerTMIEventEncoder,
 )
+from aviation_agentic_ai.agent_system.knowledge_entity_retrieval_index import (
+    KNOWLEDGE_ENTITY_COLLECTION,
+    ChromaKnowledgeEntityRetrievalIndex,
+)
 from aviation_agentic_ai.agent_system.storage_contracts import (
     VectorIndexStateRecord,
 )
@@ -45,6 +49,7 @@ class QueryRuntime:
     store: AviationEvidenceStore
     source_index: ChromaSourceRetrievalIndex | None
     event_index: ChromaTMIEventRetrievalIndex | None
+    knowledge_index: ChromaKnowledgeEntityRetrievalIndex | None = None
     # Query-time web access is an explicitly authorized, read-only sidecar.
     # It is intentionally not a store writer and is absent by default.
     web_client: WebEvidenceClient | None = None
@@ -128,6 +133,23 @@ def _open_event_index(
     return ChromaTMIEventRetrievalIndex(store, chroma_dir)
 
 
+def _open_knowledge_index(
+    store: AviationEvidenceStore,
+    chroma_dir: Path,
+    *,
+    model_name: str,
+    allow_model_download: bool,
+) -> ChromaKnowledgeEntityRetrievalIndex:
+    state = _require_current_index(store, KNOWLEDGE_ENTITY_COLLECTION)
+    if state.embedding_model_id != model_name:
+        raise ValueError("knowledge index embedding model differs from config")
+    encoder = SentenceTransformerTMIEventEncoder(
+        model_name,
+        allow_download=allow_model_download,
+    )
+    return ChromaKnowledgeEntityRetrievalIndex(store, chroma_dir, encoder)
+
+
 def open_query_runtime(
     config: dict[str, object],
     *,
@@ -175,10 +197,20 @@ def open_query_runtime(
         event_index = _open_event_index(store, chroma_dir)
     except Exception:
         event_index = None
+    try:
+        knowledge_index = _open_knowledge_index(
+            store,
+            chroma_dir,
+            model_name=model_name,
+            allow_model_download=allow_model_download,
+        )
+    except Exception:
+        knowledge_index = None
     return QueryRuntime(
         store=store,
         source_index=source_index,
         event_index=event_index,
+        knowledge_index=knowledge_index,
         web_client=web_client,
         web_config=web_config if web_client is not None else None,
     )

@@ -10,6 +10,10 @@ __pycache__/
 /data/indexes/
 /data/stores/
 data/stores/
+/data/chunks/
+/data/kg/
+/data/experiments/
+/data/processed/cross_source/
 /reports/**/*.tmp
 /reports/evidence/*_run.log
 /reports/evidence/pytest_*.log
@@ -42,6 +46,10 @@ models/
 
 # Local archived data (kept outside Git; see AGENTS.md source-family boundaries).
 /data/archive/
+
+# Downloaded source snapshots remain local. Curated source bindings, ontology
+# profiles, and small reviewed fixtures live in their dedicated tracked paths.
+/data/raw/
 
 # Pinned BTS archives are retained locally; the normalized audited subset is tracked.
 /data/raw/bts/

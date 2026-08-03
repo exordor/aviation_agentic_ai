@@ -1,6 +1,6 @@
 # Repository Artifact Policy
 
-Last updated: 2026-08-01
+Last updated: 2026-08-02
 
 The repository contains the runnable system and the small set of tracked
 artifacts needed to reproduce its current claims. Historical plans, review
@@ -13,8 +13,8 @@ Keep these categories in Git:
 
 - source code, tests, configuration, and semantic profiles;
 - current architecture and reproducibility documentation;
-- the current sanitized evaluation contracts and reports listed in
-  `ARTIFACT_INDEX.md`;
+- only sanitized evaluation contracts and reports explicitly required by the
+  current reproducibility procedure;
 - small source metadata needed by the supported ingestion commands.
 
 The current report layout is intentionally small:
@@ -35,7 +35,7 @@ the default checkout.
 
 SQLite stores, Chroma indexes, provider traces, raw model responses, and
 generated export packages stay outside Git under the paths documented in
-`AGENTS.md` and `ARTIFACT_INDEX.md`.
+`AGENTS.md` and this policy.
 
 ## External historical archive
 

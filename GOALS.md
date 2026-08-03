@@ -1,9 +1,10 @@
 # Project Goals
 
-Last updated: 2026-08-01
+Last updated: 2026-08-02
 
-This file defines durable system outcomes. Concrete work belongs in `TODO.md`;
-historical evaluations are routed through `ARTIFACT_INDEX.md`.
+This file defines durable system outcomes, boundaries, and deferred work.
+Historical evaluations are governed by `docs/repository_artifact_policy.md`;
+changing implementation status belongs in `RESEARCH_AUDIT.md`.
 
 ## Primary Goal
 
@@ -24,21 +25,23 @@ retrieval. The system:
 5. keeps the persistent SQLite evidence store authoritative while deriving
    FTS, Chroma, all-root RDF/Turtle, and all-root Neo4j views from it;
 6. routes every valid natural-language question through a bounded LLM Query
-   Agent that first selects source, TMI, and/or Flight/Airspace capability
-   families and then invokes their exact, graph, lexical, vector, and
-   source-read tools;
+   Agent that first selects source, TMI, knowledge, and/or Flight/Airspace
+   capability families and then invokes their exact, graph, lexical, vector,
+   and source-read tools;
 7. exposes evidence, limitations, and honest missing states for every
    supported answer; and
 8. can optionally acquire allowlisted public documents through a separately
    running Web Evidence sidecar without making that sidecar a source of
    aviation facts or a required runtime dependency.
 
-The project also provides an explicit ontology-grounded construction path for
-researching LLM-assisted ABox generation. It uses the complete ATMONTO TBox
+The project also provides an explicit ontology-grounded document-to-KG
+framework for researching LLM-assisted ABox generation. It uses the complete ATMONTO TBox
 to build a task-specific slice, gives a bounded model only sealed evidence
 and candidate identities, validates candidate facts deterministically, and
 incrementally fuses accepted semantic facts with one-to-many provenance.
 This path is opt-in; the default ingestion compiler remains deterministic.
+FAA JO 7210.3EE Chapter 18 is the first configured adapter and demonstrator,
+not the subject boundary of that framework.
 
 ATMONTO supplies the admitted TBox and application-profile terms. ATMGRAPH
 supplies ABox-construction and cross-source-query principles. The project does
@@ -88,47 +91,19 @@ The system must distinguish:
 - search candidates from verified source reads;
 - genuinely missing or insufficient information.
 
-## Completed Foundation
+## Implementation Status
 
-The current system provides:
-
-- one TMI family registry rooted at `atm:TrafficManagementInitiative`, with
-  active GDP, GS, and ReRoute application profiles over exact ATMONTO terms;
-- deterministic advisory parsing, source normalization, time alignment, and
-  FAA facility/terminology authority services;
-- a shared Semantic Resolution Agent only for genuine multi-candidate
-  authority ambiguity;
-- deterministic Event Evidence Integration that compiles source-supported
-  sealed evidence and preserves honest insufficiency;
-- one write-free Formal Publication Kernel used by TMI, Weather,
-  public-observation, Flight/Airspace, and reference semantic facts, plus a
-  separate deterministic materializer for source-supported association roots;
-- a versioned SQLite store for source assets, source versions, anchors,
-  publications, facts, evidence, profile gaps, context, observations, and
-  lightweight usage telemetry;
-- incremental ingestion without a mandatory completed batch snapshot;
-- SQLite FTS5 over source-record chunks;
-- rebuildable Chroma collections for source records and compact TMI event
-  summaries;
-- an opt-in `web_document` source family with persistent source versions,
-  exact anchors, and read-only query tools;
-- optional all-root JSONL, RDF/Turtle, and Neo4j exports;
-- three model-routed Query Agent capability families containing 18 bounded
-  read-only evidence tools;
-- a Query Agent invoked for every valid natural-language question, with a
-  6-turn, 6-per-turn, 10-total-tool action-observation loop and
-  statement-level support validation;
-- Flight/Airspace ingestion and read-only tools covering stored flights,
-  airports, trajectories, sectors, temporal Weather associations, TMI
-  applicability candidates, and graph reads;
-- a retained historical checksum-bound supplement for the F1, F3S, S4, and
-  S1S query shapes;
-- explicit `ok`, `insufficient`, and `blocked` semantics.
+Current implementation truth belongs to `RESEARCH_AUDIT.md`. This goals
+document deliberately does not repeat changing command inventories, provider
+results, dataset counts, or implementation checklists. The durable contract
+is that accepted facts are ATMONTO/profile constrained, source-supported,
+published through one Formal Publication Kernel, and queried through an
+evidence-bound Agentic HybridRAG path.
 
 ## Current Semantic Boundary
 
-The store supports typed formal knowledge roots. ATMONTO TMI instances remain
-the root of the mature advisory slice; Flight, Aircraft, Airport/ARTCC, Route,
+The store supports typed formal knowledge roots. ATMONTO TMI instances provide
+one regression publication path; Flight, Aircraft, Airport/ARTCC, Route,
 TrackPoint, Sector, Weather, and reviewed association roots use the same
 publication spine. None claims that the system reconstructed an internal FAA
 decision process.
@@ -190,7 +165,7 @@ The current mainline succeeds when:
   than fabricated;
 - exact and lexical reads remain available when a vector index is absent or
   stale;
-- both Chroma collections can be rebuilt from the authoritative store;
+- all Chroma collections can be rebuilt from the authoritative store;
 - optional RDF/Turtle and Neo4j exports contain accepted facts from every
   active formal knowledge root, with publication and provenance bindings;
 - every valid natural-language query activates the Query Agent and retrieves
@@ -223,6 +198,12 @@ model-quality claims.
   TMI recommendation.
 - General-purpose aviation QA.
 - Automatic ontology expansion.
+- A reviewed frozen evaluation set and statistically powered benchmark.
+- New TMI families without an explicit ATMONTO mapping and source/evidence
+  boundary.
+- Correction and re-evaluation of the observed unsupported-query stop policy.
+- Broader Web Evidence seeds without a defined source role, parser profile,
+  and support task.
 - New Agent roles without an observed system need.
 - Production deployment, access control, and production-only hardening.
 
@@ -234,6 +215,6 @@ external archive. They remain available for an explicitly reactivated task
 but are not in the runtime checkout, do not define the current architecture,
 and do not establish ingestion-first performance.
 
-See `ARTIFACT_INDEX.md` for routing and `DECISION_LOG.md` for the sequence of
-scope decisions. The familiar records remain development/regression fixtures;
+See `docs/repository_artifact_policy.md` for retention rules and
+`DECISION_LOG.md` for the sequence of scope decisions. The familiar records remain development/regression fixtures;
 no frozen post-cutover evaluation set has been constructed.

@@ -153,8 +153,10 @@ def _candidate(
     object_class_iri: str | None = None,
     datatype_iri: str | None = None,
     literal_source_value: object | None = None,
+    evidence_text: str | None = None,
+    source_snapshot_sha256: str | None = None,
 ) -> _Candidate:
-    evidence_text = _find_source_triple(
+    evidence_text = evidence_text or _find_source_triple(
         trace,
         subject_iri=source_subject_iri,
         predicate_iri=predicate_iri,
@@ -192,8 +194,194 @@ def _candidate(
             source_id=trace.source_record_id,
             evidence_text=evidence_text,
             evidence_agent_role="deterministic_nasa_atmonto_compiler",
-            source_snapshot_sha256=trace.record_checksum,
+            source_snapshot_sha256=(
+                source_snapshot_sha256 or trace.record_checksum
+            ),
         ),
+    )
+
+
+def _trace_lines(trace: object) -> tuple[str, ...]:
+    """Return canonical subject-level lines for either NASA trace contract."""
+
+    canonical = getattr(trace, "canonical_triples", None)
+    if canonical is not None:
+        return tuple(canonical)
+    subject = getattr(trace, "canonical_subject_triples", ())
+    associations = getattr(trace, "association_triples", ())
+    return tuple((*subject, *associations))
+
+
+def _parse_trace_line(line: str) -> tuple[str, str, object]:
+    """Parse one canonical N-Triples line emitted by the source adapters."""
+
+    subject_token, remainder = line.split(" ", 1)
+    predicate_token, object_token = remainder.split(" ", 1)
+    return subject_token.strip("<>"), predicate_token.strip("<>"), from_n3(
+        object_token[:-2]
+    )
+
+
+def _deduplicate_candidates(candidates: list[_Candidate]) -> tuple[_Candidate, ...]:
+    """Merge exact duplicate facts while retaining deterministic evidence."""
+
+    by_fact_id: dict[str, _Candidate] = {}
+    for candidate in candidates:
+        previous = by_fact_id.get(candidate.fact.fact_id)
+        if previous is None:
+            by_fact_id[candidate.fact.fact_id] = candidate
+            continue
+        previous_semantics = previous.fact.model_dump(
+            exclude={"source_ids", "evidence_texts", "evidence_ref"}
+        )
+        candidate_semantics = candidate.fact.model_dump(
+            exclude={"source_ids", "evidence_texts", "evidence_ref"}
+        )
+        if previous_semantics != candidate_semantics:
+            raise ValueError(
+                f"conflicting source facts share identity: {candidate.fact.fact_id}"
+            )
+        if (
+            candidate.trace.source_id,
+            candidate.trace.evidence_text,
+        ) < (
+            previous.trace.source_id,
+            previous.trace.evidence_text,
+        ):
+            by_fact_id[candidate.fact.fact_id] = candidate
+    return tuple(by_fact_id[key] for key in sorted(by_fact_id))
+
+
+def compile_nasa_public_sample_trace_facts(
+    *,
+    trace: object,
+    subject_iri: str,
+    subject_class_iri: str,
+    profile_registry: ValidationProfileRegistry,
+    object_classes_by_iri: Mapping[str, str] | None = None,
+    source_snapshot_sha256: str | None = None,
+) -> FlightAirspaceFactCompilation:
+    """Compile exact source triples from one public NASA ABox record.
+
+    This is the generic construction spine for the complete 2014 sample.  It
+    does not infer new values and it does not copy every source predicate into
+    the graph: only properties declared by the full local ATMONTO TBox profile
+    and compatible with the normalized subject class are emitted.  Source-local
+    instance classes such as ``METARreport`` are normalized by the caller to a
+    declared ATMONTO superclass; the exact source line remains the evidence.
+    """
+
+    profile = _profile_for_layer(profile_registry, "atmonto_public_sample")
+    class_iris = {
+        mapping["iri"] for mapping in profile.class_mappings.values()
+    }
+    property_mappings = {
+        mapping["iri"]: mapping for mapping in profile.property_mappings.values()
+    }
+    ancestors = set(profile.class_ancestors.get(subject_class_iri, (subject_class_iri,)))
+    object_classes = dict(object_classes_by_iri or {})
+    source_subject = getattr(trace, "subject_iri", subject_iri)
+    lines = _trace_lines(trace)
+    candidates: list[_Candidate] = []
+
+    # Preserve the source's explicit type assertion, but normalize source-only
+    # instance classes (METARreport, TAFreport, LatLonFix, etc.) to the
+    # ATMONTO class supplied by the source adapter.
+    type_lines = []
+    for line in lines:
+        line_subject, predicate, object_ = _parse_trace_line(line)
+        if (
+            line_subject == source_subject
+            and predicate == RDF_TYPE
+            and isinstance(object_, URIRef)
+        ):
+            type_lines.append(line)
+    if type_lines and subject_class_iri in class_iris:
+        candidates.append(
+            _candidate(
+                trace=trace,  # type: ignore[arg-type]
+                source_subject_iri=source_subject,
+                fact_subject_iri=subject_iri,
+                subject_class_iri=subject_class_iri,
+                predicate_iri=RDF_TYPE,
+                object_kind="iri",
+                object_value=subject_class_iri,
+                object_class_iri=subject_class_iri,
+                profile=profile,
+                evidence_text=sorted(type_lines)[0],
+                source_snapshot_sha256=source_snapshot_sha256,
+            )
+        )
+
+    for line in lines:
+        line_subject, predicate, object_ = _parse_trace_line(line)
+        if line_subject != source_subject or predicate == RDF_TYPE:
+            continue
+        mapping = property_mappings.get(predicate)
+        if mapping is None:
+            continue
+        domains = set(profile.property_domains.get(predicate, ()))
+        if domains and not domains.intersection(ancestors):
+            continue
+        if isinstance(object_, Literal):
+            if mapping.get("kind") not in (None, "datatype"):
+                continue
+            value = str(object_)
+            python_value = object_.toPython()
+            if isinstance(python_value, datetime):
+                if python_value.tzinfo is None or python_value.utcoffset() is None:
+                    python_value = python_value.replace(tzinfo=UTC)
+                value = python_value.isoformat()
+            datatype = str(object_.datatype) if object_.datatype else XSD_STRING
+            candidates.append(
+                _candidate(
+                    trace=trace,  # type: ignore[arg-type]
+                    source_subject_iri=source_subject,
+                    fact_subject_iri=subject_iri,
+                    subject_class_iri=subject_class_iri,
+                    predicate_iri=predicate,
+                    object_kind="literal",
+                    object_value=value,
+                    datatype_iri=datatype,
+                    profile=profile,
+                    evidence_text=line,
+                    source_snapshot_sha256=source_snapshot_sha256,
+                )
+            )
+            continue
+        if not isinstance(object_, URIRef) or mapping.get("kind") not in (
+            None,
+            "object",
+        ):
+            continue
+        ranges = profile.property_ranges.get(predicate, ())
+        object_class = object_classes.get(str(object_))
+        if object_class not in class_iris:
+            object_class = None
+        if object_class is None and ranges:
+            object_class = ranges[0]
+        if object_class is None:
+            continue
+        candidates.append(
+            _candidate(
+                trace=trace,  # type: ignore[arg-type]
+                source_subject_iri=source_subject,
+                fact_subject_iri=subject_iri,
+                subject_class_iri=subject_class_iri,
+                predicate_iri=predicate,
+                object_kind="iri",
+                object_value=str(object_),
+                object_class_iri=object_class,
+                profile=profile,
+                evidence_text=line,
+                source_snapshot_sha256=source_snapshot_sha256,
+            )
+        )
+
+    selected = _deduplicate_candidates(candidates)
+    return FlightAirspaceFactCompilation(
+        facts=tuple(candidate.fact for candidate in selected),
+        fact_traces=tuple(candidate.trace for candidate in selected),
     )
 
 
@@ -294,12 +482,28 @@ def compile_nasa_flight_airspace_facts(
     temporal associations, TMI applicability, and causal relations.
     """
 
-    flight_profile = _profile_for_layer(profile_registry, "flight_operation")
-    trajectory_profile = _profile_for_layer(profile_registry, "trajectory")
-    reference_profile = _profile_for_layer(
-        profile_registry,
-        "aeronautical_reference",
-    )
+    sample_profiles = [
+        profile
+        for profile in profile_registry.profiles
+        if profile.ref.layer == "atmonto_public_sample"
+    ]
+    if sample_profiles:
+        # The public NASA bundle is one coherent ABox.  Shared facts such as
+        # ``NavigationFix locatedInSector Sector`` may be observed from both
+        # a fix record and a flight trajectory.  Give all such facts one
+        # profile owner so the store can merge them instead of treating the
+        # same semantic identity as a cross-profile conflict.
+        sample_profile = sample_profiles[0]
+        flight_profile = sample_profile
+        trajectory_profile = sample_profile
+        reference_profile = sample_profile
+    else:
+        flight_profile = _profile_for_layer(profile_registry, "flight_operation")
+        trajectory_profile = _profile_for_layer(profile_registry, "trajectory")
+        reference_profile = _profile_for_layer(
+            profile_registry,
+            "aeronautical_reference",
+        )
     roots = dict(flight_root_ids or {})
     fix_classes = _fix_class_by_iri(navigation_fixes)
     candidates: list[_Candidate] = []
@@ -553,5 +757,6 @@ def run_nasa_flight_airspace_publication_kernel(
 __all__ = [
     "FlightAirspaceFactCompilation",
     "compile_nasa_flight_airspace_facts",
+    "compile_nasa_public_sample_trace_facts",
     "run_nasa_flight_airspace_publication_kernel",
 ]

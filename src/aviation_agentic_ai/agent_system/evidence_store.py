@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 from collections.abc import Sequence
 from contextlib import nullcontext
@@ -3603,8 +3604,7 @@ class AviationEvidenceStore:
                 """
             )
         parameters.append(limit)
-        rows = self._connection.execute(
-            f"""
+        statement = f"""
             SELECT chunk.*
             FROM source_chunks_fts
             JOIN source_chunks AS chunk
@@ -3616,9 +3616,27 @@ class AviationEvidenceStore:
             WHERE {" AND ".join(predicates)}
             ORDER BY bm25(source_chunks_fts), chunk.chunk_id
             LIMIT ?
-            """,
-            parameters,
-        ).fetchall()
+            """
+        try:
+            rows = self._connection.execute(statement, parameters).fetchall()
+        except sqlite3.OperationalError as exc:
+            if "fts5" not in str(exc).lower():
+                raise
+            # Natural-language questions often contain punctuation such as
+            # ``7210.3EE``.  FTS5 treats that punctuation as query syntax.
+            # Retry only with quoted lexical tokens; this preserves the
+            # bounded filters while preventing a user question from becoming
+            # a SQL/FTS expression.
+            tokens = tuple(re.findall(r"[\w]+", query, flags=re.UNICODE))
+            if not tokens:
+                return ()
+            safe_query = " OR ".join(
+                f'"{token.replace(chr(34), chr(34) * 2)}"'
+                for token in tokens
+            )
+            safe_parameters = list(parameters)
+            safe_parameters[0] = safe_query
+            rows = self._connection.execute(statement, safe_parameters).fetchall()
         return tuple(self._source_chunk_from_row(row) for row in rows)
 
     def upsert_source_chunks(

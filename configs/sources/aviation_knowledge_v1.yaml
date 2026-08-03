@@ -14,6 +14,7 @@ sources:
   historical_metar_speci: data/raw/flight_competency/katl_asos_2026-05-14_2026-05-22.csv
   nasa_atmonto_instances: data/raw/nasa_atmonto_prototype/allFilesTTL.zip
   nasr_airspace_zip: data/raw/nasa_atmonto/2026-05-14/faa_nasr/28DaySubscription_Effective_2026-05-14.zip
+  faa_order_7210_3ee: data/raw/faa_orders/JO_7210.3EE_2025-02-20.pdf
   # Optional operator-approved Web Evidence sidecar.  It is intentionally
   # disabled until both this flag and the CLI --allow-live-web gate are set.
   web_evidence:
@@ -45,6 +46,17 @@ source_checksums:
   historical_metar_speci: be6ef673b82cf39779aacaa57008372464f1a81951c692e08a09689223371f85
   nasa_atmonto_instances: 93dc9675772649079bef11fe3519e6d99fe0d549318a6696af888b7f2b74df47
   nasr_airspace_zip: db4793352229c1fd74e9b3d924762376abfa224fe6388768cad25d084c7aeed3
+  faa_order_7210_3ee: 16893ed16ab2c9432ec981a4cefa2cc11ba264e45ebd33cfc63d680f53ca6a5d
+
+source_metadata:
+  faa_order_7210_3ee:
+    effective_start: 2025-02-20
+    role: normative_document_reference
+    edition: JO 7210.3EE Basic
+    section_prefixes:
+      - "18"
+    max_chunk_tokens: 500
+    chunk_overlap_tokens: 50
 
 source_urls:
   faa_atcscc: https://www.fly.faa.gov/adv/advADB.jsp
@@ -59,3 +71,4 @@ source_urls:
   faa_aircraft_registry: https://registry.faa.gov/database/ReleasableAircraft.zip
   historical_metar_speci: https://mesonet.agron.iastate.edu/request/download.phtml
   nasa_atmonto_instances: https://data.nasa.gov/docs/ontologies/atmonto/allFilesTTL.zip
+  faa_order_7210_3ee: https://www.faa.gov/documentLibrary/media/Order/7210.3EE_Basic_dtd_2-20-25.pdf

@@ -34,6 +34,9 @@ DEFAULT_AERONAUTICAL_REFERENCE_PROFILE_PATH = (
 DEFAULT_TRAJECTORY_PROFILE_PATH = (
     "data/ontology/curated/atmonto_trajectory_slice.json"
 )
+DEFAULT_FAA_ORDER_ONTOLOGY_PROFILE_PATH = (
+    "data/ontology/curated/faa_jo_7210_3ee_ontology_profile_v2.json"
+)
 
 ValidationLayer = Literal[
     "decision",
@@ -42,6 +45,8 @@ ValidationLayer = Literal[
     "flight_operation",
     "aeronautical_reference",
     "trajectory",
+    "atmonto_public_sample",
+    "document_reference",
 ]
 EvidenceMode = Literal[
     "source_text",
@@ -204,7 +209,7 @@ def _mapping_entry(
 ) -> tuple[str, dict[str, str]]:
     if not all(isinstance(key, str) for key in entry):
         raise ValueError("malformed profile mapping entry")
-    structural_fields = {"domain_iri_set", "range_iri_set"}
+    structural_fields = {"domain_iri_set", "range_iri_set", "aliases"}
     for field, value in entry.items():
         if field in structural_fields:
             if not isinstance(value, list) or not all(
@@ -269,7 +274,10 @@ def _load_json_profile(path: Path, layer: ValidationLayer) -> LoadedValidationPr
         ]
     else:
         property_mappings = _parse_mappings(raw_properties, "property")
-        property_entries = []
+        # Keep the list entries when a profile supplies both mappings and
+        # explicit domain/range metadata.  Dropping them silently turns a
+        # seemingly constrained profile into a vocabulary-only profile.
+        property_entries = raw_properties if isinstance(raw_properties, list) else []
     forbidden = payload.get("forbidden_predicates", [])
     if not isinstance(forbidden, list) or not all(isinstance(value, str) for value in forbidden):
         raise ValueError("forbidden_predicates must be a string list")
@@ -456,7 +464,150 @@ def _profile_evidence_policy(
             SourceFamily.NASR_AIRSPACE,
         )
         return ("source_text",), {"source_text": families}
+    if layer == "atmonto_public_sample":
+        # The public NASA bundle is already a canonical RDF/Turtle source.
+        # This profile is intentionally source-text-only: it admits exact
+        # ABox statements from the bundle, but never turns a derived table or
+        # a model assertion into an ATMONTO fact.
+        return (
+            ("source_text",),
+            {"source_text": (SourceFamily.NASA_ATMONTO_INSTANCE,)},
+        )
+    if layer == "document_reference":
+        return (
+            ("source_text",),
+            {"source_text": (SourceFamily.WEB_DOCUMENT,)},
+        )
     raise ValueError(f"unsupported validation layer: {layer}")
+
+
+def _nasa_public_sample_profile() -> LoadedValidationProfile:
+    """Build a full ATMONTO TBox profile for the public NASA ABox bundle.
+
+    The regular runtime profiles are intentionally small application slices.
+    The 2014 public sample is different: it is a multi-source RDF bundle that
+    already contains Airport, Flight, route, track, weather, ASPM and TMI
+    instances.  A dedicated runtime profile exposes the complete local TBox
+    catalog to the deterministic ABox compiler while keeping the profile
+    bounded to exact NASA source text.
+
+    The sample contains a handful of source-local instance classes (for
+    example ``METARreport`` and ``LatLonFix``) that are not TBox declarations.
+    Adapters normalize those types to their ATMONTO superclass before they
+    become formal facts; the original source type remains in the evidence
+    anchor.
+    """
+
+    # Import lazily so the common TMI-only path does not parse all six OWL
+    # modules during ordinary CLI startup.
+    from aviation_agentic_ai.agent_system.ontology_coverage import (
+        load_atmonto_catalog,
+    )
+
+    catalog = load_atmonto_catalog()
+    all_classes = dict(catalog.classes)
+    all_properties = {
+        **catalog.object_properties,
+        **catalog.datatype_properties,
+    }
+    forbidden = set(_FORBIDDEN_OPERATIONAL_OR_CAUSAL_PREDICATES)
+
+    namespaces = {
+        "atm": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+        "nas": "https://data.nasa.gov/ontologies/atmonto/NAS#",
+        "data": "https://data.nasa.gov/ontologies/atmonto/data#",
+        "eqp": "https://data.nasa.gov/ontologies/atmonto/equipment#",
+        "gen": "https://data.nasa.gov/ontologies/atmonto/general#",
+    }
+
+    def prefixed(iri: str) -> str:
+        for prefix, namespace in sorted(
+            namespaces.items(), key=lambda item: len(item[1]), reverse=True
+        ):
+            if iri.startswith(namespace):
+                return f"{prefix}:{iri[len(namespace):]}"
+        return iri
+
+    class_mappings = {
+        prefixed(iri): {
+            "iri": iri,
+            "label": record.label,
+            "kind": "class",
+        }
+        for iri, record in all_classes.items()
+    }
+    property_mappings = {
+        prefixed(iri): {
+            "iri": iri,
+            "label": record.label,
+            "kind": "object" if record.kind == "ObjectProperty" else "datatype",
+        }
+        for iri, record in all_properties.items()
+        if iri not in forbidden
+    }
+
+    # Compute the transitive class closure.  The publication kernel accepts a
+    # concrete source class for a range, then uses this closure to verify
+    # superclass-based ATMONTO domains and ranges (Airport ->
+    # NavigationElement -> TFMcontrolElement, for example).
+    parents: dict[str, set[str]] = {iri: set() for iri in all_classes}
+    for edge in catalog.class_hierarchy:
+        parents.setdefault(edge.subclass_iri, set()).add(edge.superclass_iri)
+    class_ancestors: dict[str, tuple[str, ...]] = {}
+    for class_iri in sorted(all_classes):
+        closure = {class_iri}
+        frontier = [class_iri]
+        while frontier:
+            current = frontier.pop()
+            for parent in sorted(parents.get(current, ())):
+                if parent not in closure:
+                    closure.add(parent)
+                    frontier.append(parent)
+        class_ancestors[class_iri] = tuple(sorted(closure))
+
+    property_domains = {
+        iri: record.domain_iris
+        for iri, record in all_properties.items()
+        if iri not in forbidden
+    }
+    property_ranges = {
+        iri: record.range_iris
+        for iri, record in catalog.object_properties.items()
+        if iri not in forbidden
+    }
+
+    # The profile checksum binds the exact six local ontology modules and the
+    # profile-construction policy.  It is not a user-provided or model-
+    # provided value.
+    payload = {
+        "profile_id": "nasa_atmonto_public_sample_abox_v1",
+        "module_paths": list(catalog.module_paths),
+        "classes": sorted(all_classes),
+        "properties": sorted(property_mappings),
+        "forbidden": sorted(forbidden),
+    }
+    checksum = hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    evidence_modes, source_policies = _profile_evidence_policy(
+        "atmonto_public_sample"
+    )
+    return LoadedValidationProfile(
+        ref=ValidationProfileRef(
+            profile_id=payload["profile_id"],
+            profile_checksum=checksum,
+            layer="atmonto_public_sample",
+        ),
+        source_path="runtime:local-atmonto-tbox-catalog",
+        namespace_prefixes=namespaces,
+        class_mappings=class_mappings,
+        property_mappings=property_mappings,
+        class_ancestors=class_ancestors,
+        property_domains=property_domains,
+        property_ranges=property_ranges,
+        allowed_evidence_modes=evidence_modes,
+        source_families_by_evidence_mode=source_policies,
+    )
 
 
 def _decision_profile(decision_guide: SchemaGuide) -> LoadedValidationProfile:
@@ -529,6 +680,9 @@ def load_validation_profile_registry(
     flight_operation_profile_path: str | Path = DEFAULT_FLIGHT_OPERATION_PROFILE_PATH,
     aeronautical_reference_profile_path: str | Path = DEFAULT_AERONAUTICAL_REFERENCE_PROFILE_PATH,
     trajectory_profile_path: str | Path = DEFAULT_TRAJECTORY_PROFILE_PATH,
+    include_atmonto_public_sample: bool = False,
+    include_faa_order: bool = False,
+    faa_order_profile_path: str | Path = DEFAULT_FAA_ORDER_ONTOLOGY_PROFILE_PATH,
 ) -> ValidationProfileRegistry:
     """Load checksum-pinned profiles, optionally adding Flight/Airspace layers."""
 
@@ -556,6 +710,15 @@ def load_validation_profile_registry(
                 ),
             )
         )
+    if include_atmonto_public_sample:
+        profiles.append(_nasa_public_sample_profile())
+    if include_faa_order:
+        profiles.append(
+            _load_json_profile(
+                resolve_project_path(faa_order_profile_path),
+                "document_reference",
+            )
+        )
     return ValidationProfileRegistry(profiles=tuple(profiles))
 
 
@@ -565,6 +728,7 @@ __all__ = [
     "DEFAULT_FLIGHT_OPERATION_PROFILE_PATH",
     "DEFAULT_PUBLIC_OBSERVATION_PROFILE_PATH",
     "DEFAULT_TRAJECTORY_PROFILE_PATH",
+    "DEFAULT_FAA_ORDER_ONTOLOGY_PROFILE_PATH",
     "DEFAULT_WEATHER_PROFILE_PATH",
     "LoadedValidationProfile",
     "ValidationProfileRef",

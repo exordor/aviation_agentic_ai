@@ -91,7 +91,7 @@ class CrossDomainSmokeSuite(StrictModel):
     suite_id: str = Field(min_length=1)
     mode: Literal["live_smoke"] = "live_smoke"
     provider: Literal["deepseek"] = "deepseek"
-    model: Literal["deepseek-v4-pro"] = "deepseek-v4-pro"
+    model: Literal["deepseek-v4-flash"] = "deepseek-v4-flash"
     temperature: Literal[0.0] = 0.0
     thinking: Literal["disabled"] = "disabled"
     automatic_retry_count: Literal[0] = 0
@@ -200,7 +200,7 @@ class CrossDomainSmokeSummary(StrictModel):
     mode: Literal["live_smoke"] = "live_smoke"
     runner_status: Literal["completed", "blocked_before_run", "runner_failed"]
     provider: Literal["deepseek"] = "deepseek"
-    model: Literal["deepseek-v4-pro"] = "deepseek-v4-pro"
+    model: Literal["deepseek-v4-flash"] = "deepseek-v4-flash"
     prompt_versions: tuple[str, ...] = ()
     temperature: Literal[0.0] = 0.0
     thinking: Literal["disabled"] = "disabled"
@@ -450,7 +450,7 @@ def _preflight_failures() -> tuple[str, ...]:
         failures.append("missing_deepseek_credentials")
     if (FROZEN_PROVIDER, FROZEN_MODEL, FROZEN_TEMPERATURE) != (
         "deepseek",
-        "deepseek-v4-pro",
+        "deepseek-v4-flash",
         0.0,
     ):
         failures.append("frozen_model_configuration_changed")
