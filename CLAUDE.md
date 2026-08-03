@@ -17,7 +17,7 @@ This file is only a compatibility pointer. Do not duplicate changing project
 status, dataset counts, provider results, or architecture details here.
 Use `RESEARCH_AUDIT.md` for current implementation truth, `GOALS.md` for
 durable goals and non-goals, `README.md` for the public entry point, and
-`docs/multi_agent_kg_system_design.md` for normative architecture.
+`docs/system_architecture.md` for normative architecture.
 
 ## Repository Rules
 

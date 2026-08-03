@@ -1,70 +1,30 @@
-# Third-Party Sources and Integration Policy
+# Third-Party Sources And Dependencies
 
-This project is designed as an original GitLab-submittable research prototype.
-External repositories are not vendored into the source tree. Small browser
-runtime libraries may be vendored as static distribution files when needed for
-offline demo behavior and must be attributed below.
+## Runtime Dependencies
 
-## Reference Projects
+The complete runtime dependency declaration is maintained in `pyproject.toml`.
+The active system uses LangGraph/LangChain, ChromaDB, Sentence Transformers,
+RDFLib, Neo4j, and Docling/PyMuPDF. Generated indexes, local services, and
+model artifacts are not tracked.
 
-### Retired coursework and ontology-generation inputs
+## External Semantic Authority
 
-The former PHAK chunking/KG pipeline, ontology-generation experiments, and
-their local PDFs/derived files are preserved in the dated external archive at
-`../aviation_agentic_ai-research-archive-2026-08-01/`. They are historical
-research material, not dependencies of the active ingestion-first runtime.
+The active semantic authority includes six checksum-pinned NASA ATMONTO OWL
+modules mirrored from the MIT-licensed
+[ICARUS ontology](https://github.com/UCY-LINC-LAB/icarus-ontology). They are
+stored in `data/ontology/external/icarus_ontology/NASA/` and are bound by the
+curated application profile through recorded checksums. These modules provide
+the external TBox reference for the active ATMONTO-aligned profile; they are
+not an imported ATMGRAPH dataset or a claim of complete aviation coverage.
 
-The active system uses a curated ATMONTO application profile and six pinned
-NASA OWL authority files. It does not depend on OntoGPT, the former
-ontology-generation extra, or a PHAK bounded corpus.
+## Optional Web Evidence Service
 
-## Runtime And Tooling Dependencies
+[Wigolo](https://github.com/KnockOutEZ/wigolo) is accessed through a separately
+running HTTP sidecar when web-evidence ingestion is explicitly enabled. It is
+not vendored and is not required by the core runtime.
 
-- ChromaDB is used as a local vector index backend; generated collections under
-  `data/indexes/chroma` are ignored and not committed.
-- FastAPI and Uvicorn are optional web-demo dependencies; the offline smoke
-  report uses FastAPI TestClient and does not call the LLM.
-- Cytoscape.js 3.33.4 is vendored as
-  `src/aviation_agentic_ai/web/static/vendor/cytoscape.min.js` with its MIT
-  license at `src/aviation_agentic_ai/web/static/vendor/cytoscape.LICENSE.txt`.
-  It powers the offline KG relationship graph's node dragging, pan/zoom, and
-  edge-selection interactions without requiring a CDN.
-- The former Presentations runtime and PPTX generation harness are preserved
-  in the dated external archive. Current architecture figures are maintained
-  as editable Draw.io sources under `docs/figures/`.
+## Local Research Sources
 
-## Artifact Policy
-
-Commit source code, configs, curated sample data, tests, and final reports.
-Do not commit virtual environments, API keys, vector indexes, downloaded models,
-external repositories, temporary logs, or generated caches.
-
-### ICARUS Ontology / NASA ATMONTO
-
-- Source:
-  https://github.com/UCY-LINC-LAB/icarus-ontology (MIT License)
-- Local:
-  `data/ontology/external/icarus_ontology/NASA/`
-- Use in this project:
-  - Six NASA OWL modules are checksum-pinned by the active application profile
-    and provide ATMONTO TBox authority for publication and retrieval labels.
-  - They are reference inputs, not an imported ATMGRAPH dataset or a complete
-    aviation ontology.
-
-### Additional Research Papers
-
-- Local reference papers in `data/papers/`:
-  - `2404.16130v2.pdf` — LLM-based ontology construction survey.
-  - `stefanidis_2020_icarus_ontology.pdf` — ICARUS ontology methodology.
-  - `Building a Knowledge Graph for the Air Traffic Management Community.pdf` —
-    ATM KG reference.
-  - `Paper_17-An_Improvement_for_Spatial_Temporal_Queries_of_ATMGRAPH.pdf` —
-    ATMGRAPH spatial-temporal query reference.
-
-## Presentation Generation History
-
-The former PPTX generation script, style harness, template, and generated
-decks are preserved under the dated external archive. They are not active
-runtime dependencies or current report inputs. Use the editable Draw.io
-figures and the current defense-deck outline for the mainline presentation
-story.
+Downloaded FAA PDFs, papers, raw source snapshots, local stores, and provider
+artifacts are ignored. Their active use is governed by the source-version,
+checksum, and anchor metadata recorded by the ingestion pipeline.

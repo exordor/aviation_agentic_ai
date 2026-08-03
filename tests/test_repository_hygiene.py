@@ -4,6 +4,15 @@ from subprocess import PIPE, run
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
+RETIRED_DOCUMENT_REFERENCES = {
+    "ARTIFACT_INDEX.md",
+    "docs/architecture_narrative.md",
+    "docs/multi_agent_kg_system_design.md",
+    "reports/final/",
+    "atcscc_defense_deck_outline.md",
+    "src/aviation_agentic_ai/web/static/vendor/cytoscape.min.js",
+}
+
 
 def _tracked_files() -> list[str]:
     result = run(
@@ -15,6 +24,14 @@ def _tracked_files() -> list[str]:
         text=True,
     )
     return result.stdout.splitlines()
+
+
+def _tracked_markdown_files() -> list[Path]:
+    return [
+        PROJECT_ROOT / path
+        for path in _tracked_files()
+        if path.endswith(".md")
+    ]
 
 
 def test_gitignore_covers_secret_runtime_and_model_artifacts() -> None:
@@ -69,21 +86,19 @@ def test_tracked_files_exclude_secrets_indexes_chunks_and_model_weights() -> Non
     assert offenders == []
 
 
-def test_tracked_markdown_does_not_reference_retired_repository_documents() -> None:
-    retired_references = {
-        "ARTIFACT_INDEX.md",
-        "docs/architecture_narrative.md",
-    }
+def test_tracked_markdown_uses_only_current_document_authorities() -> None:
     offenders = []
-    for path in PROJECT_ROOT.rglob("*.md"):
-        if ".git" in path.parts:
-            continue
+    for path in _tracked_markdown_files():
         text = path.read_text(encoding="utf-8")
-        for retired_reference in retired_references:
+        for retired_reference in RETIRED_DOCUMENT_REFERENCES:
             if retired_reference in text:
                 offenders.append(f"{path.relative_to(PROJECT_ROOT)}: {retired_reference}")
 
     assert offenders == []
+
+
+def test_redundant_research_overview_is_not_tracked() -> None:
+    assert "RESEARCH_OVERVIEW.md" not in _tracked_files()
 
 
 def test_authoritative_command_lists_include_all_public_commands() -> None:
