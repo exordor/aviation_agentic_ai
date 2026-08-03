@@ -114,6 +114,26 @@ def test_redundant_research_overview_is_not_tracked() -> None:
     assert "RESEARCH_OVERVIEW.md" not in _tracked_files()
 
 
+def test_tracked_text_excludes_stale_runtime_terminology() -> None:
+    forbidden = {
+        "Optional legacy/" "general model adapters",
+        "legacy Formal " "Publication Kernel",
+        "Multi-Agent aviation " "event knowledge system",
+        "Shared Agent contracts for the " "multi-Agent KG system",
+        "authoritative SQLite " "store",
+    }
+    offenders = []
+    for relative_path in _tracked_files():
+        if not relative_path.endswith((".md", ".py", ".example")):
+            continue
+        path = PROJECT_ROOT / relative_path
+        text = path.read_text(encoding="utf-8")
+        for phrase in forbidden:
+            if phrase in text:
+                offenders.append(f"{relative_path}: {phrase}")
+    assert offenders == []
+
+
 def test_authoritative_command_lists_include_all_public_commands() -> None:
     expected = {
         "ingest",

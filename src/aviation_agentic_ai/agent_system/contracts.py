@@ -1,4 +1,4 @@
-"""Shared Agent contracts for the multi-Agent KG system (design §6).
+"""Shared contracts for bounded Agents and deterministic publication.
 
 These are the small Pydantic shapes that cross Agent and deterministic
 publication boundaries. Event Evidence Integration emits the only graph

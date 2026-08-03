@@ -249,7 +249,7 @@ def _to_validated_facts(
                     evidence_texts=[binding.evidence_text],
                     validation_profile=profile_ref,
                     evidence_mode="source_text",
-                    # The legacy Formal Publication Kernel's trace contract
+                    # The Formal Publication Kernel trace contract
                     # uses the fact ID as its internal source-text key.  The
                     # original task reference is retained on the generic
                     # package, which can carry one-to-many evidence links.

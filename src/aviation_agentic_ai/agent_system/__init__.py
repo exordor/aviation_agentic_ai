@@ -1,4 +1,4 @@
-"""Multi-Agent aviation event knowledge system (system mainline).
+"""ATMONTO-grounded Agentic HybridRAG runtime (system mainline).
 
 This package implements the runnable system mainline:
 

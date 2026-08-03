@@ -4,7 +4,7 @@ The web tools are deliberately separate from ingestion.  They are exposed only
 when the caller has explicitly authorized live web access and the configured
 wigolo sidecar is enabled.  Search returns candidates only; fetch and extract
 bind successful content to deterministic source/version/anchor identifiers in
-memory, without writing to the authoritative SQLite store.
+memory, without writing to the canonical semantic store.
 """
 
 from __future__ import annotations

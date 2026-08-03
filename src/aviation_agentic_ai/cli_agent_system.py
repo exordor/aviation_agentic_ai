@@ -1,8 +1,8 @@
 """CLI for the ingestion-first HybridRAG aviation knowledge system.
 
-The persistent evidence store is authoritative. SQLite holds immutable source
-versions and accepted semantics; FTS and Chroma are rebuildable indexes; RDF
-and Neo4j files are optional exports.
+The canonical semantic store holds immutable source versions and accepted
+semantics. Its current local implementation uses SQLite; FTS and Chroma are
+rebuildable indexes, and RDF and Neo4j files are optional exports.
 """
 
 from __future__ import annotations
