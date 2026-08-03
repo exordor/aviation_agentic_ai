@@ -4,8 +4,8 @@
 
 The complete runtime dependency declaration is maintained in `pyproject.toml`.
 The active system uses LangGraph/LangChain, ChromaDB, Sentence Transformers,
-RDFLib, Neo4j, and Docling/PyMuPDF. Generated indexes, local services, and
-model artifacts are not tracked.
+RDFLib, Neo4j, Docling/PyMuPDF, and Scrapy. Generated indexes, local services,
+and model artifacts are not tracked.
 
 ## External Semantic Authority
 

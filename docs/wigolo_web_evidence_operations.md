@@ -33,7 +33,8 @@ provenance, and support validation. A fetched page does not become an ATCSCC
 fact, a Weather fact, a causal explanation, or a recommendation merely because
 it was retrieved.
 
-SQLite remains authoritative. The source-record FTS5 and Chroma views include
+The canonical semantic store remains authoritative; its current local
+implementation uses SQLite. The source-record FTS5 and Chroma views include
 `web_document` source chunks alongside other admitted textual source versions.
 The `tmi_events_v1` collection is built only from admitted TMI event
 publications; a web document is not inserted into the event collection just

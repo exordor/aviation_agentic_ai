@@ -1,8 +1,9 @@
 """Optional, reproducible exports from the live aviation evidence store.
 
-The SQLite evidence store remains authoritative.  These files are bounded
-artifacts for interchange, inspection, and external graph loading; their
-manifests are never required by the query runtime.
+The canonical semantic store remains authoritative and is currently implemented
+with SQLite. These files are bounded artifacts for interchange, inspection,
+and external graph loading; their manifests are never required by the query
+runtime.
 """
 
 from __future__ import annotations
