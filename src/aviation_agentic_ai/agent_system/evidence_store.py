@@ -61,6 +61,36 @@ class AviationEvidenceStore:
         self._connection = connection
         self.dataset_id = dataset_id
 
+    @property
+    def sources(self):
+        """Return the focused source-registration repository facade."""
+
+        from aviation_agentic_ai.agent_system.storage_repositories import (
+            SourceRepository,
+        )
+
+        return SourceRepository(self)
+
+    @property
+    def semantic(self):
+        """Return the focused formal-publication repository facade."""
+
+        from aviation_agentic_ai.agent_system.storage_repositories import (
+            SemanticRepository,
+        )
+
+        return SemanticRepository(self)
+
+    @property
+    def retrieval(self):
+        """Return the focused read-side repository facade."""
+
+        from aviation_agentic_ai.agent_system.storage_repositories import (
+            RetrievalRepository,
+        )
+
+        return RetrievalRepository(self)
+
     @classmethod
     def open(
         cls,

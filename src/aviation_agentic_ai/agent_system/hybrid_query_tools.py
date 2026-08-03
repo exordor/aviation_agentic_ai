@@ -214,6 +214,8 @@ class HybridQueryGateway:
     ) -> None:
         self.runtime = runtime
         self.store = runtime.store
+        self.sources = self.store.sources
+        self.retrieval = self.store.retrieval
         self.scope = scope
 
     def _event_matches_scope(self, event: TMIEventRecord) -> bool:
@@ -232,7 +234,7 @@ class HybridQueryGateway:
             return False
         if not self.scope.source_ids and not self.scope.source_families:
             return True
-        sources = self.store.get_event_sources(event.event_id)
+        sources = self.retrieval.get_event_sources(event.event_id)
         return any(
             (
                 not self.scope.source_ids
@@ -248,7 +250,7 @@ class HybridQueryGateway:
     def _event_id(self, event_id: str) -> str:
         if self.scope.event_id is not None and event_id != self.scope.event_id:
             raise ValueError("event_id is outside the query scope")
-        event = self.store.get_event(event_id)
+        event = self.retrieval.get_event(event_id)
         if event is not None and not self._event_matches_scope(event):
             raise ValueError("event_id is outside the query scope")
         return event_id
@@ -299,9 +301,9 @@ class HybridQueryGateway:
         effective_families = self._families(families)
         if effective_event_id is not None:
             effective_event_id = self._event_id(effective_event_id)
-            versions = self.store.get_event_sources(effective_event_id)
+            versions = self.retrieval.get_event_sources(effective_event_id)
         else:
-            versions = self.store.list_source_versions(
+            versions = self.sources.list_source_versions(
                 current_only=True,
                 families=effective_families,
             )
@@ -343,7 +345,7 @@ class HybridQueryGateway:
     ) -> tuple[EventEvidenceLink, ...]:
         return tuple(
             link
-            for link in self.store.get_event_evidence(event_id)
+            for link in self.retrieval.get_event_evidence(event_id)
             if link.owner_kind == owner_kind and link.owner_id == owner_id
         )
 
@@ -355,7 +357,7 @@ class HybridQueryGateway:
 
         return {
             source.source_version_id: source
-            for source in self.store.get_event_sources(event_id)
+            for source in self.retrieval.get_event_sources(event_id)
             if (
                 not self.scope.source_ids
                 or source.source_id in self.scope.source_ids
@@ -455,7 +457,7 @@ class HybridQueryGateway:
         if self.scope.event_id is not None:
             self._offset(offset)
             self._limit(limit)
-            event = self.store.get_event(self.scope.event_id)
+            event = self.retrieval.get_event(self.scope.event_id)
             events = (
                 ()
                 if event is None or not self._event_matches_scope(event)
@@ -463,7 +465,7 @@ class HybridQueryGateway:
             )
             total_matches, page_offset, page_limit = len(events), 0, 1
         else:
-            page = self.store.find_tmi_events(
+            page = self.retrieval.find_tmi_events(
                 TMIEventQuery(
                     event_type_iri=self._filter(
                         "event_type_iri",
@@ -537,7 +539,7 @@ class HybridQueryGateway:
         """Read formal facts and the declared-reason state for one event."""
 
         event_id = self._event_id(event_id)
-        event = self.store.get_event(event_id)
+        event = self.retrieval.get_event(event_id)
         if event is None:
             return HybridQueryToolObservation(
                 status="insufficient",
@@ -546,10 +548,10 @@ class HybridQueryGateway:
             )
         candidate_facts = tuple(
             fact
-            for fact in self.store.get_event_facts(event_id)
+            for fact in self.retrieval.get_event_facts(event_id)
             if _is_event_subject(fact.subject_iri, event_id)
         )
-        candidate_gaps = self.store.get_event_profile_gaps(event_id)
+        candidate_gaps = self.retrieval.get_event_profile_gaps(event_id)
         publication_support = self._publication_support(event)
         support: list[HybridQuerySupportRecord] = (
             [] if publication_support is None else [publication_support]
@@ -628,7 +630,7 @@ class HybridQueryGateway:
         """Read time-bounded Weather context without asserting causation."""
 
         event_id = self._event_id(event_id)
-        event = self.store.get_event(event_id)
+        event = self.retrieval.get_event(event_id)
         if event is None:
             return HybridQueryToolObservation(
                 status="insufficient",
@@ -638,7 +640,7 @@ class HybridQueryGateway:
         association_support: list[
             tuple[EventWeatherAssociation, HybridQuerySupportRecord]
         ] = []
-        for association in self.store.get_event_weather(event_id):
+        for association in self.retrieval.get_event_weather(event_id):
             record = self._support_for_owner(
                 event_id=event_id,
                 owner_kind="weather_association",
@@ -657,7 +659,7 @@ class HybridQueryGateway:
         }
         facts = tuple(
             fact
-            for fact in self.store.get_event_facts(event_id)
+            for fact in self.retrieval.get_event_facts(event_id)
             if fact.subject_iri in report_ids
             or fact.subject_iri.rsplit(":", 1)[-1] in report_tokens
         )
@@ -717,11 +719,11 @@ class HybridQueryGateway:
         """Read source-qualified BTS public observations."""
 
         event_id = self._event_id(event_id)
-        event = self.store.get_event(event_id)
+        event = self.retrieval.get_event(event_id)
         candidate_observations = (
             ()
             if event is None
-            else self.store.get_event_observations(event_id, phases)
+            else self.retrieval.get_event_observations(event_id, phases)
         )
         support: list[HybridQuerySupportRecord] = []
         observations = []
@@ -871,7 +873,7 @@ class HybridQueryGateway:
         """Read bounded formal edges or reviewed non-causal paths."""
 
         event_id = self._event_id(event_id)
-        event = self.store.get_event(event_id)
+        event = self.retrieval.get_event(event_id)
         if event is None:
             return HybridQueryToolObservation(
                 status="insufficient",
@@ -941,10 +943,10 @@ class HybridQueryGateway:
         )
         sources_by_version = {
             source.source_version_id: source
-            for source in self.store.get_event_sources(event_id)
+            for source in self.retrieval.get_event_sources(event_id)
         }
         evidence_paths: list[EventEvidencePath] = []
-        for association in self.store.get_event_weather(event_id):
+        for association in self.retrieval.get_event_weather(event_id):
             source = sources_by_version.get(association.source_version_id)
             if source is None:
                 continue
@@ -1033,7 +1035,7 @@ class HybridQueryGateway:
                         )
                     )
         edge_by_fact_id = {edge.fact_id: edge for edge in edges}
-        for observation in self.store.get_event_observations(
+        for observation in self.retrieval.get_event_observations(
             event_id,
             ("baseline", "active", "recovery"),
         ):
@@ -1218,7 +1220,7 @@ class HybridQueryGateway:
         )
         support: list[HybridQuerySupportRecord] = []
         for match in matches:
-            event = self.store.get_event(match.event_id)
+            event = self.retrieval.get_event(match.event_id)
             if event is not None:
                 support.append(
                     HybridQuerySupportRecord(
@@ -1285,7 +1287,7 @@ class HybridQueryGateway:
                 source_version_id: (effective_event_id,)
                 for source_version_id in source_version_ids
             }
-        return self.store.get_active_event_ids_by_source_version(
+        return self.retrieval.get_active_event_ids_by_source_version(
             source_version_ids
         )
 
@@ -1304,7 +1306,7 @@ class HybridQueryGateway:
             families=families,
         )
         version_by_id, _ = self._source_maps(versions)
-        chunks = self.store.search_source_text(
+        chunks = self.sources.search_source_text(
             query,
             source_version_ids=tuple(version_by_id),
             families=self._families(families),
@@ -1377,7 +1379,7 @@ class HybridQueryGateway:
         for hit in hits:
             if hit.source_version_id not in version_by_id:
                 raise ValueError("source vector hit is outside the query scope")
-            chunk = self.store.get_source_chunk(hit.chunk_id)
+            chunk = self.sources.get_source_chunk(hit.chunk_id)
             if (
                 chunk is None
                 or chunk.source_version_id != hit.source_version_id
@@ -1495,7 +1497,7 @@ class HybridQueryGateway:
         if source_version_id not in allowed:
             raise ValueError("source version is outside the query scope")
         version = allowed[source_version_id]
-        chunks = self.store.list_source_chunks(
+        chunks = self.sources.list_source_chunks(
             source_version_ids=(source_version_id,),
             chunk_kind="source_record",
         )
@@ -1518,7 +1520,7 @@ class HybridQueryGateway:
                     limitation="The source version has no readable anchor.",
                 )
             source_anchor_id = full_chunks[0].source_anchor_id
-        anchor = self.store.get_source_anchor(source_anchor_id)
+        anchor = self.sources.get_source_anchor(source_anchor_id)
         if anchor is None:
             raise ValueError("source anchor does not exist")
         if anchor.source_version_id != source_version_id:
