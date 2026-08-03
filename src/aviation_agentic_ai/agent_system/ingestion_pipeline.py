@@ -209,7 +209,7 @@ def run_configured_ingestion(
     else:
         selected_web_runner = web_runner
     if document_runner is None:
-        from aviation_agentic_ai.agent_system.faa_order_ingestion import (
+        from aviation_agentic_ai.agent_system.adapters.faa_order import (
             run_faa_order_ingestion,
         )
 

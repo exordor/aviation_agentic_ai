@@ -13,14 +13,13 @@ from pathlib import Path
 from typing import Literal
 
 from aviation_agentic_ai.agent_system.evidence_store import AviationEvidenceStore
-from aviation_agentic_ai.agent_system.faa_order_document import (
+from aviation_agentic_ai.agent_system.adapters.faa_order import (
+    SOURCE_KEY as FAA_ORDER_SOURCE_KEY,
     load_faa_order_source_package,
-)
-from aviation_agentic_ai.agent_system.faa_order_ingestion import (
     configured_faa_order_document_options,
     run_faa_order_ingestion,
+    run_faa_order_kg,
 )
-from aviation_agentic_ai.agent_system.faa_order_kg import run_faa_order_kg
 from aviation_agentic_ai.agent_system.kg_live_experiment import (
     DEFAULT_KG_LIVE_EXPERIMENT_DIR,
     KGLiveExperimentRecorder,
@@ -87,7 +86,7 @@ def _build_document_domain(
 ) -> OntologyKGBuildSummary:
     configured = config.get("sources")
     sources = configured if isinstance(configured, dict) else {}
-    configured_path = sources.get("faa_order_7210_3ee")
+    configured_path = sources.get(FAA_ORDER_SOURCE_KEY)
     if not isinstance(configured_path, str) or not configured_path:
         return _blocked(
             "document",
