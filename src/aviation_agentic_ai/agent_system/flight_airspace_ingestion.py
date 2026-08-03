@@ -50,6 +50,9 @@ from aviation_agentic_ai.agent_system.cross_source_associations import (
     materialize_cross_source_associations,
 )
 from aviation_agentic_ai.agent_system.evidence_store import AviationEvidenceStore
+from aviation_agentic_ai.agent_system.flight_airspace_adapters import (
+    configured_source_keys,
+)
 from aviation_agentic_ai.agent_system.flight_airspace_contracts import (
     AirCarrierRecord,
     AirportOperationalObservationRecord,
@@ -115,14 +118,6 @@ from aviation_agentic_ai.agent_system.validation_profiles import (
 from aviation_agentic_ai.paths import PROJECT_ROOT
 from aviation_agentic_ai.utils.identifiers import stable_id
 
-
-_SOURCE_KEYS = (
-    "bts_flight_operations",
-    "faa_aircraft_registry",
-    "historical_metar_speci",
-    "nasa_atmonto_instances",
-    "nasr_airspace_zip",
-)
 
 _ATM = "https://data.nasa.gov/ontologies/atmonto/ATM#"
 _DATA = "https://data.nasa.gov/ontologies/atmonto/data#"
@@ -2042,7 +2037,7 @@ def _configured_assets(
 ) -> tuple[SourceAssetRecord, ...]:
     configured_sources = config.get("sources")
     sources = configured_sources if isinstance(configured_sources, dict) else {}
-    selected = {key: sources[key] for key in _SOURCE_KEYS if key in sources}
+    selected = {key: sources[key] for key in configured_source_keys(sources)}
     if not selected:
         return ()
     scoped = dict(config)
