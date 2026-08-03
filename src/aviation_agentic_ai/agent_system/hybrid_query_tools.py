@@ -214,8 +214,10 @@ class HybridQueryGateway:
     ) -> None:
         self.runtime = runtime
         self.store = runtime.store
-        self.sources = self.store.sources
-        self.retrieval = self.store.retrieval
+        # Keep lightweight in-memory query fixtures usable while production
+        # stores expose the focused repository facades.
+        self.sources = getattr(self.store, "sources", self.store)
+        self.retrieval = getattr(self.store, "retrieval", self.store)
         self.scope = scope
 
     def _event_matches_scope(self, event: TMIEventRecord) -> bool:
