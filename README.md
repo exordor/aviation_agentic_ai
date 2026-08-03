@@ -34,11 +34,11 @@ supplies admitted schema terms; ATMGRAPH supplies ABox-construction and
 cross-source-query principles.
 
 The document-to-KG path is a framework capability. Public interfaces use the
-generic `document` ingestion domain and `knowledge` retrieval family; the
-`faa_order_*` modules and their `PolicyRule` concepts belong only to the
-current JO 7210.3EE adapter.
+generic `document` ingestion domain and `knowledge` retrieval family; the FAA
+Order adapter and its `PolicyRule` concepts belong only to the current JO
+7210.3EE source profile.
 
-The [normative design](docs/multi_agent_kg_system_design.md) documents the
+The [normative design](docs/system_architecture.md) documents the
 architecture, runtime, and evidence contracts. `RESEARCH_AUDIT.md` is the
 authority for current implementation status.
 
@@ -155,7 +155,7 @@ SQLite is authoritative. It stores:
 - source chunks, FTS5 search data, vector-index state, and compact Agent usage
   telemetry.
 
-The retired `Corpus v2` batch snapshot is not part of the current system.
+The retired batch snapshot is not part of the current system.
 Gitignored files under `data/evaluation_runs/agent_system/` are execution
 evidence only; they are neither a knowledge store nor a query backend.
 
@@ -165,7 +165,7 @@ not runtime dependencies and do not change the supported commands.
 
 | Location | Role |
 | --- | --- |
-| `data/stores/aviation/` | Authoritative SQLite knowledge plus rebuildable indexes and exports |
+| `data/stores/aviation/` | Canonical semantic store plus rebuildable indexes and exports |
 | `data/evaluation_runs/agent_system/` | Ignored raw and parsed execution evidence |
 
 The Formal Publication Kernel is the sole authority for accepted formal facts.
@@ -363,5 +363,5 @@ formal model of decision inputs, alternatives, constraints, and rationale.
 
 See [REPRODUCIBILITY.md](REPRODUCIBILITY.md) for source checks and commands,
 [RESEARCH_AUDIT.md](RESEARCH_AUDIT.md) for current project truth, and
-[docs/multi_agent_kg_system_design.md](docs/multi_agent_kg_system_design.md)
+[docs/system_architecture.md](docs/system_architecture.md)
 for the normative architecture.

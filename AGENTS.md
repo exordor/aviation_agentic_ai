@@ -27,7 +27,7 @@ composed runtime + source + dataset/temporal-scope configuration
   -> semantic facts: shared write-free Formal Publication Kernel
      -> generic knowledge-root publication spine
   -> cross-source associations: deterministic derivation materializer
-  -> authoritative SQLite evidence and semantic store
+  -> canonical semantic store with source evidence
   -> source chunks and SQLite FTS5
   -> rebuildable source-record, TMI-event, and knowledge-entity Chroma collections
   -> every valid natural-language ask activates the bounded Query Agent
@@ -47,7 +47,7 @@ generator -> deterministic validation -> Formal Publication Kernel
 Framework names must remain source-neutral: use `document` for the ingestion
 domain, `knowledge` for the query family, and `knowledge_entity` for derived
 indexes. FAA-specific parsing, prompt examples, normalization, and extension
-terms belong in `faa_order_*` adapter modules and its application profile.
+terms belong in the FAA Order adapter and its application profile.
 `PolicyRule` is an allowed FAA adapter concept; `policy` must not reappear as a
 public CLI domain, runtime family, generic module, index, or experiment name.
 
@@ -57,7 +57,7 @@ Flight/Airspace, reference, Weather, and reviewed association roots; the TMI
 root is one demonstrator, not the permanent subject boundary. None invents a
 decision-process object. SQLite FTS5 and Chroma are rebuildable indexes.
 RDF/Turtle, JSONL KG, and Neo4j are optional all-root offline exports.
-The retired `Corpus v2` batch snapshot is historical only. Files under
+The retired batch snapshot is historical only. Files under
 `data/evaluation_runs/agent_system/` are evaluation evidence, not persisted
 knowledge and not a runtime query backend.
 The versioned application profile aligns the active TMI schema with exact
@@ -68,7 +68,7 @@ constructing and querying the populated ABox, not an imported dataset or an
 exact system replica.
 
 The normative implementation design is
-`docs/multi_agent_kg_system_design.md`. Reader-facing documents use full Agent
+`docs/system_architecture.md`. Reader-facing documents use full Agent
 names, not internal alphanumeric labels.
 
 Document authority is intentionally narrow: `RESEARCH_AUDIT.md` owns current

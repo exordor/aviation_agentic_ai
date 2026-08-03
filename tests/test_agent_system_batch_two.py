@@ -714,7 +714,7 @@ def test_sec13_regression7_no_chinese_interface_text_in_active_paths():
         Path("configs/prompts/tmi_event_agents_v1.yaml"),
         *sorted(Path("tests").glob("test_agent_system*.py")),
         Path("tests/test_cli_agent_system.py"),
-        Path("docs/multi_agent_kg_system_design.md"),
+        Path("docs/system_architecture.md"),
     ]
     pattern = re.compile(r"[\u4e00-\u9fff]")
     offenders = [

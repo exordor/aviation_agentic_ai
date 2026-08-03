@@ -73,7 +73,7 @@
         <mxCell id="knowledge-panel" value="4 · Authoritative Knowledge and Rebuildable Views" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=28;spacingTop=12;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#FFFFFF;strokeColor=#2E7D4F;fontColor=#174A2C;strokeWidth=2;" vertex="1" parent="1">
           <mxGeometry x="80" y="965" width="2240" height="285" as="geometry"/>
         </mxCell>
-        <mxCell id="sqlite-store" value="Authoritative SQLite Evidence Store&#10;source evidence · knowledge publications · deterministic associations" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#E9F6EE;strokeColor=#2E7D4F;fontColor=#174A2C;strokeWidth=3;" vertex="1" parent="1">
+        <mxCell id="sqlite-store" value="Canonical Semantic Store&#10;source evidence · knowledge publications · deterministic associations" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fillColor=#E9F6EE;strokeColor=#2E7D4F;fontColor=#174A2C;strokeWidth=3;" vertex="1" parent="1">
           <mxGeometry x="750" y="1025" width="900" height="115" as="geometry"/>
         </mxCell>
         <mxCell id="runtime-views" value="Runtime read views&#10;exact + graph · FTS5 · Chroma" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#EAF4FC;strokeColor=#2F6F9F;fontColor=#17324D;strokeWidth=2;" vertex="1" parent="1">
@@ -82,7 +82,7 @@
         <mxCell id="offline-exports" value="Offline all-root KG exports&#10;RDF / Turtle · Neo4j" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fillColor=#F3F4F6;strokeColor=#64748B;fontColor=#334155;strokeWidth=2;dashed=1;dashPattern=8 6;" vertex="1" parent="1">
           <mxGeometry x="1760" y="1080" width="470" height="105" as="geometry"/>
         </mxCell>
-        <mxCell id="authority-note" value="SQLite is authoritative; search indexes and KG exports are disposable projections." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fontColor=#174A2C;" vertex="1" parent="1">
+        <mxCell id="authority-note" value="Canonical semantic store is authoritative; indexes and KG exports are rebuildable views." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=26;fontStyle=1;fontColor=#174A2C;" vertex="1" parent="1">
           <mxGeometry x="500" y="1185" width="1400" height="42" as="geometry"/>
         </mxCell>
 

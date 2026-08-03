@@ -186,4 +186,4 @@ because web collection is an isolated domain.
 For the active architecture and command surface, see
 [`README.md`](../README.md),
 [`REPRODUCIBILITY.md`](../REPRODUCIBILITY.md), and the
-[normative design](multi_agent_kg_system_design.md).
+[normative design](system_architecture.md).

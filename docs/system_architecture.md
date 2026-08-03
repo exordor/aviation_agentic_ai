@@ -33,7 +33,7 @@ inventory or TMI family defines the permanent subject boundary.
 The reusable framework owns document ingestion contracts, compact ontology
 slices, candidate-only LLM generation, deterministic publication, generic
 knowledge-entity indexes, and knowledge graph query tools. Source-specific
-code lives behind named adapters. The current `faa_order_*` adapter supplies
+code lives behind named adapters. The current FAA Order adapter supplies
 JO 7210.3EE parsing, examples, normalization, and its FAA+ATMONTO application
 profile. Consequently, FAA concepts such as `PolicyRule` may appear inside
 that profile, but `policy` is not a public ingestion domain, query family,
@@ -158,7 +158,7 @@ composed runtime + source + dataset/temporal-scope configuration
   -> semantic facts: write-free Formal Publication Kernel
      -> generic knowledge-root publication spine
   -> cross-source associations: deterministic derivation materializer
-  -> authoritative SQLite evidence and semantic store
+  -> canonical semantic store with source evidence
   -> source chunks and SQLite FTS5
   -> rebuildable source, TMI-event, and knowledge-entity Chroma collections
 ```
@@ -498,12 +498,12 @@ effectiveness, or recommendation facts. The generator therefore extends
 coverage of source-supported ABox construction without changing those claim
 boundaries.
 
-## 10. Authoritative SQLite Store
+## 10. Canonical Semantic Store And Rebuildable Views
 
-This store replaced the former `Corpus v2` batch snapshot. Evaluation output
+The canonical semantic store replaced the former batch snapshot. Evaluation output
 directories contain run evidence only and never participate in runtime reads.
 
-The dataset-bound store uses schema version
+The current SQLite implementation uses schema version
 `aviation-evidence-store-v2` and file:
 
 ```text

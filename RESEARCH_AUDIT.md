@@ -42,7 +42,7 @@ Deterministic support validation checks the result before release.
 The document-to-KG capability is framework-level. Its public boundaries are
 the `document` ingestion domain, `knowledge` query family, generic ontology KG
 contracts, and `knowledge_entities_v1` index. FAA JO 7210.3EE Chapter 18 is the
-current `faa_order_*` adapter; its `PolicyRule` vocabulary does not define the
+current FAA Order adapter; its `PolicyRule` vocabulary does not define the
 framework or its public API.
 
 The generic publication spine admits ATMONTO-aligned TMI, Flight/Airspace,
@@ -132,7 +132,7 @@ or compatibility alias.
   links, profile gaps, Weather associations, BTS public observations, source
   chunks, vector-index state, compact usage telemetry, and optional
   `web_document` versions collected through the sidecar.
-- The former `Corpus v2` batch snapshot has no current runtime role.
+- The former batch snapshot has no current runtime role.
   `data/evaluation_runs/agent_system/` contains ignored evaluation evidence,
   not canonical knowledge or a query backend.
 - Ingestion commits each source version and accepted event publication
@@ -290,7 +290,7 @@ performance evidence.
 | Durable system goal and boundaries | `GOALS.md` |
 | Installation and current commands | `README.md` |
 | Current decisions and deferred work | `GOALS.md` |
-| Normative system design | `docs/multi_agent_kg_system_design.md` |
+| Normative system design | `docs/system_architecture.md` |
 | Reproduction commands | `REPRODUCIBILITY.md` |
 | Optional Web Evidence operations | `docs/wigolo_web_evidence_operations.md` |
 | Historical artifacts | Dated sibling archive (not loaded by default) |
