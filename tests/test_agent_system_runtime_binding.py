@@ -6,9 +6,12 @@ import json
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
+from threading import Barrier, Lock
+from concurrent.futures import ThreadPoolExecutor
 
 import aviation_agentic_ai.agent_system.authority_resolution as authority_module
 from langchain_core.messages import AIMessage
+from langgraph.runtime import Runtime
 from aviation_agentic_ai.agent_system.authority_resolution import (
     FacilityAuthorityResolutionInput,
     TerminologyAuthorityResolutionInput,
@@ -590,6 +593,77 @@ def test_ingest_context_has_no_event_evidence_integration_model_factory() -> Non
     assert "event_evidence_integration_model_factory" not in IngestContext.__dataclass_fields__
 
 
+def test_concurrent_ingest_calls_keep_run_scoped_context_isolated(tmp_path, monkeypatch):
+    """Concurrent graph invocations must not share the other run's advisory context."""
+
+    catalog = _catalog(tmp_path)
+    guide = load_schema_guide(str(SCHEMA_PATH))
+    advisories = [
+        SourceRecord(
+            source_id=f"fixture:concurrent:{index}",
+            family=SourceFamily.ATCSCC_ADVISORY,
+            content=(
+                f"ADVZY {index} JFK 05/19/2026\n"
+                "CTL ELEMENT: JFK\n"
+                "ELEMENT TYPE: APT\n"
+                "GROUND STOP\n"
+                "GROUND STOP PERIOD: 19/2100Z - 19/2245Z\n"
+            ),
+        )
+        for index in range(2)
+    ]
+    contexts = [
+        IngestContext(
+            advisory=advisory,
+            authority_catalog=catalog,
+            guide=guide,
+            run_id=f"run:concurrent:{index}",
+            run_started_at=STARTED,
+        )
+        for index, advisory in enumerate(advisories)
+    ]
+
+    original_parse = workflow_module.parse_structured_fields
+    first_two_calls = Barrier(2)
+    parse_call_count = 0
+    parse_call_lock = Lock()
+
+    def synchronized_parse(content):
+        nonlocal parse_call_count
+        with parse_call_lock:
+            parse_call_count += 1
+            call_number = parse_call_count
+        if call_number <= 2:
+            first_two_calls.wait(timeout=5)
+        return original_parse(content)
+
+    monkeypatch.setattr(workflow_module, "parse_structured_fields", synchronized_parse)
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        states = list(executor.map(run_ingest, contexts))
+
+    observed = {
+        (
+            state["event_evidence_integration_task"].run_id,
+            state["event_evidence_integration_task"].event_id,
+        )
+        for state in states
+    }
+    expected = {
+        (
+            context.run_id,
+            workflow_module._event_uri(
+                context.run_id,
+                context.advisory.source_id,
+                "atm:GroundStopTMI",
+            ),
+        )
+        for context in contexts
+    }
+
+    assert observed == expected
+
+
 def test_missing_ground_stop_extension_is_insufficient_and_unpublished(tmp_path):
     """A Ground Stop without its required extension field cannot publish."""
 
@@ -708,15 +782,12 @@ def test_event_class_hint_mismatch_blocks_before_assembly_factory(tmp_path, monk
         family=SourceFamily.ATCSCC_ADVISORY,
         content="GROUND DELAY PROGRAM",
     )
-    monkeypatch.setattr(
-        workflow_module,
-        "_CTX_HOLDER",
-        IngestContext(
-            advisory=advisory,
-            guide=guide,
-            run_id="run:test",
-        ),
+    context = IngestContext(
+        advisory=advisory,
+        guide=guide,
+        run_id="run:test",
     )
+    runtime = Runtime(context=context)
     advisory_card = EvidenceCard(
         agent_role="advisory",
         status=AgentStatus.RESOLVED,
@@ -757,7 +828,8 @@ def test_event_class_hint_mismatch_blocks_before_assembly_factory(tmp_path, monk
             ),
             "event_class_hint": "atm:GroundStopTMI",
             "formal_event_uri_hint": "",
-        }
+        },
+        runtime,
     )
 
     assert result["integration_graph_patch"] is None
@@ -767,7 +839,8 @@ def test_event_class_hint_mismatch_blocks_before_assembly_factory(tmp_path, monk
         {
             "resolution_preflight_status": "resolved",
             **result,
-        }
+        },
+        runtime,
     )
 
     assert context_result["formal_layers"]["decision"]["status"] == "blocked"
@@ -786,15 +859,12 @@ def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
         family=SourceFamily.ATCSCC_ADVISORY,
         content="GROUND DELAY PROGRAM",
     )
-    monkeypatch.setattr(
-        workflow_module,
-        "_CTX_HOLDER",
-        IngestContext(
-            advisory=advisory,
-            guide=guide,
-            run_id="run:test",
-        ),
+    context = IngestContext(
+        advisory=advisory,
+        guide=guide,
+        run_id="run:test",
     )
+    runtime = Runtime(context=context)
 
     original_builder = workflow_module._build_event_evidence_integration_task_from_state
 
@@ -887,7 +957,8 @@ def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
             ),
             "event_class_hint": "atm:GroundDelayProgramTMI",
             "formal_event_uri_hint": "",
-        }
+        },
+        runtime,
     )
 
     assert captured["allowed_source_ids"] == {advisory.source_id}
@@ -909,15 +980,12 @@ def test_materialization_excludes_authority_only_canonical_entities(
     accepted_ref = "urn:aviation-agentic-ai:facility:airport:KJFK"
     authority_ref = "urn:authority:facility:airport:KJFK"
     authority_source = "authority:nasr:KJFK"
-    monkeypatch.setattr(
-        workflow_module,
-        "_CTX_HOLDER",
-        IngestContext(
-            advisory=advisory,
-            guide=guide,
-            run_id="run:test",
-        ),
+    context = IngestContext(
+        advisory=advisory,
+        guide=guide,
+        run_id="run:test",
     )
+    runtime = Runtime(context=context)
 
     def capture_validation(**kwargs):
         captured["canonical_entities"] = kwargs["canonical_entities"]
@@ -1017,7 +1085,8 @@ def test_materialization_excludes_authority_only_canonical_entities(
                 ),
                 evidence_card=terminology_card,
             ),
-        }
+        },
+        runtime,
     )
 
     assert captured["canonical_entities"] == {accepted_ref: "nas:Airport"}

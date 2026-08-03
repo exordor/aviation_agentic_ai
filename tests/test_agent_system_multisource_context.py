@@ -8,6 +8,7 @@ from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 import pytest
+from langgraph.runtime import Runtime
 
 import aviation_agentic_ai.agent_system.context_artifacts as context_artifacts_module
 import aviation_agentic_ai.agent_system.weather_context as weather_context_module
@@ -1822,13 +1823,9 @@ def test_event_preflight_rejection_does_not_call_final_publication_kernel(
         family=SourceFamily.ATCSCC_ADVISORY,
         content="GROUND STOP",
     )
-    monkeypatch.setattr(
-        workflow_module,
-        "_CTX_HOLDER",
-        IngestContext(
-            advisory=advisory,
-            run_id="run:rejected-event",
-        ),
+    context = IngestContext(
+        advisory=advisory,
+        run_id="run:rejected-event",
     )
     event_id = "urn:aviation-agentic-ai:event:rejected-event"
     state = {
@@ -1860,7 +1857,8 @@ def test_event_preflight_rejection_does_not_call_final_publication_kernel(
         ),
     }
 
-    event_validation = workflow_module._validate_event_patch_node(state)
+    runtime = Runtime(context=context)
+    event_validation = workflow_module._validate_event_patch_node(state, runtime)
     assert event_validation["validation"] is not None
     assert event_validation["validation"].publishable is False
     assert event_validation["validation"].accepted
@@ -1870,7 +1868,8 @@ def test_event_preflight_rejection_does_not_call_final_publication_kernel(
         {
             **state,
             **event_validation,
-        }
+        },
+        runtime,
     )
 
     assert published["formal_publication"] is None

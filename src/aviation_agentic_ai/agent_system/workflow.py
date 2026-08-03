@@ -1,4 +1,4 @@
-"""Fixed LangGraph collaboration topology for ingest (design §14).
+"""LangGraph ingest topology for source-bound aviation evidence.
 
 The Workflow Coordinator is a deterministic LangGraph controller:
 
@@ -8,8 +8,8 @@ The Workflow Coordinator is a deterministic LangGraph controller:
            facility authority service
            terminology authority service
       -> evidence-card join
-      -> Event Evidence Integration
-      -> Graph Patch parser + schema validator + RDF/Neo4j materializer
+      -> deterministic event-evidence integration
+      -> event-patch validation + final publication
       -> END
 
 The Coordinator creates tasks, fans out, joins, and records state transitions.
@@ -27,6 +27,7 @@ import operator
 from typing import Annotated, Any, TypedDict
 
 from langgraph.graph import END, START, StateGraph
+from langgraph.runtime import Runtime
 from pydantic import model_validator
 
 from aviation_agentic_ai.agent_system.agents import build_advisory_evidence, parse_structured_fields
@@ -283,7 +284,7 @@ class IngestState(TypedDict):
 def build_ingest_graph() -> Any:
     """Compile the fixed ingest topology as a LangGraph StateGraph."""
 
-    sg = StateGraph(IngestState)
+    sg = StateGraph(IngestState, context_schema=IngestContext)
     sg.add_node("advisory", _advisory_node)
     sg.add_node("facility_authority", _facility_authority_node)
     sg.add_node("terminology_authority", _terminology_authority_node)
@@ -311,20 +312,16 @@ def build_ingest_graph() -> Any:
 # Node functions (receive/return the shared state dict)
 # ---------------------------------------------------------------------------
 
-# The ingest context is set on the module-level holder by ``run_ingest`` so the
-# parallel fan-out nodes (facility/terminology) can read it without depending
-# on LangGraph's parallel-branch state merge (which may drop non-output keys).
-_CTX_HOLDER: IngestContext | None = None
+def _ctx(runtime: Runtime[IngestContext]) -> IngestContext:
+    """Return immutable run-scoped dependencies injected by LangGraph."""
+
+    if runtime.context is None:
+        raise RuntimeError("ingest context not provided; call run_ingest()")
+    return runtime.context
 
 
-def _ctx() -> IngestContext:
-    if _CTX_HOLDER is None:
-        raise RuntimeError("ingest context not set; call run_ingest()")
-    return _CTX_HOLDER
-
-
-def _advisory_node(state: dict) -> dict:
-    ctx: IngestContext = _ctx()
+def _advisory_node(state: dict, runtime: Runtime[IngestContext]) -> dict:
+    ctx: IngestContext = _ctx(runtime)
     guide = ctx.guide or load_schema_guide()
     task = AgentTask(
         run_id=ctx.run_id,
@@ -431,8 +428,8 @@ def _candidate_domain_status(
     return AuthorityBuildStatus.OK, "", ""
 
 
-def _facility_authority_node(state: dict) -> dict:
-    ctx: IngestContext = _ctx()
+def _facility_authority_node(state: dict, runtime: Runtime[IngestContext]) -> dict:
+    ctx: IngestContext = _ctx(runtime)
     mentions = state.get("mentions")
     mention_token = getattr(mentions, "controlled_facility", None) or "MISSING_FACILITY_MENTION"
     # §11.4: pass the exact advisory evidence span (e.g. ``CTL ELEMENT: JFK``)
@@ -550,8 +547,8 @@ def _term_candidates_for_mention(all_terms: list, mention: str) -> list:
     )
 
 
-def _terminology_authority_node(state: dict) -> dict:
-    ctx: IngestContext = _ctx()
+def _terminology_authority_node(state: dict, runtime: Runtime[IngestContext]) -> dict:
+    ctx: IngestContext = _ctx(runtime)
     mentions = state.get("mentions")
     mention_token = getattr(mentions, "operational_term", None) or "MISSING_EVENT_MENTION"
     # §11.4: pass the exact advisory evidence span (the Ground Stop mention in
@@ -700,10 +697,10 @@ def _join_node(state: dict) -> dict:
     }
 
 
-def _prepare_context_node(state: dict) -> dict:
+def _prepare_context_node(state: dict, runtime: Runtime[IngestContext]) -> dict:
     """Prepare validated optional context in memory before Event Evidence Integration."""
 
-    return prepare_event_context(_ctx(), state)
+    return prepare_event_context(_ctx(runtime), state)
 
 
 def _accepted_event_source_ids(
@@ -1153,8 +1150,11 @@ def _build_event_evidence_integration_task_from_state(
     )
 
 
-def _integrate_event_evidence_node(state: dict) -> dict:
-    ctx: IngestContext = _ctx()
+def _integrate_event_evidence_node(
+    state: dict,
+    runtime: Runtime[IngestContext],
+) -> dict:
+    ctx: IngestContext = _ctx(runtime)
     preflight = state.get("resolution_preflight_status", "blocked")
     if preflight != "resolved":
         return {
@@ -1346,8 +1346,11 @@ def _integrate_event_evidence_node(state: dict) -> dict:
     }
 
 
-def _validate_event_patch_node(state: dict) -> dict:
-    ctx: IngestContext = _ctx()
+def _validate_event_patch_node(
+    state: dict,
+    runtime: Runtime[IngestContext],
+) -> dict:
+    ctx: IngestContext = _ctx(runtime)
     integration_graph_patch: GraphPatchBlock | None = state.get("integration_graph_patch")
     if integration_graph_patch is None:
         return {
@@ -1454,16 +1457,14 @@ def _validate_event_patch_node(state: dict) -> dict:
     }
 
 
-def _publish_event_node(state: dict) -> dict:
+def _publish_event_node(state: dict, runtime: Runtime[IngestContext]) -> dict:
     """Run the final multi-profile publication path without model calls."""
 
-    return integrate_event_context(_ctx(), state)
+    return integrate_event_context(_ctx(runtime), state)
 
 
 def run_ingest(ctx: IngestContext) -> dict:
-    """Run the fixed ingest graph and return the final state."""
+    """Run one ingest graph invocation with isolated run-scoped context."""
 
-    global _CTX_HOLDER  # noqa: PLW0603
-    _CTX_HOLDER = ctx
     graph = build_ingest_graph()
-    return graph.invoke({}, config={"recursion_limit": 20})
+    return graph.invoke({}, context=ctx, config={"recursion_limit": 20})

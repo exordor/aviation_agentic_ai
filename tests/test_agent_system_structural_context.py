@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from enum import Enum
 from types import SimpleNamespace
 
+from langgraph.runtime import Runtime
+
 from aviation_agentic_ai.agent_system.agents import parse_structured_fields
 from aviation_agentic_ai.agent_system.authority_resolution import (
     FacilityAuthorityResolutionInput,
@@ -126,16 +128,12 @@ def test_workflow_propagates_known_facility_slot_and_expected_type(monkeypatch) 
         )
 
     monkeypatch.setattr(workflow, "resolve_facility_authority", capture)
-    monkeypatch.setattr(
-        workflow,
-        "_CTX_HOLDER",
-        IngestContext(advisory=_advisory("CTL ELEMENT: JFK ELEMENT TYPE: APT")),
-    )
+    context = IngestContext(advisory=_advisory("CTL ELEMENT: JFK ELEMENT TYPE: APT"))
     mentions = parse_structured_fields(
         "ATCSCC ADVZY 123 JFK 05/19/2026 CDM GROUND STOP\nCTL ELEMENT: JFK ELEMENT TYPE: APT\n"
     )
 
-    _facility_authority_node({"mentions": mentions})
+    _facility_authority_node({"mentions": mentions}, Runtime(context=context))
 
     assert observed[0].structural_slot == "controlled_nas_element"
     assert observed[0].expected_entity_type == "airport"
@@ -160,16 +158,12 @@ def test_workflow_propagates_known_term_slot_and_expected_type(monkeypatch) -> N
         )
 
     monkeypatch.setattr(workflow, "resolve_terminology_authority", capture)
-    monkeypatch.setattr(
-        workflow,
-        "_CTX_HOLDER",
-        IngestContext(advisory=_advisory("GROUND STOP")),
-    )
+    context = IngestContext(advisory=_advisory("GROUND STOP"))
     mentions = parse_structured_fields(
         "ATCSCC ADVZY 123 JFK 05/19/2026 CDM GROUND STOP\nCTL ELEMENT: JFK ELEMENT TYPE: APT\n"
     )
 
-    _terminology_authority_node({"mentions": mentions})
+    _terminology_authority_node({"mentions": mentions}, Runtime(context=context))
 
     assert observed[0].structural_slot == "traffic_management_initiative_type"
     assert observed[0].expected_entity_type == "traffic_management_initiative"
