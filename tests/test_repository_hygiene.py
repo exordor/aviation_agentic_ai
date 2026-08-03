@@ -86,6 +86,19 @@ def test_tracked_files_exclude_secrets_indexes_chunks_and_model_weights() -> Non
     assert offenders == []
 
 
+def test_tracked_files_exclude_historical_document_trees() -> None:
+    forbidden_prefixes = (
+        "reports/",
+        "docs/archive/",
+        "docs/superpowers/",
+    )
+    offenders = [
+        path for path in _tracked_files() if path.startswith(forbidden_prefixes)
+    ]
+
+    assert offenders == []
+
+
 def test_tracked_markdown_uses_only_current_document_authorities() -> None:
     offenders = []
     for path in _tracked_markdown_files():
