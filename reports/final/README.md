@@ -4,7 +4,7 @@ This directory contains the current reader-facing thesis and defense-deck
 outlines. It is a presentation layer, not the runtime knowledge store.
 
 The current system truth is defined by `RESEARCH_AUDIT.md`, `GOALS.md`, and
-`ARTIFACT_INDEX.md`. Historical PHAK, extraction-loop, and retired evaluation
+`REPRODUCIBILITY.md`. Historical PHAK, extraction-loop, and retired evaluation
 materials are kept in the dated external archive and are not recreated here.
 
 ## Current package

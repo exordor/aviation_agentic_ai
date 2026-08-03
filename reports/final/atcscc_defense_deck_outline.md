@@ -21,7 +21,7 @@ a TMI recommendation system.
 | ---: | --- | --- | --- |
 | 1 | Title and research boundary | The project integrates aviation evidence and answers bounded natural-language questions. | `RESEARCH_AUDIT.md` |
 | 2 | Why heterogeneous evidence matters | ATCSCC, authority, Weather, BTS, and Flight/Airspace records have different roles and identifiers. | `docs/figures/cross_source_evidence_motivated_example.png` |
-| 3 | Research positioning | ATMONTO supplies admitted vocabulary; ATMGRAPH motivates ABox construction and cross-source querying. | `docs/architecture_narrative.md` |
+| 3 | Research positioning | ATMONTO supplies admitted vocabulary; ATMGRAPH motivates ABox construction and cross-source querying. | `docs/multi_agent_kg_system_design.md` |
 | 4 | Five-plane architecture | Deterministic ingestion, semantic publication, authoritative storage, retrieval views, and Agent interaction form one pipeline. | `docs/figures/aviation_hybridrag_system_architecture.png` |
 | 5 | Source and evidence contracts | Source versions, anchors, temporal scopes, and source roles are preserved before publication. | `docs/figures/heterogeneous_source_formats.png` |
 | 6 | ATMONTO-grounded publication | TMI and Flight/Airspace roots use one Formal Publication Kernel and generic publication spine. | `data/ontology/curated/atmonto_application_profile_v1.json` |
@@ -30,7 +30,7 @@ a TMI recommendation system.
 | 9 | GDP 138 walkthrough | A single question can combine publication facts, declared reason, Weather context, and BTS observations without causal overclaiming. | `docs/flagship_gdp138_walkthrough.md` |
 | 10 | Extensible domains | The same spine admits Flight, Airport/ARTCC, Route, TrackPoint, Sector, Weather, and reviewed associations under separate temporal scopes. | `GOALS.md` |
 | 11 | Optional Web Evidence | A separately authorized sidecar can add public-document evidence with exact anchors; it is not a source of aviation facts by itself. | `docs/wigolo_web_evidence_operations.md` |
-| 12 | Evaluation and limitations | Offline tests, live smoke, and future experiments are separated; current reports are compatibility evidence, not benchmarks. | `ARTIFACT_INDEX.md`, `RESEARCH_AUDIT.md` |
+| 12 | Evaluation and limitations | Offline tests, live smoke, and future experiments are separated; current reports are compatibility evidence, not benchmarks. | `RESEARCH_AUDIT.md` |
 | 13 | Conclusion | The contribution is reusable evidence integration and bounded HybridRAG interaction, not autonomous aviation decision-making. | `reports/final/atcscc_thesis_report_outline.md` |
 
 ## Speaking script
@@ -80,4 +80,4 @@ answers under explicit support and insufficiency boundaries.
 - Do not present historical compatibility reports as benchmark results.
 - Keep Weather and BTS in their declared evidence roles.
 - Keep the current architecture and report spine synchronized with
-  `RESEARCH_AUDIT.md`, `GOALS.md`, and `ARTIFACT_INDEX.md`.
+  `RESEARCH_AUDIT.md`, `GOALS.md`, and `docs/repository_artifact_policy.md`.

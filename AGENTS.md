@@ -145,7 +145,8 @@ inventories into this file.
 - Search tools return candidates. A source-record statement requires an exact
   `read_source` result with immutable source-version and anchor support.
 - The ingestion-first storage cutover is complete. The public commands are
-  `ingest`, `reindex`, `ask`, `neo4j-export`, and `export-event`. There is no
+  `ingest`, `reindex`, `ask`, `build-kg`, `neo4j-export`, and `export-event`.
+  There is no
   run-directory query path, mandatory batch snapshot, old reader, or command
   compatibility path.
 - `ingest --domain all|tmi|document|flight-airspace|web` registers immutable source

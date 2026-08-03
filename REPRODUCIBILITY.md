@@ -25,7 +25,20 @@ uv run aviation-ai agent-system --help
 
 `agent-system` supplies the active model/tool runtime. `neo4j` is needed only
 for optional database loading. `tmi-event-retrieval` supplies Chroma and the
-Sentence Transformers encoder.
+Sentence Transformers encoder. The active runtime declares its direct
+`tiktoken` requirement in the `agent-system` extra; use that extra when
+running tests that import document-KG or Query-Agent modules:
+
+```bash
+uv run --extra dev --extra agent-system pytest -q
+```
+
+Repository-boundary checks that do not import the active runtime can run with
+the development extra alone:
+
+```bash
+uv run --extra dev pytest tests/test_repository_hygiene.py -q
+```
 
 ## Source Snapshot Preflight
 

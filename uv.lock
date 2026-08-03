@@ -115,6 +115,7 @@ agent-system = [
     { name = "langchain" },
     { name = "langchain-openai" },
     { name = "langgraph" },
+    { name = "tiktoken" },
 ]
 dev = [
     { name = "pytest" },
@@ -151,6 +152,7 @@ requires-dist = [
     { name = "scrapy", specifier = ">=2.13" },
     { name = "sentence-transformers", marker = "extra == 'tmi-event-retrieval'", specifier = ">=3.0" },
     { name = "tenacity", specifier = ">=9.1" },
+    { name = "tiktoken", marker = "extra == 'agent-system'", specifier = ">=0.7" },
 ]
 provides-extras = ["agent-system", "tmi-event-retrieval", "neo4j", "dev"]
 

@@ -162,11 +162,10 @@ objects:
 - `docs/figures/aviation_hybridrag_system_architecture.{drawio,png}`
 - `docs/figures/bounded_query_agent_workflow.{drawio,png}`
 - `docs/figures/heterogeneous_source_formats.{drawio,png}`
-- `docs/architecture_narrative.md`
 - `docs/multi_agent_kg_system_design.md`
 - `RESEARCH_AUDIT.md`
 - `GOALS.md`
-- `ARTIFACT_INDEX.md`
+- `REPRODUCIBILITY.md`
 
 Historical extraction-loop figures, old Gold-sample claims, and the retired
 competency runner must not be presented as the current architecture.

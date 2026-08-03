@@ -310,6 +310,7 @@ The public command surface is:
 ingest
 reindex
 ask
+build-kg
 neo4j-export
 export-event
 ```

@@ -22,6 +22,7 @@ def test_active_runtime_has_a_dedicated_dependency_extra() -> None:
         "langchain>=0.2",
         "langchain-openai>=0.1",
         "langgraph>=0.2",
+        "tiktoken>=0.7",
     ]
     assert "web" not in extras
 
