@@ -149,7 +149,7 @@ data/stores/aviation/aviation-knowledge-2026-05-v1/
   exports/
 ```
 
-The SQLite database is authoritative. It holds immutable source assets and
+The canonical semantic store is implemented by `aviation_evidence.sqlite3`. It holds immutable source assets and
 versions, anchors, ingestion results, active and historical event
 publications, accepted semantic facts, provenance, profile gaps, Weather
 associations, public observations, source chunks, FTS5 data, vector-index

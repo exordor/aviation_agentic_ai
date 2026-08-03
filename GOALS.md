@@ -22,8 +22,9 @@ retrieval. The system:
    Agent and keeps normal evidence integration deterministic;
 4. publishes only source-supported facts accepted by one explicit Formal
    Publication Kernel;
-5. keeps the persistent SQLite evidence store authoritative while deriving
-   FTS, Chroma, all-root RDF/Turtle, and all-root Neo4j views from it;
+5. keeps a canonical semantic and evidence layer, currently implemented with
+   SQLite, while deriving FTS, Chroma, all-root RDF/Turtle, and all-root Neo4j
+   views from it;
 6. routes every valid natural-language question through a bounded LLM Query
    Agent that first selects source, TMI, knowledge, and/or Flight/Airspace
    capability families and then invokes their exact, graph, lexical, vector,

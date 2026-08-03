@@ -100,8 +100,9 @@ The five planes are:
    normalization, identity and time alignment, and evidence preparation.
 3. **Semantic and Trust Plane** — ATMONTO profiles, selective semantic
    resolution when ambiguity remains, and the Formal Publication Kernel.
-4. **Knowledge and Retrieval Plane** — authoritative generic knowledge roots
-   in SQLite with rebuildable graph, lexical, vector, and offline export views.
+4. **Knowledge and Retrieval Plane** — canonical semantic store (SQLite
+   implementation) with generic knowledge roots and rebuildable graph, lexical,
+   vector, and offline export views.
 5. **Agent Interaction Plane** — the model-directed Query Agent, evidence
    assembly, optional explicitly authorized Web Evidence tools,
    statement-level support validation, and user answer.
