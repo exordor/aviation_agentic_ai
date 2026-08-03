@@ -3,8 +3,8 @@
 Last updated: 2026-08-02
 
 This file defines durable system outcomes, boundaries, and deferred work.
-Historical evaluations are governed by `docs/repository_artifact_policy.md`;
-changing implementation status belongs in `RESEARCH_AUDIT.md`.
+Historical evaluations and retired report surfaces are outside the default
+checkout; changing implementation status belongs in `RESEARCH_AUDIT.md`.
 
 ## Primary Goal
 
@@ -148,11 +148,6 @@ three read-only tools. This model-directed gate avoids exposing all core or
 optional tools on every turn while retaining a shared runtime and support
 contract.
 
-The older flight-competency supplement remains an offline deterministic
-comparison artifact. Its modern F1/F3S proxies do not reconstruct the
-unavailable 2012 KATL database and do not establish Weather causality or
-historical aircraft-registration state.
-
 ## Success Criteria
 
 The current mainline succeeds when:
@@ -213,8 +208,7 @@ Earlier PHAK GraphRAG work, schema-extraction outputs, ATCSCC stage reports,
 and retired live-provider compatibility tracks are preserved in the dated
 external archive. They remain available for an explicitly reactivated task
 but are not in the runtime checkout, do not define the current architecture,
-and do not establish ingestion-first performance.
-
-See `docs/repository_artifact_policy.md` for retention rules and
-`DECISION_LOG.md` for the sequence of scope decisions. The familiar records remain development/regression fixtures;
-no frozen post-cutover evaluation set has been constructed.
+and do not establish ingestion-first performance. The archive is not an import
+path, and the active checkout intentionally contains no historical report tree
+or decision-log index. The familiar records remain development/regression
+fixtures; no frozen post-cutover evaluation set has been constructed.

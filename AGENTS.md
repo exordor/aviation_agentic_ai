@@ -74,16 +74,17 @@ names, not internal alphanumeric labels.
 Document authority is intentionally narrow: `RESEARCH_AUDIT.md` owns current
 status and evaluation observations; `GOALS.md` owns durable goals and
 non-goals; `README.md` owns the public overview; and `REPRODUCIBILITY.md` owns
-commands and source bindings. `docs/repository_artifact_policy.md` defines the
-historical-material boundary.
+commands and source bindings. Historical-material boundaries are summarized
+in those authority documents rather than maintained in a separate policy or
+report index.
 Other documents must explain or illustrate these authorities, not restate
 changing facts.
 
 Historical plans, PHAK-era reports, and retired compatibility contracts are
-not part of the default checkout. Their external-archive policy is documented
-in `docs/repository_artifact_policy.md`; do not restore them or add new
-runtime dependencies on them unless a legacy experiment is explicitly being
-reactivated.
+not part of the default checkout. They remain recoverable in the dated sibling
+archive, but the archive is not on `PYTHONPATH` and is never a runtime source
+of truth. Do not restore historical report trees or add runtime dependencies on
+them unless a legacy experiment is explicitly being reactivated.
 
 The old extraction/evaluation packages, root command wrappers, and their
 dedicated tests/scripts have been moved to the dated external archive. They
@@ -177,9 +178,10 @@ inventories into this file.
 - The system output ceiling is 10,000 tokens for the Query Agent; the compact
   Semantic Resolution decision remains capped at 256 tokens. Event Evidence
   Integration is deterministic and makes no provider call.
-- Historical provider runs, walkthroughs, and compatibility suites are routed
-  through `docs/repository_artifact_policy.md`; they are not runtime status or model-quality
-  claims.
+- Historical provider runs, walkthroughs, and compatibility suites are not
+  runtime status or model-quality claims. Keep only the current executable
+  procedures and explicitly versioned live-experiment evidence described in
+  `REPRODUCIBILITY.md`; generated provider artifacts remain ignored.
 - The five familiar records are development/regression fixtures only. No
   frozen post-cutover evaluation set is part of the default system.
 - Broader ATMONTO coverage, weather expansion, causal explanation,

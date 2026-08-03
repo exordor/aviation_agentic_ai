@@ -42,10 +42,6 @@ The [normative design](docs/multi_agent_kg_system_design.md) documents the
 architecture, runtime, and evidence contracts. `RESEARCH_AUDIT.md` is the
 authority for current implementation status.
 
-The [GDP 138 walkthrough](docs/flagship_gdp138_walkthrough.md) is historical
-regression evidence for one TMI slice; it does not define current scope or
-establish a benchmark.
-
 ## Quick Start
 
 The commands below exercise a small GDP regression slice for installation and
@@ -63,30 +59,30 @@ uv run aviation-ai agent-system --help
 Obtain the pinned FAA NASR source described in
 [REPRODUCIBILITY.md](REPRODUCIBILITY.md) before ingesting eligible events.
 
-Build the GDP 138 flagship slice:
+Build a small GDP regression slice:
 
 ```bash
 uv run aviation-ai agent-system ingest \
   --config configs/aviation_knowledge_v1.yaml \
-  --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
+  --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
   --domain tmi \
   --advisory-id 2026-05-19:138 \
   --allow-model-download
 ```
 
-Build the rebuildable retrieval indexes and ask the flagship question without
+Build the rebuildable retrieval indexes and ask a source-grounded question without
 supplying an internal source or event ID:
 
 ```bash
 uv run --extra agent-system aviation-ai agent-system reindex \
   --config configs/aviation_knowledge_v1.yaml \
-  --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
+  --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
   --model-name sentence-transformers/all-MiniLM-L6-v2 \
   --allow-model-download
 
 uv run aviation-ai agent-system ask \
   --config configs/aviation_knowledge_v1.yaml \
-  --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
+  --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
   --question "For ATCSCC Advisory 138 on 19 May 2026, what was published, what reason did the source declare, and what weather context was retained?" \
   --allow-model-download
 ```
@@ -164,14 +160,12 @@ Gitignored files under `data/evaluation_runs/agent_system/` are execution
 evidence only; they are neither a knowledge store nor a query backend.
 
 Historical plans, PHAK-era reports, and superseded compatibility contracts
-are kept outside the default checkout. See the
-[repository artifact policy](docs/repository_artifact_policy.md) for the
-retention boundary; it does not change the supported runtime commands.
+are kept outside the default checkout in the dated sibling archive. They are
+not runtime dependencies and do not change the supported commands.
 
 | Location | Role |
 | --- | --- |
 | `data/stores/aviation/` | Authoritative SQLite knowledge plus rebuildable indexes and exports |
-| `data/evaluation/agent_system/` | Tracked evaluation-suite definitions |
 | `data/evaluation_runs/agent_system/` | Ignored raw and parsed execution evidence |
 
 The Formal Publication Kernel is the sole authority for accepted formal facts.
@@ -199,7 +193,7 @@ semantic ingestion counts. Rebuild all vector collections explicitly with:
 ```bash
 uv run --extra agent-system aviation-ai agent-system reindex \
   --config configs/aviation_knowledge_v1.yaml \
-  --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
+  --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
   --model-name sentence-transformers/all-MiniLM-L6-v2 \
   --allow-model-download
 ```
@@ -212,7 +206,7 @@ Neither FTS nor Chroma writes semantic facts back into the store.
 ```bash
 uv run aviation-ai agent-system ask \
   --config configs/aviation_knowledge_v1.yaml \
-  --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
+  --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
   --question "For ATCSCC Advisory 138 on 19 May 2026, what was published, what reason did the source declare, and what weather context was retained?" \
   --allow-model-download
 ```
@@ -284,7 +278,7 @@ Export one active event and only its referenced evidence:
 ```bash
 uv run aviation-ai agent-system export-event \
   --config configs/aviation_knowledge_v1.yaml \
-  --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1 \
+  --store-dir data/stores/aviation/ingestion-refactor-smoke-v1 \
   --event-id <event-id> \
   --output-dir data/stores/aviation/exports/selected-event
 ```
@@ -294,7 +288,7 @@ Load a rebuildable property-graph projection into Neo4j:
 ```bash
 uv run aviation-ai agent-system neo4j-export \
   --config configs/aviation_knowledge_v1.yaml \
-  --store-dir data/stores/aviation/flagship-gdp138-walkthrough-v1
+  --store-dir data/stores/aviation/ingestion-refactor-smoke-v1
 ```
 
 RDF/Turtle, JSONL, and Neo4j are optional products of all active formal
@@ -351,21 +345,17 @@ uv run aviation-ai agent-system ingest \
 ```
 
 The NASA July 2014 sample and the May 2026 operational-source slice remain
-separate temporal domains; the runtime does not join them across time. The
-older F1/F3S/S4/S1S competency supplement is report-only historical material;
-its retired runner is not a supported command. Current Flight/Airspace
-questions use the natural-language `agent-system ask` path. See
-[REPRODUCIBILITY.md](REPRODUCIBILITY.md) and the
-[repository artifact policy](docs/repository_artifact_policy.md) for source
-and historical-material boundaries.
+separate temporal domains; the runtime does not join them across time. Current
+Flight/Airspace questions use the natural-language `agent-system ask` path.
+See [REPRODUCIBILITY.md](REPRODUCIBILITY.md) for source bindings and
+historical-material boundaries.
 
 ## Evaluation Boundary
 
 Fake and scripted models verify software contracts only. Live results must use
 the configured provider and separate provider-call success from task
-acceptance. Historical reports remain frozen under their recorded
-architecture. See `RESEARCH_AUDIT.md` for current status and
-`docs/repository_artifact_policy.md` for retention rules.
+acceptance. Historical experiments are outside the default checkout. See
+`RESEARCH_AUDIT.md` for current status.
 
 The system does not provide live ATC support, causal explanation, operational
 effectiveness scoring, TMI recommendation, complete aviation coverage, or a

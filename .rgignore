@@ -1,8 +1,6 @@
 # Keep ordinary ripgrep directory walks focused on current project context.
 # For tracked-only residue scans, prefer git grep.
 
-/reports/archive/
-reports/archive/
 /outputs/
 outputs/
 /tmp/

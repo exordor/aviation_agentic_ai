@@ -11,9 +11,10 @@ implementation capabilities, and evaluation observations. Other current
 documents may explain the system for readers, but must not introduce a
 competing status narrative.
 
-Historical plans and large report bundles are kept in the dated external
-archive described by `docs/repository_artifact_policy.md`; do not treat their
-absence from the checkout as a missing runtime dependency.
+Historical plans and large report bundles are kept in the dated sibling
+archive; do not treat their absence from the checkout as a missing runtime
+dependency. The archive is not on `PYTHONPATH`, and the active checkout keeps
+no historical report tree.
 
 ## Current Project Snapshot
 
@@ -82,7 +83,8 @@ export-event
 The root CLI presents only `agent-system`. The former `ontology`, `source`,
 `cqs`, `report`, PHAK, and historical `cross-source` implementations and
 artifacts are outside the active checkout in the dated external archive.
-`docs/repository_artifact_policy.md` records the retention boundary.
+The active checkout intentionally contains no report index or compatibility
+surface for those retired implementations.
 
 There is no required batch snapshot, run-directory query path, legacy reader,
 or compatibility alias.
@@ -246,10 +248,6 @@ non-causal.
 - Optional Web Evidence pages are public-document context only. Search
   candidates require an exact sidecar fetch/span before supporting a claim;
   the sidecar cannot create a TMI reason or causal relation.
-- A retained checksum-bound deterministic supplement records the earlier
-  F1/F3S/S4/S1S comparison: S4/S1S use NASA's 2014 sample trajectories;
-  F1/F3S are explicitly labelled May 2026 FAA/BTS/Weather proxies. It is
-  historical evidence, not the current runtime boundary.
 
 ## Evaluation Boundary
 
@@ -280,57 +278,6 @@ The experiment manifest verified both artifacts and bound them to knowledge
 revision 841. These files are evaluation evidence, not the runtime knowledge
 backend.
 
-A separate post-build `live_smoke` exercised the ordinary natural-language
-Query Agent over the current knowledge entity index, formal graph, and exact PDF
-reader. GDP, Ground Stop, System Operations responsibility, and coordination
-questions each achieved an accepted real-model run. Their accepted trajectories
-used respectively 9/14, 8/15, 7/9, and 4/2 model/tool calls. Independent repeats
-of the responsibility question also exposed one pre-fix multi-anchor binding
-rejection and one malformed final JSON response. The former produced a
-regression test and now permits the union of multiple independently exact
-source reads; the latter remains an observed provider-output failure. These
-are compatibility observations, not a statistical stability or quality
-benchmark.
-
-Earlier reports remain frozen compatibility evidence for their named
-architectures in the dated external archive. They must not be relabeled as
-ingestion-first Query Agent performance. Provider-call success and task
-acceptance remain separate claims.
-
-The earlier v4 query compatibility smoke recorded 11 real
-`deepseek-v4-pro` calls and accepted 5/5 development/regression tasks,
-including a source-bound Weather graph path. It predates the persistent-store
-query cutover and is not a frozen holdout or model benchmark.
-
-The ingestion-first store-bound smoke completed with `deepseek-v4-pro`,
-temperature 0, thinking disabled, and no automatic retries. All 6 provider
-calls returned without provider error; the run used 113,806 input and 5,774
-output tokens. One of three Query Agent tasks passed. Two failed the typed
-answer-contract/evidence acceptance checks despite successful provider calls.
-The ignored raw-response artifact and parsed-result artifact contain 6 and 3
-rows respectively and are checksum-bound from the tracked sanitized report.
-All 6 call IDs are unique, every parsed trial names its captured calls, and the
-raw/parsed binding check passed.
-This is compatibility evidence over development/regression tasks, not a frozen
-holdout or model-quality benchmark.
-
-The tracked ingestion-first GDP 138 flagship walkthrough is historical
-pre-family-router TMI-slice evidence. Its single natural-language Query Agent task
-passed (1/1), all 3 real `deepseek-v4-pro` calls returned, and all 5 bounded
-tool executions were bound to the accepted trial. The answer retained exact
-ATCSCC source support, non-causal Weather context, and source-qualified BTS
-observations. This is not current-runtime acceptance, a statistical benchmark,
-or evidence of general model quality.
-
-The current cross-domain `live_smoke` used `deepseek-v4-pro`, temperature 0,
-thinking disabled, and no automatic retries. All 33/33 real provider calls
-returned. Routing and retrieval passed 6/6 tasks; grounding and answer
-acceptance passed 5/6. TMI, Flight, Weather, Sector, and cross-domain
-applicability tasks passed. The unsupported actual-control/causal task should
-have terminated as `insufficient`, but the Agent continued retrieving until
-the 10-tool ceiling and returned `blocked`. This is a preserved stop-policy
-failure and a compatibility result, not a statistical benchmark.
-
 No natural ambiguity has been identified in the legacy deterministic NYC
 selection that activates the Semantic Resolution Agent; synthetic ambiguity
 fixtures remain offline orchestration tests and are not current-source
@@ -344,11 +291,9 @@ performance evidence.
 | Installation and current commands | `README.md` |
 | Current decisions and deferred work | `GOALS.md` |
 | Normative system design | `docs/multi_agent_kg_system_design.md` |
-| Artifact ownership and history | `docs/repository_artifact_policy.md` |
 | Reproduction commands | `REPRODUCIBILITY.md` |
 | Optional Web Evidence operations | `docs/wigolo_web_evidence_operations.md` |
-| Structural decision history | `DECISION_LOG.md` |
-| Optional historical experiments | Dated external archive `docs/legacy_runtime/` |
+| Historical artifacts | Dated sibling archive (not loaded by default) |
 
 Do not preload optional experiments, historical stage reports, ignored local
 stores or exports, or archives.
@@ -372,11 +317,10 @@ The project does not provide:
 
 Flight-level and sector-level records are now public `agent-system ask`
 routes, but their evidence boundary remains narrow. The original 2012 KATL
-F1/F3S database was not recovered: the retained modern F1/F3S report is a proxy
-reconstruction, and NASA trajectory knowledge covers only the published 2014
-sample rather than national operations. Weather matching is temporal and
-non-causal; current FAA aircraft registry data is a later technical lookup,
-not historical aircraft-state proof.
+database was not recovered, and NASA trajectory knowledge covers only the
+published 2014 sample rather than national operations. Weather matching is
+temporal and non-causal; current FAA aircraft registry data is a later
+technical lookup, not historical aircraft-state proof.
 
 ## Verification Defaults
 

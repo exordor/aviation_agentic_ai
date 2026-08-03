@@ -143,28 +143,7 @@ The separation makes it possible to measure candidate generation and
 incremental fusion without weakening the deterministic runtime publication
 boundary.
 
-### 2.5 Same-Date Reconstruction Validation
-
-The first construction experiment is a paired reconstruction of the public
-NASA `atmontoPlus` sample. The baseline date and geographic scope are fixed
-to 2014-07-15 and KJFK/KEWR/KLGA. NASA's published ABox is a reference-only
-comparison target; it is not included in the LLM task context and is not a
-runtime knowledge store.
-
-The experiment supplies source-native evidence to the construction path,
-generates candidate facts, validates and publishes them through the existing
-kernel, and compares provenance-independent semantic fact signatures with the
-reference ABox. Precision, recall, F1, predicate coverage, publication
-status, evidence support, and abstention are reported separately. This
-isolates extraction and ontology-alignment behaviour from temporal
-generalisation. A later cross-date experiment must use a different target
-date and the same competency-question and geographic scope; it must not be
-reported as part of this same-date validation.
-
-The source gate for this experiment is recorded in
-`docs/ontology/same_date_source_completeness.md`. It distinguishes source-
-native records from the processed NASA reference ABox and blocks provider
-calls until the approved date/region source intersection is complete.
+### 2.5 Construction And Retrieval
 
 Construction:
 
@@ -786,9 +765,9 @@ not evaluation samples, representative coverage, or special source-ID routes.
 
 Offline fake/scripted providers validate software contracts only. Live
 evaluation must use the configured provider and separate provider-call success
-from task acceptance. Historical results and current observations are routed
-through `../RESEARCH_AUDIT.md` and `repository_artifact_policy.md`; they are not part of
-the normative design contract.
+from task acceptance. Current observations are routed through
+`../RESEARCH_AUDIT.md`; retired experiments are outside the normative design
+contract and the default checkout.
 
 ## 18. Deferred Work
 

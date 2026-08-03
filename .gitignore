@@ -14,35 +14,17 @@ data/stores/
 /data/kg/
 /data/experiments/
 /data/processed/cross_source/
-/reports/**/*.tmp
-/reports/evidence/*_run.log
-/reports/evidence/pytest_*.log
-/reports/archive/
 /logs/
 /outputs/
 
-# Historical bundles are kept outside the default checkout. These patterns
-# prevent a local archive restore from becoming a new tracked artifact.
-/reports/phak_era_archive/
+# Historical bundles are kept outside the default checkout. This pattern
+# prevents a local archive restore from becoming a new tracked artifact.
 /docs/archive/
 /docs/superpowers/
-/data/evaluation/agent_system/live_agent_smoke_v2.yaml
-/data/evaluation/agent_system/live_agent_smoke_v3.yaml
-/data/evaluation/agent_system/live_agent_experiment_v2.yaml
-/data/evaluation/agent_system/live_agent_experiment_v3.yaml
 
 # Keep the active vector/model cache patterns out of tracked-file scans.
 data/indexes/
 models/
-
-# Reviewer-facing deck artifacts (PPTX/POTX) and their inspection dumps.
-# The old deck workflow is archived; generated decks and intermediate
-# render/inspection outputs stay outside Git.
-/reports/final/*.pptx
-/reports/final/*.potx
-/reports/final/*.bak.pptx
-/reports/final/*.inspect.ndjson
-/reports/final/assets/
 
 # Local archived data (kept outside Git; see AGENTS.md source-family boundaries).
 /data/archive/
@@ -53,9 +35,6 @@ models/
 
 # Pinned BTS archives are retained locally; the normalized audited subset is tracked.
 /data/raw/bts/
-
-# Materialized fact-graph preview snapshots (regenerable from the pipeline).
-/reports/evidence/atcscc_materialized_fact_graph.preview.json
 
 # Locally downloaded paper PDFs; keep citations in data/papers/README.md.
 /data/papers/*.pdf

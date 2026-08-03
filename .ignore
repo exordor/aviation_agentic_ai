@@ -5,8 +5,6 @@
 # about forensics, cleanup, or regeneration. For tracked-only residue scans,
 # prefer git grep.
 
-/reports/archive/
-reports/archive/
 /outputs/
 outputs/
 /tmp/

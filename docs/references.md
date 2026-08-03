@@ -3,7 +3,7 @@
 Citation format: `[N] Authors, "Title," Venue, Year. Identifier.`
 
 References are grouped by topic for convenience; the numeric order is the
-canonical citation order used throughout the thesis.
+canonical citation order used throughout the research documents.
 
 ## A. Aviation / Air Traffic Management Ontology and KG
 
@@ -80,8 +80,8 @@ Generation from Unstructured Text: A Multi-Agent LLM Approach," 2026.
 arXiv:2604.23090.
 
 [20] J. Zhu, Y. Wang, W. Tong, S. Li, M. Wang, and C. Wang, "Gold Deposit
-Ontology Guides Large Language Model to Transform Text into Knowledge Graphs
-for Gold Deposits," *Minerals*, vol. 16, no. 1, art. 50, 2026.
+Ontology Guides Large Language Model to Transform Text into Knowledge Graphs,"
+*Minerals*, vol. 16, no. 1, art. 50, 2026.
 doi:10.3390/min16010050.
 
 [21] X. Wang and J. Fang, "Claim Knowledge Graph Construction and
@@ -138,12 +138,11 @@ arXiv:2311.09476.
 
 - Tier A entries ([7], [19], [20], [21]) carry full author lists and DOIs.
 - Tier B entries ([1]–[6], [8]–[18], [22]–[25], [30]–[32]) carry year and venue
-  from the project's literature-search artifacts; author surnames were extracted
-  from Consensus.app slugs and should be verified against the published version
-  before camera-ready submission.
+  from the project's literature-search artifacts; author surnames were
+  extracted from Consensus.app slugs and should be verified against the
+  published version before camera-ready submission.
 - Tier C entries ([26]–[29]) carry arXiv identifiers and should be reconciled
   with the canonical arXiv author lists.
-- Papers named in the literature-search logs but lacking any year, venue, or
-  arXiv ID (OntoLogX, Document GraphRAG/Knollmeyer, LightRAG, StructuGraphRAG,
-  OG-RAG, and ~30 others) are intentionally omitted until a verifiable
-  bibliographic record is recorded.
+- Papers named in literature-search logs but lacking a verifiable year, venue,
+  or arXiv ID are intentionally omitted until a stable bibliographic record
+  is recorded.
